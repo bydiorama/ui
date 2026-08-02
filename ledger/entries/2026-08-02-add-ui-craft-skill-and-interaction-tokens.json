@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-02-add-ui-craft-skill-and-interaction-tokens",
+  "date": "2026-08-02",
+  "item": "ui-craft",
+  "kind": "addition",
+  "summary": "Add the diorama-ui-craft agent skill as a distributable registry item, and the interaction tokens --ui-press-scale, --ui-stagger-step, --ui-hit-area-min and --ui-hit-area-touch it references. Adapted from jakubkrehel/skills (MIT) with attribution in CREDITS.md; oklch-skill (unlicensed) credited as inspiration only, no text reused. APCA contrast scoring from the same material was considered and deferred — WCAG AA remains the enforced floor until APCA has a settled conformance status.",
+  "affects": [
+    "file:ui-craft",
+    "token:--ui-press-scale",
+    "token:--ui-stagger-step",
+    "token:--ui-hit-area-min",
+    "token:--ui-hit-area-touch"
+  ],
+  "provenance": {
+    "design": "https://github.com/jakubkrehel/skills"
+  }
+}

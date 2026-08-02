@@ -14,13 +14,17 @@
     "check:ledger": "node scripts/validate-ledger.mjs",
     "check:licensing": "node scripts/lint-licensing.mjs",
     "ledger:new": "node scripts/ledger-new.mjs",
+    "test": "node --experimental-strip-types --test \"packages/*/src/**/*.test.ts\"",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "verify": "pnpm run check:manifest && pnpm run check:registry && pnpm run check:ledger && pnpm run check:licensing"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",
+    "@types/node": "^26.1.2",
+    "clsx": "^2.1.1",
     "eslint": "^9.0.0",
+    "tailwind-merge": "^3.6.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.0.0"
   }

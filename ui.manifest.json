@@ -10,6 +10,18 @@
       "files": [{ "path": "registry/lib/cn/cn.ts", "target": "lib/cn.ts" }],
       "dependencies": ["clsx", "tailwind-merge"],
       "status": "stable"
+    },
+    {
+      "name": "ui-craft",
+      "type": "file",
+      "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",
+      "files": [
+        {
+          "path": "registry/skills/ui-craft/SKILL.md",
+          "target": ".claude/skills/diorama-ui-craft/SKILL.md"
+        }
+      ],
+      "status": "stable"
     }
   ]
 }

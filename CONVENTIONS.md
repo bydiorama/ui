@@ -71,6 +71,11 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 - Never `transition: all` — enumerate the animated properties.
 - Every part gets a stable `data-slot` attribute so consumers and tests can
   target internals without depending on class names.
+- **Concentric radii:** nested rounded elements compute
+  `outerRadius = innerRadius + padding`, from the `--ui-radius-*` scale.
+- **Shadows for elevation, borders for structure.** A border whose only job is
+  depth becomes a layered translucent `--ui-shadow-*`; borders that communicate
+  structure or state stay.
 
 ## 7. Iconography
 
@@ -85,6 +90,15 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 
 - Durations and easings come from motion tokens
   (`--ui-duration-*`, `--ui-ease-*`, `--ui-motion-*`). Never a hard-coded `ms`.
+- **Transitions for interaction, keyframes for one-shots** — transitions
+  retarget mid-flight so a reversed toggle reverses smoothly; keyframes restart
+  and feel broken.
+- Press feedback is `scale(var(--ui-press-scale))` with a `staticTap` opt-out;
+  staged entrances stagger by `--ui-stagger-step` and are reserved for
+  infrequent moments (first load, success, empty) — never routine interactions.
+  Exits are softer than enters.
+- Motion is never the only feedback channel: every animated state change also
+  carries a static cue (colour, icon, label).
 - **CSS first.** Use `@starting-style`, `transition-behavior: allow-discrete`,
   `interpolate-size` and view transitions before reaching for JavaScript.
 - A JS motion library is permitted only for layout/shared-element animation,
@@ -115,6 +129,11 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   element without moving focus deliberately.
 - `start` / `end` naming for directional props, never `left` / `right`.
 - Every component ships an interaction test covering its keyboard contract.
+- **Hit areas:** interactive targets are at least `--ui-hit-area-min` (24px,
+  the WCAG 2.5.8 floor); primary controls aim for `--ui-hit-area-touch` (44px).
+  The visible element may be smaller — extend the target with a pseudo-element
+  on the wrapping label or button. No dead zones: a control and its label are
+  one target.
 
 ## 11. Documentation
 
@@ -125,6 +144,14 @@ source. Prose that is not in a typed doc file does not exist as far as tooling
 is concerned.
 
 ---
+
+## Credit
+
+Several craft rules above (concentric radii, shadows-for-elevation,
+press-scale, stagger restraint, hit-area patterns) are adapted from
+[jakubkrehel/skills](https://github.com/jakubkrehel/skills) (MIT) — see
+`CREDITS.md`. The distributable version of these rules is the `ui-craft`
+registry item.
 
 ## Changing these rules
 

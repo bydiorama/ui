@@ -6,10 +6,14 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "noEmit": true,
+    // Sources import with explicit .ts extensions so Node's type-stripping can
+    // run them directly — tests need no build step and no test framework.
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "types": ["node"],
     "forceConsistentCasingInFileNames": true,
 
     // Strictness. Deliberately the same set as the consuming app so a component
@@ -21,10 +25,9 @@
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
 
-    "baseUrl": ".",
     "paths": {
-      "@bydiorama/tokens": ["packages/tokens/src/index.ts"],
-      "@bydiorama/tokens/*": ["packages/tokens/src/*"]
+      "@bydiorama/tokens": ["./packages/tokens/src/index.ts"],
+      "@bydiorama/tokens/*": ["./packages/tokens/src/*"]
     }
   },
   "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx", "registry/**/*.ts", "registry/**/*.tsx"],

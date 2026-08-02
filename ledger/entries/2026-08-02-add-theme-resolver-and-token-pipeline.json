@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-02-add-theme-resolver-and-token-pipeline",
+  "date": "2026-08-02",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Phase 1 core: OKLCH colour engine (gamut-mapped by chroma reduction), theme seed schema with intake validation, resolveTheme() total over BRANDABLE_TOKENS with a reporting contrast audit, authored-dark-seed support, base token values, CSS emitter using light-dark() + color-scheme, and provisional THEME_ZERO. Palette and type values are placeholders pending the redesign. Records ADR 0006.",
+  "affects": [
+    "decision:0006-brand-theme-resolver",
+    "lib:@bydiorama/tokens"
+  ],
+  "provenance": {
+    "design": "pending — Paper foundations not yet drawn; THEME_ZERO values are provisional"
+  }
+}

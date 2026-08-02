@@ -1,0 +1,27 @@
+{
+  "name": "@bydiorama/ui-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Diorama design system — tokens, components, docs.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "registry:build": "node scripts/build-registry.mjs",
+    "check:manifest": "node scripts/validate-manifest.mjs",
+    "check:registry": "node scripts/build-registry.mjs --check",
+    "check:ledger": "node scripts/validate-ledger.mjs",
+    "check:licensing": "node scripts/lint-licensing.mjs",
+    "ledger:new": "node scripts/ledger-new.mjs",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "verify": "pnpm run check:manifest && pnpm run check:registry && pnpm run check:ledger && pnpm run check:licensing"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "eslint": "^9.0.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.0.0"
+  }
+}

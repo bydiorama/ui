@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # Deliberately BEFORE install. Every check here is dependency-free Node,
+      # so a cold clone can prove the repo is internally consistent without
+      # trusting a lockfile or a network.
+      - name: Manifest
+        run: node scripts/validate-manifest.mjs
+
+      - name: Registry freshness
+        run: node scripts/build-registry.mjs --check
+
+      - name: Change ledger
+        run: node scripts/validate-ledger.mjs
+
+      - name: Licensing
+        run: node scripts/lint-licensing.mjs
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm run type-check
+
+      - name: Lint
+        run: pnpm run lint

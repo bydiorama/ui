@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-02-establish-repository-foundations",
+  "date": "2026-08-02",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Phase 0: workspace, API conventions, manifest-driven registry pipeline, change ledger, licensing guard and CI. Records ADRs 0001-0005 (source distribution, independence, typography licensing, iconography, motion).",
+  "affects": [
+    "decision:0001-source-distribution",
+    "decision:0002-independence",
+    "decision:0003-typography-licensing",
+    "decision:0004-iconography",
+    "decision:0005-motion"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-02-add-cn-class-composer",
+  "date": "2026-08-02",
+  "item": "cn",
+  "kind": "addition",
+  "summary": "Add the cn() class composer — clsx for conditionals, tailwind-merge for conflict resolution. Every component's root element runs its classes through it, which is what makes a consumer's className reliably win over a component default.",
+  "affects": ["lib:cn"]
+}

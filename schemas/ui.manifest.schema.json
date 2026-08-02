@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bydiorama/ui/schemas/ui.manifest.schema.json",
+  "title": "Diorama UI manifest",
+  "description": "The source of truth for everything this design system distributes. registry.json and r/*.json are generated from this file — see scripts/build-registry.mjs.",
+  "type": "object",
+  "required": ["name", "homepage", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": {
+      "type": "string",
+      "description": "Registry namespace consumers reference, e.g. @bydiorama."
+    },
+    "homepage": { "type": "string", "format": "uri" },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "required": ["name", "type", "description", "files"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Kebab-case. This is what a consumer types: @bydiorama/<name>."
+        },
+        "type": {
+          "enum": ["ui", "lib", "hook", "block", "theme", "file", "style"],
+          "description": "Mapped to registry:<type> in the generated registry."
+        },
+        "description": { "type": "string", "minLength": 1 },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["path", "target"],
+            "additionalProperties": false,
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Repo-relative source path."
+              },
+              "target": {
+                "type": "string",
+                "description": "Path inside the consuming app, relative to its configured alias root."
+              }
+            }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "npm packages the consumer must install."
+        },
+        "peerDependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Packages the consumer is expected to already have (react, griddy-icons, an optional motion runtime)."
+        },
+        "registryDependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other items in this manifest, by name."
+        },
+        "docs": {
+          "type": "string",
+          "description": "Repo-relative path to the item's typed doc file."
+        },
+        "status": {
+          "enum": ["experimental", "stable", "deprecated"],
+          "default": "experimental"
+        }
+      }
+    }
+  }
+}

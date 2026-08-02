@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "cn",
+  "type": "registry:lib",
+  "description": "Class-name composer: merges conditional classes and resolves conflicting Tailwind utilities so a consumer's className always wins over a component's defaults.",
+  "dependencies": [
+    "clsx",
+    "tailwind-merge"
+  ],
+  "files": [
+    {
+      "path": "registry/lib/cn/cn.ts",
+      "type": "registry:lib",
+      "target": "lib/cn.ts",
+      "content": "import { clsx, type ClassValue } from \"clsx\";\nimport { twMerge } from \"tailwind-merge\";\n\n/**\n * Compose class names.\n *\n * Two jobs, and the second is the one that matters: `clsx` flattens\n * conditionals, then `twMerge` resolves *conflicting* Tailwind utilities by\n * keeping the last one. That is what makes the forwarding rule in\n * CONVENTIONS.md §5 true — a consumer passing `className=\"px-6\"` to a component\n * whose default is `px-4` gets `px-6`, rather than two competing declarations\n * whose winner depends on stylesheet order.\n *\n * Every component's root element runs its classes through this.\n */\nexport function cn(...inputs: ClassValue[]): string {\n  return twMerge(clsx(inputs));\n}\n"
+    }
+  ]
+}

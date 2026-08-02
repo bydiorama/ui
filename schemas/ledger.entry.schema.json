@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bydiorama/ui/schemas/ledger.entry.schema.json",
+  "title": "Change ledger entry",
+  "description": "One structured record per change to a distributed item. Consumers compute their drift from these; git records what bytes moved, the ledger records what to do about it.",
+  "type": "object",
+  "required": ["id", "date", "item", "kind", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "YYYY-MM-DD-slug. Stable and never reused."
+    },
+    "date": { "type": "string", "format": "date" },
+    "item": {
+      "type": "string",
+      "description": "Manifest item name, or 'system' for repo-wide changes."
+    },
+    "kind": {
+      "enum": ["breaking", "addition", "fix", "visual", "a11y", "token", "decision"],
+      "description": "Drives consumer CI severity: breaking and a11y fail, the rest warn."
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "affects": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Precise surface touched, e.g. prop:variant, token:--ui-bg-emphasis, slot:icon."
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "codemod": { "type": "string", "description": "Repo-relative codemod path." },
+        "manual": { "type": "string", "description": "What a human or agent must do by hand." }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pr": { "type": "integer" },
+        "commit": { "type": "string" },
+        "design": { "type": "string", "description": "Paper/Figma node URL this change implements." }
+      }
+    },
+    "supersedes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Entry ids this one replaces. History is immutable; corrections supersede."
+    }
+  }
+}

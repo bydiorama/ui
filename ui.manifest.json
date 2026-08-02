@@ -1,0 +1,15 @@
+{
+  "$schema": "./schemas/ui.manifest.schema.json",
+  "name": "@bydiorama",
+  "homepage": "https://github.com/bydiorama/ui",
+  "items": [
+    {
+      "name": "cn",
+      "type": "lib",
+      "description": "Class-name composer: merges conditional classes and resolves conflicting Tailwind utilities so a consumer's className always wins over a component's defaults.",
+      "files": [{ "path": "registry/lib/cn/cn.ts", "target": "lib/cn.ts" }],
+      "dependencies": ["clsx", "tailwind-merge"],
+      "status": "stable"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+// Structural checks on ui.manifest.json.
+//
+// Deliberately checks the things a JSON Schema cannot: that every declared file
+// exists on disk, that two items don't fight over the same install target, and
+// that internal dependencies resolve. Those are the failures that reach a
+// consumer as a broken `add`; a missing description is merely untidy.
+
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { readManifest, ROOT, ITEM_TYPES } from "./lib/manifest.mjs";
+
+const errors = [];
+const manifest = readManifest();
+
+if (!manifest.name?.startsWith("@")) {
+  errors.push(`manifest.name must be a namespace like "@bydiorama" (got ${JSON.stringify(manifest.name)})`);
+}
+if (!Array.isArray(manifest.items)) {
+  errors.push("manifest.items must be an array");
+}
+
+const seenNames = new Set();
+const targets = new Map();
+
+for (const [i, item] of (manifest.items ?? []).entries()) {
+  const where = item?.name ? `item "${item.name}"` : `item #${i}`;
+
+  if (!item?.name || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(item.name)) {
+    errors.push(`${where}: name must be kebab-case`);
+  } else if (seenNames.has(item.name)) {
+    errors.push(`${where}: duplicate item name`);
+  } else {
+    seenNames.add(item.name);
+  }
+
+  if (!ITEM_TYPES.includes(item?.type)) {
+    errors.push(`${where}: type must be one of ${ITEM_TYPES.join(", ")} (got ${JSON.stringify(item?.type)})`);
+  }
+
+  if (!item?.description?.trim()) {
+    errors.push(`${where}: description is required — it is what an agent reads when choosing a component`);
+  }
+
+  if (!Array.isArray(item?.files) || item.files.length === 0) {
+    errors.push(`${where}: at least one file is required`);
+    continue;
+  }
+
+  for (const file of item.files) {
+    if (!file?.path || !file?.target) {
+      errors.push(`${where}: every file needs both "path" and "target"`);
+      continue;
+    }
+    if (!existsSync(join(ROOT, file.path))) {
+      errors.push(`${where}: declared file does not exist on disk — ${file.path}`);
+    }
+    const claimedBy = targets.get(file.target);
+    if (claimedBy && claimedBy !== item.name) {
+      errors.push(`${where}: install target "${file.target}" already claimed by "${claimedBy}"`);
+    } else {
+      targets.set(file.target, item.name);
+    }
+  }
+
+  if (item.docs && !existsSync(join(ROOT, item.docs))) {
+    errors.push(`${where}: docs file does not exist — ${item.docs}`);
+  }
+}
+
+for (const item of manifest.items ?? []) {
+  for (const dep of item.registryDependencies ?? []) {
+    if (!seenNames.has(dep)) {
+      errors.push(`item "${item.name}": registryDependency "${dep}" is not an item in this manifest`);
+    }
+  }
+}
+
+if (errors.length) {
+  console.error("Manifest invalid:\n");
+  for (const e of errors) console.error(`  - ${e}`);
+  process.exit(1);
+}
+
+console.log(`manifest ok — ${manifest.items.length} item(s), ${targets.size} install target(s)`);

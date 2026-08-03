@@ -4,10 +4,10 @@
 // Two failure modes it exists to prevent, both of which are license breaches
 // rather than style problems:
 //
-//   1. A licensed typeface shipping in the registry. Saans is licensed to
-//      Diorama for its own products; putting the files — or even a font-family
-//      reference that would make a consumer go find them — into a distributed
-//      item breaches that. Manrope (OFL) is the distributable face.
+//   1. A non-distributable typeface shipping in the registry. Aspekta (OFL)
+//      is the system's single face (ledger/decisions/0007); the retired
+//      licensed faces (Saans, PT Serif) must never reappear, even as a
+//      font-family reference that would send a consumer looking for them.
 //   2. Paid-tier assets from third-party libraries. The MIT core of a library
 //      is fine; premium material behind a paid entitlement is not ours to
 //      redistribute.
@@ -25,7 +25,9 @@ const SCAN_DIRS = ["registry", "packages", "apps"];
  *  a new typeface should require a deliberate decision, not slip in unnoticed. */
 const ALLOWED_FAMILIES = new Set(
   [
-    "manrope",
+    "aspekta",
+    "aspekta variable",
+    "aspektavf",
     // Generic and system stacks — no licensing implications.
     "ui-sans-serif", "system-ui", "-apple-system", "blinkmacsystemfont",
     "segoe ui", "roboto", "helvetica neue", "helvetica", "arial",
@@ -39,7 +41,7 @@ const ALLOWED_FAMILIES = new Set(
 
 /** Named explicitly so the failure message can say *why*, not just "not allowed". */
 const RESTRICTED_FAMILIES = new Map([
-  ["saans", "licensed to Diorama — service-portal only, never distributed (see ledger/decisions/0003)"],
+  ["saans", "retired licensed face — replaced by Aspekta everywhere (ledger/decisions/0007)"],
   ["pt serif", "not licensed for redistribution; retired from the token set"],
 ]);
 
@@ -111,7 +113,7 @@ for (const dir of SCAN_DIRS) {
 if (errors.length) {
   console.error("Licensing check failed:\n");
   for (const e of errors) console.error(`  - ${e}`);
-  console.error("\nSee ledger/decisions/0003-typography-licensing.md");
+  console.error("\nSee ledger/decisions/0007-aspekta.md");
   process.exit(1);
 }
 

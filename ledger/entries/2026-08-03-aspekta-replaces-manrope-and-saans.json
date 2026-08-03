@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-03-aspekta-replaces-manrope-and-saans",
+  "date": "2026-08-03",
+  "item": "font-aspekta",
+  "kind": "token",
+  "summary": "Aspekta (SIL OFL 1.1, Ivo Dolenc) becomes the single typeface, replacing Manrope as the distributed default and retiring Saans entirely (ADR 0007, supersedes the face choice in 0003). --ui-font-body and --ui-font-display both default to Aspekta; the roles stay separate tokens. New font-aspekta registry item ships the @font-face CSS + OFL text; the variable woff2 lives in the repo and is fetched by URL (attempting to inline it exposed that the JSON transport corrupts binary content — the registry pipeline now rejects binary files at both validate and build). Licensing allowlist now aspekta-only, so any Manrope or Saans straggler fails CI. service-portal drops its planned Saans display-role override in Phase 4.",
+  "affects": [
+    "token:--ui-font-body",
+    "token:--ui-font-display",
+    "file:font-aspekta",
+    "decision:0007-aspekta"
+  ],
+  "migration": {
+    "manual": "Consumers with the (never-shipped) Manrope item: add @bydiorama/font-aspekta, update any local font-family overrides to Aspekta, delete Manrope files. No codemod needed — no consumer installed the previous font item."
+  },
+  "provenance": {
+    "design": "https://github.com/ivodolenc/aspekta"
+  }
+}

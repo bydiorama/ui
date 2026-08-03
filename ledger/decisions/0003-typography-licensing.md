@@ -1,6 +1,6 @@
 # 0003 — Manrope is the distributable typeface; Saans is not
 
-**Status:** accepted · **Date:** 2026-08-02
+**Status:** accepted; face choice superseded by [0007](0007-aspekta.md) — Aspekta replaces both Manrope and Saans. The role model and enforcement below remain in force. · **Date:** 2026-08-02
 
 ## Context
 

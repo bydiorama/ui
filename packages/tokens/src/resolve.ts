@@ -347,8 +347,8 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-shadow-xl": shadow(16, 48, 0.12),
 
     // Typography
-    "--ui-font-body": seed.typography?.fontBody ?? "Manrope, ui-sans-serif, system-ui, sans-serif",
-    "--ui-font-display": seed.typography?.fontDisplay ?? "Manrope, ui-sans-serif, system-ui, sans-serif",
+    "--ui-font-body": seed.typography?.fontBody ?? "Aspekta, ui-sans-serif, system-ui, sans-serif",
+    "--ui-font-display": seed.typography?.fontDisplay ?? "Aspekta, ui-sans-serif, system-ui, sans-serif",
     "--ui-font-mono": seed.typography?.fontMono ?? "ui-monospace, SFMono-Regular, Menlo, monospace",
     ...type,
 

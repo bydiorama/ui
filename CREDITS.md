@@ -20,6 +20,11 @@ precisely.
   — © 2026 Jakub Krehel, MIT. The predecessor of `better-ui`; same principles,
   credited for completeness.
 
+- **[Aspekta](https://github.com/ivodolenc/aspekta)** — © 2025 Ivo Dolenc,
+  SIL Open Font License 1.1. The design system's typeface, redistributed as
+  `registry/fonts/aspekta/AspektaVF.woff2` with the OFL text alongside as the
+  license requires.
+
 ## Inspiration (no text or code reused)
 
 - **[jakubkrehel/oklch-skill](https://github.com/jakubkrehel/oklch-skill)** —

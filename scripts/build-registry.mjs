@@ -10,10 +10,18 @@
 
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { dirname, relative } from "node:path";
-import { readManifest, buildAll, ROOT } from "./lib/manifest.mjs";
+import { readManifest, buildAll, binaryViolations, ROOT } from "./lib/manifest.mjs";
 
 const check = process.argv.includes("--check");
 const manifest = readManifest();
+
+const binaries = binaryViolations(manifest);
+if (binaries.length) {
+  console.error("Binary assets cannot go through the JSON transport (they would be corrupted):");
+  for (const b of binaries) console.error(`  ${b.item}: ${b.path}`);
+  console.error("\nDistribute the asset by URL alongside a text install note instead.");
+  process.exit(1);
+}
 const artifacts = buildAll(manifest);
 
 if (check) {

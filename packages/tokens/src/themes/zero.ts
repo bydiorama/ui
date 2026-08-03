@@ -43,11 +43,11 @@ export const THEME_ZERO: ThemeSeed = {
   typography: {
     baseSize: 16,
     ratio: 1.2,
-    // Manrope is the only distributable face (ADR 0003). Saans is applied by
-    // service-portal as an app-local override of the display role; it must not
-    // be named here.
-    fontBody: "Manrope, ui-sans-serif, system-ui, sans-serif",
-    fontDisplay: "Manrope, ui-sans-serif, system-ui, sans-serif",
+    // Aspekta is the system's single typeface (ADR 0007) — body and display
+    // differ by weight and scale, not by family. The roles stay separate
+    // tokens so brand themes (and any future face change) override cleanly.
+    fontBody: "Aspekta, ui-sans-serif, system-ui, sans-serif",
+    fontDisplay: "Aspekta, ui-sans-serif, system-ui, sans-serif",
     fontMono: "ui-monospace, SFMono-Regular, Menlo, monospace",
   },
 

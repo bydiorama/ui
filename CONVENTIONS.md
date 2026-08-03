@@ -117,8 +117,8 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   import a translation runtime.
 - **No data layer.** No Supabase, no fetching, no stores. A component that needs
   data takes it as props.
-- **No licensed assets.** See `docs/licensing.md` — enforced by
-  `pnpm check:licensing`.
+- **No licensed assets.** Aspekta (OFL) is the single typeface
+  (`ledger/decisions/0007`) — enforced by `pnpm check:licensing`.
 
 ## 10. Accessibility
 

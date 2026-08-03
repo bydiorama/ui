@@ -8,7 +8,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { readManifest, ROOT, ITEM_TYPES } from "./lib/manifest.mjs";
+import { readManifest, ROOT, ITEM_TYPES, BINARY_EXTENSIONS } from "./lib/manifest.mjs";
 
 const errors = [];
 const manifest = readManifest();
@@ -54,6 +54,10 @@ for (const [i, item] of (manifest.items ?? []).entries()) {
     }
     if (!existsSync(join(ROOT, file.path))) {
       errors.push(`${where}: declared file does not exist on disk — ${file.path}`);
+    }
+    const ext = (file.path.match(/\.[^.]+$/) ?? [""])[0].toLowerCase();
+    if (BINARY_EXTENSIONS.has(ext)) {
+      errors.push(`${where}: ${file.path} is binary — the JSON transport corrupts binary content; distribute it by URL with a text install note`);
     }
     const claimedBy = targets.get(file.target);
     if (claimedBy && claimedBy !== item.name) {

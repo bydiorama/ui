@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-03-license-under-mit",
+  "date": "2026-08-03",
+  "item": "system",
+  "kind": "decision",
+  "summary": "License the design system under MIT (Jakub, 2026-08-03). LICENSE added at root; workspace and @bydiorama/tokens package.json set to MIT. Third-party attributions live in CREDITS.md. The licensing CI gate matters more, not less, under MIT: the repo itself being freely distributable is exactly why licensed typefaces and paid-tier assets must never enter it.",
+  "affects": ["decision:license"]
+}

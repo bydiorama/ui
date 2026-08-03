@@ -2,7 +2,7 @@
   "name": "@bydiorama/tokens",
   "version": "0.0.0",
   "description": "Diorama design tokens: the source of truth, the theme resolver, and every emitter built on them.",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",

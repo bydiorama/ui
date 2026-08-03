@@ -57,6 +57,13 @@ pnpm lint
 purpose, so a cold clone (or a fresh agent) can confirm the repo is internally
 consistent before installing anything.
 
+## License
+
+MIT — see [LICENSE](LICENSE). Adapted third-party material and inspirations
+are itemised in [CREDITS.md](CREDITS.md); the one asset class that is *not*
+MIT-distributable (licensed typefaces) is enforced out of the tree by
+`pnpm check:licensing` (see `ledger/decisions/0003`).
+
 ## Working here
 
 - [`CONVENTIONS.md`](CONVENTIONS.md) — the component API rulebook. Binding.

@@ -2,6 +2,7 @@
   "name": "@bydiorama/ui-workspace",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Diorama design system — tokens, components, docs.",
   "packageManager": "pnpm@10.33.0",
   "engines": {

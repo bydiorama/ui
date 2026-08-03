@@ -16,6 +16,33 @@ export const ITEM_DIR = join(ROOT, "r");
 /** Manifest item types → the `registry:*` types the generated registry uses. */
 export const ITEM_TYPES = ["ui", "lib", "hook", "block", "theme", "file", "style"];
 
+/**
+ * Extensions the JSON transport must refuse.
+ *
+ * Registry items inline file contents as UTF-8 strings; reading a font or an
+ * image that way corrupts it, and a standard CLI would then write the garbage
+ * to disk as if it were the asset. Binary assets are distributed by URL or by
+ * our own CLI instead — a manifest that declares one here is a build error, so
+ * the failure happens to us at generation time, never to a consumer at install
+ * time.
+ */
+export const BINARY_EXTENSIONS = new Set([
+  ".woff", ".woff2", ".ttf", ".otf", ".eot",
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".ico",
+  ".mp4", ".webm", ".mp3", ".wav", ".pdf", ".zip",
+]);
+
+export function binaryViolations(manifest) {
+  const out = [];
+  for (const item of manifest.items ?? []) {
+    for (const f of item.files ?? []) {
+      const ext = (f.path.match(/\.[^.]+$/) ?? [""])[0].toLowerCase();
+      if (BINARY_EXTENSIONS.has(ext)) out.push({ item: item.name, path: f.path });
+    }
+  }
+  return out;
+}
+
 export function readManifest() {
   if (!existsSync(MANIFEST_PATH)) {
     throw new Error("ui.manifest.json not found — this repo cannot describe itself.");

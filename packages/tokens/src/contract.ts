@@ -153,6 +153,14 @@ export const FIXED_TOKENS = [
   "--ui-ease-default", "--ui-ease-in", "--ui-ease-out", "--ui-ease-spring",
   "--ui-motion-micro", "--ui-motion-standard", "--ui-motion-deliberate", "--ui-motion-choreographed",
 
+  // Interaction constants. Named values so "how much does a button shrink on
+  // press" has exactly one answer across the system.
+  "--ui-press-scale", "--ui-stagger-step",
+
+  // Hit targets. The floor is conformance; the touch value is the recommended
+  // target for primary controls.
+  "--ui-hit-area-min", "--ui-hit-area-touch",
+
   // Measure
   "--ui-measure-prose", "--ui-measure-narrative", "--ui-measure-dense",
 

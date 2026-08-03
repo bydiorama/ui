@@ -47,10 +47,11 @@ These are not style preferences; violating them breaks consumers:
 
 - **No `next/*`, no i18n runtime, no data layer, no stores** in `registry/`.
   Components take strings and data as props and render links through a slot.
-- **No licensed or paid assets.** Manrope is the only bundled typeface. Saans is
-  license-restricted and must never appear here — not the files, not even a
-  `font-family` reference. Same rule for paid-tier assets from third-party
-  libraries. `pnpm check:licensing` enforces both.
+- **No licensed or paid assets.** Aspekta (OFL) is the single bundled typeface
+  (ledger/decisions/0007). Retired faces (Saans, PT Serif) must never appear
+  here — not the files, not even a `font-family` reference. Same rule for
+  paid-tier assets from third-party libraries. `pnpm check:licensing` enforces
+  both.
 - **`griddy-icons` only** for iconography.
 - **Semantic tokens only** for styling — no raw hex, no palette utilities.
 

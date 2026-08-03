@@ -10,6 +10,34 @@
       "files": [{ "path": "registry/lib/cn/cn.ts", "target": "lib/cn.ts" }],
       "dependencies": ["clsx", "tailwind-merge"],
       "status": "stable"
+    },
+    {
+      "name": "font-aspekta",
+      "type": "file",
+      "description": "Aspekta Variable — the design system's single typeface (SIL OFL 1.1, by Ivo Dolenc). Installs the @font-face CSS and the OFL license text; the ~30KB variable woff2 (weight 100-900) is binary and is fetched from the repo with the one-line curl documented at the top of aspekta.css, into the same directory. Keep OFL.txt with the font wherever it is deployed.",
+      "files": [
+        {
+          "path": "registry/fonts/aspekta/aspekta.css",
+          "target": "public/fonts/aspekta/aspekta.css"
+        },
+        {
+          "path": "registry/fonts/aspekta/OFL.txt",
+          "target": "public/fonts/aspekta/OFL.txt"
+        }
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "ui-craft",
+      "type": "file",
+      "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",
+      "files": [
+        {
+          "path": "registry/skills/ui-craft/SKILL.md",
+          "target": ".claude/skills/diorama-ui-craft/SKILL.md"
+        }
+      ],
+      "status": "stable"
     }
   ]
 }

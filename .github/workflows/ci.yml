@@ -30,6 +30,11 @@ jobs:
       - name: Licensing
         run: node scripts/lint-licensing.mjs
 
+      # Tests run on Node's built-in runner with type-stripping — also
+      # dependency-free, so they belong in the pre-install block.
+      - name: Tests
+        run: node --experimental-strip-types --test "packages/*/src/**/*.test.ts"
+
       - uses: pnpm/action-setup@v4
         with:
           run_install: false

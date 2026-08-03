@@ -1,0 +1,27 @@
+/*
+ * Aspekta Variable — the Diorama design system's single typeface.
+ * © 2025 Ivo Dolenc, SIL Open Font License 1.1 (see OFL.txt alongside).
+ * https://github.com/ivodolenc/aspekta
+ *
+ * One family for body and display alike (ledger/decisions/0007): role
+ * differentiation comes from the variable weight axis and the type scale,
+ * not from a second face.
+ *
+ * SELF-HOSTING THE BINARY — the woff2 does not travel through the registry's
+ * JSON transport (binary would be corrupted; see ledger entry
+ * 2026-08-03-aspekta-replaces-manrope-and-saans). Place it next to this file:
+ *
+ *   curl -L -o public/fonts/aspekta/AspektaVF.woff2 \
+ *     https://raw.githubusercontent.com/bydiorama/ui/main/registry/fonts/aspekta/AspektaVF.woff2
+ *
+ * Keep OFL.txt with the font wherever it is deployed — the license requires
+ * the notice to travel with the Font Software.
+ */
+
+@font-face {
+  font-family: "Aspekta";
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  src: url("./AspektaVF.woff2") format("woff2");
+}

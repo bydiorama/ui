@@ -114,10 +114,16 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
       data-state={state}
       data-disabled={isDisabled || undefined}
       className={cn(
-        "group inline-flex items-start gap-sm",
+        "group inline-flex items-center gap-sm",
         // The visible box is 18px and the text line is 17px, so the row would
         // be a 19px target — under the 24px floor of WCAG 2.5.8. The label is
         // the target and it is padded out to 24px; the box stays 18px.
+        //
+        // `items-center`, not `items-start`: the 24px minimum was making the
+        // 17px label hug the top of the row instead of sitting beside the box,
+        // which is what the sheet draws (its row is `align-items: center`).
+        // The trade is that a label wrapping to several lines centres against
+        // the box rather than aligning to its first line — see knownGaps.
         "min-h-6",
         isDisabled ? "cursor-not-allowed" : "cursor-pointer",
         className,

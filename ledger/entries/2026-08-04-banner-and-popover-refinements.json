@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-banner-and-popover-refinements",
+  "date": "2026-08-04",
+  "item": "banner",
+  "kind": "addition",
+  "summary": "Banner added, and Popover/Checkbox refined against the updated sheets. Banner is an inline message with five intents; the dismiss control's accessible name is a DISCRIMINATED UNION with onDismiss rather than a doc note, so an unnamed icon-only dismiss cannot compile. It does not announce by default: role=status/aria-live=polite is opt-in via isLive, because a banner rendered with the page is not news and a live region firing on mount talks over whatever the user was reading. The sheet's info well inside the Popover panel IS this component, so Popover's stories now compose Banner instead of a hand-rolled box, and its glyph is griddy's InfoCircle — byte-identical to the path the sheet drew. Popover moves to radius-xl (24), which is concentric exactly against a Banner's radius-md (8) plus the panel's p-lg (16); the earlier 32px panel was concentric too but read as too round. Popover.Description is respecced from the actions sheet — the only place a description is actually drawn — to body-md at the relaxed leading in secondary ink with its own py-xs. Checkbox's label alignment fixed: the 24px minimum added for SC 2.5.8 had been combined with items-start, so a 17px label sat at the top of the row with 6px of dead space beneath it instead of beside the box; items-center matches the sheet, and a geometric regression test pins the label's centre to within 1px of the row's (it was 3.55px off, confirmed by probing the fix away).",
+  "affects": [
+    "component:banner",
+    "component:popover",
+    "component:checkbox",
+    "script:check-utilities",
+    "design:paper-banner",
+    "design:paper-popover"
+  ],
+  "migration": {
+    "manual": "Popover panel radius changes from 32px to 24px and Popover.Description from body-sm/muted to body-md/secondary at a 600 weight — both transcribed from the updated sheet. check:utilities gained a catch-all namespace for intent inks (text-danger, text-success, text-info), which had gone unchecked since Badge shipped: a `text-dangr` typo emitted no CSS and nothing reported it. Coverage went 248 to 255."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/E2A-0"
+  }
+}

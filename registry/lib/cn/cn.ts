@@ -22,6 +22,26 @@ import { extendTailwindMerge } from "tailwind-merge";
  * browser suite now pin this.
  */
 const twMerge = extendTailwindMerge({
+  override: {
+    conflictingClassGroups: {
+      // Stock `text-sm` sets a font size AND a line height, so tailwind-merge
+      // makes any font size clear a preceding `leading-*`. Our roles are pure
+      // sizes — ADR 0009 pairs every role with its own leading token — so that
+      // conflict is a lie here: `text-label-sm` silently deleted `leading-flat`
+      // from every Badge, the font's normal leading took over, and md and sm
+      // both rendered at 28px.
+      //
+      // Our roles have to live in the `font-size` group to be classified
+      // correctly at all (a separate group makes `text-color` swallow them),
+      // so the conflict is removed at the group level.
+      //
+      // The knowing trade: a consumer writing stock `leading-6 text-sm` keeps
+      // both, and the cascade decides instead of the merger. That is a far
+      // smaller failure than a component silently losing its own leading, and
+      // it only affects stock classes this library never emits.
+      "font-size": [],
+    },
+  },
   extend: {
     // The spacing scale's own step names. Registered on the shared scale so
     // every group that derives from it (p*, m*, gap*, space-*, inset-*)
@@ -32,7 +52,8 @@ const twMerge = extendTailwindMerge({
       spacing: ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"],
     },
     classGroups: {
-      // The type roles (--text-* namespace in the emitted theme).
+      // The type roles (--text-* namespace in the emitted theme). They must
+      // sit in `font-size` — see the conflict override above.
       "font-size": [
         { text: [(value: string) => /^(display|title|body|label|button)-(lg|md|sm)$/.test(value) || value === "caption"] },
       ],

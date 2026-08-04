@@ -81,6 +81,11 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   target internals without depending on class names.
 - **Concentric radii:** nested rounded elements compute
   `outerRadius = innerRadius + padding`, from the `--ui-radius-*` scale.
+- **Unboxed content is inset inside a large radius.** In a panel at
+  `--ui-radius-2xl`, bare text and unboxed controls take a further
+  `--ui-space-sm` of inline padding; children with their own fill or border sit
+  flush at the panel's padding. Encode it in the component (as
+  `Popover.Title` does), never at the call site.
 - **Shadows for elevation, borders for structure.** A border whose only job is
   depth becomes a layered translucent `--ui-shadow-*`; borders that communicate
   structure or state stay.

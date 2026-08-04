@@ -33,11 +33,19 @@ not design, provided they are unstyled and wrapped behind our own API.
 
 1. **Base UI is the behaviour layer** for the popover-class components —
    Modal/Dialog, Popover, Select, Menu, Tooltip, Tabs, Slider, and the
-   Multiselect combobox. It is the ecosystem's centre of gravity: shadcn/ui
-   made it the default in July 2026, it is built by the engineers who built
-   Radix, and it is under full-time maintenance where Radix's has slowed.
-   Being the library agents produce correct code for is itself a reason, in a
-   system built largely by agents.
+   Multiselect combobox. It is built by the engineers who built Radix, under
+   full-time MUI maintenance where Radix's has slowed, and shadcn/ui made it
+   its default in July 2026 — which matters in a system built largely by
+   agents, because it shapes what they will generate correctly.
+
+   **Verified state at adoption (npm, 2026-08-04), because the first draft of
+   this ADR cited figures that were wrong:** `@base-ui-components/react` is at
+   **`1.0.0-rc.0`** — fourteen versions, alpha → beta → rc, and **no stable
+   release yet** — with **~417k weekly downloads**. For scale: `radix-ui`
+   11.8M, `@radix-ui/react-dialog` 69M, `react-aria` 7.9M. Base UI is
+   therefore a *bet on direction*, not a majority choice, and this ADR is
+   adopted knowing that. Do not repeat the earlier claim that it shipped a
+   stable 1.0 or leads on adoption; it has not and does not.
 
 2. **Drag-and-drop and Calendar are ours.** Base UI covers neither. They are
    built here, on mechanism-level primitives only:

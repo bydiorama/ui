@@ -23,7 +23,12 @@ Badge
       default: '"unselected"',
       notes: "selected is the brand fill; unselected is outlined; success and danger are tinted status labels with no border, so a row of them reads as data rather than controls.",
     },
-    size: { type: '"md" | "sm"', default: '"sm"', notes: "Both 12px label; md pairs with a 16px icon, sm with 12px." },
+    size: {
+      type: '"md" | "sm"',
+      default: '"sm"',
+      notes:
+        "22px and 28px tall. Both carry the same 12px label and the same padding — the difference is height alone, pinned with min-h because the spacing scale cannot express 28 (py-xs gives 22, py-sm 30). md pairs with a 16px icon, sm with 12px. These two were previously identical apart from the icon, so a badge with no icon rendered the same at either size.",
+    },
     shape: { type: '"pill" | "rounded"', default: '"pill"' },
     iconEnd: { type: "ReactElement", notes: "Slot. A decorative mark should be aria-hidden; an interactive one must be a real button with its own accessible name." },
   },

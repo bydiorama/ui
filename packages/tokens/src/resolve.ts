@@ -184,6 +184,9 @@ export const TYPE_ROLES = {
 
 /** Roles that scale with the viewport. Body and below stay fixed, because
  *  fluid body text makes line length unpredictable. */
+/** The smallest size the scale admits at all (ADR 0009): caption / label-sm. */
+const SCALE_FLOOR_PX = 12;
+
 const FLUID_ROLES = new Set<string>([
   "--ui-text-display-lg", "--ui-text-display-md",
   "--ui-text-title-lg", "--ui-text-title-md", "--ui-text-title-sm",
@@ -218,7 +221,14 @@ function typeScale(seed: ThemeSeed): Record<keyof typeof TYPE_ROLES, string> {
   const out = {} as Record<keyof typeof TYPE_ROLES, string>;
   for (const [token, role] of Object.entries(TYPE_ROLES) as [keyof typeof TYPE_ROLES, (typeof TYPE_ROLES)[keyof typeof TYPE_ROLES]][]) {
     const max = (role.px * factor) / 16;
-    out[token] = FLUID_ROLES.has(token) ? fluid(max * 0.72, max) : `${round(max)}rem`;
+    // A flat 72% shrink has no idea what it is shrinking. On `title-sm` (16px)
+    // it resolved to 11.52px on a narrow viewport — under the scale's OWN 12px
+    // floor, which ADR 0009 set after an 11px label pushed the small button
+    // below the WCAG target size. Fluid roles may shrink, never below the
+    // floor, and never past their own maximum on a tiny base size.
+    const floor = (SCALE_FLOOR_PX * factor) / 16;
+    const min = Math.min(max, Math.max(max * 0.72, floor));
+    out[token] = FLUID_ROLES.has(token) ? fluid(min, max) : `${round(max)}rem`;
   }
   return out;
 }

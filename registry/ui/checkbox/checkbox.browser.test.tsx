@@ -167,6 +167,24 @@ describe("Geometry and target size", () => {
     expect(label.getBoundingClientRect().height).toBeGreaterThanOrEqual(24);
   });
 
+  test("the label sits centred beside the box, not hugging the top of the row", () => {
+    const { label, control } = mount(<Checkbox>Accept</Checkbox>);
+    const text = label.querySelector<HTMLElement>('[data-slot="label"]')!;
+
+    const rowBox = label.getBoundingClientRect();
+    const textBox = text.getBoundingClientRect();
+    const controlBox = control.getBoundingClientRect();
+
+    const centre = (r: DOMRect) => r.top + r.height / 2;
+
+    // Reported from Storybook: the 24px minimum height added for SC 2.5.8 was
+    // combined with `items-start`, so the 17px label sat at the top of the row
+    // with 6px of dead space beneath it instead of beside the box, which is
+    // what the sheet draws (`align-items: center`).
+    expect(Math.abs(centre(rowBox) - centre(textBox))).toBeLessThanOrEqual(1);
+    expect(Math.abs(centre(controlBox) - centre(textBox))).toBeLessThanOrEqual(1.5);
+  });
+
   test("the label renders at 13px — tailwind-merge must not drop text-label-md", () => {
     const { label } = mount(<Checkbox>Accept</Checkbox>);
     const text = label.querySelector<HTMLElement>('[data-slot="label"]')!;

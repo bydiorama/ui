@@ -272,3 +272,29 @@ test("the border stack is ordered by MEASURED contrast, in both schemes", () => 
     }
   }
 });
+
+test("no fluid type role shrinks below the scale's own floor", () => {
+  // Fluid roles used a flat 72% of their maximum with no absolute minimum, so
+  // `title-sm` (16px) resolved to 11.52px on a narrow viewport — under the
+  // 12px floor ADR 0009 set after an 11px label pushed the small button below
+  // the WCAG target size. Found by a Popover title rendering at 11.68px.
+  const FLOOR_REM = 12 / 16;
+
+  for (const { name, seed } of [{ name: "theme zero", seed: THEME_ZERO }, ...STRESS_BRANDS]) {
+    const { theme } = resolveTheme(seed, { scheme: "light" });
+    const factor = (seed.typography?.baseSize ?? SEED_BOUNDS.baseSize.default) / SEED_BOUNDS.baseSize.default;
+
+    for (const [token, value] of Object.entries(theme)) {
+      if (!token.startsWith("--ui-text-") || !value.startsWith("clamp(")) continue;
+      const min = Number(/clamp\(([\d.]+)rem/.exec(value)?.[1]);
+      assert.ok(
+        Number.isFinite(min),
+        `${name}: ${token} has an unparseable clamp minimum — ${value}`,
+      );
+      assert.ok(
+        min >= FLOOR_REM * factor - 0.001,
+        `${name}: ${token} shrinks to ${(min * 16).toFixed(2)}px, below the ${(FLOOR_REM * factor * 16).toFixed(0)}px floor`,
+      );
+    }
+  }
+});

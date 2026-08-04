@@ -6,9 +6,22 @@ export type BadgeVariant = "selected" | "unselected" | "success" | "danger";
 export type BadgeSize = "md" | "sm";
 export type BadgeShape = "pill" | "rounded";
 
+/**
+ * Both sizes share a 12px label and the same padding — the sheet draws them
+ * that way. The difference is height: 22px and 28px.
+ *
+ * The sheet reaches those heights by inflating the md line-height to 145%,
+ * which is off the leading scale (flat/tight/snug/normal/relaxed) and makes a
+ * control's height depend on font metrics. Pinning `min-h` instead lands on the
+ * designed numbers exactly, keeps `leading-flat` for both, and survives a font
+ * swap. The padding scale cannot express it: py-xs gives 22px and py-sm 30px.
+ *
+ * These were previously identical apart from the icon, so a badge with no icon
+ * rendered the same at both sizes.
+ */
 const SIZE = {
-  md: "gap-xs px-sm py-xs text-label-sm [&_svg]:size-4",
-  sm: "gap-xs px-sm py-xs text-label-sm [&_svg]:size-3",
+  md: "gap-xs px-sm py-xs text-label-sm min-h-7 [&_svg]:size-4",
+  sm: "gap-xs px-sm py-xs text-label-sm min-h-5.5 [&_svg]:size-3",
 } as const satisfies Record<BadgeSize, string>;
 
 /**

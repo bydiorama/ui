@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-popover",
+  "date": "2026-08-04",
+  "item": "popover",
+  "kind": "addition",
+  "summary": "Popover — the first component built on the Base UI behaviour layer (ADR 0012), and the proof that the wrapper rule is livable. Positioning, focus restoration, outside-click and Escape dismissal, and the aria-haspopup/aria-expanded/aria-labelledby wiring come from Base UI 1.0.0-rc.0; the API, anatomy and every pixel are ours. No Base UI type reaches an exported signature: placement is our own closed union rather than its Side/Align types, and onOpenChange is narrowed from its (open, eventDetails) to our (isOpen: boolean) per CONVENTIONS §1. check:boundaries ran against a real import for the first time and held. Open state deliberately does NOT go through useControllableState — the behaviour layer already implements the controlled/uncontrolled contract, and running two implementations over one piece of state is how they drift; §4 bans a bespoke implementation, which this is the opposite of. Trigger and Close take an element through `render` and pass it straight through, so a Button keeps its tag, classes, ref and accessible name and gains only the ARIA wiring (§3) — asserted in Chromium. Escape restoring focus to the trigger is asserted too, because focus falling to <body> is the classic hand-rolled-popover failure. Design corrected in Paper first: the panel had NO boundary at all (bg-elevated measures 1.11:1 on a white page) and now carries a border-subtle hairline plus shadow-md; the info glyph was a raw #B1A8A0 at 1.92:1 and is now --ui-text-muted at 4.87:1; radii were inverted (outer 12px inside an inner 16px) and are now concentric at radius-2xl; palette steps, raw gaps and raw type all moved onto roles. Establishes a new craft rule from the updated Card and Popover sheets: inside a radius-2xl panel bare text is inset by --ui-space-sm while boxed children sit flush, encoded structurally in Popover.Title/Description rather than documented.",
+  "affects": [
+    "component:popover",
+    "token:--ui-text-title-sm",
+    "doc:conventions-6-styling",
+    "skill:ui-craft",
+    "design:paper-popover"
+  ],
+  "migration": {
+    "manual": "Adds @base-ui-components/react as a peer dependency — the first behaviour-tier dependency. Every future item that depends on it must declare the SAME range. Separately, FLUID type roles now floor at the scale's own 12px minimum instead of a flat 72% of their maximum: --ui-text-title-sm shrank to 11.52px on narrow viewports, under the floor ADR 0009 set after an 11px label pushed the small button below the WCAG target size. Only title-sm was actually below the floor; other fluid roles are unchanged."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CXA-0"
+  }
+}

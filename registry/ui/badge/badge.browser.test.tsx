@@ -90,6 +90,25 @@ describe("Badge variants resolve to the designed roles", () => {
 });
 
 describe("Badge typography matches the corrected sheet", () => {
+  test("md is visibly taller than sm — the sizes must actually differ", () => {
+    // The previous tests here asserted that BOTH sizes use a 12px label and
+    // that their ICONS differ. Both passed while md and sm rendered at
+    // identical heights, because nothing ever compared the badges themselves.
+    // A test that cannot fail for the bug it is named after is not a test.
+    const small = mount(<Badge size="sm">Selected</Badge>);
+    const smHeight = small.badge.getBoundingClientRect().height;
+    act(() => root?.unmount());
+    container?.remove();
+
+    const medium = mount(<Badge size="md">Selected</Badge>);
+    const mdHeight = medium.badge.getBoundingClientRect().height;
+
+    // The sheet draws 22px and 28px.
+    expect(mdHeight).toBeGreaterThan(smHeight);
+    expect(mdHeight).toBeGreaterThanOrEqual(28);
+    expect(smHeight).toBeLessThan(25);
+  });
+
   test.each(["sm", "md"] as const)("size %s uses the 12px label, never 11px", (size) => {
     const { badge } = mount(<Badge size={size}>Selected</Badge>);
     // The sheet drew 11px, below the system's own floor (ADR 0009).

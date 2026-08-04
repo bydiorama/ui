@@ -54,6 +54,16 @@ Each of these passed type-check, lint, unit tests and `verify`:
 | The rem emitter rounded to 3 places, rendering the designed 13px label at 13.008px | Computed style | Only visible against a px-exact expectation — assert the design's number, not the emitter's |
 | `test:browser` never regenerated the token stylesheet, so the browser suite could assert against stale CSS | The gate itself | Change a token, run the suite, watch it *not* fail |
 | `check:utilities` had no `mt-`/`ms-`/`size-`/`inset-` namespaces — a directional-margin typo emitted no CSS and went unreported | The gate itself | Probe with a nonexistent step (`mt-nudge`); coverage went 80 → 193 |
+| tailwind-merge deleted `leading-flat` because our type roles sit in its `font-size` group, whose built-in conflict clears `leading` — stock `text-sm` bundles a line height, ours never do. Badge md and sm both fell to the font's normal leading and rendered identically | Runtime class list | `cn()` unit tests — which did not exist at all until this review, despite two shipped bugs living there |
+| Two sizes differing only by an icon: every test passed while `md` and `sm` were pixel-identical, because nothing compared the badges themselves | Computed style | Assert the sizes DIFFER, not just that each is internally consistent |
+| `pnpm test` globbed only `packages/*/src/**` — registry-level unit tests never ran | The gate itself | Add a failing test under `registry/` and watch the suite stay green |
+
+**Probes must fail for the right reason.** A bare `scale-98` set from a test
+file proves nothing about a component using `data-[starting-style]:scale-98`:
+Tailwind compiles only what it finds when scanning source, so the probe is
+absent even when the component's rule exists. It read as dead CSS and was not.
+To check a variant utility, read the **compiled rule** out of
+`document.styleSheets` — layer 3 — rather than inventing a class at runtime.
 
 Also known: Tailwind scans **comments** for class names — a class named in a
 comment compiles a dead rule. Harmless, but don't let it fool a grep-count.

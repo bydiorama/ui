@@ -97,6 +97,29 @@
       "status": "stable"
     },
     {
+      "name": "popover",
+      "type": "ui",
+      "description": "A panel anchored to a trigger, for secondary content that should not take over the page. Compound: Trigger, Panel, Title, Description, Close. Positioning, focus restoration, dismissal and ARIA wiring come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. Bare text inside the 32px-radius panel is inset one step; boxed children sit flush.",
+      "files": [
+        {
+          "path": "registry/ui/popover/popover.tsx",
+          "target": "ui/popover.tsx"
+        },
+        {
+          "path": "registry/ui/popover/popover.doc.ts",
+          "target": "ui/popover.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react",
+        "@base-ui-components/react"
+      ],
+      "status": "stable"
+    },
+    {
       "name": "avatar",
       "type": "ui",
       "description": "A person or entity as a photo or their initials. Circle or rounded, three sizes. `name` is required in both forms — it is the image's alt text and the source of the initials. Initials are aria-hidden and the full name exposed separately, so a screen reader announces the person rather than spelling out letters.",
@@ -137,6 +160,29 @@
       ],
       "peerDependencies": [
         "react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "banner",
+      "type": "ui",
+      "description": "An inline message attached to the surface it belongs to — not a toast, not a dialog. Five intents (neutral, info, success, warning, danger), an optional leading glyph slot and an optional dismiss control whose accessible name is required at the type level. Announces only when isLive is set, so a banner rendered with the page does not talk over the user. Composes inside a Popover panel as a boxed child.",
+      "files": [
+        {
+          "path": "registry/ui/banner/banner.tsx",
+          "target": "ui/banner.tsx"
+        },
+        {
+          "path": "registry/ui/banner/banner.doc.ts",
+          "target": "ui/banner.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
       ],
       "status": "stable"
     },

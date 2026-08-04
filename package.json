@@ -16,7 +16,7 @@
     "check:licensing": "node scripts/lint-licensing.mjs",
     "check:utilities": "node --experimental-strip-types scripts/check-utilities.mjs",
     "ledger:new": "node scripts/ledger-new.mjs",
-    "test": "node --experimental-strip-types --test \"packages/*/src/**/*.test.ts\"",
+    "test": "node --experimental-strip-types --test \"packages/*/src/**/*.test.ts\" \"registry/**/*.test.ts\"",
     "test:browser": "pnpm --filter @bydiorama/storybook run test:browser",
     "type-check": "tsc --noEmit && pnpm --filter @bydiorama/storybook run type-check",
     "lint": "eslint .",
@@ -26,6 +26,7 @@
     "check:skills": "node scripts/validate-skills.mjs && node scripts/build-skills.mjs --check"
   },
   "devDependencies": {
+    "@base-ui-components/react": "1.0.0-rc.0",
     "@changesets/cli": "^2.27.0",
     "@storybook/react-vite": "^10.5.6",
     "@types/node": "^26.1.2",

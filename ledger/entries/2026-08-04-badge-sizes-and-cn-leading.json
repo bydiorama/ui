@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-badge-sizes-and-cn-leading",
+  "date": "2026-08-04",
+  "item": "badge",
+  "kind": "fix",
+  "summary": "Badge md and sm rendered identically, reported from Storybook. Two independent defects stacked. First, the SIZE map differed ONLY by icon size, so a badge with no icon was pixel-identical at both sizes. Second — and the reason even the sm height was wrong — tailwind-merge was deleting `leading-flat`: our type roles are registered in its `font-size` group, whose built-in conflict clears `leading` because stock `text-sm` bundles a line height. Ours never do (ADR 0009 pairs every role with its own leading token), so `text-label-sm` silently removed the leading and both sizes fell back to the font's normal 1.42, rendering at 28px instead of the designed 22px. Fixed by overriding conflictingClassGroups so font-size no longer clears leading — a knowing trade documented in cn.ts and pinned by a test: a consumer writing stock `leading-6 text-sm` now keeps both and the cascade decides, which is a far smaller failure than a component losing its own leading, and affects only stock classes this library never emits. Sizes are now pinned with min-h-5.5 and min-h-7 (22/28) rather than transcribing the sheet's off-scale 145% md leading, which put a control's height at the mercy of font metrics; the padding scale cannot express 28 (py-xs gives 22, py-sm 30). Design corrected in Paper to match: md leading moved to --ui-leading-flat with an explicit 28px min-height, md gained the tracking-tight the sm rows already had, and the md status variants lost a 1px border drawn in their own background colour that sm did not have.",
+  "affects": ["component:badge", "lib:cn", "script:test-glob", "design:paper-badge"],
+  "migration": {
+    "manual": "cn() no longer lets a font size clear a preceding leading. If consumer code relied on stock `text-sm` overriding an earlier `leading-*`, set the leading after the size instead. `pnpm test` now also runs registry/**/*.test.ts, which had never been globbed — registry-level unit tests, including the first cn() tests, were silently not running."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0"
+  }
+}

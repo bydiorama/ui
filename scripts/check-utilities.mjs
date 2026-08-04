@@ -47,6 +47,12 @@ const NAMESPACES = [
   [/^font-(thin|light|regular|book|normal|medium|semibold|bold|black)$/, "--font-weight-"],
   [/^leading-(.+)$/, "--leading-"],
   [/^tracking-(.+)$/, "--tracking-"],
+  // Intent inks — `text-danger`, `text-success`, `text-info`. LAST, so the
+  // type-role and ink-role patterns above win first; the loop breaks on the
+  // first match. Absent until Banner used the full intent set, which means
+  // every `text-<intent>` in Badge and Input had been going unchecked since
+  // Badge shipped: a `text-dangr` typo would have emitted nothing, silently.
+  [/^text-([a-z][\w-]*)$/, "--color-"],
 ];
 
 /** Tailwind keywords and bare scales that need no theme variable. */
@@ -55,6 +61,10 @@ const BUILTIN = new Set([
   "full", "px", "screen", "fit", "min", "max", "offset", "inset", "hidden",
   // Line styles and table keywords that share the border- prefix.
   "solid", "dashed", "dotted", "double", "collapse", "separate",
+  // Text alignment, wrapping and overflow keywords share the text- prefix
+  // with the intent inks, and are built-ins rather than theme colours.
+  "left", "center", "right", "justify", "start", "end",
+  "wrap", "nowrap", "balance", "pretty", "ellipsis", "clip",
 ]);
 
 const VARIANT =
@@ -101,7 +111,10 @@ for (const file of walk(join(ROOT, "registry"))) {
     for (const [pattern, namespace] of NAMESPACES) {
       const match = cls.match(pattern);
       if (!match) continue;
-      const key = match[1];
+      // `bg-accent/10` is the accent colour at 10% — the opacity modifier is
+      // not part of the token name, so strip it before the lookup or every
+      // tinted utility reports as missing.
+      const key = match[1].replace(/\/\d+(\.\d+)?$/, "");
       checkedClasses++;
       // Numeric keys are Tailwind's built-in scale (ring-1, p-0, size-6).
       if (BUILTIN.has(key) || /^\d/.test(key)) break;

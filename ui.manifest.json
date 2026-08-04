@@ -120,6 +120,29 @@
       "status": "stable"
     },
     {
+      "name": "modal",
+      "type": "ui",
+      "description": "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Compound: Trigger, Surface, Title, Description, Footer, Close. Always modal — a non-modal dialog with a scrim is a Popover. Dismissal by Escape and scrim-click is on by default and can be turned off for unsaved work. Built on the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
+      "files": [
+        {
+          "path": "registry/ui/modal/modal.tsx",
+          "target": "ui/modal.tsx"
+        },
+        {
+          "path": "registry/ui/modal/modal.doc.ts",
+          "target": "ui/modal.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react",
+        "@base-ui-components/react"
+      ],
+      "status": "stable"
+    },
+    {
       "name": "avatar",
       "type": "ui",
       "description": "A person or entity as a photo or their initials. Circle or rounded, three sizes. `name` is required in both forms — it is the image's alt text and the source of the initials. Initials are aria-hidden and the full name exposed separately, so a screen reader announces the person rather than spelling out letters.",

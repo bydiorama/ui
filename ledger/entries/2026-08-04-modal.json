@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-modal",
+  "date": "2026-08-04",
+  "item": "modal",
+  "kind": "addition",
+  "summary": "Modal — the second component on the Base UI behaviour layer, and the evidence that ADR 0012's wrapper pattern generalises rather than being something that worked once. Deliberately the same shape as Popover: Root/Trigger/Surface/Title/Description/Footer/Close, our own props outside, no Base UI type in any exported signature, the same one-line exactOptionalPropertyTypes shim contained to the one file check:boundaries isolates. It is ALWAYS modal and takes no isModal prop, because a non-modal dialog with a scrim is a Popover wearing a costume. The footer is justify-between per the sheet, separating the dismissing action from the committing one. A real defect found by the browser suite: `dismissible` is NOT a prop on Base UI's DialogRoot, so passing it was silently ignored and Escape closed a modal that had explicitly opted out — isDismissable is now implemented by cancelling the escape-key and outside-press reasons in onOpenChange, with a second test proving an explicit Modal.Close still works, since cancelling close-press too would have made the dialog unclosable. Tooling: --ui-scrim is a scheme-only role that was emitted as CSS with no Tailwind utility, so any component wanting it had to use the arbitrary bg-(--ui-scrim) form, which check:utilities skips by design. The emitter now mints --color-scrim, so `bg-scrim` exists and is verified.",
+  "affects": ["component:modal", "token:--ui-scrim", "emitter:tailwind", "design:paper-modal"],
+  "migration": {
+    "manual": "New peer dependency on @base-ui-components/react, the same range Popover declares. `bg-scrim` is a new utility; nothing previously used the scrim, so nothing changes visually."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GA9-0"
+  }
+}

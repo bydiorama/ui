@@ -15,7 +15,7 @@
  * every brandable colour token gets exactly one utility name.
  */
 
-import { BRANDABLE_TOKENS, FIXED_TOKENS, type BrandableToken } from "../contract.ts";
+import { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS, type BrandableToken } from "../contract.ts";
 
 /** Dimension/composite tokens whose prefixes collide with colour families.
  *  Mapping these into `--color-*` would mint utilities like `bg-nav-width` —
@@ -92,6 +92,15 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
   for (const token of BRANDABLE_TOKENS) {
     const utility = utilityName(token);
     if (utility) colors.push([utility, `var(${token})`]);
+  }
+  // The scrim varies with the scheme but never with the brand, so it lives in
+  // SCHEME_ONLY_TOKENS and was emitted as CSS with no utility. A component
+  // wanting it had to write the arbitrary `bg-(--ui-scrim)` form, which
+  // `check:utilities` skips by design — leaving it unverified. Modal is the
+  // first component to need one. The other scheme-only tokens drive
+  // `::selection` from CSS and want no utility.
+  if ((SCHEME_ONLY_TOKENS as readonly string[]).includes("--ui-scrim")) {
+    colors.push(["--color-scrim", "var(--ui-scrim)"]);
   }
   push("Colour roles.", colors);
 

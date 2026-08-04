@@ -19,3 +19,10 @@ apps/storybook/styles/tokens.generated.css
 # baselines, when they arrive, live elsewhere and are committed on purpose.
 **/__screenshots__/
 **/.vitest-attachments/
+
+# ...except the visual-regression BASELINES, which are the opposite of debris:
+# a deliberate, reviewed artefact that a diff is measured against. They are
+# platform-specific (`-chromium-darwin`), which is why the visual project is
+# not in CI — see ledger/decisions and `pnpm test:visual`.
+!registry/visual/__screenshots__/
+!registry/visual/__screenshots__/**

@@ -23,7 +23,8 @@
     "verify": "pnpm run check:manifest && pnpm run check:registry && pnpm run check:ledger && pnpm run check:licensing && pnpm run check:utilities && pnpm run check:boundaries && pnpm run check:skills",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "skills:build": "node scripts/build-skills.mjs",
-    "check:skills": "node scripts/validate-skills.mjs && node scripts/build-skills.mjs --check"
+    "check:skills": "node scripts/validate-skills.mjs && node scripts/build-skills.mjs --check",
+    "test:visual": "pnpm --filter @bydiorama/storybook run test:visual"
   },
   "devDependencies": {
     "@base-ui-components/react": "1.0.0-rc.0",

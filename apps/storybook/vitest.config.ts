@@ -55,6 +55,29 @@ export default defineConfig({
         },
       },
       {
+        /**
+         * Visual regression. Separate from `contract` because its baselines
+         * are platform-specific — font rasterisation differs between macOS
+         * and Linux, so a committed macOS PNG cannot pass on a Linux runner.
+         * Kept out of `test:browser` and out of CI until a containerised
+         * runner exists; run it with `pnpm test:visual`.
+         */
+        extends: true,
+        test: {
+          name: "visual",
+          include: [join(root, "registry/**/*.visual.test.tsx")],
+          setupFiles: [join(here, "vitest.setup.ts")],
+          browser: {
+            ...browser(),
+            // Baselines are a deliberate, COMMITTED artefact. Failure captures
+            // are debris and would land in the same folder, so they are turned
+            // off here — the diff image in .vitest-attachments is enough, and
+            // it keeps the baseline directory free of anything unreviewed.
+            screenshotFailures: false,
+          },
+        },
+      },
+      {
         // Runs every story as a test with axe attached. addon-a11y's
         // `test: "error"` only bites here — a build merely compiles stories.
         extends: true,

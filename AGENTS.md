@@ -100,3 +100,21 @@ fails on drift.
   hooks exist for that.
 - Do not skip the ledger entry because a change "is small". Small silent changes
   are exactly what strands downstream copies.
+
+## Visual regression
+
+`pnpm test:visual` diffs each component's matrix against a committed baseline,
+in **both schemes**. It is the only layer that catches what computed-style
+assertions cannot — a badge whose two sizes are identical, a label hugging the
+top of its row, a panel with no visible boundary. All three of those shipped.
+
+- Baselines live in `registry/visual/__screenshots__/` and **are committed**
+  (explicitly un-ignored). Review a changed baseline like any other diff.
+- Intentional visual change? Delete the affected baseline, re-run, and commit
+  the new PNG **after looking at it**.
+- **Not in CI.** Baselines are platform-specific (`-chromium-darwin`): font
+  rasterisation differs between macOS and Linux, so a committed macOS PNG
+  cannot pass on a Linux runner. Running it needs a containerised runner that
+  matches whoever generated the baselines. Until then this gate is local and
+  manual-to-invoke, which is weaker than every other gate here — say so rather
+  than assuming it ran.

@@ -129,6 +129,27 @@
       ]
     },
     {
+      "name": "multiselect",
+      "type": "registry:ui",
+      "description": "A filterable list of options where more than one can be chosen, with the selection shown as removable chips. Listbox/combobox ARIA, aria-multiselectable, active-descendant management, typeahead, filtering and dismissal all come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. The trigger reuses Input's control surface; chips are Badge components with real remove buttons.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/badge"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/multiselect/multiselect.tsx",
+          "type": "registry:ui",
+          "target": "ui/multiselect.tsx"
+        },
+        {
+          "path": "registry/ui/multiselect/multiselect.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/multiselect.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "avatar",
       "type": "registry:ui",
       "description": "A person or entity as a photo or their initials. Circle or rounded, three sizes. `name` is required in both forms — it is the image's alt text and the source of the initials. Initials are aria-hidden and the full name exposed separately, so a screen reader announces the person rather than spelling out letters.",

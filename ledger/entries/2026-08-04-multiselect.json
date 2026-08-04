@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-multiselect",
+  "date": "2026-08-04",
+  "item": "multiselect",
+  "kind": "addition",
+  "summary": "Multiselect — blocked since the behaviour-layer question was opened, and the first component assembled from our own primitives: Input's control surface for the trigger, Badge for the chips, Checkbox's visual language for the rows, all over Base UI's Combobox. None of the hard ARIA is written here — listbox roles, aria-multiselectable, active-descendant management, typeahead, filtering and dismissal come from the behaviour layer (ADR 0012), narrowed so no third-party type reaches a public signature: selection is keyed by VALUE rather than by item object, so a re-fetched list keeps it. The option rows deliberately reuse Checkbox's visuals but NOT the Checkbox component, because the row itself carries role=option and a real input nested inside it would be a second control inside the first. Chips nest a Badge inside Base UI's Chip, which supplies the context ChipRemove requires. Nine design defects were corrected rather than transcribed, the worst being an 11px chip label (under the 12px floor ADR 0009 set), a --ui-neutral-100 tick on --ui-blue-80 measuring 1.51:1 against SC 1.4.11's 3:1, and four palette steps where accent and elevated roles already exist. The trigger's agreement with Input is asserted as a RELATIONSHIP rather than as numbers, so the two cannot silently drift apart.",
+  "affects": ["component:multiselect", "design:paper-multiselect"],
+  "migration": { "manual": "New peer dependencies: @base-ui-components/react (same range as Popover and Modal) and griddy-icons. Registry dependency on badge." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EVQ-0" }
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-forwarding-contract",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "decision",
+  "summary": "CONVENTIONS §5 refined by the first compound component. Two rules that were unambiguous for Button (a single element) diverged for Input. (1) ref: form controls forward to the interactive element rather than the outermost node — a ref to a wrapper cannot focus the field, read a value, or be handed to a form library, which is every reason a caller takes one. (2) className: always lands on the OUTERMOST node so sizing behaves predictably, while native props go to the element that owns them; Input initially put className on the control while spreading rest onto the input, which was inconsistent in a way no gate could see. Both now have browser regression tests asserting computed width and attribute placement.",
+  "affects": ["item:input", "decision:conventions-5-forwarding"],
+  "migration": { "manual": "Components authored before this: check that className reaches the outermost node and that a form control's ref reaches its interactive element." }
+}

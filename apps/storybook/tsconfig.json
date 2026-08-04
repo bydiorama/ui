@@ -9,6 +9,9 @@
       "@bydiorama/tokens": ["../../packages/tokens/src/index.ts"],
       "@bydiorama/tokens/*": ["../../packages/tokens/src/*"],
       "@/lib/cn": ["../../registry/lib/cn/cn.ts"],
+      "@/hooks/use-controllable-state": [
+        "../../registry/hooks/use-controllable-state/use-controllable-state.ts"
+      ],
       "@/ui/*": ["../../registry/ui/*"]
     }
   },

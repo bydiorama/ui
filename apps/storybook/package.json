@@ -8,7 +8,7 @@
     "build": "pnpm tokens && storybook build",
     "tokens": "node --experimental-strip-types ./scripts/emit-css.ts",
     "type-check": "tsc --noEmit",
-    "test:browser": "vitest run --config vitest.config.ts"
+    "test:browser": "pnpm tokens && vitest run --config vitest.config.ts"
   },
   "devDependencies": {
     "@bydiorama/tokens": "workspace:*",

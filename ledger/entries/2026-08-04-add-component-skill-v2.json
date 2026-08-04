@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-add-component-skill-v2",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "decision",
+  "summary": "add-component refined from the Input run and the full-library review. Adds a second governing rule beside the ratchet: THE FIRST-OF-ITS-KIND RULE — the first component to do something new breaks the tooling for it, so budget for fixing gates before code. Probing a new or changed gate is promoted from advice to a required numbered step, because three gates in this repo have reported success while measuring nothing. New guidance: interrogate focus and error states during spec (both of Input's serious design defects lived there); pin roles in ZERO_AUTHORED.dark as well as light and add them to CONTRAST_PAIRS, since an unlisted pair is an unchecked pair; register a new utility family in BOTH cn.ts and check-utilities.mjs; the compound-component forwarding contract (className outermost, ref to the interactive element for form controls); await running transitions before reading computed style; stories are gates rather than demos now that each runs through axe. Traps table reordered by likelihood and grown from 12 to 18 rows. Definition of done now requires both-scheme contrast measurement and a failing-first probe of any gate touched.",
+  "affects": ["skill:add-component"],
+  "migration": { "manual": "Invoke the skill at the start of component work as before; the pipeline steps are unchanged in order, stricter in content." }
+}

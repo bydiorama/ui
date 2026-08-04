@@ -56,8 +56,16 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 
 ## 5. Forwarding and refs
 
-- Every component forwards `ref` to its outermost DOM node.
+- Every component forwards `ref` to its outermost DOM node — **except a form
+  control, whose ref goes to the interactive element** (`input`, `textarea`,
+  `select`). A ref to a wrapper cannot `.focus()`, cannot be read for a value,
+  and cannot be handed to a form library, which is every reason a caller takes
+  a ref on a field. The wrapper stays reachable through `data-slot`.
 - Every component accepts `className` and spreads the remaining native props.
+  `className` always lands on the **outermost** node so sizing and layout
+  behave predictably; native props go to the element that owns them (a field's
+  `type`/`placeholder`/`value` belong on the `input`, not the wrapper).
+  Reaching an inner part from outside is what `data-slot` is for.
 - Merge precedence is fixed: **contract props win**, event handlers are
   composed (ours runs, then the consumer's, unless the consumer calls
   `preventDefault`), `className` is merged, `style` is shallow-merged.
@@ -125,6 +133,17 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   data takes it as props.
 - **No licensed assets.** Aspekta (OFL) is the single typeface
   (`ledger/decisions/0007`) — enforced by `pnpm check:licensing`.
+- **The behaviour layer is Base UI, and it stays invisible**
+  (`ledger/decisions/0012`). Only a component's own implementation file
+  (`registry/ui/<name>/<name>.tsx`) may import it, and **no behaviour-layer
+  type may appear in an exported signature** — restate the props you accept.
+  Both are enforced by `pnpm check:boundaries`, not by review.
+- Reach for it only when the platform does not already do the job. A native
+  `<input type="checkbox">` gives Space activation, form participation and the
+  `indeterminate` → `aria-checked="mixed"` mapping for free; a library can only
+  re-implement those. Drag-and-drop and Calendar are **ours** — Base UI covers
+  neither, and an accessible reorder needs a keyboard path (SC 2.1.1), not just
+  a pointer one.
 
 ## 10. Accessibility
 

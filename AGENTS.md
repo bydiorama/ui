@@ -33,6 +33,9 @@ to be read, owned and modified downstream.
 | `pnpm registry:build` | Regenerate `registry.json` and `r/*.json` from the manifest |
 | `pnpm check:registry` | Fail if the generated registry is stale (CI runs this) |
 | `pnpm check:licensing` | Fail on non-distributable fonts or paid-tier assets |
+| `pnpm skills:build` | Regenerate `.claude/skills/` from `registry/skills/` |
+| `pnpm check:skills` | Fail on a broken skill contract or a stale generated copy |
+| `pnpm check:boundaries` | Fail if the behaviour layer leaks into a public signature |
 | `pnpm ledger:new` | Scaffold a change-ledger entry |
 | `pnpm type-check` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
@@ -58,7 +61,7 @@ These are not style preferences; violating them breaks consumers:
 ## Adding a component
 
 The full pipeline — order of operations, tests, traps, definition of done —
-is the `add-component` skill (`.claude/skills/add-component/SKILL.md`).
+is the `add-component` skill (`registry/skills/add-component/SKILL.md`).
 Invoke it before starting; the steps below are the summary, not the manual.
 
 1. Design spec exists in `design/` (exported from Paper) — implement against it,
@@ -70,6 +73,22 @@ Invoke it before starting; the steps below are the summary, not the manual.
    own colours is not finished.
 5. `pnpm ledger:new` to record the addition.
 6. `pnpm verify`, `pnpm type-check`, `pnpm lint`.
+
+## Skills
+
+**`registry/skills/` is the source of truth for every skill. `.claude/skills/`
+is generated — never edit it.** The manifest decides which skills ship to
+consumers, the same way it decides which components do (ADR 0013).
+
+| Tier | Teaches | In the manifest | Front-matter name |
+|---|---|---|---|
+| Authoring | building this library | no | the directory name |
+| Product | using `@bydiorama/ui` | `type: "skill"` | `diorama-<directory>` |
+
+Creating or editing one is the **`create-skill`** skill
+(`registry/skills/create-skill/SKILL.md`) — invoke it rather than copying an
+existing skill's shape. Run `pnpm skills:build` after any edit; `check:skills`
+fails on drift.
 
 ## What not to do
 

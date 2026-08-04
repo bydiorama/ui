@@ -39,6 +39,19 @@ jobs:
       - name: Utilities resolve against the token theme
         run: node --experimental-strip-types scripts/check-utilities.mjs
 
+      # ADR 0012: the behaviour layer stays swappable only while nothing
+      # public depends on it. Listed here as its own step because this
+      # workflow enumerates the checks rather than running `pnpm verify` —
+      # adding a gate to `verify` alone would leave it unrun in CI.
+      - name: Behaviour-layer boundaries
+        run: node scripts/check-boundaries.mjs
+
+      # The skill contract, plus freshness of the generated .claude/skills
+      # copies. A skill loads on its description alone, so a bad one fails
+      # silently — which is exactly what a gate is for (ADR 0013).
+      - name: Skill contract
+        run: node scripts/validate-skills.mjs && node scripts/build-skills.mjs --check
+
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -57,10 +70,13 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Browser interaction tests
+      # Two projects: `contract` (computed-style + keyboard assertions) and
+      # `stories` (every story run through axe at error severity).
+      - name: Browser tests — contracts and story a11y
         run: pnpm run test:browser
 
-      # Compiles every story; with addon-a11y set to error, an inaccessible
-      # story is a build failure, not a panel warning.
+      # Compiles every story. NOTE: a build does not run axe — story
+      # accessibility is enforced by the `stories` vitest project above, which
+      # runs each story with addon-a11y at error severity.
       - name: Storybook build
         run: pnpm --filter @bydiorama/storybook run build

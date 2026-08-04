@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-add-avatar-badge",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Avatar and Badge, both built through add-component and needing no new tokens. Avatar: photo or derived initials, circle/rounded, `name` required in both forms because it is simultaneously the alt text and the initials source; the visible initials are aria-hidden with the full name in an sr-only span, so a screen reader announces the person rather than spelling letters; a real <img> means a broken URL degrades to alt text instead of an empty box. Badge: four variants, two sizes, pill/rounded, rendering a <span> with NO interaction props — the sheet's x and check variants are composed by passing a real button into iconEnd, which keeps the accessible name at the call site and avoids the commonest tag-component defect (a click handler on a span with no role, focus or keyboard path). 12 design bugs fixed in Paper across both, plus Multiselect (see the design-fixes entry).",
+  "affects": ["item:avatar", "item:badge"],
+  "migration": { "manual": "New items. `npx shadcn add @bydiorama/avatar @bydiorama/badge`; both pull in `cn` and expect react as a peer." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0" }
+}

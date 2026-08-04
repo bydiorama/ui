@@ -14,7 +14,19 @@ export const REGISTRY_PATH = join(ROOT, "registry.json");
 export const ITEM_DIR = join(ROOT, "r");
 
 /** Manifest item types → the `registry:*` types the generated registry uses. */
-export const ITEM_TYPES = ["ui", "lib", "hook", "block", "theme", "file", "style"];
+export const ITEM_TYPES = ["ui", "lib", "hook", "block", "theme", "file", "skill", "style"];
+
+/**
+ * Our vocabulary is not the transport's. `skill` says what the item IS, which
+ * is what the manifest is for; the shadcn registry schema has no such type, so
+ * it emits as `registry:file` — a plain file copied to a target, which is
+ * exactly what installing a skill is. Keeping the distinction here rather than
+ * flattening it in the manifest means `check:skills` can find every skill by
+ * type instead of by guessing at paths (ADR 0001: the generated output is
+ * replaceable; the manifest is the source of truth).
+ */
+const REGISTRY_TYPE = { skill: "file" };
+export const registryType = (type) => `registry:${REGISTRY_TYPE[type] ?? type}`;
 
 /**
  * Extensions the JSON transport must refuse.
@@ -67,13 +79,13 @@ export function buildIndex(manifest) {
     homepage: manifest.homepage,
     items: manifest.items.map((item) => ({
       name: item.name,
-      type: `registry:${item.type}`,
+      type: registryType(item.type),
       description: item.description,
       ...(item.dependencies?.length ? { dependencies: item.dependencies } : {}),
       ...(item.registryDependencies?.length
         ? { registryDependencies: item.registryDependencies.map((d) => qualifiedName(manifest, d)) }
         : {}),
-      files: item.files.map((f) => ({ path: f.path, type: `registry:${item.type}`, target: f.target })),
+      files: item.files.map((f) => ({ path: f.path, type: registryType(item.type), target: f.target })),
     })),
   };
 }
@@ -86,7 +98,7 @@ export function buildItem(manifest, item) {
   return {
     $schema: "https://ui.shadcn.com/schema/registry-item.json",
     name: item.name,
-    type: `registry:${item.type}`,
+    type: registryType(item.type),
     description: item.description,
     ...(item.dependencies?.length ? { dependencies: item.dependencies } : {}),
     ...(item.registryDependencies?.length
@@ -94,7 +106,7 @@ export function buildItem(manifest, item) {
       : {}),
     files: item.files.map((f) => ({
       path: f.path,
-      type: `registry:${item.type}`,
+      type: registryType(item.type),
       target: f.target,
       content: readFileSync(join(ROOT, f.path), "utf8"),
     })),

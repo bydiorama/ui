@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-behaviour-layer-base-ui",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Plan §7.6 closed. ADR 0012 adopts Base UI as the behaviour layer for the popover-class components (Modal, Popover, Select, Menu, Tooltip, Tabs, Slider, the Multiselect combobox), and keeps drag-and-drop and Calendar in-house because Base UI covers neither. The decision turned on two facts: the roadmap's behaviour surface, measured from the Paper file rather than estimated — six of seventeen component artboards need real behaviour, and Card Sorting is a drag-and-drop reorderable list whose rows carry drag handles — and the maintenance horizon, where Meta's Astryx is the in-house strategy executed well and its published package carries no third-party behaviour dependency at all, after eight years and a platform org. Base UI over React Aria on ecosystem gravity (shadcn/ui made it the default in July 2026; agents generate correct Base UI far more reliably) given that two of the six needed in-house work either way. Nothing shipped is retrofitted: Button, Input and Checkbox stay native, because a native control already provides implicit activation, form participation and the indeterminate mapping that a library can only re-implement. The wrapper rule is now a gate rather than prose — check:boundaries fails any registry file outside a component's own implementation that imports the behaviour layer, and any exported type that references a behaviour-layer identifier. Written and probed on both rules BEFORE the first Base UI import exists, because once a third-party type is in a public signature, removing it is a breaking change rather than a review comment.",
+  "affects": [
+    "decision:plan-7-6-behaviour-layer",
+    "script:check-boundaries",
+    "doc:conventions-9-boundaries"
+  ],
+  "migration": {
+    "manual": "None yet — no behaviour-layer dependency is in the tree. Popover is the first component to add one, and will also be the first to declare it in the manifest's peerDependencies. Every item that depends on it must declare the SAME version range: two majors resolving in one consumer app means duplicated state and broken portals, a failure that only appears after install."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0"
+  }
+}

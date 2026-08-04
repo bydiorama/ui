@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-checkbox",
+  "date": "2026-08-04",
+  "item": "checkbox",
+  "kind": "addition",
+  "summary": "Checkbox, plus the first registry hook. The whole row is one <label>, so the visible text is the accessible name natively and is part of the target: the sheet's 19px row is padded to the 24px floor of WCAG 2.5.8 while the painted box stays 18px. The native input is present and only visually clipped, which keeps Space activation, form participation and the indeterminate -> aria-checked=\"mixed\" mapping — none of which survive a div with role=checkbox. Mixed is deliberately controlled-only: it is a statement about OTHER checkboxes, so a component that owned it would be guessing. State runs through the new use-controllable-state hook (CONVENTIONS §4), the first item under registry/hooks and therefore the first to need the @/hooks alias in all four resolvers (root tsconfig, storybook tsconfig, vitest, storybook main). Four design defects fixed in Paper first: a white tick on the pale-blue accent measuring 1.51:1 and a disabled-ink dash on the sunken well at 1.76:1 (both far under SC 1.4.11's 3:1, now 11.35:1 and 14.11:1 on the correct roles), the unchecked edge moved from border-default (2.14:1) to border-control (3.11:1), and raw radius/gap/tracking values swapped for tokens. Three tooling defects found and fixed while building: the utilities gate had no mt-/ms-/size-/inset- namespaces so a directional-margin typo emitted no CSS unreported (80 -> 193 utilities checked, probed by breaking it); the rem emitter rounded to 3 places, turning the designed 13px label into 13.008px (now 4, which is exact for whole px on a 16px base); and test:browser never regenerated tokens, so the browser suite could assert against a stale stylesheet.",
+  "affects": [
+    "component:checkbox",
+    "hook:use-controllable-state",
+    "token:--ui-border-strong",
+    "script:check-utilities",
+    "design:paper-checkbox"
+  ],
+  "migration": {
+    "manual": "--ui-border-strong changes value in DERIVED dark schemes only (theme zero's light scheme authors it and is unchanged). It was an alpha hairline compositing to 1.78:1 against the dark page — weaker than --ui-border-control at 3.09:1, inverting ADR 0010's own subtle -> default -> control -> strong ordering — and is now built the same way control is, one step nearer the ink at a 4.5:1 floor. Any dark-scheme surface using border-strong will read more defined. Type sizes shift by up to 0.008px where a role is not a multiple of 4."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D21-0"
+  }
+}

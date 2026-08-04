@@ -20,6 +20,18 @@
       ]
     },
     {
+      "name": "use-controllable-state",
+      "type": "registry:hook",
+      "description": "The one implementation of the controlled/uncontrolled pattern (CONVENTIONS §4). Returns [value, setValue] with a referentially stable setter; a controlled component never updates its own state, and switching modes mid-life warns in development instead of silently picking a winner.",
+      "files": [
+        {
+          "path": "registry/hooks/use-controllable-state/use-controllable-state.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-controllable-state.ts"
+        }
+      ]
+    },
+    {
       "name": "font-aspekta",
       "type": "registry:file",
       "description": "Aspekta Variable — the design system's single typeface (SIL OFL 1.1, by Ivo Dolenc). Installs the @font-face CSS and the OFL license text; the ~30KB variable woff2 (weight 100-900) is binary and is fetched from the repo with the one-line curl documented at the top of aspekta.css, into the same directory. Keep OFL.txt with the font wherever it is deployed.",
@@ -53,6 +65,87 @@
           "path": "registry/ui/button/button.doc.ts",
           "type": "registry:ui",
           "target": "ui/button.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "description": "Single-line text field with its label, helper text and error message as one accessible unit. Three sizes (48/40/32px), leading and trailing slots. The label prop is required by the type system — a placeholder is not a label. errorText wires aria-invalid and aria-describedby together so the two cannot drift apart.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/input/input.tsx",
+          "type": "registry:ui",
+          "target": "ui/input.tsx"
+        },
+        {
+          "path": "registry/ui/input/input.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/input.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "description": "A person or entity as a photo or their initials. Circle or rounded, three sizes. `name` is required in both forms — it is the image's alt text and the source of the initials. Initials are aria-hidden and the full name exposed separately, so a screen reader announces the person rather than spelling out letters.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/avatar/avatar.tsx",
+          "type": "registry:ui",
+          "target": "ui/avatar.tsx"
+        },
+        {
+          "path": "registry/ui/avatar/avatar.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/avatar.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "description": "A short status or selection label. Four variants (selected, unselected, success, danger), two sizes, pill or rounded, with an optional trailing slot. Renders a span and takes no interaction props: anything actionable is a real button passed into iconEnd, keeping the accessible name at the call site.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/badge/badge.tsx",
+          "type": "registry:ui",
+          "target": "ui/badge.tsx"
+        },
+        {
+          "path": "registry/ui/badge/badge.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/badge.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "description": "A binary choice with its label as one control. Supports the mixed/indeterminate state for a parent whose children are partly selected. The whole row is the 24px target; the painted box stays 18px. Controlled or uncontrolled through the shared useControllableState hook.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/checkbox/checkbox.tsx",
+          "type": "registry:ui",
+          "target": "ui/checkbox.tsx"
+        },
+        {
+          "path": "registry/ui/checkbox/checkbox.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/checkbox.doc.ts"
         }
       ]
     },

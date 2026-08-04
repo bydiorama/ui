@@ -7,8 +7,31 @@
       "name": "cn",
       "type": "lib",
       "description": "Class-name composer: merges conditional classes and resolves conflicting Tailwind utilities so a consumer's className always wins over a component's defaults.",
-      "files": [{ "path": "registry/lib/cn/cn.ts", "target": "lib/cn.ts" }],
-      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "registry/lib/cn/cn.ts",
+          "target": "lib/cn.ts"
+        }
+      ],
+      "dependencies": [
+        "clsx",
+        "tailwind-merge"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "use-controllable-state",
+      "type": "hook",
+      "description": "The one implementation of the controlled/uncontrolled pattern (CONVENTIONS §4). Returns [value, setValue] with a referentially stable setter; a controlled component never updates its own state, and switching modes mid-life warns in development instead of silently picking a winner.",
+      "files": [
+        {
+          "path": "registry/hooks/use-controllable-state/use-controllable-state.ts",
+          "target": "hooks/use-controllable-state.ts"
+        }
+      ],
+      "peerDependencies": [
+        "react"
+      ],
       "status": "stable"
     },
     {
@@ -32,16 +55,118 @@
       "type": "ui",
       "description": "The primary action control. Four variants (primary, secondary, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy is visual-only and keeps focus, unlike isDisabled.",
       "files": [
-        { "path": "registry/ui/button/button.tsx", "target": "ui/button.tsx" },
-        { "path": "registry/ui/button/button.doc.ts", "target": "ui/button.doc.ts" }
+        {
+          "path": "registry/ui/button/button.tsx",
+          "target": "ui/button.tsx"
+        },
+        {
+          "path": "registry/ui/button/button.doc.ts",
+          "target": "ui/button.doc.ts"
+        }
       ],
-      "registryDependencies": ["cn"],
-      "peerDependencies": ["react", "griddy-icons"],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "input",
+      "type": "ui",
+      "description": "Single-line text field with its label, helper text and error message as one accessible unit. Three sizes (48/40/32px), leading and trailing slots. The label prop is required by the type system — a placeholder is not a label. errorText wires aria-invalid and aria-describedby together so the two cannot drift apart.",
+      "files": [
+        {
+          "path": "registry/ui/input/input.tsx",
+          "target": "ui/input.tsx"
+        },
+        {
+          "path": "registry/ui/input/input.doc.ts",
+          "target": "ui/input.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "avatar",
+      "type": "ui",
+      "description": "A person or entity as a photo or their initials. Circle or rounded, three sizes. `name` is required in both forms — it is the image's alt text and the source of the initials. Initials are aria-hidden and the full name exposed separately, so a screen reader announces the person rather than spelling out letters.",
+      "files": [
+        {
+          "path": "registry/ui/avatar/avatar.tsx",
+          "target": "ui/avatar.tsx"
+        },
+        {
+          "path": "registry/ui/avatar/avatar.doc.ts",
+          "target": "ui/avatar.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "badge",
+      "type": "ui",
+      "description": "A short status or selection label. Four variants (selected, unselected, success, danger), two sizes, pill or rounded, with an optional trailing slot. Renders a span and takes no interaction props: anything actionable is a real button passed into iconEnd, keeping the accessible name at the call site.",
+      "files": [
+        {
+          "path": "registry/ui/badge/badge.tsx",
+          "target": "ui/badge.tsx"
+        },
+        {
+          "path": "registry/ui/badge/badge.doc.ts",
+          "target": "ui/badge.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "checkbox",
+      "type": "ui",
+      "description": "A binary choice with its label as one control. Supports the mixed/indeterminate state for a parent whose children are partly selected. The whole row is the 24px target; the painted box stays 18px. Controlled or uncontrolled through the shared useControllableState hook.",
+      "files": [
+        {
+          "path": "registry/ui/checkbox/checkbox.tsx",
+          "target": "ui/checkbox.tsx"
+        },
+        {
+          "path": "registry/ui/checkbox/checkbox.doc.ts",
+          "target": "ui/checkbox.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "use-controllable-state"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
+      ],
       "status": "stable"
     },
     {
       "name": "ui-craft",
-      "type": "file",
+      "type": "skill",
       "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",
       "files": [
         {

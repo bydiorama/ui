@@ -164,7 +164,7 @@ test("the authored type table is emitted verbatim at the default base size", () 
   const { theme } = resolveTheme(THEME_ZERO, { scheme: "light" });
   assert.equal(theme["--ui-text-body-md"], "0.875rem", "body-md is the 14px base target");
   assert.equal(theme["--ui-text-body-lg"], "1rem");
-  assert.equal(theme["--ui-text-label-md"], "0.813rem");
+  assert.equal(theme["--ui-text-label-md"], "0.8125rem");
   assert.equal(theme["--ui-text-button-sm"], "0.75rem");
   assert.ok(theme["--ui-text-display-lg"].startsWith("clamp("), "display roles are fluid");
 });
@@ -172,10 +172,10 @@ test("the authored type table is emitted verbatim at the default base size", () 
 test("type roles are driven by the seed and clamped; ratio is reserved", () => {
   const big = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 999, ratio: 99 } }, { scheme: "light" });
   const maxFactor = SEED_BOUNDS.baseSize.max / SEED_BOUNDS.baseSize.default;
-  assert.equal(big.theme["--ui-text-body-md"], `${Number(((14 * maxFactor) / 16).toFixed(3))}rem`, "baseSize must clamp");
+  assert.equal(big.theme["--ui-text-body-md"], `${Number(((14 * maxFactor) / 16).toFixed(4))}rem`, "baseSize must clamp");
 
   const small = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 14 } }, { scheme: "light" });
-  assert.equal(small.theme["--ui-text-body-md"], `${Number(((14 * (14 / 16)) / 16).toFixed(3))}rem`);
+  assert.equal(small.theme["--ui-text-body-md"], `${Number(((14 * (14 / 16)) / 16).toFixed(4))}rem`);
   assert.ok(small.theme["--ui-text-title-lg"].startsWith("clamp("), "title roles are fluid");
   assert.ok(!small.theme["--ui-text-body-sm"].includes("clamp"), "body roles are fixed");
 
@@ -242,4 +242,33 @@ test("a bad seed still resolves, so one bad value cannot blank a page", () => {
   const { theme, issues } = resolveTheme(broken, { scheme: "light" });
   assert.deepEqual(missingTokens(theme), []);
   assert.equal(issues.length, 0, "unparseable-but-safe values are the resolver's problem, not intake's");
+});
+
+test("the border stack is ordered by MEASURED contrast, in both schemes", () => {
+  // ADR 0010 names four steps subtle → default → control → strong. The names
+  // are not the guarantee; before this test, dark `strong` composited to
+  // 1.78:1 while `control` sat at 3.09:1, so the stack ran backwards and a
+  // Checkbox's mixed box — drawn entirely with `strong` — had no visible
+  // boundary at all on the dark ground.
+  for (const { name, seed } of [{ name: "theme zero", seed: THEME_ZERO }, ...STRESS_BRANDS]) {
+    const pair = resolveThemePair(seed, { authored: seed === THEME_ZERO ? ZERO_AUTHORED : {} });
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      const page = theme["--ui-bg-base"];
+      const against = (token: (typeof BRANDABLE_TOKENS)[number]) =>
+        contrastRatio(flatten(theme[token], page), page);
+
+      const control = against("--ui-border-control");
+      const strong = against("--ui-border-strong");
+
+      assert.ok(
+        control >= 3 - 0.05,
+        `${name} (${scheme}): border-control must clear SC 1.4.11 — got ${control.toFixed(2)}`,
+      );
+      assert.ok(
+        strong >= control,
+        `${name} (${scheme}): border-strong (${strong.toFixed(2)}) is weaker than border-control (${control.toFixed(2)}) — the stack is inverted`,
+      );
+    }
+  }
 });

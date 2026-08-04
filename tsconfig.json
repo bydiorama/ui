@@ -33,6 +33,9 @@
       // the source we ship is the source we type-check — no rewriting on the
       // way out, and a broken cross-item import fails in our CI, not theirs.
       "@/lib/cn": ["./registry/lib/cn/cn.ts"],
+      "@/hooks/use-controllable-state": [
+        "./registry/hooks/use-controllable-state/use-controllable-state.ts"
+      ],
       "@/ui/*": ["./registry/ui/*"]
     }
   },

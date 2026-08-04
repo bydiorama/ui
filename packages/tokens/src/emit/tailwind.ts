@@ -38,9 +38,12 @@ function utilityName(token: BrandableToken): string | null {
 
   if (name.startsWith("bg-")) return `--color-${name.slice(3)}`;
   if (name.startsWith("text-")) return `--color-ink-${name.slice(5)}`;
-  if (name.startsWith("border-") || name === "focus-ring-color") {
-    return `--color-edge-${name.replace(/^border-/, "").replace("focus-ring-color", "focus")}`;
-  }
+  // Distinct contract tokens must get distinct utility names. These two once
+  // both produced `--color-edge-focus`, so the second silently overwrote the
+  // first — invisible while theme zero gives them equal values, and a silent
+  // loss for any brand that moves them apart.
+  if (name === "focus-ring-color") return "--color-focus-ring";
+  if (name.startsWith("border-")) return `--color-edge-${name.slice(7)}`;
   // `intent-danger-bg` → `bg-danger-subtle`, not `bg-danger-bg`. The role
   // vocabulary says "bg" because the token is a background; the utility
   // already says it, so repeating it reads as a stutter at the call site.

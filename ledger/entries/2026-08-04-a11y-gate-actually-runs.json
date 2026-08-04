@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-a11y-gate-actually-runs",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "Story accessibility was never enforced, despite being claimed in CI comments and a ledger entry. addon-a11y's `test: \"error\"` only takes effect when stories run through addon-vitest, which was installed but never added to main.ts addons and had no vitest project — so `storybook build` merely compiled stories and axe never ran. This is precisely the 'addon as decoration' trap the review-ui skill lists, committed by the person who wrote it. Fixed by wiring addon-vitest and splitting the browser suite into two projects: `contract` (computed-style and keyboard assertions) and `stories` (all 11 stories through axe). A second bug surfaced while wiring: main.ts declared an ABSOLUTE stories glob, which addon-vitest re-resolved against configDir into '.storybook/Users/...', matching nothing — the story project reported success while running zero tests. Glob is now relative. Probed failing-first with an unlabelled input, which the gate rejects.",
+  "affects": ["app:storybook", "workflow:ci", "script:test-browser"],
+  "migration": { "manual": "None for consumers. `pnpm test:browser` now runs both projects." }
+}

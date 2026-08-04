@@ -30,7 +30,7 @@
           "description": "Kebab-case. This is what a consumer types: @bydiorama/<name>."
         },
         "type": {
-          "enum": ["ui", "lib", "hook", "block", "theme", "file", "style"],
+          "enum": ["ui", "lib", "hook", "block", "theme", "file", "skill", "style"],
           "description": "Mapped to registry:<type> in the generated registry."
         },
         "description": { "type": "string", "minLength": 1 },

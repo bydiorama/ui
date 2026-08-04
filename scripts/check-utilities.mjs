@@ -27,9 +27,20 @@ const NAMESPACES = [
   [/^text-ink-(.+)$/, "--color-ink-"],
   [/^text-(button-.+|body-.+|title-.+|display-.+|label-.+|caption)$/, "--text-"],
   [/^ring-(.+)$/, "--color-"],
+  // Border COLOUR (widths/styles are numeric or keywords, filtered below).
+  // Absent until Input arrived, because Button draws its resting edge with a
+  // ring — so every border-* colour in the library was going unchecked.
+  [/^border-(?:[xytrbles]-)?([a-z][\w-]*)$/, "--color-"],
   // `outline-offset-*` and the line styles are built-ins, not colours.
   [/^outline-(?!offset-|solid|dashed|dotted|double)(.+)$/, "--color-"],
-  [/^(?:gap|gap-x|gap-y|p|px|py|pt|pb|pl|pr|m|mx|my|space-x|space-y)-(.+)$/, "--spacing-"],
+  // Every spacing-namespace prefix, not a sample of them. `mt-` was absent
+  // until Checkbox needed an optical nudge, so a `mt-lg` typo would have
+  // emitted nothing and gone unreported — the exact failure this gate exists
+  // to catch, one prefix to the left of where it was looking.
+  [
+    /^(?:gap|gap-x|gap-y|p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|space-x|space-y|size|w|h|min-w|min-h|max-w|max-h|inset|top|bottom|left|right|start|end|translate-x|translate-y|scroll-m|scroll-p)-(.+)$/,
+    "--spacing-",
+  ],
   [/^rounded(?:-[trbl]{1,2})?-(.+)$/, "--radius-"],
   [/^shadow-(.+)$/, "--shadow-"],
   [/^font-(body|display)$/, "--font-"],
@@ -42,9 +53,12 @@ const NAMESPACES = [
 const BUILTIN = new Set([
   "transparent", "current", "inherit", "initial", "unset", "none", "auto",
   "full", "px", "screen", "fit", "min", "max", "offset", "inset", "hidden",
+  // Line styles and table keywords that share the border- prefix.
+  "solid", "dashed", "dotted", "double", "collapse", "separate",
 ]);
 
-const VARIANT = /^(?:hover|focus|focus-visible|focus-within|active|disabled|aria-busy|data-\[[^\]]+\]|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|group-hover|peer-focus|forced-colors|print|first|last|odd|even):/;
+const VARIANT =
+  /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-busy|aria-\[[^\]]+\]|data-\[[^\]]+\]|has-\[[^\]]+\]|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
 
 function classesIn(source) {
   return new Set(
@@ -78,9 +92,12 @@ for (const file of walk(join(ROOT, "registry"))) {
   checkedFiles++;
   const rel = file.slice(ROOT.length + 1);
   for (const cls of classesIn(readFileSync(file, "utf8"))) {
-    // Arbitrary values (`ring-[1.5px]`, `duration-[--ui-duration-fast]`) name
-    // their own value and bypass the theme by design.
-    if (cls.includes("[")) continue;
+    // Arbitrary values name their own value and bypass the theme by design,
+    // in BOTH syntaxes: brackets for literals (`ring-[1.5px]`) and parens for
+    // custom properties (`shadow-(--ui-focus-ring)`). Skipping only brackets
+    // made every parens utility a false positive — which is also the syntax
+    // the motion tokens had to move to, so the two are easy to conflate.
+    if (cls.includes("[") || cls.includes("(")) continue;
     for (const [pattern, namespace] of NAMESPACES) {
       const match = cls.match(pattern);
       if (!match) continue;

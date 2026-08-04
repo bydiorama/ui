@@ -2,12 +2,21 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "vitest/config";
+import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "../..");
+
+/** A fresh provider per project — vitest cannot share one factory instance. */
+const browser = () => ({
+  enabled: true as const,
+  provider: playwright(),
+  headless: true,
+  instances: [{ browser: "chromium" as const }],
+});
 
 /**
  * Interaction tests run in a REAL browser (Playwright/Chromium), not jsdom.
@@ -26,18 +35,36 @@ export default defineConfig({
   resolve: {
     alias: {
       "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),
+      "@/hooks/use-controllable-state": join(
+        root,
+        "registry/hooks/use-controllable-state/use-controllable-state.ts",
+      ),
       "@/ui": join(root, "registry/ui"),
       "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
     },
   },
   test: {
-    include: [join(root, "registry/**/*.browser.test.tsx")],
-    setupFiles: [join(here, "vitest.setup.ts")],
-    browser: {
-      enabled: true,
-      provider: playwright(),
-      headless: true,
-      instances: [{ browser: "chromium" }],
-    },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "contract",
+          include: [join(root, "registry/**/*.browser.test.tsx")],
+          setupFiles: [join(here, "vitest.setup.ts")],
+          browser: browser(),
+        },
+      },
+      {
+        // Runs every story as a test with axe attached. addon-a11y's
+        // `test: "error"` only bites here — a build merely compiles stories.
+        extends: true,
+        plugins: [storybookTest({ configDir: join(here, ".storybook") })],
+        test: {
+          name: "stories",
+          setupFiles: [join(here, "vitest.setup.ts")],
+          browser: browser(),
+        },
+      },
+    ],
   },
 });

@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-badge-non-interactive-type",
+  "date": "2026-08-04",
+  "item": "badge",
+  "kind": "a11y",
+  "summary": "Badge's doc said 'do not attach onClick' while its props extended HTMLAttributes<HTMLSpanElement>, which permits onClick, onKeyDown and tabIndex — the doc and the types disagreed, and the types are what callers actually obey. Same class of defect as the phantom render slot found on Button. onClick/onDoubleClick/onMouseDown/onMouseUp/onKeyDown/onKeyUp/tabIndex are now Omitted from BadgeProps, so faking interactivity on a span is a compile error rather than a review comment. `role` is deliberately kept: role=\"status\" on a live badge is legitimate. Two @ts-expect-error assertions added. Also added computed-style tests for the trailing-icon size, since the arbitrary variant [&_svg]:size-* compiles to a descendant rule and a class existing proves nothing about which element it reaches.",
+  "affects": ["item:badge", "prop:onClick", "prop:tabIndex"],
+  "migration": { "manual": "Re-add @bydiorama/badge. Any call site passing onClick to a Badge must move the handler into an iconEnd button or wrap the badge in a real control." }
+}

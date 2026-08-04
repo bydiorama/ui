@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-input-design-fixes",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "Six defects found in the Input design sheet during spec extraction and fixed in Paper rather than transcribed. Two were accessibility failures: the focus state used --ui-border-default (a near-invisible grey shift, failing WCAG 2.4.7/1.4.11) and now uses --ui-border-focus plus the --ui-focus-ring halo; the error state's field border was identical to default, leaving the error conveyed by message colour alone, and now uses --ui-intent-danger-fg at 4.8:1. Four were token-discipline defects: raw 8px radii on every field (now --ui-radius-md), the label ink as raw palette step --ui-neutral-20 (now --ui-text-secondary), the error text as raw --ui-red-40 (now --ui-intent-danger-fg), and raw 8px stack gaps (now --ui-space-sm). The icon variant was additionally a stale pre-redesign node carrying a raw #999999 border, 1px width and the wrong surface — rebased onto the current field spec.",
+  "affects": ["decision:conventions-10-visible-focus", "item:input"],
+  "migration": { "manual": "Design-side only; the implementation was built from the corrected values." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CLH-0" }
+}

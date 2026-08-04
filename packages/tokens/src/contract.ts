@@ -220,6 +220,12 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-text-primary", "--ui-bg-surface"],
   ["--ui-text-secondary", "--ui-bg-surface"],
   ["--ui-text-muted", "--ui-bg-surface"],
+  // Placeholder is TEXT — WCAG exempts disabled controls, not placeholders.
+  // Its absence here let the derived dark value sit at 3.2:1 undetected: the
+  // audit only ever looks at pairs it is told about, so an unlisted role is
+  // an unchecked role no matter how carefully it is derived.
+  ["--ui-text-placeholder", "--ui-bg-base"],
+  ["--ui-text-placeholder", "--ui-bg-surface"],
   ["--ui-text-on-muted", "--ui-bg-muted"],
   ["--ui-text-on-emphasis", "--ui-bg-emphasis"],
   ["--ui-text-on-emphasis", "--ui-bg-emphasis-hover"],
@@ -251,4 +257,9 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   ["--ui-focus-ring-color", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-surface"],
+  // An unlisted pair is an unchecked pair. These went unmeasured until the
+  // Checkbox mixed state — whose box is drawn entirely with border-strong —
+  // turned out to be invisible on the dark ground.
+  ["--ui-border-strong", "--ui-bg-base"],
+  ["--ui-border-strong", "--ui-bg-surface"],
 ] as const;

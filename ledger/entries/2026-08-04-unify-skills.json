@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-unify-skills",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Skills unified onto one source tree with a gated contract (ADR 0013). They had accumulated in two places — .claude/skills held add-component and review-ui, registry/skills held ui-craft — with no shared standard and no gate on either. They are not duplicates: one tier teaches an agent to build this library, the other to use it in a consumer's app. But a split audience does not need a split source, and having one made the standard impossible to state. registry/skills is now the source of truth for BOTH tiers, applying the rule the repo already holds — the manifest, not the folder, is the distribution boundary, which is why stories and tests already live under registry/ without shipping. .claude/skills becomes generated output: committed and staleness-gated like registry.json, written byte-identical to source so the copy this repo loads is the copy a consumer installs, with the do-not-edit warning in a generated README rather than inside the files. skill is now a first-class manifest type emitting registry:file, so the checker finds skills by type instead of guessing at paths. check:skills validates front matter, the per-tier naming rule (product skills carry the diorama- namespace because they land in a consumer's shared .claude/skills), install targets, and generated freshness; all three rules probed by breaking them. The description rules are the substantive ones — 80-character floor, 900 ceiling, required trigger clause — because a skill loads on its description ALONE and a bad one fails silently, which is the only failure class these gates exist to convert into noise. Adds the create-skill skill, so the standard is documented as a skill rather than as prose about skills, and makes this repo dogfood diorama-ui-craft at the exact path consumers install it to.",
+  "affects": [
+    "skill:add-component",
+    "skill:review-ui",
+    "skill:ui-craft",
+    "skill:create-skill",
+    "script:validate-skills",
+    "script:build-skills",
+    "manifest:item-types"
+  ],
+  "migration": {
+    "manual": "Skills moved from .claude/skills/<name>/ to registry/skills/<name>/. Edit the source there and run `pnpm skills:build`; edits made directly in .claude/skills are discarded on the next build and reported by `pnpm check:skills`. The ui-craft manifest item changes type from \"file\" to \"skill\" — the generated registry output is unchanged, since skill emits registry:file."
+  }
+}

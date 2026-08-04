@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-add-input",
+  "date": "2026-08-04",
+  "item": "input",
+  "kind": "addition",
+  "summary": "Second component, first built entirely through the add-component skill. Single-line text field composing label, control, helper and error as one accessible unit: label is a required prop (a placeholder is not a label), errorText derives aria-invalid and joins aria-describedby error-first, ids come from useId so instances never collide. Three sizes 48/40/32, all clearing the 24px target floor. Leading/trailing slots; the trailing action carries its own accessible name. Needed NO new tokens — the contract covered every role, which is the first evidence it has stabilised. Six design bugs were pushed back into Paper rather than transcribed (see the design-fixes entry). Hover is DERIVED from Button's secondary variant, not drawn — recorded as a known gap in the doc.",
+  "affects": ["item:input"],
+  "migration": {
+    "manual": "New item. `npx shadcn add @bydiorama/input`; pulls in the `cn` lib item, expects react and griddy-icons as peers."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CLH-0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-multiselect-blocked",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Multiselect specced and its design corrected in Paper, but NOT implemented: it is the first component whose behaviour is the hard part (collision-aware popover positioning, focus management and restoration, listbox/combobox ARIA, typeahead, outside-click dismissal) and plan §7.6 — the behaviour-layer decision — is still open with no ADR and no dependency in the tree. Hand-rolling it would produce a component that looks right in Storybook, passes every gate this repo has, and fails a real screen-reader user, which is exactly what the review method exists to prevent. Recorded the full corrected spec plus the dependency order in design/paper/multiselect-blocked.md: close §7.6, then Checkbox (designed and buildable today), then Popover (shared by Select/Menu/Tooltip/Combobox), then Multiselect composing Input as trigger, Badge as chips and Checkbox as rows. Two of those four primitives now exist.",
+  "affects": ["decision:plan-7-6-behaviour-layer"],
+  "migration": { "manual": "None — nothing shipped. Unblocks with the §7.6 ADR." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0" }
+}

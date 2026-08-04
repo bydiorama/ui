@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-utilities-gate-border-coverage",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:utilities had three blind spots, all surfaced by Input being the first component to use border-* colours (Button draws its resting edge with a ring). It had no border- namespace at all, so every border colour in the library went unchecked; it skipped only bracket arbitrary values, making every parens custom-property utility a false positive; and its variant list omitted placeholder/enabled/checked/has-/not-/group-/peer-, so those utilities were silently skipped. Coverage went from 67 to 80 checked utilities on the same source. All three paths probed failing-first.",
+  "affects": ["script:check-utilities"],
+  "migration": { "manual": "None — the gate now checks more, and passes." }
+}

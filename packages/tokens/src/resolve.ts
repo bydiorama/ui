@@ -189,7 +189,11 @@ const FLUID_ROLES = new Set<string>([
   "--ui-text-title-lg", "--ui-text-title-md", "--ui-text-title-sm",
 ]);
 
-const round = (n: number, places = 3) => Number(n.toFixed(places));
+// 4 places, not 3: every whole-px size divided by a 16px base terminates
+// within four decimals (1/16 = 0.0625), so 3 turned the designed 13px label
+// into 0.813rem — 13.008px in the browser. Sub-pixel, but it makes a
+// px-for-px comparison against the design sheet impossible to assert.
+const round = (n: number, places = 4) => Number(n.toFixed(places));
 
 /** Linear interpolation between 375px and 1440px viewports, expressed so the
  *  browser does the work: `clamp(min, intercept + slope·vw, max)`. */
@@ -338,7 +342,12 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-border-subtle": colors.border,
     "--ui-border-default": inkBorder(0.14),
     "--ui-border-control": legibleOn(towardL(colors.textPrimary, colors.bg, 0.55), colors.bg, 3),
-    "--ui-border-strong": inkBorder(0.3),
+    // Strong must MEASURE stronger than control, not merely be named so. As a
+    // 0.3 alpha hairline it composited to 1.78:1 on the dark ground while
+    // control — which is floored at 3:1 — sat at 3.09:1, so the stack inverted
+    // in dark and a mixed checkbox lost its box entirely. Same construction as
+    // control, one step nearer the ink and one floor higher.
+    "--ui-border-strong": legibleOn(towardL(colors.textPrimary, colors.bg, 0.35), colors.bg, 4.5),
     // Focus has to be SEEN, so it uses the legible accent, not the raw one.
     "--ui-border-focus": link,
     "--ui-focus-ring-color": link,

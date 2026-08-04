@@ -14,9 +14,16 @@ const config: StorybookConfig = {
    * distributable file. Co-location keeps a story from drifting off its
    * component; the gate keeps it out of a consumer's app.
    */
-  stories: [join(root, "registry/**/*.stories.@(ts|tsx)")],
+  // RELATIVE, not absolute: Storybook resolves this against the config dir,
+  // and addon-vitest re-resolves it the same way. An absolute path silently
+  // became ".storybook/Users/..." and matched nothing, so the story test
+  // project ran zero tests while reporting success.
+  stories: ["../../../registry/**/*.stories.@(ts|tsx)"],
 
-  addons: ["@storybook/addon-a11y", "@storybook/addon-docs"],
+  // addon-vitest is what makes addon-a11y's `test: "error"` actually run.
+  // Without it the a11y panel is advisory only and nothing fails — the
+  // "installed but unused" failure this system exists to avoid.
+  addons: ["@storybook/addon-a11y", "@storybook/addon-docs", "@storybook/addon-vitest"],
 
   framework: { name: "@storybook/react-vite", options: {} },
 
@@ -34,6 +41,10 @@ const config: StorybookConfig = {
         // The same specifiers a consumer's app would use, so stories exercise
         // the real import graph rather than a Storybook-only one.
         "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),
+        "@/hooks/use-controllable-state": join(
+          root,
+          "registry/hooks/use-controllable-state/use-controllable-state.ts",
+        ),
         "@/ui": join(root, "registry/ui"),
         "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
       },

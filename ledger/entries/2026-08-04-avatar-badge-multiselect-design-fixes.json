@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-avatar-badge-multiselect-design-fixes",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "Twelve defects fixed in the Avatar, Badge and Multiselect sheets rather than transcribed. Accessibility: Avatar initials used --ui-text-disabled, measuring 1.8:1 on the sunken well — initials identify a person and are not disabled content, so they now use --ui-text-muted at 4.9:1. Type floor: Badge labels were 11px in all twelve places, below the system's own 12px floor (ADR 0009) and the THIRD component to ship this defect — now --ui-text-label-sm. Token discipline: Badge's selected fill and border used the raw palette step --ui-blue-80 instead of --ui-bg-accent; Badge's danger ink used --ui-bg-danger-solid, a BACKGROUND token used as a foreground, now --ui-text-on-danger-subtle; Avatar gaps were raw 8px; Multiselect's trigger carried raw 16px padding, 8px radius and 8px gap; its label used the raw palette step --ui-neutral-20; its dropdown shadow was a raw hex instead of --ui-shadow-sm.",
+  "affects": ["item:avatar", "item:badge"],
+  "migration": { "manual": "Design-side only; both implementations were built from the corrected values." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0" }
+}

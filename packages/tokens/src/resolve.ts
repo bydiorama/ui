@@ -13,9 +13,10 @@
  */
 
 import {
-  BRANDABLE_TOKENS, CONTRAST_PAIRS,
+  BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS,
   type BrandableToken, type ResolvedTheme,
 } from "./contract.ts";
+import { BLUE, GREEN, LAVENDER, ORANGE, RED } from "./palette.ts";
 import {
   AA_TEXT, contrastRatio, flatten, isDark, legibleOn, oklchToRgb, formatColor,
   readableInkOn, shiftL, toOklch, towardL, withAlpha,
@@ -29,31 +30,28 @@ import {
 const INKS = ["#101014", "#ffffff"] as const;
 
 /**
- * PROVISIONAL — replaced when Diorama's palette is finalised.
- *
- * Meaning-bearing hues. Fixed rather than accent-derived so "danger" is red in
+ * Meaning-bearing hues — the approved ramps' step 40, the AA-safe foreground
+ * step (ADR 0008). Fixed rather than accent-derived so "danger" is red in
  * every theme; only their tone moves, to stay legible on the theme's page.
  */
 const INTENT_HUES = {
-  success: "#2d6a4f",
-  warning: "#92400e",
-  danger: "#991b1b",
-  info: "#1e3a5f",
+  success: GREEN[40],
+  warning: ORANGE[40],
+  danger: RED[40],
+  info: BLUE[40],
 } as const;
 
 /**
- * PROVISIONAL — replaced when Diorama's palette is finalised.
- *
  * Categorical data hues. Curated, NOT derived from the accent (ADR 0006(a)):
  * a ramp generated from one accent goes muddy for red or orange brands, and
  * categories a reader cannot tell apart have failed at the only job they have.
- * Chosen for separation in hue, and re-toned per background for legibility.
+ * The approved ramps' step 40, re-toned per background for legibility.
  */
 const DATA_HUES = {
-  informational: "#2563eb",
-  commercial: "#b45309",
-  transactional: "#15803d",
-  navigational: "#7c3aed",
+  informational: BLUE[40],
+  commercial: ORANGE[40],
+  transactional: GREEN[40],
+  navigational: LAVENDER[40],
 } as const;
 
 const SHADOW_SCALE = {
@@ -68,6 +66,20 @@ export type Scheme = "light" | "dark";
 export interface ResolveOptions {
   /** Which scheme to resolve. Defaults to whichever the seed's own page is. */
   scheme?: Scheme;
+  /**
+   * @internal — theme zero only (ADR 0008).
+   *
+   * An authored role map layered over the derivation, because the approved
+   * design IS the source of truth for Diorama's own theme and the derivation
+   * approximates it. Both guarantees still hold: completeness is checked on
+   * the merged result, and the contrast audit runs AFTER the merge, so an
+   * authored value that fails AA is corrected exactly like a derived one.
+   *
+   * This is not a brand-author surface. Brand themes are plain `ThemeSeed`
+   * JSON and never reach this option (ADR 0006(d) still stands); the theme
+   * intake layer accepts seeds, not resolver options.
+   */
+  authored?: Partial<ResolvedTheme>;
 }
 
 /** A pair the contrast audit had to move, so the UI can say so out loud. */
@@ -143,19 +155,31 @@ function colorsFor(seed: ThemeSeed, scheme: Scheme): SeedColors {
 
 // ── Typography ──────────────────────────────────────────────────────────
 
-const TYPE_STEPS = {
-  "--ui-text-display-lg": 6,
-  "--ui-text-display-md": 5,
-  "--ui-text-title-lg": 4,
-  "--ui-text-title-md": 3,
-  "--ui-text-title-sm": 2,
-  "--ui-text-body-lg": 1,
-  "--ui-text-body-md": 0,
-  "--ui-text-body-sm": -1,
-  "--ui-text-label-md": -0.5,
-  "--ui-text-label-sm": -1.5,
-  "--ui-text-caption": -2,
-  "--ui-text-code-sm": -0.5,
+/**
+ * The authored type table (ADR 0009, approved handover 2026-08-03).
+ *
+ * The scale is hand-tuned, not modular — no single ratio reproduces
+ * 48/32/24/20/16/14/13/12, and each role carries its own leading, weight and
+ * tracking. `px` is what the resolver emits (scaled by the seed's `baseSize`);
+ * the other attributes are data for the component layer, which pairs them with
+ * the shared `--ui-weight-*` / `--ui-leading-*` / `--ui-tracking-*` tokens.
+ * There is no `code-sm` role: without a mono face it duplicated `body-sm`
+ * (ADR 0011).
+ */
+export const TYPE_ROLES = {
+  "--ui-text-display-lg": { px: 48, leading: 1.35, weight: 500, tracking: "-0.02em" },
+  "--ui-text-display-md": { px: 32, leading: 1.35, weight: 500, tracking: "-0.02em" },
+  "--ui-text-title-lg": { px: 24, leading: 1.35, weight: 500, tracking: "-0.02em" },
+  "--ui-text-title-md": { px: 20, leading: 1.25, weight: 550, tracking: "-0.02em" },
+  "--ui-text-title-sm": { px: 16, leading: 1.35, weight: 600, tracking: "-0.02em" },
+  "--ui-text-body-lg": { px: 16, leading: 1.55, weight: 500, tracking: "-0.02em" },
+  "--ui-text-body-md": { px: 14, leading: 1.55, weight: 400, tracking: "-0.02em" }, // base target
+  "--ui-text-body-sm": { px: 13, leading: 1.35, weight: 500, tracking: "-0.02em" },
+  "--ui-text-label-md": { px: 13, leading: 1.3, weight: 600, tracking: "-0.02em" },
+  "--ui-text-label-sm": { px: 12, leading: 1.3, weight: 600, tracking: "-0.02em" },
+  "--ui-text-caption": { px: 12, leading: 1.35, weight: 600, tracking: "-0.02em" },
+  "--ui-text-button-lg": { px: 16, leading: 1, weight: 600, tracking: "-0.02em" },
+  "--ui-text-button-sm": { px: 12, leading: 1, weight: 600, tracking: "-0.02em" },
 } as const;
 
 /** Roles that scale with the viewport. Body and below stay fixed, because
@@ -177,24 +201,19 @@ function fluid(minRem: number, maxRem: number): string {
   return `clamp(${round(minRem)}rem, ${round(intercept)}rem + ${round(slope * 100, 2)}vw, ${round(maxRem)}rem)`;
 }
 
-function typeScale(seed: ThemeSeed): Record<keyof typeof TYPE_STEPS, string> {
+function typeScale(seed: ThemeSeed): Record<keyof typeof TYPE_ROLES, string> {
   const baseSize = clamp(
     seed.typography?.baseSize ?? SEED_BOUNDS.baseSize.default,
     SEED_BOUNDS.baseSize.min,
     SEED_BOUNDS.baseSize.max,
   );
-  const ratio = clamp(
-    seed.typography?.ratio ?? SEED_BOUNDS.ratio.default,
-    SEED_BOUNDS.ratio.min,
-    SEED_BOUNDS.ratio.max,
-  );
+  // The table is authored at baseSize 16; a brand's baseSize scales every
+  // role proportionally. `ratio` is reserved (ADR 0009) and ignored here.
+  const factor = baseSize / SEED_BOUNDS.baseSize.default;
 
-  const baseRem = baseSize / 16;
-  const step = (n: number) => baseRem * ratio ** n;
-
-  const out = {} as Record<keyof typeof TYPE_STEPS, string>;
-  for (const [token, n] of Object.entries(TYPE_STEPS) as [keyof typeof TYPE_STEPS, number][]) {
-    const max = step(n);
+  const out = {} as Record<keyof typeof TYPE_ROLES, string>;
+  for (const [token, role] of Object.entries(TYPE_ROLES) as [keyof typeof TYPE_ROLES, (typeof TYPE_ROLES)[keyof typeof TYPE_ROLES]][]) {
+    const max = (role.px * factor) / 16;
     out[token] = FLUID_ROLES.has(token) ? fluid(max * 0.72, max) : `${round(max)}rem`;
   }
   return out;
@@ -233,18 +252,29 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
 
   const shape = seed.shape ?? {};
   const px = (n: number) => (n === 0 ? "0" : `${Math.round(n)}px`);
+  const radiusKnob = (key: keyof typeof SEED_BOUNDS.radiusPx) =>
+    clamp(shape.radiusPx?.[key] ?? SEED_BOUNDS.radiusPx[key].default, SEED_BOUNDS.radiusPx[key].min, SEED_BOUNDS.radiusPx[key].max);
   const radius = {
-    sm: clamp(shape.radiusPx?.sm ?? SEED_BOUNDS.radiusPx.sm.default, SEED_BOUNDS.radiusPx.sm.min, SEED_BOUNDS.radiusPx.sm.max),
-    md: clamp(shape.radiusPx?.md ?? SEED_BOUNDS.radiusPx.md.default, SEED_BOUNDS.radiusPx.md.min, SEED_BOUNDS.radiusPx.md.max),
-    lg: clamp(shape.radiusPx?.lg ?? SEED_BOUNDS.radiusPx.lg.default, SEED_BOUNDS.radiusPx.lg.min, SEED_BOUNDS.radiusPx.lg.max),
-    pill: clamp(shape.radiusPx?.pill ?? SEED_BOUNDS.radiusPx.pill.default, SEED_BOUNDS.radiusPx.pill.min, SEED_BOUNDS.radiusPx.pill.max),
+    sm: radiusKnob("sm"), md: radiusKnob("md"), lg: radiusKnob("lg"),
+    xl: radiusKnob("xl"), "2xl": radiusKnob("2xl"), pill: radiusKnob("pill"),
   };
 
+  // Layered translucent shadows in the theme's own ink (CONVENTIONS §6).
+  // The xl geometry is the approved modal's shadow; sm is the raised-control
+  // micro-lift from the handover components sheet.
   const intensity = SHADOW_SCALE[shape.shadow ?? "standard"];
-  const shadow = (y: number, blur: number, alpha: number) =>
+  const shadow = (layers: Array<[y: number, blur: number, spread: number, alpha: number]>) =>
     intensity === 0
       ? "none"
-      : `0 ${round(y * intensity, 2)}px ${round(blur * intensity, 2)}px ${withAlpha(colors.textPrimary, round(alpha * intensity, 3))}`;
+      : layers
+          .map(([y, blur, spread, alpha]) => {
+            const grow = (n: number) => round(n * intensity, 2);
+            const ink = withAlpha(colors.textPrimary, round(alpha * intensity, 3));
+            return spread === 0
+              ? `0 ${grow(y)}px ${grow(blur)}px ${ink}`
+              : `0 ${grow(y)}px ${grow(blur)}px ${grow(spread)}px ${ink}`;
+          })
+          .join(", ");
 
   const type = typeScale(seed);
 
@@ -291,15 +321,23 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-hover": shiftL(colors.surface, up * 0.05),
     "--ui-bg-active": shiftL(colors.surface, up * 0.1),
     "--ui-bg-accent": accent,
+    // Same "step away from your own ink" rule as emphasis, for the same
+    // reason: keeps the label's contrast monotonic across all three states.
+    "--ui-bg-accent-hover": shiftL(accent, awayFromInk * 0.06),
+    "--ui-bg-accent-active": shiftL(accent, awayFromInk * 0.11),
     "--ui-bg-accent-subtle": withAlpha(accent, 0.12),
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),
     "--ui-bg-danger-solid": dangerSolid,
 
-    // Borders and focus
+    // Borders and focus (ADR 0010: subtle → default → control → strong).
+    // Control is opaque, not an alpha hairline: it must MEASURE at 3:1
+    // (SC 1.4.11), and contrast against a translucent value is only defined
+    // after compositing — so it is composited by construction.
     "--ui-border-subtle": colors.border,
     "--ui-border-default": inkBorder(0.14),
+    "--ui-border-control": legibleOn(towardL(colors.textPrimary, colors.bg, 0.55), colors.bg, 3),
     "--ui-border-strong": inkBorder(0.3),
     // Focus has to be SEEN, so it uses the legible accent, not the raw one.
     "--ui-border-focus": link,
@@ -316,6 +354,15 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-intent-warning-bg": withAlpha(INTENT_HUES.warning, 0.14),
     "--ui-intent-danger-fg": legibleOn(INTENT_HUES.danger, colors.bg),
     "--ui-intent-danger-bg": withAlpha(INTENT_HUES.danger, 0.14),
+    "--ui-intent-danger-bg-hover": withAlpha(INTENT_HUES.danger, 0.22),
+    "--ui-intent-danger-border": withAlpha(INTENT_HUES.danger, 0.32),
+    // Deeper than -fg: measured against the tint it actually sits on, at the
+    // stricter floor a filled control deserves.
+    "--ui-text-on-danger-subtle": legibleOn(
+      INTENT_HUES.danger,
+      flatten(withAlpha(INTENT_HUES.danger, 0.14), colors.bg),
+      7,
+    ),
     "--ui-intent-info-fg": legibleOn(INTENT_HUES.info, colors.bg),
     "--ui-intent-info-bg": withAlpha(INTENT_HUES.info, 0.14),
 
@@ -337,19 +384,22 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-radius-sm": px(radius.sm),
     "--ui-radius-md": px(radius.md),
     "--ui-radius-lg": px(radius.lg),
-    "--ui-radius-xl": px(radius.lg * 1.35),
-    "--ui-radius-2xl": px(radius.lg * 2),
+    "--ui-radius-xl": px(radius.xl),
+    "--ui-radius-2xl": px(radius["2xl"]),
     "--ui-radius-full": px(radius.pill),
     "--ui-border-width": px(clamp(shape.borderWidthPx ?? SEED_BOUNDS.borderWidthPx.default, SEED_BOUNDS.borderWidthPx.min, SEED_BOUNDS.borderWidthPx.max)),
-    "--ui-shadow-sm": shadow(1, 2, 0.06),
-    "--ui-shadow-md": shadow(2, 8, 0.08),
-    "--ui-shadow-lg": shadow(8, 24, 0.1),
-    "--ui-shadow-xl": shadow(16, 48, 0.12),
+    // sm is the approved elevation language (Modal Example: 0 0.5px 1.5px
+    // ink@0.16 — surfaces separate by tint, the shadow is a whisper). The
+    // larger steps are engineering defaults extrapolated from it plus the
+    // draft modal's overlay geometry, pending an elevation sheet.
+    "--ui-shadow-sm": shadow([[0.5, 1.5, 0, 0.16]]),
+    "--ui-shadow-md": shadow([[1, 3, 0, 0.14], [0.5, 1.5, 0, 0.08]]),
+    "--ui-shadow-lg": shadow([[8, 24, -4, 0.09], [2, 8, 0, 0.05]]),
+    "--ui-shadow-xl": shadow([[20, 25, -5, 0.1], [10, 10, -5, 0.04]]),
 
     // Typography
     "--ui-font-body": seed.typography?.fontBody ?? "Aspekta, ui-sans-serif, system-ui, sans-serif",
     "--ui-font-display": seed.typography?.fontDisplay ?? "Aspekta, ui-sans-serif, system-ui, sans-serif",
-    "--ui-font-mono": seed.typography?.fontMono ?? "ui-monospace, SFMono-Regular, Menlo, monospace",
     ...type,
 
     // Chrome
@@ -386,22 +436,33 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
 function auditContrast(theme: ResolvedTheme): ContrastAdjustment[] {
   const adjustments: ContrastAdjustment[] = [];
 
-  for (const [fgToken, bgToken] of CONTRAST_PAIRS) {
-    const fg = theme[fgToken];
-    // Translucent backgrounds are composited over the page first — contrast
-    // against something you can see through is not a defined quantity.
-    const bg = flatten(theme[bgToken], theme["--ui-bg-base"]);
+  const audit = (
+    pairs: ReadonlyArray<readonly [BrandableToken, BrandableToken]>,
+    floor: number,
+  ) => {
+    for (const [fgToken, bgToken] of pairs) {
+      const fg = theme[fgToken];
+      // Translucent backgrounds are composited over the page first — contrast
+      // against something you can see through is not a defined quantity.
+      const bg = flatten(theme[bgToken], theme["--ui-bg-base"]);
 
-    const before = contrastRatio(fg, bg);
-    if (before >= AA_TEXT) continue;
+      const before = contrastRatio(fg, bg);
+      if (before >= floor) continue;
 
-    const fixed = legibleOn(fg, bg);
-    const after = contrastRatio(fixed, bg);
-    if (fixed === fg) continue;
+      const fixed = legibleOn(fg, bg, floor);
+      const after = contrastRatio(fixed, bg);
+      if (fixed === fg) continue;
 
-    theme[fgToken] = fixed;
-    adjustments.push({ token: fgToken, against: bgToken, from: fg, to: fixed, ratioBefore: round(before, 2), ratioAfter: round(after, 2) });
-  }
+      theme[fgToken] = fixed;
+      adjustments.push({ token: fgToken, against: bgToken, from: fg, to: fixed, ratioBefore: round(before, 2), ratioAfter: round(after, 2) });
+    }
+  };
+
+  // Text first: if it moves --ui-border-focus's source colour the non-text
+  // pass re-checks the result, never the other way around.
+  audit(CONTRAST_PAIRS, AA_TEXT);
+  // WCAG 2.2 SC 1.4.11 — non-text boundaries that identify a control.
+  audit(NONTEXT_CONTRAST_PAIRS, 3);
 
   return adjustments;
 }
@@ -413,7 +474,9 @@ export function resolveTheme(seed: ThemeSeed, options: ResolveOptions = {}): Res
   const scheme = options.scheme ?? (isDark(seed.colors.bg) ? "dark" : "light");
   const colors = colorsFor(seed, scheme);
 
-  const theme = derive(seed, colors);
+  const theme = options.authored
+    ? { ...derive(seed, colors), ...options.authored }
+    : derive(seed, colors);
   const adjustments = auditContrast(theme);
 
   return { theme, adjustments, issues };
@@ -427,9 +490,12 @@ export interface ResolvedPair {
 }
 
 /** Both schemes at once — what the CSS emitter needs to write `light-dark()`. */
-export function resolveThemePair(seed: ThemeSeed): ResolvedPair {
-  const light = resolveTheme(seed, { scheme: "light" });
-  const dark = resolveTheme(seed, { scheme: "dark" });
+export function resolveThemePair(
+  seed: ThemeSeed,
+  options: { authored?: { light?: Partial<ResolvedTheme>; dark?: Partial<ResolvedTheme> } } = {},
+): ResolvedPair {
+  const light = resolveTheme(seed, { scheme: "light", ...(options.authored?.light ? { authored: options.authored.light } : {}) });
+  const dark = resolveTheme(seed, { scheme: "dark", ...(options.authored?.dark ? { authored: options.authored.dark } : {}) });
   return {
     light: light.theme,
     dark: dark.theme,

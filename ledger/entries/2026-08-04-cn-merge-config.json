@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-cn-merge-config",
+  "date": "2026-08-04",
+  "item": "cn",
+  "kind": "fix",
+  "summary": "cn() now runs an extended tailwind-merge configuration that knows the system's own utility namespaces. Unconfigured, the merger guessed at custom classes and silently DELETED some: text-button-sm (a font size) was treated as conflicting with text-ink-on-accent (a colour), so every md/sm button label rendered at the body's 16px instead of the design's 12px — no build error, no missing CSS, the class simply never reached the DOM. The same gap also broke the CONVENTIONS §5 forwarding guarantee for spacing: a consumer's px-6 failed to displace a component's px-md. The config registers the type roles as font-size, ink-* as text-colour, the spacing step names on the shared scale, and the custom weight/leading names. Regression-pinned by computed-style browser tests (16/12/12px per size). Separately diagnosed from the same report: declared weights matched the design exactly — the perceived weight difference was macOS subpixel rendering; app roots now set antialiased smoothing + font-synthesis: none (new CONVENTIONS §6 rule).",
+  "affects": [
+    "item:cn",
+    "item:button",
+    "decision:conventions-6-type-rendering-parity"
+  ],
+  "migration": {
+    "manual": "Re-add @bydiorama/cn (and re-check any local copy): without the merge config, any component mixing the system's text sizes and text colours loses one of them at runtime. Apps should also add the §6 root smoothing/synthesis declarations."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0 (Style Guide → Buttons)"
+  }
+}

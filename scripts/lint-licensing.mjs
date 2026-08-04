@@ -32,17 +32,33 @@ const ALLOWED_FAMILIES = new Set(
     "ui-sans-serif", "system-ui", "-apple-system", "blinkmacsystemfont",
     "segoe ui", "roboto", "helvetica neue", "helvetica", "arial",
     "ui-serif", "georgia", "times new roman", "times",
-    "ui-monospace", "sfmono-regular", "menlo", "monaco", "consolas",
-    "liberation mono", "courier new", "courier",
-    "sans-serif", "serif", "monospace", "system-ui", "emoji", "math",
+    "sans-serif", "serif", "system-ui", "emoji", "math",
     "inherit", "initial", "unset", "revert",
   ].map((f) => f.toLowerCase()),
 );
 
 /** Named explicitly so the failure message can say *why*, not just "not allowed". */
+const MONO_REASON =
+  "no monospace face — Aspekta is the only typeface (ledger/decisions/0011). " +
+  "For numeric alignment use `font-variant-numeric: tabular-nums`, not a mono stack";
+
 const RESTRICTED_FAMILIES = new Map([
   ["saans", "retired licensed face — replaced by Aspekta everywhere (ledger/decisions/0007)"],
   ["pt serif", "not licensed for redistribution; retired from the token set"],
+  // Monospace is a *design* restriction rather than a licensing one, enforced
+  // here because this is the gate that already reads every font-family in
+  // distributed source (AGENTS.md: prefer a check over a convention).
+  ["monospace", MONO_REASON],
+  ["ui-monospace", MONO_REASON],
+  ["sfmono-regular", MONO_REASON],
+  ["sf mono", MONO_REASON],
+  ["menlo", MONO_REASON],
+  ["monaco", MONO_REASON],
+  ["consolas", MONO_REASON],
+  ["liberation mono", MONO_REASON],
+  ["courier new", MONO_REASON],
+  ["courier", MONO_REASON],
+  ["geist mono", MONO_REASON],
 ]);
 
 /** Import specifiers that are paid entitlements rather than MIT cores. */

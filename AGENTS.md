@@ -57,6 +57,10 @@ These are not style preferences; violating them breaks consumers:
 
 ## Adding a component
 
+The full pipeline — order of operations, tests, traps, definition of done —
+is the `add-component` skill (`.claude/skills/add-component/SKILL.md`).
+Invoke it before starting; the steps below are the summary, not the manual.
+
 1. Design spec exists in `design/` (exported from Paper) — implement against it,
    not against a screenshot.
 2. Create `registry/ui/<name>/` with the component, its `*.doc.ts`, and stories.

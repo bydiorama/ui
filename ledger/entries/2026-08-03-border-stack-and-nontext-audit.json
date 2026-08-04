@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-03-border-stack-and-nontext-audit",
+  "date": "2026-08-03",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "Border roles split into four weights (subtle/default/control/strong — ADR 0010). Inputs deliberately sit on border-subtle; --ui-border-control is the SC 1.4.11-conformant boundary, a one-token switch for engagements requiring strict form conformance. The resolver gains a non-text contrast audit (NONTEXT_CONTRAST_PAIRS, 3:1 floor) over border-focus, focus-ring-color and border-control; border-control is derived opaque so its measured contrast is defined. The focus ring itself was moved from brand blue-80 (1.5:1, failing) to blue-40 (5.6:1) during the handover review.",
+  "affects": [
+    "token:--ui-border-subtle",
+    "token:--ui-border-default",
+    "token:--ui-border-control",
+    "token:--ui-border-strong",
+    "token:--ui-border-focus",
+    "token:--ui-focus-ring",
+    "decision:0010-border-stack"
+  ],
+  "migration": {
+    "manual": "No consumers exist yet. Components built from Phase 2 onward reference border-subtle for resting inputs and may switch to border-control per engagement."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/7VK-0"
+  }
+}

@@ -11,7 +11,8 @@ cannot carry a font it is not licensed to redistribute.
 ## Decision
 
 - The manifest defines font **roles** (`--ui-font-body`, `--ui-font-display`,
-  `--ui-font-mono`). Components reference roles, never faces.
+  `--ui-font-display`). Components reference roles, never faces.
+  *(The `--ui-font-mono` role named here was removed by ADR 0011.)*
 - **Manrope (SIL OFL)** is the distributed default for every role, shipped as a
   registry item (variable `woff2` + `@font-face`). It replaces Geist as the body
   face. The legacy `--font-serif` alias is retired rather than remapped.

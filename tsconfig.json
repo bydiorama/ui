@@ -27,9 +27,19 @@
 
     "paths": {
       "@bydiorama/tokens": ["./packages/tokens/src/index.ts"],
-      "@bydiorama/tokens/*": ["./packages/tokens/src/*"]
+      "@bydiorama/tokens/*": ["./packages/tokens/src/*"],
+      // Registry items import each other the way a CONSUMER will, through the
+      // `@/` alias that points at their install targets. Mapping it here means
+      // the source we ship is the source we type-check — no rewriting on the
+      // way out, and a broken cross-item import fails in our CI, not theirs.
+      "@/lib/cn": ["./registry/lib/cn/cn.ts"],
+      "@/ui/*": ["./registry/ui/*"]
     }
   },
   "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx", "registry/**/*.ts", "registry/**/*.tsx"],
-  "exclude": ["node_modules", "**/dist", "scripts"]
+  // Stories sit beside their components but are not distributed, and their
+  // dependencies (Storybook, Vite) live in apps/storybook. This project checks
+  // exactly what ships; apps/storybook/tsconfig.json checks the stories with
+  // the deps they actually have. Same boundary as the manifest, one level up.
+  "exclude": ["node_modules", "**/dist", "scripts", "**/*.stories.tsx"]
 }

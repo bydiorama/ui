@@ -1,0 +1,28 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-03-adopt-approved-handover-tokens",
+  "date": "2026-08-03",
+  "item": "system",
+  "kind": "token",
+  "summary": "The approved Paper handover replaces every provisional token value. New curated palette module (11-step warm neutral + 5 tone-matched accent ramps, L*-anchored steps, three pinned brand colours: #9EDBF3 blue-80, #F4BA8E orange-80, #A5AAF6 lavender-70 — ADR 0008). Theme zero rewritten to the approved seed plus an authored role map (ZERO_AUTHORED) layered under the completeness/contrast guarantees; authored dark scheme grounds on warm neutral-20. Intent/data hues move from provisional constants to ramp step 40. Type scale becomes an authored table with per-role leading/weight/tracking; ratio knob reserved (ADR 0009). Radius seed grows to six knobs with approved defaults 4/8/16/24/32/pill. Base spacing scale added (4..64px, 8 steps); stack/inline/inset intents re-expressed as aliases onto it — stack-xl moves 40px to 48px. Shared weight/leading/tracking fixed tokens added. Shadows become layered translucent ink sets calibrated to the Modal Example: sm is the approved elevation language (0 0.5px 1.5px ink@0.16 — tint separates, shadow whispers), md extrapolates it, lg/xl keep the draft overlay geometry as engineering defaults. Light --ui-scrim adopts the Modal Example's warm neutral-60 @16% veil (dark scrim remains a default).",
+  "affects": [
+    "token:--ui-*  (theme zero values, wholesale)",
+    "token:--ui-border-control",
+    "token:--ui-text-button-lg",
+    "token:--ui-text-button-sm",
+    "token:--ui-space-xs..4xl",
+    "token:--ui-space-stack-xl",
+    "token:--ui-weight-*",
+    "token:--ui-leading-*",
+    "token:--ui-tracking-*",
+    "token:--ui-shadow-sm..xl",
+    "decision:0008-curated-palette",
+    "decision:0009-authored-type-scale"
+  ],
+  "migration": {
+    "manual": "No consumers exist yet. When service-portal adopts @bydiorama/tokens (Phase 4), it consumes these as the initial values — nothing to migrate."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/7VK-0"
+  }
+}

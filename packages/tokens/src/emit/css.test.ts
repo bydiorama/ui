@@ -67,3 +67,15 @@ test("the style object serialises no raw CSS and carries color-scheme", () => {
     assert.ok(!value.includes("}"), "values must be inert (no block terminators)");
   }
 });
+
+test("composite values carry light-dark() per layer, never around the list", () => {
+  const pair = resolveThemePair(THEME_ZERO);
+  const css = toCss(pair);
+  const shadowLines = css.split("\n").filter((l) => l.includes("--ui-shadow") || l.includes("--ui-focus-ring:"));
+  for (const line of shadowLines) {
+    assert.ok(!/light-dark\([^)]*px/.test(line.replace(/light-dark\((rgba?\([^)]*\)|#[0-9a-fA-F]+), (rgba?\([^)]*\)|#[0-9a-fA-F]+)\)/g, "PAIR")),
+      `light-dark() must wrap colours only: ${line.trim()}`);
+  }
+  // The merged form is real: geometry outside, pair inside.
+  assert.match(css, /--ui-shadow-sm: 0 0\.5px 1\.5px light-dark\(rgba\(29, 27, 25, 0\.16\), rgba\(246, 243, 240, 0\.16\)\);/);
+});

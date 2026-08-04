@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-03-utilities-gate",
+  "date": "2026-08-03",
+  "item": "system",
+  "kind": "addition",
+  "summary": "New CI gate `pnpm check:utilities`, wired into verify. It asserts that every themed Tailwind utility used in registry/ resolves to a variable the token theme actually emits. This closes the quietest failure mode in a token-bound library: a utility naming a token that does not exist produces NO css at all — types cannot see it (strings), lint cannot see it (valid syntax), and review cannot see it (only shows on the state that is broken). Proven by probe: a one-character typo in a hover utility fails the gate. The gate stays dependency-free like its siblings, so a cold clone can run it.",
+  "affects": ["script:check-utilities", "script:verify"],
+  "migration": {
+    "manual": "None. Component authors get a failing gate instead of a silently dead state."
+  }
+}

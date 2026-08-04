@@ -63,7 +63,16 @@ const registryBoundaries = {
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "r/**", "registry.json", "storybook-static/**"],
+    // Globs must be `**/`-prefixed: a bare `storybook-static/**` only matches
+    // at the repo root, so the build output under apps/ was being linted.
+    ignores: [
+      "**/dist/**",
+      "**/node_modules/**",
+      "r/**",
+      "registry.json",
+      "**/storybook-static/**",
+      "**/*.generated.css",
+    ],
   },
   ...tseslint.configs.recommended,
   {

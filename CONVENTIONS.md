@@ -76,6 +76,12 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 - **Shadows for elevation, borders for structure.** A border whose only job is
   depth becomes a layered translucent `--ui-shadow-*`; borders that communicate
   structure or state stay.
+- **Type rendering parity:** app roots set `-webkit-font-smoothing:
+  antialiased`, `-moz-osx-font-smoothing: grayscale` and `font-synthesis:
+  none`. Paper's canvas renders antialiased with synthesis off; without the
+  same settings, macOS draws identical declared weights visibly heavier and
+  a missing face gets a faked bold instead of a loud fallback. Set once at the
+  root — never per component.
 
 ## 7. Iconography
 
@@ -134,6 +140,21 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   The visible element may be smaller — extend the target with a pseudo-element
   on the wrapping label or button. No dead zones: a control and its label are
   one target.
+- **Pointer affordance:** anything clickable sets `cursor: pointer` explicitly,
+  and anything disabled sets `cursor: not-allowed`. No browser gives `<button>`
+  a pointer cursor by default and no reset in our stack adds one, so this is
+  opt-in every time. It is the only signal a control is clickable *before* the
+  click, which makes it contract, not decoration.
+- **Disabled is the attribute, not `pointer-events: none`.** The native
+  `disabled` attribute already blocks activation and removes the control from
+  the tab order. Suppressing pointer events on top of it adds nothing and takes
+  something away: the element stops being hoverable, so the tooltip explaining
+  *why* it is disabled can never appear. Gate hover and press states behind
+  `enabled:` instead.
+- **Verify interaction in a real browser.** Implicit activation (Enter/Space on
+  a button), computed cursor, and focus behaviour are user-agent behaviours
+  jsdom does not implement — it will answer confidently and wrongly about
+  exactly the things worth asserting. Interaction tests run in Playwright.
 
 ## 11. Documentation
 

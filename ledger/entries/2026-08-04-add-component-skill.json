@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-add-component-skill",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Repo-local `add-component` skill distills the validated Button pipeline into the standard order of operations for every future component: Paper spec via computed values, tokens before component, the API/a11y checklist, typed doc, mandatory BrandThemed story, type tests plus real-browser interaction tests, manifest/ledger, and the probe discipline (a gate is not evidence until it has been watched failing). Codifies the ratchet rule: review findings graduate to a type, then a CI gate, then a lint rule, and only last to prose. CI extended to run the utilities gate, Playwright browser tests and the Storybook build (a11y at error severity). Validation fixes alongside: button.doc.ts no longer references the not-yet-existing render slot and now records the isBusy visual-treatment gap explicitly instead of implying one exists.",
+  "affects": [
+    "skill:add-component",
+    "workflow:ci",
+    "item:button"
+  ],
+  "migration": {
+    "manual": "None for consumers. Contributors: invoke the add-component skill at the start of any component work; AGENTS.md §Adding a component now points at it."
+  }
+}

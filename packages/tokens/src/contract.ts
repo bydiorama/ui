@@ -47,15 +47,23 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-hover",
   "--ui-bg-active",
   "--ui-bg-accent",
+  // Symmetric with the emphasis triple: a filled control needs all three
+  // states as roles, or components reach into the palette for two of them.
+  "--ui-bg-accent-hover",
+  "--ui-bg-accent-active",
   "--ui-bg-accent-subtle",
   "--ui-bg-emphasis",
   "--ui-bg-emphasis-hover",
   "--ui-bg-emphasis-active",
   "--ui-bg-danger-solid",
 
-  // Borders and focus
+  // Borders and focus. Four structural weights plus focus (ADR 0010):
+  // subtle is the everyday hairline (inputs included — the field is identified
+  // by fill, label and padding); control is the SC 1.4.11-conformant boundary
+  // for engagements that require it on form controls.
   "--ui-border-subtle",
   "--ui-border-default",
+  "--ui-border-control",
   "--ui-border-strong",
   "--ui-border-focus",
   "--ui-focus-ring-color",
@@ -68,6 +76,12 @@ export const BRANDABLE_TOKENS = [
   "--ui-intent-warning-bg",
   "--ui-intent-danger-fg",
   "--ui-intent-danger-bg",
+  // The danger *surface* pattern (subtle fill + its own border and ink), as
+  // drawn for the danger button. Its ink is deeper than -fg because a control
+  // label carries more weight than alert prose.
+  "--ui-intent-danger-bg-hover",
+  "--ui-intent-danger-border",
+  "--ui-text-on-danger-subtle",
   "--ui-intent-info-fg",
   "--ui-intent-info-bg",
 
@@ -101,9 +115,10 @@ export const BRANDABLE_TOKENS = [
   // Typography — faces plus the roles a theme's base size and ratio drive.
   // These are brandable so a themed surface stops needing its own parallel
   // type scale, which is what forced portal components to bypass the library.
+  // Aspekta is the only face (ADR 0007) and there is no monospace counterpart
+  // (ADR 0011) — the two roles differ by weight and scale, not by family.
   "--ui-font-body",
   "--ui-font-display",
-  "--ui-font-mono",
   "--ui-text-display-lg",
   "--ui-text-display-md",
   "--ui-text-title-lg",
@@ -115,7 +130,8 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-label-md",
   "--ui-text-label-sm",
   "--ui-text-caption",
-  "--ui-text-code-sm",
+  "--ui-text-button-lg",
+  "--ui-text-button-sm",
 
   // Chrome — the layout surfaces a themed portal legitimately re-skins
   "--ui-nav-bg",
@@ -140,12 +156,25 @@ export const SCHEME_ONLY_TOKENS = [
 
 /** Structural constants. One value, every theme, every scheme. */
 export const FIXED_TOKENS = [
+  // The base spacing scale (approved handover). The intents below alias onto
+  // these steps, so "which pixel values exist" has exactly one answer.
+  "--ui-space-xs", "--ui-space-sm", "--ui-space-md", "--ui-space-lg",
+  "--ui-space-xl", "--ui-space-2xl", "--ui-space-3xl", "--ui-space-4xl",
+
   // Spacing intents
   "--ui-space-stack-xs", "--ui-space-stack-sm", "--ui-space-stack-md",
   "--ui-space-stack-lg", "--ui-space-stack-xl", "--ui-space-stack-2xl",
   "--ui-space-inline-xs", "--ui-space-inline-sm", "--ui-space-inline-md", "--ui-space-inline-lg",
   "--ui-space-inset-xs", "--ui-space-inset-sm", "--ui-space-inset-md",
   "--ui-space-inset-lg", "--ui-space-inset-xl",
+
+  // Typography attributes shared across roles (ADR 0009). Sizes are brandable;
+  // the weights of the single face, leadings and trackings are structural.
+  "--ui-weight-regular", "--ui-weight-book", "--ui-weight-medium",
+  "--ui-weight-semibold", "--ui-weight-bold",
+  "--ui-leading-flat", "--ui-leading-tight", "--ui-leading-snug",
+  "--ui-leading-normal", "--ui-leading-relaxed",
+  "--ui-tracking-tight", "--ui-tracking-normal",
 
   // Motion. Durations collapse under prefers-reduced-motion at this layer, so
   // every CSS-driven animation in the system complies without per-component work.
@@ -198,10 +227,28 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-text-on-accent", "--ui-bg-accent"],
   ["--ui-text-link", "--ui-bg-base"],
   ["--ui-text-on-danger-solid", "--ui-bg-danger-solid"],
+  ["--ui-text-on-danger-subtle", "--ui-intent-danger-bg"],
   ["--ui-intent-success-fg", "--ui-intent-success-bg"],
   ["--ui-intent-warning-fg", "--ui-intent-warning-bg"],
   ["--ui-intent-danger-fg", "--ui-intent-danger-bg"],
   ["--ui-intent-info-fg", "--ui-intent-info-bg"],
   ["--ui-nav-ink", "--ui-nav-bg"],
   ["--ui-nav-active-ink", "--ui-nav-active-bg"],
+] as const;
+
+/**
+ * Non-text pairs that must clear WCAG 2.2 SC 1.4.11 (3:1).
+ *
+ * Deliberately short. Focus indication and the conformant control boundary are
+ * the two places where a boundary is the only thing identifying an interactive
+ * element. `--ui-border-subtle` and `--ui-border-default` are NOT here — they
+ * are quiet by design (ADR 0010), and auto-nudging them would undo the
+ * decision; likewise the brand fills, whose identity outranks the grid and
+ * whose labels are audited as text above.
+ */
+export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableToken]> = [
+  ["--ui-border-focus", "--ui-bg-base"],
+  ["--ui-focus-ring-color", "--ui-bg-base"],
+  ["--ui-border-control", "--ui-bg-base"],
+  ["--ui-border-control", "--ui-bg-surface"],
 ] as const;

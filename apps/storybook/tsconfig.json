@@ -1,0 +1,22 @@
+{
+  // Checks the stories the root project deliberately excludes, with the
+  // Storybook/Vite dependencies this app owns. Strictness is inherited, so a
+  // story cannot be sloppier than the component it documents.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@bydiorama/tokens": ["../../packages/tokens/src/index.ts"],
+      "@bydiorama/tokens/*": ["../../packages/tokens/src/*"],
+      "@/lib/cn": ["../../registry/lib/cn/cn.ts"],
+      "@/ui/*": ["../../registry/ui/*"]
+    }
+  },
+  "include": [
+    "../../registry/**/*.stories.tsx",
+    ".storybook/**/*.ts",
+    "scripts/**/*.ts",
+    "css.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}

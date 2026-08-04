@@ -12,26 +12,53 @@ import type { FixedToken, SchemeOnlyToken } from "./contract.ts";
 /** Typed as a total record, so a token added to the contract without a value
  *  here fails to compile — the same guarantee the resolver gives. */
 export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
-  // Vertical rhythm between blocks.
-  "--ui-space-stack-xs": "0.25rem",
-  "--ui-space-stack-sm": "0.5rem",
-  "--ui-space-stack-md": "1rem",
-  "--ui-space-stack-lg": "1.5rem",
-  "--ui-space-stack-xl": "2.5rem",
-  "--ui-space-stack-2xl": "4rem",
+  // The base scale (approved handover: 4/8/12/16/24/32, extended upward with
+  // 48/64 for page rhythm). Everything below aliases onto these.
+  "--ui-space-xs": "0.25rem",
+  "--ui-space-sm": "0.5rem",
+  "--ui-space-md": "0.75rem",
+  "--ui-space-lg": "1rem",
+  "--ui-space-xl": "1.5rem",
+  "--ui-space-2xl": "2rem",
+  "--ui-space-3xl": "3rem",
+  "--ui-space-4xl": "4rem",
+
+  // Vertical rhythm between blocks. stack-xl moved 40px → 48px so every
+  // intent lands on a scale step (ledger 2026-08-03).
+  "--ui-space-stack-xs": "var(--ui-space-xs)",
+  "--ui-space-stack-sm": "var(--ui-space-sm)",
+  "--ui-space-stack-md": "var(--ui-space-lg)",
+  "--ui-space-stack-lg": "var(--ui-space-xl)",
+  "--ui-space-stack-xl": "var(--ui-space-3xl)",
+  "--ui-space-stack-2xl": "var(--ui-space-4xl)",
 
   // Gaps between items on a line.
-  "--ui-space-inline-xs": "0.25rem",
-  "--ui-space-inline-sm": "0.5rem",
-  "--ui-space-inline-md": "0.75rem",
-  "--ui-space-inline-lg": "1rem",
+  "--ui-space-inline-xs": "var(--ui-space-xs)",
+  "--ui-space-inline-sm": "var(--ui-space-sm)",
+  "--ui-space-inline-md": "var(--ui-space-md)",
+  "--ui-space-inline-lg": "var(--ui-space-lg)",
 
   // Padding inside a container.
-  "--ui-space-inset-xs": "0.5rem",
-  "--ui-space-inset-sm": "0.75rem",
-  "--ui-space-inset-md": "1rem",
-  "--ui-space-inset-lg": "1.5rem",
-  "--ui-space-inset-xl": "2rem",
+  "--ui-space-inset-xs": "var(--ui-space-sm)",
+  "--ui-space-inset-sm": "var(--ui-space-md)",
+  "--ui-space-inset-md": "var(--ui-space-lg)",
+  "--ui-space-inset-lg": "var(--ui-space-xl)",
+  "--ui-space-inset-xl": "var(--ui-space-2xl)",
+
+  // Typography attributes shared across roles (ADR 0009). Aspekta's variable
+  // axis makes the quarter-weights (450/550) real cuts, not synthesis.
+  "--ui-weight-regular": "400",
+  "--ui-weight-book": "450",
+  "--ui-weight-medium": "500",
+  "--ui-weight-semibold": "550",
+  "--ui-weight-bold": "600",
+  "--ui-leading-flat": "1",
+  "--ui-leading-tight": "1.25",
+  "--ui-leading-snug": "1.3",
+  "--ui-leading-normal": "1.35",
+  "--ui-leading-relaxed": "1.55",
+  "--ui-tracking-tight": "-0.02em",
+  "--ui-tracking-normal": "-0.01em",
 
   "--ui-duration-fast": "120ms",
   "--ui-duration-base": "200ms",
@@ -82,7 +109,10 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
 
 /** Varies with light/dark, never with the brand. */
 export const SCHEME_TOKEN_VALUES: Record<SchemeOnlyToken, { light: string; dark: string }> = {
-  "--ui-scrim": { light: "rgba(16, 16, 20, 0.45)", dark: "rgba(0, 0, 0, 0.65)" },
+  // Light scrim is the approved Modal Example overlay: warm neutral-60 at 16%
+  // — an airy veil, not a blackout. No dark modal is designed yet; the dark
+  // value is an engineering default.
+  "--ui-scrim": { light: "rgba(152, 145, 138, 0.16)", dark: "rgba(0, 0, 0, 0.55)" },
   "--ui-selection-bg": { light: "rgba(16, 16, 20, 0.12)", dark: "rgba(255, 255, 255, 0.22)" },
   "--ui-selection-fg": { light: "#101014", dark: "#ffffff" },
 };

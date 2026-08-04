@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-03-add-button",
+  "date": "2026-08-03",
+  "item": "button",
+  "kind": "addition",
+  "summary": "First component. Four variants (primary/secondary/ghost/danger), three sizes (44/32/24px), pill or rounded, icon-only and full-width forms, transcribed from the approved Buttons sheet. isIconOnly requires aria-label at the type level; isBusy is visual-only and keeps focus where isDisabled does not. Resting ring is an inset ring so focus keeps the outline layer (survives forced-colors). Ships with a typed doc file and compile-time contract tests. Prerequisites landed with it: Tailwind v4 @theme inline emitter (the remaining Phase 1 emitter), React devDependencies, and an @/ path alias so registry items type-check through the same import specifiers a consumer uses.",
+  "affects": [
+    "item:button",
+    "token:--ui-bg-accent-hover",
+    "token:--ui-bg-accent-active",
+    "token:--ui-intent-danger-bg-hover",
+    "token:--ui-intent-danger-border",
+    "token:--ui-text-on-danger-subtle"
+  ],
+  "migration": {
+    "manual": "New item — nothing to migrate. Consumers install with `npx shadcn add @bydiorama/button`; it pulls in the `cn` lib item and expects react and griddy-icons as peers."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0 (Style Guide → Buttons)"
+  }
+}

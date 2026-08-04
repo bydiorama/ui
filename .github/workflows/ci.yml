@@ -35,6 +35,10 @@ jobs:
       - name: Tests
         run: node --experimental-strip-types --test "packages/*/src/**/*.test.ts"
 
+      # Also dependency-free: it imports only the tokens package's own source.
+      - name: Utilities resolve against the token theme
+        run: node --experimental-strip-types scripts/check-utilities.mjs
+
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -47,3 +51,16 @@ jobs:
 
       - name: Lint
         run: pnpm run lint
+
+      # Interaction contracts run in a real browser (CONVENTIONS §10): implicit
+      # activation and computed cursor are UA behaviours jsdom cannot answer.
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser interaction tests
+        run: pnpm run test:browser
+
+      # Compiles every story; with addon-a11y set to error, an inaccessible
+      # story is a build failure, not a panel warning.
+      - name: Storybook build
+        run: pnpm --filter @bydiorama/storybook run build

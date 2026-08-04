@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-03-remove-monospace-face",
+  "date": "2026-08-03",
+  "item": "system",
+  "kind": "breaking",
+  "summary": "There is no monospace face (ADR 0011). --ui-font-mono and --ui-text-code-sm are removed from the token contract, and SeedTypography.fontMono is removed from the seed shape so a brand author cannot reintroduce one. Code content is set in the body face and distinguished by surface treatment; numeric alignment uses font-variant-numeric: tabular-nums. Monospace families move from the licensing allowlist to its restricted map, so any mono stack in registry/, packages/ or apps/ now fails pnpm check:licensing with an explanatory message. Verified: every node on the Paper Handover page is Aspekta — no mono, Geist, Saans, Manrope or General Sans remains.",
+  "affects": [
+    "token:--ui-font-mono",
+    "token:--ui-text-code-sm",
+    "prop:SeedTypography.fontMono",
+    "decision:0011-no-monospace"
+  ],
+  "migration": {
+    "manual": "No consumers exist yet. Any future code/pre styling uses --ui-text-body-sm with a bg-sunken ground and --ui-radius-sm rather than a mono family; data tables use font-variant-numeric: tabular-nums."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/7VK-0"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@bydiorama/storybook",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm tokens && storybook dev -p 6006 --no-open",
+    "build": "pnpm tokens && storybook build",
+    "tokens": "node --experimental-strip-types ./scripts/emit-css.ts",
+    "type-check": "tsc --noEmit",
+    "test:browser": "vitest run --config vitest.config.ts"
+  },
+  "devDependencies": {
+    "@bydiorama/tokens": "workspace:*",
+    "@storybook/addon-a11y": "^10.5.6",
+    "@storybook/addon-docs": "^10.5.6",
+    "@storybook/addon-vitest": "^10.5.6",
+    "@storybook/react-vite": "^10.5.6",
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.0.5",
+    "@vitest/browser": "^4.1.10",
+    "@vitest/browser-playwright": "^4.1.10",
+    "playwright": "^1.62.1",
+    "storybook": "^10.5.6",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10",
+    "vitest-browser-react": "^2.2.0"
+  }
+}

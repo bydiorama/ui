@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { BRANDABLE_TOKENS, CONTRAST_PAIRS } from "./contract.ts";
+import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS } from "./contract.ts";
 import { resolveTheme, resolveThemePair, missingTokens } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
-import { THEME_ZERO } from "./themes/zero.ts";
+import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
 import type { ThemeSeed } from "./seed.ts";
 
 /**
@@ -159,16 +159,55 @@ test("a deliberately dark identity is not inverted when asked for its own scheme
   assert.equal(theme["--ui-bg-base"], darkBrand.colors.bg, "author's dark page must be used verbatim");
 });
 
-test("type roles are driven by the seed and clamped", () => {
-  const big = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 999, ratio: 99 } }, { scheme: "light" });
-  const body = big.theme["--ui-text-body-md"];
-  const maxRem = SEED_BOUNDS.baseSize.max / 16;
-  assert.equal(body, `${maxRem}rem`, "baseSize must clamp");
+test("the authored type table is emitted verbatim at the default base size", () => {
+  // ADR 0009: the scale is a hand-tuned table, not base × ratio^n.
+  const { theme } = resolveTheme(THEME_ZERO, { scheme: "light" });
+  assert.equal(theme["--ui-text-body-md"], "0.875rem", "body-md is the 14px base target");
+  assert.equal(theme["--ui-text-body-lg"], "1rem");
+  assert.equal(theme["--ui-text-label-md"], "0.813rem");
+  assert.equal(theme["--ui-text-button-sm"], "0.75rem");
+  assert.ok(theme["--ui-text-display-lg"].startsWith("clamp("), "display roles are fluid");
+});
 
-  const small = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 14, ratio: 1.25 } }, { scheme: "light" });
-  assert.equal(small.theme["--ui-text-body-md"], "0.875rem");
+test("type roles are driven by the seed and clamped; ratio is reserved", () => {
+  const big = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 999, ratio: 99 } }, { scheme: "light" });
+  const maxFactor = SEED_BOUNDS.baseSize.max / SEED_BOUNDS.baseSize.default;
+  assert.equal(big.theme["--ui-text-body-md"], `${Number(((14 * maxFactor) / 16).toFixed(3))}rem`, "baseSize must clamp");
+
+  const small = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 14 } }, { scheme: "light" });
+  assert.equal(small.theme["--ui-text-body-md"], `${Number(((14 * (14 / 16)) / 16).toFixed(3))}rem`);
   assert.ok(small.theme["--ui-text-title-lg"].startsWith("clamp("), "title roles are fluid");
   assert.ok(!small.theme["--ui-text-body-sm"].includes("clamp"), "body roles are fixed");
+
+  // Same seed with a wild ratio resolves identically — ratio is ignored (ADR 0009).
+  const withRatio = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 14, ratio: 1.414 } }, { scheme: "light" });
+  assert.deepEqual(withRatio.theme, small.theme);
+});
+
+test("theme zero's authored roles reproduce the approved handover exactly", () => {
+  const { theme, adjustments } = resolveTheme(THEME_ZERO, { scheme: "light", authored: ZERO_AUTHORED.light });
+  // Spot-check the roles the derivation would get wrong on its own.
+  assert.equal(theme["--ui-bg-accent"], "#9EDBF3", "the brand colour is a fixed point");
+  assert.equal(theme["--ui-bg-elevated"], "#F6F3F0", "elevation separates by tint, not lightness");
+  assert.equal(theme["--ui-intent-success-bg"], "#D6EFCB", "intent grounds are opaque ramp-90 tints");
+  assert.equal(theme["--ui-border-control"], "#98918A");
+  assert.deepEqual(missingTokens(theme), [], "authored overlay must not break completeness");
+  // Derived chrome (nav) may still get nudged; the APPROVED values must not.
+  const authoredTokens = new Set(Object.keys(ZERO_AUTHORED.light));
+  const touchedAuthored = adjustments.filter((a) => authoredTokens.has(a.token));
+  assert.deepEqual(touchedAuthored, [], "every approved value must clear the audit unaided");
+});
+
+test("non-text pairs clear SC 1.4.11 in every theme", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    for (const scheme of ["light", "dark"] as const) {
+      const { theme } = resolveTheme(seed, { scheme });
+      for (const [fg, bg] of NONTEXT_CONTRAST_PAIRS) {
+        const ratio = contrastRatio(theme[fg], flatten(theme[bg], theme["--ui-bg-base"]));
+        assert.ok(ratio >= 3 - 0.05, `${name} (${scheme}): ${fg} on ${bg} = ${ratio.toFixed(2)}`);
+      }
+    }
+  }
 });
 
 test("nav chrome derives its ink from the rail it lands on, not the page", () => {

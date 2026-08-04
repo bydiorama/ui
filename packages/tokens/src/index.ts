@@ -4,7 +4,12 @@ export {
   SCHEME_ONLY_TOKENS,
   FIXED_TOKENS,
   CONTRAST_PAIRS,
+  NONTEXT_CONTRAST_PAIRS,
 } from "./contract.ts";
+
+// The curated palette (ADR 0008) and the authored type table (ADR 0009).
+export { RAMPS, BRAND, NEUTRAL, BLUE, ORANGE, LAVENDER, GREEN, RED } from "./palette.ts";
+export { TYPE_ROLES } from "./resolve.ts";
 export type {
   BrandableToken,
   SchemeOnlyToken,
@@ -37,8 +42,8 @@ export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES } fro
 export { toCss, toStyleObject } from "./emit/css.ts";
 export type { CssOptions, ColorScheme } from "./emit/css.ts";
 
-// Diorama's own theme.
-export { THEME_ZERO } from "./themes/zero.ts";
+// Diorama's own theme: the seed plus the approved authored role map.
+export { THEME_ZERO, ZERO_AUTHORED, resolveZeroPairOptions } from "./themes/zero.ts";
 
 // Colour utilities, exported because the brand-theme editor needs the same
 // maths the resolver uses to preview an author's choices.
@@ -49,5 +54,9 @@ export {
 } from "./color.ts";
 export type { Rgb, Oklch } from "./color.ts";
 
-// Still to come in this phase's tail: Tailwind `@theme inline` and TS-constant
-// emitters, plus the Paper/Figma payloads.
+// Tailwind v4 `@theme inline` emitter.
+export { toTailwindTheme } from "./emit/tailwind.ts";
+export type { TailwindOptions } from "./emit/tailwind.ts";
+
+// Still to come in this phase's tail: TS-constant emitter and the Paper/Figma
+// payloads.

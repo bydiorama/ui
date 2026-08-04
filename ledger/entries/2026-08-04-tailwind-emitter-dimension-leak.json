@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-tailwind-emitter-dimension-leak",
+  "date": "2026-08-04",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The Tailwind theme emitter mapped every --ui-nav-* and --ui-border-* token into the colour namespace by prefix, minting utilities whose values are dimensions: --color-nav-width (17rem), --color-nav-rail-width, --color-edge-width. Nothing consumed them yet, but the first nav component would have reached for bg-nav-width and produced background-color: 17rem. The emitter now carries an explicit NOT_COLORS set for dimension/composite tokens whose names collide with colour families.",
+  "affects": [
+    "token:--ui-nav-width",
+    "token:--ui-nav-rail-width",
+    "token:--ui-border-width",
+    "token:--ui-focus-ring"
+  ],
+  "migration": {
+    "manual": "None — the removed colour utilities had no consumers."
+  }
+}

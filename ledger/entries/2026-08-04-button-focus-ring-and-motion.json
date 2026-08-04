@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-button-focus-ring-and-motion",
+  "date": "2026-08-04",
+  "item": "button",
+  "kind": "a11y",
+  "summary": "Code review of the compiled stylesheet found two invisible-at-runtime bugs. (1) The focus ring never rendered: `outline-none` set --tw-outline-style to none, which `focus-visible:outline-2` then inherited — a 2px ring drawn in style:none, i.e. a WCAG 2.4.7 failure at a perfect contrast ratio. The base outline-none is removed entirely; the UA outline needs no suppressing because our focus-visible rules override it. (2) Motion tokens were disconnected: the bracket arbitrary-value syntax `duration-[--x]` emits the bare property name (`transition-duration: --ui-duration-fast`), which is invalid CSS — transitions ran at 0s and the press-scale never applied. Switched to the parens syntax `duration-(--x)` which compiles to var(--x). Both regressions are pinned by computed-style browser tests (transitionDuration 0.12s, easing curve, outline solid/2px/opaque on focus), added failing-first.",
+  "affects": [
+    "item:button",
+    "token:--ui-duration-fast",
+    "token:--ui-ease-out",
+    "token:--ui-press-scale",
+    "token:--ui-focus-ring-color"
+  ],
+  "migration": {
+    "manual": "Re-add @bydiorama/button. Any local component using `duration-[--x]`/`ease-[--x]`/`scale-[--x]` has dead CSS — switch to the parens form. Any component pairing `outline-none` with a focus-visible outline has an invisible focus ring."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0"
+  }
+}

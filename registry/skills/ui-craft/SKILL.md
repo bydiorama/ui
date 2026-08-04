@@ -81,13 +81,31 @@ What feels off at 10% speed is what is subtly wrong at full speed.
     pseudo-element on the wrapping label or button (replaced elements don't
     render `::before`/`::after` reliably).
 
+### Pointer and disabled states
+
+14. **Set `cursor: pointer` on anything clickable — always, explicitly.** No
+    browser gives `<button>` a pointer cursor by default, and no reset in this
+    stack adds one. It is the only signal a control is clickable *before* the
+    click, so a missing pointer reads as "this isn't a button". Disabled
+    controls get `cursor: not-allowed`.
+15. **Disable with the attribute, not `pointer-events: none`.** `disabled`
+    already blocks activation and removes the control from the tab order.
+    Killing pointer events on top of that only makes the control unhoverable,
+    which silently removes the tooltip that would explain *why* it is
+    unavailable. Gate hover/press styling behind `enabled:` instead.
+16. **Don't expect a press animation on Enter.** Pointer-press and Space-hold
+    paint `:active`; Enter activates instantaneously, so the UA applies
+    `:active` for at most a frame. That is browser behaviour, not a bug worth
+    "fixing" with JS state — the focus ring is the static cue and the resulting
+    action is the acknowledgement. Rule 8 already requires a non-motion channel.
+
 ### Colour
 
-14. **Semantic tokens only.** `--ui-*` roles, never raw values, never palette
+17. **Semantic tokens only.** `--ui-*` roles, never raw values, never palette
     names. One colour, one meaning: if the link colour shows up as decoration,
     the decoration gets a neutral instead. Only the single primary action in a
     view gets a filled accent background.
-15. **Contrast fixes move lightness.** When a pair fails, adjust L and keep
+18. **Contrast fixes move lightness.** When a pair fails, adjust L and keep
     chroma and hue — that keeps the colour recognisably itself. (This is what
     the theme resolver's audit does; do the same in one-off fixes.)
 
@@ -104,3 +122,6 @@ What feels off at 10% speed is what is subtly wrong at full speed.
 | Separate icon file per state | One `currentColor` SVG, states via CSS |
 | 16px icon-button with a 16px hit area | Pseudo-element hit area ≥ `--ui-hit-area-min` |
 | Raw hex in a component | The `--ui-*` role token that means it |
+| Clickable element with the default arrow cursor | `cursor: pointer` — never inherited, always explicit |
+| `pointer-events: none` on a disabled control | The `disabled` attribute + `enabled:` gated hover, so tooltips survive |
+| Asserting interaction in jsdom | A real browser — jsdom doesn't implement implicit activation |

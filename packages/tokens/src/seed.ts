@@ -37,7 +37,8 @@ export interface SeedTypography {
   ratio?: number;
   fontBody?: string;
   fontDisplay?: string;
-  fontMono?: string;
+  /** No mono counterpart exists — ADR 0011. Code content is set in the body
+   *  face; numeric alignment uses `font-variant-numeric: tabular-nums`. */
 }
 
 /** Elevation intensity. A knob rather than a raw CSS value, per ADR 0006(d):
@@ -47,7 +48,8 @@ export interface SeedTypography {
 export type ShadowIntensity = "none" | "subtle" | "standard" | "strong";
 
 export interface SeedShape {
-  radiusPx?: { sm?: number; md?: number; lg?: number; pill?: number };
+  /** Six knobs matching the approved radius scale (4/8/16/24/32/pill). */
+  radiusPx?: { sm?: number; md?: number; lg?: number; xl?: number; "2xl"?: number; pill?: number };
   borderWidthPx?: number;
   shadow?: ShadowIntensity;
 }
@@ -81,13 +83,18 @@ export interface ThemeSeed {
  */
 export const SEED_BOUNDS = {
   baseSize: { min: 13, max: 20, default: 16 },
+  /** RESERVED (ADR 0009). The type scale is an authored table, not a modular
+   *  derivation, so `ratio` is currently accepted and ignored. It stays in the
+   *  seed shape so accepting it again later is not a breaking change. */
   ratio: { min: 1.1, max: 1.414, default: 1.2 },
   contentWidthPx: { min: 560, max: 1440, default: 880 },
   borderWidthPx: { min: 0, max: 4, default: 1 },
   radiusPx: {
-    sm: { min: 0, max: 24, default: 6 },
-    md: { min: 0, max: 32, default: 10 },
+    sm: { min: 0, max: 24, default: 4 },
+    md: { min: 0, max: 32, default: 8 },
     lg: { min: 0, max: 48, default: 16 },
+    xl: { min: 0, max: 64, default: 24 },
+    "2xl": { min: 0, max: 80, default: 32 },
     pill: { min: 0, max: 999, default: 999 },
   },
 } as const;
@@ -143,7 +150,6 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
 
   checkValue("typography.fontBody", seed.typography?.fontBody);
   checkValue("typography.fontDisplay", seed.typography?.fontDisplay);
-  checkValue("typography.fontMono", seed.typography?.fontMono);
   checkValue("chrome.sectionGap", seed.chrome?.sectionGap);
   checkValue("chrome.logoHeight", seed.chrome?.logoHeight);
 

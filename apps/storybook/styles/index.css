@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Tailwind scans the distributed source for class names. Stories live beside
+   their components, so this one path covers both. */
+@source "../../../registry";
+
+/* Token :root block + the @theme inline mapping. Regenerate with `pnpm tokens`. */
+@import "./tokens.generated.css";
+
+/* Aspekta is the system's only face (ADR 0007/0011). Loaded from the registry
+   font item so Storybook renders the typography a consumer actually installs. */
+@font-face {
+  font-family: "Aspekta";
+  src: url("/AspektaVF.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+body {
+  background: var(--ui-bg-base);
+  color: var(--ui-text-primary);
+  font-family: var(--ui-font-body);
+  /* Rendering parity with Paper (CONVENTIONS §6): the canvas draws every node
+     antialiased with synthesis off. macOS subpixel rendering draws stems
+     visibly heavier — reported as "the font weight doesn't match" when every
+     declared value was identical. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+}

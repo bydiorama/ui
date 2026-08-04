@@ -55,6 +55,14 @@ for (const [i, item] of (manifest.items ?? []).entries()) {
     if (!existsSync(join(ROOT, file.path))) {
       errors.push(`${where}: declared file does not exist on disk — ${file.path}`);
     }
+    // The manifest — not the repo — is the distribution boundary. Stories,
+    // tests and fixtures live next to the components they describe so they
+    // cannot drift, and they must never reach a consumer: shipping them would
+    // drag Storybook and a test runner into an app that only wanted a Button.
+    // Co-location is safe exactly because this check exists.
+    if (/\.(stories|test|spec)\.[jt]sx?$/.test(file.path)) {
+      errors.push(`${where}: ${file.path} is a story/test — those stay in this repo. Distribution is the manifest, not the folder`);
+    }
     const ext = (file.path.match(/\.[^.]+$/) ?? [""])[0].toLowerCase();
     if (BINARY_EXTENSIONS.has(ext)) {
       errors.push(`${where}: ${file.path} is binary — the JSON transport corrupts binary content; distribute it by URL with a text install note`);

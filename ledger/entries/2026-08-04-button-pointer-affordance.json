@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-04-button-pointer-affordance",
+  "date": "2026-08-04",
+  "item": "button",
+  "kind": "a11y",
+  "summary": "Button had no pointer cursor: a <button> defaults to the UA arrow and Tailwind v4's preflight adds nothing, so the compiled stylesheet contained no cursor rule at all. Adds cursor-pointer and disabled:cursor-not-allowed, asserted against COMPUTED style in a real browser. Also drops disabled:pointer-events-none — the native disabled attribute already blocks activation and removes the control from the tab order, while suppressing pointer events only makes the control unhoverable and kills the tooltip explaining why it is unavailable; hover/press states are now gated behind `enabled:` instead. Investigated alongside a report that Enter did not activate: a browser test proves Enter DOES activate (no functional defect). The perceived failure was the absence of an observable response — the Playground story had no handler, and Enter's activation is instantaneous so the :active press-scale is imperceptible, unlike pointer-press and Space-hold. Stories now log every activation and a dedicated Activation story demonstrates all three routes.",
+  "affects": [
+    "item:button",
+    "prop:isDisabled",
+    "decision:conventions-10-pointer-affordance"
+  ],
+  "migration": {
+    "manual": "Re-add @bydiorama/button to pick up the cursor and disabled-state changes. Anything that relied on disabled buttons being unhoverable should note they are now hoverable by design, so a tooltip can explain the disabled state."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0"
+  }
+}

@@ -50,6 +50,23 @@ gates to be wrong before the code is.**
 
 - **Semantic roles only in components.** About to type a palette step
   (`bg-blue-70`)? Stop — the design is telling you a role is missing.
+- **A role from the WRONG CATEGORY is the same signal.** A text role as a
+  background (`bg-(--ui-text-placeholder)` on a switch track), a border role as
+  a fill, an ink role on a surface — each means the role you need does not
+  exist yet. Three roles were added this way: `--ui-bg-field`,
+  `--ui-bg-accent-legible`, `--ui-gradient-brand`. Reaching sideways is cheaper
+  in the moment and becomes the drift the whole token layer exists to prevent.
+- **The surface scale INVERTS between schemes.** In light `bg-base` is the
+  lightest value; in dark it is the lightest *surface*, with `surface` and
+  `sunken` below it. So a role meaning "recessed from its container" cannot be
+  one existing role — it is lighter in light and darker in dark. Form fields
+  looked transparent in dark for exactly this reason. Whenever a role's meaning
+  is RELATIVE ("recessed", "raised", "quieter"), check both schemes before
+  assuming an existing one fits.
+- **An authored value is not exempt from the audit.** Pinning
+  `--ui-bg-accent-legible` to `blue-60` in `ZERO_AUTHORED` failed the resolver
+  test because it measured under 3:1. Authored means "the approved value",
+  not "skip the check" — if a pin cannot clear the floor, the pin is wrong.
 - New role = contract + resolver derivation + `ZERO_AUTHORED` pin (**light and
   dark**) + a `CONTRAST_PAIRS` / `NONTEXT_CONTRAST_PAIRS` entry whenever it
   carries ink or a control boundary. **An unlisted pair is an unchecked pair**:
@@ -132,6 +149,17 @@ spread the args bag into components with discriminated-union props
 - Cover, at minimum: the keyboard contract, the focus indicator *painted*
   (not declared), per-size typography as computed values, the forwarding
   contract, and every state the design draws.
+- **When a component claims to reuse another's surface, assert the
+  RELATIONSHIP, not numbers.** Multiselect's trigger is Input's control: the
+  test renders both and compares their computed height, radius, border and
+  colour. Asserting `48px` on each would pass while the two silently drifted
+  apart, which is the only failure that matters.
+- **Assert that variants DIFFER, not just that each is internally consistent.**
+  Badge's two sizes were pixel-identical while every test passed, because
+  nothing ever compared them to each other.
+- **Compute target-size arithmetic; do not eyeball it.** `py-xs` around an 8px
+  track is 16px, not 24 — the SC 2.5.8 assertion caught it. Write the sum in
+  the comment so the next person can check it without re-deriving.
 
 ### 7 · Register and record
 
@@ -192,6 +220,9 @@ probing.
 | Computed size is `13.008px`, not `13px` | The rem emitter's rounding; whole px on a 16px base needs **4** decimal places, not 3 |
 | `test:browser` passing against yesterday's CSS | The suite reads a *generated* stylesheet — regenerate tokens in the test script, or it asserts stale output |
 | A token named "strong" that measures weaker than "control" | Names are not guarantees. Assert the **ordering** of a stack, in both schemes, and add every step to `NONTEXT_CONTRAST_PAIRS` — an unlisted pair is an unchecked pair |
+| A behaviour-layer prop that silently does nothing | JSX drops unknown props without a word. `dismissible` is not a Base UI Dialog prop — read the `.d.ts` for every prop you forward, and assert the BEHAVIOUR, not that you passed it |
+| Writing a contrast number from memory | Run the resolver and paste the output. A fabricated figure in a doc stops the next reviewer from checking |
+| A relative role ("recessed", "raised") assumed to be one existing token | The surface scale inverts between schemes — check both before reusing a role |
 | Reaching for the behaviour layer (ADR 0012) | Only when the platform doesn't already do it, only in `registry/ui/<name>/<name>.tsx`, and never in an exported type — `check:boundaries` enforces both |
 
 ## Definition of done

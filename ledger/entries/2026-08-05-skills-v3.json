@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-skills-v3",
+  "date": "2026-08-05",
+  "item": "system",
+  "kind": "decision",
+  "summary": "add-component and review-ui refined from the Modal/Multiselect/Switch/Progress/Slider run. The largest addition is structural rather than a trap list: a role from the WRONG CATEGORY is the same signal as a palette step. A text role used as a background, a border role used as a fill, an ink role on a surface — each means the role you need does not exist, and three were added this way in one session (--ui-bg-field, --ui-bg-accent-legible, --ui-gradient-brand). Second: the surface scale INVERTS between schemes, so a role whose meaning is relative ('recessed', 'raised', 'quieter') cannot be a single existing token — form fields looked transparent in dark for exactly that reason. Third: an authored value is not exempt from the audit; pinning accent-legible to blue-60 failed the resolver test for measuring under 3:1, and the pin was wrong rather than the check. On the testing side: assert RELATIONSHIPS rather than numbers when a component reuses another's surface, because matching numbers pass while the two drift apart; assert that variants DIFFER rather than that each is internally consistent; and compute target-size arithmetic instead of eyeballing it. review-ui gains five catalogue rows, headed by the worst process failure of the session — a contrast figure written into a doc that nobody measured (3.2:1 claimed, 1.24:1 real), where the doc's confidence is precisely what would have stopped the next reviewer looking. Also recorded: a forwarded prop that does not exist on the wrapped library is dropped silently; implicit ARIA roles mean querying [role=...] finds nothing; naming a group does not name the control inside it; and the visual gate has a sensitivity floor that let a Switch track change colour entirely without tripping.",
+  "affects": ["skill:add-component", "skill:review-ui"],
+  "migration": { "manual": "None — authoring guidance only." }
+}

@@ -61,7 +61,18 @@ Each of these passed type-check, lint, unit tests and `verify`:
 | A component "shrinks" in Storybook Docs but is correct in isolation | Layout | `w-full` inside a shrink-to-fit parent is circular and collapses to content. Reproduce in a fixed-width container BEFORE touching the component — the defect is usually the story, not the code |
 | Test **failure artifacts committed as if they were baselines** — four `-actual-`/`-diff-` PNGs tracked under `apps/registry/`, a directory that should not exist | The index | A failing compare writes them relative to the VITEST ROOT, not the test file: `apps/storybook/../registry/...` resolves to `apps/registry/`, which no `**/__screenshots__/` rule matches. Ignore the artifact NAMES globally, not the folder. Audit `git ls-files '*.png'` — debris that looks reviewed is worse than debris |
 | Story tests fail on the FIRST run after adding a story file and pass on the second | The runner | Vite discovered a new dependency mid-run, re-optimised and reloaded the page under the test ("Vite unexpectedly reloaded a test"). Pre-bundle via `optimizeDeps.include`. Reproduce by deleting `node_modules/.vite` AND adding a story file — one without the other does not trigger it |
+| **A contrast number in a doc that nobody measured.** Progress shipped claiming "3.2:1 in light"; it was 1.24:1 and failing | The doc | Every number in a `*.doc.ts` must come from a command you ran in that session. A fabricated number is worse than none — it stops the next reviewer looking |
+| A prop forwarded to the behaviour layer that DOES NOT EXIST there. `dismissible` is not a Base UI Dialog prop, so `isDismissable={false}` did nothing and Escape closed the dialog anyway | Behaviour | JSX drops unknown props silently. Read the wrapped library's `.d.ts` for every prop you forward, and assert the BEHAVIOUR the prop promises, not that you passed it |
+| `[role="slider"]` matches nothing, because a native `input[type=range]` carries the role IMPLICITLY | Test | Query the element (`input[type="range"]`), not the attribute. An implicit role is the reason to use the native control — a test that demands the explicit attribute is asking the platform to be worse |
+| Naming the GROUP does not name the control inside it — a labelled Slider whose inner input was anonymous | Behaviour | `aria-labelledby` belongs on the element that carries the role. Assert the name resolves from the focusable element, not from its wrapper |
+| The visual gate passed while a Switch track changed colour completely | The gate itself | `allowedMismatchedPixelRatio` has a floor: a small element can change entirely and stay under it. A green visual run is evidence about LARGE surfaces, not proof nothing moved |
 | A `fixed` overlay takes the width of a docs cell | Layout | `position: fixed` resolves against the nearest **transformed** ancestor, not the viewport. Storybook's docs blocks transform their preview, so `100vw`/`inset-0` silently scope to it. Never size a fixed surface with viewport units alone; floor it |
+
+**Measure, then write. Never the reverse.** Every contrast figure in a doc, a
+comment or a ledger entry is a claim someone will rely on instead of checking.
+Run the resolver, paste the number. This session shipped a fabricated 3.2:1
+against a real 1.24:1, and the doc's confidence is exactly what would have
+stopped the next reviewer from looking.
 
 **Check the whole surface under a brand scope, not the trigger.** Three of the
 four defects above were invisible in theme zero and in the contract suite: they

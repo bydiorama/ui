@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-border-stack-separation",
+  "date": "2026-08-05",
+  "item": "system",
+  "kind": "token",
+  "summary": "Closed the dark border-subtle/border-default collapse. ADR 0010 defines four structural weights, but only control and strong were derived by measurement; subtle and default were alpha hairlines, and on the dark ground default composited to 1.48:1 — identical to subtle — so the stack had three levels in dark while looking like four in light. Rather than special-casing dark, default now uses the SAME construction as control and strong (a step from the page toward the ink, floored at 2:1, which is what theme zero's light scheme already authored at neutral-70/2.14:1), so every scheme and every brand lands there instead of only the one someone checked. Dark now measures 1.48 / 2.03 / 3.09 / 4.85 against 1.47 / 2.14 / 3.11 / 5.93 in light. The resolver test grew a SEPARATION requirement: each step must clear the one below it by a real margin, in both schemes, across every stress brand — probed by restoring the alpha hairline and watching it fail with the collapse named. subtle and default remain exempt from the 3:1 non-text floor by design (ADR 0010 point 2 — a conformant outline on a resting input reads as an active state), but exempt from the floor is not exempt from being distinguishable.",
+  "affects": ["token:--ui-border-default", "doc:adr-0010"],
+  "migration": {
+    "manual": "--ui-border-default changes in DERIVED schemes only; theme zero authors all four weights in light, so light is untouched. Dark-scheme surfaces using border-default become visible where they previously matched border-subtle exactly."
+  }
+}

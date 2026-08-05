@@ -25,12 +25,23 @@
    one token reference, not a redesign. It currently has no consumer — that is
    its job, not a defect.
 
-4. The resolver audits `border-focus`, `focus-ring-color` and `border-control`
-   against a 3:1 non-text floor (`NONTEXT_CONTRAST_PAIRS`) and derives
-   `border-control` opaque, because contrast against a translucent value is
-   undefined until composited. `border-subtle`/`-default` are exempt from the
-   non-text audit **by design** — auto-nudging them would silently undo this
-   decision.
+4. The resolver derives **every weight opaque, by one construction** — a step
+   from the page toward the ink, floored per weight (`default` 2:1, `control`
+   3:1, `strong` 4.5:1) — and audits `border-focus`, `focus-ring-color`,
+   `border-control` and `border-strong` through `NONTEXT_CONTRAST_PAIRS`.
+
+   Contrast against a translucent value is undefined until composited, and two
+   of the four used to be alpha hairlines. On the dark ground `default`
+   composited to 1.48:1 — *identical* to `subtle` — so this stack silently had
+   three levels in dark while looking like four in light. `strong` was worse:
+   it landed below `control`, inverting the order the names promise.
+
+5. `border-subtle` and `border-default` stay exempt from the **3:1 non-text
+   floor** by design; nudging them there would undo point 2. They are not
+   exempt from being *distinguishable*. A resolver test requires each step to
+   clear the one below it by a real margin, in both schemes, across every
+   stress brand — because a name is not a separation, and nobody notices two
+   identical greys until a component that leans on the difference looks wrong.
 
 ## Why
 

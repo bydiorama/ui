@@ -258,8 +258,24 @@ test("the border stack is ordered by MEASURED contrast, in both schemes", () => 
       const against = (token: (typeof BRANDABLE_TOKENS)[number]) =>
         contrastRatio(flatten(theme[token], page), page);
 
+      const subtle = against("--ui-border-subtle");
+      const dflt = against("--ui-border-default");
       const control = against("--ui-border-control");
       const strong = against("--ui-border-strong");
+
+      // Four steps must be four steps. `default` was an alpha hairline while
+      // control and strong were measured, so in dark it composited onto
+      // `subtle` — 1.48:1 both — and ADR 0010's stack silently had three
+      // levels. Names are not separation; require a real gap.
+      const SEPARATION = 1.2;
+      assert.ok(
+        dflt >= subtle * SEPARATION,
+        `${name} (${scheme}): border-default (${dflt.toFixed(2)}) is not distinguishable from border-subtle (${subtle.toFixed(2)})`,
+      );
+      assert.ok(
+        control >= dflt * SEPARATION,
+        `${name} (${scheme}): border-control (${control.toFixed(2)}) is not distinguishable from border-default (${dflt.toFixed(2)})`,
+      );
 
       assert.ok(
         control >= 3 - 0.05,

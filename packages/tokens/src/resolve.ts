@@ -258,12 +258,6 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   // raw accent frequently does not.
   const link = legibleOn(accent, colors.bg);
 
-  // Hairlines as alpha over the brand's ink: they darken on a light page and
-  // lighten on a dark one with no second palette. `border` itself is commonly
-  // stored as rgba, so it cannot seed these — the ink can.
-  const inkBorder = (alpha: number) =>
-    toOklch(colors.textPrimary) ? withAlpha(colors.textPrimary, alpha) : colors.border;
-
   const shape = seed.shape ?? {};
   const px = (n: number) => (n === 0 ? "0" : `${Math.round(n)}px`);
   const radiusKnob = (key: keyof typeof SEED_BOUNDS.radiusPx) =>
@@ -355,7 +349,14 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // (SC 1.4.11), and contrast against a translucent value is only defined
     // after compositing — so it is composited by construction.
     "--ui-border-subtle": colors.border,
-    "--ui-border-default": inkBorder(0.14),
+    // Derived the same way as `control` and `strong`, not as an alpha
+    // hairline. As `inkBorder(0.14)` it composited to 1.48:1 on the dark
+    // ground — indistinguishable from `subtle` at 1.48:1 — so two of ADR
+    // 0010's four steps were the same colour in dark while looking distinct in
+    // light. The floor is 2:1, which is what theme zero's light scheme already
+    // authors (neutral-70, 2.14:1); this makes every scheme land there rather
+    // than only the one someone checked.
+    "--ui-border-default": legibleOn(towardL(colors.textPrimary, colors.bg, 0.72), colors.bg, 2),
     "--ui-border-control": legibleOn(towardL(colors.textPrimary, colors.bg, 0.55), colors.bg, 3),
     // Strong must MEASURE stronger than control, not merely be named so. As a
     // 0.3 alpha hairline it composited to 1.78:1 on the dark ground while

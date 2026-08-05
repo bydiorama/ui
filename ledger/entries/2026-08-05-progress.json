@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-progress",
+  "date": "2026-08-05",
+  "item": "progress",
+  "kind": "addition",
+  "summary": "Progress — a determinate bar in two track heights (20/8px), with an optional label row and rounded percentage. Rendered as a div with role=progressbar rather than the native <progress>: unlike a checkbox or a button it has no behaviour to inherit, the native element cannot be styled to this design across browsers, and the ARIA it needs is three attributes, all set here and asserted in Chromium. The value is CLAMPED into 0..max and the clamped value is what aria-valuenow reports, because a fill wider than its track is a layout bug that only appears with real data. max is reported rather than rescaled away, so '3 of 4' announces as 3 of 4. The fill is width-driven, not transform-driven — scaling would squash the pill ends into ellipses. One design defect NOT transcribed: the sheet paints the fill with a three-stop brand gradient (blue-80 to lavender-80 to red-80, in oklab) built from raw palette steps, which do not re-skin with a brand and have no gradient role in the contract. Resolved after review: --ui-gradient-brand is now a BRANDABLE token, derived by rotating the seed's own accent in OKLCH so a client's portal gets its own three-stop sweep rather than inheriting Diorama's, and pinned in theme zero to the exact designed stops. Progress exposes it as variant='gradient'; solid stays the default because the fill is a meaningful graphic that must clear 3:1, which a sweep cannot guarantee along its whole length. The arbitrary bg-(image:--ui-gradient-brand) is skipped by check:utilities by design, so a browser test asserts it paints a real background-image — without the `image:` hint it would set a background COLOUR to a gradient string and paint nothing. REVIEW ALSO FOUND: the fill measures 1.24:1 against its track in light (10.07:1 in dark), failing SC 1.4.11 for a graphic that carries meaning, and the doc had claimed an unverified 3.2:1. The number is corrected and the failure is recorded as open, because the sheet draws the same pale-on-pale pair and fixing it is a design decision.",
+  "affects": [
+    "component:progress",
+    "design:paper-progress"
+  ],
+  "migration": {
+    "manual": "None — new component."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D8Q-0"
+  }
+}

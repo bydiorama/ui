@@ -259,6 +259,51 @@
       "status": "stable"
     },
     {
+      "name": "switch",
+      "type": "ui",
+      "description": "A control that takes effect immediately, unlike a Checkbox, which states an intention the surrounding form later submits. A native input with role=switch, so it is announced as on/off rather than checked. The whole row is the 24px target; the track stays 36x20. Controlled or uncontrolled through the shared useControllableState hook.",
+      "files": [
+        {
+          "path": "registry/ui/switch/switch.tsx",
+          "target": "ui/switch.tsx"
+        },
+        {
+          "path": "registry/ui/switch/switch.doc.ts",
+          "target": "ui/switch.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "use-controllable-state"
+      ],
+      "peerDependencies": [
+        "react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "progress",
+      "type": "ui",
+      "description": "A determinate progress bar with an optional label and percentage, in two track heights (20/8px). A div with role=progressbar and the three ARIA value attributes, because unlike a checkbox or a button a progress bar has no native behaviour to inherit. The value is clamped and the clamped value is what is announced.",
+      "files": [
+        {
+          "path": "registry/ui/progress/progress.tsx",
+          "target": "ui/progress.tsx"
+        },
+        {
+          "path": "registry/ui/progress/progress.doc.ts",
+          "target": "ui/progress.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react"
+      ],
+      "status": "stable"
+    },
+    {
       "name": "ui-craft",
       "type": "skill",
       "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",

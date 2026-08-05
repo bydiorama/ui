@@ -258,6 +258,22 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   // raw accent frequently does not.
   const link = legibleOn(accent, colors.bg);
 
+  // A spectrum from the brand's own accent: same lightness and chroma, hue
+  // rotated, so any seed produces a coherent three-stop sweep instead of
+  // inheriting Diorama's. `in oklab` keeps the midpoint from going muddy the
+  // way an sRGB interpolation does between distant hues.
+  const spectrum = (() => {
+    const base = toOklch(colors.accent);
+    if (!base) return null;
+    const at = (deg: number) =>
+      formatColor(oklchToRgb({ ...base, h: (base.h + deg + 360) % 360 }));
+    return [at(0), at(70), at(150)] as const;
+  })();
+  const brandGradient = spectrum
+    ? `linear-gradient(in oklab 270deg, ${spectrum[0]} 0%, ${spectrum[1]} 50%, ${spectrum[2]} 100%)`
+    : `linear-gradient(in oklab 270deg, ${accent} 0%, ${accent} 100%)`;
+
+
   const shape = seed.shape ?? {};
   const px = (n: number) => (n === 0 ? "0" : `${Math.round(n)}px`);
   const radiusKnob = (key: keyof typeof SEED_BOUNDS.radiusPx) =>
@@ -343,6 +359,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),
     "--ui-bg-danger-solid": dangerSolid,
+    "--ui-gradient-brand": brandGradient,
 
     // Borders and focus (ADR 0010: subtle → default → control → strong).
     // Control is opaque, not an alpha hairline: it must MEASURE at 3:1

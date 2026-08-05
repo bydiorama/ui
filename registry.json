@@ -231,6 +231,47 @@
       ]
     },
     {
+      "name": "switch",
+      "type": "registry:ui",
+      "description": "A control that takes effect immediately, unlike a Checkbox, which states an intention the surrounding form later submits. A native input with role=switch, so it is announced as on/off rather than checked. The whole row is the 24px target; the track stays 36x20. Controlled or uncontrolled through the shared useControllableState hook.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/switch/switch.tsx",
+          "type": "registry:ui",
+          "target": "ui/switch.tsx"
+        },
+        {
+          "path": "registry/ui/switch/switch.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/switch.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "description": "A determinate progress bar with an optional label and percentage, in two track heights (20/8px). A div with role=progressbar and the three ARIA value attributes, because unlike a checkbox or a button a progress bar has no native behaviour to inherit. The value is clamped and the clamped value is what is announced.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/progress/progress.tsx",
+          "type": "registry:ui",
+          "target": "ui/progress.tsx"
+        },
+        {
+          "path": "registry/ui/progress/progress.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/progress.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "ui-craft",
       "type": "registry:file",
       "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",

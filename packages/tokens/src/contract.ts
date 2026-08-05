@@ -62,6 +62,14 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-emphasis-active",
   "--ui-bg-danger-solid",
 
+  // A three-stop brand spectrum, as a full `linear-gradient(...)` value. It is
+  // a background-IMAGE, not a colour, so the Tailwind emitter deliberately
+  // mints no utility for it — components reach it with `bg-(image:--ui-...)`.
+  // Brandable rather than fixed: a client's portal must not display Diorama's
+  // blue-lavender-red, so it is derived by rotating the brand's own accent and
+  // only theme zero pins the designed stops.
+  "--ui-gradient-brand",
+
   // Borders and focus. Four structural weights plus focus (ADR 0010):
   // subtle is the everyday hairline (inputs included — the field is identified
   // by fill, label and padding); control is the SC 1.4.11-conformant boundary

@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-switch",
+  "date": "2026-08-05",
+  "item": "switch",
+  "kind": "addition",
+  "summary": "Switch — the control that takes effect immediately, as against Checkbox, which states an intention a form later submits. Built on a native input with role=switch rather than a div, so Space activation, form participation and :disabled come from the platform and the role changes only how it is ANNOUNCED (on/off rather than checked), which is the entire difference from Checkbox at the a11y layer. Reuses useControllableState, proving the hook generalises past its first consumer. The row is one label carrying the 24px target while the track stays 36x20, and the thumb travels by transform so the track's geometry never changes. Two design defects corrected: the ON track used the --ui-blue-80 palette step, and the OFF track used --ui-text-placeholder — a TEXT role as a background. The ON track now uses the accent role. The OFF track uses edge-strong, which is the same value on a non-text role and clears the 3:1 a control boundary needs, but is still a border role used as a fill; that compromise is recorded in knownGaps rather than hidden, because Slider will want the same thing and a dedicated track role is probably the right answer. Review found a light-scheme contrast issue: the white thumb on the pale accent track measures 1.48:1, under SC 1.4.11's 3:1. Position still distinguishes on from off, and dark is fine at 9.17:1, but the thumb is barely discernible against the fill in light. Recorded as open rather than papered over — the sheet draws the same pale pair.",
+  "affects": [
+    "component:switch",
+    "design:paper-switch"
+  ],
+  "migration": {
+    "manual": "None — new component. Replaces the Toggle artboard, which the sheet renamed."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GDR-0"
+  }
+}

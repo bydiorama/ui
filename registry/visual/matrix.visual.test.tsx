@@ -29,6 +29,8 @@ import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Input } from "@/ui/input/input.tsx";
+import { Progress } from "@/ui/progress/progress.tsx";
+import { Switch } from "@/ui/switch/switch.tsx";
 
 const PAIR = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
 const SCHEMES = ["light", "dark"] as const;
@@ -132,6 +134,28 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
         <Input label="With helper" helperText="Persistent guidance." placeholder="name@bydiorama.com" />
         <Input label="With error" errorText="That address is not valid." defaultValue="nope" />
         <Input label="Disabled" isDisabled placeholder="Unavailable" />
+      </div>
+    ),
+  },
+  {
+    name: "switch",
+    ui: (
+      <div className="flex flex-col gap-md">
+        <Switch>Off</Switch>
+        <Switch defaultIsChecked>On</Switch>
+        <Switch isDisabled>Disabled, off</Switch>
+        <Switch isDisabled defaultIsChecked>Disabled, on</Switch>
+      </div>
+    ),
+  },
+  {
+    name: "progress",
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Progress label="Usage" value={62} hasValueText />
+        <Progress label="Usage" value={62} isLabelHidden />
+        <Progress label="Usage" value={62} size="sm" hasValueText />
+        <Progress label="Complete" value={100} size="sm" isLabelHidden />
       </div>
     ),
   },

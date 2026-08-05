@@ -33,3 +33,16 @@ micro shadow (lg/xl are engineering defaults).
 
 Closed since: behaviour layer and state designs are in progress; the mono-face
 question is settled — there is no mono face (ADR 0011).
+
+## Fields use `--ui-bg-field`, not `--ui-bg-base`
+
+The surface scale **inverts between schemes**: in light `bg-base` is the
+lightest value, in dark it is the *lightest surface* while `surface` and
+`sunken` sit below it. A field must be recessed from whatever contains it —
+lighter in light, darker in dark — which no single existing role expresses.
+`--ui-bg-field` does, and every field fill in this file now points at it.
+
+The dark column of the Color Scheme sheet carries the **literal** dark value
+(`#1D1B19`) rather than the token, for the same reason the dark borders do: a
+flat Paper file cannot hold a `light-dark()` pair, so the resolver owns dark
+and this sheet only mocks it.

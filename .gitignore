@@ -26,3 +26,9 @@ apps/storybook/styles/tokens.generated.css
 # not in CI — see ledger/decisions and `pnpm test:visual`.
 !registry/visual/__screenshots__/
 !registry/visual/__screenshots__/**
+# ...but NOT the run artifacts that land in the same folder. A failing compare
+# writes `-actual-` and `-diff-` PNGs beside the baseline; committing those
+# makes the debris look like a reviewed baseline, which is the one thing the
+# baseline directory must never contain.
+registry/visual/__screenshots__/**/*-actual-*.png
+registry/visual/__screenshots__/**/*-diff-*.png

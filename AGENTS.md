@@ -125,6 +125,10 @@ top of its row, a panel with no visible boundary. All three of those shipped.
   (explicitly un-ignored). Review a changed baseline like any other diff.
 - Intentional visual change? Delete the affected baseline, re-run, and commit
   the new PNG **after looking at it**.
+- **It has a sensitivity floor.** `allowedMismatchedPixelRatio: 0.01` lets a
+  small element change colour ENTIRELY without tripping the diff — a Switch
+  track is under 1% of its frame. Treat a green visual run as evidence about
+  large surfaces, not proof that nothing moved.
 - **Audit what is tracked, not just what is ignored.** A failing compare writes
   `-actual-`/`-diff-` PNGs relative to the *vitest root*, which put four of them
   in `apps/registry/` — a directory that should not exist and that no

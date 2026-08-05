@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-slider",
+  "date": "2026-08-05",
+  "item": "slider",
+  "kind": "addition",
+  "summary": "Slider — a single-value control in two track heights (20/8px), on the Base UI behaviour layer. Pointer capture, keyboard stepping, Home/End, RTL and touch are each individually easy to get almost right and their near-misses only surface for someone on a keyboard or a screen reader, which is precisely what ADR 0012 exists for. The value is narrowed to a NUMBER: Base UI models one and many thumbs with the same number | number[] type, and a one-thumb control should never make a caller destructure an array. Two defects found by the browser suite rather than by reading. First, the accessible name was not wired: Base UI renders a native input[type=range] INSIDE the thumb, and naming the surrounding group does not name that input — aria-labelledby now goes on both. Second, the 24px target assertion failed at the small size, because py-xs around an 8px track yields 16px; the control is padded to py-sm so the affordance stays thin while the target stays legal (SC 2.5.8). Also worth recording: querying [role=\"slider\"] finds nothing, because the role is IMPLICIT on the native input — which is the point of using one. Design defects corrected: the fill used --ui-blue-80 and the thumb --ui-neutral-100, both palette steps, and the thumb shadow was a raw hex.",
+  "affects": ["component:slider", "design:paper-slider"],
+  "migration": { "manual": "New peer dependency on @base-ui-components/react, the same range Popover, Modal and Multiselect declare." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D86-0" }
+}

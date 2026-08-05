@@ -103,6 +103,9 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-accent-hover": BLUE[70],
     "--ui-bg-accent-active": BLUE[60],
     "--ui-bg-accent-subtle": BLUE[90],
+    // NOT pinned to a palette step: blue-60 measures under 3:1 on the sunken
+    // well and the audit rejected it. The derivation floors the brand accent
+    // at 3:1 instead, which is the whole point of the role.
     "--ui-bg-emphasis": NEUTRAL[0],
     "--ui-bg-emphasis-hover": NEUTRAL[10],
     "--ui-bg-emphasis-active": NEUTRAL[20],
@@ -162,6 +165,7 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-accent-hover": BLUE[70],
     "--ui-bg-accent-active": BLUE[60],
     "--ui-bg-accent-subtle": "rgba(158, 219, 243, 0.16)",
+    "--ui-bg-accent-legible": BLUE[80],
     "--ui-border-focus": BLUE[70],
     "--ui-focus-ring-color": BLUE[70],
     "--ui-focus-ring": `0 0 0 2px ${NEUTRAL[20]}, 0 0 0 4px ${BLUE[70]}`,

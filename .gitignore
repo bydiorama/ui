@@ -32,3 +32,10 @@ apps/storybook/styles/tokens.generated.css
 # baseline directory must never contain.
 registry/visual/__screenshots__/**/*-actual-*.png
 registry/visual/__screenshots__/**/*-diff-*.png
+
+# Belt and braces, ANYWHERE. A failing compare writes these relative to the
+# vitest root, not to the test file — `apps/storybook/../registry/...` lands in
+# `apps/registry/`, a path with no `__screenshots__` segment that the rules
+# above never matched. Four of them were committed before this line existed.
+**/*-actual-chromium-*.png
+**/*-diff-chromium-*.png

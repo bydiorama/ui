@@ -124,7 +124,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
             // The gradient is a background-IMAGE, so it needs the image type
             // hint — `bg-(--ui-gradient-brand)` would set a background-COLOUR
             // to a gradient string and paint nothing at all.
-            variant === "gradient" ? "bg-(image:--ui-gradient-brand)" : "bg-accent",
+            variant === "gradient" ? "bg-(image:--ui-gradient-brand)" : "bg-accent-legible",
             "transition-[width] duration-(--ui-duration-base) ease-(--ui-ease-out)",
           )}
         />

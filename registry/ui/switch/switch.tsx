@@ -98,7 +98,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
           // role used as a background. `edge-strong` is the same value on a
           // non-text role and clears the 3:1 a control boundary needs — see
           // knownGaps: a dedicated track role is probably the right answer.
-          checked ? "bg-accent border-accent" : "bg-edge-strong border-edge-strong",
+          checked ? "bg-accent-legible border-accent-legible" : "bg-edge-strong border-edge-strong",
           !isDisabled && !checked && "group-hover:bg-edge-control group-hover:border-edge-control",
           !isDisabled && checked && "group-hover:bg-accent-hover group-hover:border-accent-hover",
           isDisabled && "bg-sunken border-edge-subtle",

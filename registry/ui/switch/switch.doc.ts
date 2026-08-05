@@ -52,11 +52,10 @@ Switch
       { key: "Enter", does: "Nothing, per the platform, exactly as for Checkbox." },
     ],
     target: "The track is 36x20; the <label> is padded to min-h-6 so the row clears the 24px floor of WCAG 2.5.8.",
-    contrast: "MEASURED in both schemes. Off track 5.93:1 light / 4.85:1 dark against the page. On track 1.51:1 light / 7.00:1 dark. The thumb against the ON track is 1.48:1 in light and 9.17:1 in dark — the light value is BELOW SC 1.4.11's 3:1, so in light the on-state is carried by the thumb's position and the fill change rather than by the thumb being discernible against the fill. See knownGaps.",
+    contrast: "MEASURED in both schemes. Off track 5.93:1 light / 4.85:1 dark against the page. The ON track uses --ui-bg-accent-legible, so the thumb reads against it at 3.73:1 light / 7.00:1 dark — the plain accent gave 1.48:1 in light, under SC 1.4.11, leaving the on-state carried by position alone.",
   },
 
   knownGaps: [
-    "LIGHT-SCHEME CONTRAST, open: the white thumb on the pale accent track measures 1.48:1. Position still distinguishes on from off, but the thumb itself is barely discernible against the fill. A thumb outline or a deeper on-track role would fix it; both are design decisions, and the sheet draws the same pale pair.",
     "The off track uses `edge-strong` — a border role used as a fill. The sheet used `--ui-text-placeholder`, a TEXT role as a background, which is worse; both are category errors. A dedicated track role is probably the right answer, and Slider will want the same thing. Raised, not decided.",
     "One size. The sheet draws a single 36x20 track.",
     "No loading or pending state for a switch whose effect is asynchronous — the commonest real need, and not drawn.",

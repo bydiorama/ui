@@ -52,11 +52,10 @@ Progress
     role: "progressbar, with aria-valuenow / -valuemin / -valuemax, all asserted in Chromium.",
     name: "The `label` prop via aria-labelledby. Hidden labels are sr-only, so they stay in the accessibility tree.",
     keyboard: [{ key: "—", does: "Not focusable. A progress bar is output, not a control." }],
-    contrast: "MEASURED, and the light scheme FAILS: the accent fill on the sunken track is 1.24:1 in light and 10.07:1 in dark. SC 1.4.11 wants 3:1 for a graphic that carries meaning, and the filled portion is what carries the value. The sheet draws the same pale-on-pale relationship, so this is a design question, not a transcription slip — see knownGaps. Value text 8.9:1, label 4.9:1.",
+    contrast: "The fill uses --ui-bg-accent-legible, the brand accent floored at 3:1 against the well: 3.07:1 in light and 10.07:1 in dark. The plain accent measured 1.24:1 in light, failing SC 1.4.11 for a graphic that carries meaning — and the filled portion IS what carries the value. Value text 8.9:1, label 4.9:1.",
   },
 
   knownGaps: [
-    "LIGHT-SCHEME CONTRAST FAILURE, open: the fill measures 1.24:1 against the track (dark is fine at 10.07:1). A progress bar's filled portion carries the value, so SC 1.4.11's 3:1 applies. Fixing it needs a decision — a legible accent role for the fill, a darker track, or an accepted exception — and the sheet draws the same pale-on-pale pair, so it is not a transcription slip.",
     "The gradient's contrast is not audited along its length — only its endpoints are knowable at token time. On a pale brand accent the lightest stop can fall under 3:1 against the track, which is why solid is the default and gradient is opt-in.",
     "No indeterminate state. Not drawn, and the commonest real need after this one.",
     "No intent colouring (a bar that turns danger near its limit) — not drawn.",

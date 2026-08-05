@@ -125,6 +125,12 @@ top of its row, a panel with no visible boundary. All three of those shipped.
   (explicitly un-ignored). Review a changed baseline like any other diff.
 - Intentional visual change? Delete the affected baseline, re-run, and commit
   the new PNG **after looking at it**.
+- **Audit what is tracked, not just what is ignored.** A failing compare writes
+  `-actual-`/`-diff-` PNGs relative to the *vitest root*, which put four of them
+  in `apps/registry/` — a directory that should not exist and that no
+  `__screenshots__` rule matched. They were committed. The artifact NAMES are
+  ignored globally now; still run `git ls-files '*.png'` before committing and
+  confirm every tracked image is a baseline you reviewed.
 - **Not in CI.** Baselines are platform-specific (`-chromium-darwin`): font
   rasterisation differs between macOS and Linux, so a committed macOS PNG
   cannot pass on a Linux runner. Running it needs a containerised runner that

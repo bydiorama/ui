@@ -57,6 +57,12 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-accent-hover",
   "--ui-bg-accent-active",
   "--ui-bg-accent-subtle",
+  // The accent, adjusted until it CARRIES MEANING at 3:1 against a neutral
+  // well. The brand accent is a pale blue by design, which is right for a
+  // resting fill and wrong for anything that conveys a value: a progress fill,
+  // a slider fill and a switch's on-track each measured ~1.2-1.5:1 against
+  // their track and each failed SC 1.4.11 separately before this existed.
+  "--ui-bg-accent-legible",
   "--ui-bg-emphasis",
   "--ui-bg-emphasis-hover",
   "--ui-bg-emphasis-active",
@@ -277,4 +283,6 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // turned out to be invisible on the dark ground.
   ["--ui-border-strong", "--ui-bg-base"],
   ["--ui-border-strong", "--ui-bg-surface"],
+  ["--ui-bg-accent-legible", "--ui-bg-sunken"],
+  ["--ui-bg-accent-legible", "--ui-bg-base"],
 ] as const;

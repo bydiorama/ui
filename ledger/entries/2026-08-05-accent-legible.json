@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-accent-legible",
+  "date": "2026-08-05",
+  "item": "system",
+  "kind": "token",
+  "summary": "New --ui-bg-accent-legible role, closing a contrast pattern that had been fixed one component at a time. The brand accent is a pale blue by design, which is right for a resting fill and wrong for anything that conveys a value: the Progress fill, the Slider fill and the Switch on-track each measured 1.2-1.5:1 against their track in light and each failed SC 1.4.11 separately. The role is the accent floored at 3:1 against the sunken well — the darkest neutral a fill sits on, so clearing it clears the lighter grounds too. Light resolves to #518ca2 (3.07:1 fill on track, 3.73:1 thumb on fill); dark stays the pale accent, which already measures 10.07:1 on the dark well. Deliberately NOT pinned to a palette step in theme zero: blue-60 was tried and the audit rejected it for measuring under 3:1, which is exactly the check working. Both pairs are in NONTEXT_CONTRAST_PAIRS so a brand seed cannot reintroduce the failure. Paper updated to match: the token added, and the Slider fill and thumb ring, the Switch on-track and the two solid Progress fills repointed. Separately, the Storybook story-test flake is fixed — adding a story file made the first test:browser run fail those stories and the second pass, because Vite discovered a dependency mid-run, re-optimised and reloaded the page under the test. optimizeDeps.include pre-bundles instead; verified by deleting the Vite cache AND adding a fresh story file, the exact combination that triggered it three times.",
+  "affects": ["token:--ui-bg-accent-legible", "component:progress", "component:slider", "component:switch", "config:vitest-storybook"],
+  "migration": { "manual": "Any component using bg-accent for a fill that CONVEYS something (a value, a state) should move to bg-accent-legible. A plain accent surface with its own ink — a button, a badge — is unaffected and should stay on bg-accent." }
+}

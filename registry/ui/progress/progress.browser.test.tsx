@@ -85,7 +85,9 @@ describe("Progress paints the designed bar", () => {
     expect(getComputedStyle(track).backgroundColor).toBe("rgb(237, 232, 227)");
     // The sheet paints a three-stop gradient of raw palette steps; the accent
     // role re-skins with a brand, which the palette does not. See knownGaps.
-    expect(getComputedStyle(fill).backgroundColor).toBe("rgb(158, 219, 243)");
+    // bg-accent-legible: the pale brand accent floored at 3:1 against the
+    // track, because a progress fill CARRIES the value (SC 1.4.11).
+    expect(getComputedStyle(fill).backgroundColor).toBe("rgb(81, 140, 162)");
     // Chromium clamps a huge radius in the computed value, so assert the
     // SHAPE (pill-ended) rather than the literal the token declares.
     expect(Number.parseFloat(getComputedStyle(fill).borderRadius)).toBeGreaterThanOrEqual(

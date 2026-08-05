@@ -94,7 +94,7 @@ describe("Switch paints the designed control", () => {
     const { track } = mount(<Switch defaultIsChecked>Toggle</Switch>);
     await settled(track);
     // The sheet drew --ui-blue-80 directly, which does not re-skin.
-    expect(getComputedStyle(track).backgroundColor).toBe("rgb(158, 219, 243)");
+    expect(getComputedStyle(track).backgroundColor).toBe("rgb(81, 140, 162)");
   });
 
   test("off is a non-text role and clears 3:1 as a control boundary", async () => {

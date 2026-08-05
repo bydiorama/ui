@@ -32,6 +32,27 @@ export default defineConfig({
   // Storybook staticDirs serve — so the font-loading assertion is real.
   publicDir: join(root, "registry/fonts/aspekta"),
   plugins: [react(), tailwindcss()],
+
+  /**
+   * Pre-bundle everything BEFORE the run instead of discovering imports during
+   * it. Without this, adding a story file made the first `test:browser` fail
+   * those stories and the second pass — Vite found a new dependency mid-run,
+   * re-optimised, and reloaded the page under the test ("Vite unexpectedly
+   * reloaded a test"). Three separate components hit it. A suite whose first
+   * run after an edit is untrustworthy trains people to re-run instead of to
+   * read the failure, which is worse than the flake.
+   */
+  optimizeDeps: {
+    include: [
+      "react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime",
+      "@base-ui-components/react/popover",
+      "@base-ui-components/react/dialog",
+      "@base-ui-components/react/combobox",
+      "@base-ui-components/react/slider",
+      "griddy-icons",
+      "clsx", "tailwind-merge",
+    ],
+  },
   resolve: {
     alias: {
       "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),

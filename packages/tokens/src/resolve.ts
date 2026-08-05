@@ -355,6 +355,9 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-accent-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-accent-active": shiftL(accent, awayFromInk * 0.11),
     "--ui-bg-accent-subtle": withAlpha(accent, 0.12),
+    // Floored against the SUNKEN well, which is the darkest neutral a fill
+    // sits on; clearing that clears the lighter grounds too.
+    "--ui-bg-accent-legible": legibleOn(accent, shiftL(colors.surface, dark ? -0.03 : -0.04), 3),
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),

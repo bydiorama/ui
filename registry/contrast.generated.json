@@ -1,0 +1,390 @@
+{
+  "Avatar": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-sunken",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 13.79,
+      "role": "initials on the well"
+    }
+  ],
+  "Badge": [
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "selected badge ink"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "unselected badge ink"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-intent-success-bg",
+      "floor": "text",
+      "light": 5.05,
+      "dark": 5.68,
+      "role": "success badge"
+    },
+    {
+      "fg": "--ui-text-on-danger-subtle",
+      "bg": "--ui-intent-danger-bg",
+      "floor": "text",
+      "light": 8.52,
+      "dark": 5.93,
+      "role": "danger badge"
+    }
+  ],
+  "Banner": [
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-sunken",
+      "floor": "text",
+      "light": 4.87,
+      "dark": 7.11,
+      "role": "neutral banner ink"
+    },
+    {
+      "fg": "--ui-intent-info-fg",
+      "bg": "--ui-intent-info-bg",
+      "floor": "text",
+      "light": 4.82,
+      "dark": 5.64,
+      "role": "info banner ink"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-intent-success-bg",
+      "floor": "text",
+      "light": 5.05,
+      "dark": 5.68,
+      "role": "success banner ink"
+    },
+    {
+      "fg": "--ui-intent-warning-fg",
+      "bg": "--ui-intent-warning-bg",
+      "floor": "text",
+      "light": 5.03,
+      "dark": 4.92,
+      "role": "warning banner ink"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-intent-danger-bg",
+      "floor": "text",
+      "light": 4.79,
+      "dark": 5.93,
+      "role": "danger banner ink"
+    }
+  ],
+  "Button": [
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "primary label"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "secondary label"
+    },
+    {
+      "fg": "--ui-text-on-danger-subtle",
+      "bg": "--ui-intent-danger-bg",
+      "floor": "text",
+      "light": 8.52,
+      "dark": 5.93,
+      "role": "danger label"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the focus ring"
+    }
+  ],
+  "Card": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "title on the card surface"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.05,
+      "role": "the card surface against the page"
+    }
+  ],
+  "Checkbox": [
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "non-text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "the tick on a checked box"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 14.11,
+      "dark": 13.79,
+      "role": "the dash on a mixed box"
+    },
+    {
+      "fg": "--ui-border-control",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.11,
+      "dark": 3.09,
+      "role": "the unchecked box edge"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the label"
+    }
+  ],
+  "Input": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 15.53,
+      "role": "the value"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.54,
+      "role": "the placeholder"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.97,
+      "role": "the label"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the focus ring"
+    }
+  ],
+  "Modal": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "the title on the surface"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 13.54,
+      "dark": 9.13,
+      "role": "the description"
+    }
+  ],
+  "Multiselect": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 15.53,
+      "role": "the trigger value"
+    },
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "non-text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "the tick on a selected row"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "option ink on the panel"
+    }
+  ],
+  "Popover": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "the title on the panel"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 7.32,
+      "role": "the description"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.05,
+      "role": "the panel against the page"
+    }
+  ],
+  "Progress": [
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 3.07,
+      "dark": 10.07,
+      "role": "the fill against its track"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.97,
+      "role": "the value text"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the label"
+    }
+  ],
+  "Slider": [
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 3.07,
+      "dark": 10.07,
+      "role": "the fill against its track"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the value text"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the label"
+    }
+  ],
+  "Switch": [
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.73,
+      "dark": 7,
+      "role": "the ON track against the page"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.93,
+      "dark": 4.85,
+      "role": "the OFF track against the page"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the label"
+    }
+  ],
+  "Tabs": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-sunken",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 13.79,
+      "role": "selected tab ink on its fill"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.47,
+      "role": "unselected tab ink on the strip"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "count ink on its pill"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.47,
+      "dark": 1.48,
+      "role": "the strip boundary"
+    }
+  ]
+}

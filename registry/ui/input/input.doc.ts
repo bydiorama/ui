@@ -75,8 +75,12 @@ Input
       "helperText and errorText each get an id and both are joined into aria-describedby, error first, so a screen reader reads the correction before the guidance.",
     focus:
       "Drawn on the control via focus-within: border moves to --ui-border-focus AND the --ui-focus-ring halo renders. Focus-within rather than focus-visible is deliberate for a text field — a pointer click must show where typing will land.",
-    contrast:
-      "Measured on theme zero: value ink 17.2:1, label 13.9:1, placeholder 5.9:1, helper 5.9:1, error text 5.9:1. Error border 5.9:1 and focus border 6.0:1 clear the 3:1 non-text floor (SC 1.4.11); the resting border is deliberately quiet at 1.5:1 per ADR 0010. Disabled ink sits at 1.8:1, which WCAG exempts.",
+    contrastPairs: [
+      { fg: "--ui-text-primary", bg: "--ui-bg-field", floor: "text", role: "the value" },
+      { fg: "--ui-text-placeholder", bg: "--ui-bg-field", floor: "text", role: "the placeholder" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-base", floor: "text", role: "the label" },
+      { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the focus ring" },
+    ],
   },
 
   forwarding: {

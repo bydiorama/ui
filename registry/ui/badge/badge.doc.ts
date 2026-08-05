@@ -48,7 +48,12 @@ Badge
   a11y: {
     role: "none (plain text). Deliberate: a label with no interaction should not claim one — and the prop type removes the interaction handlers so it cannot acquire one by accident.",
     keyboard: [{ key: "—", does: "Not focusable. Interactivity lives in the iconEnd slot's own control." }],
-    contrast: "Measured in both schemes. Light: selected 11.4:1, unselected 5.9:1, success 5.1:1, danger 8.5:1. Dark: 11.4 / 4.9 / 5.7 / 5.9:1.",
+    contrastPairs: [
+      { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "text", role: "selected badge ink" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "unselected badge ink" },
+      { fg: "--ui-intent-success-fg", bg: "--ui-intent-success-bg", floor: "text", role: "success badge" },
+      { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "danger badge" },
+    ],
   },
 
   knownGaps: [

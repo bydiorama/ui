@@ -52,7 +52,11 @@ Progress
     role: "progressbar, with aria-valuenow / -valuemin / -valuemax, all asserted in Chromium.",
     name: "The `label` prop via aria-labelledby. Hidden labels are sr-only, so they stay in the accessibility tree.",
     keyboard: [{ key: "—", does: "Not focusable. A progress bar is output, not a control." }],
-    contrast: "The fill uses --ui-bg-accent-legible, the brand accent floored at 3:1 against the well: 3.07:1 in light and 10.07:1 in dark. The plain accent measured 1.24:1 in light, failing SC 1.4.11 for a graphic that carries meaning — and the filled portion IS what carries the value. Value text 8.9:1, label 4.9:1.",
+    contrastPairs: [
+      { fg: "--ui-bg-accent-legible", bg: "--ui-bg-sunken", floor: "non-text", role: "the fill against its track" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-base", floor: "text", role: "the value text" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "the label" },
+    ],
   },
 
   knownGaps: [

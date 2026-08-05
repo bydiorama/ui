@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-card",
+  "date": "2026-08-05",
+  "item": "card",
+  "kind": "addition",
+  "summary": "Card — a titled surface that groups related controls. Renders a <section> with a real heading rather than a styled div, so a card is navigable structure; the heading LEVEL is a prop with no default guess beyond 3, because only the page knows its own outline and a wrong level is worse than a plain one. It becomes a named region only when the consumer supplies aria-labelledby, so a page full of cards adds no landmark noise. The surface is deliberately identical to Popover's panel and the browser test asserts that as a RELATIONSHIP — radius, padding and border compared between a Card and a Popover rendered together — rather than as numbers that would pass while the two drifted apart. Header and Footer carry the unboxed inset; boxed children sit flush. One wrapper was written and removed: a CardField that only re-declared flex-col gap-sm earned nothing, and the inset question it pretended to answer is a real composition gap, now recorded honestly — an Input dropped into a Card has its own label 8px left of the card title, because Input's label carries no inset and the sheet wraps each field label in its own inset frame. Design defects not transcribed: the title's raw 16px/135%/-0.02em became title-sm plus leading and tracking roles, and the sheet's icon-only action button carries a raw 8px radius and 16px padding on a 32px box, which is Button's territory.",
+  "affects": ["component:card", "design:paper-card"],
+  "migration": { "manual": "None — new component." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DTF-0" }
+}

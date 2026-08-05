@@ -77,8 +77,12 @@ Checkbox
     ],
     target:
       "The sheet's row is 19px tall — under the 24px floor of WCAG 2.5.8. The <label> is padded to min-h-6 so the whole row, box and text together, is one 24px target. The painted box stays 18px, as designed.",
-    contrast:
-      "Measured in both schemes. Light: tick on the checked box 11.35:1, dash on the mixed box 14.11:1, unchecked edge 3.11:1, mixed edge 5.93:1, label 17.17:1. Dark: 11.35 / 13.79 / 3.09 / 4.85 / 9.59:1. Every state's identifying mark clears SC 1.4.11's 3:1.",
+    contrastPairs: [
+      { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "non-text", role: "the tick on a checked box" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-sunken", floor: "non-text", role: "the dash on a mixed box" },
+      { fg: "--ui-border-control", bg: "--ui-bg-base", floor: "non-text", role: "the unchecked box edge" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "the label" },
+    ],
     forcedColors:
       "The tick and dash are real glyphs in currentColor, not a background image, so they survive forced-colors mode where the box's fill does not. Checked reads as a tick, mixed as a dash, unchecked as an empty box.",
   },

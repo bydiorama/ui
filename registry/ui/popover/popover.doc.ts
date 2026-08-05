@@ -61,8 +61,11 @@ Popover                      isOpen? / defaultIsOpen? / onOpenChange? / isModal?
       { key: "Escape", does: "Closes and RESTORES FOCUS to the trigger. Asserted in a real browser: focus falling to <body> is the classic hand-rolled-popover failure." },
       { key: "Tab", does: "Moves through the panel's own focusable content; with isModal it is trapped." },
     ],
-    contrast:
-      "The panel's fill measures only 1.11:1 against a white page, so the boundary is carried by the border-subtle hairline plus shadow-md, not the fill. Body copy on the panel is 5.36:1; the info glyph was a raw #B1A8A0 at 1.92:1 in the sheet and is now --ui-text-muted at 4.87:1.",
+    contrastPairs: [
+      { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the title on the panel" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-elevated", floor: "text", role: "the description" },
+      { fg: "--ui-bg-elevated", bg: "--ui-bg-base", floor: "decorative", role: "the panel against the page", why: "the boundary is the hairline plus shadow-md, not the fill (ADR 0010)" },
+    ],
     dismissal: "Outside click, Escape and focus-out all dismiss, without swallowing events the page needs.",
   },
 

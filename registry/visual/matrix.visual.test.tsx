@@ -27,10 +27,13 @@ import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
+import { Card } from "@/ui/card/card.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Input } from "@/ui/input/input.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
+import { Slider } from "@/ui/slider/slider.tsx";
 import { Switch } from "@/ui/switch/switch.tsx";
+import { Tabs } from "@/ui/tabs/tabs.tsx";
 
 const PAIR = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
 const SCHEMES = ["light", "dark"] as const;
@@ -157,6 +160,45 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
         <Progress label="Usage" value={62} size="sm" hasValueText />
         <Progress label="Complete" value={100} size="sm" isLabelHidden />
       </div>
+    ),
+  },
+  {
+    name: "slider",
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Slider label="Logo size" defaultValue={62} hasValueText />
+        <Slider label="Logo size" defaultValue={62} size="sm" isLabelHidden />
+        <Slider label="Disabled" defaultValue={30} isDisabled hasValueText />
+      </div>
+    ),
+  },
+  {
+    name: "tabs",
+    ui: (
+      <Tabs defaultValue="links">
+        <Tabs.List>
+          <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+          <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+          <Tabs.Tab value="advanced">Advanced settings</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="links" className="text-body-sm text-ink-secondary">Links panel</Tabs.Panel>
+      </Tabs>
+    ),
+  },
+  {
+    name: "card",
+    ui: (
+      <Card>
+        <Card.Header actions={<Button variant="secondary" size="md">Edit</Button>}>
+          Section options
+        </Card.Header>
+        <Input label="Label" placeholder="Business cards" />
+        <Banner>Exports use the template set in Brand profile.</Banner>
+        <Card.Footer>
+          <Button variant="secondary" size="md">Cancel</Button>
+          <Button size="md">Create task</Button>
+        </Card.Footer>
+      </Card>
     ),
   },
   {

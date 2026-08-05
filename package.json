@@ -20,11 +20,13 @@
     "test:browser": "pnpm --filter @bydiorama/storybook run test:browser",
     "type-check": "tsc --noEmit && pnpm --filter @bydiorama/storybook run type-check",
     "lint": "eslint .",
-    "verify": "pnpm run check:manifest && pnpm run check:registry && pnpm run check:ledger && pnpm run check:licensing && pnpm run check:utilities && pnpm run check:boundaries && pnpm run check:skills",
+    "verify": "pnpm run check:manifest && pnpm run check:registry && pnpm run check:ledger && pnpm run check:licensing && pnpm run check:utilities && pnpm run check:boundaries && pnpm run check:skills && pnpm run check:contrast",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "skills:build": "node scripts/build-skills.mjs",
     "check:skills": "node scripts/validate-skills.mjs && node scripts/build-skills.mjs --check",
-    "test:visual": "pnpm --filter @bydiorama/storybook run test:visual"
+    "test:visual": "pnpm --filter @bydiorama/storybook run test:visual",
+    "contrast:build": "node scripts/check-contrast.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs --check"
   },
   "devDependencies": {
     "@base-ui-components/react": "1.0.0-rc.0",

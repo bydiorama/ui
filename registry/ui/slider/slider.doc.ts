@@ -55,7 +55,11 @@ Slider
       { key: "Tab", does: "Focuses the thumb's input; the ring draws on the thumb." },
     ],
     target: "The control is padded to 24px even at the 8px size, so the affordance stays thin while the target stays legal.",
-    contrast: "Fill on track 1.24:1 in light and 10.07:1 in dark — the same light-scheme shortfall Progress has, since it is the same accent-on-sunken pair. The THUMB is the mitigation here: its 2px accent ring is 1.51:1 against the fill but 3.9:1 against the track, so the handle's position stays findable. Recorded as open in knownGaps.",
+    contrastPairs: [
+      { fg: "--ui-bg-accent-legible", bg: "--ui-bg-sunken", floor: "non-text", role: "the fill against its track" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "the value text" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "the label" },
+    ],
   },
 
   knownGaps: [

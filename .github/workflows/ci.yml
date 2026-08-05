@@ -46,6 +46,11 @@ jobs:
       - name: Behaviour-layer boundaries
         run: node scripts/check-boundaries.mjs
 
+      # Contrast figures are DECLARED as pairs and measured here — never typed
+      # by hand. Three fabricated numbers shipped before this gate existed.
+      - name: Contrast pairs
+        run: node scripts/check-contrast.mjs --check
+
       # The skill contract, plus freshness of the generated .claude/skills
       # copies. A skill loads on its description alone, so a bad one fails
       # silently — which is exactly what a gate is for (ADR 0013).

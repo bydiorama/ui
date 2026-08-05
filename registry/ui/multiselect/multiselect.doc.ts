@@ -59,7 +59,11 @@ Multiselect
       { key: "Enter", does: "Toggles the active option and KEEPS the list open — choosing three things should not cost three round trips." },
       { key: "Escape", does: "Closes and restores focus to the trigger. Asserted in Chromium." },
     ],
-    contrast: "Selected option box 11.35:1 tick on accent; option ink 17.2:1 on the row, 15.9:1 on the selected row. The sheet drew a --ui-neutral-100 tick on --ui-blue-80, which measures 1.51:1.",
+    contrastPairs: [
+      { fg: "--ui-text-primary", bg: "--ui-bg-field", floor: "text", role: "the trigger value" },
+      { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "non-text", role: "the tick on a selected row" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-surface", floor: "text", role: "option ink on the panel" },
+    ],
   },
 
   knownGaps: [

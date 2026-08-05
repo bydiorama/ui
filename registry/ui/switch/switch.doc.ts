@@ -52,7 +52,11 @@ Switch
       { key: "Enter", does: "Nothing, per the platform, exactly as for Checkbox." },
     ],
     target: "The track is 36x20; the <label> is padded to min-h-6 so the row clears the 24px floor of WCAG 2.5.8.",
-    contrast: "MEASURED in both schemes. Off track 5.93:1 light / 4.85:1 dark against the page. The ON track uses --ui-bg-accent-legible, so the thumb reads against it at 3.73:1 light / 7.00:1 dark — the plain accent gave 1.48:1 in light, under SC 1.4.11, leaving the on-state carried by position alone.",
+    contrastPairs: [
+      { fg: "--ui-bg-accent-legible", bg: "--ui-bg-base", floor: "non-text", role: "the ON track against the page" },
+      { fg: "--ui-border-strong", bg: "--ui-bg-base", floor: "non-text", role: "the OFF track against the page" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "the label" },
+    ],
   },
 
   knownGaps: [

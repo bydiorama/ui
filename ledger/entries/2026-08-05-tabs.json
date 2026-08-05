@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-tabs",
+  "date": "2026-08-05",
+  "item": "tabs",
+  "kind": "addition",
+  "summary": "Tabs — a segmented control on the Base UI behaviour layer. The parts worth not hand-rolling are the ones asserted: roving tabindex, so only the SELECTED tab is in the tab order and a keyboard user is not forced through every tab to reach the content; arrow navigation with Home/End; and the two-way aria-controls/aria-labelledby pairing between each tab and its panel. Activation is MANUAL — arrows move focus and Enter or Space selects — which is the ARIA-approved pattern when a panel is expensive to render; the browser test was rewritten to assert that contract after it caught the assumption that arrowing selects. Two implementation defects the browser suite found: the selected tab was styled with data-[selected], which Base UI does not set (it marks aria-selected), so the fill never painted; and py-xs around a 12px flat-leading label gives a 20px target, under SC 2.5.8, now floored with min-h-6. Design defects corrected in Paper: four raw hexes (#FDFCFC, #E8E2D9 twice, #F8F6F2) replaced with bg-surface, border-subtle, bg-sunken and bg-elevated; an off-scale 6px vertical padding replaced with the space scale plus a height floor; a raw 4px radius replaced with radius-sm; and an 11px count label raised to 12px, the floor ADR 0009 set after an 11px label pushed a control under the WCAG target size. Also: the optimizeDeps pre-bundle list added last commit was INCOMPLETE — it is explicit, so Tabs importing a new Base UI subpath reintroduced the story flake until that subpath was added. The list now says so in a comment.",
+  "affects": ["component:tabs", "config:vitest-storybook", "design:paper-tabs"],
+  "migration": { "manual": "New peer dependency on @base-ui-components/react, the same range the other overlay components declare." },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D7G-0" }
+}

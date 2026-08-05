@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-contrast-pairs-gate",
+  "date": "2026-08-05",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "Contrast figures are now DECLARED as pairs and MEASURED by a gate, never typed into a doc. Three fabricated numbers had shipped: Progress claimed 3.2:1 against a real 1.24:1, and Card and Tabs each reused a remembered figure for the wrong pair — Card's title was measured against the page (17.17) rather than the card (15.53). Prose could not hold the line; 'measure, then write' was added to the review skill and broken within the hour, because a plausible number is indistinguishable from a measured one once written. Every *.doc.ts now carries a11y.contrastPairs of { fg, bg, floor, role, why }, and check:contrast resolves each pair in BOTH schemes, enforces its declared floor (text 4.5, non-text 3, decorative 0 with a mandatory reason), and writes a committed, staleness-checked report. A wrong pair is now a wrong TOKEN NAME, which is checkable. All 13 component docs were converted rather than grandfathered, on the grounds that an allowlist is the thing nobody removes. The cross-check earned itself immediately: it failed on 14 pairs that shipped components actually render but no theme audit covered — text-primary on bg-elevated and on bg-sunken, text-secondary on bg-elevated and bg-base, text-muted on bg-base and bg-sunken — all now in CONTRAST_PAIRS, closing the same 'an unlisted pair is an unchecked pair' hole that let a dark placeholder sit at 3.2:1. 45 pairs across 14 components are measured; every text pair clears 4.5 and the worst non-text pair is 3.07. All three gate rules probed failing-first.",
+  "affects": ["script:check-contrast", "token:contract-contrast-pairs", "skill:add-component", "doc:all-component-docs"],
+  "migration": {
+    "manual": "A component doc's a11y.contrast prose string is replaced by a11y.contrastPairs. Any new pair carrying ink must also be added to CONTRAST_PAIRS or NONTEXT_CONTRAST_PAIRS, or the build fails — mark it decorative with a reason only when it genuinely carries no meaning."
+  }
+}

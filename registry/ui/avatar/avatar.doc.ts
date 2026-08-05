@@ -44,7 +44,9 @@ Avatar
   a11y: {
     role: "img (native, when src is present) / plain text otherwise",
     name: "The `name` prop. With a photo it is the alt text; without one, the visible initials are aria-hidden and the full name is rendered in an sr-only span, so a screen reader announces the person rather than spelling out 'M V'.",
-    contrast: "Initials ink measures 4.9:1 on the sunken well in light and 7.1:1 in dark. The sheet used the disabled ink, which measured 1.8:1.",
+    contrastPairs: [
+      { fg: "--ui-text-primary", bg: "--ui-bg-sunken", floor: "text", role: "initials on the well" },
+    ],
     imageFallback: "A broken src degrades to the alt text rather than an empty box, because the image is a real <img> and not a background.",
   },
 

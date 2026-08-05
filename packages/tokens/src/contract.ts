@@ -245,6 +245,16 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // an unchecked role no matter how carefully it is derived.
   ["--ui-text-primary", "--ui-bg-field"],
   ["--ui-text-placeholder", "--ui-bg-field"],
+  // Surfaced by check:contrast: every one of these is rendered by a shipped
+  // component and none was audited. A component may legitimately put ink on
+  // any surface role, so the audit has to cover the cross-product it actually
+  // uses, not just the pairs someone happened to think of.
+  ["--ui-text-primary", "--ui-bg-elevated"],
+  ["--ui-text-primary", "--ui-bg-sunken"],
+  ["--ui-text-secondary", "--ui-bg-elevated"],
+  ["--ui-text-secondary", "--ui-bg-base"],
+  ["--ui-text-muted", "--ui-bg-base"],
+  ["--ui-text-muted", "--ui-bg-sunken"],
   ["--ui-text-placeholder", "--ui-bg-base"],
   ["--ui-text-placeholder", "--ui-bg-surface"],
   ["--ui-text-on-muted", "--ui-bg-muted"],

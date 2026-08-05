@@ -41,6 +41,11 @@ export default defineConfig({
    * reloaded a test"). Three separate components hit it. A suite whose first
    * run after an edit is untrustworthy trains people to re-run instead of to
    * read the failure, which is worse than the flake.
+   *
+   * THIS LIST MUST GROW. It is explicit, so the first component to import a
+   * new behaviour-layer module reintroduces the flake until its subpath is
+   * added here — Tabs did exactly that. If you add a `@base-ui-components/*`
+   * import anywhere, add it below in the same commit.
    */
   optimizeDeps: {
     include: [
@@ -49,6 +54,7 @@ export default defineConfig({
       "@base-ui-components/react/dialog",
       "@base-ui-components/react/combobox",
       "@base-ui-components/react/slider",
+      "@base-ui-components/react/tabs",
       "griddy-icons",
       "clsx", "tailwind-merge",
     ],

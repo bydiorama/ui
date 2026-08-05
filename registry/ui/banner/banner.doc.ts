@@ -60,8 +60,13 @@ Banner
       { key: "Enter / Space", does: "Activates dismiss — it is a real <button>, so this is native." },
     ],
     target: "The dismiss control is a 24px box around a 16px glyph, clearing SC 2.5.8; the glyph alone would be a 16px target.",
-    contrast:
-      "Measured in both schemes. Light: neutral 4.87, info 4.82, success 5.05, warning 5.03, danger 4.79:1. Dark: 7.11 / 5.64 / 5.68 / 4.92 / 5.93:1. All clear AA, and every pair is in CONTRAST_PAIRS so the resolver keeps them there under a brand seed.",
+    contrastPairs: [
+      { fg: "--ui-text-muted", bg: "--ui-bg-sunken", floor: "text", role: "neutral banner ink" },
+      { fg: "--ui-intent-info-fg", bg: "--ui-intent-info-bg", floor: "text", role: "info banner ink" },
+      { fg: "--ui-intent-success-fg", bg: "--ui-intent-success-bg", floor: "text", role: "success banner ink" },
+      { fg: "--ui-intent-warning-fg", bg: "--ui-intent-warning-bg", floor: "text", role: "warning banner ink" },
+      { fg: "--ui-intent-danger-fg", bg: "--ui-intent-danger-bg", floor: "text", role: "danger banner ink" },
+    ],
   },
 
   knownGaps: [

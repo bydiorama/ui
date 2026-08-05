@@ -221,7 +221,7 @@ probing.
 | `test:browser` passing against yesterday's CSS | The suite reads a *generated* stylesheet — regenerate tokens in the test script, or it asserts stale output |
 | A token named "strong" that measures weaker than "control" | Names are not guarantees. Assert the **ordering** of a stack, in both schemes, and add every step to `NONTEXT_CONTRAST_PAIRS` — an unlisted pair is an unchecked pair |
 | A behaviour-layer prop that silently does nothing | JSX drops unknown props without a word. `dismissible` is not a Base UI Dialog prop — read the `.d.ts` for every prop you forward, and assert the BEHAVIOUR, not that you passed it |
-| Writing a contrast number from memory | Run the resolver and paste the output. A fabricated figure in a doc stops the next reviewer from checking |
+| Writing a contrast number into a doc | You cannot — docs declare `a11y.contrastPairs` (fg/bg/floor/why) and `check:contrast` measures them in both schemes. A wrong pair is a wrong TOKEN NAME, which is checkable; a wrong number was not |
 | A relative role ("recessed", "raised") assumed to be one existing token | The surface scale inverts between schemes — check both before reusing a role |
 | Reaching for the behaviour layer (ADR 0012) | Only when the platform doesn't already do it, only in `registry/ui/<name>/<name>.tsx`, and never in an exported type — `check:boundaries` enforces both |
 

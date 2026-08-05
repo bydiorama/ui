@@ -210,6 +210,26 @@
       ]
     },
     {
+      "name": "card",
+      "type": "registry:ui",
+      "description": "A titled surface that groups related controls. Renders a <section> with a real heading at a caller-chosen level, so a card is navigable structure rather than a styled div. Compound: Header (with an actions slot) and Footer, both carrying the unboxed inset while boxed children sit flush. The surface is deliberately identical to Popover's panel.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/card/card.tsx",
+          "type": "registry:ui",
+          "target": "ui/card.tsx"
+        },
+        {
+          "path": "registry/ui/card/card.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/card.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "checkbox",
       "type": "registry:ui",
       "description": "A binary choice with its label as one control. Supports the mixed/indeterminate state for a parent whose children are partly selected. The whole row is the 24px target; the painted box stays 18px. Controlled or uncontrolled through the shared useControllableState hook.",
@@ -288,6 +308,26 @@
           "path": "registry/ui/slider/slider.doc.ts",
           "type": "registry:ui",
           "target": "ui/slider.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "description": "A segmented control that switches which panel is shown. Compound: List, Tab, Panel. Roving tabindex, arrow navigation, Home/End and the two-way tab-to-panel ARIA pairing come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. Activation is manual: arrows move focus, Enter or Space selects.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/tabs/tabs.tsx",
+          "type": "registry:ui",
+          "target": "ui/tabs.tsx"
+        },
+        {
+          "path": "registry/ui/tabs/tabs.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/tabs.doc.ts"
         }
       ]
     },

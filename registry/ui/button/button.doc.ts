@@ -92,8 +92,12 @@ Button
       "Uses the native disabled attribute only; pointer-events are deliberately left alone so a tooltip can still explain why the control is unavailable. Hover and press states are gated behind `enabled:` instead.",
     focus:
       "focus-visible only, drawn as a 2px outline offset 2px in --ui-focus-ring-color (5.6:1 against the page). Sits on the outline layer so no variant's resting ring can be mistaken for it, and forced-colors mode keeps it.",
-    contrast:
-      "Every variant's label clears AA on its own fill: primary 11.3:1, danger 8.5:1, secondary/ghost on the page ≥5.9:1. Disabled is exempt per WCAG and sits at 2.1:1 by design.",
+    contrastPairs: [
+      { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "text", role: "primary label" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "secondary label" },
+      { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "danger label" },
+      { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the focus ring" },
+    ],
     hitArea:
       "sm is exactly 24px, the WCAG 2.5.8 floor. lg is 44px, the recommended touch target. md sits between at 32px — pair it with generous surrounding space on touch surfaces.",
   },

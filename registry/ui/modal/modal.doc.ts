@@ -64,7 +64,10 @@ Modal                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
       { key: "Tab", does: "Cycles within the dialog only; focus cannot reach the page behind." },
     ],
     focus: "Focus moves into the surface on open and returns to the trigger on close. Both asserted in a real browser — focus falling to <body> is the classic hand-rolled-dialog failure.",
-    contrast: "Surface is bg-surface on the scrim rather than on the page, so its own boundary is carried by shadow-sm plus the scrim's separation. Title 17.2:1 and description 15.1:1 on the surface in light; 9.6:1 and 8.1:1 in dark.",
+    contrastPairs: [
+      { fg: "--ui-text-primary", bg: "--ui-bg-surface", floor: "text", role: "the title on the surface" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-surface", floor: "text", role: "the description" },
+    ],
   },
 
   knownGaps: [

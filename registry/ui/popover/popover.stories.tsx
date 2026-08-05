@@ -55,13 +55,14 @@ export const Playground: Story = {
 };
 
 /**
- * Open on mount, so the panel is actually rendered when axe runs — a closed
- * popover exercises nothing.
+ * Opens on INTERACTION, never on mount. axe therefore only sees the closed
+ * state here; the open panel's semantics are covered by the contract browser
+ * tests instead.
  */
 export const Matrix: Story = {
   render: () => (
     <div className="flex min-h-96 items-center justify-center">
-      <Popover defaultIsOpen onOpenChange={fn()}>
+      <Popover onOpenChange={fn()}>
         <Popover.Trigger render={<Button>Open popover</Button>} />
         <Popover.Panel>
           <SheetContent />
@@ -128,7 +129,7 @@ export const BrandThemed: Story = {
     const Panel = ({ style, title }: { style: React.CSSProperties; title: string }) => (
       <div style={style} className="flex-1 rounded-lg bg-base p-xl">
         <p className="pb-md text-caption text-ink-muted">{title}</p>
-        <Popover defaultIsOpen onOpenChange={fn()}>
+        <Popover onOpenChange={fn()}>
           <Popover.Trigger render={<Button>Open popover</Button>} />
           <Popover.Panel>
             <SheetContent />

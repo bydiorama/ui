@@ -2,13 +2,25 @@
 
 import { Combobox as BaseCombobox } from "@base-ui-components/react/combobox";
 import { Check, ChevronDown, Close, Search } from "griddy-icons";
-import { useId, type ComponentPropsWithoutRef } from "react";
+import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
 import { Badge } from "@/ui/badge/badge.tsx";
 
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
+
+/**
+ * Control geometry, taken from Input rather than re-derived — the trigger is
+ * the same control surface, so the two must not drift. Input: 48 / 40 / 32.
+ */
+export type MultiselectSize = "lg" | "md" | "sm";
+
+const SIZE = {
+  lg: "h-12 px-lg text-body-md",
+  md: "h-10 px-md text-caption",
+  sm: "h-8 px-sm text-caption",
+} as const satisfies Record<MultiselectSize, string>;
 
 export interface MultiselectItem {
   value: string;
@@ -23,6 +35,8 @@ export interface MultiselectProps {
    */
   label: string;
   isLabelHidden?: boolean;
+  /** Matches Input's control heights: 48 / 40 / 32. */
+  size?: MultiselectSize;
   items: readonly MultiselectItem[];
   /** Controlled selection, by item value. */
   value?: readonly string[];
@@ -54,6 +68,7 @@ export interface MultiselectProps {
 export function Multiselect({
   label,
   isLabelHidden = false,
+  size = "lg",
   items,
   value,
   defaultValue,
@@ -65,6 +80,11 @@ export function Multiselect({
   className,
 }: MultiselectProps) {
   const labelId = useId();
+  // Theme variables are INHERITED custom properties, so a portal to
+  // document.body leaves the brand scope behind and the panel silently falls
+  // back to theme zero. Anchoring the portal to this field's own root keeps
+  // the panel inside whatever scope the field is in.
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const byValue = new Map(items.map((item) => [item.value, item]));
 
   return (
@@ -86,7 +106,7 @@ export function Multiselect({
           : {}),
       })}
     >
-      <div data-slot="multiselect" className={cn("flex w-full flex-col gap-sm", className)}>
+      <div ref={rootRef} data-slot="multiselect" className={cn("flex w-full min-w-56 flex-col gap-sm", className)}>
         {/* Bare text inside a rounded surface takes the inset (§6). */}
         <span
           id={labelId}
@@ -104,8 +124,9 @@ export function Multiselect({
             "data-slot": "multiselect-trigger",
             "aria-labelledby": labelId,
             className: cn(
-              "flex h-12 w-full items-center justify-between gap-sm rounded-md px-lg",
-              "border-[1.5px] bg-base border-edge-subtle text-body-md font-body font-medium text-ink-primary",
+              "flex w-full items-center justify-between gap-sm rounded-md",
+              SIZE[size],
+              "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
               "transition-[border-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
@@ -176,7 +197,7 @@ export function Multiselect({
           </BaseCombobox.Value>
         </BaseCombobox.Chips>
 
-        <BaseCombobox.Portal>
+        <BaseCombobox.Portal {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Portal>>({ container: rootRef })}>
           <BaseCombobox.Positioner sideOffset={8} className="z-50">
             <BaseCombobox.Popup
               {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Popup>>({
@@ -190,7 +211,7 @@ export function Multiselect({
               })}
             >
               <div className="p-md">
-                <div className="flex h-8 items-center gap-sm rounded-md bg-base px-sm py-xs ring-1 ring-edge-subtle focus-within:ring-edge-focus">
+                <div className="flex h-8 items-center gap-sm rounded-md bg-field px-sm py-xs ring-1 ring-edge-subtle focus-within:ring-edge-focus">
                   <BaseCombobox.Input
                     {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Input>>({
                       "data-slot": "multiselect-search",
@@ -251,7 +272,7 @@ export function Multiselect({
               <BaseCombobox.Empty
                 {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Empty>>({
                   "data-slot": "multiselect-empty",
-                  className: "px-lg pb-md text-button-sm font-body font-medium text-ink-muted",
+                  className: "px-lg text-button-sm font-body font-medium text-ink-muted empty:hidden not-empty:pb-md",
                 })}
               >
                 {emptyMessage}

@@ -54,10 +54,15 @@ export const Playground: Story = {
   ),
 };
 
-/** Open on mount, so the surface is rendered when axe runs. */
+/**
+ * Every overlay story opens on INTERACTION, never on mount. The cost is that
+ * axe only sees the closed state here; the open surface's semantics — role,
+ * labelling, focus trap, focus restoration — are covered by the contract
+ * browser tests instead.
+ */
 export const Matrix: Story = {
   render: () => (
-    <Modal defaultIsOpen onOpenChange={fn()}>
+    <Modal onOpenChange={fn()}>
       <Modal.Trigger render={<Button>New task</Button>} />
       <Modal.Surface>
         <NewTask />
@@ -89,7 +94,7 @@ export const Destructive: Story = {
 /** Long content scrolls inside the surface, not the page behind it. */
 export const Scrolling: Story = {
   render: () => (
-    <Modal defaultIsOpen onOpenChange={fn()}>
+    <Modal onOpenChange={fn()}>
       <Modal.Trigger render={<Button>Open</Button>} />
       <Modal.Surface size="lg">
         <Modal.Title>Export settings</Modal.Title>

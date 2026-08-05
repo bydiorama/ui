@@ -33,7 +33,7 @@ export const Matrix: Story = {
 
 export const States: Story = {
   render: () => (
-    <div className="flex max-w-sm flex-col gap-2xl">
+    <div className="flex w-96 flex-col gap-2xl">
       <Multiselect label="Empty" items={ITEMS} onValueChange={fn()} />
       <Multiselect label="One selected" items={ITEMS} defaultValue={["guidelines"]} onValueChange={fn()} />
       <Multiselect
@@ -53,7 +53,7 @@ export const Controlled: Story = {
   render: function ControlledStory() {
     const [value, setValue] = useState<string[]>(["guidelines"]);
     return (
-      <div className="flex max-w-sm flex-col gap-md">
+      <div className="flex w-96 flex-col gap-md">
         <Multiselect label="Services" items={ITEMS} value={value} onValueChange={setValue} />
         <p className="text-caption text-ink-muted">{`value: [${value.join(", ")}]`}</p>
       </div>

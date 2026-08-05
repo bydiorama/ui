@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-bg-field-role",
+  "date": "2026-08-05",
+  "item": "system",
+  "kind": "token",
+  "summary": "New --ui-bg-field role, because form fields looked transparent in dark. Reported as 'inputs have no colour inside'. The cause is that the surface scale INVERTS between schemes: in light bg-base is the lightest value (#FFFFFF) and sunken the darkest, but in dark bg-base (#423E3A) is the LIGHTEST surface while surface (#2F2C29) and sunken (#282522) are darker. Input and the Multiselect trigger painted their fill with bg-base, so in dark a field sitting on a bg-base page was exactly its container's colour and read as a hole. No existing role could fix it, because a field must be RECESSED from whatever contains it and that means lighter in light and darker in dark — opposite directions on the same scale. --ui-bg-field is now brandable, derived as colors.bg in light and a step below the surface in dark, pinned in theme zero as neutral-100 and neutral-0, and audited against both text-primary and text-placeholder. Measures 17.17:1 / 5.93:1 in light and 15.53:1 / 7.54:1 in dark. Caught by the visual harness on exactly one case — input dark — which is the correct blast radius, since light was already white.",
+  "affects": ["token:--ui-bg-field", "component:input", "component:multiselect"],
+  "migration": {
+    "manual": "Any component painting a form field with bg-base should move to bg-field. Light is unchanged (both resolve to white in theme zero); dark fields become a recessed near-black well instead of matching the page."
+  },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CVP-0" }
+}

@@ -57,6 +57,15 @@ Each of these passed type-check, lint, unit tests and `verify`:
 | tailwind-merge deleted `leading-flat` because our type roles sit in its `font-size` group, whose built-in conflict clears `leading` — stock `text-sm` bundles a line height, ours never do. Badge md and sm both fell to the font's normal leading and rendered identically | Runtime class list | `cn()` unit tests — which did not exist at all until this review, despite two shipped bugs living there |
 | Two sizes differing only by an icon: every test passed while `md` and `sm` were pixel-identical, because nothing compared the badges themselves | Computed style | Assert the sizes DIFFER, not just that each is internally consistent |
 | `pnpm test` globbed only `packages/*/src/**` — registry-level unit tests never ran | The gate itself | Add a failing test under `registry/` and watch the suite stay green |
+| A portalled surface ignores the brand theme entirely | Rendering | Theme vars are inherited CSS custom properties; `createPortal` to `document.body` leaves the subtree, so a brand scope applied to a wrapper never reaches a Popover/Modal/Multiselect panel. Check EVERY portalled component under a brand scope, not just the trigger |
+| A component "shrinks" in Storybook Docs but is correct in isolation | Layout | `w-full` inside a shrink-to-fit parent is circular and collapses to content. Reproduce in a fixed-width container BEFORE touching the component — the defect is usually the story, not the code |
+| A `fixed` overlay takes the width of a docs cell | Layout | `position: fixed` resolves against the nearest **transformed** ancestor, not the viewport. Storybook's docs blocks transform their preview, so `100vw`/`inset-0` silently scope to it. Never size a fixed surface with viewport units alone; floor it |
+
+**Check the whole surface under a brand scope, not the trigger.** Three of the
+four defects above were invisible in theme zero and in the contract suite: they
+only appear when a component is rendered inside a brand scope, inside Docs, or
+both. The BrandThemed story is mandatory for exactly this reason — but it only
+works if the thing you need to see is *inside* the themed subtree.
 
 **Probes must fail for the right reason.** A bare `scale-98` set from a test
 file proves nothing about a component using `data-[starting-style]:scale-98`:

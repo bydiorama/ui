@@ -90,8 +90,21 @@ Creating or editing one is the **`create-skill`** skill
 existing skill's shape. Run `pnpm skills:build` after any edit; `check:skills`
 fails on drift.
 
+## Git
+
+**Never `git add`, `git commit`, `git push` or `git tag` without being asked
+for that specific change.** Finish the work, run the gates, report what is
+done, and leave the working tree alone — staging and committing are the
+maintainer's decision, not a tidy-up step. A staged tree the maintainer did
+not ask for hides the diff they were about to review.
+
+Asked to commit? Commit exactly what was agreed and nothing else. Never
+`git checkout`/`restore` a file to undo your own probe — it destroys
+uncommitted work alongside it.
+
 ## What not to do
 
+- Do not commit or push anything without explicit consent — see § Git.
 - Do not add a third-party component library, design language, block set or
   theme preset. This library is built from scratch; we interoperate with tools,
   we do not inherit designs. See `README.md` § Independence.

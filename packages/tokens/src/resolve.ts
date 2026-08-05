@@ -330,6 +330,11 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-surface": colors.surface,
     "--ui-bg-elevated": shiftL(colors.surface, dark ? 0.06 : 0.02),
     "--ui-bg-sunken": shiftL(colors.surface, dark ? -0.03 : -0.04),
+    // A field is RECESSED from whatever contains it, and the surface scale
+    // inverts between schemes: in light that means the page's lightest value,
+    // in dark it means going further DOWN than any panel. Painting a field
+    // with `bg-base` made it identical to its container in dark.
+    "--ui-bg-field": dark ? shiftL(colors.surface, -0.06) : colors.bg,
     "--ui-bg-muted": colors.muted,
     "--ui-bg-overlay": withAlpha(dark ? "#000000" : colors.textPrimary, 0.55),
     "--ui-bg-hover": shiftL(colors.surface, up * 0.05),

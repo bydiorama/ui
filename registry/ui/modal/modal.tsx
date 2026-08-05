@@ -134,7 +134,12 @@ function ModalSurface({ children, className, size = "md", ...rest }: ModalSurfac
         data-size={size}
         className={cn(
           "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-          "flex w-[calc(100vw-2rem)] flex-col gap-2xl rounded-lg p-lg",
+          // `w-full` against the containing block, floored so it cannot collapse.
+          // 100vw was wrong: a `fixed` element resolves against the nearest
+          // TRANSFORMED ancestor, not the viewport, and Storybook's docs blocks
+          // transform their preview — so the dialog took the width of a docs
+          // cell instead of the screen.
+          "flex w-full min-w-80 max-w-[calc(100vw-2rem)] flex-col gap-2xl rounded-lg p-lg",
           SIZE[size],
           // bg-surface, not bg-elevated: the scrim already separates the
           // dialog from the page, so the surface carries only the shadow the

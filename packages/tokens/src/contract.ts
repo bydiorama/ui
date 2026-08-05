@@ -42,6 +42,11 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-surface",
   "--ui-bg-elevated",
   "--ui-bg-sunken",
+  // A form field is RECESSED from whatever contains it — white on a light
+  // page, darker than the card in dark. No single existing role does both,
+  // because the surface scale inverts between schemes: in dark `bg-base` is
+  // the LIGHTEST surface, so a field painted with it vanished into its panel.
+  "--ui-bg-field",
   "--ui-bg-muted",
   "--ui-bg-overlay",
   "--ui-bg-hover",
@@ -224,6 +229,8 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // Its absence here let the derived dark value sit at 3.2:1 undetected: the
   // audit only ever looks at pairs it is told about, so an unlisted role is
   // an unchecked role no matter how carefully it is derived.
+  ["--ui-text-primary", "--ui-bg-field"],
+  ["--ui-text-placeholder", "--ui-bg-field"],
   ["--ui-text-placeholder", "--ui-bg-base"],
   ["--ui-text-placeholder", "--ui-bg-surface"],
   ["--ui-text-on-muted", "--ui-bg-muted"],

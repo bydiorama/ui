@@ -117,7 +117,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         className={cn(
           "flex w-full shrink-0 items-center overflow-clip rounded-md border-[1.5px]",
           "transition-[border-color,box-shadow,background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-          "bg-base border-edge-subtle",
+          "bg-field border-edge-subtle",
           // Hover is DERIVED, not drawn in the sheet: it mirrors Button's
           // secondary variant (subtle → default) so controls behave alike.
           !isDisabled && !invalid && "hover:border-edge-default",

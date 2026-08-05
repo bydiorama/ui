@@ -184,6 +184,8 @@ probing.
 | "The weight looks heavier than the design" | Declared weights were identical — root smoothing + `font-synthesis: none` (§6) before touching values |
 | Committing vitest failure screenshots | `__screenshots__/` and `.vitest-attachments/` are gitignored debug artifacts, not baselines |
 | New face/library "just for this component" | Licensing gate + independence rules (AGENTS.md); file a gap instead |
+| Staging or committing when you finished | **Never** — `git add`/`commit`/`push` need explicit consent for that change (AGENTS.md § Git). Report and leave the tree alone |
+| A portalled panel ignores the brand theme | Theme vars are inherited custom properties; a portal to `document.body` leaves the scope. Anchor the portal to the component's own root, or expose a `container` |
 | A new registry namespace (`hooks/`, `blocks/`) | The `@/` alias must be added in **four** resolvers — root tsconfig, storybook tsconfig, vitest config, storybook `main.ts` — and must match the manifest's install **target**, not the source folder, or the path you ship is not the path you type-check |
 | A gate added to `verify` only | CI enumerates its checks individually; `verify` alone leaves the new gate unrun in the only place it matters |
 | A test that clicks a visually-hidden input | Playwright refuses, and it is right — real clicks land on the label or the painted box. Click what a user can |

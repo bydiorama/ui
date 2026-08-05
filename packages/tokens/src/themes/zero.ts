@@ -93,6 +93,7 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-surface": NEUTRAL[98],
     "--ui-bg-elevated": NEUTRAL[95],
     "--ui-bg-sunken": NEUTRAL[90],
+    "--ui-bg-field": NEUTRAL[100],
     "--ui-bg-muted": NEUTRAL[90],
     "--ui-bg-overlay": NEUTRAL[80],
     "--ui-bg-hover": NEUTRAL[90],
@@ -146,6 +147,9 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
   // From the handover's dark portal: ramp-80 inks on translucent ramp-60
   // grounds, brand blue as both accent and link.
   dark: {
+    // Recessed from the card, matching the dark portal in the sheet: the
+    // field reads as a well, not as another panel.
+    "--ui-bg-field": NEUTRAL[0],
     "--ui-text-link": BLUE[70],
     "--ui-text-link-hover": BLUE[80],
     "--ui-text-on-accent": NEUTRAL[0],

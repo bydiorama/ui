@@ -24,6 +24,8 @@ import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Input } from "@/ui/input/input.tsx";
+import { chromeControl } from "@/lib/chrome-control";
+import { Header } from "@/ui/header/header.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 
 let container: HTMLDivElement | null = null;
@@ -58,6 +60,16 @@ const CASES: Array<[name: string, ui: ReactElement]> = [
   [
     "Sidebar item",
     <Sidebar label="Primary"><Sidebar.Item href="#a" icon={<Search />}>Row</Sidebar.Item></Sidebar>,
+  ],
+  [
+    "Header menu button",
+    <Header><Header.End><Header.MenuButton label="Open primary navigation" /></Header.End></Header>,
+  ],
+  [
+    "chrome control",
+    // The shared recipe sizes its own slot too. It is a lib rather than a
+    // component, so no per-component test would ever have covered it.
+    <button type="button" aria-label="Back" className={chromeControl()}><Search /></button>,
   ],
   [
     "Sidebar section",

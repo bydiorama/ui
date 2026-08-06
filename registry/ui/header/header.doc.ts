@@ -69,6 +69,9 @@ can arrive later without changing any of this.
     target: "An item is the sheet's 24px pill — SC 2.5.8's floor exactly rather than comfortably over it. See knownGaps.",
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-surface", floor: "text", role: "item labels on the bar" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the menu button's glyph on its chrome fill" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-hover", floor: "text", role: "the menu button's glyph while hovered" },
+      { fg: "--ui-text-disabled", bg: "--ui-bg-sunken", floor: "decorative", why: "WCAG 1.4.3 exempts disabled controls, and a disabled chrome control has to read as unavailable — holding it to 4.5:1 would make it indistinguishable from an available one, which is the real failure. The chrome control has no doc of its own (it is a lib recipe), so its states are declared by the component that ships it.", role: "a disabled chrome control" },
     ],
   },
 

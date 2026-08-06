@@ -256,6 +256,10 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // any surface role, so the audit has to cover the cross-product it actually
   // uses, not just the pairs someone happened to think of.
   ["--ui-text-primary", "--ui-bg-elevated"],
+  // A hovered chrome control. Hover is a STATE, and a state whose contrast
+  // nobody measured is where a 5-10% darker fill quietly falls under AA —
+  // `bg-hover` had never been audited against any ink.
+  ["--ui-text-primary", "--ui-bg-hover"],
   // The selected day in a Calendar. `accent-subtle` is a fill that carries
   // TEXT here rather than being decoration, and nothing had put ink on it
   // before — so nothing had ever measured it.

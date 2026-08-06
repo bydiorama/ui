@@ -273,6 +273,30 @@
       "light": 16.76,
       "dark": 12.55,
       "role": "item labels on the bar"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "the menu button's glyph on its chrome fill"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "the menu button's glyph while hovered"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.76,
+      "dark": 3.6,
+      "role": "a disabled chrome control"
     }
   ],
   "Input": [

@@ -173,7 +173,13 @@ function walk(dir, out = []) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) walk(full, out);
-    else if (/\.tsx$/.test(entry) && !/\.test\.tsx$/.test(entry)) out.push(full);
+    // `.ts` AND `.tsx`. The chrome control is a `.ts` file that is ENTIRELY
+    // utility classes, and a `.tsx`-only filter meant none of them had ever
+    // been checked — a probe put two nonexistent utilities in it and the gate
+    // reported green. `.doc.ts` is excluded because it is prose: a doc that
+    // says "p-lg, gap-sm" is describing the component, not styling anything,
+    // and the same rule that keeps comments out keeps documentation out.
+    else if (/\.tsx?$/.test(entry) && !/\.(test|doc|d)\.tsx?$/.test(entry)) out.push(full);
   }
   return out;
 }
@@ -183,8 +189,13 @@ let checkedFiles = 0;
 let checkedClasses = 0;
 
 for (const file of walk(join(ROOT, "registry"))) {
-  checkedFiles++;
   const rel = file.slice(ROOT.length + 1);
+  // cn.ts is merge CONFIGURATION: its strings are tailwind-merge group
+  // identifiers — "text-color", "font-size", "leading" — not classes. Reading
+  // them as utilities reported `--color-color` as missing, which is true and
+  // meaningless. The rest of registry/lib is real styling and is scanned.
+  if (rel === "registry/lib/cn/cn.ts") continue;
+  checkedFiles++;
   const source = stripComments(readFileSync(file, "utf8"));
   const classes = classesIn(source);
 

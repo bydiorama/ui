@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-utilities-ts-scan",
+  "date": "2026-08-06",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:utilities only ever scanned `.tsx`, so the chrome control — a `.ts` file that is ENTIRELY utility classes — had never been checked at all. Proven rather than assumed: two nonexistent utilities were put into it and the gate reported green across 40 files. It is the first-of-its-kind rule again, and this time the new kind was a file EXTENSION: the first registry module to carry styling without carrying JSX broke the tooling for it. The scan now covers `.ts` as well, excluding `.doc.ts` — documentation is prose, and a doc saying 'p-lg, gap-sm' describes a component rather than styling one, which is the same reason comments are stripped. It also excludes cn.ts, whose strings are tailwind-merge GROUP identifiers ('text-color', 'font-size') and not classes; reading them as utilities reported --color-color as missing, which is true and meaningless. Coverage went 707 utilities across 40 files to 717 across 42, and every one of the chrome control's resolves — they were correct, they had simply never been verified. Two audit gaps closed alongside it: the chrome control's ink, hover and disabled states are now declared in Header's doc (a lib recipe has no doc of its own, so the component that ships it declares them), which added --ui-text-primary on --ui-bg-hover to the contract — a hover fill that no ink had ever been measured against, and hover is exactly where a 5-10% darker step quietly falls under AA. And the shared recipe joins icon-slot.browser.test.tsx, which no per-component test would ever have covered.",
+  "affects": ["gate:check-utilities", "lib:chrome-control", "component:header", "token:contract-contrast-pairs"]
+}

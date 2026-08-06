@@ -169,7 +169,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           // The ring is drawn on the box because the real input is clipped.
           // Border colour alone would not clear SC 1.4.11 against the resting
           // edge, so the ring carries the indicator.
-          "peer-focus-visible:border-edge-focus peer-focus-visible:shadow-(--ui-focus-ring)",
+          "peer-focus-visible:border-edge-focus peer-focus-visible:shadow-(--ui-focus-ring) peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-2",
         )}
       >
         {state === "checked" && <Check size={GLYPH_PX} aria-hidden="true" />}

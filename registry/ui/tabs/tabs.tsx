@@ -91,7 +91,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
         // Base UI leaves only the selected tab in the tab order (roving
         // tabindex), so the ring is the only thing telling a keyboard user
         // where they are.
-        "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
         className,
       )}
     >
@@ -125,7 +125,7 @@ function TabsPanel({ value, className, ...rest }: TabsPanelProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTabs.Panel>>(rest)}
       value={value}
       data-slot="tabs-panel"
-      className={cn("focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none", className)}
+      className={cn("focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none", className)}
     />
   );
 }

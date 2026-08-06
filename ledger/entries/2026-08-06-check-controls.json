@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-check-controls",
+  "date": "2026-08-06",
+  "item": "system",
+  "kind": "addition",
+  "summary": "check:controls — the gate that would have caught the button drift, and the answer to why none of the existing ones did. Every gate in this repo asks whether a value is LEGAL; none asked whether something should have been a component. A hand-rolled <button> inside a component passes check:utilities (its classes all resolve), passes check:contrast (it declares its own pairs) and has no props for the type system to reject, so it is invisible everywhere. Four components rebuilt the same 32px chrome control before anyone noticed it was one thing. The gate does not ban bespoke controls — a drag handle is not a Button, a tab is not a Button, a calendar day is not a Button — it bans UNDECLARED ones: a file must either use Button or the chrome control, or appear in an allowlist with a written reason, which is exactly the moment to ask whether Button should grow instead. Stale entries fail too, because an exemption for a file that no longer has a control is how an allowlist stops meaning anything. It found a defect on its first run — and the defect was its own: Badge was reported for a doc comment saying 'pass a real <button> into iconEnd', advice AGAINST rendering one. It strips comments now, the same lesson check:utilities learned. Its one stated limitation is that a component choosing its element dynamically renders <Row> and slips past; Header and Sidebar both do that and both are nav rows that would be allowlisted anyway. Wired into verify AND into the CI workflow, which enumerates its checks individually.",
+  "affects": ["gate:check-controls"]
+}

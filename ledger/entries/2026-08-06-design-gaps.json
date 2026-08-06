@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-design-gaps",
+  "date": "2026-08-06",
+  "item": "system",
+  "kind": "addition",
+  "summary": "`needsDesign` in every typed doc, and `pnpm design:gaps` to collect it. Design questions were prose: each component's knownGaps held several, nothing ever read them together, and so the fact that FOUR components each wanted the same undrawn 32px control was four separate paragraphs nobody cross-read. The pattern existed only in aggregate and nothing aggregated. Seventeen open questions across twenty docs now print as one list, and the first thing it shows is that Calendar and Drawer are both blocked on the same missing Select — a fact that was true for days and legible nowhere. It REPORTS and never fails: a design gap is a question for a person, not a defect in the code, and a gate that blocked on one would only teach people to stop declaring them. Wired into CI beside the checks that do fail, because the value is in it being read. It also closes a self-inflicted defect: the add-component skill already instructed people to 'record it under needsDesign', a field that did not exist — a doc naming something that does not exist, which is the exact class of defect this repo has caught in component docs twice.",
+  "affects": ["gate:design-gaps"]
+}

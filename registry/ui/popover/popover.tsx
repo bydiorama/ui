@@ -104,6 +104,15 @@ export interface PopoverPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, 
   /** Distance from the trigger, in px. Defaults to `--ui-space-sm` worth. */
   sideOffset?: number;
   alignOffset?: number;
+  /**
+   * Where to portal the panel. Defaults to `document.body`.
+   *
+   * Theme tokens are INHERITED custom properties, so a panel portalled to the
+   * body leaves any brand scope on a wrapper and paints theme zero. Pass the
+   * themed element to bring it back inside. See the fuller note in `sheet.tsx`
+   * on why this is a prop and not resolved automatically.
+   */
+  container?: HTMLElement | null;
 }
 
 function PopoverPanel({
@@ -113,10 +122,11 @@ function PopoverPanel({
   align = "center",
   sideOffset = 8,
   alignOffset = 0,
+  container,
   ...rest
 }: PopoverPanelProps) {
   return (
-    <BasePopover.Portal>
+    <BasePopover.Portal {...(container ? { container } : {})}>
       <BasePopover.Positioner
         side={side}
         align={align}
@@ -139,7 +149,8 @@ function PopoverPanel({
             // page (SC 1.4.11): bg-elevated alone measures 1.11:1 on white,
             // so the hairline and the shadow carry the boundary, not the fill.
             "text-ink-primary",
-            "transition-[opacity,transform] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            // `scale`, not `transform` — see the identical note in modal.tsx.
+            "transition-[opacity,scale] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
             // Base UI stamps these while the enter/exit transition runs.
             "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
             "data-[starting-style]:scale-98 data-[ending-style]:scale-98",

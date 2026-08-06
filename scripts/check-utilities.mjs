@@ -38,7 +38,10 @@ const NAMESPACES = [
   // emitted nothing and gone unreported — the exact failure this gate exists
   // to catch, one prefix to the left of where it was looking.
   [
-    /^(?:gap|gap-x|gap-y|p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|space-x|space-y|size|w|h|min-w|min-h|max-w|max-h|inset|top|bottom|left|right|start|end|translate-x|translate-y|scroll-m|scroll-p)-(.+)$/,
+    // `inset-x`/`inset-y` come BEFORE `inset`: alternation is left-to-right,
+    // so a bare `inset` would match first and look up `--spacing-y-0`. Sheet
+    // was the first component to want `inset-y-0` and reported it as missing.
+    /^(?:gap|gap-x|gap-y|p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|space-x|space-y|size|w|h|min-w|min-h|max-w|max-h|inset-x|inset-y|inset|top|bottom|left|right|start|end|translate-x|translate-y|scroll-m|scroll-p)-(.+)$/,
     "--spacing-",
   ],
   [/^rounded(?:-[trbl]{1,2})?-(.+)$/, "--radius-"],
@@ -67,12 +70,93 @@ const BUILTIN = new Set([
   "wrap", "nowrap", "balance", "pretty", "ellipsis", "clip",
 ]);
 
+/**
+ * A SIZING utility whose key is a spacing step. It resolves — which is why the
+ * namespace check above waves it through — but to 4-32px, and the author
+ * almost certainly meant Tailwind's container scale.
+ *
+ * Tailwind v4 reads `max-w-<name>` from `--container-*` and falls back to
+ * `--spacing-*`. This system emits no `--container-*` and names its spacing
+ * steps `sm`/`md`/`lg`, exactly the container scale's names — so `max-w-md`
+ * silently compiles to `max-width: var(--ui-space-md)`, 12px. Modal shipped
+ * `max-w-md` and `max-w-xl` for its two sizes, and both dialogs rendered at
+ * the same 320px because `min-w-80` beat a 12px cap. Every gate was green:
+ * the CSS existed, the variable existed, and nothing compared the two sizes.
+ *
+ * Widths and heights therefore take a purpose-named chrome token (`max-w-nav`,
+ * `max-w-dialog-md`) or an explicit value — never a bare spacing step.
+ */
+// WIDTHS only. Tailwind's container scale is width-oriented, so `max-w-md` is
+// the ambiguous one; `h-sm` has no competing meaning and is how the Drawer's
+// handle binds the 8px height its sheet actually specifies. Narrowed after the
+// rule fired on that legitimate use — a gate that cannot tell a real value
+// from a mistake teaches people to work around it.
+const SIZING = /^(?:size|w|min-w|max-w)-(.+)$/;
+const SPACING_STEPS = new Set(["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"]);
+
+/**
+ * Motion that is declared and never runs.
+ *
+ * Tailwind v4's `scale-*`, `translate-*` and `rotate-*` set the STANDALONE CSS
+ * properties (`scale: 98% 98%`), not `transform`. So `transition-property:
+ * transform` covers none of them — which is exactly why Tailwind's own
+ * `transition-transform` expands to `transform, translate, scale, rotate`.
+ *
+ * Modal and Popover both wrote `transition-[opacity,transform]` beside
+ * `data-[starting-style]:scale-98`, and Button wrote its press scale beside a
+ * colour-only list. Every one compiled, every gate was green, and the only
+ * property actually transitioning was opacity — measured with getAnimations()
+ * in Chromium, which is where this became a fact rather than a theory.
+ *
+ * Two rules, because they catch different halves:
+ *  A — a transition list naming `transform` is always wrong here.
+ *  B — an ENTER/EXIT scale, translate or rotate must be covered by a
+ *      transition, or the surface snaps into place at full size.
+ *
+ * B is scoped to `data-[starting-style]`/`data-[ending-style]` on purpose.
+ * Button's press scale is deliberately NOT transitioned — "press feedback
+ * should snap, not ease" — and a broader rule flagged that considered choice
+ * as a defect. An entrance that does not animate is always a mistake; a state
+ * change that snaps can be a decision.
+ */
+/**
+ * A focus ring drawn with `box-shadow` and nothing else.
+ *
+ * Forced-colors mode (Windows High Contrast) forces `box-shadow` to `none` —
+ * so `shadow-(--ui-focus-ring)` is not merely re-coloured there, it is gone,
+ * and the indicator ceases to exist for the users who most depend on it.
+ * Eleven of the twelve components shipped exactly that; only Button, which
+ * draws its ring with `outline`, survived.
+ *
+ * The fix is an `outline` under a `forced-colors:` variant, which costs
+ * nothing outside forced colours because it never applies there.
+ */
+const FOCUS_RING = "shadow-(--ui-focus-ring)";
+const FORCED_FALLBACK = /forced-colors:outline/;
+
+const TRANSITION_LIST = /^transition-\[([^\]]+)\]$/;
+const COVERS_TRANSFORM = new Set(["transition-transform", "transition-all"]);
+const ENTER_EXIT = /data-\[(?:starting|ending)-style\]:-?(scale|translate|rotate)-/g;
+
 const VARIANT =
   /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-busy|aria-\[[^\]]+\]|data-\[[^\]]+\]|has-\[[^\]]+\]|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
 
+/**
+ * Comments are not code, and this gate must not read them.
+ *
+ * Tailwind itself scans comments — a class named in one compiles a dead rule,
+ * which is harmless. Here it is not: the SIZING rule below REJECTS names, so a
+ * comment explaining why `max-w-md` is wrong would fail the build for saying
+ * so. Block comments are where the prose lives; `//` is only treated as one
+ * when it is not part of a `://` URL.
+ */
+function stripComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+}
+
 function classesIn(source) {
   return new Set(
-    [...source.matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`/g)]
+    [...stripComments(source).matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`/g)]
       .flatMap((m) => (m[1] ?? m[2] ?? m[3] ?? "").split(/\s+/))
       // `:` must be allowed here — variant prefixes are stripped below, and
       // filtering them out first silently skipped every hover/disabled state.
@@ -101,13 +185,53 @@ let checkedClasses = 0;
 for (const file of walk(join(ROOT, "registry"))) {
   checkedFiles++;
   const rel = file.slice(ROOT.length + 1);
-  for (const cls of classesIn(readFileSync(file, "utf8"))) {
+  const source = stripComments(readFileSync(file, "utf8"));
+  const classes = classesIn(source);
+
+  // A box-shadow focus ring needs an outline fallback for forced colours.
+  if (source.includes(FOCUS_RING) && !FORCED_FALLBACK.test(source)) {
+    errors.push(
+      `${rel}: draws its focus ring with ${FOCUS_RING} but has no \`forced-colors:outline\` fallback — ` +
+        `forced-colors mode forces box-shadow to none, so the indicator DISAPPEARS in Windows High Contrast.`,
+    );
+  }
+
+  // Rule A: `transform` in a transition list transitions nothing here.
+  const lists = [...classes].map((c) => c.match(TRANSITION_LIST)).filter(Boolean);
+  for (const list of lists) {
+    if (/\btransform\b/.test(list[1])) {
+      errors.push(
+        `${rel}: "${list[0]}" lists \`transform\`, which no scale/translate/rotate utility sets in ` +
+          `Tailwind v4 — they set the standalone properties. Name \`scale\`/\`translate\`/\`rotate\`, ` +
+          `or use transition-transform.`,
+      );
+    }
+  }
+  // Rule B: an enter/exit transform must be covered by some transition.
+  const covered = [...classes].some((c) => COVERS_TRANSFORM.has(c));
+  for (const property of new Set([...source.matchAll(ENTER_EXIT)].map((m) => m[1]))) {
+    if (covered || lists.some((l) => new RegExp(`\\b${property}\\b`).test(l[1]))) continue;
+    errors.push(
+      `${rel}: enters or exits with \`${property}-*\` but no transition names \`${property}\` — ` +
+        `it will snap, not animate. Add it to the transition list, or use transition-transform.`,
+    );
+  }
+
+  for (const cls of classes) {
     // Arbitrary values name their own value and bypass the theme by design,
     // in BOTH syntaxes: brackets for literals (`ring-[1.5px]`) and parens for
     // custom properties (`shadow-(--ui-focus-ring)`). Skipping only brackets
     // made every parens utility a false positive — which is also the syntax
     // the motion tokens had to move to, so the two are easy to conflate.
     if (cls.includes("[") || cls.includes("(")) continue;
+    const sizing = cls.match(SIZING);
+    if (sizing && SPACING_STEPS.has(sizing[1])) {
+      errors.push(
+        `${rel}: "${cls}" resolves to the SPACING step --ui-space-${sizing[1]}, not a width. ` +
+          `Use a purpose-named chrome token (max-w-nav, max-w-dialog-md) or an explicit value.`,
+      );
+      continue;
+    }
     for (const [pattern, namespace] of NAMESPACES) {
       const match = cls.match(pattern);
       if (!match) continue;
@@ -127,9 +251,9 @@ for (const file of walk(join(ROOT, "registry"))) {
 }
 
 if (errors.length) {
-  console.error("Unresolvable utilities — these produce NO css:\n");
+  console.error("Utilities that do not do what they say:\n");
   for (const e of errors) console.error(`  - ${e}`);
-  console.error("\nAdd the token to the contract, or use a role that exists.");
+  console.error("\nEach one compiles. None of them has the effect its name implies.");
   process.exit(1);
 }
 

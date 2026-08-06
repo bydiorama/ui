@@ -201,3 +201,45 @@ describe("The surface paints the designed dialog", () => {
     expect(getComputedStyle(footer).justifyContent).toBe("space-between");
   });
 });
+
+describe("Modal's motion and sizes are real, not declared", () => {
+  test("the enter transition ACTUALLY runs on scale, not just opacity", async () => {
+    mount(<Basic />);
+    await userEvent.click(trigger());
+    const running = surface()!
+      .getAnimations()
+      .map((a) => (a as CSSTransition).transitionProperty);
+    // Tailwind v4's scale-* sets the standalone `scale` property, so the
+    // original `transition-[opacity,transform]` covered nothing: the dialog
+    // snapped to full size while only opacity eased. Asserted through
+    // getAnimations() because the class list, the compiled CSS and the
+    // computed transitionProperty all looked entirely correct.
+    expect(running).toContain("scale");
+    expect(running).toContain("opacity");
+  });
+
+  test("md and lg are DIFFERENT widths", async () => {
+    mount(
+      <>
+        <Modal defaultIsOpen>
+          <Modal.Surface size="md"><Modal.Title>Small</Modal.Title></Modal.Surface>
+        </Modal>
+        <Modal defaultIsOpen>
+          <Modal.Surface size="lg"><Modal.Title>Large</Modal.Title></Modal.Surface>
+        </Modal>
+      </>,
+    );
+    const [md, lg] = Array.from(document.querySelectorAll<HTMLElement>('[data-slot="modal-surface"]'));
+    // `max-w-md` and `max-w-xl` LOOK like Tailwind's container scale but
+    // resolved against this system's spacing scale — 12px and 24px caps that
+    // min-w-80 overrode, so both sizes rendered at exactly 320px. Nothing
+    // compared them to each other, which is the only test that fails.
+    //
+    // Asserted on max-width rather than rendered width: the test viewport is
+    // narrower than both caps, so `w-full` makes the two render identically
+    // there — which is exactly how a 12px cap hid for so long.
+    expect(getComputedStyle(md!).maxWidth).toBe("416px");
+    expect(getComputedStyle(lg!).maxWidth).toBe("640px");
+    expect(getComputedStyle(md!).maxWidth).not.toBe(getComputedStyle(lg!).maxWidth);
+  });
+});

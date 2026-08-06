@@ -29,7 +29,7 @@ Banner
       default: '"neutral"',
       notes: "Intent ROLES, never palette steps — the sheet drew --ui-blue-90 and --ui-red-40 directly, which do not re-skin with a brand.",
     },
-    icon: { type: "ReactElement", notes: "Leading glyph. Decorative: the message carries the meaning, so never rely on the glyph or the colour alone (WCAG 1.4.1)." },
+    icon: { type: "ReactElement", notes: "Leading glyph. Decorative: the message carries the meaning, so never rely on the glyph or the colour alone (WCAG 1.4.1). The component sizes the slot at 16px, the size the sheet draws at every control size. Without that the glyph arrives at whatever the icon library defaults to — griddy hard-codes width/height=\"24\" as attributes — which rendered every icon 50% oversize." },
     isLive: {
       type: "boolean",
       default: "false",

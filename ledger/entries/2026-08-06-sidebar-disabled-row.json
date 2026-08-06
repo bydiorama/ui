@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-sidebar-disabled-row",
+  "date": "2026-08-06",
+  "item": "sidebar",
+  "kind": "addition",
+  "summary": "Sidebar rows can be disabled — the state the design has drawn since the start (`Second Level Item - Level 2 Disabled`) and the component had no way to express. It needed a role first: the sheet paints it with --ui-text-disabled, which is the PAGE's disabled ink and does not follow a brand that re-skins its nav, so --ui-nav-ink-disabled joins the family, derived 62% of the way from the nav ink toward the rail so it sits clearly below --ui-nav-ink-muted without vanishing. Three deliberate choices in the behaviour. The row keeps its link role, its href and its place in the tab order: a row a screen-reader user cannot reach is one they cannot be told the reason for, and dropping the href would leave something that looks like a link and silently does nothing — navigation is prevented on the click instead. Never pointer-events-none, which removes the row from hit-testing and kills any tooltip explaining why it is off. And hover and current are gated behind the flag, so an unavailable row cannot light up as though it were reachable. The contrast pair is declared DECORATIVE with a reason rather than held to 4.5:1: WCAG 1.4.3 exempts disabled controls, and a disabled row forced to text contrast would be indistinguishable from an available one, which is the actual accessibility failure. It measures 2.63:1 in both schemes.",
+  "affects": ["component:sidebar", "token:--ui-nav-ink-disabled"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DNF-0" }
+}

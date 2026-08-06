@@ -37,7 +37,12 @@ Modal                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
       default: "true",
       notes: "Escape and scrim-click dismiss. On by default — trapping someone in a dialog is a last resort. Turn it off only when losing their work would be worse than the friction.",
     },
-    size: { type: '"md" | "lg"', default: '"md"', notes: "A width cap, not a height: the dialog grows with its content and scrolls internally past the viewport." },
+    size: { type: '"md" | "lg"', default: '"md"', notes: "A width cap, not a height: the dialog grows with its content and scrolls internally past the viewport. 416px (the drawn width) and 640px. These were max-w-md/max-w-xl, which resolve against this system's SPACING scale rather than Tailwind's container scale — 12px and 24px caps that min-w-80 overrode, so both sizes rendered identically until it was measured." },
+    container: {
+      type: "HTMLElement | null",
+      default: "document.body",
+      notes: "Where the dialog is portalled. Theme tokens are INHERITED custom properties, so a surface in the body leaves any brand scope on a wrapper and paints theme zero. Pass the themed element to bring it back; see sheet.doc.ts for why it is a prop rather than automatic.",
+    },
     render: { type: "ReactElement", notes: "On Trigger and Close. Passed through, not wrapped (§3), so the element keeps its tag, ref and accessible name and gains only the ARIA wiring." },
   },
 

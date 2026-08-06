@@ -129,7 +129,7 @@ export function Multiselect({
               "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
               "transition-[border-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
               "enabled:hover:border-edge-default enabled:cursor-pointer",
-              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
+              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
               "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
             ),
           })}

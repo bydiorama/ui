@@ -199,7 +199,12 @@ describe("The panel paints the designed surface", () => {
 
     expect(style.transitionDuration).not.toBe("0s");
     expect(style.transitionProperty).toContain("opacity");
-    expect(style.transitionProperty).toContain("transform");
+    // This line used to read `toContain("transform")`, and it PASSED for as
+    // long as the panel's entrance was broken: the declaration was exactly
+    // what it claimed, and `transform` simply is not the property Tailwind
+    // v4's scale-* writes. Asserting a declared value proves the class
+    // reached the DOM, nothing more — the test below asserts the animation.
+    expect(style.transitionProperty).toContain("scale");
     // Base UI writes --transform-origin on the popup so the panel grows from
     // the trigger. Still "50% 50%" would mean the utility never matched.
     expect(style.transformOrigin).not.toBe("50% 50%");
@@ -232,5 +237,20 @@ describe("The panel paints the designed surface", () => {
     const labelledBy = p.getAttribute("aria-labelledby");
     expect(labelledBy).toBeTruthy();
     expect(document.getElementById(labelledBy!)?.dataset["slot"]).toBe("popover-title");
+  });
+});
+
+describe("Popover's entrance is animated, not merely declared", () => {
+  test("the enter transition ACTUALLY runs on scale", async () => {
+    mount(<Basic />);
+    await userEvent.click(trigger());
+    const running = panel()!
+      .getAnimations()
+      .map((a) => (a as CSSTransition).transitionProperty);
+    // v4's scale-* sets the standalone `scale` property, which
+    // `transition-[opacity,transform]` did not cover — the panel popped to
+    // full size while only opacity eased. Same defect as Modal's, same fix,
+    // and `check:utilities` now refuses the pattern outright.
+    expect(running).toContain("scale");
   });
 });

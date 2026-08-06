@@ -26,6 +26,11 @@ Popover                      isOpen? / defaultIsOpen? / onOpenChange? / isModal?
   `.trim(),
 
   props: {
+    container: {
+      type: "HTMLElement | null",
+      default: "document.body",
+      notes: "Where the panel is portalled. Theme tokens are INHERITED custom properties, so a panel in the body leaves any brand scope on a wrapper and paints theme zero. Pass the themed element to bring it back; see sheet.doc.ts for why it is a prop rather than automatic.",
+    },
     isOpen: { type: "boolean", notes: "Controlled. Omit and the popover owns it." },
     defaultIsOpen: { type: "boolean", notes: "Uncontrolled starting state." },
     onOpenChange: {

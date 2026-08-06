@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-header",
+  "date": "2026-08-05",
+  "item": "header",
+  "kind": "addition",
+  "summary": "Header — the page's top bar, and a deliberate refusal to make the whole thing a nav. It renders a <header>, so it is the banner landmark, but the navigation landmark is the item ROW alone: the bar also carries a brand switcher, a back button, a menu toggle and an avatar, and a nav landmark containing all of that is one nobody can usefully skip to. For the same reason items inside the row are list items and controls in Start and End are not — a brand switcher announced as a list item misdescribes the page. An item is a real <a> when given an href and a <button> otherwise, because the design draws two items carrying a chevron that open menus rather than navigate, and a link that does not navigate is the commonest lie in a bar. Design defects recorded rather than transcribed: the bar's inline padding is a raw 20px, off the spacing scale entirely, and the design's OWN mobile drawing of the same bar uses 12 — shipped as px-lg with the discrepancy flagged; and no current state is drawn at all, so isCurrent exists because a nav needs one and its fill is derived from --ui-bg-hover. The 24px item pill is SC 2.5.8's floor exactly rather than comfortably over it, which is the design's number and is recorded as a gap rather than quietly enlarged.",
+  "affects": ["component:header", "design:paper-header"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DOY-0" }
+}

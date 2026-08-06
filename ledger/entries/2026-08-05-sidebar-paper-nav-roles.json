@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-sidebar-paper-nav-roles",
+  "date": "2026-08-05",
+  "item": "sidebar",
+  "kind": "fix",
+  "summary": "Design fixes pushed back into Paper for the Sidebar sheet, plus the geometry the code took FROM it. The --ui-nav-* family did not exist in the Paper file at all — six roles that had been in the code contract since Phase 1 with no way for a design to reference them — so the rail was drawn on --ui-bg-surface with raw --ui-neutral-95 fills, which is exactly the drift the family exists to prevent. Created --ui-nav-bg / -ink / -ink-muted / -active-bg / -active-ink / -border in Paper and rebound both rails (the layered spec and the mobile sheet) plus the active row inside the mobile navigation overlay. One real accessibility defect: the CURRENT row was drawn in --ui-text-muted while resting rows sat at --ui-text-primary and --ui-text-secondary — the active item was the weakest ink on the rail, and its fill measures barely over 1:1 against the surface, so the state was carried by almost nothing. It is now --ui-nav-active-ink at 600, matching the shipped component, which changes weight for the same reason. The sheet's Progress fill was a raw --ui-blue-80, the exact value that measured 1.24:1 and caused --ui-bg-accent-legible to be minted; rebound. Going the other way, the code adopted the sheet's geometry, which it had been getting wrong: rows are p-md (12) inside a body of p-sm (8) for a 20px text inset and a 46px row, not px-lg/py-sm for 24 and 37; the row radius is radius-sm, not radius-md; and rows stack FLUSH — the sheet's six-row section measures exactly 6x46 — so the gap-xs between them was a second spacing system competing with the row's own padding. The 8px block padding on the body is ours and stays: the sheet lets the first and last rows touch the rail's edges, which left a collapsed final section jammed against the bottom.",
+  "affects": ["design:paper-sidebar", "component:sidebar", "token:--ui-nav-bg"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DNF-0" }
+}

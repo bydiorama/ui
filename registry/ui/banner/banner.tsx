@@ -71,6 +71,10 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
       {...(isLive ? { role: "status", "aria-live": "polite" } : {})}
       className={cn(
         "flex w-full items-center gap-sm rounded-md p-lg",
+        // The leading glyph at 16px, matching the dismiss control's own. Only
+        // the dismiss was sized before, so a caller's icon arrived at griddy's
+        // 24px default and the two glyphs in one banner did not match.
+        "[&_svg]:size-4 [&_svg]:shrink-0",
         VARIANT[variant],
         className,
       )}

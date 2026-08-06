@@ -48,6 +48,20 @@ jobs:
 
       # Contrast figures are DECLARED as pairs and measured here — never typed
       # by hand. Three fabricated numbers shipped before this gate existed.
+      # A bespoke control is invisible to every other gate: its classes
+      # resolve, it declares its own contrast pairs, and it has no props to
+      # get wrong. Four components reinvented the same 32px chrome control
+      # before anyone noticed.
+      - name: Controls come from the library
+        run: node scripts/check-controls.mjs
+
+      # Reports, never fails. A design gap is a question for a person, and a
+      # gate that blocked on one would teach people to stop declaring them.
+      # Two components asking for the same thing is the signal — invisible
+      # while these lived as prose in separate knownGaps lists.
+      - name: Design gaps
+        run: node scripts/report-design-gaps.mjs
+
       - name: Contrast pairs
         run: node scripts/check-contrast.mjs --check
 

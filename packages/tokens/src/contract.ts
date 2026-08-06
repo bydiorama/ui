@@ -156,11 +156,17 @@ export const BRANDABLE_TOKENS = [
   "--ui-nav-bg",
   "--ui-nav-ink",
   "--ui-nav-ink-muted",
+  "--ui-nav-ink-disabled",
   "--ui-nav-border",
   "--ui-nav-active-bg",
   "--ui-nav-active-ink",
   "--ui-nav-width",
   "--ui-nav-rail-width",
+  // Overlay widths. They are TOKENS rather than utilities because Tailwind's
+  // container scale shares its names with this system's spacing scale, so
+  // `max-w-md` silently means 12px here (see check:utilities).
+  "--ui-dialog-width-md",
+  "--ui-dialog-width-lg",
   "--ui-content-width",
   "--ui-section-gap",
   "--ui-logo-height",
@@ -250,11 +256,21 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // any surface role, so the audit has to cover the cross-product it actually
   // uses, not just the pairs someone happened to think of.
   ["--ui-text-primary", "--ui-bg-elevated"],
+  // The selected day in a Calendar. `accent-subtle` is a fill that carries
+  // TEXT here rather than being decoration, and nothing had put ink on it
+  // before — so nothing had ever measured it.
+  ["--ui-text-primary", "--ui-bg-accent-subtle"],
+  // The grip on a CardSorting row. `elevated` is the only surface a muted ink
+  // sits on that was never audited, because nothing had drawn one there.
+  ["--ui-text-muted", "--ui-bg-elevated"],
   ["--ui-text-primary", "--ui-bg-sunken"],
   ["--ui-text-secondary", "--ui-bg-elevated"],
   ["--ui-text-secondary", "--ui-bg-base"],
   ["--ui-text-muted", "--ui-bg-base"],
   ["--ui-text-muted", "--ui-bg-sunken"],
+  // Second-level nav items. nav-ink and nav-active-ink were already audited;
+  // the muted step was not, and Sidebar is the first thing to render it.
+  ["--ui-nav-ink-muted", "--ui-nav-bg"],
   ["--ui-text-placeholder", "--ui-bg-base"],
   ["--ui-text-placeholder", "--ui-bg-surface"],
   ["--ui-text-on-muted", "--ui-bg-muted"],
@@ -285,6 +301,10 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
  */
 export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableToken]> = [
   ["--ui-border-focus", "--ui-bg-base"],
+  // The outline on a lifted CardSorting row, which sits on `elevated` rather
+  // than on the page. It is the only thing distinguishing a row the user is
+  // holding from one they are not, so 3:1 is the floor it has to clear.
+  ["--ui-border-focus", "--ui-bg-elevated"],
   ["--ui-focus-ring-color", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-surface"],

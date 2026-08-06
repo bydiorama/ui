@@ -104,6 +104,79 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   call site rather than buried in the component.
 - A missing glyph is a gap filed against the icon set — not a reason to import a
   foreign icon.
+- **The component sizes the slot; the icon library does not.** `griddy-icons`
+  renders `width="24" height="24"` as presentation *attributes*, so an
+  unconstrained slot ships 24px whatever the control's size prop says — and the
+  sheet draws 16 at every control size. Set `[&_svg]:size-4` on the part that
+  owns the slot (a CSS rule beats a presentation attribute, so one class is
+  enough). `registry/ui/icon-slot.browser.test.tsx` asserts this across every
+  component that takes an icon; add yours to it.
+
+### The `griddy-icons` naming anomaly
+
+**`X` is not a close icon.** In `griddy-icons`, `X` is the X (formerly Twitter)
+brand wordmark. The cross glyph — the one a close control wants — is **`Close`**
+(and `CloseCircle` for the ringed variant).
+
+This is worth knowing because the name reads as the obvious choice and the
+mistake is invisible until someone looks at a dark screen: brand marks in the
+set hard-code `fill="black"` rather than `currentColor`, so they ignore the ink
+role entirely. A Sheet shipped with `X` as its close control and rendered a
+black wordmark on a charcoal drawer, next to a correctly-lit back arrow.
+
+73 of the ~1160 glyphs are fixed-fill in this way — the brand marks (`Apple`,
+`Android`, `Airbnb`, `Bluesky`, `Xing`, …) plus a handful of others.
+`pnpm check:licensing` resolves every icon imported by distributed source and
+**rejects any whose fill is not `currentColor`**. That gate is as much about
+trademark as rendering: a design system should not redistribute someone else's
+logo inside a component. A consumer who genuinely wants a brand mark imports it
+in their own code, deliberately.
+
+If another griddy name turns out to be similarly misleading, add it here — the
+list is a record of names that mean something other than they appear to.
+
+## 7a. Overlay taxonomy
+
+Four components put content over the page, and the difference between them is
+*how it is dismissed and where it comes from* — not how it looks. The naming
+follows shadcn/ui so a consumer's intuition transfers.
+
+| Component | Comes from | Dismissed by | Use when |
+| --- | --- | --- | --- |
+| **Popover** | Anchored to a trigger | Outside press, Escape | Secondary content that must not take over the page |
+| **Modal** | Centred, scrimmed | Escape, scrim, an explicit action | A decision that must be acknowledged |
+| **Sheet** | The **left or right** edge, full height | Escape, scrim | Navigation and filters on a narrow screen |
+| **Drawer** | The **bottom**, with a drag handle | **Dragging down**, Escape, scrim | A mobile surface the thumb reaches; anything you want to peek at and put back |
+
+Sheet and Drawer are the pair that gets mixed up. They are not `side` variants
+of each other: a Drawer's contract is a *gesture*, which means a handle, a
+velocity threshold and a body that follows the finger. A Sheet has none of
+that, and adding `side="bottom"` to one would produce a Drawer that cannot be
+dragged — the worst of both.
+
+## 7b. What is and is not a Button
+
+The five button types are each either **a fill with a matching edge**
+(`primary`, `danger`) or **an edge on nothing** (`secondary`, `outline`,
+`ghost`). That is not a coincidence to be tidied later — it is the test.
+
+**A fill with NO edge is not a button.** It is page chrome: a menu toggle, a
+back arrow, a calendar's month arrows. It lives in `@/lib/chrome-control` and
+composes onto a real `<button>`.
+
+This rule was written after the same 32px `--ui-bg-elevated` control was
+independently rebuilt four times — Header's menu toggle and avatar frame, the
+Sheet nav group's back button, Calendar's previous/next — because it fitted no
+button type and nobody had a name for it. `check:controls` now refuses a bare
+`<button>` in a component unless the file is allowlisted with a reason, which
+is the moment to ask whether Button should grow instead.
+
+The two edge types differ by conformance, not by taste: `secondary` is a
+hairline (`border-subtle`, 1.47:1 — decorative, and declared as such), while
+`outline` carries a boundary something depends on identifying
+(`border-control`, 3.11:1, SC 1.4.11). Reach for outline when the edge has a
+job; reach for secondary when it is only separating a quiet control from the
+page.
 
 ## 8. Motion
 

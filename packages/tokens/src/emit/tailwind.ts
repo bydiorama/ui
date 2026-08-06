@@ -55,7 +55,19 @@ function utilityName(token: BrandableToken): string | null {
       .replace(/-fg$/, "")}`;
   }
   if (name.startsWith("data-")) return `--color-${name}`;
-  if (name.startsWith("nav-")) return `--color-${name}`;
+  // The nav family is remapped like every other one, for the reason in this
+  // file's header: passing it through produced `bg-nav-bg` and `text-nav-ink`,
+  // which stutter. Nothing consumed these roles until Sidebar, so the omission
+  // had never surfaced.
+  if (name.startsWith("nav-")) {
+    if (name === "nav-bg") return "--color-nav";
+    if (name === "nav-active-bg") return "--color-nav-active";
+    if (name === "nav-border") return "--color-edge-nav";
+    if (name === "nav-ink") return "--color-ink-nav";
+    if (name === "nav-active-ink") return "--color-ink-nav-active";
+    if (name.startsWith("nav-ink-")) return `--color-ink-nav-${name.slice(8)}`;
+    return `--color-${name}`;
+  }
   return null;
 }
 
@@ -115,6 +127,24 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
     );
     if (entries.length) push(`${namespace.replace(/-/g, "")} namespace.`, entries);
   }
+
+  // The nav widths are DIMENSIONS that live in the colour-prefixed nav family,
+  // so `utilityName` correctly refuses them and they had no utility at all —
+  // the same gap `--ui-scrim` had before Modal. Sidebar is the first component
+  // to need them, so they enter the spacing namespace: `w-nav`, `w-nav-rail`.
+  //
+  // The dialog widths join them for a sharper reason. Tailwind v4 resolves
+  // `max-w-<name>` against `--container-*` and falls back to `--spacing-*`;
+  // this system emits no container scale and names its spacing steps `md`/`lg`
+  // — so `max-w-md` compiled to a 12px cap and Modal's two sizes rendered
+  // identically. A purpose-named token cannot be confused for a spacing step,
+  // and `check:utilities` now refuses the bare ones outright.
+  push("Chrome dimensions.", [
+    ["--spacing-nav", "var(--ui-nav-width)"],
+    ["--spacing-nav-rail", "var(--ui-nav-rail-width)"],
+    ["--spacing-dialog-md", "var(--ui-dialog-width-md)"],
+    ["--spacing-dialog-lg", "var(--ui-dialog-width-lg)"],
+  ]);
 
   push(
     "Spacing — the base scale only; stack/inline/inset intents stay CSS-side.",

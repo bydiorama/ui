@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-visual-sensitivity",
+  "date": "2026-08-06",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The visual gate's tolerance was a RATIO of the whole frame, which made a green run evidence about large surfaces only. At the old allowedMismatchedPixelRatio of 0.01 and a ~560x300 frame, that was roughly 1,700 pixels of slack — more than the entire Switch track, so a small control could change completely and the suite stayed green. Tightening to 0.001 was not enough either: moving the Switch thumb 4px still passed, because the region that actually changes is about 64 pixels. It is now allowedMismatchedPixels: 0, absolute. Zero is achievable precisely because these baselines are machine-specific by construction — the same machine renders the same frame identically — and that is the same fact that keeps this project out of CI. Probed by moving the thumb 4px and watching switch AND card-sorting fail in both schemes, then restoring and watching all 30 pass. Taken with the viewport fix earlier the same day, the gate now looks at the whole frame and reacts to a single pixel of it; before, it looked at two thirds of the frame and ignored anything smaller than a control.",
+  "affects": ["gate:visual-regression"],
+  "migration": {
+    "manual": "The visual project now fails on any pixel difference. Regenerate baselines with `pnpm test:visual --update` after any deliberate visual change, and expect it to catch changes it previously waved through."
+  }
+}

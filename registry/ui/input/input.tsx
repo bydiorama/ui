@@ -115,7 +115,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         data-invalid={invalid || undefined}
         data-disabled={isDisabled || undefined}
         className={cn(
+          // 1.5px is the sheet's hairline and it is NOT a mistake that this
+          // computes to 1px in the test browser. Chromium floors a border to
+          // whole DEVICE pixels: at devicePixelRatio 1, anything under 2px
+          // reports 1px; at 2 (where the design was drawn, and where most
+          // users are) it renders as a true 1.5. The CSS is exactly
+          // `border-width: 1.5px` — verified in the compiled sheet — so there
+          // is nothing to fix here, and `border-hairline.browser.test.tsx`
+          // pins the platform behaviour so this is not re-investigated.
           "flex w-full shrink-0 items-center overflow-clip rounded-md border-[1.5px]",
+          // Both icon slots at 16px, as Button sizes its own — see the note
+          // there. griddy's IconBase hard-codes width/height="24", so an
+          // unsized slot rendered every leading and trailing glyph oversize.
+          "[&_svg]:size-4 [&_svg]:shrink-0",
           "transition-[border-color,box-shadow,background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
           "bg-field border-edge-subtle",
           // Hover is DERIVED, not drawn in the sheet: it mirrors Button's
@@ -125,7 +137,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           isDisabled && "bg-sunken",
           // The visible focus indicator. Border colour alone would fail
           // SC 1.4.11 against the resting border, so the ring carries it.
+          // The ring is a box-shadow, and forced-colors mode forces box-shadow
+          // to `none` — so in Windows High Contrast this indicator would simply
+          // not exist. The outline is the fallback; it costs nothing outside
+          // forced colours, where it never applies.
           "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
+          "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
           SIZE[size],
         )}
       >

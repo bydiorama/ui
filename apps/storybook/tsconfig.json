@@ -9,6 +9,7 @@
       "@bydiorama/tokens": ["../../packages/tokens/src/index.ts"],
       "@bydiorama/tokens/*": ["../../packages/tokens/src/*"],
       "@/lib/cn": ["../../registry/lib/cn/cn.ts"],
+      "@/lib/chrome-control": ["../../registry/lib/chrome-control/chrome-control.ts"],
       "@/hooks/use-controllable-state": [
         "../../registry/hooks/use-controllable-state/use-controllable-state.ts"
       ],

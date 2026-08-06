@@ -94,6 +94,10 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-elevated": NEUTRAL[95],
     "--ui-bg-sunken": NEUTRAL[90],
     "--ui-bg-field": NEUTRAL[100],
+    // Theme zero AUTHORS bg-elevated as neutral-95, while the derivation
+    // shifts surface lighter — so the aliased nav fill has to be pinned too,
+    // or it lands nearly white and the current item disappears.
+    "--ui-nav-active-bg": NEUTRAL[95],
     "--ui-gradient-brand": `linear-gradient(in oklab 270deg, ${BLUE[80]} 0%, ${LAVENDER[80]} 50%, ${RED[80]} 100%)`,
     "--ui-bg-muted": NEUTRAL[90],
     "--ui-bg-overlay": NEUTRAL[80],

@@ -15,7 +15,9 @@ export function Valid() {
   return (
     <>
       <Button>Create New</Button>
-      <Button variant="danger" size="lg" shape="rounded">Delete</Button>
+      <Button variant="danger" size="lg" shape="pill">Delete</Button>
+      <Button variant="outline" size="md">Outline</Button>
+      <Button variant="secondary" size="sm" shape="soft">Soft is the default</Button>
       <Button isBusy isFullWidth>Saving…</Button>
       <Button isIconOnly aria-label="Bookmark this brief" icon={<svg />} />
       {/* isBusy and isDisabled are distinct and may legitimately co-occur. */}

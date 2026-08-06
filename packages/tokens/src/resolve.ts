@@ -312,6 +312,26 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     : navStyle === "tinted" ? shiftL(colors.bg, dark ? 0.04 : -0.03)
     : colors.bg;
   const navInk = navStyle === "accent" ? emphasisInk : colors.textPrimary;
+  /**
+   * The rail's active fill, hoisted because the active INK has to be floored
+   * against it. Flooring against the rail instead put `tinted` at 4.36:1 —
+   * under AA — since the ink sits on the tint, not on the rail beneath it.
+   *
+   * `page` steps the rail toward its own ink rather than reusing the elevated
+   * surface: that derivation moves the wrong way in light and produced a
+   * 1.00:1 fill, i.e. no visible current state for any unauthored brand.
+   */
+  const navActiveBg =
+    navStyle === "accent"
+      ? shiftL(accent, awayFromInk * 0.1)
+      : navStyle === "tinted"
+        // A wash of accent over the SAME step `page` takes, not over the bare
+        // rail: 14% of a pale accent on white measured 1.05:1, so the tint
+        // carried the hue but none of the separation. Composited here so the
+        // value is opaque — contrast against a translucent fill is undefined
+        // until something flattens it, and every consumer would have to.
+        ? flatten(withAlpha(accent, 0.14), shiftL(navBg, dark ? 0.06 : -0.04))
+        : shiftL(navBg, dark ? 0.06 : -0.04);
 
   const dangerSolid = legibleOn(INTENT_HUES.danger, colors.bg, 3);
 
@@ -450,17 +470,32 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // Chrome
     "--ui-nav-bg": navBg,
     "--ui-nav-ink": navInk,
-    "--ui-nav-ink-muted": navStyle === "accent" ? withAlpha(navInk, 0.72) : colors.textMuted,
+    // `secondary`, not `muted`: the sheet renders second-level items in
+    // secondary ink, and muted was a step too faint for a whole nav level.
+    "--ui-nav-ink-muted": navStyle === "accent" ? withAlpha(navInk, 0.72) : towardL(colors.textPrimary, colors.textMuted, 0.5),
     "--ui-nav-border": navStyle === "accent" ? withAlpha(navInk, 0.16) : colors.border,
-    "--ui-nav-active-bg":
-      navStyle === "accent"
-        ? shiftL(accent, awayFromInk * 0.1)
-        : withAlpha(accent, navStyle === "tinted" ? 0.14 : 0.1),
+    // Unavailable, and it must READ as unavailable rather than merely quiet:
+    // half-way between the muted ink and the rail itself, so it sits clearly
+    // below --ui-nav-ink-muted without vanishing. WCAG exempts disabled
+    // controls from contrast, which is a permission and not a target.
+    "--ui-nav-ink-disabled": towardL(navInk, navBg, 0.62),
+    "--ui-nav-active-bg": navActiveBg,
     // The active label is TEXT ON THE RAIL, so it clears AA against the rail's
     // own background rather than the page's.
-    "--ui-nav-active-ink": navStyle === "accent" ? navInk : legibleOn(accent, navBg),
+    // Floored against the FILL it sits on, composited first — contrast against
+    // a translucent value is undefined until it is. The sheet used
+    // --ui-text-placeholder here, the faintest role in the scale, which made
+    // the current page less prominent than its unselected siblings.
+    "--ui-nav-active-ink":
+      navStyle === "accent"
+        ? navInk
+        : legibleOn(colors.textPrimary, flatten(navActiveBg, navBg), AA_TEXT),
     "--ui-nav-width": "17rem",
     "--ui-nav-rail-width": "3.5rem",
+    // 26rem is the 416px the Modal sheet draws. lg is DERIVED for
+    // content-heavy dialogs; no second width is drawn.
+    "--ui-dialog-width-md": "26rem",
+    "--ui-dialog-width-lg": "40rem",
     "--ui-content-width": `${clamp(seed.chrome?.contentWidthPx ?? SEED_BOUNDS.contentWidthPx.default, SEED_BOUNDS.contentWidthPx.min, SEED_BOUNDS.contentWidthPx.max)}px`,
     "--ui-section-gap": seed.chrome?.sectionGap ?? "4rem",
     "--ui-logo-height": seed.chrome?.logoHeight ?? "2rem",

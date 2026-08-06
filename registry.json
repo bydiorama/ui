@@ -20,6 +20,18 @@
       ]
     },
     {
+      "name": "chrome-control",
+      "type": "registry:lib",
+      "description": "The 32px chrome control: a square, softly-rounded button filled with --ui-bg-elevated and carrying no edge. Not a Button variant — every button type is either a fill with a matching edge or an edge on nothing, and this is the one shape that is a fill with no edge at all. It belongs to page chrome (a menu toggle, a back arrow, a calendar's month arrows) rather than to the action vocabulary. Exported as one recipe because it was independently reinvented four times before it had a name.",
+      "files": [
+        {
+          "path": "registry/lib/chrome-control/chrome-control.ts",
+          "type": "registry:lib",
+          "target": "lib/chrome-control.ts"
+        }
+      ]
+    },
+    {
       "name": "use-controllable-state",
       "type": "registry:hook",
       "description": "The one implementation of the controlled/uncontrolled pattern (CONVENTIONS §4). Returns [value, setValue] with a referentially stable setter; a controlled component never updates its own state, and switching modes mid-life warns in development instead of silently picking a winner.",
@@ -65,6 +77,26 @@
           "path": "registry/ui/button/button.doc.ts",
           "type": "registry:ui",
           "target": "ui/button.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "header",
+      "type": "registry:ui",
+      "description": "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand switcher and an avatar menu, and calling all of that navigation would make the landmark useless to skip to; the item row names itself. An item is a real <a> when given an href and a <button> otherwise, because the design draws two carrying a chevron that open menus rather than navigate.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/header/header.tsx",
+          "type": "registry:ui",
+          "target": "ui/header.tsx"
+        },
+        {
+          "path": "registry/ui/header/header.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/header.doc.ts"
         }
       ]
     },
@@ -230,6 +262,50 @@
       ]
     },
     {
+      "name": "calendar",
+      "type": "registry:ui",
+      "description": "A month grid for picking one date. Ours rather than a library's (ADR 0012): the hard parts are the ARIA grid and the keyboard contract, and both are decisions this system has to own. One roving tab stop, arrows by day and week, Home/End across the week, PageUp/PageDown by month, and an arrow that walks off the edge carries the grid with it. Month and weekday names come from Intl, so a consumer in another locale gets their own without this library shipping a translation table. Unavailable dates use aria-disabled and stay focusable — a date a screen-reader user cannot reach is one they cannot be told the reason for.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/chrome-control"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/calendar/calendar.tsx",
+          "type": "registry:ui",
+          "target": "ui/calendar.tsx"
+        },
+        {
+          "path": "registry/ui/calendar/calendar.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/calendar.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "card-sorting",
+      "type": "registry:ui",
+      "description": "A reorderable list of cards, with a grip on each row. Reordering works three ways and all three are first-class: a pointer drag, a keyboard lift-and-move (Space to lift, arrows to move, Escape to put it back), and a no-drag pointer path of click-to-lift then click-to-place, which is what WCAG 2.5.7 requires. Every path goes through one move and one polite live region that announces the row's name, its new position and the list's. Built without a drag library (ADR 0012) — the accessible half of this pattern is the half a drag library does not solve.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/button"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/card-sorting/card-sorting.tsx",
+          "type": "registry:ui",
+          "target": "ui/card-sorting.tsx"
+        },
+        {
+          "path": "registry/ui/card-sorting/card-sorting.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/card-sorting.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "checkbox",
       "type": "registry:ui",
       "description": "A binary choice with its label as one control. Supports the mixed/indeterminate state for a parent whose children are partly selected. The whole row is the 24px target; the painted box stays 18px. Controlled or uncontrolled through the shared useControllableState hook.",
@@ -288,6 +364,68 @@
           "path": "registry/ui/progress/progress.doc.ts",
           "type": "registry:ui",
           "target": "ui/progress.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "description": "The primary navigation rail, built from ROWS rather than links: a row becomes an <a> when given an href and is otherwise a plain slot, because the design puts a search field in one and a progress bar in another. Sections carry the second level, optionally collapsible, at the same inset — hierarchy is type and colour, not indentation. The current page is announced through aria-current rather than fill alone. First consumer of the --ui-nav-* role family, so a themed portal re-skins its chrome by re-binding six roles. No roving tabindex and no menu roles — navigation is links, and the browser's own contract is worth more than arrow keys.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/sidebar/sidebar.tsx",
+          "type": "registry:ui",
+          "target": "ui/sidebar.tsx"
+        },
+        {
+          "path": "registry/ui/sidebar/sidebar.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/sidebar.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "drawer",
+      "type": "registry:ui",
+      "description": "A panel that comes up from the bottom and is dismissed by dragging it down. Distinct from Sheet, and the distinction is the GESTURE rather than the geometry: a Sheet is anchored to a side edge and dismissed by scrim or Escape, while a Drawer carries a handle, follows the finger, and closes past a distance or velocity threshold. Base UI supplies the focus trap, scroll lock, Escape and focus restoration (ADR 0012); the drag is ours, with no drag library in the dependency list. The handle is a real button as well as a drag target, which is the single-pointer alternative WCAG 2.5.7 requires.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/drawer/drawer.tsx",
+          "type": "registry:ui",
+          "target": "ui/drawer.tsx"
+        },
+        {
+          "path": "registry/ui/drawer/drawer.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/drawer.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "description": "A panel that slides in from the left or right edge of the screen — the mobile counterpart to a Sidebar, which is what it usually holds. Third component on the Base UI behaviour layer, deliberately Modal's shape because the focus trap, scroll lock, Escape and focus restoration are the same problem; only the panel's position differs. Full height, 80% width capped at the rail's own, with the two INNER corners rounded so it reads as a drawer rather than a modal. It carries no chrome of its own: the design draws the back and close controls inside the navigation's own header band.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/sheet/sheet.tsx",
+          "type": "registry:ui",
+          "target": "ui/sheet.tsx"
+        },
+        {
+          "path": "registry/ui/sheet/sheet.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/sheet.doc.ts"
         }
       ]
     },

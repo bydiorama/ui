@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-nav-roles-alias",
+  "date": "2026-08-05",
+  "item": "system",
+  "kind": "token",
+  "summary": "The --ui-nav-* family now aliases surface roles on the DEFAULT rail, keeping the white-label capability the contract was built for while rendering what the sheet actually draws. The seed already carried a navStyle knob (page | tinted | accent), so branded chrome was never at risk; only `page` changed. nav-ink-muted moves from muted to secondary, since the sheet renders second-level items in secondary ink and muted was a step too faint for a whole nav level. nav-active-ink becomes ordinary primary ink: the sheet used --ui-text-placeholder, the faintest role in the scale, for 'you are here', which made the current page LESS prominent than its unselected siblings. Review then found three defects in the change itself, none visible in theme zero. First, tinted floored its active ink against the RAIL while the ink sits on the tint above it — 4.36:1 light and 4.42:1 dark, both under AA; the ink is now floored against its own composited fill. Second, page derived its active fill from the elevated surface, which shifts the wrong way in light and produced a 1.00:1 fill: no visible current state for any brand that does not author one, hidden in theme zero only because the pin covered it. Third, and caught by the new test rather than by reading, tinted's 14 percent wash of a pale accent over a white rail measured 1.05:1 — the tint carried the hue and none of the separation; it now composites over the same step `page` takes, and is opaque, because contrast against a translucent fill is undefined until something flattens it. A resolver test asserts every navStyle in both schemes gives a current item whose ink clears AA against its own fill and whose fill is distinguishable from the rail.",
+  "affects": ["token:--ui-nav-active-bg", "token:--ui-nav-active-ink", "token:--ui-nav-ink-muted", "component:sidebar"],
+  "migration": {
+    "manual": "Only the default navStyle changes for existing themes: the active fill moves from a 10 percent accent tint to a step of the rail, the active ink to primary, and the muted nav ink from muted to secondary. tinted and accent keep their own treatments. Any theme authoring --ui-nav-active-bg keeps its value."
+  }
+}

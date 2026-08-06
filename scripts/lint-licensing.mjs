@@ -68,6 +68,46 @@ const PAID_SPECIFIERS = new Map([
   ["@gsap/shockingly", "GSAP paid tier"],
 ]);
 
+/**
+ * Icons that cannot take the ink — and are almost always someone's trademark.
+ *
+ * griddy-icons ships ~1160 glyphs, 73 of which hard-code `fill: "black"`
+ * instead of `currentColor`: the brand marks (Apple, Android, Airbnb, Bluesky)
+ * and a handful of others. Two problems, one check.
+ *
+ * The visible one: a hard-coded fill ignores `color` entirely, so the glyph
+ * stays black on a dark surface. A Sheet shipped with griddy's `X` as its
+ * close control — which is the X/Twitter wordmark, not a cross — and it
+ * rendered black-on-charcoal beside a correctly-lit back arrow.
+ *
+ * The one that matters more: distributing a third-party brand mark inside a
+ * UI kit is a trademark question nobody asked, which is exactly the class of
+ * problem this gate exists for. `Close` is the cross glyph; the logos are for
+ * consumers to reach for deliberately, in their own code.
+ */
+const ICON_DIR = join(ROOT, "node_modules/griddy-icons/dist/icons");
+
+function checkIcons(file, source) {
+  if (!existsSync(ICON_DIR)) return; // dependency-free CI runs this before install
+  for (const match of source.matchAll(/import\s*\{([^}]*)\}\s*from\s*["']griddy-icons["']/g)) {
+    for (const raw of match[1].split(",")) {
+      const name = raw.trim().split(/\s+as\s+/)[0]?.trim();
+      if (!name) continue;
+      const glyph = join(ICON_DIR, name, "regular.js");
+      if (!existsSync(glyph)) continue;
+      const fills = [...readFileSync(glyph, "utf8").matchAll(/fill:\s*"([^"]+)"/g)].map((m) => m[1]);
+      const fixed = fills.filter((f) => f !== "currentColor" && f !== "none");
+      if (fixed.length) {
+        errors.push(
+          `${relative(ROOT, file)}: icon "${name}" hard-codes fill "${fixed[0]}" instead of currentColor ` +
+            `— it cannot take the ink colour, and a fixed-fill griddy glyph is almost always a brand mark. ` +
+            `For a close control use "Close".`,
+        );
+      }
+    }
+  }
+}
+
 const FONT_EXT = new Set([".woff", ".woff2", ".ttf", ".otf", ".eot"]);
 const TEXT_EXT = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".css", ".scss", ".json", ".html"]);
 
@@ -109,6 +149,8 @@ function checkText(file) {
       errors.push(`${relative(ROOT, file)}: font-family "${family}" — ${reason}`);
     }
   }
+
+  checkIcons(file, source);
 
   for (const [specifier, reason] of PAID_SPECIFIERS) {
     if (source.includes(`"${specifier}"`) || source.includes(`'${specifier}'`)) {

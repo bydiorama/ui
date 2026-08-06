@@ -26,10 +26,19 @@ interface DismissDetails {
 
 export type ModalSize = "md" | "lg";
 
-/** Widths, not heights: a modal grows with its content and scrolls if it must. */
+/**
+ * Widths, not heights: a modal grows with its content and scrolls if it must.
+ *
+ * These were `max-w-md` and `max-w-xl`, which LOOK like Tailwind's container
+ * scale and are not: v4 falls back to `--spacing-*` when no `--container-*`
+ * exists, so they compiled to 12px and 24px caps. `min-w-80` beat both, and
+ * every modal rendered at 320px whatever its size — with valid CSS, a real
+ * variable, and every gate green. `check:utilities` now refuses a bare
+ * spacing step in a sizing utility.
+ */
 const SIZE = {
-  md: "max-w-md",
-  lg: "max-w-xl",
+  md: "max-w-dialog-md",
+  lg: "max-w-dialog-lg",
 } as const satisfies Record<ModalSize, string>;
 
 export interface ModalProps {
@@ -111,11 +120,20 @@ function ModalTrigger({ children, render, className }: ModalTriggerProps) {
 
 export interface ModalSurfaceProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   size?: ModalSize;
+  /**
+   * Where to portal the dialog. Defaults to `document.body`.
+   *
+   * Theme tokens are INHERITED custom properties, so a surface portalled to
+   * the body leaves any brand scope on a wrapper and paints theme zero. Pass
+   * the themed element to bring it back inside. See the fuller note in
+   * `sheet.tsx` on why this is a prop and not resolved automatically.
+   */
+  container?: HTMLElement | null;
 }
 
-function ModalSurface({ children, className, size = "md", ...rest }: ModalSurfaceProps) {
+function ModalSurface({ children, className, size = "md", container, ...rest }: ModalSurfaceProps) {
   return (
-    <BaseDialog.Portal>
+    <BaseDialog.Portal {...(container ? { container } : {})}>
       {/*
         The scrim is a scheme-only role: a warm 16% veil in light, a heavier
         black in dark. It had no utility until this component needed one.
@@ -139,7 +157,12 @@ function ModalSurface({ children, className, size = "md", ...rest }: ModalSurfac
           // TRANSFORMED ancestor, not the viewport, and Storybook's docs blocks
           // transform their preview — so the dialog took the width of a docs
           // cell instead of the screen.
-          "flex w-full min-w-80 max-w-[calc(100vw-2rem)] flex-col gap-2xl rounded-lg p-lg",
+          //
+          // There is no second max-width here. A `max-w-[calc(100vw-2rem)]`
+          // sat in this list and never once applied: tailwind-merge keeps the
+          // LAST max-width, which is always the size below it. `w-full` is
+          // what actually holds the dialog inside its containing block.
+          "flex w-full min-w-80 flex-col gap-2xl rounded-lg p-lg",
           SIZE[size],
           // bg-surface, not bg-elevated: the scrim already separates the
           // dialog from the page, so the surface carries only the shadow the
@@ -148,7 +171,10 @@ function ModalSurface({ children, className, size = "md", ...rest }: ModalSurfac
           // Long content scrolls inside the dialog rather than the page, which
           // would otherwise scroll behind a fixed, focus-trapped surface.
           "max-h-[calc(100vh-2rem)] overflow-y-auto",
-          "transition-[opacity,transform] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          // `scale`, not `transform`: v4's scale-* sets the standalone `scale`
+          // property, so a list naming transform transitioned nothing and the
+          // dialog snapped in at full size while only opacity eased.
+          "transition-[opacity,scale] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
           "data-[starting-style]:scale-98 data-[ending-style]:scale-98",
           className,

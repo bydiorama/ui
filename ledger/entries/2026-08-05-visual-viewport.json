@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-visual-viewport",
+  "date": "2026-08-05",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Every visual baseline in this repo had been silently cropped since the harness was built. The matrix mounts each case in a 560px frame with 24px padding — 608px wide — and vitest's browser viewport defaults to 414px. `page.elementLocator(el).toMatchScreenshot()` captures only what is VISIBLE, so each PNG stopped at about 450px and nothing to the right of that had ever been compared against anything. Two things were living in the blind spot: Card Sorting's trailing Switch, which is half the point of the row, and Input's trailing icons. A clipped Button in the matrix had been noticed and written off as the frame's own width, which is the tell — a gate whose output looks slightly wrong is usually wrong. The visual project now sets viewport 800x900 and every baseline is regenerated; the numbers move for a second reason too, since the display and title roles are fluid and a wider viewport legitimately makes them larger. Found while adding Card Sorting to the matrix and noticing its Switch was absent from a freshly generated baseline — the component measured correct in the browser at the same moment the picture of it did not show the control at all.",
+  "affects": ["gate:visual-regression"],
+  "migration": {
+    "manual": "All visual baselines are regenerated. A diff against the previous PNGs is expected and is not a component change: the frame is now fully captured and fluid type renders at the wider viewport."
+  }
+}

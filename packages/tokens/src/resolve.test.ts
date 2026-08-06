@@ -314,3 +314,32 @@ test("no fluid type role shrinks below the scale's own floor", () => {
     }
   }
 });
+
+test("every nav style gives a VISIBLE, legible current item, in both schemes", () => {
+  // Both defects this pins were in code that already passed every other gate.
+  // `tinted` floored its active ink against the RAIL while the ink sits on the
+  // tint above it — 4.36:1, under AA. And `page` derived its active fill from
+  // the elevated surface, which moves the wrong way in light: 1.00:1 against
+  // the rail, i.e. no visible current state for any brand that does not author
+  // one. Theme zero's pin hid that; an unauthored seed did not.
+  for (const navStyle of ["page", "tinted", "accent"] as const) {
+    const seed: ThemeSeed = { ...THEME_ZERO, chrome: { ...THEME_ZERO.chrome, navStyle } };
+    const pair = resolveThemePair(seed);
+
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      const rail = theme["--ui-nav-bg"];
+      const fill = flatten(theme["--ui-nav-active-bg"], rail);
+      const where = `${navStyle} (${scheme})`;
+
+      assert.ok(
+        contrastRatio(theme["--ui-nav-active-ink"], fill) >= AA_TEXT - 0.05,
+        `${where}: the current item's ink measures ${contrastRatio(theme["--ui-nav-active-ink"], fill).toFixed(2)}:1 against its own fill`,
+      );
+      assert.ok(
+        contrastRatio(fill, rail) >= 1.1,
+        `${where}: the current item's fill is ${contrastRatio(fill, rail).toFixed(2)}:1 against the rail — indistinguishable`,
+      );
+    }
+  }
+});

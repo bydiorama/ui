@@ -150,7 +150,7 @@ export function Slider({
                 // under SC 1.4.11. The sheet draws the ring for this reason.
                 "border-2 border-accent-legible",
                 "transition-[box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-                "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
+                "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
                 "disabled:border-edge-subtle",
               ),
             })}

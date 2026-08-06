@@ -9,7 +9,7 @@ export const buttonDoc = {
   name: "Button",
   status: "stable",
   summary:
-    "The primary action control. Four variants, three sizes, two shapes, plus icon-only and full-width forms.",
+    "The primary action control. Five types, three sizes, two shapes, five content arrangements. SOFT is the default shape: the design's Rounded Full is the alternative, not the baseline, and having that inverted is why three components appeared to need a button nobody had defined.",
 
   anatomy: [
     { part: "root", slot: "button", notes: "The <button>. Carries variant, size and state data attributes." },
@@ -28,10 +28,10 @@ Button
 
   props: {
     variant: {
-      type: '"primary" | "secondary" | "ghost" | "danger"',
+      type: '"primary" | "secondary" | "outline" | "ghost" | "danger"',
       default: '"primary"',
       notes:
-        "primary is the brand-blue filled action; secondary is the quiet outlined one; ghost has no chrome until hover; danger is the subtle red surface, not a solid red fill.",
+        "primary is the brand-blue filled action; secondary is the quiet edge (border-subtle); outline is the SAME shape with a CONFORMANT edge (border-control, 3.11:1) — the reason to reach for it over secondary is that something depends on identifying its boundary; ghost has no chrome until hover; danger is the subtle red surface, not a solid red fill. Every type is either a fill with a matching edge or an edge on nothing — a fill with NO edge is not a button here, it is the chrome control (`@/lib/chrome-control`).",
     },
     size: {
       type: '"lg" | "md" | "sm"',
@@ -39,16 +39,17 @@ Button
       notes: "44 / 32 / 24px tall. lg is the touch target for primary page actions.",
     },
     shape: {
-      type: '"pill" | "rounded"',
-      default: '"pill"',
-      notes: "The design draws rounded only at sm, but the axis is orthogonal to size.",
+      type: '"soft" | "pill"',
+      default: '"soft"',
+      notes:
+        "soft is the DEFAULT and pill is the alternative — the design calls them Default and Rounded Full. The soft radius SCALES: 4px at sm (the sheet's Small Rounded column), 8px at md and lg (as Header, Sheet and Calendar draw their 32px controls). Only lg is derived; it follows md rather than inventing a third step. This axis shipped INVERTED, with pill as the default, which is why every button placed anywhere came out a pill and the soft control the design actually draws looked like an invention each time it was needed.",
     },
     isDisabled: { type: "boolean", default: "false", notes: "Non-interactive, removed from the tab order." },
     isBusy: {
       type: "boolean",
       default: "false",
       notes:
-        "Keeps focus and stays operable; sets aria-busy. Never swap this for isDisabled during submit. KNOWN GAP: no visual treatment yet — the busy state is unmistakable to assistive tech and invisible to sighted users, which inverts the usual failure. Blocked on the states design sheet; do not invent a spinner ahead of it.",
+        "Keeps focus and stays operable; sets aria-busy. Never swap this for isDisabled during submit. Shows a 16px spinner IN PLACE OF the leading icon rather than beside it, so the button keeps its width and does not shift the layout under a pointer still resting on it; the spinner is aria-hidden because aria-busy already carries the meaning, and it stops turning under prefers-reduced-motion while staying visibly different from the resting icon. DERIVED — the sheet draws no busy state; it shipped as a prop that announced to assistive tech and showed sighted users nothing, which is worse than not having it.",
     },
     isFullWidth: { type: "boolean", default: "false" },
     isIconOnly: {
@@ -57,7 +58,7 @@ Button
       notes: "Requires aria-label — enforced by the prop types, not by review.",
     },
     staticTap: { type: "boolean", default: "false", notes: "Opts out of the press-scale feedback." },
-    icon: { type: "ReactElement", notes: "Slot. Icons come from griddy-icons only." },
+    icon: { type: "ReactElement", notes: "Slot. Icons come from griddy-icons only. The component sizes the slot at 16px, the size the sheet draws at every control size. Without that the glyph arrives at whatever the icon library defaults to — griddy hard-codes width/height=\"24\" as attributes — which rendered every icon 50% oversize." },
     iconEnd: { type: "ReactElement", notes: "Slot." },
   },
 
@@ -95,12 +96,24 @@ Button
     contrastPairs: [
       { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "text", role: "primary label" },
       { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "secondary label" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-base", floor: "text", role: "outline label" },
+      { fg: "--ui-border-subtle", bg: "--ui-bg-base", floor: "decorative", why: "The resting edge of secondary is a hairline that separates a quiet control from the page, not a boundary anything depends on identifying — SC 1.4.11 covers controls whose STATE it conveys, and secondary's state is carried by its ink and its hover. outline exists precisely for the cases that need a boundary at 3:1.", role: "the secondary edge" },
+      { fg: "--ui-border-control", bg: "--ui-bg-base", floor: "non-text", role: "the outline edge" },
       { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "danger label" },
       { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the focus ring" },
     ],
     hitArea:
       "sm is exactly 24px, the WCAG 2.5.8 floor. lg is 44px, the recommended touch target. md sits between at 32px — pair it with generous surrounding space on touch surfaces.",
   },
+
+  /** Open questions for design. Collected by `pnpm design:gaps`. */
+  needsDesign: [
+    "Every button COMPOSED in the file is a pill, while the stated model makes soft the default. The compositions and the model disagree, and one of them needs updating.",
+    "Outline is not drawn — E3V-0 has no Outline row. Its edge is derived as border-control (3.11:1) because that is the step SC 1.4.11 needs from a boundary; confirm the intent.",
+    "The soft radius at lg is derived from md (8px). The sheet draws soft only at sm.",
+    "No busy state is drawn; the spinner is ours.",
+    "Ghost Large draws paddingInline xl where the other three large buttons draw lg. Corrected to lg in Paper — confirm.",
+  ],
 
   motion:
     "Press feedback is scale(--ui-press-scale) with a staticTap opt-out; colour and ring transitions use --ui-duration-fast with --ui-ease-out. Scale is excluded from the transition list so the press snaps. prefers-reduced-motion collapses durations at the token layer and cancels the scale here.",

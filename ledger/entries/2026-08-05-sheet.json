@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-05-sheet",
+  "date": "2026-08-05",
+  "item": "sheet",
+  "kind": "addition",
+  "summary": "Sheet — the mobile drawer, and the third component on the Base UI behaviour layer (ADR 0012). Deliberately Modal's shape rather than a new one: the focus trap, scroll lock, Escape, outside-press and focus restoration are the same problem, and a drawer that solved them again by hand would solve them worse; what differs is only where the panel sits. Full height flush to one edge, 80% width as drawn (256 of 320), floored at that same 256 because a fixed element resolves against the nearest TRANSFORMED ancestor and a percentage silently scopes to a Storybook docs cell, and capped at --ui-nav-width since a Sidebar is what it holds. Only the two INNER corners are rounded — a fully rounded panel leaves four slivers of scrim in the screen corners and reads as a modal, not a drawer — and side flips both the edge and the radius, asserted as a mirror rather than four more numbers. Sheet carries no chrome of its own: the design draws the back and close controls inside the navigation's own header band, so a Sheet-level header would compete with it. `label` is required on the panel because there is no Title part to name it, and a dialog without a name announces as 'dialog' and nothing else. Two design defects pushed back to Paper: the scrim was a raw #98918A29 in all three drawer examples — the exact value of --ui-scrim, which did not exist in the file — and the panel's 1px --ui-neutral-90 border is a raw palette step whose nearest role is a different value, so the panel takes shadow-sm like Modal and the border was dropped rather than transcribed.",
+  "affects": ["component:sheet", "gate:check-utilities", "design:paper-sidebar"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0" }
+}

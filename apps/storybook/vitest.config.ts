@@ -62,6 +62,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),
+      "@/lib/chrome-control": join(root, "registry/lib/chrome-control/chrome-control.ts"),
       "@/hooks/use-controllable-state": join(
         root,
         "registry/hooks/use-controllable-state/use-controllable-state.ts",
@@ -96,6 +97,14 @@ export default defineConfig({
           setupFiles: [join(here, "vitest.setup.ts")],
           browser: {
             ...browser(),
+            // The viewport must be WIDER than the frame the matrix mounts
+            // (560px + 24px padding either side). Vitest's default is 414px,
+            // and `elementLocator().toMatchScreenshot()` captures only what is
+            // visible — so every baseline in this repo was silently cropped at
+            // ~450px for its entire existence, and nothing to the right of
+            // that had ever been compared. Card Sorting's trailing Switch and
+            // Input's trailing icons both sat in the blind spot.
+            viewport: { width: 800, height: 900 },
             // Baselines are a deliberate, COMMITTED artefact. Failure captures
             // are debris and would land in the same folder, so they are turned
             // off here — the diff image in .vitest-attachments is enough, and

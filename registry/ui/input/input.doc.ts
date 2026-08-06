@@ -45,7 +45,7 @@ Input
     isInvalid: { type: "boolean", default: "false", notes: "Only needed when the error is reported elsewhere (a form-level summary); errorText implies it." },
     helperText: { type: "string", notes: "Announced via aria-describedby. Kept alongside an error rather than replaced." },
     errorText: { type: "string", notes: "Presence sets aria-invalid and the danger border. Announced first when both messages exist." },
-    icon: { type: "ReactElement", notes: "Slot. Leading adornment." },
+    icon: { type: "ReactElement", notes: "Slot. Leading adornment. The component sizes the slot at 16px, the size the sheet draws at every control size. Without that the glyph arrives at whatever the icon library defaults to — griddy hard-codes width/height=\"24\" as attributes — which rendered every icon 50% oversize." },
     iconEnd: { type: "ReactElement", notes: "Slot. Trailing adornment — reveal toggle, unit, clear." },
   },
 

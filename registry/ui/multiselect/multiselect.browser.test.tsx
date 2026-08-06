@@ -176,3 +176,24 @@ describe("The multiselect paints the designed surface", () => {
     );
   });
 });
+
+describe("Multiselect's panel stays inside the brand scope", () => {
+  test("the panel portals into the component's OWN root, so it inherits", async () => {
+    const c = mount(
+      <div style={{ "--ui-bg-surface": "rgb(255, 224, 102)" } as React.CSSProperties} id="scope">
+        <Multiselect label="Assets" items={ITEMS} />
+      </div>,
+    );
+    await userEvent.click(trigger());
+    const p = panel()!;
+    // Theme tokens are INHERITED custom properties. Modal, Popover and Sheet
+    // portal to document.body and need a `container` prop to get back inside
+    // a brand scope; this one portals to its own root, which is already there
+    // — so it re-skins with no caller action. Asserted rather than assumed,
+    // because "it portals somewhere sensible" is exactly the kind of claim
+    // that stops being true without anyone noticing.
+    expect(p.closest("#scope")).not.toBeNull();
+    expect(getComputedStyle(p).backgroundColor).toBe("rgb(255, 224, 102)");
+    void c;
+  });
+});

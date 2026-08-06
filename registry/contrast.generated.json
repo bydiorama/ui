@@ -103,6 +103,30 @@
       "role": "secondary label"
     },
     {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.97,
+      "role": "outline label"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.47,
+      "dark": 1.48,
+      "role": "the secondary edge"
+    },
+    {
+      "fg": "--ui-border-control",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.11,
+      "dark": 3.09,
+      "role": "the outline edge"
+    },
+    {
       "fg": "--ui-text-on-danger-subtle",
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
@@ -117,6 +141,32 @@
       "light": 5.96,
       "dark": 4.85,
       "role": "the focus ring"
+    }
+  ],
+  "Calendar": [
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.19,
+      "role": "an unselected day"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-accent-subtle",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.66,
+      "role": "the selected day"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.47,
+      "role": "the weekday headers"
     }
   ],
   "Card": [
@@ -135,6 +185,32 @@
       "light": 1.11,
       "dark": 1.05,
       "role": "the card surface against the page"
+    }
+  ],
+  "CardSorting": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "the row's own content"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.19,
+      "role": "the grip"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.39,
+      "dark": 5.09,
+      "role": "the outline on a lifted or dragging row"
     }
   ],
   "Checkbox": [
@@ -169,6 +245,34 @@
       "light": 17.17,
       "dark": 9.59,
       "role": "the label"
+    }
+  ],
+  "Drawer": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the title and content on the panel"
+    },
+    {
+      "fg": "--ui-bg-sunken",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.22,
+      "dark": 1.44,
+      "role": "the handle bar against the panel"
+    }
+  ],
+  "Header": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "item labels on the bar"
     }
   ],
   "Input": [
@@ -299,6 +403,50 @@
       "light": 5.93,
       "dark": 4.94,
       "role": "the label"
+    }
+  ],
+  "Sheet": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "content on the panel"
+    }
+  ],
+  "Sidebar": [
+    {
+      "fg": "--ui-nav-ink",
+      "bg": "--ui-nav-bg",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "section headings and top-level rows on the rail"
+    },
+    {
+      "fg": "--ui-nav-ink-muted",
+      "bg": "--ui-nav-bg",
+      "floor": "text",
+      "light": 10.66,
+      "dark": 6.97,
+      "role": "second-level item ink"
+    },
+    {
+      "fg": "--ui-nav-active-ink",
+      "bg": "--ui-nav-active-bg",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 7.46,
+      "role": "the current item"
+    },
+    {
+      "fg": "--ui-nav-ink-disabled",
+      "bg": "--ui-nav-bg",
+      "floor": "decorative",
+      "light": 2.63,
+      "dark": 2.63,
+      "role": "a disabled row"
     }
   ],
   "Slider": [

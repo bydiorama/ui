@@ -10,6 +10,7 @@ import {
   type ThemeSeed,
 } from "@bydiorama/tokens";
 
+import { chromeControl } from "@/lib/chrome-control";
 import { Button } from "./button.tsx";
 
 const meta = {
@@ -79,22 +80,73 @@ export const Activation: Story = {
 
 /** Every variant at every size — the sheet's own layout, so a visual diff
  *  against the Paper export is a like-for-like comparison. */
+/**
+ * The full model, laid out the way the design states it: five types x three
+ * sizes x two shapes. It used to show four types and a single soft example,
+ * which is how `outline` and the soft radius at md and lg went unseen — a
+ * combination that is not in Storybook is a combination nobody looks at.
+ */
 export const Matrix: Story = {
   render: () => (
-    <div>
-      {(["primary", "secondary", "ghost", "danger"] as const).map((variant) => (
-        <Row key={variant} label={variant}>
-          {(["lg", "md", "sm"] as const).map((size) => (
-            <Button key={size} variant={variant} size={size}>
-              Create New
-            </Button>
+    <div className="flex flex-col gap-xl">
+      {(["soft", "pill"] as const).map((shape) => (
+        <div key={shape} className="flex flex-col gap-sm">
+          <p className="text-caption text-ink-muted">
+            {shape === "soft" ? "Default — soft radius (4px at sm, 8px above)" : "Rounded Full"}
+          </p>
+          {(["primary", "secondary", "outline", "ghost", "danger"] as const).map((variant) => (
+            <Row key={variant} label={variant}>
+              {(["lg", "md", "sm"] as const).map((size) => (
+                <Button key={size} variant={variant} size={size} shape={shape}>
+                  Create New
+                </Button>
+              ))}
+              <Button variant={variant} size="md" shape={shape} isDisabled>
+                Disabled
+              </Button>
+            </Row>
           ))}
-          <Button variant={variant} size="sm" shape="rounded">
-            Create New
-          </Button>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/** The five content arrangements the model names, at one size and both shapes. */
+export const Contents: Story = {
+  render: () => (
+    <div className="flex flex-col gap-lg">
+      {(["soft", "pill"] as const).map((shape) => (
+        <Row key={shape} label={shape}>
+          <Button shape={shape} icon={<Bookmark />} iconEnd={<Chevron />}>Icon + Text + Icon</Button>
+          <Button shape={shape} icon={<Bookmark />}>Icon + Text</Button>
+          <Button shape={shape} iconEnd={<Chevron />}>Text + Icon</Button>
+          <Button shape={shape}>Text</Button>
+          <Button shape={shape} isIconOnly aria-label="Icon only" icon={<Bookmark />} />
         </Row>
       ))}
     </div>
+  ),
+};
+
+/**
+ * The 32px chrome control — a fill with NO edge, which is the one shape none
+ * of the five button types has. It lives in `@/lib/chrome-control` because
+ * Header, Sheet and Calendar each rebuilt it before it had a name.
+ */
+export const ChromeControl: Story = {
+  render: () => (
+    <Row label="chrome">
+      <button type="button" aria-label="Previous" className={chromeControl()}>
+        <Bookmark />
+      </button>
+      <button type="button" aria-label="Menu" className={chromeControl()}>
+        <Bookmark />
+      </button>
+      <button type="button" aria-label="Unavailable" disabled className={chromeControl()}>
+        <Bookmark />
+      </button>
+    </Row>
   ),
 };
 

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-forced-colors-and-busy",
+  "date": "2026-08-06",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Eleven of twelve components drew their focus indicator with a box-shadow, and forced-colors mode forces box-shadow to `none` — so in Windows High Contrast the focus ring did not merely change colour, it ceased to exist, for exactly the users who most depend on it. Only Button survived, because it draws its ring with an outline, which forced colours re-colours rather than removes. Every box-shadow ring now carries a `forced-colors:outline` fallback that costs nothing outside forced colours, matching each site's own variant — peer-focus-visible on Switch and Checkbox, focus-within on Input, focus-visible elsewhere; a fallback under the wrong variant would never match, which is the quiet way this fix fails. check:utilities now refuses any file that uses shadow-(--ui-focus-ring) without one, probed by stripping it from Switch and watching the gate name the file and the consequence. Separately, Button's isBusy shipped as a prop that set aria-busy and did nothing else: unmistakable to assistive tech and invisible to sighted users, which inverts the usual failure. It now swaps the leading icon for a 16px spinner — a replacement rather than an addition, so the button keeps its width mid-submit and does not shift the layout under a pointer still resting on it. The spinner is aria-hidden, because aria-busy already says it, and it stops turning under prefers-reduced-motion while staying visibly different from the resting icon. DERIVED: the design draws no busy state, and the doc says so.",
+  "affects": ["component:button", "component:input", "component:checkbox", "component:switch", "component:sidebar", "component:tabs", "component:slider", "component:calendar", "component:card-sorting", "component:header", "component:drawer", "component:multiselect", "gate:check-utilities"],
+  "migration": {
+    "manual": "Buttons with isBusy now render a spinner in place of their leading icon. A layout that relied on isBusy being visually inert will change."
+  }
+}

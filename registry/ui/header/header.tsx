@@ -1,0 +1,165 @@
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useId,
+  type HTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+
+import { cn } from "@/lib/cn";
+
+/** Rows inside Header.Nav are list items; controls in Start/End are not. */
+const InNav = createContext(false);
+
+export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+  children: ReactNode;
+}
+
+/**
+ * The page's top bar: leading controls, an optional row of navigation items,
+ * trailing controls.
+ *
+ * A `<header>` rather than a `<div>`, so it is the banner landmark a screen
+ * reader can jump to. It deliberately does NOT wrap its children in a nav —
+ * the bar holds a brand switcher and an avatar menu as well as links, and
+ * calling all of that "navigation" would make the landmark useless. The nav
+ * row names itself (`Header.Nav`).
+ *
+ * Three slots, no layout opinions beyond the bar: what goes in Start and End
+ * is the caller's, exactly as the sheet composes it from Buttons and an
+ * Avatar.
+ */
+const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
+  { children, className, ...rest },
+  ref,
+) {
+  return (
+    <header
+      ref={ref}
+      data-slot="header"
+      className={cn(
+        // 48px tall: py-sm around a 32px control. px-lg, not the sheet's raw
+        // 20px — 20 is off the spacing scale entirely, and the mobile drawing
+        // of this same bar uses 12. Recorded as a design defect.
+        "flex items-center gap-sm px-lg py-sm",
+        "bg-surface text-ink-primary",
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </header>
+  );
+});
+
+export type HeaderStartProps = HTMLAttributes<HTMLDivElement>;
+export type HeaderEndProps = HTMLAttributes<HTMLDivElement>;
+
+/** Leading controls — a brand switcher, a back button. */
+function HeaderStart({ className, ...rest }: HeaderStartProps) {
+  return <div data-slot="header-start" className={cn("flex shrink-0 items-center gap-sm", className)} {...rest} />;
+}
+
+/** Trailing controls — a menu toggle, an avatar. */
+function HeaderEnd({ className, ...rest }: HeaderEndProps) {
+  return <div data-slot="header-end" className={cn("flex shrink-0 items-center gap-sm", className)} {...rest} />;
+}
+
+/**
+ * The flexible gap between regions. The sheet draws it as a named `Spacer`
+ * on both sides of the nav row, which is what centres the row while leaving
+ * the two control groups pinned to their edges.
+ */
+function HeaderSpacer() {
+  return <div data-slot="header-spacer" aria-hidden="true" className="flex-1" />;
+}
+
+export interface HeaderNavProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+  children: ReactNode;
+  /**
+   * Required — a page carries several navigations and `<nav>` landmarks are
+   * indistinguishable without names. The Sidebar's rule, for the same reason.
+   */
+  label: string;
+}
+
+/** The row of navigation items. Hidden below the breakpoint by the caller. */
+function HeaderNav({ children, label, className, ...rest }: HeaderNavProps) {
+  const labelId = useId();
+  return (
+    <nav
+      aria-labelledby={labelId}
+      data-slot="header-nav"
+      className={cn("flex items-center", className)}
+      {...rest}
+    >
+      <span id={labelId} className="sr-only">
+        {label}
+      </span>
+      <ul data-slot="header-nav-list" className="flex list-none items-center gap-md p-xs">
+        <InNav.Provider value={true}>{children}</InNav.Provider>
+      </ul>
+    </nav>
+  );
+}
+
+export interface HeaderItemProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+  children: ReactNode;
+  /** Makes the item a link. Without it the item is a button — the sheet draws
+   *  two that open menus rather than navigate, and they carry a chevron. */
+  href?: string;
+  /**
+   * Marks the current page. Sets aria-current, which is what is announced —
+   * a fill alone conveys nothing (WCAG 1.4.1). DERIVED: the sheet draws every
+   * item in one state, so the current styling is this library's.
+   */
+  isCurrent?: boolean;
+  icon?: ReactElement;
+  /** Trailing slot — the sheet puts a chevron here on the two menu items. */
+  trailing?: ReactElement;
+}
+
+function HeaderItem({ children, href, isCurrent = false, icon, trailing, className, ...rest }: HeaderItemProps) {
+  const inNav = useContext(InNav);
+  const isLink = href !== undefined;
+  const Row = isLink ? "a" : "button";
+
+  const row = (
+    <Row
+      {...(isLink ? { href } : { type: "button" as const })}
+      data-slot="header-item"
+      data-current={isCurrent || undefined}
+      {...(isCurrent ? { "aria-current": "page" as const } : {})}
+      className={cn(
+        // The sheet's 24px pill: p-xs around a 12px label at flat leading.
+        // 24px is SC 2.5.8's floor exactly — see knownGaps.
+        "inline-flex min-h-6 cursor-pointer items-center justify-center gap-xs rounded-full p-xs",
+        "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap no-underline",
+        "text-ink-primary",
+        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "hover:bg-hover",
+        "data-[current]:bg-hover",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+        className,
+      )}
+      {...(rest as HTMLAttributes<HTMLElement>)}
+    >
+      {icon}
+      {children}
+      {trailing}
+    </Row>
+  );
+
+  // `contents` so the <li> adds semantics without a box that changes layout.
+  return inNav ? <li className="contents">{row}</li> : row;
+}
+
+export const Header = Object.assign(HeaderRoot, {
+  Start: HeaderStart,
+  Nav: HeaderNav,
+  Item: HeaderItem,
+  Spacer: HeaderSpacer,
+  End: HeaderEnd,
+});

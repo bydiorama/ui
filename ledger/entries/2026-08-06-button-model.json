@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-button-model",
+  "date": "2026-08-06",
+  "item": "button",
+  "kind": "breaking",
+  "summary": "Button rebuilt against the stated model — five types, three sizes, two shapes, five content arrangements — and the single most consequential correction is that SOFT IS THE DEFAULT. The shape axis shipped inverted, with pill as the default and soft opt-in, so every Button placed anywhere came out fully rounded and the soft control the design actually draws looked like an invention each time it was needed. That one inversion is the whole reason Header, Sheet, Calendar and Card Sorting each hand-rolled a control: none of them could have got it from Button. The soft radius SCALES rather than being one value — 4px at small (the sheet's own Small Rounded column) and 8px at medium and large (as Header, Sheet and Calendar draw their 32px controls); only large is derived, and it follows medium rather than inventing a third step. `outline` joins the type list as a stronger edge on the same transparent ground as secondary, DERIVED because the sheet draws no Outline row: secondary keeps border-subtle and outline takes border-default, the next step up ADR 0010's stack. Two further divergences found by measuring the sheet rather than reading it: the outline is 1.5px at EVERY size and md/sm shipped at ring-1, and large draws paddingInline space-lg where we shipped space-xl (three of the four large buttons agree on lg; Ghost's xl was the outlier and is corrected in Paper). The 32px fill-with-no-edge control is NOT a button type — every button is either a fill with a matching edge or an edge on nothing — so it becomes `@/lib/chrome-control`, one exported recipe replacing four independent reinventions, and Calendar's version gains the --ui-bg-elevated fill it had simply been missing. Card Sorting's grip becomes a real ghost Button (its bespoke radius was the medium soft value at a small size, matching nothing). Banner's dismiss stays bespoke and is allowlisted with its reason: it inherits the banner's intent ink, which every Button variant would override.",
+  "affects": ["component:button", "component:calendar", "component:card-sorting", "lib:chrome-control", "design:paper-button"],
+  "migration": {
+    "manual": "BREAKING: `shape` defaults to `soft` instead of `pill`, and the value `\"rounded\"` is renamed `\"soft\"`. Any button that should stay fully rounded must now say shape=\"pill\" explicitly. Buttons also gain a 1.5px ring at md and sm (was 1px) and large loses 8px of horizontal padding."
+  },
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/E3V-0" }
+}

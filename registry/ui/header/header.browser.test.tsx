@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
 
+import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Header } from "./header.tsx";
 
 let container: HTMLDivElement | null = null;
@@ -157,5 +158,74 @@ describe("Header paints the sheet's bar", () => {
     expect(document.activeElement).toBe(item);
     await Promise.all(item.getAnimations().map((a) => a.finished.catch(() => undefined)));
     expect(getComputedStyle(item).boxShadow).not.toBe("none");
+  });
+});
+
+describe("The navigation collapses into a single menu button", () => {
+  test("MenuButton is a named chrome control, not a ghost button", () => {
+    const c = mount(
+      <Header>
+        <Header.End>
+          <Header.MenuButton label="Open primary navigation" />
+        </Header.End>
+      </Header>,
+    );
+    const b = c.querySelector<HTMLElement>('[data-slot="header-menu-button"]')!;
+    expect(b.tagName).toBe("BUTTON");
+    // "Menu" is not an accessible name — say what it opens.
+    expect(b.getAttribute("aria-label")).toBe("Open primary navigation");
+
+    const style = getComputedStyle(b);
+    // The chrome control: a 32px square FILLED with bg-elevated and no edge.
+    // The stories had this as a ghost Button — transparent, ringless — which
+    // is a different thing the sheet does not draw here.
+    expect(Math.round(b.getBoundingClientRect().width)).toBe(32);
+    expect(Math.round(b.getBoundingClientRect().height)).toBe(32);
+    expect(style.backgroundColor).toBe("rgb(246, 243, 240)");
+    expect(style.borderRadius).toBe("8px");
+  });
+
+  test("it takes the Sheet's disclosure wiring rather than declaring its own", async () => {
+    const c = mount(
+      <Sheet>
+        <Header>
+          <Header.End>
+            <Sheet.Trigger render={<Header.MenuButton label="Open primary navigation" />} />
+          </Header.End>
+        </Header>
+        <Sheet.Panel label="Primary navigation">
+          <a href="#a">One</a>
+        </Sheet.Panel>
+      </Sheet>,
+    );
+    // COMPOSED through `render`, the trigger's own data-slot wins — a part
+    // used as a trigger is targeted by the trigger's slot, not its own. That
+    // is a property of every render slot in this library, not of this button.
+    expect(c.querySelector('[data-slot="header-menu-button"]')).toBeNull();
+    const b = c.querySelector<HTMLElement>('[data-slot="sheet-trigger"]')!;
+    // One source for the disclosure state. A button that declared its own
+    // aria-expanded could disagree with the panel it opens, and nothing would
+    // catch the disagreement.
+    expect(b.getAttribute("aria-expanded")).toBe("false");
+    await userEvent.click(b);
+    expect(b.getAttribute("aria-expanded")).toBe("true");
+    expect(document.querySelector('[data-slot="sheet-panel"]')).not.toBeNull();
+    // It keeps its own name through the render slot.
+    expect(b.getAttribute("aria-label")).toBe("Open primary navigation");
+  });
+
+  test("the bar carries a menu button OR a nav row, and the caller picks", () => {
+    // There is no rail: below the breakpoint the Sidebar is removed, not
+    // narrowed. Which of the two renders is a layout decision, so Header
+    // must not assume either exists.
+    const bar = mount(
+      <Header>
+        <Header.Start><button type="button">Brand</button></Header.Start>
+        <Header.Spacer />
+        <Header.End><Header.MenuButton label="Open primary navigation" /></Header.End>
+      </Header>,
+    );
+    expect(bar.querySelector('[data-slot="header-nav"]')).toBeNull();
+    expect(bar.querySelector('[data-slot="header-menu-button"]')).not.toBeNull();
   });
 });

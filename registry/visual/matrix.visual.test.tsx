@@ -18,6 +18,8 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
 import { Search } from "griddy-icons";
+
+import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
@@ -233,7 +235,8 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
     ui: (
       <Header>
         <Header.Start>
-          <Button variant="ghost" size="md" isIconOnly aria-label="Back" icon={<Search />} />
+          {/* A chrome control, like the menu button — the sheet fills both. */}
+          <button type="button" aria-label="Back" className={chromeControl()}><Search /></button>
         </Header.Start>
         <Header.Spacer />
         <Header.Nav label="Primary">
@@ -243,6 +246,7 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
         </Header.Nav>
         <Header.Spacer />
         <Header.End>
+          <Header.MenuButton label="Open primary navigation" />
           <Avatar name="Mira Vance" size="sm" />
         </Header.End>
       </Header>

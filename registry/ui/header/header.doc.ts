@@ -12,6 +12,7 @@ export const headerDoc = {
     { part: "nav", slot: "header-nav", notes: "A named <nav> wrapping a <ul> of items. gap-md, p-xs." },
     { part: "item", slot: "header-item", notes: "The sheet's 24px pill at 12px bold. An <a> when given href, a <button> otherwise." },
     { part: "spacer", slot: "header-spacer", notes: "flex-1, aria-hidden. The sheet draws one on each side of the nav, which is what centres it." },
+    { part: "menuButton", slot: "header-menu-button", notes: "The control the navigation collapses INTO. A 32px chrome control with the menu glyph and a required label. NOTE: composed through Sheet.Trigger's `render`, the trigger's data-slot replaces this one — target it as `sheet-trigger` there." },
     { part: "end", slot: "header-end", notes: "Trailing controls — a menu toggle, an Avatar." },
   ],
 
@@ -22,7 +23,12 @@ Header
 ├─ Header.Nav            label (required)
 │  └─ Header.Item        href? isCurrent? icon? trailing?
 ├─ Header.Spacer
-└─ Header.End            <Button isIconOnly …/>  <Avatar …/>
+└─ Header.End            <Sheet.Trigger render={<Header.MenuButton label="…" />} />  <Avatar …/>
+
+There is NO rail. Below the breakpoint the Sidebar is REMOVED rather than
+narrowed, and Header.MenuButton is what remains of it — opening the same
+Sidebar inside a Sheet. A rail is a different answer to the same question and
+can arrive later without changing any of this.
   `.trim(),
 
   props: {
@@ -31,6 +37,11 @@ Header
     "Item.isCurrent": { type: "boolean", default: "false", notes: "Sets aria-current=\"page\". DERIVED — the sheet draws every item in one state, so the current styling is this library's; confirm with design." },
     "Item.icon": { type: "ReactElement", notes: "Slot: leading glyph, decorative." },
     "Item.trailing": { type: "ReactElement", notes: "Slot: the sheet puts a chevron here on its two menu items." },
+    "MenuButton.label": {
+      type: "string",
+      required: true,
+      notes: "Required — it is the accessible name, and \"Menu\" is not one. Say what it opens. Pass the button to Sheet.Trigger's `render` so aria-expanded and aria-controls come from the Sheet: a button declaring its own disclosure state can disagree with the panel it opens, and nothing would catch it.",
+    },
   },
 
   do: [
@@ -44,6 +55,7 @@ Header
     "Do not wrap the whole bar in a nav. The banner holds more than navigation, and a landmark that contains everything helps nobody.",
     "Do not convey the current page by fill alone — aria-current is what is announced.",
     "Do not render two Headers as siblings on one page. <header> is the BANNER landmark, a document may have exactly one, and axe fails on the second (landmark-no-duplicate-banner). A Header used as chrome inside a section is fine — the role only applies outside article/aside/main/nav/section.",
+    "Do not draw a narrowed rail as the collapsed state — there is no rail. The Sidebar is removed, and Header.MenuButton is what remains of it.",
     "Do not put the mobile menu's panel here; that is a Sheet, and this bar only holds its trigger.",
   ],
 
@@ -62,6 +74,7 @@ Header
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
+    "No collapsed rail is drawn, so the Sidebar compresses to Header.MenuButton instead. A rail would be a second, different answer — confirm whether it is wanted.",
     "The bar's inline padding is a raw 20px, off the spacing scale, and the design's own mobile bar uses 12. Shipped as 16.",
     "No current state is drawn for a nav item; its fill is derived from --ui-bg-hover.",
   ],

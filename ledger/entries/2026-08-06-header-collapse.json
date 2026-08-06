@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-header-collapse",
+  "date": "2026-08-06",
+  "item": "header",
+  "kind": "addition",
+  "summary": "Header.MenuButton — the control the navigation collapses INTO, and the reason it is a named part rather than an anonymous child is that it carries the whole responsive story. There is no rail: below the breakpoint the Sidebar is not narrowed, it is REMOVED, and this button is what remains of it, opening the same Sidebar inside a Sheet. A rail is a different answer to the same question and can arrive later without changing any of this, which is why the pattern is not built as a step toward one. It renders the shared chrome control — the 32px bg-elevated square the sheet actually draws — where the stories had been using a ghost Button, transparent and ringless, which is a different thing the design does not draw in that bar; the visual matrix carried the same mistake and now shows both the leading control and the menu button on the same recipe. `label` is required because \"Menu\" is not an accessible name, and the button is meant to be passed to Sheet.Trigger's `render` so aria-expanded and aria-controls come from the Sheet: a button declaring its own disclosure state can disagree with the panel it opens and nothing would catch it. One trap found and recorded while wiring it: a part composed through `render` LOSES its own data-slot — Sheet.Trigger's wins, because there is only one element — so the composed button is targetable as `sheet-trigger` and not as `header-menu-button`. That is true of every render slot in this library, and a selector written against the part's own slot silently matches nothing, which reads as the component having failed to render. `check:controls` also learned that a <button> in a file importing chromeControl needs no exemption; it is the sanctioned path, and demanding an allowlist entry for correct code fills the allowlist with things nobody needs to read.",
+  "affects": ["component:header", "lib:chrome-control", "gate:check-controls"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DOY-0" }
+}

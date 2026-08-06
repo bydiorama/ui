@@ -1,6 +1,7 @@
 import {
   createContext,
   forwardRef,
+  type ButtonHTMLAttributes,
   useContext,
   useId,
   type HTMLAttributes,
@@ -8,6 +9,9 @@ import {
   type ReactNode,
 } from "react";
 
+import { Menu } from "griddy-icons";
+
+import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
 
 /** Rows inside Header.Nav are list items; controls in Start/End are not. */
@@ -66,6 +70,46 @@ function HeaderStart({ className, ...rest }: HeaderStartProps) {
 function HeaderEnd({ className, ...rest }: HeaderEndProps) {
   return <div data-slot="header-end" className={cn("flex shrink-0 items-center gap-sm", className)} {...rest} />;
 }
+
+export interface HeaderMenuButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+  /**
+   * Required — it is the accessible name, and "Menu" is not one. Say what it
+   * opens: "Open primary navigation".
+   */
+  label: string;
+}
+
+/**
+ * The control the navigation collapses INTO.
+ *
+ * This is the pattern, not a convenience. There is no collapsed rail: below
+ * the breakpoint the Sidebar is not narrowed, it is removed, and this button
+ * is what remains of it — so it has to carry the whole affordance. A rail can
+ * be introduced later without changing this, because a rail is a different
+ * answer to the same question rather than a step on the way to one.
+ *
+ * It renders the chrome control, which is what the sheet draws for it: a 32px
+ * square filled with --ui-bg-elevated and no edge. Forwarded and spread, so
+ * `<Sheet.Trigger render={<Header.MenuButton label="…" />} />` gets its ARIA
+ * wiring — aria-expanded and aria-controls — from the Sheet rather than from
+ * a second source that could disagree with it.
+ */
+const HeaderMenuButton = forwardRef<HTMLButtonElement, HeaderMenuButtonProps>(
+  function HeaderMenuButton({ label, className, type = "button", ...rest }, ref) {
+    return (
+      <button
+        ref={ref}
+        type={type}
+        data-slot="header-menu-button"
+        aria-label={label}
+        className={chromeControl(className)}
+        {...rest}
+      >
+        <Menu />
+      </button>
+    );
+  },
+);
 
 /**
  * The flexible gap between regions. The sheet draws it as a named `Spacer`
@@ -161,5 +205,6 @@ export const Header = Object.assign(HeaderRoot, {
   Nav: HeaderNav,
   Item: HeaderItem,
   Spacer: HeaderSpacer,
+  MenuButton: HeaderMenuButton,
   End: HeaderEnd,
 });

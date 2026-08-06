@@ -94,6 +94,11 @@ for (const file of walk(join(ROOT, "registry/ui"))) {
   if (rel === "registry/ui/button/button.tsx") continue;
   const source = stripComments(readFileSync(file, "utf8"));
   if (!CONTROL.test(source)) continue;
+  // A `<button>` styled with the shared recipe IS the sanctioned path — the
+  // gate's own error message says so. Without this it would demand an
+  // allowlist entry for doing exactly the right thing, and an allowlist that
+  // fills up with correct code stops being read.
+  if (/chromeControl/.test(source)) continue;
   if (ALLOWED.has(rel)) continue;
   errors.push(
     `${rel}: renders a bare <button>. Use Button, or the shared chrome control ` +

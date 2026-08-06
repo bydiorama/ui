@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ArrowLeft, ChevronDown, Grid, Menu } from "griddy-icons";
+import { ArrowLeft, ChevronDown, Grid } from "griddy-icons";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
+import { chromeControl } from "@/lib/chrome-control";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
-import { Button } from "@/ui/button/button.tsx";
+import { Sheet } from "@/ui/sheet/sheet.tsx";
+import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 import { Header } from "./header.tsx";
 
 const meta = {
@@ -24,8 +26,8 @@ type Story = StoryObj<typeof meta>;
 const Desktop = ({ label = "Primary" }: { label?: string }) => (
   <Header>
     <Header.Start>
-      <Button variant="ghost" size="md" isIconOnly aria-label="Switch brand" icon={<Grid />} />
-      <Button variant="ghost" size="md" isIconOnly aria-label="Back" icon={<ArrowLeft />} />
+      <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
+      <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
     </Header.Start>
     <Header.Spacer />
     <Header.Nav label={label}>
@@ -38,7 +40,7 @@ const Desktop = ({ label = "Primary" }: { label?: string }) => (
     </Header.Nav>
     <Header.Spacer />
     <Header.End>
-      <Button variant="ghost" size="md" isIconOnly aria-label="Open menu" icon={<Menu />} />
+      <Header.MenuButton label="Open primary navigation" />
       <Avatar name="Mira Vance" size="sm" />
     </Header.End>
   </Header>
@@ -50,12 +52,12 @@ const Mobile = () => (
   <div className="w-80">
     <Header className="px-md">
       <Header.Start>
-        <Button variant="ghost" size="md" isIconOnly aria-label="Switch brand" icon={<Grid />} />
-        <Button variant="ghost" size="md" isIconOnly aria-label="Back" icon={<ArrowLeft />} />
+        <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
+        <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
       </Header.Start>
       <Header.Spacer />
       <Header.End>
-        <Button variant="ghost" size="md" isIconOnly aria-label="Open menu" icon={<Menu />} />
+        <Header.MenuButton label="Open primary navigation" />
       </Header.End>
     </Header>
   </div>
@@ -86,7 +88,7 @@ export const States: Story = {
       <section>
       <Header>
         <Header.Start>
-          <Button variant="ghost" size="md" isIconOnly aria-label="Switch brand" icon={<Grid />} />
+          <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
         </Header.Start>
         <Header.Spacer />
         <Header.Nav label="Nothing current">
@@ -138,4 +140,46 @@ export const BrandThemed: Story = {
       </div>
     );
   },
+};
+
+/**
+ * What the navigation collapses INTO.
+ *
+ * There is no rail. Below the breakpoint the Sidebar is not narrowed, it is
+ * removed, and Header.MenuButton is what remains of it — opening the same
+ * Sidebar inside a Sheet. The two are one decision, which is why they belong
+ * in one story: a bar with a menu button and no panel behind it is the most
+ * common way this pattern ships broken.
+ *
+ * `Sheet.Trigger render={…}` wires aria-expanded and aria-controls onto the
+ * button from the Sheet, so the disclosure state has exactly one source.
+ */
+export const CollapsesToMenuButton: Story = {
+  render: () => (
+    <div className="w-80">
+      <Sheet>
+        <section>
+          <Header className="px-md">
+            <Header.Start>
+              <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
+              <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
+            </Header.Start>
+            <Header.Spacer />
+            <Header.End>
+              <Sheet.Trigger render={<Header.MenuButton label="Open primary navigation" />} />
+            </Header.End>
+          </Header>
+        </section>
+        <Sheet.Panel label="Primary navigation">
+          <Sidebar label="Primary" className="h-full w-full rounded-none">
+            <Sidebar.Section label="Brand" isCollapsible>
+              <Sidebar.Item href="#guidelines" isCurrent>Brand Guidelines</Sidebar.Item>
+              <Sidebar.Item href="#assets">Assets</Sidebar.Item>
+            </Sidebar.Section>
+            <Sidebar.Item href="#exports">Exports</Sidebar.Item>
+          </Sidebar>
+        </Sheet.Panel>
+      </Sheet>
+    </div>
+  ),
 };

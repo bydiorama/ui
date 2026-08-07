@@ -59,3 +59,18 @@ because taking an idea without saying where it came from is its own problem.
 - **[OKLab / OKLCH](https://bottosson.github.io/posts/oklab/)** — Björn
   Ottosson's colour space and published reference transforms, which
   `packages/tokens/src/color.ts` implements.
+
+## Trademarks
+
+Every name above is used **nominatively** — to say truthfully what informed
+this work. Product and company names are the trademarks of their owners, and a
+copyright licence grants no trademark rights: MIT licenses the code, never the
+name. Nothing here implies sponsorship, endorsement or affiliation, and none
+of these projects has reviewed or approved this one.
+
+Practically, that means: word marks only, never a logo or a stylised wordmark;
+never one of these names in a package name, repository name, npm scope, domain
+or headline; and factual claims about someone else's project stay checkable —
+ADR 0012's statement that Astryx ships no third-party behaviour dependency was
+verified against its published `package.json` on 2026-08-07 (one dependency,
+`intl-messageformat`; StyleX and React as peers).

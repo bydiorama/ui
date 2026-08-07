@@ -107,7 +107,8 @@ interface ButtonBaseProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
  * An icon-only button MUST carry an accessible name. Making that a type error
  * rather than a lint rule or a doc note is the cheapest place to catch it —
  * the failure is invisible in every visual check and total for a screen-reader
- * user (Astryx: typed APIs beat prompt docs).
+ * user. A typed API beats a documented one, because a doc is advisory and a
+ * type is not.
  */
 interface IconOnlyProps {
   isIconOnly: true;

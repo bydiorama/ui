@@ -162,14 +162,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "cn"
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -188,14 +188,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "cn"
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -214,7 +214,7 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0",
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -223,7 +223,7 @@
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react",
+        "@base-ui/react",
         "griddy-icons"
       ],
       "status": "stable"
@@ -243,7 +243,7 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0",
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -251,7 +251,7 @@
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react",
+        "@base-ui/react",
         "griddy-icons"
       ],
       "status": "stable"
@@ -521,7 +521,7 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "cn",
@@ -529,7 +529,7 @@
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -548,14 +548,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "cn"
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -574,14 +574,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "cn"
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -600,14 +600,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "cn"
       ],
       "peerDependencies": [
         "react",
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "status": "stable"
     },

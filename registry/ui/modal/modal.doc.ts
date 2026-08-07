@@ -80,7 +80,6 @@ Modal                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
     "The sheet draws its body as two inline fields; those are Input components at the call site, not part of Modal.",
     "Sizes: the sheet draws one width. md is that width; lg is DERIVED for content-heavy dialogs — confirm with design.",
     "No dark-scheme drawing of the surface or scrim; the resolver derives both.",
-    "Base UI is at 1.0.0-rc.0, pre-stable (ADR 0012 records this deliberately).",
   ],
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GA9-0",

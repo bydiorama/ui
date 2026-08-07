@@ -3,6 +3,10 @@
   "name": "multiselect",
   "type": "registry:ui",
   "description": "A filterable list of options where more than one can be chosen, with the selection shown as removable chips. Listbox/combobox ARIA, aria-multiselectable, active-descendant management, typeahead, filtering and dismissal all come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. The trigger reuses Input's control surface; chips are Badge components with real remove buttons.",
+  "dependencies": [
+    "@base-ui-components/react@1.0.0-rc.0",
+    "griddy-icons@^0.2.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn",
     "@bydiorama/badge"

@@ -3,6 +3,9 @@
   "name": "drawer",
   "type": "registry:ui",
   "description": "A panel that comes up from the bottom and is dismissed by dragging it down. Distinct from Sheet, and the distinction is the GESTURE rather than the geometry: a Sheet is anchored to a side edge and dismissed by scrim or Escape, while a Drawer carries a handle, follows the finger, and closes past a distance or velocity threshold. Base UI supplies the focus trap, scroll lock, Escape and focus restoration (ADR 0012); the drag is ours, with no drag library in the dependency list. The handle is a real button as well as a drag target, which is the single-pointer alternative WCAG 2.5.7 requires.",
+  "dependencies": [
+    "@base-ui-components/react@1.0.0-rc.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn",
     "@bydiorama/use-controllable-state"

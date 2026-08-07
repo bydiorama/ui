@@ -24,6 +24,15 @@ jobs:
       - name: Registry freshness
         run: node scripts/build-registry.mjs --check
 
+      # The registry ships SOURCE, so an undeclared import is a build error in
+      # somebody else's app. `cn` declared clsx and tailwind-merge from the
+      # start, so the mechanism was understood — seven Base UI components just
+      # never got the same treatment, and `peerDependencies` (which the shadcn
+      # schema has no field for, and which was never emitted) made it look
+      # handled.
+      - name: Registry items declare what they import
+        run: node scripts/check-dependencies.mjs
+
       - name: Change ledger
         run: node scripts/validate-ledger.mjs
 

@@ -3,6 +3,9 @@
   "name": "tabs",
   "type": "registry:ui",
   "description": "A segmented control that switches which panel is shown. Compound: List, Tab, Panel. Roving tabindex, arrow navigation, Home/End and the two-way tab-to-panel ARIA pairing come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. Activation is manual: arrows move focus, Enter or Space selects.",
+  "dependencies": [
+    "@base-ui-components/react@1.0.0-rc.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn"
   ],

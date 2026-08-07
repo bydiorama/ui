@@ -3,6 +3,9 @@
   "name": "popover",
   "type": "registry:ui",
   "description": "A panel anchored to a trigger, for secondary content that should not take over the page. Compound: Trigger, Panel, Title, Description, Close. Positioning, focus restoration, dismissal and ARIA wiring come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. Bare text inside the 32px-radius panel is inset one step; boxed children sit flush.",
+  "dependencies": [
+    "@base-ui-components/react@1.0.0-rc.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn"
   ],

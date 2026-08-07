@@ -3,6 +3,9 @@
   "name": "checkbox",
   "type": "registry:ui",
   "description": "A binary choice with its label as one control. Supports the mixed/indeterminate state for a parent whose children are partly selected. The whole row is the 24px target; the painted box stays 18px. Controlled or uncontrolled through the shared useControllableState hook.",
+  "dependencies": [
+    "griddy-icons@^0.2.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn",
     "@bydiorama/use-controllable-state"

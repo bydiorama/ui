@@ -3,6 +3,9 @@
   "name": "sheet",
   "type": "registry:ui",
   "description": "A panel that slides in from the left or right edge of the screen — the mobile counterpart to a Sidebar, which is what it usually holds. Third component on the Base UI behaviour layer, deliberately Modal's shape because the focus trap, scroll lock, Escape and focus restoration are the same problem; only the panel's position differs. Full height, 80% width capped at the rail's own, with the two INNER corners rounded so it reads as a drawer rather than a modal. It carries no chrome of its own: the design draws the back and close controls inside the navigation's own header band.",
+  "dependencies": [
+    "@base-ui-components/react@1.0.0-rc.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn"
   ],

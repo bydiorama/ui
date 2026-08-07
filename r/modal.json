@@ -3,6 +3,9 @@
   "name": "modal",
   "type": "registry:ui",
   "description": "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Compound: Trigger, Surface, Title, Description, Footer, Close. Always modal — a non-modal dialog with a scrim is a Popover. Dismissal by Escape and scrim-click is on by default and can be turned off for unsaved work. Built on the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
+  "dependencies": [
+    "@base-ui-components/react@1.0.0-rc.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn"
   ],

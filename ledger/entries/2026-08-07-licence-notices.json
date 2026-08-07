@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-licence-notices",
+  "date": "2026-08-07",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Licence notices now travel with the material they cover, ahead of making the repository public. CREDITS.md named jakubkrehel/skills as MIT-adapted but reproduced neither the copyright notice nor the permission notice, and MIT requires both to accompany substantial portions. Full texts now live in licenses/. The sharper half: ui-craft is a DISTRIBUTED registry item, so the notice has to reach the consumer, not sit in this repo — its SKILL.md said 'See CREDITS.md in bydiorama/ui', which travels nowhere. First attempt added the licence as a second file in that manifest item — which failed check:skills, because ADR 0013 fixes a distributed skill at exactly one SKILL.md. Embedding the notice at the end of that file is the better answer anyway: it satisfies the existing contract instead of bending it, and makes the notice physically inseparable from the text it covers. The rule this follows is that licences travel with copied BYTES. Only two things here are copied: Jakub Krehel's skill text and the Aspekta font binary. The font was already correct — OFL.txt ships alongside aspekta.css through the manifest, and the item description says to keep them together. Everything else is either an npm dependency, whose licence arrives inside its own package and which we never redistribute, or an idea rather than expression: conventions, API naming and theming approaches carry no copyright, so Astryx, shadcn/ui and the OKLab reference are credited for honesty rather than obligation. The Astryx entry was verified against the live repository (github.com/facebook/astryx, Meta Platforms Inc., MIT) because a wrong attribution is worse than none; the copyright holder is now named precisely.",
+  "affects": [
+    "credits",
+    "registry:ui-craft",
+    "licensing"
+  ]
+}

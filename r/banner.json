@@ -3,6 +3,9 @@
   "name": "banner",
   "type": "registry:ui",
   "description": "An inline message attached to the surface it belongs to — not a toast, not a dialog. Five intents (neutral, info, success, warning, danger), an optional leading glyph slot and an optional dismiss control whose accessible name is required at the type level. Announces only when isLive is set, so a banner rendered with the page does not talk over the user. Composes inside a Popover panel as a boxed child.",
+  "dependencies": [
+    "griddy-icons@^0.2.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn"
   ],

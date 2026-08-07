@@ -11,7 +11,10 @@ conventions (`CONVENTIONS.md` in `bydiorama/ui`) and its semantic tokens:
 when a rule below names a value, use the token that carries it, not the number.
 
 Adapted for the Diorama design system from **"skills" by Jakub Krehel**
-(github.com/jakubkrehel/skills, MIT). See CREDITS.md in `bydiorama/ui`.
+(github.com/jakubkrehel/skills) — © 2026 Jakub Krehel, MIT. The full licence
+and permission notice are at the end of this file: MIT requires both to travel
+with substantial portions, a distributed skill is exactly one file (ADR 0013),
+and a pointer to another repository's CREDITS.md travels nowhere.
 
 ## Review method
 
@@ -133,3 +136,33 @@ What feels off at 10% speed is what is subtly wrong at full speed.
 | Clickable element with the default arrow cursor | `cursor: pointer` — never inherited, always explicit |
 | `pointer-events: none` on a disabled control | The `disabled` attribute + `enabled:` gated hover, so tooltips survive |
 | Asserting interaction in jsdom | A real browser — jsdom doesn't implement implicit activation |
+
+## Licence
+
+The craft rules above are adapted from "skills" by Jakub Krehel
+(https://github.com/jakubkrehel/skills). Reproduced here rather than linked,
+because MIT requires the copyright notice and the permission notice to
+accompany substantial portions wherever they go — and this file is installed
+into other people's repositories.
+
+MIT License
+
+Copyright (c) 2026 Jakub Krehel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

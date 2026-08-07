@@ -6,6 +6,12 @@ precisely.
 
 ## Adapted material
 
+Full licence texts for everything in this section live in `licenses/`. MIT
+requires the copyright notice **and** the permission notice to travel with
+substantial portions, so naming the licence is not enough on its own — and
+where the adapted material is itself DISTRIBUTED (the `ui-craft` skill), the
+notice is installed beside it rather than left behind in this file.
+
 - **[jakubkrehel/skills](https://github.com/jakubkrehel/skills)** — © 2026
   Jakub Krehel, MIT. The craft rules in
   `registry/skills/ui-craft/SKILL.md` are adapted from the `better-ui`,
@@ -15,10 +21,14 @@ precisely.
   guidance. The interaction tokens `--ui-press-scale`, `--ui-stagger-step`,
   `--ui-hit-area-min` and `--ui-hit-area-touch` encode values from the same
   source. Text was rewritten to reference this system's tokens and
-  conventions.
+  conventions. Licence: `licenses/jakubkrehel-skills.MIT.txt`. The same
+  notice is reproduced at the end of the skill itself, because that file is
+  installed into other repositories and a distributed skill is exactly one
+  file (ADR 0013).
 - **[jakubkrehel/make-interfaces-feel-better](https://github.com/jakubkrehel/make-interfaces-feel-better)**
   — © 2026 Jakub Krehel, MIT. The predecessor of `better-ui`; same principles,
-  credited for completeness.
+  credited for completeness. Licence:
+  `licenses/jakubkrehel-make-interfaces-feel-better.MIT.txt`.
 
 - **[Aspekta](https://github.com/ivodolenc/aspekta)** — © 2025 Ivo Dolenc,
   SIL Open Font License 1.1. The design system's typeface, redistributed as
@@ -27,13 +37,18 @@ precisely.
 
 ## Inspiration (no text or code reused)
 
+Nothing here carries a licence obligation — conventions and ideas are not
+copyrightable expression — so no licence text is reproduced. They are named
+because taking an idea without saying where it came from is its own problem.
+
 - **[jakubkrehel/oklch-skill](https://github.com/jakubkrehel/oklch-skill)** —
   no published license, so nothing was copied. It informed the choice to do
   all perceptual colour work in OKLCH and to fix failing contrast by moving
   lightness while preserving chroma and hue (`legibleOn` in
   `packages/tokens/src/color.ts` — implemented independently from the OKLab
   reference transforms).
-- **[Astryx](https://github.com/facebook/astryx)** (Meta, MIT) — API
+- **[Astryx](https://github.com/facebook/astryx)** — © 2026 Meta Platforms,
+  Inc., MIT (URL, owner and licence verified 2026-08-07). API
   conventions (`is*`/`has*`, `onOpenChange`, `default*`, `isBusy` vs
   `isDisabled`, slot rules), the typed-docs-over-prose stance, and several
   theming ideas (deriving a full palette from seeds, `light-dark()` schemes).

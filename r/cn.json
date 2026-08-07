@@ -4,8 +4,8 @@
   "type": "registry:lib",
   "description": "Class-name composer: merges conditional classes and resolves conflicting Tailwind utilities so a consumer's className always wins over a component's defaults.",
   "dependencies": [
-    "clsx",
-    "tailwind-merge"
+    "clsx@^2.1.1",
+    "tailwind-merge@^3.6.0"
   ],
   "files": [
     {

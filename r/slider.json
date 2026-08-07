@@ -3,6 +3,9 @@
   "name": "slider",
   "type": "registry:ui",
   "description": "A single-value slider in two track heights (20/8px), with an optional label and value. Pointer capture, keyboard stepping, Home/End, RTL and touch come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature — the value is a number, never an array. The control is padded to a 24px target even when the painted track is 8px.",
+  "dependencies": [
+    "@base-ui-components/react@1.0.0-rc.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn"
   ],

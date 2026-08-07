@@ -3,6 +3,9 @@
   "name": "header",
   "type": "registry:ui",
   "description": "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand switcher and an avatar menu, and calling all of that navigation would make the landmark useless to skip to; the item row names itself. Header.MenuButton is the control the navigation COLLAPSES INTO: there is no rail, so below the breakpoint the Sidebar is removed rather than narrowed and this button is what remains of it, opening the same Sidebar inside a Sheet. An item is a real <a> when given an href and a <button> otherwise, because the design draws two carrying a chevron that open menus rather than navigate.",
+  "dependencies": [
+    "griddy-icons@^0.2.0"
+  ],
   "registryDependencies": [
     "@bydiorama/cn",
     "@bydiorama/chrome-control"

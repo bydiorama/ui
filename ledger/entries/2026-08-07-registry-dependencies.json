@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-registry-dependencies",
+  "date": "2026-08-07",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Every registry item now declares the npm packages its files import, and check:dependencies enforces it. The registry distributes SOURCE: a consumer ran the CLI, received ui/modal.tsx, and got a file importing @base-ui-components/react that their app had never installed — no error from us, just a build failure and a stack trace to reverse-engineer. Seven items on the behaviour layer were affected, plus five importing griddy-icons. It was not a design choice: cn declared clsx and tailwind-merge correctly from the start, so the mechanism was understood and these were simply missed. What hid it was a near miss — those items DID declare `peerDependencies` naming @base-ui-components/react, which reads exactly like the problem is handled. But peerDependencies is not part of the shadcn registry-item schema and lib/manifest.mjs never emitted it, so the field was documentation wearing the costume of configuration, which is worse than an empty one. The gate compares imports against what actually SHIPS, and also fails on a dependency declared but never imported (it would be installed into someone else's app for no reason) and on any dependency with no version. Base UI is pinned EXACTLY at 1.0.0-rc.0 rather than with a caret: it is a release candidate, a caret would let a consumer resolve rc.1, and a pre-1.0 RC is precisely where an API moves. ADR 0012 accepted the pre-stable dependency; the exact pin is what makes that acceptance still true at install time six months later. react and react-dom are deliberately never declared — anything consuming a React component library already has React, and pinning one would fight the application's own version. Probed three ways: a removed declaration, an unused one, and an unpinned one.",
+  "affects": ["manifest", "gate:dependencies", "registry:modal", "registry:popover", "registry:drawer", "registry:sheet", "registry:slider", "registry:tabs", "registry:multiselect", "registry:select"],
+  "migration": {
+    "manual": "Installing any Base UI-backed component through a registry CLI now also installs @base-ui-components/react@1.0.0-rc.0. Nothing changes for existing consumers who had already added it by hand."
+  }
+}

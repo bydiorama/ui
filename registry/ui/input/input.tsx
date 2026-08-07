@@ -60,6 +60,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     iconEnd,
     className,
     id,
+    "aria-describedby": consumerDescribedBy,
     ...rest
   },
   ref,
@@ -77,7 +78,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   // Both are announced when both exist: an error rarely makes the guidance
   // irrelevant, and dropping it mid-correction is exactly when it is needed.
   const describedBy =
-    [errorText ? errorId : null, helperText ? helperId : null].filter(Boolean).join(" ") || undefined;
+    [errorText ? errorId : null, helperText ? helperId : null, consumerDescribedBy]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   return (
     // `className` lands on the outermost node (CONVENTIONS §5), not on the
@@ -148,6 +151,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       >
         {icon}
         <input
+          {...rest}
           ref={ref}
           id={inputId}
           data-slot="input"
@@ -164,7 +168,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             "outline-none",
             "disabled:cursor-not-allowed disabled:text-ink-disabled",
           )}
-          {...rest}
         />
         {iconEnd}
       </div>

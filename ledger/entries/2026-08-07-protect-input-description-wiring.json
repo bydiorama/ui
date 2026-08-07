@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-protect-input-description-wiring",
+  "date": "2026-08-07",
+  "item": "input",
+  "kind": "a11y",
+  "summary": "Protect input description wiring",
+  "affects": ["aria:describedby", "aria:invalid", "prop:isDisabled", "prop:isRequired"]
+}

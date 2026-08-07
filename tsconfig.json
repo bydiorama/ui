@@ -34,6 +34,9 @@
       // way out, and a broken cross-item import fails in our CI, not theirs.
       "@/lib/cn": ["./registry/lib/cn/cn.ts"],
       "@/lib/chrome-control": ["./registry/lib/chrome-control/chrome-control.ts"],
+      "@/lib/compose-event-handlers": [
+        "./registry/lib/compose-event-handlers/compose-event-handlers.ts"
+      ],
       "@/hooks/use-controllable-state": [
         "./registry/hooks/use-controllable-state/use-controllable-state.ts"
       ],

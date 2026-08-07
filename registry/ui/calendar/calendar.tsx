@@ -10,6 +10,7 @@ import {
   type HTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import { ChevronLeft, ChevronRight } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
 import { chromeControl } from "@/lib/chrome-control";
@@ -51,6 +52,13 @@ function addMonths(date: Date, months: number): Date {
   // Day 1, so adding a month to the 31st cannot roll into the month after
   // next — `new Date(2026, 0, 31)` plus one month is 3 March, not February.
   return at(date.getFullYear(), date.getMonth() + months, 1);
+}
+
+/** Moves by whole months without letting a long month skip a shorter one. */
+function addMonthsClamped(date: Date, months: number): Date {
+  const target = addMonths(date, months);
+  const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  return at(target.getFullYear(), target.getMonth(), Math.min(date.getDate(), lastDay));
 }
 
 function isSameDay(a: Date | null, b: Date | null): boolean {
@@ -196,8 +204,8 @@ export function Calendar({
       ArrowDown: () => addDays(focusedDate, 7),
       Home: () => addDays(focusedDate, -((focusedDate.getDay() - weekStartsOn + 7) % 7)),
       End: () => addDays(focusedDate, 6 - ((focusedDate.getDay() - weekStartsOn + 7) % 7)),
-      PageUp: () => addDays(addMonths(focusedDate, -1), focusedDate.getDate() - 1),
-      PageDown: () => addDays(addMonths(focusedDate, 1), focusedDate.getDate() - 1),
+      PageUp: () => addMonthsClamped(focusedDate, -1),
+      PageDown: () => addMonthsClamped(focusedDate, 1),
     };
     const move = moves[event.key];
     if (!move) return;
@@ -330,15 +338,11 @@ function NavButton({ label, onClick, direction }: { label: string; onClick: () =
       // --ui-bg-elevated, and the fill was simply missing.
       className={chromeControl()}
     >
-      <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4 shrink-0" fill="currentColor">
-        <path
-          d={
-            direction === "prev"
-              ? "M10.2 13.1 5.1 8l5.1-5.1.7.7L6.5 8l4.4 4.4-.7.7Z"
-              : "M5.8 13.1l-.7-.7L9.5 8 5.1 3.6l.7-.7L10.9 8l-5.1 5.1Z"
-          }
-        />
-      </svg>
+      {direction === "prev" ? (
+        <ChevronLeft size={16} aria-hidden="true" />
+      ) : (
+        <ChevronRight size={16} aria-hidden="true" />
+      )}
     </button>
   );
 }

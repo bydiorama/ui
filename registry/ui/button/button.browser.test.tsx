@@ -87,6 +87,12 @@ describe("Button keyboard contract", () => {
     await userEvent.keyboard("{Enter}");
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  test("the busy contract cannot be undone by a forwarded aria-busy", () => {
+    const forwarded = { "aria-busy": false } as const;
+    const button = mount(<Button isBusy {...forwarded}>Saving…</Button>);
+    expect(button.getAttribute("aria-busy")).toBe("true");
+  });
 });
 
 /**

@@ -42,6 +42,10 @@ const config: StorybookConfig = {
         // the real import graph rather than a Storybook-only one.
         "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),
         "@/lib/chrome-control": join(root, "registry/lib/chrome-control/chrome-control.ts"),
+        "@/lib/compose-event-handlers": join(
+          root,
+          "registry/lib/compose-event-handlers/compose-event-handlers.ts",
+        ),
         "@/hooks/use-controllable-state": join(
           root,
           "registry/hooks/use-controllable-state/use-controllable-state.ts",

@@ -77,7 +77,14 @@ const VARIANT = {
     "bg-danger-subtle ring-danger-border text-ink-on-danger-subtle enabled:hover:bg-danger-subtle-hover",
 } as const satisfies Record<ButtonVariant, string>;
 
-interface ButtonBaseProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled"> {
+interface ButtonBaseProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled" | "aria-busy"> {
+  /**
+   * A composed component may give the atom its higher-level part name, as
+   * CardSorting does for its handle. State and ARIA contracts remain owned by
+   * Button; this one structural attribute is an explicit composition seam.
+   */
+  "data-slot"?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
   /**
@@ -138,14 +145,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     className,
     children,
     type = "button",
+    "data-slot": dataSlot = "button",
     ...rest
   } = props;
 
   return (
     <button
+      {...rest}
       ref={ref}
       type={type}
-      data-slot="button"
+      data-slot={dataSlot}
       data-variant={variant}
       data-size={size}
       disabled={isDisabled}
@@ -197,7 +206,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         "disabled:bg-sunken disabled:text-ink-disabled disabled:ring-edge-subtle",
         className,
       )}
-      {...rest}
     >
       {/*
         A spinner REPLACES the leading icon rather than joining it, so the
@@ -227,15 +235,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
  */
 function Spinner() {
   return (
-    <svg
-      viewBox="0 0 16 16"
+    <span
       aria-hidden="true"
       data-slot="button-spinner"
-      className="size-4 shrink-0 animate-spin motion-reduce:animate-none"
-      fill="none"
-    >
-      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.3" strokeWidth="2" />
-      <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
+      className="size-4 shrink-0 animate-spin rounded-full border-2 border-current/30 border-r-current motion-reduce:animate-none"
+    />
   );
 }

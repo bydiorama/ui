@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-preserve-disabled-sidebar-safety",
+  "date": "2026-08-07",
+  "item": "sidebar",
+  "kind": "a11y",
+  "summary": "Preserve disabled sidebar safety",
+  "affects": ["prop:isDisabled", "event:onClick", "visual:section-icon"]
+}

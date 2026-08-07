@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-add-cancellable-event-composition",
+  "date": "2026-08-07",
+  "item": "compose-event-handlers",
+  "kind": "addition",
+  "summary": "Add cancellable event composition",
+  "affects": ["lib:compose-event-handlers", "event:defaultPrevented"]
+}

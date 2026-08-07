@@ -235,7 +235,7 @@ export const BrandThemed: Story = {
     const Panel = ({ style, title }: { style: React.CSSProperties; title: string }) => (
       <div style={style} className="flex-1 rounded-lg bg-base p-xl">
         <p className="pb-md text-caption text-ink-muted">{title}</p>
-        {(["primary", "secondary", "ghost", "danger"] as const).map((variant) => (
+        {(["primary", "secondary", "outline", "ghost", "danger"] as const).map((variant) => (
           <div key={variant} className="py-xs">
             <Button variant={variant} size="md">
               Create New

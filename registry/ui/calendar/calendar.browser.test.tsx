@@ -106,6 +106,30 @@ describe("The keyboard contract is the ARIA date-picker pattern", () => {
     expect(heading().textContent).toContain("August");
   });
 
+  test("PageDown clamps a 31st to February instead of skipping it", async () => {
+    mount(<Calendar label="Choose a date" defaultMonth={new Date(2026, 0, 1, 12)} />);
+    await focusDay(31);
+    await userEvent.keyboard("{PageDown}");
+    expect(heading().textContent).toContain("February");
+    expect(document.activeElement?.textContent).toBe("28");
+  });
+
+  test("PageDown keeps leap day when February has one", async () => {
+    mount(<Calendar label="Choose a date" defaultMonth={new Date(2028, 0, 1, 12)} />);
+    await focusDay(31);
+    await userEvent.keyboard("{PageDown}");
+    expect(heading().textContent).toContain("February");
+    expect(document.activeElement?.textContent).toBe("29");
+  });
+
+  test("PageUp clamps into the immediately previous month", async () => {
+    mount(<Calendar label="Choose a date" defaultMonth={new Date(2026, 2, 1, 12)} />);
+    await focusDay(31);
+    await userEvent.keyboard("{PageUp}");
+    expect(heading().textContent).toContain("February");
+    expect(document.activeElement?.textContent).toBe("28");
+  });
+
   test("an arrow off the edge of the month CHANGES the month", async () => {
     mount(<Calendar label="Choose a date" defaultMonth={AUGUST} />);
     await focusDay(31);

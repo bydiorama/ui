@@ -16,8 +16,10 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
+import { DragIndicator } from "griddy-icons";
 
 import { Button } from "@/ui/button/button.tsx";
+import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { cn } from "@/lib/cn";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
@@ -91,6 +93,9 @@ function CardSortingRoot({
   defaultOrder,
   onOrderChange,
   className,
+  onPointerMove: onConsumerPointerMove,
+  onPointerUp: onConsumerPointerUp,
+  onPointerCancel: onConsumerPointerCancel,
   ...rest
 }: CardSortingProps) {
   const ids = useMemo(() => childIds(children), [children]);
@@ -232,13 +237,21 @@ function CardSortingRoot({
   return (
     <Sorting.Provider value={value}>
       <ul
+        {...rest}
         aria-label={label}
         data-slot="card-sorting"
         className={cn("flex list-none flex-col gap-sm", className)}
-        onPointerMove={onDragMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        {...rest}
+        onPointerMove={composeEventHandlers(onConsumerPointerMove, onDragMove)}
+        onPointerUp={(event) => {
+          onConsumerPointerUp?.(event);
+          // Ending a drag is cleanup, not optional behaviour: a consumer must
+          // not be able to strand the list in a dragging state.
+          endDrag();
+        }}
+        onPointerCancel={(event) => {
+          onConsumerPointerCancel?.(event);
+          endDrag();
+        }}
       >
         {rendered}
       </ul>
@@ -271,7 +284,7 @@ export interface CardSortingItemProps extends Omit<HTMLAttributes<HTMLLIElement>
   label: string;
 }
 
-function CardSortingItem({ children, id, label, className, ...rest }: CardSortingItemProps) {
+function CardSortingItem({ children, id, label, className, onClick, ...rest }: CardSortingItemProps) {
   const sorting = useSorting("Item");
   const handleId = useId();
   const isLifted = sorting.liftedId === id;
@@ -300,20 +313,21 @@ function CardSortingItem({ children, id, label, className, ...rest }: CardSortin
 
   return (
     <li
+      {...rest}
       ref={(node) => sorting.registerRow(id, node)}
       data-slot="card-sorting-item"
       data-item-label={label}
       data-lifted={isLifted || undefined}
       data-dragging={isDragging || undefined}
       aria-labelledby={handleId}
-      onClick={() => {
+      onClick={composeEventHandlers(onClick, () => {
         // Click-to-place: with something lifted, any row is a destination.
         // This is the no-drag pointer path SC 2.5.7 asks for.
         if (sorting.liftedId && sorting.liftedId !== id) {
           sorting.moveTo(sorting.liftedId, sorting.order.indexOf(id));
           sorting.drop();
         }
-      }}
+      })}
       className={cn(
         "flex items-center gap-sm rounded-lg py-lg pr-lg pl-xs",
         "bg-elevated text-ink-primary",
@@ -325,7 +339,6 @@ function CardSortingItem({ children, id, label, className, ...rest }: CardSortin
         "transition-[outline-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
         className,
       )}
-      {...rest}
     >
       {/*
         A real Button — ghost, small, soft — not a bespoke control. It was
@@ -364,15 +377,7 @@ function CardSortingItem({ children, id, label, className, ...rest }: CardSortin
 
 /** The sheet's six-dot grip, at 16px. */
 function GripIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4 shrink-0" fill="currentColor">
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M9 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm1.5 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 7a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm6-7a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM15 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm1.5 12.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"
-      />
-    </svg>
-  );
+  return <DragIndicator size={16} aria-hidden="true" />;
 }
 
 export const CardSorting = Object.assign(CardSortingRoot, {

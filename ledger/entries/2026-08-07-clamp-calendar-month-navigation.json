@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-clamp-calendar-month-navigation",
+  "date": "2026-08-07",
+  "item": "calendar",
+  "kind": "fix",
+  "summary": "Clamp calendar month navigation",
+  "affects": ["keyboard:PageUp", "keyboard:PageDown", "visual:month-icons"]
+}

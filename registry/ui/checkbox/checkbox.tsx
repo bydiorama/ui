@@ -10,6 +10,7 @@ import {
 import { Check, Minus } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
 export type CheckboxState = "checked" | "unchecked" | "mixed";
@@ -102,8 +103,6 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
-    // Ours first, then the consumer's (CONVENTIONS §5).
-    onChange?.(event);
   };
 
   const state: CheckboxState = isIndeterminate ? "mixed" : checked ? "checked" : "unchecked";
@@ -134,14 +133,14 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
         focusable, tabbable and in the form. `sr-only` clips it instead.
       */}
       <input
+        {...rest}
         ref={setRefs}
         type="checkbox"
         data-slot="input"
         className="peer sr-only"
         checked={checked}
         disabled={isDisabled}
-        onChange={handleChange}
-        {...rest}
+        onChange={composeEventHandlers(onChange, handleChange)}
       />
 
       <span

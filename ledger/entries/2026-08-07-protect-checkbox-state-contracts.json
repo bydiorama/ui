@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-protect-checkbox-state-contracts",
+  "date": "2026-08-07",
+  "item": "checkbox",
+  "kind": "fix",
+  "summary": "Protect checkbox state contracts",
+  "affects": ["prop:isDisabled", "prop:isRequired", "prop:isIndeterminate", "event:onChange"]
+}

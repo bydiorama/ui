@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "compose-event-handlers",
+  "type": "registry:lib",
+  "description": "Composes a consumer event handler with component-owned behaviour. The consumer runs first and may prevent optional internal behaviour with preventDefault; non-cancellable safety invariants stay outside the helper.",
+  "files": [
+    {
+      "path": "registry/lib/compose-event-handlers/compose-event-handlers.ts",
+      "type": "registry:lib",
+      "target": "lib/compose-event-handlers.ts",
+      "content": "/**\n * Composes a consumer handler with behaviour owned by a component.\n *\n * The consumer runs first so `preventDefault()` is the explicit opt-out from\n * optional component behaviour. Invariants that must never be cancelled —\n * preventing navigation from an aria-disabled link, for example — belong in\n * an unconditional wrapper rather than in this helper.\n */\nexport function composeEventHandlers<\n  Event extends { defaultPrevented: boolean; preventDefault(): void },\n>(\n  consumer: ((event: Event) => void) | undefined,\n  internal: (event: Event) => void,\n): (event: Event) => void {\n  return (event) => {\n    consumer?.(event);\n    if (!event.defaultPrevented) internal(event);\n  };\n}\n"
+    }
+  ]
+}

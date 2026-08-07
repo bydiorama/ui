@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
-import type { ReactElement } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactElement } from "react";
 
 import { CardSorting } from "./card-sorting.tsx";
 
@@ -166,6 +166,26 @@ describe("Reordering works three ways, and all three announce", () => {
     // no row to insert before, so the target is the end of the list.
     await dragTo(handles()[0]!, last.bottom + 40);
     expect(labels()).toEqual(["Business cards", "Email signatures", "Dokument test", "Brand guidelines"]);
+  });
+
+  test("consumer pointer handlers are composed without replacing drag behaviour", async () => {
+    const onPointerMove = vi.fn();
+    const onPointerUp = vi.fn((event: ReactPointerEvent) => event.preventDefault());
+    mount(
+      <CardSorting label="Brand assets" onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
+        {ITEMS.map(([id, label]) => (
+          <CardSorting.Item key={id} id={id} label={label}><span>{label}</span></CardSorting.Item>
+        ))}
+      </CardSorting>,
+    );
+    const third = rows()[2]!.getBoundingClientRect();
+    await dragTo(handles()[0]!, third.top + third.height * 0.75);
+    expect(onPointerMove).toHaveBeenCalled();
+    expect(onPointerUp).toHaveBeenCalled();
+    expect(labels()[2]).toBe("Brand guidelines");
+    // Pointer-up cleanup is a safety invariant; preventDefault must not leave
+    // the component stuck in its dragging state.
+    expect(rows().some((row) => row.dataset["dragging"] === "true")).toBe(false);
   });
 
   test("every reorder is ANNOUNCED, with the row's name and its new position", async () => {

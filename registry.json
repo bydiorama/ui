@@ -32,6 +32,18 @@
       ]
     },
     {
+      "name": "compose-event-handlers",
+      "type": "registry:lib",
+      "description": "Composes a consumer event handler with component-owned behaviour. The consumer runs first and may prevent optional internal behaviour with preventDefault; non-cancellable safety invariants stay outside the helper.",
+      "files": [
+        {
+          "path": "registry/lib/compose-event-handlers/compose-event-handlers.ts",
+          "type": "registry:lib",
+          "target": "lib/compose-event-handlers.ts"
+        }
+      ]
+    },
+    {
       "name": "use-controllable-state",
       "type": "registry:hook",
       "description": "The one implementation of the controlled/uncontrolled pattern (CONVENTIONS §4). Returns [value, setValue] with a referentially stable setter; a controlled component never updates its own state, and switching modes mid-life warns in development instead of silently picking a winner.",
@@ -63,7 +75,7 @@
     {
       "name": "button",
       "type": "registry:ui",
-      "description": "The primary action control. Four variants (primary, secondary, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy is visual-only and keeps focus, unlike isDisabled.",
+      "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy is visual-only and keeps focus, unlike isDisabled.",
       "registryDependencies": [
         "@bydiorama/cn"
       ],
@@ -306,6 +318,9 @@
       "name": "calendar",
       "type": "registry:ui",
       "description": "A month grid for picking one date. Ours rather than a library's (ADR 0012): the hard parts are the ARIA grid and the keyboard contract, and both are decisions this system has to own. One roving tab stop, arrows by day and week, Home/End across the week, PageUp/PageDown by month, and an arrow that walks off the edge carries the grid with it. Month and weekday names come from Intl, so a consumer in another locale gets their own without this library shipping a translation table. Unavailable dates use aria-disabled and stay focusable — a date a screen-reader user cannot reach is one they cannot be told the reason for.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
@@ -328,10 +343,14 @@
       "name": "card-sorting",
       "type": "registry:ui",
       "description": "A reorderable list of cards, with a grip on each row. Reordering works three ways and all three are first-class: a pointer drag, a keyboard lift-and-move (Space to lift, arrows to move, Escape to put it back), and a no-drag pointer path of click-to-lift then click-to-place, which is what WCAG 2.5.7 requires. Every path goes through one move and one polite live region that announces the row's name, its new position and the list's. Built without a drag library (ADR 0012) — the accessible half of this pattern is the half a drag library does not solve.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/button"
+        "@bydiorama/button",
+        "@bydiorama/compose-event-handlers"
       ],
       "files": [
         {
@@ -355,7 +374,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/compose-event-handlers"
       ],
       "files": [
         {
@@ -376,7 +396,8 @@
       "description": "A control that takes effect immediately, unlike a Checkbox, which states an intention the surrounding form later submits. A native input with role=switch, so it is announced as on/off rather than checked. The whole row is the 24px target; the track stays 36x20. Controlled or uncontrolled through the shared useControllableState hook.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/compose-event-handlers"
       ],
       "files": [
         {
@@ -415,6 +436,9 @@
       "name": "sidebar",
       "type": "registry:ui",
       "description": "The primary navigation rail, built from ROWS rather than links: a row becomes an <a> when given an href and is otherwise a plain slot, because the design puts a search field in one and a progress bar in another. Sections carry the second level, optionally collapsible, at the same inset — hierarchy is type and colour, not indentation. The current page is announced through aria-current rather than fill alone. First consumer of the --ui-nav-* role family, so a themed portal re-skins its chrome by re-binding six roles. No roving tabindex and no menu roles — navigation is links, and the browser's own contract is worth more than arrow keys.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state"

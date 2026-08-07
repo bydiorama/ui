@@ -66,9 +66,10 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   behave predictably; native props go to the element that owns them (a field's
   `type`/`placeholder`/`value` belong on the `input`, not the wrapper).
   Reaching an inner part from outside is what `data-slot` is for.
-- Merge precedence is fixed: **contract props win**, event handlers are
-  composed (ours runs, then the consumer's, unless the consumer calls
-  `preventDefault`), `className` is merged, `style` is shallow-merged.
+- Merge precedence is fixed: **contract props win**. Event handlers are
+  composed with the consumer first; `preventDefault()` cancels optional
+  component behaviour, while safety invariants still run. `className` is
+  merged and `style` is shallow-merged (ADR 0014).
 
 ## 6. Styling
 

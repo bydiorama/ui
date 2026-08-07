@@ -63,6 +63,20 @@ describe("Switch is a native control that announces as a switch", () => {
     expect(input.checked).toBe(true);
   });
 
+  test("consumer onChange runs before the component reports its state", async () => {
+    const calls: string[] = [];
+    const { track } = mount(
+      <Switch
+        onChange={() => calls.push("consumer")}
+        onCheckedChange={() => calls.push("component")}
+      >
+        Toggle
+      </Switch>,
+    );
+    await userEvent.click(track);
+    expect(calls).toEqual(["consumer", "component"]);
+  });
+
   test("controlled does not move unless the parent moves it", async () => {
     const onCheckedChange = vi.fn();
     const { input, track } = mount(

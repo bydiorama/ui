@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-protect-button-state-contracts",
+  "date": "2026-08-07",
+  "item": "button",
+  "kind": "fix",
+  "summary": "Protect button state contracts",
+  "affects": ["prop:isBusy", "prop:isDisabled", "aria:busy", "slot:data-slot", "visual:busy-indicator"]
+}

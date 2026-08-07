@@ -32,6 +32,18 @@
       "status": "stable"
     },
     {
+      "name": "compose-event-handlers",
+      "type": "lib",
+      "description": "Composes a consumer event handler with component-owned behaviour. The consumer runs first and may prevent optional internal behaviour with preventDefault; non-cancellable safety invariants stay outside the helper.",
+      "files": [
+        {
+          "path": "registry/lib/compose-event-handlers/compose-event-handlers.ts",
+          "target": "lib/compose-event-handlers.ts"
+        }
+      ],
+      "status": "stable"
+    },
+    {
       "name": "use-controllable-state",
       "type": "hook",
       "description": "The one implementation of the controlled/uncontrolled pattern (CONVENTIONS §4). Returns [value, setValue] with a referentially stable setter; a controlled component never updates its own state, and switching modes mid-life warns in development instead of silently picking a winner.",
@@ -65,7 +77,7 @@
     {
       "name": "button",
       "type": "ui",
-      "description": "The primary action control. Four variants (primary, secondary, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy is visual-only and keeps focus, unlike isDisabled.",
+      "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy is visual-only and keeps focus, unlike isDisabled.",
       "files": [
         {
           "path": "registry/ui/button/button.tsx",
@@ -350,13 +362,17 @@
           "target": "ui/calendar.doc.ts"
         }
       ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
       "registryDependencies": [
         "cn",
         "use-controllable-state",
         "chrome-control"
       ],
       "peerDependencies": [
-        "react"
+        "react",
+        "griddy-icons"
       ],
       "status": "stable"
     },
@@ -374,13 +390,18 @@
           "target": "ui/card-sorting.doc.ts"
         }
       ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "button"
+        "button",
+        "compose-event-handlers"
       ],
       "peerDependencies": [
-        "react"
+        "react",
+        "griddy-icons"
       ],
       "status": "stable"
     },
@@ -403,7 +424,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "use-controllable-state"
+        "use-controllable-state",
+        "compose-event-handlers"
       ],
       "peerDependencies": [
         "react",
@@ -427,7 +449,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "use-controllable-state"
+        "use-controllable-state",
+        "compose-event-handlers"
       ],
       "peerDependencies": [
         "react"
@@ -470,12 +493,16 @@
           "target": "ui/sidebar.doc.ts"
         }
       ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
       "registryDependencies": [
         "cn",
         "use-controllable-state"
       ],
       "peerDependencies": [
-        "react"
+        "react",
+        "griddy-icons"
       ],
       "status": "stable"
     },

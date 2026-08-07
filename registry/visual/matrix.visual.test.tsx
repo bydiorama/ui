@@ -36,10 +36,15 @@ import { Button } from "@/ui/button/button.tsx";
 import { Calendar } from "@/ui/calendar/calendar.tsx";
 import { Card } from "@/ui/card/card.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
+import { Drawer } from "@/ui/drawer/drawer.tsx";
 import { Header } from "@/ui/header/header.tsx";
 import { Input } from "@/ui/input/input.tsx";
+import { Modal } from "@/ui/modal/modal.tsx";
+import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.tsx";
+import { Popover } from "@/ui/popover/popover.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
+import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
 import { CardSorting } from "@/ui/card-sorting/card-sorting.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
@@ -53,7 +58,11 @@ let container: HTMLDivElement | null = null;
 let root: Root | null = null;
 
 /** Renders into a themed frame of fixed width, so a diff is layout-stable. */
-function mount(ui: ReactElement, scheme: (typeof SCHEMES)[number]) {
+function mount(
+  ui: ReactElement | ((portalContainer: HTMLDivElement) => ReactElement),
+  scheme: (typeof SCHEMES)[number],
+  isOverlay = false,
+) {
   container = document.createElement("div");
   Object.assign(container.style, toStyleObject(PAIR)[scheme] as unknown as Record<string, string>, {
     width: "560px",
@@ -61,18 +70,31 @@ function mount(ui: ReactElement, scheme: (typeof SCHEMES)[number]) {
     colorScheme: scheme,
   });
   container.className = "bg-base";
+  if (isOverlay) {
+    // Fixed overlays need a containing block with real dimensions. Without
+    // this, an element screenshot sees only the zero-height portal host while
+    // the surface paints against the browser viewport somewhere outside it.
+    Object.assign(container.style, {
+      height: "640px",
+      overflow: "hidden",
+      position: "relative",
+      transform: "translateZ(0)",
+    });
+  }
   document.body.appendChild(container);
   root = createRoot(container);
   act(() => {
-    root!.render(ui);
+    root!.render(typeof ui === "function" ? ui(container!) : ui);
   });
   return container;
 }
 
 /** Fonts and transitions both move pixels; wait for each before capturing. */
 async function stable(el: Element) {
-  await document.fonts.ready;
-  await Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => undefined)));
+  await act(async () => {
+    await document.fonts.ready;
+    await Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => undefined)));
+  });
 }
 
 afterEach(() => {
@@ -88,12 +110,22 @@ const SELECT_ITEMS: SelectItem[] = [
   { value: "stationery", label: "Stationery" },
 ];
 
-const CASES: Array<{ name: string; ui: ReactElement }> = [
+const MULTISELECT_ITEMS: MultiselectItem[] = [
+  { value: "concept", label: "Brand Concept" },
+  { value: "guidelines", label: "Brand Guidelines" },
+  { value: "stationery", label: "Stationery" },
+];
+
+const CASES: Array<{
+  name: string;
+  ui: ReactElement | ((portalContainer: HTMLDivElement) => ReactElement);
+  isOverlay?: boolean;
+}> = [
   {
     name: "button",
     ui: (
       <div className="flex flex-col gap-md">
-        {(["primary", "secondary", "ghost", "danger"] as const).map((variant) => (
+        {(["primary", "secondary", "outline", "ghost", "danger"] as const).map((variant) => (
           <div key={variant} className="flex items-center gap-md">
             {(["lg", "md", "sm"] as const).map((size) => (
               <Button key={size} variant={variant} size={size} icon={<Search />}>
@@ -112,6 +144,10 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
           {(["lg", "md", "sm"] as const).map((size) => (
             <Button key={size} size={size} isIconOnly aria-label={`Search ${size}`} icon={<Search />} />
           ))}
+        </div>
+        <div className="flex items-center gap-md">
+          <Button shape="soft">Soft corners</Button>
+          <Button shape="pill">Pill shape</Button>
         </div>
       </div>
     ),
@@ -187,6 +223,20 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
           <Select label="md" size="md" items={SELECT_ITEMS} defaultValue="guidelines" />
           <Select label="sm" size="sm" items={SELECT_ITEMS} defaultValue="guidelines" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "multiselect",
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Multiselect label="Services" items={MULTISELECT_ITEMS} />
+        <Multiselect
+          label="Selected services"
+          items={MULTISELECT_ITEMS}
+          defaultValue={["concept", "guidelines"]}
+        />
+        <Multiselect label="Disabled" items={MULTISELECT_ITEMS} isDisabled />
       </div>
     ),
   },
@@ -335,13 +385,80 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
       </div>
     ),
   },
+  {
+    name: "popover",
+    ui: (portalContainer) => (
+      <div className="flex min-h-72 items-center justify-center">
+        <Popover defaultIsOpen>
+          <Popover.Trigger render={<Button>Open popover</Button>} />
+          <Popover.Panel container={portalContainer}>
+            <Popover.Title>Publish this project?</Popover.Title>
+            <Popover.Description>Your public link will update immediately.</Popover.Description>
+            <div className="flex justify-end gap-md">
+              <Button variant="secondary" size="md">Cancel</Button>
+              <Button size="md">Publish</Button>
+            </div>
+          </Popover.Panel>
+        </Popover>
+      </div>
+    ),
+  },
+  {
+    name: "modal",
+    isOverlay: true,
+    ui: (portalContainer) => (
+      <Modal defaultIsOpen>
+        <Modal.Surface container={portalContainer}>
+          <Modal.Title>Create a task</Modal.Title>
+          <Modal.Description>Add a task to the current brand project.</Modal.Description>
+          <Input label="Task name" defaultValue="Prepare brand guidelines" />
+          <Modal.Footer>
+            <Button variant="secondary" size="md">Cancel</Button>
+            <Button size="md">Create task</Button>
+          </Modal.Footer>
+        </Modal.Surface>
+      </Modal>
+    ),
+  },
+  {
+    name: "sheet",
+    isOverlay: true,
+    ui: (portalContainer) => (
+      <Sheet defaultIsOpen>
+        <Sheet.Panel label="Primary navigation" container={portalContainer}>
+          <Sidebar label="Primary" className="h-full w-full rounded-none">
+            <Sidebar.Item href="/agent">Agent</Sidebar.Item>
+            <Sidebar.Item href="/library" isCurrent>Library</Sidebar.Item>
+            <Sidebar.Item href="/work">Work</Sidebar.Item>
+          </Sidebar>
+        </Sheet.Panel>
+      </Sheet>
+    ),
+  },
+  {
+    name: "drawer",
+    isOverlay: true,
+    ui: (portalContainer) => (
+      <Drawer defaultIsOpen>
+        <Drawer.Panel label="Complete profile" container={portalContainer}>
+          <Drawer.Body>
+            <Drawer.Title>Complete your profile</Drawer.Title>
+            <Input label="Studio name" defaultValue="Diorama Studio" />
+          </Drawer.Body>
+          <Drawer.Footer>
+            <Button shape="pill" isFullWidth>Save profile</Button>
+          </Drawer.Footer>
+        </Drawer.Panel>
+      </Drawer>
+    ),
+  },
 ];
 
 describe("visual baselines", () => {
   for (const scheme of SCHEMES) {
-    for (const { name, ui } of CASES) {
+    for (const { name, ui, isOverlay } of CASES) {
       test(`${name} — ${scheme}`, async () => {
-        const el = mount(ui, scheme);
+        const el = mount(ui, scheme, isOverlay);
         await stable(el);
         await expect(page.elementLocator(el)).toMatchScreenshot(`${name}-${scheme}`, {
           // ZERO tolerance, absolute — not a ratio.

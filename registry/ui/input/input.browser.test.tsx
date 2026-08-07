@@ -96,6 +96,22 @@ describe("Input labelling and description", () => {
     expect(input.getAttribute("aria-invalid")).toBe("true");
   });
 
+  test("error wiring wins while consumer descriptions are composed", () => {
+    const { input } = mount(
+      <Input
+        label="Email"
+        errorText="Required"
+        aria-invalid={false}
+        aria-describedby="external-description"
+      />,
+    );
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(input.getAttribute("aria-describedby")?.split(" ")).toEqual([
+      `${input.id}-error`,
+      "external-description",
+    ]);
+  });
+
   test("a valid field carries no aria-invalid and no stale describedby", () => {
     const { input } = mount(<Input label="Email" />);
     expect(input.getAttribute("aria-invalid")).toBeNull();

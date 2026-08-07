@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/cn";
+import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
 interface SwitchOwnProps {
@@ -60,7 +61,6 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
-    onChange?.(event);
   };
 
   return (
@@ -77,6 +77,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       )}
     >
       <input
+        {...rest}
         ref={ref}
         type="checkbox"
         role="switch"
@@ -84,8 +85,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
         className="peer sr-only"
         checked={checked}
         disabled={isDisabled}
-        onChange={handleChange}
-        {...rest}
+        onChange={composeEventHandlers(onChange, handleChange)}
       />
 
       <span

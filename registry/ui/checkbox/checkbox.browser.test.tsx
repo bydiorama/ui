@@ -75,6 +75,20 @@ describe("Checkbox is a real input, so the platform does the work", () => {
     expect(input.checked).toBe(true);
   });
 
+  test("consumer onChange runs before the component reports its state", async () => {
+    const calls: string[] = [];
+    const { control } = mount(
+      <Checkbox
+        onChange={() => calls.push("consumer")}
+        onCheckedChange={() => calls.push("component")}
+      >
+        Accept
+      </Checkbox>,
+    );
+    await userEvent.click(control);
+    expect(calls).toEqual(["consumer", "component"]);
+  });
+
   test("the accessible name comes from the label, with no aria-label", () => {
     const { label, input } = mount(<Checkbox>Accept the terms</Checkbox>);
 

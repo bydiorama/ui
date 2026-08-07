@@ -4,9 +4,11 @@ import {
   useContext,
   useId,
   type HTMLAttributes,
+  type MouseEventHandler,
   type ReactElement,
   type ReactNode,
 } from "react";
+import { ChevronDown } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
 import { useControllableState } from "@/hooks/use-controllable-state";
@@ -249,6 +251,7 @@ function SidebarItem({
   icon,
   trailing,
   className,
+  onClick,
   ...rest
 }: SidebarItemProps) {
   const inSection = useContext(InSection);
@@ -257,20 +260,23 @@ function SidebarItem({
 
   const row = (
     <Row
+      {...(rest as HTMLAttributes<HTMLElement>)}
       {...(href !== undefined ? { href } : {})}
       data-slot="sidebar-item"
       data-current={isCurrent || undefined}
       data-disabled={isDisabled || undefined}
       {...(isCurrent && !isDisabled ? { "aria-current": "page" as const } : {})}
-      {...(isDisabled
-        ? {
-            "aria-disabled": true as const,
-            // Keeps the link role and the tab stop, and stops the navigation.
-            // NOT pointer-events-none, which would take the row out of
-            // hit-testing and kill any tooltip explaining why it is off.
-            onClick: (event: { preventDefault: () => void }) => event.preventDefault(),
-          }
-        : {})}
+      {...(isDisabled ? { "aria-disabled": true as const } : {})}
+      onClick={
+        isDisabled
+          ? ((event) => {
+              // Non-navigation is an invariant rather than optional component
+              // behaviour: a consumer handler cannot re-enable this link.
+              event.preventDefault();
+              onClick?.(event);
+            }) as MouseEventHandler<HTMLElement>
+          : onClick
+      }
       className={cn(
         // The sheet's row: p-md (12+12) around a 16px line at leading-normal
         // (21.6px) measures 45.6 — its drawn 46. min-h-9 (36px) is a floor for
@@ -299,7 +305,6 @@ function SidebarItem({
         isDisabled && "cursor-not-allowed text-ink-nav-disabled",
         className,
       )}
-      {...(rest as HTMLAttributes<HTMLElement>)}
     >
       {isLink || icon || trailing ? (
         <>
@@ -332,20 +337,15 @@ function SidebarSpacer() {
 /** The sheet's 16px chevron. Rotates rather than swapping glyphs. */
 function Chevron({ isOpen }: { isOpen: boolean }) {
   return (
-    <svg
-      viewBox="0 0 16 16"
+    <ChevronDown
+      size={16}
       aria-hidden="true"
       data-slot="sidebar-chevron"
       className={cn(
         "size-4 shrink-0 transition-transform duration-(--ui-duration-fast) ease-(--ui-ease-out)",
         isOpen ? "rotate-180" : "rotate-0",
       )}
-    >
-      <path
-        d="M8 10.693c-.213 0-.427-.08-.59-.243L3.48 6.52l.707-.707L8 9.627l3.813-3.814.707.707-3.93 3.93a.83.83 0 0 1-.59.243Z"
-        fill="currentColor"
-      />
-    </svg>
+    />
   );
 }
 

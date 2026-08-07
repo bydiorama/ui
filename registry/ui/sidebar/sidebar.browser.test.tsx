@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
@@ -356,6 +356,20 @@ describe("A disabled row is announced, not hidden", () => {
     // kills any tooltip explaining why it is off.
     expect(getComputedStyle(row).pointerEvents).not.toBe("none");
     expect(getComputedStyle(row).cursor).toBe("not-allowed");
+  });
+
+  test("a consumer click handler cannot re-enable navigation", () => {
+    const onClick = vi.fn();
+    const c = mount(
+      <Sidebar label="Primary">
+        <Sidebar.Item href="/b" isDisabled onClick={onClick}>Unavailable</Sidebar.Item>
+      </Sidebar>,
+    );
+    const row = c.querySelector<HTMLAnchorElement>("[data-disabled]")!;
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+    expect(row.dispatchEvent(event)).toBe(false);
+    expect(event.defaultPrevented).toBe(true);
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   test("its ink is the RAIL's disabled step, not the page's", () => {

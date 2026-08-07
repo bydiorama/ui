@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-compose-card-sorting-interactions",
+  "date": "2026-08-07",
+  "item": "card-sorting",
+  "kind": "fix",
+  "summary": "Compose card sorting interactions",
+  "affects": ["event:onClick", "event:onPointerMove", "event:onPointerUp", "event:onPointerCancel", "visual:drag-icon"]
+}

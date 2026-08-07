@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-protect-switch-state-contracts",
+  "date": "2026-08-07",
+  "item": "switch",
+  "kind": "fix",
+  "summary": "Protect switch state contracts",
+  "affects": ["prop:isDisabled", "prop:isRequired", "event:onChange"]
+}

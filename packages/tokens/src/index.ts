@@ -58,5 +58,9 @@ export type { Rgb, Oklch } from "./color.ts";
 export { toTailwindTheme } from "./emit/tailwind.ts";
 export type { TailwindOptions } from "./emit/tailwind.ts";
 
-// Still to come in this phase's tail: TS-constant emitter and the Paper/Figma
-// payloads.
+// TypeScript-constants emitter — for contexts with no CSS variable
+// resolution (email HTML, PDF/canvas, chart palettes).
+export { toTsConstants } from "./emit/ts.ts";
+export type { TsOptions, TsScheme } from "./emit/ts.ts";
+
+// Still to come in this phase's tail: the Paper/Figma payload emitter.

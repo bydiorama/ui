@@ -70,6 +70,7 @@ Design:
 - [ ] Table
 - [ ] Table Line Items
 - [ ] Tabs Underlined
+- [ ] Text Area
 - [ ] Toast
 - [ ] Tooltip
 - [ ] Weight Allocator

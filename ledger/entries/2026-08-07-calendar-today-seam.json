@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-calendar-today-seam",
+  "date": "2026-08-07",
+  "item": "calendar",
+  "kind": "addition",
+  "summary": "Calendar takes a `today` prop, defaulting to the real clock. Found by the visual gate failing on two Calendar baselines after a change that touched neither Calendar nor anything it imports: the date had rolled over at midnight and the today ring had moved one cell. The visual case already pinned `defaultMonth` and `defaultValue` with a comment saying a baseline of 'this month' fails tomorrow — the pin was simply incomplete, because the clock is an input the component read without being asked and no prop could override it. That is a scheduled failure, not a flake: it would have turned CI red every single day once the visual project moved onto a runner, and a baseline that rots on a schedule is worse than one that is wrong, because it trains people to re-record without looking. The prop is also the honest hook for a server render or a non-local timezone, where the browser's midnight is not the user's. Tests assert all three behaviours: the prop decides the marked cell, omitting it still tracks the real clock, and a pinned today does not follow the visible month — paging to September clears the ring entirely rather than landing it on another cell.",
+  "affects": ["registry:calendar", "gate:visual-regression"],
+  "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CZN-0"
+}

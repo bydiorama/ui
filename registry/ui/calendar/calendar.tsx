@@ -73,6 +73,19 @@ export interface CalendarProps extends Omit<HTMLAttributes<HTMLDivElement>, "def
   isDateDisabled?: (date: Date) => boolean;
   /** 0 = Sunday, as the sheet draws it. 1 = Monday. */
   weekStartsOn?: 0 | 1;
+  /**
+   * Which day is "today". Defaults to the real clock.
+   *
+   * It exists because the clock is an INPUT this component reads without
+   * being asked, and an untestable one: the visual baseline pinned `month`
+   * and `defaultValue` and still failed the morning after it was recorded,
+   * because the today ring had moved a cell overnight. Anything that renders
+   * differently tomorrow needs a seam, or its test is a scheduled failure.
+   *
+   * Also the honest hook for a server-rendered or non-local timezone, where
+   * the browser's midnight is not the user's.
+   */
+  today?: Date;
 }
 
 export function Calendar({
@@ -85,6 +98,7 @@ export function Calendar({
   onMonthChange,
   isDateDisabled,
   weekStartsOn = 0,
+  today: todayProp,
   className,
   ...rest
 }: CalendarProps) {
@@ -191,7 +205,7 @@ export function Calendar({
     moveFocus(move());
   }
 
-  const today = startOfDay(new Date());
+  const today = startOfDay(todayProp ?? new Date());
 
   return (
     <div

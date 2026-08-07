@@ -10,10 +10,13 @@
  * Each case renders in BOTH schemes, because the resolver derives dark and a
  * role can be right in one and wrong in the other.
  *
- * Baselines are platform-specific (`-chromium-darwin`): font rasterisation
- * differs between macOS and Linux, so a committed macOS baseline cannot pass
- * on a Linux CI runner. This project is therefore deliberately NOT in CI —
- * see `knownGaps` in the ledger entry. It runs via `pnpm test:visual`.
+ * Baselines are platform-specific (`-chromium-darwin` locally,
+ * `-chromium-linux` in CI): font rasterisation differs between the two, so
+ * vitest keeps a set per platform and a macOS PNG is never compared against a
+ * Linux run. CI runs this inside a pinned Playwright container, which is what
+ * makes the Linux set reproducible — `ubuntu-latest` shifts under us and the
+ * comparator is at zero tolerance. Record a Linux set with the "Generate
+ * visual baselines" workflow; run it locally with `pnpm test:visual`.
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
@@ -36,6 +39,7 @@ import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Header } from "@/ui/header/header.tsx";
 import { Input } from "@/ui/input/input.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
+import { Select, type SelectItem } from "@/ui/select/select.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
 import { CardSorting } from "@/ui/card-sorting/card-sorting.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
@@ -77,6 +81,12 @@ afterEach(() => {
   root = null;
   container = null;
 });
+
+const SELECT_ITEMS: SelectItem[] = [
+  { value: "concept", label: "Brand Concept" },
+  { value: "guidelines", label: "Brand Guidelines" },
+  { value: "stationery", label: "Stationery" },
+];
 
 const CASES: Array<{ name: string; ui: ReactElement }> = [
   {
@@ -159,6 +169,28 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
     ),
   },
   {
+    name: "select",
+    // Closed only: the panel is portalled to <body>, so it is outside the
+    // frame this case captures. Its appearance is asserted in the contract
+    // suite instead — radius, fill and the tick on the chosen row.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        {/* Beside an Input at the same size, because the claim is that the
+            two are one surface — a diff here catches them drifting apart in
+            a way no computed-value assertion describes. */}
+        <Input label="Company" placeholder="Diorama" />
+        <Select label="Services" items={SELECT_ITEMS} />
+        <Select label="Chosen" items={SELECT_ITEMS} defaultValue="guidelines" />
+        <Select label="With error" items={SELECT_ITEMS} errorText="Choose a service" />
+        <Select label="Disabled" items={SELECT_ITEMS} isDisabled />
+        <div className="flex items-end gap-md">
+          <Select label="md" size="md" items={SELECT_ITEMS} defaultValue="guidelines" />
+          <Select label="sm" size="sm" items={SELECT_ITEMS} defaultValue="guidelines" />
+        </div>
+      </div>
+    ),
+  },
+  {
     name: "switch",
     ui: (
       <div className="flex flex-col gap-md">
@@ -221,12 +253,16 @@ const CASES: Array<{ name: string; ui: ReactElement }> = [
   },
   {
     name: "calendar",
-    // A FIXED month. A baseline of "this month" fails tomorrow.
+    // A FIXED month, value AND today. Pinning the first two is not enough:
+    // Calendar read the real clock for its today ring, so this baseline
+    // passed the day it was recorded and failed the next morning when the
+    // ring moved one cell. `today` exists as a prop for exactly this.
     ui: (
       <Calendar
         label="Choose a date"
         defaultMonth={new Date(2026, 7, 1, 12)}
         defaultValue={new Date(2026, 7, 3, 12)}
+        today={new Date(2026, 7, 6, 12)}
       />
     ),
   },

@@ -76,6 +76,7 @@ Popover                      isOpen? / defaultIsOpen? / onOpenChange? / isModal?
 
   knownGaps: [
     "Not drawn in the sheet, so DERIVED and marked as such: placement (bottom), 8px offset, collision padding, and the enter/exit transition. Confirm with design.",
+    "The panel is capped to --available-height / --available-width (§7c) so a tall popover cannot run off a short window. Neither the cap nor the resulting internal scroll is drawn — the sheet draws one panel short enough that neither applies.",
     "No arrow. Base UI provides Popover.Arrow; the sheet draws none, so none is exposed yet.",
     "No dark-scheme values for the panel are drawn — the resolver derives them, unverified against a design.",
     "The actions row is composed at the call site rather than being a Popover.Actions part — the sheet sits it flush at the panel padding while title and description take the inset, so it is deliberately not wrapped.",

@@ -32,6 +32,11 @@ Calendar   label (required)
     month: { type: "Date", notes: "Controlled visible month — any date within it will do. Omit and the calendar owns it, starting at the selection or today." },
     onMonthChange: { type: "(month: Date) => void", notes: "Fires for the arrows, PageUp/PageDown, and an arrow that walks off the edge of the month." },
     isDateDisabled: { type: "(date: Date) => boolean", notes: "Marks a date unselectable. It sets aria-disabled and stays FOCUSABLE, so a screen-reader user can still read it — a date they cannot reach is one they cannot be told the reason for." },
+    today: {
+      type: "Date",
+      default: "new Date()",
+      notes: "Which day is marked as today. The clock is an input this component reads without being asked, and an untestable one — the visual baseline pinned month and value and still failed the next morning, because the ring had moved a cell overnight. Also the honest hook for a server render or a non-local timezone.",
+    },
     weekStartsOn: { type: "0 | 1", default: "0", notes: "0 = Sunday, as the sheet draws it. Changing it re-lays the leading blanks, not just the header row." },
   },
 

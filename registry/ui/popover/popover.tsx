@@ -144,6 +144,10 @@ function PopoverPanel({
             // a 32px panel around a 16px well, which was also concentric but
             // read as too round.
             "flex min-w-80 flex-col gap-lg rounded-xl p-lg",
+            // Never larger than the space Base UI measured. Flipping and
+            // shifting reposition a panel; they cannot shrink one, so a tall
+            // popover on a short window runs off the bottom without this (§7c).
+            "max-h-(--available-height) max-w-(--available-width) overflow-y-auto",
             "bg-elevated border border-edge-subtle shadow-md",
             // The panel is the thing that must be identifiable against the
             // page (SC 1.4.11): bg-elevated alone measures 1.11:1 on white,

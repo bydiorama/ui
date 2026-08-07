@@ -429,6 +429,40 @@
       "role": "the label"
     }
   ],
+  "Select": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 15.53,
+      "role": "the chosen value in the trigger"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.54,
+      "role": "the placeholder"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "an option in the panel"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "the highlighted option"
+    }
+  ],
   "Sheet": [
     {
       "fg": "--ui-text-primary",

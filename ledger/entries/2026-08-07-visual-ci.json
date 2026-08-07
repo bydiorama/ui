@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-visual-ci",
+  "date": "2026-08-07",
+  "item": "system",
+  "kind": "decision",
+  "summary": "The visual project now has a CI job, running inside the pinned Playwright container (mcr.microsoft.com/playwright:v1.62.1-noble) rather than on the runner image. The container is the whole point: `ubuntu-latest` moves underneath us and a font package bump alone is enough to shift a glyph, while the comparator sits at allowedMismatchedPixels: 0 where one pixel is a failure. Pinning the image pins the Chromium build and the font set together. Vitest names baselines per platform, so the committed `-chromium-darwin` set is never compared against a Linux run — a second `-chromium-linux` set lives beside it. Recording that second set cannot be done on a Mac without Docker, so it is a manual `workflow_dispatch` workflow that records and uploads them as an artifact for a person to review and commit; deliberately manual, because a job that regenerated baselines automatically would erase the difference between 'the design changed' and 'something broke', which is the entire value of the gate. A new gate, `check:visual-runner`, asserts the image tag matches the playwright version the lockfile resolves — that started as a comment telling people to keep the two in step, and a rule that depends on remembering is not a rule. Its failure mode is the nasty kind: a mismatch makes every case diff at once, so the run is RED and looks like the gate working while it measures the wrong browser. Probed both ways — a bumped tag and a removed pin. NOT YET GREEN: no Linux baselines are committed, so the job fails with an explicit instruction rather than thirty 'no reference screenshot' errors.",
+  "affects": ["gate:visual-regression", "gate:visual-runner", "ci"],
+  "migration": {
+    "manual": "Before the `visual` CI job can pass, run the 'Generate visual baselines' workflow from the Actions tab, download the `visual-baselines-linux` artifact, unzip it over registry/visual/__screenshots__/, review the PNGs and commit them. Bump the image tag in BOTH workflows whenever `playwright` is upgraded — check:visual-runner fails otherwise."
+  }
+}

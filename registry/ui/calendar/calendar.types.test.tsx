@@ -42,3 +42,21 @@ export function Invalid() {
 
   return [a, b, c, d];
 }
+
+export function TodayIsInjectable() {
+  return (
+    <>
+      <Calendar label="Choose a date" today={new Date(2026, 7, 6, 12)} />
+      {/* Omitting it is valid — it falls back to the real clock. */}
+      <Calendar label="Choose a date" />
+    </>
+  );
+}
+
+export function TodayIsADate() {
+  /* @ts-expect-error today is a Date, not a timestamp */
+  const a = <Calendar label="Choose a date" today={1786000000000} />;
+  /* @ts-expect-error today is a Date, not a string */
+  const b = <Calendar label="Choose a date" today="2026-08-06" />;
+  return [a, b];
+}

@@ -55,10 +55,24 @@ jobs:
       - name: Controls come from the library
         run: node scripts/check-controls.mjs
 
+      # Base UI flips and shifts an anchored panel by default, so this looks
+      # handled at a comfortable window size. It cannot SHRINK a panel that is
+      # bigger than its space, and every panel here carried a flat 256px cap
+      # that knew nothing about the viewport.
+      - name: Anchored panels stay in the viewport
+        run: node scripts/check-overlays.mjs
+
       # Reports, never fails. A design gap is a question for a person, and a
       # gate that blocked on one would teach people to stop declaring them.
       # Two components asking for the same thing is the signal — invisible
       # while these lived as prose in separate knownGaps lists.
+      # The visual job records baselines with the Chromium inside its
+      # container and compares against the same. Bump `playwright` without
+      # bumping the image tag and every case diffs at once — a RED run that
+      # looks like the gate working while it measures the wrong browser.
+      - name: Visual runner matches Playwright
+        run: node scripts/check-visual-runner.mjs
+
       - name: Design gaps
         run: node scripts/report-design-gaps.mjs
 
@@ -99,3 +113,67 @@ jobs:
       # runs each story with addon-a11y at error severity.
       - name: Storybook build
         run: pnpm --filter @bydiorama/storybook run build
+
+  # Visual regression, in a CONTAINER rather than on the runner image.
+  #
+  # Baselines are platform-specific by construction: font rasterisation
+  # differs between macOS and Linux, so `-chromium-darwin` PNGs cannot pass
+  # here and vitest writes a separate `-chromium-linux` set. The container is
+  # what makes that second set reproducible — `ubuntu-latest` moves under us
+  # (a font package bump is enough to shift a glyph by a pixel), and the
+  # comparator sits at allowedMismatchedPixels: 0, where one pixel is a
+  # failure. The image pins the Chromium build AND the font set together.
+  #
+  # The tag is the exact Playwright version this repo resolves to. It must be
+  # bumped WITH the dependency: a mismatch between the driver in the lockfile
+  # and the browser in the image is the one thing this job cannot detect, and
+  # it would look like a library-wide visual change.
+  visual:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      # The image ships a non-root `pwuser`, but actions/checkout and the
+      # pnpm store both write into the workspace, so the job runs as root to
+      # avoid a permissions fight that shows up as an unrelated install error.
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - run: corepack enable
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Fails with an instruction rather than 30 confusing "no reference
+      # screenshot found" errors. A first run on a new platform CREATES
+      # baselines and reports failure, which reads as a regression when it is
+      # actually an empty set — see the generate-visual-baselines workflow.
+      - name: Linux baselines must exist
+        run: |
+          count=$(find registry/visual/__screenshots__ -name '*-chromium-linux.png' | wc -l)
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No -chromium-linux baselines are committed, so there is nothing to compare against."
+            echo "Run the 'Generate visual baselines' workflow, download its artifact, and commit the PNGs."
+            exit 1
+          fi
+          echo "$count Linux baseline(s) present."
+
+      - name: Visual regression
+        run: pnpm run test:visual
+
+      # The diff images are the whole point when this fails — without them a
+      # red run says "pixels differ" and nothing else.
+      - name: Upload diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diffs
+          path: |
+            apps/storybook/.vitest-attachments/**
+            registry/visual/__screenshots__/**
+          if-no-files-found: ignore
+          retention-days: 14

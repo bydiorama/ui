@@ -91,7 +91,7 @@ Sheet                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
     "Brand re-skinning needs `container` — it is not automatic. Without it the panel portals to document.body and leaves the themed subtree; both halves are asserted in the browser suite, and the BrandThemed story passes it. Multiselect's panel still has no equivalent.",
   ],
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0",
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HE2-0",
 } as const;
 
 export type SheetDoc = typeof sheetDoc;

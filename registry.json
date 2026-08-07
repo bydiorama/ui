@@ -183,6 +183,26 @@
       ]
     },
     {
+      "name": "select",
+      "type": "registry:ui",
+      "description": "Choose ONE value from a list. The trigger is Input's control surface, exactly as Multiselect's is — a field is a field, and three components inventing three variants of the same box is how a system stops looking like one. Listbox ARIA, typeahead, roving focus and dismissal come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/select/select.tsx",
+          "type": "registry:ui",
+          "target": "ui/select.tsx"
+        },
+        {
+          "path": "registry/ui/select/select.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/select.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "avatar",
       "type": "registry:ui",
       "description": "A person or entity as a photo or their initials. Circle or rounded, three sizes. `name` is required in both forms — it is the image's alt text and the source of the initials. Initials are aria-hidden and the full name exposed separately, so a screen reader announces the person rather than spelling out letters.",

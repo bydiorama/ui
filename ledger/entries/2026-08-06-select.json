@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-select",
+  "date": "2026-08-06",
+  "item": "select",
+  "kind": "addition",
+  "summary": "Select ships: choose one value from a list, built on the Base UI behaviour layer (ADR 0012) for listbox ARIA, typeahead, roving focus and dismissal, wrapped so no third-party type reaches a public prop signature. Its trigger is Input's control surface at all three sizes — the browser test renders a Select beside an Input and compares COMPUTED height, radius, border width, edge colour, fill and inset, because asserting 48px on each would pass while the two drifted apart, and drifting apart is the only failure that matters. Selection is shown by a tick AND a weight, never by fill alone: the highlighted row already owns a fill, so a selected fill would be two states competing for one channel, and colour alone is WCAG 1.4.1 regardless. The panel's enter transition is asserted through el.getAnimations() rather than transitionProperty, which reads identically in the working and broken versions — the trap that let Modal and Popover ship a dead entrance. One design gap recorded rather than silently resolved: the sheet draws the trigger at px-lg where Input's control is px-md, and it shipped as Input's, because the whole claim is that a field is a field.",
+  "affects": ["registry:select", "manifest", "contrast-pairs"],
+  "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EVQ-0"
+}

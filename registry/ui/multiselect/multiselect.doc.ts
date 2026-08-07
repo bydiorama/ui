@@ -72,9 +72,10 @@ Multiselect
     "The option row reuses Checkbox's visual language but not the component; the two could drift. A shared visual primitive would fix it and does not exist yet.",
     "No grouping, no async loading, no create-on-the-fly. None are drawn.",
     "Base UI is at 1.0.0-rc.0, pre-stable (ADR 0012).",
+    "The panel is radius-md over a 4px inset around radius-sm children — the search field and every row — so §6 closes at 4 + 4 = 8. The sheet draws an 8px inset (J3M-0), which does not close on any radius the scale has; see the same note in select.doc.ts.",
   ],
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EVQ-0",
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/J2X-0",
 } as const;
 
 export type MultiselectDoc = typeof multiselectDoc;

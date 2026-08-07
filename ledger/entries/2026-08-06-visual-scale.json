@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-visual-scale",
+  "date": "2026-08-06",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Every visual baseline in this repo had been written at 0.8 scale for its entire existence. Vitest runs each test in an IFRAME sized to the configured `viewport`, inside a Playwright page that defaults to 1280x720 — and when the iframe does not fit, it is scaled down to fit. An 800x900 iframe in a 720-tall page is 720/900 = 0.8 exactly; a 200x100 probe box captured as 160x80, and all 32 committed baselines were 448px wide for a frame that measures 560. Nothing reported it, because a uniformly scaled baseline compares cleanly against a uniformly scaled capture: the suite was internally consistent and externally wrong. What it cost is fine detail — at 0.8 a 1px border and a 1.5px ring resample into the same blur, so the distinction ADR 0010 exists to defend was the first thing the gate lost, while `allowedMismatchedPixels: 0` advertised total precision. Fixed by making the PAGE bigger than the frame (contextOptions viewport 1400x1200) rather than by capping the frame, which would have traded the downscale straight back for the crop fixed a day earlier. All 32 baselines regenerated at 1:1 and confirmed stable at zero tolerance. Found by checking a new baseline's pixel dimensions against the frame it was supposed to capture — the same check that caught the crop, which is now twice worth doing.",
+  "affects": ["gate:visual-regression"],
+  "migration": {
+    "manual": "All baselines were regenerated at 1:1 and are 560px wide rather than 448. Any local baselines from before this change will fail; regenerate with `pnpm test:visual --update`."
+  }
+}

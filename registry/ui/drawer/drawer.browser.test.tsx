@@ -318,3 +318,107 @@ describe("Drawer re-skins under a brand scope, when given somewhere to live", ()
     expect(getComputedStyle(panel()!).backgroundColor).toBe("rgb(255, 224, 102)");
   });
 });
+
+describe("Detents: a drawer can rest at more than one height", () => {
+  const Detented = (props: {
+    snapPoints?: number[];
+    defaultSnapPoint?: number;
+    onOpenChange?: (open: boolean) => void;
+  }) => (
+    <Drawer defaultIsOpen {...(props.onOpenChange ? { onOpenChange: props.onOpenChange } : {})}>
+      <Drawer.Panel
+        label="Complete profile"
+        snapPoints={props.snapPoints ?? [0.5, 0.9]}
+        {...(props.defaultSnapPoint !== undefined ? { defaultSnapPoint: props.defaultSnapPoint } : {})}
+      >
+        <p>Body</p>
+      </Drawer.Panel>
+    </Drawer>
+  );
+
+  test("the resting height is the detent, as a fraction of the viewport", () => {
+    mount(<Detented />);
+    const height = panel()!.getBoundingClientRect().height;
+    // Asserted as a RELATIONSHIP to the viewport rather than a pixel count —
+    // the number is meaningless without the window it is half of, and the
+    // test viewport is not the one a person uses.
+    expect(height / window.innerHeight).toBeCloseTo(0.5, 1);
+    expect(panel()!.getAttribute("data-snap-point")).toBe("0");
+  });
+
+  test("a taller detent is taller — the fractions are not decorative", () => {
+    mount(<Detented defaultSnapPoint={1} />);
+    expect(panel()!.getBoundingClientRect().height / window.innerHeight).toBeCloseTo(0.9, 1);
+  });
+
+  test("dragging DOWN steps to the shorter detent instead of dismissing", async () => {
+    const onOpenChange = vi.fn();
+    mount(<Detented defaultSnapPoint={1} onOpenChange={onOpenChange} />);
+    await drag(handle(), 60);
+    // The whole point of the detent: a drawer at full height must not go
+    // straight off the screen, or the state it exists to offer is skipped and
+    // whatever is in the drawer is lost.
+    expect(panel()!.getAttribute("data-snap-point")).toBe("0");
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  test("dragging DOWN from the shortest detent dismisses", async () => {
+    const onOpenChange = vi.fn();
+    mount(<Detented onOpenChange={onOpenChange} />);
+    await drag(handle(), 60);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  test("dragging UP steps to the taller detent", async () => {
+    mount(<Detented />);
+    await drag(handle(), -60);
+    expect(panel()!.getAttribute("data-snap-point")).toBe("1");
+  });
+
+  test("the panel tracks the finger UPWARD, which it refuses to do without detents", async () => {
+    mount(<Detented />);
+    const mid = await drag(handle(), -60);
+    // Without a taller detent this is deliberately clamped at 0, because
+    // rubber-banding up would promise an expansion that cannot happen.
+    expect(mid).not.toBe("none");
+    expect(mid).toContain("-");
+  });
+
+  test("SC 2.5.7: the tap reaches BOTH directions, by wrapping", async () => {
+    mount(<Detented />);
+    await userEvent.click(handle());
+    expect(panel()!.getAttribute("data-snap-point")).toBe("1");
+    // At the tallest it wraps back to the shortest, so a pointer user who
+    // cannot drag can still collapse it. Without the wrap, "expand" would be
+    // the only single-pointer move and 2.5.7 would be half-satisfied.
+    await userEvent.click(handle());
+    expect(panel()!.getAttribute("data-snap-point")).toBe("0");
+  });
+
+  test("the handle stops calling itself Close once it resizes", () => {
+    mount(<Detented />);
+    expect(handle().getAttribute("aria-label")).toBe("Resize drawer");
+  });
+
+  test("no snapPoints keeps the old drawer exactly", async () => {
+    const onOpenChange = vi.fn();
+    mount(
+      <Drawer defaultIsOpen onOpenChange={onOpenChange}>
+        <Drawer.Panel label="Complete profile"><p>Body</p></Drawer.Panel>
+      </Drawer>,
+    );
+    expect(panel()!.getAttribute("data-snap-point")).toBeNull();
+    expect(handle().getAttribute("aria-label")).toBe("Close");
+    // A tap still closes when there is nowhere to step to.
+    await userEvent.click(handle());
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  test("an EMPTY snapPoints array falls back rather than rendering nothing", () => {
+    mount(<Detented snapPoints={[]} />);
+    // A caller computing this list can hand back an empty one, and honouring
+    // it literally would mean a zero-height panel.
+    expect(panel()!.getAttribute("data-snap-point")).toBeNull();
+    expect(panel()!.getBoundingClientRect().height).toBeGreaterThan(0);
+  });
+});

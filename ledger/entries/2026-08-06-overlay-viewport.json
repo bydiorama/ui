@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-overlay-viewport",
+  "date": "2026-08-06",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "An anchored panel can no longer render outside the viewport (CONVENTIONS §7c). Base UI flips and shifts by default, so Select, Multiselect and Popover all appeared to handle their edges — and that is exactly why the other half went unnoticed: repositioning cannot make a panel SMALLER than the space it lands in, and all three carried `max-h-64`, a flat 256px with no knowledge of the window. On a short viewport the panel ran past the bottom and the rows below the fold were unreachable by pointer. All three now cap to the positioner's own measurement (`--available-height` / `--available-width`) and declare `collisionPadding`. `check:overlays` enforces all three requirements and is wired into CI individually, not only into `verify`. The regression test is a system-level file rather than a per-component one, because the rule is the system's. Its most important line is a comment: the obvious test — open a panel in a corner, assert its rect is on screen — PASSES against the bug, because 256px fits an 896px test viewport comfortably. Probed exactly that way, all four containment cases were green on the broken code. What separates the two is where the number comes from, so the binding assertion is that the panel's resolved max-height EQUALS the positioner's measurement: 256 against 823 when the cap is a constant.",
+  "affects": ["registry:select", "registry:multiselect", "registry:popover", "gate:overlays", "conventions"],
+  "migration": {
+    "manual": "A tall Popover or a long Select/Multiselect list now scrolls inside a panel capped to the available space, where it previously capped at a fixed 256px. No API change."
+  }
+}

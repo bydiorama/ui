@@ -157,3 +157,24 @@ export const BrandThemed: Story = {
     );
   },
 };
+
+/**
+ * Two resting heights. Drag the handle, or tap it — the tap steps up and wraps
+ * from the tallest back to the shortest, which is what keeps SC 2.5.7 whole
+ * for someone who cannot drag.
+ */
+export const Detents: Story = {
+  render: () => (
+    <Drawer defaultIsOpen>
+      <Drawer.Panel label="Complete profile" snapPoints={[0.5, 0.9]}>
+        <div className="flex flex-col gap-lg p-lg">
+          <Drawer.Title>Complete profile</Drawer.Title>
+          <Input label="Full name" placeholder="Steve Ditko" />
+          <Input label="Description" placeholder="steve@bydiorama.com" />
+          <Input label="Occupation" placeholder="Illustrator" />
+          <Input label="Location" placeholder="New York" />
+        </div>
+      </Drawer.Panel>
+    </Drawer>
+  ),
+};

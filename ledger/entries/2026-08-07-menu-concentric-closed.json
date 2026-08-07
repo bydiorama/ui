@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-menu-concentric-closed",
+  "date": "2026-08-07",
+  "item": "select",
+  "kind": "visual",
+  "summary": "The residual concentricity gap in Select's and Multiselect's menus is closed. §6 is an equation — outerRadius = innerRadius + padding — and the sheets' own three numbers do not satisfy it: radius-md (8) over an 8px inset around radius-sm (4) rows wants a 12px outer radius, and the scale has no 12px step. Rather than invent a token, the INSET moved from 8 to 4, so 4 + 4 = 8 closes exactly using only steps that already exist. That is the minimal deviation available: of the three numbers two are radii the sheet states deliberately and one is padding, which carries the least meaning, so the padding is what gives. Multiselect's search field takes the same 4px inset, making it concentric on the same arithmetic as the rows. The regression test asserts the EQUATION rather than three pinned numbers — pinning 8/4/4 separately would pass while all three moved consistently-but-wrongly, and would need rewriting by hand every time the design shifts, which is precisely the edit where someone corrects the expectation to match the code and loses the rule. Probed by restoring the 8px inset: 'outer 8 != inner 4 + inset 8: expected 8 to be 12'. Paper still draws the 8px inset and now disagrees with the code by one value; the doc asks design to bring the file in line or to say which of the other two numbers should move instead.",
+  "affects": ["registry:select", "registry:multiselect"],
+  "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EVQ-0"
+}

@@ -53,6 +53,7 @@ export default defineConfig({
       "@base-ui-components/react/popover",
       "@base-ui-components/react/dialog",
       "@base-ui-components/react/combobox",
+      "@base-ui-components/react/select",
       "@base-ui-components/react/slider",
       "@base-ui-components/react/tabs",
       "griddy-icons",
@@ -86,9 +87,11 @@ export default defineConfig({
         /**
          * Visual regression. Separate from `contract` because its baselines
          * are platform-specific — font rasterisation differs between macOS
-         * and Linux, so a committed macOS PNG cannot pass on a Linux runner.
-         * Kept out of `test:browser` and out of CI until a containerised
-         * runner exists; run it with `pnpm test:visual`.
+         * and Linux, so vitest keeps a `-chromium-darwin` and a
+         * `-chromium-linux` set and never compares one against the other.
+         * Kept out of `test:browser` because it is slower and its baselines
+         * are a reviewed artefact; CI runs it as its own job inside a pinned
+         * Playwright container.
          */
         extends: true,
         test: {
@@ -97,6 +100,27 @@ export default defineConfig({
           setupFiles: [join(here, "vitest.setup.ts")],
           browser: {
             ...browser(),
+            // The PAGE viewport, which is not the same thing as the test
+            // viewport below. Vitest runs each test in an IFRAME sized to
+            // `viewport`, inside a page that Playwright defaults to 1280x720 —
+            // and when the iframe does not fit, it is SCALED DOWN to fit.
+            //
+            // An 800x900 iframe in a 720-tall page is 720/900 = 0.8, and for
+            // its entire existence every baseline in this repo was written at
+            // exactly 0.8: a 200x100 probe box captured as 160x80. Nothing
+            // reported it, because a uniformly scaled baseline compares
+            // cleanly against a uniformly scaled capture — the suite was
+            // internally consistent and externally wrong.
+            //
+            // What it cost is the fine detail. At 0.8 a 1px border and a
+            // 1.5px ring both resample into the same blur, so the distinction
+            // ADR 0010 exists to defend was the first thing the gate lost —
+            // while `allowedMismatchedPixels: 0` advertised total precision.
+            //
+            // Making the page bigger than the frame is what fixes it. Capping
+            // the frame instead would have traded the downscale straight back
+            // for the crop this project fixed a day earlier.
+            provider: playwright({ contextOptions: { viewport: { width: 1400, height: 1200 } } }),
             // The viewport must be WIDER than the frame the matrix mounts
             // (560px + 24px padding either side). Vitest's default is 414px,
             // and `elementLocator().toMatchScreenshot()` captures only what is

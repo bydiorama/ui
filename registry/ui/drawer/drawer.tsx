@@ -36,6 +36,15 @@ const forBaseUI = <T,>(props: object) => props as T;
 const CLOSE_DISTANCE_PX = 96;
 const CLOSE_VELOCITY_PX_PER_MS = 0.5;
 
+/**
+ * Distance that commits a drag to the NEXT detent.
+ *
+ * Deliberately shorter than CLOSE_DISTANCE_PX: moving between resting heights
+ * is a smaller decision than dismissing, and asking for the same 96px to go
+ * half-open as to throw the drawer away makes the detent feel stuck.
+ */
+const SNAP_DISTANCE_PX = 48;
+
 /** Lets the handle close a drawer that owns its own state. */
 const DrawerClose_ = createContext<(() => void) | null>(null);
 
@@ -143,17 +152,45 @@ export interface DrawerPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   handleLabel?: string;
   /** Where to portal the panel. See the fuller note in `sheet.tsx`. */
   container?: HTMLElement | null;
+  /**
+   * Resting heights, as fractions of the viewport, ASCENDING — `[0.5, 0.9]`.
+   *
+   * Omit and the drawer keeps one resting height sized to its content, which
+   * is what the sheet drew before the half-open state existed. The unit is
+   * `dvh` rather than `vh`: on mobile `vh` is the viewport with the browser
+   * chrome hidden, so a 50% drawer is not half the screen until you scroll.
+   */
+  snapPoints?: number[];
+  /** Controlled detent, as an INDEX into `snapPoints`. */
+  snapPoint?: number;
+  defaultSnapPoint?: number;
+  /** Always `onSnapPointChange(index)` — never onExpand/onCollapse (§1). */
+  onSnapPointChange?: (index: number) => void;
 }
 
 function DrawerPanel({
   children,
   className,
   label,
-  handleLabel = "Close",
+  handleLabel,
   container,
+  snapPoints,
+  snapPoint,
+  defaultSnapPoint,
+  onSnapPointChange,
   ...rest
 }: DrawerPanelProps) {
   const close = useContext(DrawerClose_);
+  // An empty array is not "no detents" by accident — it is a caller passing a
+  // computed list that came back empty, and falling back to the content-sized
+  // drawer is the only behaviour that does not render a zero-height panel.
+  const detents = snapPoints && snapPoints.length > 0 ? snapPoints : null;
+  const [detent, setDetent] = useControllableState({
+    ...(snapPoint !== undefined ? { value: snapPoint } : {}),
+    defaultValue: defaultSnapPoint ?? 0,
+    ...(onSnapPointChange ? { onChange: onSnapPointChange } : {}),
+  });
+  const index = detents ? Math.min(Math.max(detent, 0), detents.length - 1) : 0;
   const [offset, setOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   /**
@@ -178,9 +215,11 @@ function DrawerPanel({
   function onPointerMove(event: ReactPointerEvent<HTMLButtonElement>) {
     const state = drag.current;
     if (!state) return;
-    // Downward only. Rubber-banding upward would imply the drawer can expand,
-    // and it has no second detent to expand to.
-    setOffset(Math.max(0, event.clientY - state.startY));
+    // Upward movement is only honest when there IS a taller detent to reach.
+    // Without one, rubber-banding up would promise an expansion that cannot
+    // happen — which is why this was downward-only before detents existed.
+    const dy = event.clientY - state.startY;
+    setOffset(detents ? dy : Math.max(0, dy));
     state.prevY = event.clientY;
     state.prevT = event.timeStamp;
   }
@@ -190,11 +229,26 @@ function DrawerPanel({
     drag.current = null;
     setIsDragging(false);
     if (!state) return;
-    const dy = Math.max(0, event.clientY - state.startY);
-    const velocity =
-      Math.max(0, event.clientY - state.prevY) / Math.max(1, event.timeStamp - state.prevT);
-    if (dy >= CLOSE_DISTANCE_PX || velocity >= CLOSE_VELOCITY_PX_PER_MS) {
-      close?.();
+    const dy = event.clientY - state.startY;
+    const velocity = (event.clientY - state.prevY) / Math.max(1, event.timeStamp - state.prevT);
+
+    if (!detents) {
+      if (dy >= CLOSE_DISTANCE_PX || velocity >= CLOSE_VELOCITY_PX_PER_MS) close?.();
+      setOffset(0);
+      return;
+    }
+
+    // With detents a downward drag STEPS rather than dismisses, and only
+    // dismisses from the lowest one. Dragging a drawer from full height
+    // straight off the screen would skip the state the detent exists to
+    // offer, and is the surest way to lose whatever is in the drawer.
+    const committedDown = dy >= SNAP_DISTANCE_PX || velocity >= CLOSE_VELOCITY_PX_PER_MS;
+    const committedUp = -dy >= SNAP_DISTANCE_PX || -velocity >= CLOSE_VELOCITY_PX_PER_MS;
+    if (committedDown) {
+      if (index <= 0) close?.();
+      else setDetent(index - 1);
+    } else if (committedUp) {
+      setDetent(Math.min(detents.length - 1, index + 1));
     }
     // Always returns to rest. On close the panel unmounts through its exit
     // transition from wherever it was, and leaving a stale offset behind would
@@ -217,7 +271,14 @@ function DrawerPanel({
         aria-label={label}
         data-slot="drawer-panel"
         data-dragging={isDragging || undefined}
-        style={{ translate: offset ? `0 ${offset}px` : undefined }}
+        data-snap-point={detents ? index : undefined}
+        style={{
+          ...(offset ? { translate: `0 ${offset}px` } : {}),
+          // `dvh`, not `vh`: on mobile `vh` is the viewport with the browser
+          // chrome HIDDEN, so a 0.5 detent is not half of what anyone can see
+          // until the page has been scrolled. dvh tracks the chrome.
+          ...(detents ? { height: `${detents[index]! * 100}dvh` } : {}),
+        }}
         className={cn(
           // Inset 4px on three sides rather than flush: the sheet floats the
           // panel inside its window, which is why all four corners are rounded
@@ -226,8 +287,9 @@ function DrawerPanel({
           "fixed inset-x-xs bottom-xs flex flex-col overflow-clip rounded-lg",
           // 80% is DERIVED — the sheet draws one drawer nearly filling its
           // window. A cap matters: the strip of scrim above the drawer is what
-          // says it can be pushed away.
-          "max-h-4/5",
+          // says it can be pushed away. With detents the tallest one IS the
+          // cap, and applying both would silently truncate a 0.9 snap point.
+          !detents && "max-h-4/5",
           "bg-base text-ink-primary border border-edge-subtle shadow-md",
           "transition-[translate,opacity] duration-(--ui-duration-base) ease-(--ui-ease-out)",
           "data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full",
@@ -240,16 +302,27 @@ function DrawerPanel({
         <button
           type="button"
           data-slot="drawer-handle"
-          aria-label={handleLabel}
+          // "Close" is a lie once the handle steps between heights, and the
+          // label is the only thing a screen-reader user has to go on.
+          aria-label={handleLabel ?? (detents ? "Resize drawer" : "Close")}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
           onClick={() => {
             // A tap, not a drag. WCAG 2.5.7 requires a single-pointer
-            // alternative to any dragging movement, and this is it — the same
-            // control, without the gesture.
-            if (!drag.current) close?.();
+            // alternative to EVERY dragging movement, and this is it — the
+            // same control, without the gesture.
+            //
+            // With detents the drag can do three things, so the tap has to
+            // reach all three: it steps up, and wraps from the tallest back to
+            // the shortest so collapsing is reachable too. Dismissal stays on
+            // the scrim and Escape, which are already single-pointer and
+            // keyboard paths — a tap that sometimes expanded and sometimes
+            // threw the drawer away would be worse than either.
+            if (drag.current) return;
+            if (!detents) { close?.(); return; }
+            setDetent(index >= detents.length - 1 ? 0 : index + 1);
           }}
           className={cn(
             // 32px tall, which is what the sheet draws and what SC 2.5.8 wants:

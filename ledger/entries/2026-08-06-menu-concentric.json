@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-06-menu-concentric",
+  "date": "2026-08-06",
+  "item": "select",
+  "kind": "visual",
+  "summary": "Select's and Multiselect's menus were rebuilt against the sheets (EVQ-0, J2X-0) after both read as un-concentric. Both shipped a radius-lg (16px) panel: Select's over a 4px inset around radius-sm rows, Multiselect's likewise. A 16px corner cannot sit 4px outside a 4px one, and §6 says so — outer = inner + padding. The sheets draw radius-md (8) over an 8px inset, which is what both now use. Select's rows go from px-md py-lg to a uniform p-md, following the three rows in the sheet that agree rather than the one that does not (GVO-0 is the outlier; both of Multiselect's rows are uniform too). Multiselect's search field takes the drawn 40px height, radius-sm and px-lg in place of an invented 32px radius-md. Two things were deliberately NOT transcribed and are recorded as design questions instead: the highlighted row is drawn as the raw palette step --ui-neutral-95 and ships as `bg-hover`, because a surface role used as an interaction state is the wrong-category signal the token layer exists to catch; and the result is still not exactly concentric — 8 over an 8px inset around 4 wants a 12px outer radius, and no 12px radius token exists. Closing that means either radius-lg over a 12px inset, which is exact with the tokens that exist, or a new step. The arithmetic is in the doc so it stays a decision rather than becoming a drift.",
+  "affects": ["registry:select", "registry:multiselect"],
+  "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EVQ-0"
+}

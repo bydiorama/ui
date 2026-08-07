@@ -1,0 +1,63 @@
+# Generate visual baselines for a platform you cannot run locally.
+#
+# The visual project's baselines are platform-specific by construction, so a
+# Linux set has to be RECORDED on Linux. Most of this repo is developed on
+# macOS, where that is impossible without Docker — hence a workflow rather
+# than a script: the runner is the only Linux with the pinned container.
+#
+# It is deliberately manual (`workflow_dispatch`). Baselines are a reviewed,
+# committed artefact; a job that regenerated them automatically would erase
+# the difference between "the design changed" and "something broke", which is
+# the entire value of the gate.
+#
+# Usage:
+#   1. Run this workflow from the Actions tab.
+#   2. Download the `visual-baselines-linux` artifact.
+#   3. Unzip it over `registry/visual/__screenshots__/`.
+#   4. LOOK at the PNGs, then commit them.
+#
+# Step 3 is where the care goes. These images are what every future run is
+# compared against — a wrong baseline does not fail, it silently becomes the
+# expectation.
+
+name: Generate visual baselines
+
+on:
+  workflow_dispatch:
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+    container:
+      # MUST match the tag in ci.yml's `visual` job. Recording against one
+      # Chromium and comparing against another produces a diff on every case
+      # and reads as a library-wide visual regression.
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user root
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - run: corepack enable
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # `--update` writes any missing baseline and then reports the run as
+      # FAILED — "no existing reference screenshot found; a new one was
+      # created. Review it before running tests again." That is correct
+      # behaviour and not an error here, so the failure is swallowed
+      # deliberately and the artifact is what matters.
+      - name: Record baselines
+        run: pnpm run test:visual --update || true
+
+      - name: Upload baselines
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines-linux
+          path: registry/visual/__screenshots__/**/*-chromium-linux.png
+          if-no-files-found: error
+          retention-days: 14

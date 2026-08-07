@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-drawer-detents",
+  "date": "2026-08-07",
+  "item": "drawer",
+  "kind": "addition",
+  "summary": "Drawer takes snapPoints — resting heights as ascending fractions of the viewport — and the half-open state is now drawn in Paper (J88-0) rather than only described. Rendered in `dvh` rather than `vh`, because on mobile `vh` is the viewport with the browser chrome HIDDEN, so a 0.5 detent is not half of what anyone can see until the page has been scrolled. Opt-in throughout: omit snapPoints and the drawer keeps exactly its old behaviour, which the existing sixteen tests still prove unchanged. With detents a downward drag STEPS instead of dismissing and only dismisses from the shortest one — dragging a full-height drawer straight off the screen would skip the state the detent exists to offer, and is the surest way to lose whatever is in it. Upward drag is now honoured, having been deliberately clamped before, because rubber-banding up used to promise an expansion that could not happen. The accessibility work is the interesting half: the drag can now do THREE things, so SC 2.5.7 needs a single-pointer path for all three. The handle tap steps up and wraps from the tallest back to the shortest, covering expand and collapse; dismissal stays on the scrim and Escape. A tap that sometimes expanded and sometimes threw the drawer away would be worse than either. The handle also stops calling itself 'Close' once it resizes — that label is the only thing a screen-reader user has to go on. An empty snapPoints array falls back to the content-sized drawer rather than rendering a zero-height panel, because a caller computing that list can hand back an empty one.",
+  "affects": ["registry:drawer"],
+  "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/J88-0"
+}

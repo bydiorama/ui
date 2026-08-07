@@ -178,6 +178,43 @@ hairline (`border-subtle`, 1.47:1 — decorative, and declared as such), while
 job; reach for secondary when it is only separating a quiet control from the
 page.
 
+## 7c. An anchored panel never leaves the viewport
+
+Any surface positioned against a trigger — Select's list, Multiselect's list,
+Popover's panel — must satisfy **three** things, and they fail differently:
+
+| Requirement | What it prevents |
+| --- | --- |
+| `collisionPadding` | The panel sitting flush against the window edge after it flips or shifts. |
+| `max-h-(--available-height)` | The panel being **taller** than the space it landed in, which loses the rows below the fold. |
+| `max-w-(--available-width)` | The same, horizontally. |
+
+`check:overlays` enforces all three, and `overlay-viewport.browser.test.tsx`
+proves they have an effect.
+
+**Why this needed a rule at all.** Base UI flips and shifts by default, so an
+anchored panel visibly moves out of the way near an edge and the behaviour
+looks finished. Repositioning cannot make a panel *smaller* than its space —
+and every panel here carried `max-h-64`, a flat 256px with no knowledge of the
+window. At a comfortable window size nothing is wrong, which is why no visual,
+contrast or a11y gate could ever have seen it. The positioner already measures
+the space it found and publishes `--available-width` / `--available-height`;
+the fix is to use the measurement instead of a constant.
+
+**Containment assertions do not prove containment.** A 256px panel fits an
+896px test viewport perfectly well, so the obvious test — open it in a corner,
+assert the rect is on screen — passes against the bug. Probed exactly that way,
+and all four cases were green. What distinguishes the two is where the number
+comes from: assert the panel's resolved `max-height` **equals the positioner's
+measurement**. A constant cannot match it at any viewport size.
+
+**Also check `alignItemWithTrigger` on a Select.** Base UI defaults it to
+`true`: the panel overlaps the trigger so the selected row lands on the
+trigger's value, iOS style, and `sideOffset` is ignored while it does. It
+applies to **mouse input only**, so the panel lands in one place from a click
+and another from the keyboard — a keyboard-driven test passes on the wrong
+code for free.
+
 ## 8. Motion
 
 - Durations and easings come from motion tokens

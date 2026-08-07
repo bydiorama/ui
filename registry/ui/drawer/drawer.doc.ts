@@ -49,6 +49,18 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
       default: "true",
       notes: "Escape and scrim-tap. It does NOT disable the drag: the handle is the drawer's defining affordance, and a drawer you can grab but not move is broken furniture. Use a Modal if the decision genuinely cannot be deferred.",
     },
+    "Panel.snapPoints": {
+      type: "number[]",
+      notes: "Resting heights as fractions of the viewport, ASCENDING — [0.5, 0.9]. Omit for one content-sized height. Rendered in `dvh` rather than `vh`, because on mobile `vh` is the viewport with the browser chrome hidden, so a 0.5 drawer is not half of what anyone can see. An empty array falls back rather than rendering a zero-height panel.",
+    },
+    "Panel.snapPoint": {
+      type: "number",
+      notes: "Controlled detent, as an INDEX into snapPoints — not the fraction.",
+    },
+    "Panel.onSnapPointChange": {
+      type: "(index: number) => void",
+      notes: "One callback for every path — drag, tap and controlled update all go through it (§1).",
+    },
     container: {
       type: "HTMLElement | null",
       default: "document.body",
@@ -65,7 +77,7 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
   dont: [
     "Do not use a Drawer where a Sheet belongs. They are not `side` variants of one component: a Drawer's contract is a gesture, and a Sheet has no handle, no velocity threshold and no body that follows the finger.",
     "Do not put a long scrolling list in the body and expect the drag to work from anywhere — the handle is the drag target, deliberately, so a scroll inside the body never fights the gesture.",
-    "Do not rely on the drag alone to convey dismissal; the scrim, Escape and a tap on the handle all close it, which is what WCAG 2.5.7 asks for.",
+    "Do not rely on the drag alone. Without snapPoints a tap on the handle closes it; with them a tap STEPS UP and wraps from the tallest back to the shortest, so both directions stay reachable, and dismissal moves to the scrim and Escape.",
     "Do not import Base UI types into your own props — `check:boundaries` fails the build (ADR 0002).",
   ],
 
@@ -78,7 +90,7 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
       { key: "Tab", does: "Cycles within the panel only; focus cannot reach the page behind." },
     ],
     pointer:
-      "The drag is never the only way out. SC 2.5.7 (Dragging Movements) requires a single-pointer alternative to any dragging movement: tapping the same handle closes it, as do the scrim and Escape.",
+      "The drag is never the only way. SC 2.5.7 (Dragging Movements) requires a single-pointer alternative to EVERY dragging movement, and detents give the drag three of them — expand, collapse, dismiss. Tapping the handle steps up and wraps from the tallest back to the shortest, covering expand and collapse; the scrim and Escape cover dismissal. A tap that sometimes expanded and sometimes threw the drawer away would be worse than either.",
     target: "The handle button is the full 32px header band, not the 8px bar inside it — the bar alone would be an 8px target against SC 2.5.8's 24px floor.",
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "the title and content on the panel" },
@@ -88,21 +100,22 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "No snap points or detents are drawn — one resting height only.",
-    "The 80% height cap is derived from a single drawing.",
+        "The 80% height cap applies only WITHOUT snapPoints; with them the tallest detent is the cap. The half-open sheet draws 0.5, and the tall detent is still derived.",
     "Two SELECT fields are drawn in the content and there is no Select component.",
   ],
 
   knownGaps: [
-    "No snap points. The sheet draws one resting height, so there are no detents to snap between — a half-open state would need design.",
+    "Detents are OPT-IN via snapPoints. Without them the drawer keeps exactly its old behaviour — one content-sized height, a drag that only goes down, and a handle tap that closes.",
     "Drag works from the HANDLE only, not the whole panel. Dragging from anywhere means arbitrating with scroll position inside the body on every pointer move; the handle is unambiguous, and it is the affordance the sheet draws.",
-    "The 80% height cap is DERIVED. The sheet draws one drawer nearly filling its window, which is a demo height rather than a rule — confirm with design.",
+    "The 80% height cap is DERIVED and applies only without snapPoints; with them the tallest detent is the cap, or a 0.9 snap point would be silently truncated to 0.8. The half-open sheet (J88-0) draws the 0.5 detent; the taller one is still a demo height.",
     "The scrim does not fade with the drag. It fades on open and close only; tying its opacity to the offset is a refinement, not a contract.",
     "The sheet's own content draws two SELECT fields (Occupation, Visibility). There is no Select component in this system yet and Multiselect is the wrong shape for a single value, so the story uses Inputs in their place.",
     "No visual-regression baseline — the matrix renders inline and a Drawer portals to document.body, the same exclusion Modal, Popover and Sheet have.",
   ],
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HYB-0",
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0",
+  /** The half-open detent, drawn as its own frame inside the Drawer artboard. */
+  designHalfOpen: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/J88-0",
 } as const;
 
 export type DrawerDoc = typeof drawerDoc;

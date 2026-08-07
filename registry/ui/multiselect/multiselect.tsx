@@ -198,20 +198,33 @@ export function Multiselect({
         </BaseCombobox.Chips>
 
         <BaseCombobox.Portal {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Portal>>({ container: rootRef })}>
-          <BaseCombobox.Positioner sideOffset={8} className="z-50">
+          <BaseCombobox.Positioner
+            sideOffset={8}
+            // Off the viewport edge when Base UI flips or shifts (§7c).
+            collisionPadding={8}
+            className="z-50"
+          >
             <BaseCombobox.Popup
               {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Popup>>({
                 "data-slot": "multiselect-panel",
                 className: cn(
-                  "flex w-(--anchor-width) min-w-64 flex-col overflow-clip rounded-lg",
+                  // radius-md over a 4px inset around radius-sm children —
+                  // the search field and every row — so 4 + 4 = 8, concentric
+                  // exactly (§6). See the fuller note in select.tsx: the sheet
+                  // draws an 8px inset, which does not close on any radius the
+                  // scale has.
+                  "flex w-(--anchor-width) min-w-64 flex-col overflow-clip rounded-md p-xs",
+                  // Never taller or wider than the space Base UI measured, so
+                  // the panel cannot run off a short window (§7c).
+                  "max-h-(--available-height) max-w-(--available-width)",
                   "bg-surface border border-edge-subtle shadow-md",
                   "transition-[opacity] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
                   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
                 ),
               })}
             >
-              <div className="p-md">
-                <div className="flex h-8 items-center gap-sm rounded-md bg-field px-sm py-xs ring-1 ring-edge-subtle focus-within:ring-edge-focus">
+              <div className="pb-xs">
+                <div className="flex h-10 items-center gap-sm rounded-sm bg-field px-lg py-xs ring-1 ring-edge-subtle focus-within:ring-edge-focus">
                   <BaseCombobox.Input
                     {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Input>>({
                       "data-slot": "multiselect-search",
@@ -228,7 +241,11 @@ export function Multiselect({
               <BaseCombobox.List
                 {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.List>>({
                   "data-slot": "multiselect-list",
-                  className: "flex max-h-64 flex-col gap-sm overflow-y-auto px-sm pb-md",
+                  // `min-h-0` so the list can actually shrink inside the
+                  // capped panel — a flex child's default min-height is
+                  // auto, which refuses to go below its content and pushes
+                  // the panel past the cap it was just given.
+                  className: "flex min-h-0 flex-1 flex-col gap-sm overflow-y-auto",
                 })}
               >
                 {(item: MultiselectItem) => (

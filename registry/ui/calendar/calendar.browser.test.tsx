@@ -225,3 +225,50 @@ describe("Calendar paints the sheet's card", () => {
     expect(getComputedStyle(target).boxShadow).not.toBe("none");
   });
 });
+
+describe("Today is an input, not an ambient fact", () => {
+  test("the `today` prop decides which cell is marked", () => {
+    const c = mount(
+      <Calendar
+        label="Choose a date"
+        defaultMonth={new Date(2026, 7, 1, 12)}
+        today={new Date(2026, 7, 6, 12)}
+      />,
+    );
+    const marked = c.querySelectorAll<HTMLElement>("[data-today]");
+    // Exactly one, or "today" is being matched by something looser than a day.
+    expect(marked).toHaveLength(1);
+    expect(marked[0]!.textContent?.trim()).toBe("6");
+  });
+
+  test("omitting it falls back to the real clock", () => {
+    const now = new Date();
+    const c = mount(<Calendar label="Choose a date" />);
+    const marked = c.querySelectorAll<HTMLElement>("[data-today]");
+    // The default has to keep working — a seam that silently turns the
+    // feature off in production is worse than no seam.
+    expect(marked).toHaveLength(1);
+    expect(marked[0]!.textContent?.trim()).toBe(String(now.getDate()));
+  });
+
+  test("a pinned today does NOT move when the month does", async () => {
+    // The regression this prop exists for: the visual baseline pinned month
+    // and value, passed the day it was recorded, and failed the next morning
+    // because the ring had moved a cell overnight. A baseline that rots on a
+    // schedule is worse than one that is wrong, because it trains people to
+    // re-record without looking.
+    const c = mount(
+      <Calendar
+        label="Choose a date"
+        defaultMonth={new Date(2026, 7, 1, 12)}
+        today={new Date(2026, 7, 6, 12)}
+      />,
+    );
+    expect(c.querySelectorAll("[data-today]")).toHaveLength(1);
+    // September has no 6 August in it, so the ring must disappear entirely
+    // rather than land on some other cell.
+    const next = c.querySelector<HTMLElement>('[data-slot="calendar-next"]')!;
+    await userEvent.click(next);
+    expect(c.querySelectorAll("[data-today]")).toHaveLength(0);
+  });
+});

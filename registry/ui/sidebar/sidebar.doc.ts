@@ -91,7 +91,7 @@ Sidebar                    label (required) / isLabelHidden?
     "No section dividers. An Avatar and account menu are drawn in the mobile examples but belong to the composition around the rail, not to it.",
   ],
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DNF-0",
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HE2-0",
 } as const;
 
 export type SidebarDoc = typeof sidebarDoc;

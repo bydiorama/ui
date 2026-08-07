@@ -44,3 +44,40 @@ export function Invalid() {
 
   return [a, b, c, d];
 }
+
+export function Detents() {
+  return (
+    <>
+      <Drawer>
+        <Drawer.Panel label="Complete profile" snapPoints={[0.5, 0.9]}>
+          <p>Body</p>
+        </Drawer.Panel>
+      </Drawer>
+      <Drawer>
+        <Drawer.Panel
+          label="Complete profile"
+          snapPoints={[0.4, 0.7, 0.95]}
+          snapPoint={1}
+          onSnapPointChange={(index: number) => void index}
+        >
+          <p>Body</p>
+        </Drawer.Panel>
+      </Drawer>
+    </>
+  );
+}
+
+export function DetentMisuse() {
+  {/* The detent is an INDEX into snapPoints, not the fraction itself. */}
+  /* @ts-expect-error snapPoint is a number index, not a string */
+  const a = <Drawer.Panel label="x" snapPoints={[0.5]} snapPoint="0.5" />;
+
+  {/* §1: one callback, named for the value it reports. */}
+  /* @ts-expect-error there is no onExpand */
+  const b = <Drawer.Panel label="x" snapPoints={[0.5]} onExpand={() => {}} />;
+
+  /* @ts-expect-error snapPoints is a list of numbers */
+  const c = <Drawer.Panel label="x" snapPoints={["half", "full"]} />;
+
+  return [a, b, c];
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-document-card-classname-override",
+  "date": "2026-08-08",
+  "item": "card",
+  "kind": "addition",
+  "summary": "Documented, for the first time, that Card's className is sanctioned for overriding padding/radius/border/shadow via tailwind-merge conflict resolution (CONVENTIONS SS5), not just for layout. This mechanism already worked -- nothing in card.tsx changed -- but card.doc.ts never said so, and a consumer-side audit (service-portal, ~105 hand-rolled card surfaces) found real blockers this documents a path around: a whole component family whose house style is border-only (no shadow), and a grid with a track minimum narrower than Card's default 320px. Added a knownGaps entry noting a first-class prop may still be worth it if enough consumers reach for the same override -- tracked as issue #10, not resolved by this entry.",
+  "affects": ["component:card"],
+  "migration": {
+    "manual": "No code change. Consumers who were already using className to override Card's surface were doing something sanctioned, not a hack; card.doc.ts now says so."
+  }
+}

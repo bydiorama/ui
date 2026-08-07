@@ -112,6 +112,7 @@
         }
       ],
       "dependencies": [
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -120,6 +121,7 @@
       ],
       "peerDependencies": [
         "react",
+        "@base-ui/react",
         "griddy-icons"
       ],
       "status": "stable"
@@ -494,6 +496,7 @@
         }
       ],
       "dependencies": [
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -502,6 +505,7 @@
       ],
       "peerDependencies": [
         "react",
+        "@base-ui/react",
         "griddy-icons"
       ],
       "status": "stable"

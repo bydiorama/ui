@@ -42,6 +42,7 @@ can arrive later without changing any of this.
       required: true,
       notes: "Required — it is the accessible name, and \"Menu\" is not one. Say what it opens. Pass the button to Sheet.Trigger's `render` so aria-expanded and aria-controls come from the Sheet: a button declaring its own disclosure state can disagree with the panel it opens, and nothing would catch it.",
     },
+    "Item.render": { type: "ReactElement", notes: "Slot: swap the item's own <a>/<button> for this element — pass render={<Link href={href} />} so the app's router owns the transition. Passed through, never wrapped (§3): the item's data-slot, aria-current and className merge onto it rather than replacing what it carries." },
   },
 
   do: [

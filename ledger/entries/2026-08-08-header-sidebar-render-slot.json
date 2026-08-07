@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-header-sidebar-render-slot",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Header.Item and Sidebar.Item accept a new render?: ReactElement prop, following the same pattern Sheet.Trigger/Sheet.Close/Modal.Trigger already expose (CONVENTIONS SS9: 'Components that render links accept a render slot so the app supplies its own Link'). Neither item previously had one, so every nav click went through a full document navigation instead of a client-side transition -- filed as issue #6 from service-portal's AdminHeader/DashboardHeader consumption. Implemented with Base UI's public useRender hook (@base-ui/react/use-render), imported directly in each component's own implementation file per ADR 0012's wrapper rule -- not because either component gained interaction behaviour (focus trap, dismissal, positioning), which ADR 0012 reserves for the popover-class components and which neither Header nor Sidebar has, but because useRender is the same tested prop-merge algorithm (event handlers chain, className concatenates, other props let the consumer's element win) that Sheet/Modal's own render slots already rely on internally, and hand-rolling an equivalent merge would risk diverging from it. Recorded as an Update in ADR 0012 rather than silently expanding its 'Base UI is the behaviour layer' scope. SidebarItem's isDisabled invariant (preventDefault on click regardless of any consumer handler) was verified to survive a render element with its own onClick, since preventDefault takes effect on event dispatch completion regardless of handler order in the merged chain -- covered by a new browser test, not just asserted.",
+  "affects": ["component:header", "component:sidebar", "manifest"],
+  "migration": {
+    "manual": "Optional. Existing consumers are unaffected -- render is undefined by default and the item renders its previous <a>/<button> (Header) or <a>/<div> (Sidebar). To get a client-side transition through next/link or another router, pass render={<Link href={href} />} alongside the existing href/isCurrent/etc. props; the item's own data-slot, aria-current and className merge onto the passed element rather than replacing it."
+  }
+}

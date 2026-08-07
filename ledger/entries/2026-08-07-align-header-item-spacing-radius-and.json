@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-align-header-item-spacing-radius-and",
+  "date": "2026-08-07",
+  "item": "header",
+  "kind": "visual",
+  "summary": "Header navigation items now use the library's compact-control anatomy: an 8px inline and 4px block inset, a 4px soft radius, 4px between adjacent items, and 16px leading and trailing icon slots. This replaces the fully-pill 999px radius, 4px all-around inset, 12px inter-item gap, and unconstrained Griddy glyphs that rendered at their 24px default. The browser regression asserts the computed padding, radius, gap, target height, and rendered SVG box against the exported Paper header and the same radius-sm / px-sm / py-xs recipe used by other compact controls.",
+  "affects": ["registry:header"],
+  "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DOY-0"
+}

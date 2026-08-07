@@ -9,8 +9,8 @@ export const headerDoc = {
   anatomy: [
     { part: "root", slot: "header", notes: "A <header>. 48px tall: py-sm around a 32px control, px-lg, bg-surface." },
     { part: "start", slot: "header-start", notes: "Leading controls — a brand switcher, a back button. Slots, not links." },
-    { part: "nav", slot: "header-nav", notes: "A named <nav> wrapping a <ul> of items. gap-md, p-xs." },
-    { part: "item", slot: "header-item", notes: "The sheet's 24px pill at 12px bold. An <a> when given href, a <button> otherwise." },
+    { part: "nav", slot: "header-nav", notes: "A named <nav> wrapping a <ul> of items. gap-xs, p-xs." },
+    { part: "item", slot: "header-item", notes: "A compact 24px control at 12px bold: px-sm, py-xs, radius-sm, with 16px icon slots. An <a> when given href, a <button> otherwise." },
     { part: "spacer", slot: "header-spacer", notes: "flex-1, aria-hidden. The sheet draws one on each side of the nav, which is what centres it." },
     { part: "menuButton", slot: "header-menu-button", notes: "The control the navigation collapses INTO. A 32px chrome control with the menu glyph and a required label. NOTE: composed through Sheet.Trigger's `render`, the trigger's data-slot replaces this one — target it as `sheet-trigger` there." },
     { part: "end", slot: "header-end", notes: "Trailing controls — a menu toggle, an Avatar." },
@@ -66,7 +66,7 @@ can arrive later without changing any of this.
       { key: "Tab", does: "Walks Start, then the items, then End — document order, the platform's own behaviour." },
       { key: "Enter", does: "Follows a link item, or activates a button item. Native in both cases." },
     ],
-    target: "An item is the sheet's 24px pill — SC 2.5.8's floor exactly rather than comfortably over it. See knownGaps.",
+    target: "An item is a compact 24px control — SC 2.5.8's floor exactly rather than comfortably over it. See knownGaps.",
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-surface", floor: "text", role: "item labels on the bar" },
       { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the menu button's glyph on its chrome fill" },

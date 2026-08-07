@@ -3,6 +3,7 @@ import { userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
+import { ChevronDown } from "griddy-icons";
 
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Header } from "./header.tsx";
@@ -34,7 +35,7 @@ function Basic() {
       <Header.Spacer />
       <Header.Nav label="Primary">
         <Header.Item href="/agent">Agent</Header.Item>
-        <Header.Item trailing={<span aria-hidden="true">▾</span>}>Create</Header.Item>
+        <Header.Item trailing={<ChevronDown aria-hidden="true" />}>Create</Header.Item>
         <Header.Item href="/library" isCurrent>Library</Header.Item>
       </Header.Nav>
       <Header.Spacer />
@@ -130,14 +131,26 @@ describe("Header paints the sheet's bar", () => {
     expect(style.backgroundColor).toBe("rgb(253, 252, 251)");
   });
 
-  test("an item is the sheet's 24px pill at 12px bold", () => {
-    mount(<Basic />);
-    const style = getComputedStyle(items()[0]!);
+  test("an item uses the compact control inset and soft radius", () => {
+    const c = mount(<Basic />);
+    const list = c.querySelector<HTMLElement>('[data-slot="header-nav-list"]')!;
+    expect(getComputedStyle(list).gap).toBe("4px");
+
+    const item = items()[1]!;
+    const style = getComputedStyle(item);
     expect(style.fontSize).toBe("12px");
     expect(style.fontWeight).toBe("600");
-    expect(style.borderRadius).toBe("999px");
+    expect(style.paddingTop).toBe("4px");
+    expect(style.paddingRight).toBe("8px");
+    expect(style.paddingBottom).toBe("4px");
+    expect(style.paddingLeft).toBe("8px");
+    expect(style.borderRadius).toBe("4px");
     // 24 exactly — SC 2.5.8's floor rather than comfortably over it.
-    expect(items()[0]!.getBoundingClientRect().height).toBeGreaterThanOrEqual(24);
+    expect(item.getBoundingClientRect().height).toBeGreaterThanOrEqual(24);
+
+    const trailing = item.querySelector<SVGElement>("svg")!;
+    expect(trailing.getBoundingClientRect().width).toBe(16);
+    expect(trailing.getBoundingClientRect().height).toBe(16);
   });
 
   test("current and resting items differ in FILL, not only in aria", () => {

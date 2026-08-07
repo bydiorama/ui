@@ -20,7 +20,7 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
-import { Search } from "griddy-icons";
+import { ChevronDown, Search } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
@@ -328,7 +328,7 @@ const CASES: Array<{
         <Header.Nav label="Primary">
           <Header.Item href="/agent">Agent</Header.Item>
           <Header.Item href="/library" isCurrent>Library</Header.Item>
-          <Header.Item>Work</Header.Item>
+          <Header.Item trailing={<ChevronDown aria-hidden="true" />}>Work</Header.Item>
         </Header.Nav>
         <Header.Spacer />
         <Header.End>

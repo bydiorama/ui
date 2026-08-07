@@ -142,7 +142,7 @@ function HeaderNav({ children, label, className, ...rest }: HeaderNavProps) {
       <span id={labelId} className="sr-only">
         {label}
       </span>
-      <ul data-slot="header-nav-list" className="flex list-none items-center gap-md p-xs">
+      <ul data-slot="header-nav-list" className="flex list-none items-center gap-xs p-xs">
         <InNav.Provider value={true}>{children}</InNav.Provider>
       </ul>
     </nav>
@@ -177,9 +177,11 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, classNa
       data-current={isCurrent || undefined}
       {...(isCurrent ? { "aria-current": "page" as const } : {})}
       className={cn(
-        // The sheet's 24px pill: p-xs around a 12px label at flat leading.
-        // 24px is SC 2.5.8's floor exactly — see knownGaps.
-        "inline-flex min-h-6 cursor-pointer items-center justify-center gap-xs rounded-full p-xs",
+        // Compact-control anatomy: an 8px inline / 4px block inset around a
+        // 12px label, with the same soft radius and 16px glyph as Button sm.
+        // min-h-6 keeps the target at SC 2.5.8's 24px floor.
+        "inline-flex min-h-6 cursor-pointer items-center justify-center gap-xs rounded-sm px-sm py-xs",
+        "[&_svg]:size-4 [&_svg]:shrink-0",
         "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap no-underline",
         "text-ink-primary",
         "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",

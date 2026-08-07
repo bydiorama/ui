@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-consumer-sync-cli",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Added packages/cli (@bydiorama/ui, private -- not yet published to npm) implementing the consumer-side half of the change ledger design (plan.md SS4.6, part 3): a ui.lock.json schema (schemas/ui.lock.schema.json) recording each installed item's upstream revision and a per-file content hash, plus lock/sync commands. sync does a three-way comparison (installed content / locked hash / current registry content) per file, distinguishing current, stale (upstream moved, consumer untouched), modified (consumer edited, registry unchanged), modified-and-stale (both moved independently) and missing-upstream -- a two-way installed-vs-locked check alone cannot make the stale/modified distinction the plan calls load-bearing ('without it every drift report is noise'). Also surfaces ledger entries matching the item and dated after its lock. Generated service-portal's real ui.lock.json against this repo's own current checkout (14 installed items: 11 ui/, cn, chrome-control, use-controllable-state) as a real end-to-end test, not a synthetic one -- and it immediately found two genuine, previously-unnoticed drift cases from earlier in this same session: card.doc.ts was missing the className documentation added in 881f15c, and popover.doc.ts still carried the pre-rename 'Base UI is at 1.0.0-rc.0' knownGaps entry removed in 3a672a5. Both fixed in service-portal directly (re-synced from this registry) before finalizing the lockfile. Does NOT build the CI gate or SessionStart hook the plan describes -- both are explicitly sequenced to 'land with consumer #2' in plan.md's own words, and service-portal is still the only real consumer.",
+  "affects": ["package:cli", "schema:ui.lock"],
+  "migration": {
+    "manual": "New capability, not a breaking change to anything installed. A consumer that wants drift detection runs `node --experimental-strip-types bin/ui.ts lock <item...> --revision <sha>` once per installed item from a bydiorama/ui checkout (not yet npx-able -- package is private pending a deliberate publish decision), then `sync [--json]` going forward. See packages/cli/README.md."
+  }
+}

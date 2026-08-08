@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-image-edit-cover-fit",
+  "date": "2026-08-08",
+  "item": "image-edit",
+  "kind": "fix",
+  "summary": "Zoom is now a percentage of the COVER FIT against the crop, at the current rotation — not of the picture contained in the stage. The old baseline promised nothing about the crop, which is the only thing the user gets back: a 600x3000 picture fitted to 52x260 left 188px of nothing inside a 240px-wide crop, a panorama left 91px, and rotation opened the corners on pictures that were fine at 0° because the crop's rotated bounding box grows faster than the picture does (240x168 needs 283x240 at -20°, against a fitted 16:9 of 384x216). So a cropper could hand back a crop with a hole in it. The pan is clamped to the same geometry and re-clamped on read, since zooming out or straightening shrinks a limit that was legal a moment earlier. Both were blocked on one missing fact — the picture's fitted size — which is now measured on load and on resize, closing the unbounded-pan knownGap too. Visible consequence: rotating at 100% grows the picture, because it must. Found by the maintainer looking at Storybook; the coverage suite fails against the previous version in seven places.",
+  "affects": ["item:image-edit"],
+  "migration": {
+    "manual": "`zoom` means something different: 100% is now 'exactly fills the crop' rather than 'fits the stage'. A caller passing a zoom read from the old behaviour will see a larger picture. minZoom=100 is now a meaningful floor rather than an arbitrary number."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/P1P-0"
+  }
+}

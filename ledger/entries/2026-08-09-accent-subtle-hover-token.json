@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-accent-subtle-hover-token",
+  "date": "2026-08-09",
+  "item": "system",
+  "kind": "token",
+  "summary": "Adds --ui-bg-accent-subtle-hover, the accent wash under the pointer. The Table sheet drew a selected+hovered row as a raw hex (#C3DBE7) and annotated it 'new token', and neither existing role could stand in: bg-hover is a neutral and would drop the selection colour on hover, while bg-accent would make one hovered row louder than the button that submits the page. Derived as withAlpha(accent, 0.20) — the same step --ui-intent-danger-bg-hover takes over its own tint — and pinned in ZERO_AUTHORED in BOTH schemes, to the sheet's hex in light and to the matching alpha in dark. Also lists twelve contrast pairs a table row is the first thing to render: secondary and muted ink on the accent wash, on bg-hover and on bg-active; the selection edge against both wash states; the focus ring on bg-surface rather than on the page; and secondary ink on the sunken well. Declaring them moved two shipped tokens, both toward more contrast. Dark's --ui-text-secondary steps lighter, raising every dark secondary-ink pair in the library (6.97 to 7.91 on the page, 9.13 to 10.36 on a control). And --ui-bg-accent-legible darkens from #518CA2 to #458096, because its floor now covers the accent WASH as well as the sunken well and the hovered wash is the tighter of the two (2.60:1 before, 3.06:1 after) — so the Switch track, the Slider fill and thumb ring, the Progress fill and the ImageUpload progress fill all get slightly deeper in light. Four browser tests failed on that, every one of them named 'uses the ROLE, not the palette step' and every one asserting a hard-coded rgb() copy of what the role resolved to the day it was written; they now read the role. An unlisted pair is an unchecked pair, and a copied value is not a role.",
+  "affects": ["token:--ui-bg-accent-subtle-hover", "token:--ui-text-secondary", "token:--ui-bg-accent-legible", "item:table", "item:switch", "item:slider", "item:progress", "item:image-upload"],
+  "migration": {
+    "manual": "A resolver that enumerates BRANDABLE_TOKENS gains one entry and will fail to type-check until it derives it — that is intended. Re-emit your theme CSS (`pnpm tokens` in the storybook app, or your own emitter) or `bg-accent-subtle-hover` compiles to nothing. Two existing tokens move, both toward more contrast: dark's secondary ink lightens, and --ui-bg-accent-legible darkens in light, which is visible on Switch, Slider, Progress and ImageUpload. If you have pinned either value in a test, read the token instead."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/SWQ-0"
+  }
+}

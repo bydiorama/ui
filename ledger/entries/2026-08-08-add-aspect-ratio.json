@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-aspect-ratio",
+  "date": "2026-08-08",
+  "item": "aspect-ratio",
+  "kind": "addition",
+  "summary": "A media frame whose height comes from its width. Six named ratios transcribed from the sheet — square 1:1, story 9:16, portrait 3:4, landscape 4:3, card 1.586:1, screen 16:9 — over a --ui-bg-sunken well, clipped to the soft radius. The ratio vocabulary is a closed union rather than a number, so 'story' means one shape everywhere and nobody has to remember which way round 9/16 goes; anything outside the six goes through className, which tailwind-merge resolves cleanly. A child <img> is sized and cropped from the outside so the call site is just src and alt. The browser test asserts the PAINTED box rather than the declared property, and asserts that story x screen and portrait x landscape are reciprocals — the one mistake this vocabulary exists to prevent reads correctly in the source.",
+  "affects": ["item:aspect-ratio"],
+  "migration": {
+    "manual": "New item — nothing to migrate. `npx shadcn add @bydiorama/aspect-ratio`; it pulls in the `cn` lib item and expects react as a peer."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/MLS-0"
+  }
+}

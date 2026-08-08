@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-the-design-component-authoring-skill",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Add the design-component authoring skill: the Paper step that runs BEFORE add-component, producing a spec artboard an implementer can build from without guessing. Written from the Table sheet. Its load-bearing findings are the ones invisible from code: CSS custom properties do NOT cascade in Paper, so a dark section cloned from light renders as light and looks like it worked — dark is a second drawing applied per node, not a filter; Paper's token list is light-only by design, so both schemes must be resolved from packages/tokens before anything is drawn; and an interaction ramp has to be read as a sequence rather than state by state, because the surface scale inverts between schemes and a container placed on the wrong ground makes hover step darker while pressed steps lighter with both values individually correct. Also codifies that the sheet is where a missing token gets discovered — Table found two, a selected-plus-hover fill no role expressed and bg-hover/bg-selected resolving identically in light, which makes a hovered row and a selected row indistinguishable. Carries the placeholder-data harness: famous graphic designers and inventors of European descent, chosen because the names vary in length and carry diacritics, so a sheet stress-tests truncation, lane widths, tabular figures and accent coverage while looking considered. Authoring tier, so not distributed.",
+  "affects": ["skill:design-component"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0"
+  }
+}

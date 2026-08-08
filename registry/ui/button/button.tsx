@@ -28,9 +28,12 @@ const SIZE = {
   // `paddingInline: space-lg` and only Ghost draws xl, which is a slip.
   // ring-[1.5px] at EVERY size — the sheet's outline is 1.5 throughout, and
   // md/sm shipped at ring-1.
-  lg: "gap-sm py-md px-lg text-button-lg ring-[1.5px]",
-  md: "gap-sm py-sm px-md text-button-sm ring-[1.5px]",
-  sm: "gap-xs py-xs px-sm text-button-sm ring-[1.5px]",
+  // The explicit block size is intentional. Padding plus line-height produced
+  // 40/28/20px controls even though the documented and drawn contract is
+  // 44/32/24px. Keep padding for label geometry; own the hit area directly.
+  lg: "h-11 gap-sm py-md px-lg text-button-lg ring-[1.5px]",
+  md: "h-8 gap-sm py-sm px-md text-button-sm ring-[1.5px]",
+  sm: "h-6 gap-xs py-xs px-sm text-button-sm ring-[1.5px]",
 } as const satisfies Record<ButtonSize, string>;
 
 /**

@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-image-scrim-token-roles",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "token",
+  "summary": "Four brandable roles for putting text on a photograph. --ui-bg-scrim-image is the veil's ink; --ui-bg-scrim-image-floor is that ink at 72% composited over WHITE, i.e. the palest ground the veil can produce, and it exists so contrast over an unknown picture is measurable at all — declaring ink against the opaque ink would overstate it threefold. --ui-text-on-scrim and --ui-text-on-scrim-muted are the two caption inks, floored against that ground. All four are identical in light and dark on purpose: a photograph does not invert with the page. This replaces --ui-text-inverse for the job, which resolves as readableInkOn(textPrimary) and is therefore near-BLACK in dark — a caption over an image would have disappeared in one scheme only. SCRIM_ALPHA (0.72) is exported because ImageOverlay paints it and its browser test asserts the painted value against the constant. Two new resolver tests: the floor must equal the composite in every theme and both schemes, and none of the four may differ between schemes.",
+  "affects": [
+    "token:--ui-bg-scrim-image",
+    "token:--ui-bg-scrim-image-floor",
+    "token:--ui-text-on-scrim",
+    "token:--ui-text-on-scrim-muted"
+  ],
+  "migration": {
+    "manual": "Additive — no existing role changed value. If you were drawing your own scrim over an image with --ui-text-inverse, switch to --ui-text-on-scrim (utility: text-ink-on-scrim): the two are the same colour in light and different in dark, which is the bug."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/NV5-0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-border-side-width-gate",
+  "date": "2026-08-09",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:utilities read `border-b` as a colour named `b` and demanded --color-b. Every border in the library until now was either a full box (`border`) or a coloured side (`border-b-elevated`), so nothing had ever written the bare directional WIDTH — Table's row divider is the first, and the gate rejected a correct utility. The border namespace now skips a bare side keyword (x/y/t/r/b/l/s/e) while still resolving the colour in `border-b-elevated` and `border-elevated`. Probed both ways before and after: a typo in either the sided or the unsided colour form is still caught, and bare widths pass.",
+  "affects": ["item:system"],
+  "migration": {
+    "manual": "Tooling only — no distributed file changes. Nothing to do downstream."
+  }
+}

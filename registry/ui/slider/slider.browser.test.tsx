@@ -6,6 +6,23 @@ import type { ReactElement } from "react";
 
 import { Slider } from "./slider.tsx";
 
+/**
+ * The resolved value of a token, so an assertion names the ROLE rather than a
+ * copy of what it resolved to on the day it was written. This one is FLOORED
+ * against several grounds, so it moves whenever a new pair is declared — and
+ * four tests whose names all say "uses the role, not the palette step" each
+ * failed the first time it did, on a hard-coded rgb().
+ */
+function tokenColor(name: string): string {
+  const probe = document.createElement("div");
+  probe.style.color = `var(${name})`;
+  document.body.appendChild(probe);
+  const value = getComputedStyle(probe).color;
+  probe.remove();
+  return value;
+}
+
+
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;
 
@@ -250,7 +267,7 @@ describe("Slider paints the designed control", () => {
     // White on the pale accent is 1.5:1 alone; the 2px accent ring is what
     // keeps the thumb discernible (SC 1.4.11).
     expect(getComputedStyle(thumb).borderTopWidth).toBe("2px");
-    expect(getComputedStyle(thumb).borderTopColor).toBe("rgb(81, 140, 162)");
+    expect(getComputedStyle(thumb).borderTopColor).toBe(tokenColor("--ui-bg-accent-legible"));
   });
 
   test("the fill measures the value", () => {

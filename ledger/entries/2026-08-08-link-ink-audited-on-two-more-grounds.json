@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-link-ink-audited-on-two-more-grounds",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "--ui-text-link is now audited on --ui-bg-elevated and on --ui-bg-accent-subtle. Link ink had been measured on the page, on a panel and on a hover fill, and Image Upload draws it on two grounds nobody had listed: the dropzone's well, and the accent wash the target takes while a file is dragged over it. Unmeasured, the second was 3.37:1 in DARK. An unlisted pair is an unchecked pair. NOTE THE SIDE EFFECT: the resolver's audit responds by moving the dark scheme's link from blue-70 to a lighter step, which is a visible change to every link in dark mode — and it RAISES every other link pair rather than trading one for another (6.59:1 on the page, 8.63:1 on a panel, 4.58:1 on the wash). The authored pin in ZERO_AUTHORED.dark is overridden by the audit, which is the documented behaviour: an authored value that fails AA is corrected exactly like a derived one.",
+  "affects": ["token:--ui-text-link"],
+  "migration": {
+    "manual": "Dark-scheme links are lighter than before. Nothing to change in consuming code — the role is the same and every pair that used it measures better. If a screenshot test pins a dark link colour, re-record it."
+  }
+}

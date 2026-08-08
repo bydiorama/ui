@@ -32,7 +32,10 @@ export type {
 } from "./seed.ts";
 
 // Seed → tokens.
-export { resolveTheme, resolveThemePair, missingTokens } from "./resolve.ts";
+// MEDIA_SCRIM_ALPHA is exported because ImageOverlay PAINTS it (`bg-media/72`)
+// and its browser test asserts the painted value against this constant. The
+// same decision written in two files is a decision that drifts.
+export { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA } from "./resolve.ts";
 export type { Scheme, ResolveOptions, ResolveResult, ResolvedPair, ContrastAdjustment } from "./resolve.ts";
 
 // Non-brandable tokens.

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-gesture-keyboard-gate",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "check:gestures — a file that STARTS a pointer gesture (onPointerDown, onMouseDown, onTouchStart, onDragStart, onDrop) must register a keyboard handler, or be allowlisted naming where the keyboard path already is. CONVENTIONS §9 has said this since before CardSorting existed and nothing enforced it; the ratchet rule says prose is the floor. It is worth a gate because a gesture LOOKS finished: a drag that works with a mouse passes every other check here, and axe has nothing to say about a div that responds to pointer events. Drawer is the one exemption — its drag is a shortcut to a dismissal Escape, the scrim and Drawer.Close already provide. Only initiators count; onPointerMove/Up follow a gesture rather than offer one. Probed failing-first in five directions, and two of those probes found real bugs IN THE GATE: matching bare words made Badge's `Omit<HTMLAttributes, \"onMouseDown\" | \"onKeyDown\">` read as BOTH a registered gesture and a satisfied keyboard path, so a prop REMOVAL counted as a registration and a type annotation counted as a handler. Both sides now require the name to be followed by = : or (.",
+  "affects": ["item:system"],
+  "migration": {
+    "manual": "Tooling only — no distributed item changed. A new pointer-driven component now fails the build until it has a keyboard path or a declared reason. Added to `verify` AND enumerated in ci.yml, since that workflow lists its checks individually."
+  }
+}

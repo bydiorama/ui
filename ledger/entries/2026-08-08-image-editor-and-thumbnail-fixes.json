@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-image-editor-and-thumbnail-fixes",
+  "date": "2026-08-08",
+  "item": "image-edit",
+  "kind": "fix",
+  "summary": "Three defects found by looking at the built Storybook. (1) ImageEdit drew the picture TWICE — dimmed across the stage and again inside the crop — and the two could never align: each was object-contain inside a different box (384x260 against 240x168), so they resolved to different scales and offsets, and rotating showed both quads at once. Now one image, with the crop dimming everything outside it via a box-shadow whose spread exceeds the stage; that also follows border-radius, so the circular mask gets a circular hole for free. (2) Slider's thumb overhung the track at both extremes, because Base UI centres it on the value — at the minimum half of it sat outside the track and inside the 8px gap to the stepper button. The control is now inset by half a thumb, so the thumb's OUTER edge lands on the control's edge and the track it travels is the track it paints. Reported against Image Edit; it was every slider at 0 and at 100. (3) Thumbnail gains isLoading — a centred CSS spinner on the well, with the <img> withheld, announced as role=status named after the file. Thumbnail.Group's stacked spread now eases out over --ui-duration-slow to a ZERO gap rather than snapping to +4px on the standard curve: half the travel, and all the interaction needs, since what the overlap hides is the next tile's top-right corner where the remove control sits.",
+  "affects": ["item:image-edit", "item:slider", "item:thumbnail"],
+  "migration": {
+    "manual": "Slider renders slightly differently at every size: the track is inset by half a thumb (8px each side; 12px at lg), so a track measures 16-24px narrower than before and the thumb no longer overhangs. No API change. Thumbnail's `isLoading` is additive and defaults to false."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/P1P-0"
+  }
+}

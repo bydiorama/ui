@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-thumbnail",
+  "date": "2026-08-08",
+  "item": "thumbnail",
+  "kind": "addition",
+  "summary": "A 48px attachment tile with an optional remove control on its corner, plus Thumbnail.Group as a spaced row or an overlapping stack that spreads back out on hover and focus-within. Two accessibility fixes over the sheet: the control is drawn 16x16, under SC 2.5.8's 24px floor, so its target is extended to 24 with a pseudo-element while the paint stays at 16; and it is drawn hover-only, so it is now revealed on focus-visible as well — as opacity rather than mounting, keeping it in the tab order and never losing focus. removeLabel is required by the type whenever onRemove is passed, and max/overflowLabel travel together, both the same discriminated-union shape Avatar uses. The counter tile is Avatar.Group's, borrowed; the sheet draws none.",
+  "affects": ["item:thumbnail"],
+  "migration": {
+    "manual": "New item — nothing to migrate. `npx shadcn add @bydiorama/thumbnail`; it pulls in `cn` and expects react and griddy-icons as peers."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/NT7-0"
+  }
+}

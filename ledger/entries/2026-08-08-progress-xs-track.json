@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-progress-xs-track",
+  "date": "2026-08-08",
+  "item": "progress",
+  "kind": "addition",
+  "summary": "Progress gains an `xs` size — the 6px track the Image Upload sheet draws inside a file row. Additive: md and sm are unchanged. It exists so that row does not hand-roll a track, because a hand-drawn bar has no role=progressbar, no aria-valuenow, and no reason to reach for --ui-bg-accent-legible — the upload sheet fills its own track with --ui-bg-accent, 1.24:1 against the well in light. Reusing Progress makes that failure unrepeatable rather than merely discouraged.",
+  "affects": ["item:progress", "item:image-upload"],
+  "migration": {
+    "manual": "Additive — no existing size changed. `size=\"xs\"` is available on Progress."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/OZD-0"
+  }
+}

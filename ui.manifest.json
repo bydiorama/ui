@@ -769,6 +769,182 @@
       "status": "stable"
     },
     {
+      "name": "aspect-ratio",
+      "type": "ui",
+      "description": "A media frame whose height comes from its width. Six named ratios from the sheet — square, story, portrait, landscape, card, screen — over a recessed well, clipped to the soft radius. A child <img> is sized and cropped from the outside, so the call site is just src and alt. The vocabulary is closed on purpose: 'story' means the same shape wherever it is written, and nobody has to remember which way round 9/16 goes.",
+      "files": [
+        {
+          "path": "registry/ui/aspect-ratio/aspect-ratio.tsx",
+          "target": "ui/aspect-ratio.tsx"
+        },
+        {
+          "path": "registry/ui/aspect-ratio/aspect-ratio.doc.ts",
+          "target": "ui/aspect-ratio.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "image-overlay",
+      "type": "ui",
+      "description": "A picture with content on top of it. `scrim` darkens the bottom edge and holds a caption; `full` covers the frame, blurs it and centres an action. It IS an AspectRatio frame rather than a copy of one. The veil's strength is a conformance floor, not a taste setting: it is the point at which the caption's inks clear AA over the brightest possible photograph, which is the only guarantee a component putting text on unknown images can make.",
+      "files": [
+        {
+          "path": "registry/ui/image-overlay/image-overlay.tsx",
+          "target": "ui/image-overlay.tsx"
+        },
+        {
+          "path": "registry/ui/image-overlay/image-overlay.doc.ts",
+          "target": "ui/image-overlay.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "aspect-ratio"
+      ],
+      "peerDependencies": [
+        "react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "thumbnail",
+      "type": "ui",
+      "description": "A 48px attachment tile with an optional remove control on its corner — 16px of paint, 24px of target, revealed on hover AND on focus so a keyboard user is not tabbing to something invisible. Thumbnail.Group lays several out as a spaced row or as an overlapping stack that spreads back out on hover, with an overflow counter. removeLabel is required by the type whenever onRemove is passed: a cross with no accessible name announces as 'button'.",
+      "files": [
+        {
+          "path": "registry/ui/thumbnail/thumbnail.tsx",
+          "target": "ui/thumbnail.tsx"
+        },
+        {
+          "path": "registry/ui/thumbnail/thumbnail.doc.ts",
+          "target": "ui/thumbnail.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "image-upload",
+      "type": "ui",
+      "description": "A form field whose control is a drop target. Four states \u2014 empty, busy, attached, rejected \u2014 plus a drag-over state the component owns. Built on a real <input type=\"file\">, so the keyboard path is the native picker rather than a re-implementation, and `browse` is a real button rather than the sheet's styled text. ImageUpload.File is one row mid-upload, drawn with a real Progress so its fill stays on the legible accent; ImageUpload.Grid and .Add are the multiple-image layout. errorText is what puts the field in `rejected`, so the message and the state cannot disagree.",
+      "files": [
+        {
+          "path": "registry/ui/image-upload/image-upload.tsx",
+          "target": "ui/image-upload.tsx"
+        },
+        {
+          "path": "registry/ui/image-upload/image-upload.doc.ts",
+          "target": "ui/image-upload.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "progress"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "image-edit",
+      "type": "ui",
+      "description": "A crop stage with zoom and optional rotation. The crop WINDOW is fixed and the image moves behind it \u2014 by drag, and by the arrow keys, which the sheet draws no path for at all. Rectangular or circular; the circle is the avatar case, where the mask matches the destination and corner marks are deliberately absent. The stage is painted with the media ground rather than --ui-bg-emphasis, which IS the accent and would turn an image editor's stage into the brand colour. It is the body of a dialog, not the dialog: the caller wraps it in Modal and supplies the title, the close and the footer.",
+      "files": [
+        {
+          "path": "registry/ui/image-edit/image-edit.tsx",
+          "target": "ui/image-edit.tsx"
+        },
+        {
+          "path": "registry/ui/image-edit/image-edit.doc.ts",
+          "target": "ui/image-edit.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "slider",
+        "use-controllable-state"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "empty-state",
+      "type": "ui",
+      "description": "The absence of content, explained: a mark on a 32px well, a sentence saying what is missing, a second saying why, and the control that fixes it. Every part but the title is optional and the action is a real Button, rendered exactly as passed. It announces nothing on its own — a container that swaps it in for content the reader was looking at owns that decision, which is why Table marks the cell it renders this into aria-live.",
+      "files": [
+        {
+          "path": "registry/ui/empty-state/empty-state.tsx",
+          "target": "ui/empty-state.tsx"
+        },
+        {
+          "path": "registry/ui/empty-state/empty-state.doc.ts",
+          "target": "ui/empty-state.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "table",
+      "type": "ui",
+      "description": "A data surface built from hairlines, not fills. A real <table> with fixed lanes and one flexing column, three densities, sortable headers that report rather than sort, row selection whose labels the type requires, and loading and empty bodies that keep the header and the lane widths. Nothing inside the frame carries a radius — the frame clips, which lands on the concentric inner corner without writing a value the radius scale does not have.",
+      "files": [
+        {
+          "path": "registry/ui/table/table.tsx",
+          "target": "ui/table.tsx"
+        },
+        {
+          "path": "registry/ui/table/table.doc.ts",
+          "target": "ui/table.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "checkbox",
+        "use-controllable-state"
+      ],
+      "peerDependencies": [
+        "react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
       "name": "ui-craft",
       "type": "skill",
       "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",

@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS } from "./contract.ts";
-import { resolveTheme, resolveThemePair, missingTokens } from "./resolve.ts";
-import { AA_TEXT, contrastRatio, flatten, toOklch } from "./color.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA } from "./resolve.ts";
+import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
 import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
 import type { ThemeSeed } from "./seed.ts";
@@ -411,5 +411,66 @@ test("the slider thumb's ring clears 3:1 on both the track and the thumb", () =>
         `${name}/${scheme}: expected a two-stop ramp`,
       );
     }
+  }
+});
+
+/**
+ * The scrim floor IS the scrim, composited.
+ *
+ * `--ui-bg-media-floor` is the only role in the contract whose value is
+ * arithmetic on another role rather than a colour decision, which makes it the
+ * only one that can be quietly wrong: it is never painted, so no screenshot
+ * shows it, and every gate that consumes it — the contrast audit,
+ * `check:contrast`, the doc's declared pairs — trusts it completely. If the
+ * ink moved and the floor did not, every one of those would go on reporting
+ * the old numbers with nothing to compare them against.
+ *
+ * Theme zero pins BOTH as literals, so this is also what proves the pinned
+ * `#5c5b59` is still the composite of the pinned `--ui-bg-media`.
+ */
+test("the media floor equals the media ground composited over white, in every theme", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      assert.equal(
+        theme["--ui-bg-media-floor"],
+        flatten(withAlpha(theme["--ui-bg-media"]!, MEDIA_SCRIM_ALPHA), "#ffffff"),
+        `${name}/${scheme}: the media floor is not the media ground at ${MEDIA_SCRIM_ALPHA} over white`,
+      );
+    }
+  }
+});
+
+/**
+ * A photograph does not invert with the page.
+ *
+ * The scrim and its ink are the one place in this contract where light and
+ * dark must AGREE, and the failure it prevents is specific: the sheet reached
+ * for `--ui-text-inverse`, which resolves as "the ink readable on the page's
+ * own text colour" and is therefore near-black in the dark scheme. A caption
+ * over a photo would have been dark ink on a dark veil in dark mode only.
+ */
+test("the media ground and its inks follow neither the scheme nor the brand", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const token of [
+      "--ui-bg-media",
+      "--ui-bg-media-floor",
+      "--ui-text-on-media",
+      "--ui-text-on-media-muted",
+    ] as const) {
+      assert.equal(
+        pair.light[token], pair.dark[token],
+        `${name}: ${token} differs between schemes`,
+      );
+    }
+    // And the veil is DARK in both, whatever the brand seed is — a pale
+    // "scrim" is a wash, and white ink on a wash is the failure this whole
+    // role exists to prevent.
+    assert.ok(
+      contrastRatio(pair.light["--ui-bg-media"]!, "#ffffff") > 10,
+      `${name}: the media ground is not dark`,
+    );
   }
 });

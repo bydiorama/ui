@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-add-empty-state",
+  "date": "2026-08-09",
+  "item": "empty-state",
+  "kind": "addition",
+  "summary": "The absence of content, explained: a 32px sunken well carrying an aria-hidden mark, a 13px title, a 12px description and a slot for the control that fixes it. Every part but the title is optional, and the action is rendered exactly as passed rather than built from props. Two corrections over the sheet: the description was typed with --ui-text-button-sm — a BUTTON role on a line of prose — at leading-flat, which collides the moment the sentence wraps, so it ships as text-caption at leading-normal; and the container's off-scale min-height of 133px, which reads as an auto-layout artefact, is dropped so the container decides how tall an empty region is. It announces nothing on its own: a live region is the container's decision, because only the container knows whether this replaced something.",
+  "affects": ["item:empty-state"],
+  "migration": {
+    "manual": "New item — nothing to migrate. `npx shadcn add @bydiorama/empty-state`; it pulls in `cn` and expects react as a peer. Pass a real Button as `action`, and give it aria-live yourself if you swap it in for content the reader was already looking at."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/TSI-0"
+  }
+}

@@ -45,6 +45,18 @@ const ALLOWED = new Map([
     "Two, both nav chrome rather than actions. A section header is a disclosure spanning the rail at the row's own inset and type. The profile row is a full-width composite — avatar, name, address and a trailing chevron — that opens the rail's second layer; no Button variant has that anatomy, and the layer's BACK control does use the shared chrome control.",
   ],
   [
+    "registry/ui/image-upload/image-upload.tsx",
+    "Three, none of which is an action in Button's vocabulary. `browse` is a word INSIDE a sentence — it has to inherit the prompt's type and baseline, and any Button variant would put a box in the middle of a line of prose. The file row's cancel is a 24px mark pinned to a row, sized by the row. The add tile is a 92px square that sits in a line of image thumbnails and is sized by them; the shared chrome control is a fixed 32px page-chrome tile, a third of that. Replace / Remove / Choose another file — the ones that ARE actions — are a slot, so the call site passes real Buttons.",
+  ],
+  [
+    "registry/ui/thumbnail/thumbnail.tsx",
+    "The remove affordance is a 16px mark pinned into the corner of the 48px tile it belongs to — it is sized by that tile, not by a control scale, and its 24px hit area is a pseudo-element rather than its box. The shared chrome control is a fixed 32px square, two thirds of the whole thumbnail. Asked whether chromeControl should take a size: it should not, because 16px is below SC 2.5.8's floor and a sanctioned recipe that fails the target-size rule by default is worse than a declared exception here.",
+  ],
+  [
+    "registry/ui/table/table.tsx",
+    "The sort control IS the column header. It fills a `<th>` — the sheet's hover fill is the whole lane, at the header row's height and the table's own inline padding — and the `aria-sort` state it drives lives on its parent cell. A Button inside a th would put a control-shaped box, with its own height, radius and padding, in the middle of a lane whose whole job is to line up with the cells beneath it.",
+  ],
+  [
     "registry/ui/calendar/calendar.tsx",
     "A day is a gridcell in an ARIA grid with a roving tabindex, sized by its column rather than by a size prop. The month arrows DO use the shared chrome control.",
   ],

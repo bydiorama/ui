@@ -23,14 +23,40 @@ const declared = new Set(
 
 /** Utility prefix → the theme namespace it resolves against. */
 const NAMESPACES = [
-  [/^bg-(.+)$/, "--color-"],
+  // `bg-linear-to-b` is a GRADIENT DIRECTION, not a colour, and the bare
+  // `bg-(.+)` pattern resolved it against `--color-linear-to-b` and failed the
+  // build for writing a correct gradient. Both halves of this gate were wrong
+  // about gradients at once: it rejected the shorthand and, one line further
+  // down, had no `from-`/`via-`/`to-` namespace at all — so every colour STOP
+  // in a gradient was unchecked, and `via-nonsense-role` passed silently while
+  // emitting nothing. ImageOverlay is the first component to draw one.
+  [/^bg-(?!linear\b|linear-|radial\b|radial-|conic\b|conic-|gradient-)(.+)$/, "--color-"],
+  // The gradient stops themselves. A percentage or length position
+  // (`from-0%`, `to-90%`) starts with a digit and is waved through below as a
+  // built-in, exactly as `ring-1` and `p-0` are.
+  [/^(?:from|via|to)-(.+)$/, "--color-"],
   [/^text-ink-(.+)$/, "--color-ink-"],
   [/^text-(button-.+|body-.+|title-.+|display-.+|label-.+|caption)$/, "--text-"],
   [/^ring-(.+)$/, "--color-"],
   // Border COLOUR (widths/styles are numeric or keywords, filtered below).
   // Absent until Input arrived, because Button draws its resting edge with a
   // ring — so every border-* colour in the library was going unchecked.
-  [/^border-(?:[xytrbles]-)?([a-z][\w-]*)$/, "--color-"],
+  // The separate model's cell gap, which is a LENGTH. It must come BEFORE the
+  // border-colour pattern below (the loop breaks on the first match) and it is
+  // ROUTED rather than skipped: probing the first version of this fix — a bare
+  // `(?!spacing-)` — showed `border-spacing-nope` sailing through, so the
+  // exemption had traded one false positive for a false negative. Table is the
+  // first component to need the separate model, because it is the first to
+  // round a row's corners and `border-radius` does not apply under collapse.
+  [/^border-spacing-(.+)$/, "--spacing-"],
+  // The negative lookahead is the SIDE KEYWORD on its own. `border-b` is
+  // Tailwind's 1px bottom border — a WIDTH — and this pattern read the `b` as
+  // a colour name and demanded `--color-b`. Every border in the library until
+  // now was either a full box (`border`) or a coloured side
+  // (`border-b-elevated`), so nothing had ever written the bare form; Table's
+  // row divider is the first, and the gate rejected a correct utility.
+  // `border-b-elevated` and `border-elevated` still resolve their colour.
+  [/^border-(?![xytrbles]$)(?:[xytrbles]-)?([a-z][\w-]*)$/, "--color-"],
   // `outline-offset-*` and the line styles are built-ins, not colours.
   [/^outline-(?!offset-|solid|dashed|dotted|double)(.+)$/, "--color-"],
   // Every spacing-namespace prefix, not a sample of them. `mt-` was absent

@@ -86,6 +86,15 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-text-on-emphasis": NEUTRAL[100],
     "--ui-text-on-muted": NEUTRAL[0],
     "--ui-text-on-danger-solid": NEUTRAL[100],
+    // The sheet's own inverse ink over a photograph. Kept verbatim — what the
+    // handover got wrong here was the SCRIM's strength, not the ink: at the
+    // drawn 48% this pair measures 2.81:1, at the shipped 72% it measures
+    // 6.14:1. Pinned in both schemes because a photograph is a photograph.
+    "--ui-text-on-media": NEUTRAL[95],
+    // The sheet draws neutral-80, which measures 4.62:1 on the shipped scrim —
+    // over the line, so the drawing survives. It is pinned as a ROLE rather
+    // than left as the raw palette step the sheet reached for.
+    "--ui-text-on-media-muted": NEUTRAL[80],
 
     // Surfaces. Elevation separates by warm tint + shadow, not lightness —
     // the sheet's "ascending visual weight" reading (ADR 0008).
@@ -104,6 +113,12 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-gradient-accent": `linear-gradient(in oklab 90deg, ${BLUE[80]} 50%, ${BLUE[70]} 100%)`,
     "--ui-bg-muted": NEUTRAL[90],
     "--ui-bg-overlay": NEUTRAL[80],
+    // The media ground the sheet draws its scrim from: neutral-0, the ramp own darkest step.
+    "--ui-bg-media": NEUTRAL[0],
+    // neutral-0 at 72% over white. Written out because it is a COMPOSITE, not
+    // a ramp step — `resolve.test.ts` recomputes it from the two values above
+    // and fails if this literal ever stops matching.
+    "--ui-bg-media-floor": "#5c5b59",
     "--ui-bg-hover": NEUTRAL[90],
     "--ui-bg-active": NEUTRAL[80],
     // The value the sheet already draws for a selected tab. Pinned so the
@@ -114,6 +129,11 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-accent-hover": BLUE[70],
     "--ui-bg-accent-active": BLUE[60],
     "--ui-bg-accent-subtle": BLUE[90],
+    // The Table sheet's selected+hover row, which it drew as a raw hex. Not a
+    // palette step: it sits between blue-90 and blue-80, which is the whole
+    // reason the design reached for a literal. Pinned so the light drawing is
+    // exact; dark is left to derivation.
+    "--ui-bg-accent-subtle-hover": "#C3DBE7",
     // NOT pinned to a palette step: blue-60 measures under 3:1 on the sunken
     // well and the audit rejected it. The derivation floors the brand accent
     // at 3:1 instead, which is the whole point of the role.
@@ -171,6 +191,14 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-gradient-accent": `linear-gradient(in oklab 90deg, ${BLUE[80]} 50%, ${BLUE[70]} 100%)`,
     "--ui-text-link": BLUE[70],
     "--ui-text-link-hover": BLUE[80],
+    // Identical to light, and that is the point: the veil over a photograph
+    // and the ink on it do not follow the page. Left to derivation, dark would
+    // build the scrim from a dark-scheme accent and, worse, `--ui-text-inverse`
+    // — which is near-BLACK in dark — is what the sheet reached for.
+    "--ui-text-on-media": NEUTRAL[95],
+    "--ui-text-on-media-muted": NEUTRAL[80],
+    "--ui-bg-media": NEUTRAL[0],
+    "--ui-bg-media-floor": "#5c5b59",
     "--ui-text-on-accent": NEUTRAL[0],
     "--ui-bg-emphasis": NEUTRAL[0],
     "--ui-bg-emphasis-hover": NEUTRAL[10],
@@ -179,6 +207,11 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-accent-hover": BLUE[70],
     "--ui-bg-accent-active": BLUE[60],
     "--ui-bg-accent-subtle": "rgba(158, 219, 243, 0.16)",
+    // The dark counterpart of the pin above: more accent, not less, because
+    // over a dark page hover reads as lighter. Pinned alongside its light twin
+    // so the two cannot drift — a role authored in one scheme and derived in
+    // the other is the shape of half the defects this file exists to prevent.
+    "--ui-bg-accent-subtle-hover": "rgba(158, 219, 243, 0.24)",
     "--ui-bg-accent-legible": BLUE[80],
     "--ui-border-focus": BLUE[70],
     "--ui-focus-ring-color": BLUE[70],

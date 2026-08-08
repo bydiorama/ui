@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-image-upload",
+  "date": "2026-08-08",
+  "item": "image-upload",
+  "kind": "addition",
+  "summary": "A form field whose control is a drop target, in the sheet's four caller-settable states plus a drag-over state the component owns. It is built on a real <input type=\"file\"> with a real <label>, so the keyboard path is the native picker rather than a re-implementation — which is also why it is allowlisted in check:gestures rather than carrying an onKeyDown that does nothing. Five design fixes, each measured: the file row's progress fill was --ui-bg-accent at 1.24:1 against its own track and is now a real Progress at 3.07:1; the Replace pill was outlined in --ui-border-default at 2.14:1 and is now Button variant=outline at 3.11:1; the busy label was --ui-text-disabled at 1.94:1 and is now --ui-text-secondary; the rejection prose was --ui-text-muted on the danger well at 4.00:1 in dark and is now --ui-text-on-danger-subtle at 5.93:1; and 'browse' was styled text with no control behind it, so the component was pointer-only (SC 2.1.1) — it is now a real underlined button. errorText is what puts the field in `rejected`, as on Input, so the message and the state cannot disagree.",
+  "affects": ["item:image-upload", "item:progress"],
+  "migration": {
+    "manual": "New item — nothing to migrate. `npx shadcn add @bydiorama/image-upload`; it pulls in `cn` and `progress`, and expects react and griddy-icons as peers."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/OZD-0"
+  }
+}

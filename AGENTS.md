@@ -65,7 +65,8 @@ is the `add-component` skill (`registry/skills/add-component/SKILL.md`).
 Invoke it before starting; the steps below are the summary, not the manual.
 
 1. Design spec exists in `design/` (exported from Paper) — implement against it,
-   not against a screenshot.
+   not against a screenshot. No spec yet? That step is its own skill:
+   **`design-component`** (`registry/skills/design-component/SKILL.md`).
 2. Create `registry/ui/<name>/` with the component, its `*.doc.ts`, and stories.
 3. Register it in `ui.manifest.json`, then `pnpm registry:build`.
 4. Story must include the **brand-theme case**: rendered under theme zero *and*

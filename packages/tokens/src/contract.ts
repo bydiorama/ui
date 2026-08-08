@@ -36,6 +36,15 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-on-emphasis",
   "--ui-text-on-muted",
   "--ui-text-on-danger-solid",
+  // Ink on MEDIA — see the `--ui-bg-media` note below for what that family is.
+  //
+  // It cannot be `--ui-text-inverse`: inverse resolves as
+  // `readableInkOn(textPrimary)`, so in the dark scheme it is near-BLACK. A
+  // caption over a photograph would be dark ink on a dark veil in exactly the
+  // scheme nobody opens. Media does not invert with the page, so its ink must
+  // not either.
+  "--ui-text-on-media",
+  "--ui-text-on-media-muted",
 
   // Surfaces
   "--ui-bg-base",
@@ -65,12 +74,52 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-accent-hover",
   "--ui-bg-accent-active",
   "--ui-bg-accent-subtle",
+  // The same subtle fill, HOVERED. A selected table row is a persistent state
+  // that still has to answer the pointer, and neither existing role can do it:
+  // `bg-hover` is a neutral and would drop the selection colour on hover, and
+  // stepping to `bg-accent` would make one hovered row louder than the button
+  // that submits the page. The Table sheet drew it as a raw hex (#C3DBE7) and
+  // annotated it "new token" — this is that token. Symmetric with
+  // `--ui-intent-danger-bg-hover`, which deepens the danger tint the same way.
+  "--ui-bg-accent-subtle-hover",
   // The accent, adjusted until it CARRIES MEANING at 3:1 against a neutral
   // well. The brand accent is a pale blue by design, which is right for a
   // resting fill and wrong for anything that conveys a value: a progress fill,
   // a slider fill and a switch's on-track each measured ~1.2-1.5:1 against
   // their track and each failed SC 1.4.11 separately before this existed.
   "--ui-bg-accent-legible",
+  // THE MEDIA FAMILY: the neutral dark ground that pictures are shown on.
+  //
+  // One role, two uses, and they are the same decision:
+  //  - OPAQUE, as the GROUND BEHIND media — an image editor's stage, a
+  //    lightbox, a viewer. What sits on it is a photograph, and a photograph
+  //    reads truly only against a neutral.
+  //  - AT AN ALPHA, as a SCRIM OVER media — `bg-media/72` under a caption.
+  //
+  // It is deliberately invariant to BOTH the scheme and the brand, which no
+  // other surface role in this contract is. The scheme, because a photograph
+  // does not invert when the page does. The brand, because the obvious
+  // alternative — `--ui-bg-emphasis` — DERIVES FROM THE ACCENT: under a
+  // pale-yellow brand seed an editor's stage resolves to #ffe066, and every
+  // colour in the picture on it is judged against bright yellow.
+  //
+  // It is also not `--ui-scrim` (the airy 16% veil behind a modal) and not
+  // `--ui-bg-overlay`: both dim things this system drew and can measure. This
+  // family covers content the system has never seen.
+  "--ui-bg-media",
+  // The PALEST GROUND the media SCRIM can produce: the ink above composited at
+  // `MEDIA_SCRIM_ALPHA` over white — i.e. the veil over the brightest possible
+  // photograph.
+  //
+  // It exists because contrast over an image is otherwise unmeasurable, and an
+  // unmeasurable pair is one nobody measures. Declaring ink against
+  // `--ui-bg-media` would overstate it by a factor of three: the ink is opaque
+  // and what the reader sees is 72% of it over an unknown picture. This role
+  // is that worst case, made opaque so `check:contrast` can do arithmetic on
+  // it — and it is the right target for the OPAQUE use too, since ink on the
+  // full-strength ground can only measure better. `resolve.test.ts` pins it to
+  // the composite so the two cannot drift apart.
+  "--ui-bg-media-floor",
   "--ui-bg-emphasis",
   "--ui-bg-emphasis-hover",
   "--ui-bg-emphasis-active",
@@ -282,6 +331,24 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // before — so nothing had ever measured it.
   ["--ui-text-primary", "--ui-bg-accent-subtle"],
   ["--ui-text-primary", "--ui-bg-selected"],
+  // A TABLE ROW is the first thing to put a full column of secondary and muted
+  // ink on a state fill rather than on a resting surface, and every one of
+  // these pairs was unlisted. A selected row's Discipline and Year cells are
+  // `text-secondary` on the accent wash; a hovered row's are `text-secondary`
+  // on `bg-hover`; a pressed row's are on `bg-active`, which no pair had ever
+  // named at all. Ink that is legible at rest and not while the pointer is on
+  // it is a state nobody measures, because the screenshot is always taken at
+  // rest.
+  ["--ui-text-secondary", "--ui-bg-accent-subtle"],
+  ["--ui-text-secondary", "--ui-bg-accent-subtle-hover"],
+  ["--ui-text-primary", "--ui-bg-accent-subtle-hover"],
+  ["--ui-text-secondary", "--ui-bg-hover"],
+  ["--ui-text-primary", "--ui-bg-active"],
+  ["--ui-text-secondary", "--ui-bg-active"],
+  // The sortable column header the pointer is on: `bg-hover` is the fill and
+  // the label steps to primary ink. The muted resting label sits on
+  // `bg-elevated`, which is already listed below.
+  ["--ui-text-muted", "--ui-bg-hover"],
   // The grip on a CardSorting row. `elevated` is the only surface a muted ink
   // sits on that was never audited, because nothing had drawn one there.
   ["--ui-text-muted", "--ui-bg-elevated"],
@@ -307,6 +374,17 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // `bg-surface`, with `bg-hover` under the pointer.
   ["--ui-text-link", "--ui-bg-surface"],
   ["--ui-text-link", "--ui-bg-hover"],
+  // The "browse" control inside an Image Upload dropzone, while a file is
+  // being dragged over it: the target washes to `accent-subtle` and the link
+  // sits on that wash. Measured 4.82:1 light and 3.37:1 DARK before this pair
+  // existed — an unlisted pair is an unchecked pair, and this is the third
+  // time that sentence has been earned. Declaring it moves dark's link from
+  // blue-70 to a lighter step, which RAISES every other link pair too
+  // (6.59:1 on the page, 8.63:1 on a panel). See the ledger.
+  ["--ui-text-link", "--ui-bg-accent-subtle"],
+  // The same control at rest: the dropzone's well is `elevated`, and link ink
+  // had been audited on the page, a panel and a hover fill but never there.
+  ["--ui-text-link", "--ui-bg-elevated"],
   ["--ui-text-on-danger-solid", "--ui-bg-danger-solid"],
   ["--ui-text-on-danger-subtle", "--ui-intent-danger-bg"],
   ["--ui-intent-success-fg", "--ui-intent-success-bg"],
@@ -319,6 +397,14 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-intent-info-fg", "--ui-intent-info-bg"],
   ["--ui-nav-ink", "--ui-nav-bg"],
   ["--ui-nav-active-ink", "--ui-nav-active-bg"],
+  // Ink on an image scrim, measured against the palest ground that scrim can
+  // produce rather than against the ink it is made of. The sheet drew this
+  // pair at 48% with `--ui-text-inverse` and `--ui-neutral-80`, which measure
+  // 2.81:1 and 2.11:1 over a white photograph — the caption on a bright image
+  // was never readable, in either scheme, and no gate could see it because no
+  // token described the ground.
+  ["--ui-text-on-media", "--ui-bg-media-floor"],
+  ["--ui-text-on-media-muted", "--ui-bg-media-floor"],
 ] as const;
 
 /**
@@ -371,6 +457,26 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // 1.31:1 in DARK — a state indicator that disappears in the scheme nobody
   // opened. Neutral now uses --ui-text-muted, Banner's own neutral ink, which
   // is already audited on this ground a few lines above.
+  // Image Edit's crop window: its edge and corner marks are the only thing
+  // identifying where the crop falls, so SC 1.4.11 applies. Measured against
+  // the media family's FLOOR rather than against the stage at full strength,
+  // because the window sits over a photograph and the floor is the guarantee.
+  ["--ui-text-on-media", "--ui-bg-media-floor"],
   ["--ui-intent-success-fg", "--ui-bg-surface"],
   ["--ui-intent-danger-fg", "--ui-bg-surface"],
+  // The mark on an EmptyState's well. It is `aria-hidden` — the sentence
+  // beneath carries the meaning — but a mark nobody can see is a 32px grey
+  // square, so it is held to the graphical floor rather than waved through as
+  // decoration. `text-secondary` on `sunken` had never been measured: the two
+  // inks audited on that well are primary and muted.
+  ["--ui-text-secondary", "--ui-bg-sunken"],
+  // The selected TABLE ROW's leading edge, against the wash it is drawn on.
+  // The wash alone is colour, and colour alone is what SC 1.4.1 is about; the
+  // edge is the row's own non-colour cue, so it has to be identifiable.
+  ["--ui-bg-accent-legible", "--ui-bg-accent-subtle"],
+  ["--ui-bg-accent-legible", "--ui-bg-accent-subtle-hover"],
+  // A focus ring drawn INSIDE a table row. Every ring pair here measured
+  // against `bg-base`, and a row is `bg-surface` — one step off the page, and
+  // the step is in the direction that costs contrast in light.
+  ["--ui-focus-ring-color", "--ui-bg-surface"],
 ] as const;

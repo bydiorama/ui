@@ -60,16 +60,17 @@ Quick wins:
 
 Design:
 - [x] Accordion
-- [ ] Aspect Ratio
+- [x] Aspect Ratio
 - [ ] Card Selected
 - [ ] Card Task
 - [ ] Media preview
 - [ ] Multiselect Multi-line item (super, description, state)
-- [ ] Image/File upload dropzone
+- [x] Image Upload Dropzone
+- [ ] File Upload Dropzone
 - [ ] Folder
 - [ ] Progress Indicator Circular
 - [ ] Radio
-- [ ] Table
+- [x] Table
 - [ ] Table Line Items
 - [x] Tabs Underlined
 - [x] Text Area

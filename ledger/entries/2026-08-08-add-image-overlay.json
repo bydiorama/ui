@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-image-overlay",
+  "date": "2026-08-08",
+  "item": "image-overlay",
+  "kind": "addition",
+  "summary": "A picture with content on top of it, in the sheet's two variants: `scrim` darkens the bottom edge and holds a caption, `full` covers the frame with an 8px backdrop blur and centres an action. It IS an AspectRatio frame rather than a copy of one, asserted as a relationship in the browser test. Three deviations from the sheet, each because the drawing does not survive a bright photograph: the veil is 72% rather than 48% (the sheet's own two inks measure 2.81:1 and 2.11:1 over white, and 6.14:1 / 4.62:1 at 72%); the caption's inks are --ui-text-on-scrim roles rather than --ui-text-inverse and a raw --ui-neutral-80; and the fade sits ABOVE the caption instead of behind it, because a single ramp under bottom-aligned text is under-strength for every line but the last. The `full` variant's veil is flat for the same reason — its content is centred, i.e. exactly where a ramp is weakest.",
+  "affects": ["item:image-overlay"],
+  "migration": {
+    "manual": "New item — nothing to migrate. `npx shadcn add @bydiorama/image-overlay`; it pulls in `cn` and `aspect-ratio`, and expects react as a peer."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/NV5-0"
+  }
+}

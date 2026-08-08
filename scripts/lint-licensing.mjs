@@ -116,7 +116,20 @@ const errors = [];
 function* walk(dir) {
   if (!existsSync(dir)) return;
   for (const name of readdirSync(dir)) {
-    if (name === "node_modules" || name === "dist" || name.startsWith(".")) continue;
+    // BUILD OUTPUT is not source, and scanning it fails on other people's
+    // fonts. `storybook-static` bundles Storybook's own UI, which ships Nunito
+    // Sans and a mono stack — so a local `pnpm verify` run any time after a
+    // Storybook build reported fifteen licensing violations in code this repo
+    // does not write and does not distribute. CI never saw it because it
+    // builds Storybook AFTER this gate; the ordering was hiding it.
+    if (
+      name === "node_modules" ||
+      name === "dist" ||
+      name === "storybook-static" ||
+      name.startsWith(".")
+    ) {
+      continue;
+    }
     const full = join(dir, name);
     if (statSync(full).isDirectory()) yield* walk(full);
     else yield full;

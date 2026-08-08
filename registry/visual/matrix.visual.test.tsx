@@ -20,7 +20,7 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
-import { ChevronDown, InfoCircle, Search } from "griddy-icons";
+import { ChevronDown, Image, Inbox, InfoCircle, Search } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
@@ -30,6 +30,7 @@ import type { ReactElement } from "react";
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@bydiorama/tokens";
 
 import { Accordion } from "@/ui/accordion/accordion.tsx";
+import { AspectRatio } from "@/ui/aspect-ratio/aspect-ratio.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
@@ -41,6 +42,9 @@ import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Drawer } from "@/ui/drawer/drawer.tsx";
 import { Header } from "@/ui/header/header.tsx";
+import { ImageEdit } from "@/ui/image-edit/image-edit.tsx";
+import { ImageOverlay } from "@/ui/image-overlay/image-overlay.tsx";
+import { ImageUpload } from "@/ui/image-upload/image-upload.tsx";
 import { Input } from "@/ui/input/input.tsx";
 import { Menu } from "@/ui/menu/menu.tsx";
 import { Modal } from "@/ui/modal/modal.tsx";
@@ -52,9 +56,49 @@ import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
 import { CardSorting } from "@/ui/card-sorting/card-sorting.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
+import { EmptyState } from "@/ui/empty-state/empty-state.tsx";
 import { Switch } from "@/ui/switch/switch.tsx";
+import { Table, type TableColumn } from "@/ui/table/table.tsx";
 import { Tabs } from "@/ui/tabs/tabs.tsx";
 import { Textarea } from "@/ui/textarea/textarea.tsx";
+import { Thumbnail } from "@/ui/thumbnail/thumbnail.tsx";
+
+/**
+ * A gradient and a flat white, both as data URIs.
+ *
+ * No network — a baseline that depends on a fetch is a baseline that differs
+ * between the run that recorded it and the run that compares it. The white one
+ * is the picture ImageOverlay's AA guarantee is stated against, and it is the
+ * only one that shows whether the veil is strong enough.
+ */
+const MEDIA =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">
+      <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#a5aaf6"/><stop offset="0.5" stop-color="#e0a473"/>
+        <stop offset="1" stop-color="#5b5ca8"/>
+      </linearGradient></defs>
+      <rect width="64" height="64" fill="url(#g)"/>
+    </svg>`,
+  );
+const WHITE_MEDIA =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 4"><rect width="4" height="4" fill="#ffffff"/></svg>`,
+  );
+
+/**
+ * A 1x1 transparent GIF — the well, with nothing painted over it.
+ *
+ * NOT a broken path and NOT `src=""`. A broken image makes Chromium draw its
+ * own placeholder glyph, and a UA asset in a committed baseline is a baseline
+ * that breaks on a browser upgrade for a reason unrelated to this library.
+ * (`src=""` is worse still: React warns, and the storybook setup turns a
+ * console.error into a thrown test.) The broken-source state is shown in
+ * Storybook, where nothing is being compared pixel for pixel.
+ */
+const NO_MEDIA = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 const PAIR = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
 const SCHEMES = ["light", "dark"] as const;
@@ -94,7 +138,16 @@ function mount(
   return container;
 }
 
-/** Fonts and transitions both move pixels; wait for each before capturing. */
+/**
+ * Fonts and transitions both move pixels; wait for each before capturing.
+ *
+ * NEVER put an INFINITE animation in a case. `finished` on a looping animation
+ * resolves never, so a single spinner anywhere in the frame hangs this suite
+ * rather than failing it — and a hang reports as a timeout with no clue which
+ * case caused it. Thumbnail's `isLoading` and ImageUpload's busy state are both
+ * spinners, and both are deliberately absent below; they are covered in
+ * Storybook and by computed-style assertions instead.
+ */
 async function stable(el: Element) {
   await act(async () => {
     await document.fonts.ready;
@@ -113,6 +166,33 @@ const SELECT_ITEMS: SelectItem[] = [
   { value: "concept", label: "Brand Concept" },
   { value: "guidelines", label: "Brand Guidelines" },
   { value: "stationery", label: "Stationery" },
+];
+
+interface VisualDesigner {
+  id: string;
+  name: string;
+  status: "Active" | "Pending" | "Archived";
+  year: number;
+}
+
+const VISUAL_ROWS: VisualDesigner[] = [
+  { id: "tschichold", name: "Jan Tschichold", status: "Active", year: 1928 },
+  { id: "frutiger", name: "Adrian Frutiger", status: "Active", year: 1957 },
+  { id: "vignelli", name: "Massimo Vignelli", status: "Archived", year: 1972 },
+  { id: "biro", name: "László Bíró", status: "Archived", year: 1938 },
+];
+
+const VISUAL_COLUMNS: TableColumn<VisualDesigner>[] = [
+  { key: "name", header: "Name", isSortable: true, cell: (row) => row.name },
+  {
+    key: "status",
+    header: "Status",
+    width: 120,
+    cell: (row) => (
+      <Badge variant={row.status === "Active" ? "success" : "unselected"}>{row.status}</Badge>
+    ),
+  },
+  { key: "year", header: "Year", width: 72, isNumeric: true, cell: (row) => row.year },
 ];
 
 const MULTISELECT_ITEMS: MultiselectItem[] = [
@@ -596,6 +676,117 @@ const CASES: Array<{
     ),
   },
   {
+    name: "aspect-ratio",
+    // All six at ONE width, which is the comparison the sheet cannot show:
+    // it draws six widths at a shared height, so the six ratios never appear
+    // as six heights of one column — and 9/16 written where 16/9 was meant
+    // reads correctly in the source. The last frame carries no media, because
+    // the well is the only themed value this component has.
+    ui: (
+      <div className="flex flex-wrap items-start gap-md">
+        {(["square", "story", "portrait", "landscape", "card", "screen"] as const).map((ratio) => (
+          <div key={ratio} className="w-24">
+            <AspectRatio ratio={ratio}>
+              <img src={MEDIA} alt="" />
+            </AspectRatio>
+          </div>
+        ))}
+        <div className="w-24">
+          <AspectRatio ratio="square">
+            <img src={NO_MEDIA} alt="" />
+          </AspectRatio>
+        </div>
+      </div>
+    ),
+  },
+  {
+    name: "image-edit",
+    // Rect with rotation, and the circular avatar mask. The stage's fill is
+    // the point of the case: painted with the sheet's --ui-bg-emphasis it
+    // would be the brand colour, and only a picture shows that.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <ImageEdit src={MEDIA} alt="Abstract gradient" defaultZoom={128} hasRotation defaultRotation={-12} />
+        <ImageEdit src={MEDIA} alt="Abstract gradient" shape="circle" defaultZoom={128} />
+      </div>
+    ),
+  },
+  {
+    name: "image-overlay",
+    // Both variants over BOTH pictures. The white one is the case the veil's
+    // strength is decided by — a caption over a mid-tone gradient looks fine
+    // at almost any scrim, which is exactly why the sheet's 48% survived.
+    ui: (
+      <div className="flex flex-wrap items-start gap-md">
+        {[MEDIA, WHITE_MEDIA].map((src, i) => (
+          <div key={`scrim-${i}`} className="w-40">
+            <ImageOverlay src={src} alt="">
+              <Badge variant="success">Approved</Badge>
+              <ImageOverlay.Title>Abstract background</ImageOverlay.Title>
+              <ImageOverlay.Description>Photo Library</ImageOverlay.Description>
+            </ImageOverlay>
+          </div>
+        ))}
+        {[MEDIA, WHITE_MEDIA].map((src, i) => (
+          <div key={`full-${i}`} className="w-40">
+            <ImageOverlay src={src} alt="" variant="full">
+              <Button size="md" shape="full">Download</Button>
+            </ImageOverlay>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    name: "thumbnail",
+    // The sheet's four layouts. The remove control is invisible at rest and a
+    // screenshot cannot hover, so what this case can see is the two group
+    // widths — 152 against 136 — and the counter tile beside a real one.
+    ui: (
+      <div className="flex flex-col items-start gap-lg">
+        <Thumbnail src={MEDIA} alt="Brand guidelines" />
+        <Thumbnail.Group>
+          {["a", "b", "c"].map((k) => (
+            <Thumbnail key={k} src={MEDIA} alt={k} />
+          ))}
+        </Thumbnail.Group>
+        <Thumbnail.Group isStacked>
+          {["a", "b", "c"].map((k) => (
+            <Thumbnail key={k} src={MEDIA} alt={k} />
+          ))}
+        </Thumbnail.Group>
+        <Thumbnail.Group max={2} overflowLabel="2 more attachments">
+          {["a", "b", "c", "d"].map((k) => (
+            <Thumbnail key={k} src={k === "a" ? NO_MEDIA : MEDIA} alt={k} />
+          ))}
+        </Thumbnail.Group>
+      </div>
+    ),
+  },
+  {
+    name: "image-upload",
+    // Four of the sheet's rows in one frame. Drag-over is absent because a
+    // screenshot cannot hold a file over a target; it is asserted in the
+    // contract suite by dispatching a real dragover instead.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <ImageUpload label="Cover image" helperText="PNG or JPG · max 10 MB" />
+        <ImageUpload.File name="hero-cover.jpg" value={62} detail="1.4 MB of 2.2 MB" icon={<Image />} onCancel={() => {}} cancelLabel="Cancel upload of hero-cover.jpg" />
+        <ImageUpload
+          label="Rejected"
+          helperText="PNG or JPG · max 10 MB"
+          errorText="hero-cover.jpg is 14 MB"
+          errorDetail="The limit is 10 MB. Try a smaller file."
+          actions={<Button variant="outline" size="sm">Choose another file</Button>}
+        />
+        <ImageUpload.Grid>
+          <Thumbnail src={MEDIA} alt="a" className="size-23" />
+          <ImageUpload.Add label="Add images" />
+        </ImageUpload.Grid>
+      </div>
+    ),
+  },
+  {
     name: "menu",
     // Portalled INTO the frame, or the panel paints outside the capture and
     // the case compares an empty trigger row.
@@ -688,6 +879,68 @@ const CASES: Array<{
           </Sidebar>
         </Sheet.Panel>
       </Sheet>
+    ),
+  },
+  {
+    name: "empty-state",
+    // All four shapes, because what varies is which parts are present — and
+    // the mark's well against the body is the one pair a computed-style
+    // assertion cannot judge.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <div className="rounded-lg border border-edge-subtle bg-surface">
+          <EmptyState
+            icon={<Inbox />}
+            title="No designers match this filter"
+            description="Clear the status filter to see all 24 records."
+            action={<Button variant="secondary" shape="full">Clear Filter</Button>}
+          />
+        </div>
+        <div className="rounded-lg border border-edge-subtle bg-surface">
+          <EmptyState title="Nothing archived yet" description="Archived records stay 90 days." />
+        </div>
+      </div>
+    ),
+  },
+  {
+    name: "table",
+    // md and sm, selected and disabled rows, a sorted header and the empty
+    // body. The row divider is 1.08:1 against the row and the selection edge
+    // is 3px wide — neither is something a number in a test can confirm looks
+    // like a table.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Table
+          caption="Designers"
+          columns={VISUAL_COLUMNS}
+          rows={VISUAL_ROWS}
+          getRowId={(row) => row.id}
+          isSelectable
+          getRowLabel={(row) => `Select ${row.name}`}
+          selectAllLabel="Select all designers"
+          defaultSelectedIds={["frutiger"]}
+          defaultSort={{ columnKey: "name", direction: "descending" }}
+          isRowDisabled={(row) => row.id === "biro"}
+        />
+        <Table
+          size="sm"
+          caption="Designers, empty"
+          columns={VISUAL_COLUMNS}
+          rows={[]}
+          getRowId={(row) => row.id}
+          isSelectable
+          getRowLabel={(row) => `Select ${row.name}`}
+          selectAllLabel="Select all designers, empty"
+          empty={
+            <EmptyState
+              icon={<Inbox />}
+              title="No designers match this filter"
+              description="Clear the status filter to see all 24 records."
+              action={<Button variant="secondary" shape="full">Clear Filter</Button>}
+            />
+          }
+        />
+      </div>
     ),
   },
   {

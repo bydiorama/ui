@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-slider-stepper-icons",
+  "date": "2026-08-08",
+  "item": "slider",
+  "kind": "addition",
+  "summary": "Slider's steppers take optional `decrementIcon` / `incrementIcon` slots, defaulting to the existing −/+. A stepper's MARK depends on what is being stepped, not only its label: Image Edit steps a rotation, where the two ends are counter-clockwise and clockwise rather than less and more, and the sheet draws curved arrows there. The labels already varied for exactly that reason; this is the visual half of the same fact. Additive — every existing Slider renders unchanged.",
+  "affects": ["item:slider", "item:image-edit"],
+  "migration": {
+    "manual": "Additive. Pass `decrementIcon`/`incrementIcon` alongside `hasSteppers` to replace the −/+ glyphs; omit them and nothing changes."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/P1P-0"
+  }
+}

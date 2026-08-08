@@ -70,6 +70,22 @@ jobs:
       - name: Controls come from the library
         run: node scripts/check-controls.mjs
 
+      # CONVENTIONS §9 has said this since before CardSorting existed, and
+      # nothing enforced it. A gesture that works with a mouse passes every
+      # other gate here — its classes resolve, its contrast is declared, its
+      # stories render, and axe has nothing to say about a div that responds
+      # to pointer events. Listed as its own step because this workflow
+      # enumerates the checks rather than running `pnpm verify`.
+      - name: Pointer gestures have a keyboard path
+        run: node scripts/check-gestures.mjs
+
+      # Storybook's CSF indexer calls every named export in a story file as a
+      # story, so a shared constant beside them crashes processCSFFile and the
+      # file fails to load — invisible to tsc, ESLint and the stories vitest
+      # project, and visible only in a full Storybook build.
+      - name: Story files export only stories
+        run: node scripts/check-stories.mjs
+
       # Base UI flips and shifts an anchored panel by default, so this looks
       # handled at a comfortable window size. It cannot SHRINK a panel that is
       # bigger than its space, and every panel here carried a flat 256px cap

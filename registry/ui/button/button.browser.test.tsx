@@ -121,7 +121,16 @@ describe("Button pointer affordance", () => {
  * labels then inherited the body's 16px. Class-name assertions cannot catch
  * that; only the computed style can.
  */
-describe("Button typography matches the design sheet", () => {
+describe("Button geometry and typography match the design sheet", () => {
+  test.each([
+    ["lg", "44px"],
+    ["md", "32px"],
+    ["sm", "24px"],
+  ] as const)("labelled size %s owns its documented %s hit area", (size, expected) => {
+    const button = mount(<Button size={size}>Create New</Button>);
+    expect(getComputedStyle(button).height).toBe(expected);
+  });
+
   test.each([
     ["lg", "16px"],
     ["md", "12px"],

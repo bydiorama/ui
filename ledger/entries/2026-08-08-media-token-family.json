@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-media-token-family",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "breaking",
+  "summary": "The four image-scrim roles are generalised into a MEDIA family and renamed: --ui-bg-scrim-image -> --ui-bg-media, --ui-bg-scrim-image-floor -> --ui-bg-media-floor, --ui-text-on-scrim -> --ui-text-on-media, --ui-text-on-scrim-muted -> --ui-text-on-media-muted. SCRIM_ALPHA -> MEDIA_SCRIM_ALPHA. Values are unchanged; only the names and the concept widen. The reason is a second use with the same requirement: an image editor's STAGE is the ground BEHIND a picture, where the overlay's veil is a scrim OVER one, and both need a neutral dark that follows neither the scheme nor the brand. The obvious alternative for a stage is --ui-bg-emphasis, which IS the accent — under a pale-yellow brand seed a photo editor's stage resolves to #ffe066 and every colour in the picture is judged against bright yellow. Keeping one role for both uses is what stops that being rediscovered, and --ui-bg-media-floor remains the right measurement target for both: ink on the full-strength opaque ground can only measure better than ink on the 72% veil.",
+  "affects": [
+    "token:--ui-bg-media",
+    "token:--ui-bg-media-floor",
+    "token:--ui-text-on-media",
+    "token:--ui-text-on-media-muted",
+    "item:image-overlay"
+  ],
+  "migration": {
+    "manual": "Rename in place — no value changed. `--ui-bg-scrim-image` -> `--ui-bg-media` (utility `bg-scrim-image` -> `bg-media`), `--ui-bg-scrim-image-floor` -> `--ui-bg-media-floor`, `--ui-text-on-scrim` -> `--ui-text-on-media` (utility `text-ink-on-scrim` -> `text-ink-on-media`), `--ui-text-on-scrim-muted` -> `--ui-text-on-media-muted`. Importers of `SCRIM_ALPHA` take `MEDIA_SCRIM_ALPHA`. The roles shipped earlier the same day and no released consumer holds them."
+  }
+}

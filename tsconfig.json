@@ -49,10 +49,14 @@
       // explicit entry here, above the wildcard. `check:dependencies` resolves
       // every `@/` import against the manifest's targets, so a missing entry
       // here is a build error rather than a consumer's problem.
+      "@/ui/aspect-ratio": ["./registry/ui/aspect-ratio/aspect-ratio.tsx"],
       "@/ui/badge": ["./registry/ui/badge/badge.tsx"],
       "@/ui/button": ["./registry/ui/button/button.tsx"],
       "@/ui/calendar": ["./registry/ui/calendar/calendar.tsx"],
+      "@/ui/checkbox": ["./registry/ui/checkbox/checkbox.tsx"],
       "@/ui/menu": ["./registry/ui/menu/menu.tsx"],
+      "@/ui/progress": ["./registry/ui/progress/progress.tsx"],
+      "@/ui/slider": ["./registry/ui/slider/slider.tsx"],
       "@/ui/*": ["./registry/ui/*"]
     }
   },

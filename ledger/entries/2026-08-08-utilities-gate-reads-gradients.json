@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-utilities-gate-reads-gradients",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:utilities was wrong about gradients in both directions at once. `bg-linear-to-b` is a DIRECTION, and the bare bg- pattern resolved it against --color-linear-to-b and failed the build for writing a correct gradient; meanwhile there was no from-/via-/to- namespace at all, so every colour STOP in a gradient went unchecked and `via-nonsense-role` passed while emitting nothing. ImageOverlay is the first component to draw one — the first-of-its-kind rule landing on a utility FAMILY again. Both halves probed failing-first with a throwaway file before and after the fix.",
+  "affects": ["item:system"],
+  "migration": {
+    "manual": "Tooling only — no distributed item changed. A gradient stop naming a role the theme does not emit now fails the build instead of silently emitting nothing."
+  }
+}

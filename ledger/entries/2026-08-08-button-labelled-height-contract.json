@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-button-labelled-height-contract",
+  "date": "2026-08-08",
+  "item": "button",
+  "kind": "a11y",
+  "summary": "Labelled Button sizes now own the 44/32/24px heights promised by the component documentation and approved design. Padding plus line-height previously computed to 40/28/20px, leaving every size four pixels short and the small control below the 24px WCAG 2.5.8 target-size floor. Explicit heights make the geometry and hit area invariant while preserving the existing inline padding, label metrics, variants and icon-only sizes.",
+  "affects": [
+    "component:button",
+    "size:lg",
+    "size:md",
+    "size:sm",
+    "visual:height",
+    "a11y:target-size"
+  ],
+  "migration": {
+    "manual": "No API change. Review dense layouts and visual baselines: every labelled Button is four pixels taller. Icon-only Button dimensions are unchanged."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/E3V-0"
+  }
+}

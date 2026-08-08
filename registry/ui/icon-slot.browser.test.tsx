@@ -27,7 +27,10 @@ import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { Input } from "@/ui/input/input.tsx";
 import { chromeControl } from "@/lib/chrome-control";
 import { Header } from "@/ui/header/header.tsx";
+import { EmptyState } from "@/ui/empty-state/empty-state.tsx";
+import { ImageUpload } from "@/ui/image-upload/image-upload.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
+import { Table } from "@/ui/table/table.tsx";
 
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;
@@ -69,6 +72,33 @@ const CASES: Array<[name: string, ui: ReactElement]> = [
         <Accordion.Panel>Answer</Accordion.Panel>
       </Accordion.Item>
     </Accordion>,
+  ],
+  [
+    // The file row's thumb slot. A caller passes a glyph OR a thumbnail, and
+    // a slot the component does not size ships griddy's 24px default — which
+    // in a 40px well is most of the tile.
+    "ImageUpload.File icon",
+    <ImageUpload.File name="hero-cover.jpg" value={62} icon={<Search />} />,
+  ],
+  [
+    // The mark on an EmptyState's 32px well. Half the well is glyph and half
+    // is air; at griddy's 24px default the mark fills the tile and the well
+    // stops reading as a well at all.
+    "EmptyState icon",
+    <EmptyState icon={<Search />} title="No designers match this filter" />,
+  ],
+  [
+    "Table sort indicator",
+    // Not a slot — the component's own chevron — but it is sized by the same
+    // rule and breaks in the same way, and this is the file that would tell
+    // you. It is drawn at opacity 0 until the column is asked about, which is
+    // exactly the state nobody looks at.
+    <Table
+      caption="Designers"
+      columns={[{ key: "name", header: "Name", isSortable: true, cell: (row: { id: string }) => row.id }]}
+      rows={[{ id: "a" }]}
+      getRowId={(row) => row.id}
+    />,
   ],
   [
     "Sidebar item",

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-stories-export-gate",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:stories — every named export in a *.stories.tsx must be typed `: Story`. AspectRatio exported the placeholder image its stories share, and Storybook's CSF indexer calls EVERY named export as a story, so processCSFFile crashed and the whole file failed to load in Storybook. Nothing caught it: tsc is happy, ESLint is happy, and the `stories` vitest project is happy too, because addon-vitest imports the module and reads only the exports it recognises. Only a full Storybook build sees it, and a build is far too slow to be the feedback loop for 'did I just export a constant'. Probed by re-introducing the exact export. Also fixed alongside: lint-licensing walked `storybook-static`, so a local `pnpm verify` run any time after a Storybook build reported fifteen violations in Storybook's own bundled fonts — CI never saw it only because it builds Storybook after that gate.",
+  "affects": ["item:system"],
+  "migration": {
+    "manual": "Tooling only. A shared constant in a story file must not be exported — drop the keyword. Added to `verify` and enumerated in ci.yml."
+  }
+}

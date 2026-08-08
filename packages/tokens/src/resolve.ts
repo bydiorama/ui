@@ -54,6 +54,23 @@ const DATA_HUES = {
   navigational: LAVENDER[40],
 } as const;
 
+/**
+ * How opaque the media SCRIM is at full strength — the alpha `--ui-bg-media`
+ * is painted at when it veils a picture rather than sitting behind one.
+ *
+ * 0.72, and the number is a CONFORMANCE FLOOR rather than a taste decision.
+ * Text over a photograph has to clear AA against the worst photograph it will
+ * ever be given, which is a white one — so the guarantee is whatever the ink
+ * measures once composited over white. The approved sheet draws 48%, where its
+ * own two inks measure 2.81:1 and 2.11:1; at 72% the same two inks measure
+ * 6.14:1 and 4.62:1 and nothing else about the drawing changes.
+ *
+ * Exported because the component paints it (`bg-media/72`) and the
+ * browser test asserts the painted value against this constant — a literal in
+ * two places is a literal that drifts.
+ */
+export const MEDIA_SCRIM_ALPHA = 0.72;
+
 const SHADOW_SCALE = {
   none: 0,
   subtle: 0.6,
@@ -356,6 +373,33 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   // (email, PDF, charts), and a gate asserts no var() survives.
   const accentGradient = accentRamp(accent, awayFromInk);
 
+  /**
+   * The MEDIA ground, and the one derivation in this file that deliberately
+   * ignores both `dark` AND the accent's lightness.
+   *
+   * Every other surface here answers "which way is the page facing"; a
+   * photograph faces neither way. Inverting it in dark mode would make it a
+   * WHITE wash, and the caption would then need dark ink over an image that is
+   * usually not pale — so the same drawing fails in one scheme whichever ink
+   * is chosen.
+   *
+   * And it must not follow the BRAND either, which is the trap
+   * `--ui-bg-emphasis` falls into: that role IS the accent, so an editor stage
+   * painted with it resolves to #ffe066 under a pale-yellow seed. Built like
+   * `deriveCounterpart`'s dark ground instead — near-black at the brand's own
+   * hue and almost no chroma — so a themed portal's media surfaces carry a
+   * hint of its colour without ever going light.
+   */
+  const scrimInk = (() => {
+    const base = toOklch(accent);
+    return formatColor(
+      oklchToRgb({ L: 0.16, C: Math.min(base?.C ?? 0, 0.02), h: base?.h ?? 0, a: 1 }),
+    );
+  })();
+  // The worst case, made opaque so it can be measured. See the contract.
+  const scrimFloor = flatten(withAlpha(scrimInk, MEDIA_SCRIM_ALPHA), "#ffffff");
+  const onScrim = readableInkOn(scrimFloor, INKS);
+
   const theme: ResolvedTheme = {
     // Text
     "--ui-text-primary": colors.textPrimary,
@@ -372,6 +416,13 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // so text-primary alone would be dark-on-dark.
     "--ui-text-on-muted": readableInkOn(colors.muted, INKS),
     "--ui-text-on-danger-solid": readableInkOn(dangerSolid, INKS),
+    // Floored against the worst case, not against the ink — so a brand whose
+    // scrim came out lighter gets a lighter caption rather than a failing one.
+    "--ui-text-on-media": legibleOn(onScrim, scrimFloor, AA_TEXT),
+    // The second line. Stepped 35% toward the ground for hierarchy, then
+    // floored: a caption's byline is TEXT, and WCAG exempts disabled controls,
+    // not quiet ones. The sheet used a raw --ui-neutral-80 here.
+    "--ui-text-on-media-muted": legibleOn(towardL(onScrim, scrimFloor, 0.35), scrimFloor, AA_TEXT),
 
     // Surfaces. Elevated is never DARKER than what it floats over — that is
     // what "raised" reads as in both schemes. A brand whose surface is already
@@ -401,9 +452,17 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-accent-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-accent-active": shiftL(accent, awayFromInk * 0.11),
     "--ui-bg-accent-subtle": withAlpha(accent, 0.12),
+    // Deepened by the same proportion `--ui-intent-danger-bg-hover` deepens its
+    // tint (0.14 -> 0.22). Derived from the accent rather than by darkening the
+    // resolved subtle value, so it steps the right way in both schemes: over a
+    // dark page more accent means LIGHTER, which is what hover has to mean
+    // there.
+    "--ui-bg-accent-subtle-hover": withAlpha(accent, 0.2),
     // Floored against the SUNKEN well, which is the darkest neutral a fill
     // sits on; clearing that clears the lighter grounds too.
     "--ui-bg-accent-legible": accentLegible,
+    "--ui-bg-media": scrimInk,
+    "--ui-bg-media-floor": scrimFloor,
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),

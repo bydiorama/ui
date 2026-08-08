@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-image-edit",
+  "date": "2026-08-08",
+  "item": "image-edit",
+  "kind": "addition",
+  "summary": "A crop stage with zoom and optional rotation, in the sheet's two shapes. The crop WINDOW is fixed and the image moves behind it, which is what the sheet actually draws — the corner marks are decoration, and the circular avatar row has none because a round crop cannot deliver the rectangle a corner handle promises. It is the body of a dialog rather than the dialog: Modal supplies the surface, title, close and footer. Four fixes: the stage is --ui-bg-media rather than --ui-bg-emphasis, which IS the accent and resolves to #ffe066 under a pale-yellow brand seed; both adjustments are the Slider component rather than the sheet's hand-drawn track, whose fill measured 1.24:1 and whose knob edge measured 1.76:1 against the track; Cancel is Button variant=outline (3.11:1) rather than the drawn --ui-border-default (2.14:1); and the sheet draws NO keyboard path for the crop at all, so arrow keys pan the image with Shift for a coarse step, announced through an sr-only hint on the stage. That last one is an invention and is recorded as mine under needsDesign.",
+  "affects": ["item:image-edit", "item:slider"],
+  "migration": {
+    "manual": "New item — nothing to migrate. `npx shadcn add @bydiorama/image-edit`; it pulls in `cn`, `slider` and `use-controllable-state`, and expects react and griddy-icons as peers."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/P1P-0"
+  }
+}

@@ -2,7 +2,7 @@ import { forwardRef, useId, type HTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
 
-export type ProgressSize = "md" | "sm";
+export type ProgressSize = "md" | "sm" | "xs";
 
 /**
  * `solid` is the default because it is the one that survives contact with a
@@ -12,10 +12,21 @@ export type ProgressSize = "md" | "sm";
  */
 export type ProgressVariant = "solid" | "gradient";
 
-/** Track heights from the sheet: 20px and 8px. */
+/**
+ * Track heights from the sheet: 20px and 8px, plus the 6px the Image Upload
+ * sheet draws inside a file row.
+ *
+ * `xs` exists so that row does not hand-roll a track. A bar drawn by hand has
+ * no `role="progressbar"`, no `aria-valuenow`, and — the reason this matters
+ * here — no reason to use `--ui-bg-accent-legible`: the upload sheet fills its
+ * own track with `--ui-bg-accent`, which measures 1.24:1 against the well in
+ * light, the exact SC 1.4.11 failure the legible role was added to fix.
+ * Reusing Progress makes that unrepeatable rather than merely discouraged.
+ */
 const SIZE = {
   md: "h-4",
   sm: "h-2",
+  xs: "h-1.5",
 } as const satisfies Record<ProgressSize, string>;
 
 interface ProgressOwnProps {

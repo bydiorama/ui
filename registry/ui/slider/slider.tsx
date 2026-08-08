@@ -37,14 +37,29 @@ export type SliderSize = "xl" | "lg" | "md" | "sm";
  * argument Button's own per-size radius makes.
  */
 const SIZE = {
-  xl: { track: "h-8 rounded-md", fill: "rounded-l-md", thumb: "h-8 w-4", pad: "" },
-  lg: { track: "h-6 rounded-full", fill: "rounded-l-full", thumb: "size-6", pad: "" },
-  md: { track: "h-4 rounded-full", fill: "rounded-l-full", thumb: "size-4", pad: "py-xs" },
-  sm: { track: "h-2 rounded-full", fill: "rounded-l-full", thumb: "size-4", pad: "py-sm" },
+  xl: { track: "h-8 rounded-md", fill: "rounded-l-md", thumb: "h-8 w-4", pad: "", inset: "px-sm" },
+  lg: { track: "h-6 rounded-full", fill: "rounded-l-full", thumb: "size-6", pad: "", inset: "px-md" },
+  md: { track: "h-4 rounded-full", fill: "rounded-l-full", thumb: "size-4", pad: "py-xs", inset: "px-sm" },
+  sm: { track: "h-2 rounded-full", fill: "rounded-l-full", thumb: "size-4", pad: "py-sm", inset: "px-sm" },
 } as const satisfies Record<
   SliderSize,
-  { track: string; fill: string; thumb: string; pad: string }
+  { track: string; fill: string; thumb: string; pad: string; inset: string }
 >;
+
+/**
+ * `inset` is HALF THE THUMB, as horizontal padding on the control.
+ *
+ * Base UI centres the thumb on the value, so at the minimum its centre sits on
+ * the track's left edge and half of it hangs off — into the stepper button
+ * sitting 8px away, which is what "the slider positions are too close to the
+ * buttons" looks like. Insetting the track by half a thumb makes the thumb's
+ * OUTER edge land on the control's edge at both extremes: it can no longer
+ * reach a neighbour, and the track it travels is exactly the track it paints.
+ *
+ *   sm/md/xl  thumb 16 -> px-sm  (8)      lg  thumb 24 -> px-md (12)
+ *
+ * Reported against Image Edit, but it was every slider at 0 and at 100.
+ */
 
 /**
  * `pad` is the SC 2.5.8 top-up, and only where the track needs one.
@@ -94,8 +109,30 @@ interface SliderBaseProps {
  * know what is being stepped.
  */
 type SliderStepperProps =
-  | { hasSteppers?: false; decrementLabel?: undefined; incrementLabel?: undefined }
-  | { hasSteppers: true; decrementLabel: string; incrementLabel: string };
+  | {
+      hasSteppers?: false;
+      decrementLabel?: undefined;
+      incrementLabel?: undefined;
+      decrementIcon?: undefined;
+      incrementIcon?: undefined;
+    }
+  | {
+      hasSteppers: true;
+      decrementLabel: string;
+      incrementLabel: string;
+      /**
+       * Slots: the stepper glyphs, defaulting to −/+.
+       *
+       * They exist because a stepper's MARK depends on what is being stepped,
+       * not just its label. Image Edit steps a rotation, where the two ends are
+       * counter-clockwise and clockwise rather than less and more — the sheet
+       * draws curved arrows there, and −/+ beside a value in degrees reads as
+       * a different control. The labels already vary for the same reason; this
+       * is the visual half of the same fact.
+       */
+      decrementIcon?: ReactElement;
+      incrementIcon?: ReactElement;
+    };
 
 export type SliderProps = SliderBaseProps & SliderStepperProps;
 
@@ -202,7 +239,7 @@ export function Slider(props: SliderProps) {
             onClick={() => stepBy(-1)}
             className={chromeControl()}
           >
-            <Minus aria-hidden="true" />
+            {props.decrementIcon ?? <Minus aria-hidden="true" />}
           </button>
         )}
 
@@ -215,6 +252,7 @@ export function Slider(props: SliderProps) {
             className: cn(
               "relative flex flex-1 touch-none items-center select-none",
               geometry.pad,
+              geometry.inset,
               isDisabled ? "cursor-not-allowed" : "cursor-pointer",
             ),
           })}
@@ -272,7 +310,7 @@ export function Slider(props: SliderProps) {
             onClick={() => stepBy(1)}
             className={chromeControl()}
           >
-            <Plus aria-hidden="true" />
+            {props.incrementIcon ?? <Plus aria-hidden="true" />}
           </button>
         )}
 

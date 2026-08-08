@@ -99,6 +99,9 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     // or it lands nearly white and the current item disappears.
     "--ui-nav-active-bg": NEUTRAL[95],
     "--ui-gradient-brand": `linear-gradient(in oklab 270deg, ${BLUE[80]} 0%, ${LAVENDER[80]} 50%, ${RED[80]} 100%)`,
+    // The slider ramp exactly as the sheet draws it. Pinned in BOTH schemes
+    // because the design is the same sweep on either ground.
+    "--ui-gradient-accent": `linear-gradient(in oklab 90deg, ${BLUE[80]} 50%, ${BLUE[70]} 100%)`,
     "--ui-bg-muted": NEUTRAL[90],
     "--ui-bg-overlay": NEUTRAL[80],
     "--ui-bg-hover": NEUTRAL[90],
@@ -163,6 +166,9 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     // field reads as a well, not as another panel.
     "--ui-bg-field": NEUTRAL[0],
     "--ui-gradient-brand": `linear-gradient(in oklab 270deg, ${BLUE[80]} 0%, ${LAVENDER[80]} 50%, ${RED[80]} 100%)`,
+    // The slider ramp exactly as the sheet draws it. Pinned in BOTH schemes
+    // because the design is the same sweep on either ground.
+    "--ui-gradient-accent": `linear-gradient(in oklab 90deg, ${BLUE[80]} 50%, ${BLUE[70]} 100%)`,
     "--ui-text-link": BLUE[70],
     "--ui-text-link-hover": BLUE[80],
     "--ui-text-on-accent": NEUTRAL[0],

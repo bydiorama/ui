@@ -19,8 +19,11 @@ export function Invalid() {
   const b = <Progress value={62} />;
   /* @ts-expect-error value is a number, not a string */
   const c = <Progress label="Usage" value="62" />;
-  /* @ts-expect-error "md" is not a progress size */
-  const d = <Progress label="Usage" value={1} size="md" />;
+  /* The old vocabulary. `lg` meant 20px here and would mean 24px on Slider,
+     which is the synonym problem §2 forbids — so it has to stop compiling
+     rather than quietly resolve to a different bar. */
+  /* @ts-expect-error sizes are md | sm; lg was renamed and resized */
+  const d = <Progress label="Usage" value={1} size="lg" />;
   /* @ts-expect-error "brand" is not a progress variant */
   const e = <Progress label="Usage" value={1} variant="brand" />;
   return [a, b, c, d, e];

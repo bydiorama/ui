@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-gradient-accent-role",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "token",
+  "summary": "New brandable role --ui-gradient-accent: the two-stop ramp the redrawn slider sheet fills its track with. Theme zero pins it to the sheet's own stops in BOTH schemes (blue-80 into blue-70); other brands derive the same sweep from their own accent, stepping away from the ink, so a client portal gets its ramp rather than Diorama's. Distinct from --ui-gradient-brand, which is a three-stop blue-lavender-red spectrum for decorative surfaces, not a ramp along one hue. THE CONFORMANCE DECISION, on the record because it went the other way first: the ramp is pale, measuring 1.24:1 and 1.80:1 against the sunken track in light. The first implementation anchored it to --ui-bg-accent-legible to clear 3:1 — and that darkened the fill until it stopped reading as the designed sweep. It ships as drawn, on the designer's instruction to preserve the gradients, and the SC 1.4.11 argument rests on the thumb instead: the thumb is what identifies the control and marks the value, and its ring keeps --ui-bg-accent-legible, floored at 3:1 by the audit and measured 3.07:1 on the track and 3.73:1 on the thumb's own white fill. resolve.test.ts asserts the ring for every stress brand, in both schemes and against both grounds; slider.doc.ts declares the fill decorative with the measured numbers and the reason. Two implementation notes worth keeping. A gradient cannot be built from `var(--ui-bg-accent-legible)`: the TS constants emitter ships these tokens as plain literals for contexts with no CSS variable resolution (email, PDF, charts) and an existing test caught the attempt immediately. And the CSS emitter wraps a token whose light and dark values DIFFER in `light-dark()` — which Chromium does resolve for gradients, verified in the browser in both schemes, but which --ui-gradient-brand never exercised because its two values are identical.",
+  "affects": [
+    "token:--ui-gradient-accent",
+    "token:--ui-bg-accent-legible",
+    "package:tokens",
+    "component:slider",
+    "design:slider"
+  ],
+  "migration": {
+    "manual": "Consumers on an older token set need the new role before taking the new Slider — it is brandable, so a resolver that does not derive it fails to type-check rather than shipping a component with no fill. Reach it with `bg-(image:--ui-gradient-accent)`: the `image:` hint is required because it is a background-IMAGE, and `bg-(--ui-gradient-accent)` would set a background-COLOUR to a gradient string and paint nothing. If a running Storybook shows no fill, its tokens.generated.css predates the token — `pnpm tokens` is run once at dev-server start."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D86-0"
+  }
+}

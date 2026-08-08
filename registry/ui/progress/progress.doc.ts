@@ -28,7 +28,7 @@ Progress
     max: { type: "number", default: "100", notes: "Reported as aria-valuemax rather than rescaled away, so '3 of 4' is announced as 3 of 4." },
     label: { type: "string", required: true, notes: "Required — a bar with no name announces only a number. Use isLabelHidden when the design shows none." },
     hasValueText: { type: "boolean", default: "false", notes: "Shows the rounded percentage beside the label, as the sheet draws it." },
-    size: { type: '"lg" | "sm"', default: '"lg"', notes: "20px and 8px tracks, both drawn." },
+    size: { type: '"md" | "sm"', default: '"md"', notes: "16px and 8px tracks, both drawn. RENAMED from lg|sm and the large track resized from 20px: the sheet draws --ui-space-lg (16), and Slider's own scale calls 16px `md`. A `lg` that meant 20px here and 24px there is exactly the shared-vocabulary problem CONVENTIONS §2 exists to prevent." },
     variant: {
       type: '"solid" | "gradient"',
       default: '"solid"',

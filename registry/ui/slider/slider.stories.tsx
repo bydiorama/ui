@@ -4,6 +4,7 @@ import { fn } from "storybook/test";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
+import { Select } from "@/ui/select/select.tsx";
 import { Slider } from "./slider.tsx";
 
 const meta = {
@@ -18,17 +19,93 @@ type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
 
-/** Mirrors the sheet: each size with and without the label row. */
+/** Mirrors the sheet: every size, with and without the label row. */
 export const Matrix: Story = {
   render: () => (
     <div className="flex w-96 flex-col gap-xl">
-      <Slider label="Logo size" defaultValue={62} hasValueText onValueChange={fn()} />
-      <Slider label="Logo size" defaultValue={62} isLabelHidden onValueChange={fn()} />
-      <Slider label="Logo size" defaultValue={62} size="sm" hasValueText onValueChange={fn()} />
-      <Slider label="Logo size" defaultValue={62} size="sm" isLabelHidden onValueChange={fn()} />
+      {(["sm", "md", "lg", "xl"] as const).map((size) => (
+        <div key={size} className="flex flex-col gap-sm">
+          <Slider label={`Logo size (${size})`} defaultValue={62} size={size} hasValueText onValueChange={fn()} />
+          <Slider label="Logo size" defaultValue={62} size={size} isLabelHidden onValueChange={fn()} />
+        </div>
+      ))}
     </div>
   ),
 };
+
+/**
+ * The sheet's last three sections. The steppers and the value control are the
+ * reason `xl` exists: everything in the row is 32px, so the track squares off
+ * to match rather than sitting in it as a pill.
+ *
+ * Controlled on purpose — see the doc's knownGaps. The steppers read the
+ * value they are given, so an uncontrolled slider would step once from its
+ * default and then have nothing to step from.
+ */
+export const WithControls: Story = {
+  render: function WithControlsStory() {
+    const [value, setValue] = useState(62);
+    return (
+      <div className="flex w-96 flex-col gap-xl">
+        <Slider
+          label="Logo size"
+          size="xl"
+          value={value}
+          onValueChange={setValue}
+          valueControl={<ValueSelect value={value} onValueChange={setValue} />}
+        />
+        <Slider
+          label="Logo size"
+          size="xl"
+          value={value}
+          onValueChange={setValue}
+          hasSteppers
+          decrementLabel="Smaller logo"
+          incrementLabel="Larger logo"
+          valueControl={<ValueSelect value={value} onValueChange={setValue} />}
+        />
+        <Slider
+          label="Logo size"
+          size="xl"
+          value={value}
+          onValueChange={setValue}
+          hasSteppers
+          decrementLabel="Smaller logo"
+          incrementLabel="Larger logo"
+        />
+      </div>
+    );
+  },
+};
+
+/**
+ * The value control the sheet draws: a real Select, composed into the slot.
+ *
+ * This is the point of `valueControl` taking an element (§3). The options are
+ * the caller's data — here a preset ladder of logo sizes — and a Slider that
+ * owned an `items` prop would be two components in one. It shares the
+ * slider's state in both directions, which is the whole reason the two sit in
+ * one row.
+ */
+const PRESETS = ["25", "50", "62", "75", "100"].map((v) => ({ value: v, label: v }));
+
+const ValueSelect = ({
+  value,
+  onValueChange,
+}: {
+  value: number;
+  onValueChange: (next: number) => void;
+}) => (
+  <Select
+    label="Logo size"
+    isLabelHidden
+    size="sm"
+    items={PRESETS}
+    value={String(value)}
+    onValueChange={(next) => next !== null && onValueChange(Number(next))}
+    className="w-24 shrink-0"
+  />
+);
 
 export const States: Story = {
   render: () => (

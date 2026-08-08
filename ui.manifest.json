@@ -561,7 +561,7 @@
     {
       "name": "progress",
       "type": "ui",
-      "description": "A determinate progress bar with an optional label and percentage, in two track heights (20/8px). A div with role=progressbar and the three ARIA value attributes, because unlike a checkbox or a button a progress bar has no native behaviour to inherit. The value is clamped and the clamped value is what is announced.",
+      "description": "A determinate progress bar with an optional label and percentage, in two track heights (16/8px). A div with role=progressbar and the three ARIA value attributes, because unlike a checkbox or a button a progress bar has no native behaviour to inherit. The value is clamped and the clamped value is what is announced.",
       "files": [
         {
           "path": "registry/ui/progress/progress.tsx",
@@ -666,7 +666,7 @@
     {
       "name": "slider",
       "type": "ui",
-      "description": "A single-value slider in two track heights (20/8px), with an optional label and value. Pointer capture, keyboard stepping, Home/End, RTL and touch come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature — the value is a number, never an array. The control is padded to a 24px target even when the painted track is 8px.",
+      "description": "A single-value slider in four track heights (8/16/24/32px) with a gradient fill, optional stepper buttons and a slot for a value control. Pointer capture, keyboard stepping, Home/End, RTL and touch come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature — the value is a number, never an array. The control is padded to a 24px target even when the painted track is 8px, and the fill is --ui-gradient-accent, whose near stop is the audited legible accent so the ramp cannot start below the 3:1 SC 1.4.11 floor.",
       "files": [
         {
           "path": "registry/ui/slider/slider.tsx",
@@ -678,14 +678,17 @@
         }
       ],
       "dependencies": [
-        "@base-ui/react@1.7.0"
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "chrome-control"
       ],
       "peerDependencies": [
-        "react",
-        "@base-ui/react"
+        "@base-ui/react",
+        "griddy-icons",
+        "react"
       ],
       "status": "stable"
     },

@@ -262,6 +262,70 @@ describe("Accordion paints the designed surface", () => {
     expect(getComputedStyle(indicator).transitionProperty).toContain("rotate");
   });
 
+  /**
+   * Hover, asserted rather than assumed.
+   *
+   * This state was written twice and was DEAD both times: `enabled:hover:` and
+   * `disabled:` match nothing here, because the behaviour layer marks a
+   * disabled trigger with aria-disabled and keeps it enabled natively. Nothing
+   * in this file would have noticed — the classes compiled, the tokens
+   * resolved, and no test ever hovered anything.
+   */
+  test("hover paints on an available row and NOT on a disabled one", async () => {
+    const c = mount(
+      <Accordion>
+        <Accordion.Item value="a">
+          <Accordion.Trigger>Available</Accordion.Trigger>
+          <Accordion.Panel>A</Accordion.Panel>
+        </Accordion.Item>
+        <Accordion.Item value="b" isDisabled>
+          <Accordion.Trigger>Unavailable</Accordion.Trigger>
+          <Accordion.Panel>B</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>,
+    );
+    const [available, unavailable] = triggers();
+    const resting = getComputedStyle(available!).backgroundColor;
+
+    await userEvent.hover(available!);
+    await settled(available!);
+    expect(getComputedStyle(available!).backgroundColor).not.toBe(resting);
+
+    // A disabled row is still hoverable — deliberately, so a tooltip can
+    // explain why — but it must not look available.
+    await userEvent.hover(unavailable!);
+    await settled(unavailable!);
+    expect(getComputedStyle(unavailable!).backgroundColor).toBe(resting);
+    expect(c.querySelectorAll('[data-slot="accordion-trigger"]')).toHaveLength(2);
+  });
+
+  test("closing animates too — the exit is not a disappearance", async () => {
+    mount(<Basic defaultValue={["one"]} />);
+    const panel = panels()[0]!;
+    await settled(panel);
+
+    await userEvent.click(triggers()[0]!);
+    // data-[ending-style]:h-0 only does anything if the panel is still mounted
+    // while it collapses. If the exit were unanimated the element would be
+    // gone by now and there would be nothing to read.
+    expect(panels()[0]?.getAnimations().length ?? 0).toBeGreaterThan(0);
+  });
+
+  test("Panel className lands on the INNER container, not the animating box", () => {
+    const c = mount(
+      <Accordion defaultValue={["one"]}>
+        <Accordion.Item value="one">
+          <Accordion.Trigger>Q</Accordion.Trigger>
+          <Accordion.Panel className="gap-xs">A</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>,
+    );
+    // The documented split: restyling the content must not be able to reach
+    // the height transition and break it.
+    expect(c.querySelector('[data-slot="accordion-panel"]')!.className).not.toContain("gap-xs");
+    expect(c.querySelector('[data-slot="accordion-panel-inner"]')!.className).toContain("gap-xs");
+  });
+
   test("the icon slot is sized by the COMPONENT at the sheet's 16px", () => {
     const c = mount(<Basic />);
     const svg = c.querySelector('[data-slot="accordion-trigger"] svg') as SVGElement;

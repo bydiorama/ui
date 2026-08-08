@@ -23,6 +23,7 @@ import { InfoCircle, Search } from "griddy-icons";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
+import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { Input } from "@/ui/input/input.tsx";
 import { chromeControl } from "@/lib/chrome-control";
 import { Header } from "@/ui/header/header.tsx";
@@ -57,6 +58,18 @@ const CASES: Array<[name: string, ui: ReactElement]> = [
   ["Input lg", <Input label="Query" size="lg" icon={<Search />} iconEnd={<Search />} />],
   ["Input sm", <Input label="Query" size="sm" icon={<Search />} />],
   ["Banner", <Banner icon={<InfoCircle />} onDismiss={() => {}} dismissLabel="Dismiss">Message</Banner>],
+  [
+    // The trigger carries TWO marks at 16px: the caller's icon slot and the
+    // component's own chevron. Only the slot is at risk of arriving oversize,
+    // but both are measured — this file asserts every svg in the mounted tree.
+    "Accordion trigger",
+    <Accordion>
+      <Accordion.Item value="a">
+        <Accordion.Trigger icon={<Search />}>Question</Accordion.Trigger>
+        <Accordion.Panel>Answer</Accordion.Panel>
+      </Accordion.Item>
+    </Accordion>,
+  ],
   [
     "Sidebar item",
     <Sidebar label="Primary"><Sidebar.Item href="#a" icon={<Search />}>Row</Sidebar.Item></Sidebar>,

@@ -760,7 +760,22 @@
       "floor": "non-text",
       "light": 3.07,
       "dark": 10.07,
-      "role": "the fill against its track"
+      "role": "the THUMB's ring against the track — the thumb is what identifies the control and marks the value, so this is the pair SC 1.4.11 turns on"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.73,
+      "dark": 7,
+      "role": "the thumb's ring against the thumb's own white fill — a ring that vanishes into the thumb identifies nothing either"
+    },
+    {
+      "fg": "--ui-bg-accent-subtle",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.02,
+      "dark": 1.49
     },
     {
       "fg": "--ui-text-primary",

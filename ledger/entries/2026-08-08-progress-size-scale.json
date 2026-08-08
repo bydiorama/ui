@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-progress-size-scale",
+  "date": "2026-08-08",
+  "item": "progress",
+  "kind": "breaking",
+  "summary": "Progress `size` is now md | sm and the larger track is 16px, where it was lg | sm with a 20px track. Two things were wrong with the old scale and the Slider refactor surfaced both. The 20px never matched the sheet: the Progress artboard draws its tracks at --ui-space-lg (16) and --ui-space-sm (8), so the large bar had been 4px over its own drawing. And `lg` meaning 20px here while Slider's refreshed scale calls 24px `lg` is precisely the shared-vocabulary problem CONVENTIONS §2 exists to prevent — one word, two heights, in two components a consumer stacks in the same panel. Renaming to md aligns the word with Slider's 16px step and leaves no size in this library where `lg` means two different things. The variants, the segmented form and the gradient fill are unchanged; Progress keeps --ui-gradient-brand for its gradient variant, which is the three-stop spectrum its own sheet draws, not the slider's accent ramp.",
+  "affects": [
+    "component:progress",
+    "item:progress",
+    "prop:size",
+    "registry:progress",
+    "visual:progress"
+  ],
+  "migration": {
+    "manual": "REQUIRED: replace size=\"lg\" with size=\"md\" — the old value no longer compiles, deliberately, because it would otherwise resolve to a silently different bar. A Progress with no size prop changes from a 20px track to 16px, which matches its own design sheet. If a layout depended on the 20px height, set it explicitly rather than reintroducing the name."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D8Q-0"
+  }
+}

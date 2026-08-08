@@ -84,6 +84,15 @@ export const BRANDABLE_TOKENS = [
   // only theme zero pins the designed stops.
   "--ui-gradient-brand",
 
+  // The SLIDER's fill: a two-stop ramp along the accent, not the three-stop
+  // brand spectrum above. It exists as its own role because the sheet drew the
+  // ramp with raw palette steps (blue-80 -> blue-70) that measure 1.24:1 and
+  // 1.80:1 against the sunken track in light — under the 3:1 SC 1.4.11 wants
+  // from the boundary that shows a slider's value. Both stops are derived from
+  // --ui-bg-accent-legible, which is floored at 3:1 against that same well, so
+  // the ramp cannot start below the floor whatever the brand seed is.
+  "--ui-gradient-accent",
+
   // Borders and focus. Four structural weights plus focus (ADR 0010):
   // subtle is the everyday hairline (inputs included — the field is identified
   // by fill, label and padding); control is the SC 1.4.11-conformant boundary

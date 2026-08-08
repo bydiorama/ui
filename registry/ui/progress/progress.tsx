@@ -2,7 +2,7 @@ import { forwardRef, useId, type HTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
 
-export type ProgressSize = "lg" | "sm";
+export type ProgressSize = "md" | "sm";
 
 /**
  * `solid` is the default because it is the one that survives contact with a
@@ -14,7 +14,7 @@ export type ProgressVariant = "solid" | "gradient";
 
 /** Track heights from the sheet: 20px and 8px. */
 const SIZE = {
-  lg: "h-5",
+  md: "h-4",
   sm: "h-2",
 } as const satisfies Record<ProgressSize, string>;
 
@@ -54,7 +54,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
     label,
     isLabelHidden = false,
     hasValueText = false,
-    size = "lg",
+    size = "md",
     variant = "solid",
     className,
     ...rest

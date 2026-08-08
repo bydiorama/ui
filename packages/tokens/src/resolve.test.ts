@@ -366,3 +366,50 @@ test("a selected fill is distinguishable from its track, in BOTH schemes", () =>
     }
   }
 });
+
+/**
+ * The slider ramp is the DESIGN's, and the thumb's ring is what has to clear
+ * the floor.
+ *
+ * Worth being precise about, because the first version of this got the
+ * conformance argument the wrong way round. The ramp is deliberately pale —
+ * measured 1.24:1 and 1.80:1 against the track in light — and darkening it
+ * until the fill itself cleared 3:1 destroyed the sweep the design is for.
+ * SC 1.4.11 asks that the CONTROL and its state be identifiable, and on a
+ * slider that is the thumb: it marks the value, it is what a user grabs, and
+ * it carries --ui-bg-accent-legible, floored at 3:1 by the audit. The fill is
+ * a secondary cue and is declared decorative in the doc with these numbers.
+ *
+ * So what is asserted here is the ring, for every stress brand — including
+ * against the thumb's own fill, because a ring that vanishes into the white
+ * thumb identifies nothing either.
+ */
+test("the slider thumb's ring clears 3:1 on both the track and the thumb", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      const ring = theme["--ui-bg-accent-legible"]!;
+      for (const [against, label] of [
+        [theme["--ui-bg-sunken"]!, "track"],
+        [theme["--ui-bg-base"]!, "thumb fill"],
+      ] as const) {
+        const ratio = contrastRatio(ring, against);
+        assert.ok(
+          ratio >= 3 - 0.005,
+          `${name}/${scheme}: thumb ring measures ${ratio.toFixed(2)}:1 on the ${label}, under 3:1`,
+        );
+      }
+
+      // The ramp itself only has to BE a ramp, and must not smuggle a var()
+      // into the TS constants emitter, which cannot resolve one.
+      const gradient = theme["--ui-gradient-accent"]!;
+      assert.ok(!gradient.includes("var("), `${name}/${scheme}: gradient holds a var()`);
+      assert.equal(
+        [...gradient.matchAll(/#[0-9a-fA-F]{6}|rgba?\([^)]*\)/g)].length,
+        2,
+        `${name}/${scheme}: expected a two-stop ramp`,
+      );
+    }
+  }
+});

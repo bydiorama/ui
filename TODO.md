@@ -15,12 +15,12 @@ different people:
 
 ## To do
 
-- [ ] Header refinement and validation
-- [ ] Select code review
-- [ ] Sidebar, header opens a link that opens their iframe as a separate window
-- [ ] Slide, stepped indicator
-- [ ] Slide, the handle is offset
-- [ ] Tabs, disabled status
+- [x] Header refinement and validation
+- [x] Select code review
+- [x] Sidebar, header opens a link that opens their iframe as a separate window
+- [x] Slide, stepped indicator
+- [x] Slide, the handle is offset
+- [x] Tabs, disabled status
 
 ### Now unblocked by Select
 
@@ -54,28 +54,30 @@ order — worth a triage pass, since several of these block nothing and two or
 three block quite a lot.
 
 Quick wins:
-- [ ] Progress
+- [x] Progress
 - [ ] Divider
 - [ ] Image preview (Business Cards)
 
 Design:
+- [x] Accordion
 - [ ] Aspect Ratio
 - [ ] Card Selected
 - [ ] Card Task
 - [ ] Media preview
 - [ ] Multiselect Multi-line item (super, description, state)
 - [ ] Image/File upload dropzone
-- [ ] Aspect ratios
 - [ ] Folder
-- [ ] Progress Indicator
+- [ ] Progress Indicator Circular
 - [ ] Radio
 - [ ] Table
 - [ ] Table Line Items
+- [x] Tabs Underlined
+- [x] Text Area
 - [ ] Toast
 - [ ] Tooltip
 - [ ] Weight Allocator
-- [ ] Widget
 - [ ] Wizard Layouts/Steps
+- [ ] Widget
 - [ ] Progress Long Operations
 - [ ] Progress Sectioned List
 - [ ] Progress Stream

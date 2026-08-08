@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-slider-sizes-gradient-steppers",
+  "date": "2026-08-08",
+  "item": "slider",
+  "kind": "breaking",
+  "summary": "Slider refactored against the redrawn sheet, which grew from one section to six. BREAKING, twice over. `size` is now sm | md | lg | xl (8/16/24/32px tracks) where it was lg | sm (20/8px): `lg` still exists but now means 24px rather than 20, and the DEFAULT moved from lg to md, so a slider with no size prop goes from a 20px track to a 16px one. Both changes come from the sheet, which draws 8/16/24 and no 20 anywhere. `xl` is the fourth thing it draws and behaves differently on purpose: a 32px bar squared off to radius-md rather than a pill, because the sheet only uses it in a row with 32px steppers and a Select, and a pill beside a soft-cornered control reads as a different family — the same argument Button's per-size radius makes. NEW: the fill is a gradient (--ui-gradient-accent) rather than a flat --ui-bg-accent-legible, which is the sheet's clearest new idea, and it ships with the sheet's own stops — see the token entry for the SC 1.4.11 argument that rests on the thumb rather than the fill. NEW: hasSteppers renders the -/+ pair from the shared chrome control, stepping by one `step` and clamping to min/max — the same arithmetic the keyboard already performs, so the two cannot disagree, and each button disables at its end of the range. decrementLabel and incrementLabel are REQUIRED with it by the type, the isIconOnly/aria-label shape: two icon-only buttons with no name announce as 'button, button' and the component cannot write the words. NEW: valueControl is a SLOT for the Select the sheet puts beside the track. A slot rather than a built-in because the options and their formatting are the caller's data — a Slider that owned an `items` prop would be two components in one (§3). The thumb keeps --ui-bg-accent-legible for its ring: the sheet's raw blue-80 puts the white thumb at 1.51:1 against its own ring, which is the value this component already moved away from once. The thumb is also four SHAPES rather than one scaled four ways — a 16px circle at sm and md, 24px at lg, and at xl a 32x16 VERTICAL PILL spanning the bar, which is what makes that row read as a bar with a grip instead of a track with a dot. It shipped as a 20px circle first, from reading the sheet's placeholder frame instead of the handle, and is now asserted per size. The control is padded only where the track is under 24px (sm gains py-sm, md py-xs, both reaching exactly 24); a flat pad on all four made three rows 16px taller than the sheet draws them, invisibly, because the 32px steppers centre inside whatever height the row has.",
+  "affects": [
+    "component:slider",
+    "item:slider",
+    "prop:size",
+    "prop:hasSteppers",
+    "prop:decrementLabel",
+    "prop:incrementLabel",
+    "prop:valueControl",
+    "slot:slider-row",
+    "slot:slider-decrement",
+    "slot:slider-increment",
+    "slot:slider-fill",
+    "token:--ui-gradient-accent",
+    "registry:slider",
+    "visual:slider"
+  ],
+  "migration": {
+    "manual": "REQUIRED: audit every <Slider>. A slider with no `size` changes from a 20px track to 16px — pass size=\"lg\" for the nearest larger track (24px) or accept the new default. A slider passing size=\"lg\" keeps compiling and grows from 20px to 24px, which is the one change that will NOT announce itself, so grep for it. The fill changes from a flat colour to a gradient; anything asserting `backgroundColor` on [data-slot=\"slider-fill\"] now reads rgba(0, 0, 0, 0) and must read backgroundImage instead. Steppers require a controlled slider: they read `value ?? defaultValue` and call onValueChange, so an uncontrolled slider steps once from its default and then stops — recorded in the doc's knownGaps."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D86-0"
+  }
+}

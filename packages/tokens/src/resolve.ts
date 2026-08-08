@@ -335,6 +335,27 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
 
   const dangerSolid = legibleOn(INTENT_HUES.danger, colors.bg, 3);
 
+  // The accent, floored at 3:1 against the SUNKEN well. Hoisted out of the
+  // object literal because the slider ramp below has to start from exactly
+  // this value: two copies of the expression drifted the moment one of them
+  // was written from memory, and a ramp anchored 0.2 off the floor starts
+  // under it.
+  const accentLegible = legibleOn(accent, shiftL(colors.surface, dark ? -0.03 : -0.04), 3);
+
+  // The SLIDER's fill. Two stops along the brand's OWN accent, stepping away
+  // from the ink, so every brand gets the pale-to-deep sweep the design asks
+  // for rather than Diorama's. It is deliberately NOT anchored to
+  // --ui-bg-accent-legible: that would darken the ramp until the gradient
+  // stopped reading as one, and the fill is not what identifies this control
+  // — the thumb's ring is, and that ring keeps the legible role. See the
+  // slider doc's contrastPairs for the measured numbers and the reasoning.
+  // Derived here from the PRE-audit accent so the token always has a value,
+  // then rebuilt from the audited role once the audit has run — see
+  // `syncAccentGradient` below. It cannot hold a `var()`: the TS emitter ships
+  // these as plain literals for contexts with no CSS variable resolution
+  // (email, PDF, charts), and a gate asserts no var() survives.
+  const accentGradient = accentRamp(accent, awayFromInk);
+
   const theme: ResolvedTheme = {
     // Text
     "--ui-text-primary": colors.textPrimary,
@@ -382,12 +403,13 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-accent-subtle": withAlpha(accent, 0.12),
     // Floored against the SUNKEN well, which is the darkest neutral a fill
     // sits on; clearing that clears the lighter grounds too.
-    "--ui-bg-accent-legible": legibleOn(accent, shiftL(colors.surface, dark ? -0.03 : -0.04), 3),
+    "--ui-bg-accent-legible": accentLegible,
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),
     "--ui-bg-danger-solid": dangerSolid,
     "--ui-gradient-brand": brandGradient,
+    "--ui-gradient-accent": accentGradient,
 
     // Borders and focus (ADR 0010: subtle → default → control → strong).
     // Control is opaque, not an alpha hairline: it must MEASURE at 3:1
@@ -507,6 +529,19 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   };
 
   return theme;
+}
+
+/**
+ * The slider ramp: two stops along the accent, stepping AWAY FROM THE INK.
+ *
+ * One function so the pre-audit derivation and the post-audit rebuild cannot
+ * describe two different ramps. The far stop moves away from the ink — darker
+ * in a light scheme, lighter in a dark one — so it can only gain contrast
+ * against the track, never lose it; only the near stop needs the floor, and
+ * the near stop is the audited role.
+ */
+function accentRamp(nearStop: string, awayFromInk: number): string {
+  return `linear-gradient(in oklab 90deg, ${nearStop} 0%, ${shiftL(nearStop, awayFromInk * -0.09)} 100%)`;
 }
 
 // ── Contrast audit ──────────────────────────────────────────────────────

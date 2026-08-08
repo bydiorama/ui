@@ -295,10 +295,27 @@ const CASES: Array<{
   },
   {
     name: "slider",
+    // All four track heights, because a size reachable through the API and
+    // drawn in no case is how `outline` survived a release on Button — and
+    // because these four differ only in height and radius, which is exactly
+    // the kind of change a computed-value assertion can pass while the render
+    // is wrong. The stepper row is here for the same reason: `xl` squares off
+    // to sit with 32px controls, and that only reads beside them.
     ui: (
       <div className="flex flex-col gap-lg">
         <Slider label="Logo size" defaultValue={62} hasValueText />
-        <Slider label="Logo size" defaultValue={62} size="sm" isLabelHidden />
+        {(["sm", "lg", "xl"] as const).map((size) => (
+          <Slider key={size} label={size} defaultValue={62} size={size} isLabelHidden />
+        ))}
+        <Slider
+          label="With steppers"
+          defaultValue={62}
+          size="xl"
+          isLabelHidden
+          hasSteppers
+          decrementLabel="Smaller"
+          incrementLabel="Larger"
+        />
         <Slider label="Disabled" defaultValue={30} isDisabled hasValueText />
       </div>
     ),

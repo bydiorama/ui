@@ -75,7 +75,7 @@ describe("Progress paints the designed bar", () => {
     expect(under.track.getAttribute("aria-valuenow")).toBe("0");
   });
 
-  test.each([["lg", "20px"], ["sm", "8px"]] as const)("size %s is a %s track", (size, height) => {
+  test.each([["md", "16px"], ["sm", "8px"]] as const)("size %s is a %s track", (size, height) => {
     const { track } = mount(<Progress label="Usage" value={62} size={size} />);
     expect(getComputedStyle(track).height).toBe(height);
   });

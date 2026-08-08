@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-tabs-disabled-and-selected-fill",
+  "date": "2026-08-08",
+  "item": "tabs",
+  "kind": "a11y",
+  "summary": "Two reported defects, both real, both invisible to the existing tests. FIRST: `isDisabled` had never had any visual effect. Base UI's Tab renders `aria-disabled=\"true\"` and `data-disabled` and deliberately never sets the native `disabled` attribute — so the tab stays focusable and announceable, the same choice Calendar makes for unavailable dates — which meant every `disabled:` class in the component matched nothing. A disabled tab painted identically to an enabled one, same ink and same pointer cursor, in both schemes. The refusal worked, so the behaviour test passed; only the appearance was missing, which is the half no behaviour test could see. Now `aria-disabled:`, asserted as a DIFFERENCE from the enabled tab beside it. SECOND: the selected tab used `--ui-bg-sunken`, which measured 1.10:1 against the track in dark — 'recessed' is a RELATIVE role and the surface scale inverts between schemes, so below the surface there is room on a light page and almost none on a dark one. A new `--ui-bg-selected` role steps AWAY from the surface in whichever direction the scheme reads: light is pinned to the drawn neutral so nothing moves there, and dark goes from 1.10 to 1.68. A resolver test asserts the separation across every stress seed, in both schemes.",
+  "affects": ["item:tabs", "prop:isDisabled", "token:--ui-bg-selected", "slot:tabs-tab"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D7G-0"
+  }
+}

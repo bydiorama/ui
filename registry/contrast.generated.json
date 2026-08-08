@@ -35,6 +35,14 @@
       "role": "success badge"
     },
     {
+      "fg": "--ui-intent-warning-fg",
+      "bg": "--ui-intent-warning-bg",
+      "floor": "text",
+      "light": 5.03,
+      "dark": 4.92,
+      "role": "warning badge"
+    },
+    {
       "fg": "--ui-text-on-danger-subtle",
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
@@ -150,7 +158,7 @@
       "floor": "text",
       "light": 5.36,
       "dark": 5.19,
-      "role": "an unselected day"
+      "role": "an unselected day, month or year"
     },
     {
       "fg": "--ui-text-primary",
@@ -158,7 +166,7 @@
       "floor": "text",
       "light": 13.88,
       "dark": 6.66,
-      "role": "the selected day"
+      "role": "the selected day, month or year"
     },
     {
       "fg": "--ui-text-muted",
@@ -167,6 +175,38 @@
       "light": 5.78,
       "dark": 6.47,
       "role": "the weekday headers"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "a closed month or year trigger"
+    },
+    {
+      "fg": "--ui-text-link",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.81,
+      "dark": 6.35,
+      "role": "the OPEN month or year trigger"
+    },
+    {
+      "fg": "--ui-text-link",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 4.89,
+      "dark": 5.25,
+      "role": "the open trigger under the pointer"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "any hovered cell or trigger"
     }
   ],
   "Card": [
@@ -245,6 +285,90 @@
       "light": 17.17,
       "dark": 9.59,
       "role": "the label"
+    }
+  ],
+  "ContextMenu": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "a resting row — the shared menu surface"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "the highlighted row"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 1.43,
+      "dark": 1.53,
+      "role": "the panel edge"
+    }
+  ],
+  "DatePicker": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 15.53,
+      "role": "the chosen date in the field"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.54,
+      "role": "the placeholder"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.97,
+      "role": "the label"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the helper text"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 7.33,
+      "role": "the error message"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-sunken",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 13.79,
+      "role": "a disabled field's remaining ink"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.47,
+      "dark": 1.48,
+      "role": "the field's resting edge"
     }
   ],
   "Drawer": [
@@ -331,6 +455,40 @@
       "light": 5.96,
       "dark": 4.85,
       "role": "the focus ring"
+    }
+  ],
+  "Menu": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "a resting menu row"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "the highlighted row"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.47,
+      "role": "a group heading"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 1.43,
+      "dark": 1.53,
+      "role": "the panel edge"
     }
   ],
   "Modal": [
@@ -562,10 +720,10 @@
   "Tabs": [
     {
       "fg": "--ui-text-primary",
-      "bg": "--ui-bg-sunken",
+      "bg": "--ui-bg-selected",
       "floor": "text",
       "light": 14.11,
-      "dark": 13.79,
+      "dark": 7.48,
       "role": "selected tab ink on its fill"
     },
     {

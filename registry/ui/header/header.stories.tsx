@@ -170,7 +170,15 @@ export const CollapsesToMenuButton: Story = {
             </Header.End>
           </Header>
         </section>
-        <Sheet.Panel label="Primary navigation">
+        {/*
+          `side="right"`, because the button that opens it sits in Header.End.
+          A drawer that flies in from the opposite edge to the control the user
+          just pressed breaks the connection between the two — reported against
+          this exact story, where the Sheet's `left` default fought a
+          right-hand menu button. The rule is in both docs: the sheet opens
+          from the edge its trigger sits on.
+        */}
+        <Sheet.Panel label="Primary navigation" side="right">
           <Sidebar label="Primary" className="h-full w-full rounded-none">
             <Sidebar.Section label="Brand" isCollapsible>
               <Sidebar.Item href="#guidelines" isCurrent>Brand Guidelines</Sidebar.Item>

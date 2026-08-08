@@ -21,8 +21,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const VARIANTS = ["selected", "unselected", "success", "danger"] as const;
-const LABELS = { selected: "Selected", unselected: "Unselected", success: "Ready", danger: "Failed" };
+const VARIANTS = ["selected", "unselected", "success", "danger", "warning"] as const;
+const LABELS = {
+  selected: "Selected",
+  unselected: "Unselected",
+  success: "Ready",
+  danger: "Failed",
+  warning: "Warning",
+};
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex items-center gap-lg py-sm">
@@ -39,9 +45,9 @@ export const Matrix: Story = {
     <div>
       {(
         [
-          ["sm · pill", "sm", "pill"],
-          ["sm · rounded", "sm", "rounded"],
-          ["md · pill", "md", "pill"],
+          ["sm · full", "sm", "full"],
+          ["sm · soft", "sm", "soft"],
+          ["md · full", "md", "full"],
         ] as const
       ).map(([label, size, shape]) => (
         <Row key={label} label={label}>
@@ -73,10 +79,10 @@ export const WithTrailingSlot: Story = {
         <Badge variant="unselected" size="md" iconEnd={<ArrowUpRight />}>Unselected</Badge>
       </Row>
       <Row label="actionable (real button)">
-        <Badge variant="selected" shape="rounded" iconEnd={<Check />}>Active tag</Badge>
+        <Badge variant="selected" shape="soft" iconEnd={<Check />}>Active tag</Badge>
         <Badge
           variant="unselected"
-          shape="rounded"
+          shape="soft"
           iconEnd={
             <button
               type="button"

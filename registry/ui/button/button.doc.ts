@@ -39,10 +39,10 @@ Button
       notes: "44 / 32 / 24px tall. lg is the touch target for primary page actions.",
     },
     shape: {
-      type: '"soft" | "pill"',
+      type: '"soft" | "full"',
       default: '"soft"',
       notes:
-        "soft is the DEFAULT and pill is the alternative — the design calls them Default and Rounded Full. The soft radius SCALES: 4px at sm (the sheet's Small Rounded column), 8px at md and lg (as Header, Sheet and Calendar draw their 32px controls). Only lg is derived; it follows md rather than inventing a third step. This axis shipped INVERTED, with pill as the default, which is why every button placed anywhere came out a pill and the soft control the design actually draws looked like an invention each time it was needed.",
+        "soft is the DEFAULT and full is the alternative — the design's own legend calls them \"Default (soft border radius)\" and \"Rounded Full\", which is where the value names now come from. The soft radius SCALES: 4px at sm (the sheet's Small Rounded column), 8px at md and lg (as Header, Sheet and Calendar draw their 32px controls). Only lg is derived; it follows md rather than inventing a third step. This axis shipped INVERTED, with the fully-rounded shape as the default, which is why every button placed anywhere came out a pill and the soft control the design actually draws looked like an invention each time it was needed.",
     },
     isDisabled: { type: "boolean", default: "false", notes: "Non-interactive, removed from the tab order." },
     isBusy: {
@@ -108,7 +108,7 @@ Button
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "Every button COMPOSED in the file is a pill, while the stated model makes soft the default. The compositions and the model disagree, and one of them needs updating.",
+    "Every button COMPOSED in the file is fully rounded, while the stated model makes soft the default. The compositions and the model disagree, and one of them needs updating — the model is now explicit in the sheet's own legend, so the compositions are the side that is out of date.",
     "Outline is not drawn — E3V-0 has no Outline row. Its edge is derived as border-control (3.11:1) because that is the step SC 1.4.11 needs from a boundary; confirm the intent.",
     "The soft radius at lg is derived from md (8px). The sheet draws soft only at sm.",
     "No busy state is drawn; the spinner is ours.",

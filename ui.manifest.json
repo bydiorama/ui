@@ -32,6 +32,18 @@
       "status": "stable"
     },
     {
+      "name": "menu-surface",
+      "type": "lib",
+      "description": "The menu surface: one panel recipe and one row recipe, shared by Menu and ContextMenu. Not two components that happen to look alike \u2014 Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim, so they are literally the same rows in the same popup, differing only in what opens them. A recipe rather than a component for the same reason chrome-control is: it styles, it does not wrap, so the behaviour layer keeps ownership of roles, roving focus, typeahead and dismissal.",
+      "files": [
+        {
+          "path": "registry/lib/menu-surface/menu-surface.ts",
+          "target": "lib/menu-surface.ts"
+        }
+      ],
+      "status": "stable"
+    },
+    {
       "name": "compose-event-handlers",
       "type": "lib",
       "description": "Composes a consumer event handler with component-owned behaviour. The consumer runs first and may prevent optional internal behaviour with preventDefault; non-cancellable safety invariants stay outside the helper.",
@@ -351,7 +363,7 @@
     {
       "name": "calendar",
       "type": "ui",
-      "description": "A month grid for picking one date. Ours rather than a library's (ADR 0012): the hard parts are the ARIA grid and the keyboard contract, and both are decisions this system has to own. One roving tab stop, arrows by day and week, Home/End across the week, PageUp/PageDown by month, and an arrow that walks off the edge carries the grid with it. Month and weekday names come from Intl, so a consumer in another locale gets their own without this library shipping a translation table. Unavailable dates use aria-disabled and stay focusable — a date a screen-reader user cannot reach is one they cannot be told the reason for.",
+      "description": "A month grid for picking one date, with month and year selects in its header. Ours rather than a library's (ADR 0012): the hard parts are the ARIA grid and the keyboard contract, and both are decisions this system has to own. One roving tab stop, arrows by day and week, Home/End across the week, PageUp/PageDown by month, and an arrow that walks off the edge carries the grid with it. The two header selects replace the grid in place at its own height, so the card never resizes; each is a listbox with its own roving stop and returns focus to its trigger. Month and weekday names come from Intl, so a consumer in another locale gets their own without this library shipping a translation table. Unavailable dates use aria-disabled and stay focusable — a date a screen-reader user cannot reach is one they cannot be told the reason for.",
       "files": [
         {
           "path": "registry/ui/calendar/calendar.tsx",
@@ -372,6 +384,93 @@
       ],
       "peerDependencies": [
         "react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "menu",
+      "type": "ui",
+      "description": "A list of commands, opened from a trigger. The whole ARIA menu contract \u2014 role=menu and menuitem, roving focus, typeahead, Escape and outside-press dismissal, submenu timing and the aria-haspopup/aria-expanded wiring \u2014 comes from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. Its panel and rows come from the shared menu surface, which ContextMenu draws from the same recipe, so the two cannot drift apart. Item.onSelect is named for the verb rather than for the pointer, because a menu row is chosen by keyboard as often as by mouse.",
+      "files": [
+        {
+          "path": "registry/ui/menu/menu.tsx",
+          "target": "ui/menu.tsx"
+        },
+        {
+          "path": "registry/ui/menu/menu.doc.ts",
+          "target": "ui/menu.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui-components/react@1.0.0-rc.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "menu-surface"
+      ],
+      "peerDependencies": [
+        "react",
+        "@base-ui-components/react",
+        "griddy-icons"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "context-menu",
+      "type": "ui",
+      "description": "The same menu, opened by a right-click on a region rather than by a button. Only three parts live here \u2014 Root, Trigger and Panel \u2014 because Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim; duplicating them would create two drawings of one surface. Requires the `menu` item for its rows. The keyboard path matters more here than anywhere else in the library: a surface that only opens on right-click is unreachable without a pointer, so Base UI opens it on Shift+F10 and the context-menu key as well.",
+      "files": [
+        {
+          "path": "registry/ui/context-menu/context-menu.tsx",
+          "target": "ui/context-menu.tsx"
+        },
+        {
+          "path": "registry/ui/context-menu/context-menu.doc.ts",
+          "target": "ui/context-menu.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui-components/react@1.0.0-rc.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "menu-surface",
+        "menu"
+      ],
+      "peerDependencies": [
+        "react",
+        "@base-ui-components/react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "date-picker",
+      "type": "ui",
+      "description": "A date field that opens a Calendar. Two things this system already owns, composed: the field is Input's control surface — a field is a field — and the panel is the Calendar card itself rather than a second surface wrapped around one. Choosing a date closes the panel; clearing it deliberately does not, because the next thing that user wants is another date. Anchoring, dismissal and focus restoration come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. The value is formatted with Intl by default and formatValue is the call-site escape hatch, so no date library ships with it.",
+      "files": [
+        {
+          "path": "registry/ui/date-picker/date-picker.tsx",
+          "target": "ui/date-picker.tsx"
+        },
+        {
+          "path": "registry/ui/date-picker/date-picker.doc.ts",
+          "target": "ui/date-picker.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui-components/react@1.0.0-rc.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "use-controllable-state",
+        "calendar"
+      ],
+      "peerDependencies": [
+        "react",
+        "@base-ui-components/react",
         "griddy-icons"
       ],
       "status": "stable"

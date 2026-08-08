@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-menu-open-motion-and-separator",
+  "date": "2026-08-08",
+  "item": "menu-surface",
+  "kind": "fix",
+  "summary": "Three reported issues on the menu surface. The panel WIGGLED as it opened: Base UI's `--transform-origin` points at the anchor, which for a menu sits inside the panel rather than at a corner — measured at `44.6px -8px` on a 224px panel — so `scale-98` grew the box about a point 45px in from its left edge and slid that edge while it grew, and the origin itself shifted between the first two frames. It only appeared on a CONTROLLED menu, because open state routed through React makes the panel mount with `data-starting-style` and actually run the transition, where the uncontrolled path measured a constant box from frame 0. The scale is gone; the entrance is opacity only, and the test now asserts the rect does not move across the whole entrance rather than that a class is absent. The SEPARATOR is space with no rule, as the sheet draws it and as design confirmed — it keeps `role=\"separator\"`, so the grouping is announced whether or not anything is painted. And the STORIES no longer open themselves: a docs page renders every story at once, so a `defaultIsOpen` anywhere meant menus flew open on load. One Menu story opens itself and its name says so; every ContextMenu story is closed, because a context menu is anchored to the POINTER and opening one without a pointer lands it over its own trigger region.",
+  "affects": ["item:menu", "item:context-menu", "item:menu-surface", "slot:menu-panel", "slot:menu-separator"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/K09-0"
+  }
+}

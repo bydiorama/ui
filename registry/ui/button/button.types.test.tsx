@@ -15,7 +15,7 @@ export function Valid() {
   return (
     <>
       <Button>Create New</Button>
-      <Button variant="danger" size="lg" shape="pill">Delete</Button>
+      <Button variant="danger" size="lg" shape="full">Delete</Button>
       <Button variant="outline" size="md">Outline</Button>
       <Button variant="secondary" size="sm" shape="soft">Soft is the default</Button>
       <Button isBusy isFullWidth>Saving…</Button>
@@ -24,6 +24,16 @@ export function Valid() {
       <Button isDisabled isBusy>Submitting…</Button>
     </>
   );
+}
+
+export function RenamedShape() {
+  {/* `pill` named the DRAWING; `full` names the token, and Badge now says the
+      same word for the same shape. Kept as a compile-time assertion so the
+      old name cannot drift back in — the sheet's own legend calls these
+      "Default (soft border radius)" and "Rounded Full". */}
+  /* @ts-expect-error shape="pill" was renamed to shape="full" */
+  const a = <Button shape="pill">Create new</Button>;
+  return [a];
 }
 
 export function Invalid() {

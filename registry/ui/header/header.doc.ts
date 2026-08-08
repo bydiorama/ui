@@ -45,6 +45,7 @@ can arrive later without changing any of this.
   },
 
   do: [
+    "Match the Sheet to the button: Header.MenuButton in Header.End opens a Sheet with side=\"right\", in Header.Start one with side=\"left\". Sheet defaults to left, so the trailing case has to be stated — and a drawer arriving from the far edge reads as a different control entirely.",
     "Name the nav; the landmark is otherwise anonymous.",
     "Give an item an href only when it navigates — otherwise it is a button, and the chevron says so.",
     "Put the brand switcher and the avatar in Start and End as real controls with their own accessible names.",
@@ -83,6 +84,7 @@ can arrive later without changing any of this.
   ],
 
   knownGaps: [
+    "Header.Item forwards a ref so it can BE a Menu trigger — the sheet draws 'Create' and 'Work' as nav items that open a menu rather than navigate. Compose them as `<Menu.Trigger render={<Header.Item trailing={<ChevronDown/>}>Create</Header.Item>} />`; note the trigger's data-slot then wins over `header-item`, which is true of every render slot here.",
     "The sheet's bar uses a raw 20px inline padding, which is off the spacing scale entirely — and its own mobile drawing of the same bar uses 12. Shipped as px-lg (16); confirm with design.",
     "No current state is drawn. isCurrent exists because a nav needs one, and its fill is DERIVED from --ui-bg-hover.",
     "No responsive behaviour of its own. The sheet draws a desktop bar and a mobile bar; which one shows is the caller's layout decision, not a prop.",

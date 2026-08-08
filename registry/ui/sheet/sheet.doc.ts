@@ -49,6 +49,7 @@ Sheet                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
   },
 
   do: [
+    "Open the sheet from the edge its TRIGGER sits on: a menu button in Header.End takes side=\"right\". A drawer that flies in from the opposite edge to the control the user just pressed breaks the connection between them, and `side` defaults to left, so a right-hand trigger has to say so.",
     "Give every Sheet a label; it is the dialog's entire accessible name.",
     "Put a Sidebar inside with className=\"w-full rounded-none\" — the rail's own w-nav and rounded-lg are meant for a docked rail, and the panel already provides both.",
     "Put the close control inside the content's own header band, where the design draws it.",

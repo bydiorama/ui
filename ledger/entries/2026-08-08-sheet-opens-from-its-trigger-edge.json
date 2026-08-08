@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-sheet-opens-from-its-trigger-edge",
+  "date": "2026-08-08",
+  "item": "header",
+  "kind": "fix",
+  "summary": "A Sheet opens from the edge its trigger sits on. Header's own story put the menu button in Header.End and let Sheet's `side` default to left, so the drawer flew in from the opposite edge to the control the user had just pressed — reported, and right: the two read as different controls. The composition is corrected to side=\"right\", the rule is stated in both Header's and Sheet's do-lists, and a browser test asserts the RELATIONSHIP rather than coordinates — the button is past the viewport midpoint and the panel shares that edge. Not enforceable in a type, because the Sheet root wraps the Header and cannot see which region its trigger landed in.",
+  "affects": ["item:header", "item:sheet", "prop:side"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DOY-0"
+  }
+}

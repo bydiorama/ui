@@ -154,9 +154,34 @@ function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 }
 
+/**
+ * Prose attributes hold sentences, and a sentence is not a class list.
+ *
+ * The same lesson as `stripComments`, one layer over. This gate reads EVERY
+ * string literal in a file and splits it on whitespace, so a word in an
+ * accessible name is a candidate utility. Most prose escapes by accident —
+ * capitals and punctuation fail the shape filter — but an all-lowercase
+ * hyphenated word does not: "right-click", in `aria-label="Brand asset —
+ * right-click or press Shift+F10 for actions"`, resolved against the spacing
+ * namespace as `right-` + `click` and failed the build asking for
+ * `--spacing-click`.
+ *
+ * Rewording the sentence would have been the cheap fix and the wrong one: a
+ * gate that makes people write worse accessible names to keep it quiet is a
+ * gate that will be worked around. Blanking these VALUES costs no coverage —
+ * none of these attributes ever holds a class — while `className` and every
+ * recipe array are still read in full.
+ */
+const PROSE_ATTRIBUTE =
+  /\b(?:aria-label|aria-description|aria-placeholder|aria-roledescription|aria-valuetext|title|alt|placeholder|label|accessibleName|description|summary|content)\s*=\s*(?:"[^"\n]*"|'[^'\n]*')/g;
+
+function stripProse(source) {
+  return source.replace(PROSE_ATTRIBUTE, (match) => `${match.split("=")[0]}=""`);
+}
+
 function classesIn(source) {
   return new Set(
-    [...stripComments(source).matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`/g)]
+    [...stripProse(stripComments(source)).matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`/g)]
       .flatMap((m) => (m[1] ?? m[2] ?? m[3] ?? "").split(/\s+/))
       // `:` must be allowed here — variant prefixes are stripped below, and
       // filtering them out first silently skipped every hover/disabled state.

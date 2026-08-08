@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-add-date-picker",
+  "date": "2026-08-07",
+  "item": "date-picker",
+  "kind": "addition",
+  "summary": "DatePicker: a date field that opens a Calendar. The field is Input's lg control character for character — the browser test renders one beside a live Select and compares their computed height, radius, border, fill and padding, because asserting 48px on each would pass while the two drifted apart. The panel is positioning only: no fill, no edge, no radius, because the Calendar card IS the panel and wrapping one surface in another draws two boundaries where the sheet draws one. Choosing a date closes it; CLEARING (clicking the selected day again) deliberately does not, since the next thing that user wants is another date. Open state runs through useControllableState rather than being left to Base UI as Popover's is — the component has to close itself and there is no imperative close. The value is formatted with Intl at dateStyle 'long' and formatValue is the call-site escape hatch, so no date library ships with it; the sheet's 'August 3rd, 2026' is an English ordinal no Intl option produces. Two defects found by gates rather than by review: the Base UI popup carries role=dialog and had no accessible name (caught by the story-a11y project, fixed with aria-label), and sr-only composed on top of px-sm leaves a 'hidden' label 16px wide because the later padding undoes the reset — the two are alternatives here, not layers.",
+  "affects": [
+    "item:date-picker",
+    "slot:date-picker",
+    "slot:date-picker-trigger",
+    "slot:date-picker-panel",
+    "prop:formatValue",
+    "prop:container"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/JI1-0"
+  }
+}

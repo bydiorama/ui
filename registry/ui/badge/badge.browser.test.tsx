@@ -68,6 +68,7 @@ describe("Badge variants resolve to the designed roles", () => {
     ["selected", "rgb(158, 219, 243)", "rgb(29, 27, 25)"],
     ["unselected", "rgb(255, 255, 255)", "rgb(105, 99, 93)"],
     ["success", "rgb(214, 239, 203)", "rgb(36, 110, 65)"],
+    ["warning", "rgb(248, 231, 217)", "rgb(143, 84, 38)"],
     // The sheet used --ui-bg-danger-solid as ink; the fixed role is the
     // deeper on-subtle ink, which is what must actually paint.
     ["danger", "rgb(249, 226, 219)", "rgb(106, 44, 24)"],
@@ -76,6 +77,24 @@ describe("Badge variants resolve to the designed roles", () => {
     const style = getComputedStyle(badge);
     expect(style.backgroundColor).toBe(bg);
     expect(style.color).toBe(fg);
+  });
+
+  test("the three status variants are three DIFFERENT colours", () => {
+    // Asserted as a difference, not as three separate literals: a copy-paste
+    // in the VARIANT map would leave every one of those literal assertions
+    // passing while warning painted the success tint. Badge has been here
+    // before — its two sizes were pixel-identical while every test passed.
+    const fills = new Set<string>();
+    const inks = new Set<string>();
+    for (const variant of ["success", "warning", "danger"] as const) {
+      const { badge } = mount(<Badge variant={variant}>Label</Badge>);
+      fills.add(getComputedStyle(badge).backgroundColor);
+      inks.add(getComputedStyle(badge).color);
+      act(() => root?.unmount());
+      container?.remove();
+    }
+    expect(fills.size).toBe(3);
+    expect(inks.size).toBe(3);
   });
 
   test("status variants carry no visible border; choice variants do", () => {
@@ -128,8 +147,14 @@ describe("Badge typography matches the corrected sheet", () => {
     expect(getComputedStyle(svg).width).toBe(px);
   });
 
-  test("shape switches between pill and the rounded radius", () => {
-    const rounded = mount(<Badge shape="rounded">Tag</Badge>);
-    expect(getComputedStyle(rounded.badge).borderRadius).toBe("4px");
+  test("shape switches between full and the soft radius", () => {
+    const soft = mount(<Badge shape="soft">Tag</Badge>);
+    expect(getComputedStyle(soft.badge).borderRadius).toBe("4px");
+    act(() => root?.unmount());
+    container?.remove();
+    const full = mount(<Badge shape="full">Tag</Badge>);
+    // Asserted as a DIFFERENCE too: two shape values that render the same
+    // radius is the defect this component has already had with its sizes.
+    expect(getComputedStyle(full.badge).borderRadius).not.toBe("4px");
   });
 });

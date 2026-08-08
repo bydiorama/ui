@@ -369,6 +369,11 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-overlay": withAlpha(dark ? "#000000" : colors.textPrimary, 0.55),
     "--ui-bg-hover": shiftL(colors.surface, up * 0.05),
     "--ui-bg-active": shiftL(colors.surface, up * 0.1),
+    // Between hover and active in size, and — unlike `sunken` — it follows
+    // `up`, so it darkens a light track and LIGHTENS a dark one. A selected
+    // item has to read as chosen in both schemes, and "recessed" only reads
+    // in the one where the page has room below the surface.
+    "--ui-bg-selected": shiftL(colors.surface, up * 0.13),
     "--ui-bg-accent": accent,
     // Same "step away from your own ink" rule as emphasis, for the same
     // reason: keeps the label's contrast monotonic across all three states.

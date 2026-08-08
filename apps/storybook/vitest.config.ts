@@ -10,6 +10,20 @@ import tailwindcss from "@tailwindcss/vite";
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "../..");
 
+/**
+ * A UI item that another distributed file imports — see the fuller note in
+ * `.storybook/main.ts`. Two keys per item, longer first, because Vite matches
+ * a string alias as a prefix.
+ */
+function uiItems(...names: string[]): Record<string, string> {
+  return Object.fromEntries(
+    names.flatMap((name) => {
+      const file = join(root, `registry/ui/${name}/${name}.tsx`);
+      return [[`@/ui/${name}/${name}.tsx`, file], [`@/ui/${name}`, file]];
+    }),
+  );
+}
+
 /** A fresh provider per project — vitest cannot share one factory instance. */
 const browser = () => ({
   enabled: true as const,
@@ -53,6 +67,8 @@ export default defineConfig({
       "@base-ui-components/react/popover",
       "@base-ui-components/react/dialog",
       "@base-ui-components/react/combobox",
+      "@base-ui-components/react/menu",
+      "@base-ui-components/react/context-menu",
       "@base-ui-components/react/select",
       "@base-ui-components/react/slider",
       "@base-ui-components/react/tabs",
@@ -68,10 +84,12 @@ export default defineConfig({
         root,
         "registry/lib/compose-event-handlers/compose-event-handlers.ts",
       ),
+      "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
       "@/hooks/use-controllable-state": join(
         root,
         "registry/hooks/use-controllable-state/use-controllable-state.ts",
       ),
+      ...uiItems("badge", "button", "calendar", "menu"),
       "@/ui": join(root, "registry/ui"),
       "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
     },

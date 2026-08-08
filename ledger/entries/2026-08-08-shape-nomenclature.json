@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-shape-nomenclature",
+  "date": "2026-08-08",
+  "item": "button",
+  "kind": "breaking",
+  "summary": "One shape vocabulary across Button and Badge: `full` and `soft`. Button's `pill` becomes `full` and Badge's `pill`/`rounded` become `full`/`soft` — the same two shapes had two different names in the only two components that have them, and `pill` named the DRAWING where every other value in this system names the token. The redrawn Button sheet settles it in its own legend: 'Button variants: Default (soft border radius), Rounded Full'. Both type-test files keep a compile-time assertion that the old names no longer compile, so they cannot drift back in quietly.",
+  "affects": ["item:button", "item:badge", "prop:shape"],
+  "migration": {
+    "manual": "Rename `shape=\"pill\"` to `shape=\"full\"` on Button and Badge, and `shape=\"rounded\"` to `shape=\"soft\"` on Badge. Defaults are unchanged in behaviour: Button still defaults to soft, Badge still defaults to the fully rounded shape (now spelled `full`)."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/E3V-0"
+  }
+}

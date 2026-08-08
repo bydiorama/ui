@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-header-item-as-trigger",
+  "date": "2026-08-07",
+  "item": "header",
+  "kind": "addition",
+  "summary": "Header.Item forwards a ref, which is the whole of the Header/Menu refactor. The sheet draws 'Create' and 'Work' as nav items that open a menu rather than navigate — the component already rendered a <button> with a `trailing` chevron slot for exactly that, and its own comment said so, but without a forwarded ref the behaviour layer could not anchor a panel to the row or restore focus to it, and the failure is silent. Composing is now `<Menu.Trigger render={<Header.Item trailing={<ChevronDown/>}>Create</Header.Item>} />`. The browser test asserts ONE element rather than a button inside a button, that focus returns to the row on Escape, and that the composed row keeps the same computed geometry as a plain item beside it. Sidebar was assessed and deliberately NOT changed: its collapsible sections are an inline disclosure, which is a different pattern from a menu, and whether the Menu panel should adopt it is the open design question recorded in menu.doc.ts.",
+  "affects": ["item:header", "slot:header-item"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DOY-0"
+  }
+}

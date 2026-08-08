@@ -26,8 +26,8 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
    ├─ Drawer.Body
    │  └─ <your content>    Inputs, a form, anything
    └─ Drawer.Footer
-      ├─ <primary action>  <Button isFullWidth shape="pill">
-      └─ Drawer.Close      render={<Button variant="secondary" isFullWidth shape="pill">Cancel</Button>}
+      ├─ <primary action>  <Button isFullWidth shape="full">
+      └─ Drawer.Close      render={<Button variant="secondary" isFullWidth shape="full">Cancel</Button>}
   `.trim(),
 
   props: {

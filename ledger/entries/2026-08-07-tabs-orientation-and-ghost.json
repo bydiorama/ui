@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-tabs-orientation-and-ghost",
+  "date": "2026-08-07",
+  "item": "tabs",
+  "kind": "addition",
+  "summary": "Tabs gains `orientation` and `variant`, the two axes the redrawn sheet adds. `orientation` is FORWARDED to the behaviour layer rather than expressed in CSS, so vertical swaps the arrow keys to Up/Down and sets aria-orientation; the browser test drives Right in a vertical strip and asserts nothing moves, because stacking the boxes with flex-direction and leaving the arrows horizontal is the usual half-implementation and it reads as broken to anyone not using a mouse. `ghost` drops the track and lets the selected fill carry the strip; the test compares the two variants TO EACH OTHER on fill, edge and tab width, since two variants that differ in the type and not on screen is a defect this repo has shipped twice. Geometry corrected to the sheet: a 1.5px edge, a 2px inset and a 32px height, replacing a 1px edge and a 4px inset. The count pill gains min-h so a single digit renders as a circle rather than a lozenge. The 2px inset does NOT close §6's concentric arithmetic and is off the spacing scale — recorded in needsDesign, because it is the number the drawn height depends on.",
+  "affects": ["item:tabs", "prop:orientation", "prop:variant", "slot:tabs-list", "slot:tabs-tab", "slot:tabs-count"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D7G-0"
+  }
+}

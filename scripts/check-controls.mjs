@@ -42,7 +42,7 @@ const ALLOWED = new Map([
   ],
   [
     "registry/ui/sidebar/sidebar.tsx",
-    "A section header is a disclosure spanning the rail at the row's own inset and type; it is nav chrome, not an action.",
+    "Two, both nav chrome rather than actions. A section header is a disclosure spanning the rail at the row's own inset and type. The profile row is a full-width composite — avatar, name, address and a trailing chevron — that opens the rail's second layer; no Button variant has that anatomy, and the layer's BACK control does use the shared chrome control.",
   ],
   [
     "registry/ui/calendar/calendar.tsx",

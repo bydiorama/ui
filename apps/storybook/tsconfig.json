@@ -13,9 +13,16 @@
       "@/lib/compose-event-handlers": [
         "../../registry/lib/compose-event-handlers/compose-event-handlers.ts"
       ],
+      "@/lib/menu-surface": ["../../registry/lib/menu-surface/menu-surface.ts"],
       "@/hooks/use-controllable-state": [
         "../../registry/hooks/use-controllable-state/use-controllable-state.ts"
       ],
+      // See the note in the root tsconfig: a distributed file imports the
+      // consumer's path, so the specific entries sit above the wildcard.
+      "@/ui/badge": ["../../registry/ui/badge/badge.tsx"],
+      "@/ui/button": ["../../registry/ui/button/button.tsx"],
+      "@/ui/calendar": ["../../registry/ui/calendar/calendar.tsx"],
+      "@/ui/menu": ["../../registry/ui/menu/menu.tsx"],
       "@/ui/*": ["../../registry/ui/*"]
     }
   },

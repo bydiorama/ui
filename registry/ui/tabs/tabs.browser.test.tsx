@@ -4,6 +4,8 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
 
+import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@bydiorama/tokens";
+
 import { Tabs } from "./tabs.tsx";
 
 let container: HTMLDivElement | null = null;
@@ -121,6 +123,32 @@ describe("The behaviour layer carries the tab contract", () => {
     await userEvent.click(tabs()[1]!, { force: true });
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  test("a disabled tab LOOKS disabled — it is aria-disabled, not disabled", async () => {
+    const c = mount(
+      <Tabs defaultValue="a">
+        <Tabs.List>
+          <Tabs.Tab value="a">A</Tabs.Tab>
+          <Tabs.Tab value="b">Enabled</Tabs.Tab>
+          <Tabs.Tab value="c" isDisabled>Disabled</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="a">A</Tabs.Panel>
+      </Tabs>,
+    );
+    void c;
+    const [, enabled, disabled] = tabs();
+    // Base UI never sets the native attribute — it renders aria-disabled and
+    // data-disabled, so the tab stays focusable and announceable. Every
+    // `disabled:` class in this component therefore matched NOTHING, and the
+    // row painted exactly like an enabled one. The refusal worked; only the
+    // appearance was missing, which is the half no behaviour test could see.
+    expect((disabled as HTMLButtonElement).disabled).toBe(false);
+    expect(disabled!.getAttribute("aria-disabled")).toBe("true");
+    // Asserted as a DIFFERENCE from the enabled tab beside it.
+    expect(getComputedStyle(disabled!).color).not.toBe(getComputedStyle(enabled!).color);
+    expect(getComputedStyle(disabled!).cursor).toBe("not-allowed");
+    expect(getComputedStyle(enabled!).cursor).toBe("pointer");
+  });
 });
 
 describe("Tabs paint the designed strip", () => {
@@ -131,7 +159,11 @@ describe("Tabs paint the designed strip", () => {
     expect(style.backgroundColor).toBe("rgb(253, 252, 251)");
     expect(style.borderTopColor).toBe("rgb(218, 212, 206)");
     expect(style.borderRadius).toBe("8px");
-    expect(style.padding).toBe("4px");
+    // 2px, the sheet's own inset — with 24px rows and the 1.5px edge it is
+    // what makes the 32px height it draws. It does NOT close §6's concentric
+    // arithmetic; recorded in needsDesign rather than quietly rounded to 4.
+    expect(style.padding).toBe("2px");
+    expect(document.querySelector('[data-slot="tabs-list"]')!.getBoundingClientRect().height).toBe(32);
   });
 
   test("the selected tab is filled and the rest are not", async () => {
@@ -177,3 +209,58 @@ describe("Tabs paint the designed strip", () => {
     }
   });
 });
+
+describe("The selected tab reads as selected in BOTH schemes", () => {
+  function Strip() {
+    return (
+      <Tabs defaultValue="a">
+        <Tabs.List>
+          <Tabs.Tab value="a">Selected</Tabs.Tab>
+          <Tabs.Tab value="b">Not</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="a">A</Tabs.Panel>
+      </Tabs>
+    );
+  }
+
+  /** Renders inside a scheme-pinned frame, so dark is really dark. */
+  function mountIn(scheme: "light" | "dark") {
+    container = document.createElement("div");
+    Object.assign(
+      container.style,
+      toStyleObject(resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED }), scheme) as unknown as Record<string, string>,
+      { colorScheme: scheme },
+    );
+    container.className = "bg-base";
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => { root!.render(<Strip />); });
+    return container;
+  }
+
+  test.each(["light", "dark"] as const)("the fill differs from the track — %s", (scheme) => {
+    const c = mountIn(scheme);
+    const list = c.querySelector<HTMLElement>('[data-slot="tabs-list"]')!;
+    const [selected, unselected] = Array.from(c.querySelectorAll<HTMLElement>('[data-slot="tabs-tab"]'));
+
+    const track = getComputedStyle(list).backgroundColor;
+    const fill = getComputedStyle(selected!).backgroundColor;
+    // The selected tab must not paint the track's own colour, and the
+    // unselected one must not paint anything. `bg-sunken` failed the first of
+    // these by a hair in dark — 1.10:1, close enough to read as unselected.
+    expect(fill).not.toBe(track);
+    expect(getComputedStyle(unselected!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(contrast(fill, track), `${scheme}: selected fill vs track`).toBeGreaterThanOrEqual(1.15);
+  });
+});
+
+/** WCAG relative-luminance contrast between two `rgb(...)` strings. */
+function contrast(a: string, b: string): number {
+  const lum = (css: string) => {
+    const [r, g, bl] = css.match(/\d+(\.\d+)?/g)!.slice(0, 3).map(Number) as [number, number, number];
+    const ch = (v: number) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(bl);
+  };
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
+  return (x + 0.05) / (y + 0.05);
+}

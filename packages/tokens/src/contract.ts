@@ -51,6 +51,14 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-overlay",
   "--ui-bg-hover",
   "--ui-bg-active",
+  // The fill on a CHOSEN item — a selected tab, a segment. Not hover, not
+  // active, and not `sunken`: "recessed" is a RELATIVE role, and the surface
+  // scale inverts between schemes, so a fill defined as "darker than the
+  // track" has room in light and none in dark. Measured at 1.10:1 against
+  // `bg-surface` in dark while Tabs used `bg-sunken` for it, which is where
+  // "the selected tab doesn't look contrasted enough" came from. This one
+  // steps AWAY from the surface in whichever direction that scheme reads.
+  "--ui-bg-selected",
   "--ui-bg-accent",
   // Symmetric with the emphasis triple: a filled control needs all three
   // states as roles, or components reach into the palette for two of them.
@@ -264,6 +272,7 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // TEXT here rather than being decoration, and nothing had put ink on it
   // before — so nothing had ever measured it.
   ["--ui-text-primary", "--ui-bg-accent-subtle"],
+  ["--ui-text-primary", "--ui-bg-selected"],
   // The grip on a CardSorting row. `elevated` is the only surface a muted ink
   // sits on that was never audited, because nothing had drawn one there.
   ["--ui-text-muted", "--ui-bg-elevated"],
@@ -283,11 +292,21 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-text-on-emphasis", "--ui-bg-emphasis-active"],
   ["--ui-text-on-accent", "--ui-bg-accent"],
   ["--ui-text-link", "--ui-bg-base"],
+  // The open month/year trigger in a Calendar header. `text-link` was audited
+  // on the page and nowhere else, so the moment anything inked it on a raised
+  // surface the audit stopped covering it — and the Calendar panel is
+  // `bg-surface`, with `bg-hover` under the pointer.
+  ["--ui-text-link", "--ui-bg-surface"],
+  ["--ui-text-link", "--ui-bg-hover"],
   ["--ui-text-on-danger-solid", "--ui-bg-danger-solid"],
   ["--ui-text-on-danger-subtle", "--ui-intent-danger-bg"],
   ["--ui-intent-success-fg", "--ui-intent-success-bg"],
   ["--ui-intent-warning-fg", "--ui-intent-warning-bg"],
   ["--ui-intent-danger-fg", "--ui-intent-danger-bg"],
+  // A field's error message sits on the PAGE, not on a danger surface — every
+  // form component draws one and the pair had never been audited, because the
+  // only danger pair anyone thought to list was ink on its own tinted well.
+  ["--ui-intent-danger-fg", "--ui-bg-base"],
   ["--ui-intent-info-fg", "--ui-intent-info-bg"],
   ["--ui-nav-ink", "--ui-nav-bg"],
   ["--ui-nav-active-ink", "--ui-nav-active-bg"],

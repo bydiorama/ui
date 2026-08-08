@@ -12,7 +12,7 @@ export type ButtonSize = "lg" | "md" | "sm";
  * "nobody had defined": every Button placed anywhere came out a pill, so the
  * soft control the design actually draws looked like an invention each time.
  */
-export type ButtonShape = "soft" | "pill";
+export type ButtonShape = "soft" | "full";
 
 /**
  * Geometry per size, transcribed from the approved design.
@@ -88,7 +88,7 @@ interface ButtonBaseProps
   variant?: ButtonVariant;
   size?: ButtonSize;
   /**
-   * `soft` is the default (see ButtonShape). `pill` is the fully rounded form
+   * `soft` is the default (see ButtonShape). `full` is the fully rounded form
    * the sheet labels "Rounded Full".
    */
   shape?: ButtonShape;
@@ -191,7 +191,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // suppressing: ours overrides it whenever :focus-visible matches.
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
         !staticTap && "enabled:active:scale-(--ui-press-scale) motion-reduce:active:scale-100",
-        shape === "pill" ? "rounded-full" : SOFT_RADIUS[size],
+        shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
         isIconOnly ? ICON_SIZE[size] : SIZE[size],
         VARIANT[variant],
         isFullWidth && "w-full",

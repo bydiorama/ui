@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-cross-item-imports",
+  "date": "2026-08-07",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:dependencies now resolves every `@/` import in a distributed file against the manifest's INSTALL TARGETS, and it found two shipped items importing paths their consumers do not have: multiselect imported '@/ui/badge/badge.tsx' and card-sorting '@/ui/button/button.tsx' — this repo's folder layout, while the CLI installs those files as 'ui/badge.tsx' and 'ui/button.tsx'. Both declared the right registryDependencies, so the CLI delivered the right FILES under the wrong NAMES; nothing compared the two because the gate skipped `@/` with a comment saying 'the alias ones are what registryDependencies is for'. Fixed to '@/ui/badge' and '@/ui/button', with the alias registered in all four resolvers (root tsconfig, storybook tsconfig, .storybook/main.ts, vitest.config.ts) so the path we ship is the path we type-check. Two keys per item in the Vite configs, longer first: Vite matches a string alias as a prefix, so a lone '@/ui/badge' would turn the folder form tests use into '.../badge.tsx/badge.tsx'. The gate checks both halves — an import that matches no target, and a target imported without its registryDependency — and both were probed failing-first.",
+  "affects": [
+    "gate:dependencies",
+    "item:multiselect",
+    "item:card-sorting",
+    "item:date-picker"
+  ]
+}

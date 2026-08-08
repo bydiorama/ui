@@ -19,9 +19,9 @@ Badge
 
   props: {
     variant: {
-      type: '"selected" | "unselected" | "success" | "danger"',
+      type: '"selected" | "unselected" | "success" | "warning" | "danger"',
       default: '"unselected"',
-      notes: "selected is the brand fill; unselected is outlined; success and danger are tinted status labels with no border, so a row of them reads as data rather than controls.",
+      notes: "selected is the brand fill; unselected is outlined; success, warning and danger are tinted status labels with no border, so a row of them reads as data rather than controls.",
     },
     size: {
       type: '"md" | "sm"',
@@ -29,14 +29,14 @@ Badge
       notes:
         "22px and 28px tall. Both carry the same 12px label and the same padding — the difference is height alone, pinned with min-h because the spacing scale cannot express 28 (py-xs gives 22, py-sm 30). md pairs with a 16px icon, sm with 12px. These two were previously identical apart from the icon, so a badge with no icon rendered the same at either size.",
     },
-    shape: { type: '"pill" | "rounded"', default: '"pill"' },
+    shape: { type: '"soft" | "full"', default: '"full"', notes: "One vocabulary with Button (\u00a72). `full` is rounded-full; `soft` is the component's own smaller radius \u2014 radius-sm here, Button's per-size soft radius there. Was `pill`/`rounded`, which named the same two shapes differently from the only other component that has them." },
     iconEnd: { type: "ReactElement", notes: "Slot. A decorative mark should be aria-hidden; an interactive one must be a real button with its own accessible name." },
   },
 
   do: [
     "Keep the label to one or two words — a badge is a label, not a sentence.",
     "Pass a real <button aria-label=\"Remove X\"> into iconEnd for removable tags.",
-    "Use success/danger for state, selected/unselected for choice; do not mix the meanings.",
+    "Use success/warning/danger for state, selected/unselected for choice; do not mix the meanings.",
   ],
 
   dont: [
@@ -52,6 +52,7 @@ Badge
       { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "text", role: "selected badge ink" },
       { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "unselected badge ink" },
       { fg: "--ui-intent-success-fg", bg: "--ui-intent-success-bg", floor: "text", role: "success badge" },
+      { fg: "--ui-intent-warning-fg", bg: "--ui-intent-warning-bg", floor: "text", role: "warning badge" },
       { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "danger badge" },
     ],
   },

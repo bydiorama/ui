@@ -343,3 +343,26 @@ test("every nav style gives a VISIBLE, legible current item, in both schemes", (
     }
   }
 });
+
+test("a selected fill is distinguishable from its track, in BOTH schemes", () => {
+  // `--ui-bg-sunken` was doing this job and measured 1.10:1 against
+  // `--ui-bg-surface` in dark — reported as "the selected tab doesn't look
+  // contrasted enough", and correctly. "Recessed" is a RELATIVE role and the
+  // surface scale inverts between schemes: below the surface there is room on
+  // a light page and almost none on a dark one. `--ui-bg-selected` steps AWAY
+  // from the surface in whichever direction the scheme reads.
+  //
+  // Asserted across seeds, not just theme zero, because theme zero PINS its
+  // light value to the drawn neutral and only the derivation is at risk.
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, name === "theme zero" ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      const t = pair[scheme];
+      const ratio = contrastRatio(t["--ui-bg-selected"], t["--ui-bg-surface"]);
+      assert.ok(
+        ratio >= 1.15,
+        `${name} (${scheme}): --ui-bg-selected on --ui-bg-surface = ${ratio.toFixed(2)}, too close to read as chosen`,
+      );
+    }
+  }
+});

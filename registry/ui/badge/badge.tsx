@@ -2,9 +2,15 @@ import { forwardRef, type HTMLAttributes, type ReactElement, type ReactNode } fr
 
 import { cn } from "@/lib/cn";
 
-export type BadgeVariant = "selected" | "unselected" | "success" | "danger";
+export type BadgeVariant = "selected" | "unselected" | "success" | "warning" | "danger";
 export type BadgeSize = "md" | "sm";
-export type BadgeShape = "pill" | "rounded";
+/**
+ * One vocabulary with Button (§2): `full` is `rounded-full`, `soft` is the
+ * component's own smaller radius. Badge called these `pill` and `rounded`,
+ * which named the same two shapes differently from the only other component
+ * that has them — and "pill" described the drawing rather than the token.
+ */
+export type BadgeShape = "soft" | "full";
 
 /**
  * Both sizes share a 12px label and the same padding — the sheet draws them
@@ -33,6 +39,10 @@ const VARIANT = {
   selected: "bg-accent border-accent text-ink-on-accent",
   unselected: "bg-base border-edge-subtle text-ink-muted",
   success: "bg-success-subtle border-transparent text-success",
+  // The sheet's "Warning" row, added to all three sizes. It completes the
+  // intent set the token layer already carried — success, warning and danger
+  // all existed as roles, and only two of the three had ever been drawn.
+  warning: "bg-warning-subtle border-transparent text-warning",
   danger: "bg-danger-subtle border-transparent text-ink-on-danger-subtle",
 } as const satisfies Record<BadgeVariant, string>;
 
@@ -73,7 +83,7 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, FakeIn
  * common accessibility defect in tag components.
  */
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
-  { variant = "unselected", size = "sm", shape = "pill", iconEnd, className, children, ...rest },
+  { variant = "unselected", size = "sm", shape = "full", iconEnd, className, children, ...rest },
   ref,
 ) {
   return (
@@ -85,7 +95,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
       className={cn(
         "inline-flex w-fit shrink-0 items-center border-[1.5px]",
         "font-body font-bold leading-flat tracking-tight whitespace-nowrap",
-        shape === "pill" ? "rounded-full" : "rounded-sm",
+        shape === "full" ? "rounded-full" : "rounded-sm",
         SIZE[size],
         VARIANT[variant],
         className,

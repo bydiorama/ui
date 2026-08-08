@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-calendar-weekday-separation",
+  "date": "2026-08-07",
+  "item": "calendar",
+  "kind": "visual",
+  "summary": "The weekday header row was separated from the first week by the grid's 4px gap, where both artboards draw `margin-bottom: var(--ui-space-md)` — 12px — on that row (DZO-0 and JNV-0). Shipped since Calendar did, invisible to every gate: the utilities all resolved, the contrast was right, and the visual baseline recorded the defect as the reference. Found by measuring the gap in Chromium while reviewing the month/year selects, because the missing 8px was also what made a select panel resize the card by 9px on open. Fixed with mb-sm on the weekday CELLS — the row is display:contents, so a margin on the row itself would do nothing — giving 4 + 8 = 12. The card is 8px taller and both baselines were re-recorded and looked at.",
+  "affects": ["slot:calendar-weekday", "slot:calendar-grid"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CZN-0"
+  }
+}

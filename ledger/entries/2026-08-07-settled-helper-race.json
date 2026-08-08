@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-settled-helper-race",
+  "date": "2026-08-07",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The `settled()` helper every overlay test uses could resolve BEFORE the transition it was meant to await had started, so callers read geometry and computed style in the middle of it. Base UI writes `style=\"transition: none\"` inline for exactly one frame after a surface opens — so the panel cannot animate from a stale position — and an inline style beats every class, which means getAnimations() sampled on that frame returns [] and the helper returns immediately. Two Select tests flaked on main because of it, one or the other on nearly every run: 'it opens BELOW the trigger' reported 10.35 against an expected 8, which is exactly what a panel still carrying scale-98 measures, and 'the enter transition ACTUALLY runs on scale' saw an empty animation list on working code. Both had been written off as flakes. The helper now waits up to three frames for an animation to EXIST before awaiting it, in all ten files that define it. Proved by watching opacity climb 0 → 0.23 → 0.39 across successive frames while frame 0 reported nothing at all.",
+  "affects": ["gate:contract-tests"]
+}

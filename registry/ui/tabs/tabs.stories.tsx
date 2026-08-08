@@ -46,7 +46,44 @@ export const Playground: Story = {
   ),
 };
 
-export const Matrix: Story = { ...Playground };
+/**
+ * The sheet's own four rows, in its own order — a visual diff is like-for-like
+ * only if the layouts match. A variant reachable through the API and drawn in
+ * no story is exactly how `outline` survived a release on Button.
+ */
+export const Matrix: Story = {
+  render: () => (
+    <div className="flex w-[420px] flex-col gap-xl">
+      <Tabs defaultValue="links" onValueChange={fn()}>
+        <Tabs.List>
+          <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+          <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      <Tabs defaultValue="links" onValueChange={fn()}>
+        <Tabs.List>
+          <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+          <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+          <Tabs.Tab value="advanced" isDisabled>Advanced settings</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      <Tabs defaultValue="links" orientation="vertical" onValueChange={fn()}>
+        <Tabs.List>
+          <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+          <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+          <Tabs.Tab value="advanced" isDisabled>Advanced settings</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      <Tabs defaultValue="links" variant="ghost" onValueChange={fn()}>
+        <Tabs.List>
+          <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+          <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+          <Tabs.Tab value="advanced">Advanced Settings</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+    </div>
+  ),
+};
 
 export const States: Story = {
   render: () => (

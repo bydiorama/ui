@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-audit-accent-ink-and-error-text",
+  "date": "2026-08-07",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "Three pairs added to CONTRAST_PAIRS, each rendered by shipped code and none previously audited. --ui-text-link had only ever been measured on --ui-bg-base, so the moment anything inked it on a raised surface the audit stopped covering it — Calendar's open month/year trigger sits on --ui-bg-surface, with --ui-bg-hover under the pointer. --ui-intent-danger-fg had only ever been measured on its own tinted well, while every form component in the library draws its error message on the PAGE. An unlisted pair is an unchecked pair, which is how a dark-scheme placeholder once sat at 3.2:1 with every gate green. Also corrected in Paper: the sheet inked the open month trigger --ui-blue-70, which is the DARK scheme's value for the link role and measures 2.1:1 on a light panel — it now reads var(--ui-text-link), 5.8:1 in light.",
+  "affects": [
+    "token:--ui-text-link",
+    "token:--ui-intent-danger-fg",
+    "gate:contrast"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CZN-0"
+  }
+}

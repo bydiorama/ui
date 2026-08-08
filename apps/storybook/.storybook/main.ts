@@ -6,6 +6,25 @@ import type { StorybookConfig } from "@storybook/react-vite";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 
+/**
+ * A UI item that another distributed file imports.
+ *
+ * Two keys per item, on purpose. A distributed file uses the CONSUMER's path
+ * (`@/ui/badge` — the manifest's install target), while tests and stories use
+ * this repo's folder path (`@/ui/badge/badge.tsx`). Vite matches a string
+ * alias as a PREFIX, so the folder form has to come first or it resolves to
+ * `.../badge.tsx/badge.tsx`. `check:dependencies` fails the build if a
+ * distributed file imports a target with no entry here.
+ */
+function uiItems(...names: string[]): Record<string, string> {
+  return Object.fromEntries(
+    names.flatMap((name) => {
+      const file = join(root, `registry/ui/${name}/${name}.tsx`);
+      return [[`@/ui/${name}/${name}.tsx`, file], [`@/ui/${name}`, file]];
+    }),
+  );
+}
+
 const config: StorybookConfig = {
   /**
    * Stories live next to the components they document, inside `registry/`.
@@ -46,10 +65,12 @@ const config: StorybookConfig = {
           root,
           "registry/lib/compose-event-handlers/compose-event-handlers.ts",
         ),
+        "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
         "@/hooks/use-controllable-state": join(
           root,
           "registry/hooks/use-controllable-state/use-controllable-state.ts",
         ),
+        ...uiItems("badge", "button", "calendar", "menu"),
         "@/ui": join(root, "registry/ui"),
         "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
       },

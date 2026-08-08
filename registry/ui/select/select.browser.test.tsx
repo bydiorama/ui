@@ -19,7 +19,33 @@ function mount(ui: ReactElement) {
 }
 
 async function settled(el: Element) {
-  await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
+  // Wait for the transition to EXIST before waiting for it to finish.
+  //
+  // Base UI suppresses transitions for exactly one frame after a surface
+  // opens — it writes `style="transition: none"` inline so the panel cannot
+  // animate from a stale position — and an inline style beats every class.
+  // So `getAnimations()` sampled on that frame returns [], this helper
+  // resolves instantly, and the caller reads geometry or computed style in
+  // the MIDDLE of the transition it thought it had awaited.
+  //
+  // That was not theoretical: Select's "opens BELOW the trigger" and "the
+  // enter transition ACTUALLY runs on scale" both flaked on main, one or the
+  // other on nearly every run, and this is the single cause of both. A panel
+  // read while `scale-98` is still applied is 2% smaller and sits 2px lower,
+  // which is exactly the 10.35-versus-8 the offset assertion kept reporting.
+  for (let i = 0; i < 3 && el.getAnimations().length === 0; i++) {
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  }
+  // Then DRAIN, rather than awaiting one batch. Waiting for a transition to
+  // appear can itself let a second one start — Switch's track begins moving
+  // between two accent fills during those frames — and a single
+  // `Promise.all` returns while that one is still mid-flight, which reads as
+  // an interpolated colour that matches no token at all.
+  for (let i = 0; i < 5; i++) {
+    const running = el.getAnimations();
+    if (running.length === 0) break;
+    await Promise.all(running.map((a) => a.finished.catch(() => undefined)));
+  }
 }
 
 afterEach(() => {
@@ -213,11 +239,15 @@ describe("Select's panel is the system's panel", () => {
   test("the enter transition ACTUALLY runs on scale", async () => {
     mount(<Select label="Services" items={ITEMS} />);
     await userEvent.click(trigger());
-    const running = panel()!
-      .getAnimations()
-      .map((a) => (a as CSSTransition).transitionProperty);
     // v4's scale-* writes the standalone property; a list naming `transform`
     // covers nothing, which is how Modal and Popover shipped a dead entrance.
-    expect(running).toContain("scale");
+    //
+    // POLLED, not sampled once: Base UI writes an inline `transition: none`
+    // for the first frame of an open, so a single sample taken there finds no
+    // animations and reads as a dead transition on working code. That is what
+    // made this test flake on main.
+    await expect
+      .poll(() => panel()!.getAnimations().map((a) => (a as CSSTransition).transitionProperty))
+      .toContain("scale");
   });
 });

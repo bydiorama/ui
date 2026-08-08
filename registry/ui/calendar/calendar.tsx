@@ -9,8 +9,9 @@ import {
   useState,
   type HTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
+  type Ref,
 } from "react";
-import { ChevronLeft, ChevronRight } from "griddy-icons";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
 import { chromeControl } from "@/lib/chrome-control";
@@ -65,6 +66,26 @@ function isSameDay(a: Date | null, b: Date | null): boolean {
   return Boolean(a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate());
 }
 
+/**
+ * Which of the three panels the card is showing.
+ *
+ * Not three components: they share the header, the card and the visible
+ * month, and the whole point of the month and year triggers is that they swap
+ * what sits underneath them in place. An anchored popover here would put a
+ * second surface on top of a surface that is already a popover in DatePicker.
+ */
+type CalendarView = "days" | "months" | "years";
+
+/**
+ * The year grid pages by a whole screenful, and the window is centred on the
+ * visible year — 13 either side, so the current year sits in the middle row
+ * of nine exactly as the sheet draws it.
+ */
+const YEAR_COLUMNS = 3;
+const YEAR_ROWS = 9;
+const YEARS_PER_PAGE = YEAR_COLUMNS * YEAR_ROWS;
+const YEAR_RADIUS = (YEARS_PER_PAGE - 1) / 2;
+
 export interface CalendarProps extends Omit<HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
   /** Required — names the grid, which is otherwise announced as "grid". */
   label: string;
@@ -112,6 +133,18 @@ export function Calendar({
 }: CalendarProps) {
   const gridId = useId();
   const headingId = useId();
+  const monthListId = useId();
+  const yearListId = useId();
+
+  const [view, setView] = useState<CalendarView>("days");
+  /**
+   * How many screenfuls the year grid has been paged from the visible year.
+   * Reset every time the grid opens, so the year on the trigger is always the
+   * one the grid is centred on when it appears.
+   */
+  const [yearPage, setYearPage] = useState(0);
+  const monthTriggerRef = useRef<HTMLButtonElement>(null);
+  const yearTriggerRef = useRef<HTMLButtonElement>(null);
 
   const [selected, setSelected] = useControllableState<Date | null>({
     ...(value !== undefined ? { value } : {}),
@@ -167,6 +200,21 @@ export function Calendar({
     [visible],
   );
 
+  /** Month names from Intl, for the same reason the weekday names are. */
+  const monthNames = useMemo(() => {
+    const format = new Intl.DateTimeFormat(undefined, { month: "long" });
+    return Array.from({ length: 12 }, (_, i) => format.format(new Date(2000, i, 1, 12)));
+  }, []);
+
+  const monthLabel = useMemo(
+    () => new Intl.DateTimeFormat(undefined, { month: "long" }).format(visible),
+    [visible],
+  );
+  const yearLabel = useMemo(
+    () => new Intl.DateTimeFormat(undefined, { year: "numeric" }).format(visible),
+    [visible],
+  );
+
   const dayLabel = useCallback(
     (date: Date) => new Intl.DateTimeFormat(undefined, { dateStyle: "full" }).format(date),
     [],
@@ -215,25 +263,138 @@ export function Calendar({
 
   const today = startOfDay(todayProp ?? new Date());
 
+  /** Closes a select and hands focus back to the trigger that opened it. */
+  const closeView = useCallback((restoreTo: "month" | "year") => {
+    setView("days");
+    (restoreTo === "month" ? monthTriggerRef : yearTriggerRef).current?.focus();
+  }, []);
+
+  const openView = useCallback((next: Exclude<CalendarView, "days">) => {
+    if (next === "years") setYearPage(0);
+    setView((current) => (current === next ? "days" : next));
+  }, []);
+
+  /**
+   * The arrows step whatever the panel underneath them is showing, and say so.
+   * A button labelled "Previous month" that moves a year is a lie a screen
+   * reader has no way to catch.
+   */
+  const paging = {
+    days: {
+      prev: { label: "Previous month", go: () => setVisible(addMonths(visible, -1)) },
+      next: { label: "Next month", go: () => setVisible(addMonths(visible, 1)) },
+    },
+    months: {
+      prev: { label: "Previous year", go: () => setVisible(addMonths(visible, -12)) },
+      next: { label: "Next year", go: () => setVisible(addMonths(visible, 12)) },
+    },
+    years: {
+      prev: { label: "Previous years", go: () => setYearPage((page) => page - 1) },
+      next: { label: "Next years", go: () => setYearPage((page) => page + 1) },
+    },
+  }[view];
+
+  const yearWindowCentre = year + yearPage * YEARS_PER_PAGE;
+
   return (
     <div
       data-slot="calendar"
-      className={cn("flex w-80 flex-col rounded-lg bg-surface p-lg shadow-sm", className)}
+      className={cn(
+        // The month and year panels are exactly as tall as the day grid they
+        // replace, so opening one does not resize the card — which, inside
+        // DatePicker's popover, would mean the panel jumping under the cursor.
+        // A component variable rather than a literal (§6): it is the one
+        // number here a consumer might legitimately need to change.
+        "[--ui-calendar-view-height:292px]",
+        "flex w-80 flex-col rounded-lg bg-surface p-lg shadow-sm",
+        className,
+      )}
       {...rest}
     >
       <div data-slot="calendar-header" className="mb-lg flex items-center justify-between gap-sm">
-        <NavButton label="Previous month" onClick={() => setVisible(addMonths(visible, -1))} direction="prev" />
+        <NavButton label={paging.prev.label} onClick={paging.prev.go} direction="prev" />
         {/*
-          A heading, not the sheet's two dropdown buttons. There is no Select
-          in this system yet, and a control that looks interactive and is not
-          is worse than plain text — recorded in knownGaps.
+          The visible month still has to be ANNOUNCED — the two triggers name
+          themselves, not the date the grid is showing, and a month change
+          driven by the arrows would otherwise be silent. Visually hidden, so
+          the sheet's two dropdowns are all that is drawn.
         */}
-        <h2 id={headingId} data-slot="calendar-heading" aria-live="polite" className="text-body-md font-body font-bold leading-flat tracking-tight text-ink-primary">
+        <span id={headingId} data-slot="calendar-heading" aria-live="polite" className="sr-only">
           {heading}
-        </h2>
-        <NavButton label="Next month" onClick={() => setVisible(addMonths(visible, 1))} direction="next" />
+        </span>
+        <div data-slot="calendar-selects" className="flex items-start gap-xs">
+          <ViewTrigger
+            ref={monthTriggerRef}
+            slot="calendar-month-trigger"
+            label={monthLabel}
+            accessibleName="Choose a month"
+            controls={monthListId}
+            isOpen={view === "months"}
+            onClick={() => openView("months")}
+          />
+          <ViewTrigger
+            ref={yearTriggerRef}
+            slot="calendar-year-trigger"
+            label={yearLabel}
+            accessibleName="Choose a year"
+            controls={yearListId}
+            isOpen={view === "years"}
+            onClick={() => openView("years")}
+          />
+        </div>
+        <NavButton label={paging.next.label} onClick={paging.next.go} direction="next" />
       </div>
 
+      {view === "months" && (
+        <OptionList
+          id={monthListId}
+          slot="calendar-month"
+          label="Month"
+          columns={1}
+          options={monthNames.map((name, index) => ({
+            key: index,
+            label: name,
+            isSelected: index === monthIndex,
+            isCurrent: index === today.getMonth() && year === today.getFullYear(),
+          }))}
+          onSelect={(index) => {
+            setVisible(at(year, index, 1));
+            closeView("month");
+          }}
+          onDismiss={() => closeView("month")}
+        />
+      )}
+
+      {view === "years" && (
+        <OptionList
+          id={yearListId}
+          slot="calendar-year"
+          label="Year"
+          columns={YEAR_COLUMNS}
+          options={Array.from({ length: YEARS_PER_PAGE }, (_, i) => {
+            const value = yearWindowCentre - YEAR_RADIUS + i;
+            return {
+              key: value,
+              label: String(value),
+              isSelected: value === year,
+              isCurrent: value === today.getFullYear(),
+            };
+          })}
+          onSelect={(value) => {
+            setVisible(at(value, monthIndex, 1));
+            closeView("year");
+          }}
+          onDismiss={() => closeView("year")}
+        />
+      )}
+
+      {/*
+        Unmounted, not `hidden`. The attribute's UA rule is `display: none` at
+        author-origin zero specificity, and `grid` below is an author rule —
+        so a hidden grid stays on screen, which is a bug that looks like
+        nothing at all until a select is opened.
+      */}
+      {view === "days" && (
       <div
         ref={gridRef}
         role="grid"
@@ -254,7 +415,14 @@ export function Calendar({
               // text-ink-muted, NOT the sheet's --ui-text-disabled: a weekday
               // name is not a disabled control, and that role measures under
               // 2:1 on this surface. A real defect, corrected in Paper.
-              className="flex items-center justify-center py-sm text-label-md font-body font-medium leading-snug tracking-tight text-ink-muted"
+              //
+              // mb-sm on top of the grid's 4px gap makes the 12px the sheet
+              // actually draws (`margin-bottom: var(--ui-space-md)` on DZO-0
+              // and JNV-0). The row is `display: contents`, so the margin has
+              // to live on the CELLS — and without it the header sat on the
+              // first week and the grid came out 8px short, which is also
+              // what made a month select resize the card on open.
+              className="mb-sm flex items-center justify-center py-sm text-label-md font-body font-medium leading-snug tracking-tight text-ink-muted"
             >
               {day.short}
             </span>
@@ -322,7 +490,176 @@ export function Calendar({
           </div>
         ))}
       </div>
+      )}
     </div>
+  );
+}
+
+interface OptionListProps {
+  id: string;
+  /** `data-slot` stem — the list gets `-list`, each cell `-option`. */
+  slot: string;
+  label: string;
+  columns: number;
+  options: ReadonlyArray<{ key: number; label: string; isSelected: boolean; isCurrent: boolean }>;
+  onSelect: (key: number) => void;
+  onDismiss: () => void;
+}
+
+/**
+ * The month list and the year grid, which differ only in their column count.
+ *
+ * A listbox rather than 12 (or 27) buttons: a grid of tab stops is what the
+ * roving pattern exists to avoid, and it is the same reason the day grid has
+ * one. `role="option"` cannot contain a button, so the cells are divs that
+ * implement activation themselves — the trade the listbox pattern always
+ * makes, and the reason Enter and Space are both handled below.
+ */
+function OptionList({ id, slot, label, columns, options, onSelect, onDismiss }: OptionListProps) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const selectedIndex = Math.max(0, options.findIndex((option) => option.isSelected));
+  const [active, setActive] = useState(selectedIndex);
+  /** Only the FIRST reveal centres the list; arrowing afterwards should not
+   *  yank the whole page under the user on every keystroke. */
+  const hasOpened = useRef(false);
+
+  useEffect(() => {
+    const cell = listRef.current?.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
+    if (!cell) return;
+    cell.focus({ preventScroll: true });
+    cell.scrollIntoView({ block: hasOpened.current ? "nearest" : "center" });
+    hasOpened.current = true;
+  }, [active]);
+
+  function onKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const last = options.length - 1;
+    const moves: Record<string, () => number> = {
+      ArrowLeft: () => active - 1,
+      ArrowRight: () => active + 1,
+      ArrowUp: () => active - columns,
+      ArrowDown: () => active + columns,
+      Home: () => 0,
+      End: () => last,
+    };
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onDismiss();
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect(options[active]!.key);
+      return;
+    }
+    const move = moves[event.key];
+    if (!move) return;
+    event.preventDefault();
+    // Clamped, not wrapped: a year grid that jumps from 2039 to 2013 on one
+    // Down press reads as a bug, and the arrows page the window anyway.
+    setActive(Math.min(last, Math.max(0, move())));
+  }
+
+  return (
+    <div
+      ref={listRef}
+      id={id}
+      role="listbox"
+      aria-label={label}
+      data-slot={`${slot}-list`}
+      onKeyDown={onKeyDown}
+      className={cn(
+        "grid content-start gap-sm overflow-y-auto rounded-sm",
+        // Exactly the day grid's height, so the card does not resize.
+        "h-(--ui-calendar-view-height)",
+        columns === 1 ? "grid-cols-1" : "grid-cols-3",
+      )}
+    >
+      {options.map((option, index) => (
+        <div
+          key={option.key}
+          role="option"
+          aria-selected={option.isSelected}
+          data-slot={`${slot}-option`}
+          data-selected={option.isSelected || undefined}
+          data-current={option.isCurrent || undefined}
+          tabIndex={index === active ? 0 : -1}
+          // The roving stop follows ACTUAL focus, for the same reason the day
+          // grid's does — assistive tech moves focus without clicking.
+          onFocus={() => setActive(index)}
+          onClick={() => onSelect(option.key)}
+          className={cn(
+            // min-h-8 rather than padding alone: py-sm around 12px leading-flat
+            // text is 8 + 12 + 8 = 28, and the sheet draws 32.
+            "flex min-h-8 cursor-pointer items-center justify-center rounded-md px-md py-sm",
+            "text-button-sm font-body font-medium leading-flat",
+            "bg-elevated text-ink-muted",
+            "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            "hover:bg-hover hover:text-ink-primary",
+            // Selected and current are drawn exactly as the day grid draws
+            // them — fill for the choice, outline for today — rather than as
+            // the sheet's two 1.5px borders. One vocabulary per component, and
+            // accent-on-accent-subtle measures 1.3:1, so that border was
+            // decoration the fill already carries.
+            "data-[selected]:bg-accent-subtle data-[selected]:text-ink-primary data-[selected]:font-bold",
+            "data-[current]:outline data-[current]:outline-edge-default",
+            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+          )}
+        >
+          {option.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+interface ViewTriggerProps {
+  ref: Ref<HTMLButtonElement>;
+  slot: string;
+  /** What is drawn — "August", "2026". */
+  label: string;
+  /** What is announced. "August" alone does not say what pressing it does. */
+  accessibleName: string;
+  controls: string;
+  isOpen: boolean;
+  onClick: () => void;
+}
+
+/** One of the header's two disclosures. */
+function ViewTrigger({ ref, slot, label, accessibleName, controls, isOpen, onClick }: ViewTriggerProps) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      data-slot={slot}
+      data-open={isOpen || undefined}
+      aria-label={accessibleName}
+      aria-expanded={isOpen}
+      aria-controls={isOpen ? controls : undefined}
+      onClick={onClick}
+      className={cn(
+        // h-6 is SC 2.5.8's 24px floor exactly: p-xs (4) + 16px leading-flat
+        // text + p-xs (4). Recorded in knownGaps rather than quietly grown,
+        // because the sheet draws the header at 32px overall and a taller
+        // trigger would push the arrows out of line.
+        "flex h-6 cursor-pointer items-center justify-center gap-xs rounded-sm p-xs",
+        // text-button-lg, NOT text-title-sm. Both peak at 16px, but the title
+        // roles are FLUID — clamp(...vw...) — and this panel is a fixed 320px
+        // that a narrow viewport does not shrink. title-sm computed to 12.17px
+        // on a phone, worst exactly where the sheet draws 16.
+        "text-button-lg font-body font-bold leading-flat tracking-tight",
+        "text-ink-primary [&_svg]:size-4 [&_svg]:shrink-0",
+        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "hover:bg-hover",
+        // The open one is inked with the accent LINK role. The sheet drew a
+        // raw --ui-blue-70, which is the DARK scheme's value for that role and
+        // measures 2.1:1 on a light panel. Corrected in Paper.
+        "data-[open]:text-ink-link",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+      )}
+    >
+      {label}
+      {isOpen ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+    </button>
   );
 }
 

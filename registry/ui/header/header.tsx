@@ -7,6 +7,7 @@ import {
   type HTMLAttributes,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from "react";
 
 import { Menu } from "griddy-icons";
@@ -151,6 +152,17 @@ function HeaderNav({ children, label, className, ...rest }: HeaderNavProps) {
 
 export interface HeaderItemProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
   children: ReactNode;
+  /**
+   * Forwarded to the row itself, which is what lets the item BE a trigger:
+   * `<Menu.Trigger render={<Header.Item trailing={<ChevronDown/>}>Create</Header.Item>} />`.
+   *
+   * The sheet draws exactly that — "Create ⌄" and "Work ⌄" are nav items
+   * that open a menu rather than navigate — and without a ref the behaviour
+   * layer cannot anchor its panel to the row or restore focus to it. Note
+   * that composing through `render` means the TRIGGER's data-slot wins over
+   * `header-item`, which is true of every render slot here.
+   */
+  ref?: Ref<HTMLElement>;
   /** Makes the item a link. Without it the item is a button — the sheet draws
    *  two that open menus rather than navigate, and they carry a chevron. */
   href?: string;
@@ -165,13 +177,14 @@ export interface HeaderItemProps extends Omit<HTMLAttributes<HTMLElement>, "chil
   trailing?: ReactElement;
 }
 
-function HeaderItem({ children, href, isCurrent = false, icon, trailing, className, ...rest }: HeaderItemProps) {
+function HeaderItem({ children, href, isCurrent = false, icon, trailing, className, ref, ...rest }: HeaderItemProps) {
   const inNav = useContext(InNav);
   const isLink = href !== undefined;
   const Row = isLink ? "a" : "button";
 
   const row = (
     <Row
+      ref={ref as Ref<HTMLAnchorElement> & Ref<HTMLButtonElement>}
       {...(isLink ? { href } : { type: "button" as const })}
       data-slot="header-item"
       data-current={isCurrent || undefined}

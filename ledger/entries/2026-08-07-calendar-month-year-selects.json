@@ -1,0 +1,27 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-calendar-month-year-selects",
+  "date": "2026-08-07",
+  "item": "calendar",
+  "kind": "addition",
+  "summary": "Calendar's header is now the sheet's two dropdowns rather than a heading, closing the gap recorded when it shipped ('there is no Select yet, and a control that looks interactive and is not is worse than plain text'). They do not open a Select: they replace the day grid IN PLACE at its own height, because inside DatePicker this card is already a popover and a popover over a popover is two surfaces where the sheet draws one. Each is a listbox with its own roving tab stop — role=option cannot contain a button, so Enter and Space are implemented rather than inherited — opening moves focus to the current value and centres it, Escape and choosing both return focus to the trigger, and the ends clamp rather than wrap. The month list is one column, the year grid three, 27 years centred on the visible year with the header arrows paging a screenful; those arrows now step whatever panel is open and their accessible names change with it, because a button labelled 'Previous month' that moves a year is a lie a screen reader cannot catch. The month/year heading survives as a visually-hidden aria-live region: the two triggers name themselves, so without it an arrow press would change the date in silence. The grid is UNMOUNTED rather than `hidden` when a select is open — the attribute's UA rule loses to the author-origin `display: grid`. Selected and current are drawn as the day grid draws selected and today (fill, outline) rather than as the sheet's two 1.5px borders: accent on accent-subtle measures 1.3:1 and identifies nothing the fill and bold weight do not. Trigger type is text-button-lg, NOT the sheet's title-sm, which is a fluid clamp() role and computes to ~12px inside this fixed 320px card.",
+  "affects": [
+    "slot:calendar-selects",
+    "slot:calendar-month-trigger",
+    "slot:calendar-year-trigger",
+    "slot:calendar-month-list",
+    "slot:calendar-year-list",
+    "slot:calendar-month-option",
+    "slot:calendar-year-option",
+    "slot:calendar-heading",
+    "slot:calendar-prev",
+    "slot:calendar-next",
+    "token:--ui-calendar-view-height"
+  ],
+  "migration": {
+    "manual": "calendar-heading is now visually hidden and no longer an <h2> — it is a live region, not a document heading. Anything styling or querying it as visible text needs the two trigger slots instead. The prev/next aria-labels are no longer always 'Previous month'/'Next month'; they follow the open panel."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CZN-0"
+  }
+}

@@ -89,7 +89,7 @@ export const Activation: Story = {
 export const Matrix: Story = {
   render: () => (
     <div className="flex flex-col gap-xl">
-      {(["soft", "pill"] as const).map((shape) => (
+      {(["soft", "full"] as const).map((shape) => (
         <div key={shape} className="flex flex-col gap-sm">
           <p className="text-caption text-ink-muted">
             {shape === "soft" ? "Default — soft radius (4px at sm, 8px above)" : "Rounded Full"}
@@ -116,7 +116,7 @@ export const Matrix: Story = {
 export const Contents: Story = {
   render: () => (
     <div className="flex flex-col gap-lg">
-      {(["soft", "pill"] as const).map((shape) => (
+      {(["soft", "full"] as const).map((shape) => (
         <Row key={shape} label={shape}>
           <Button shape={shape} icon={<Bookmark />} iconEnd={<Chevron />}>Icon + Text + Icon</Button>
           <Button shape={shape} icon={<Bookmark />}>Icon + Text</Button>

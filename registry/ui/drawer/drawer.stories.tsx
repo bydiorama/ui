@@ -35,8 +35,8 @@ const CompleteProfile = () => (
       <Switch defaultIsChecked>Show email</Switch>
     </Drawer.Body>
     <Drawer.Footer>
-      <Button size="md" shape="pill" isFullWidth>Save profile</Button>
-      <Drawer.Close render={<Button variant="secondary" size="md" shape="pill" isFullWidth>Cancel</Button>} />
+      <Button size="md" shape="full" isFullWidth>Save profile</Button>
+      <Drawer.Close render={<Button variant="secondary" size="md" shape="full" isFullWidth>Cancel</Button>} />
     </Drawer.Footer>
   </>
 );
@@ -79,8 +79,8 @@ export const States: Story = {
             <Drawer.Title>Delete this export?</Drawer.Title>
           </Drawer.Body>
           <Drawer.Footer>
-            <Button variant="danger" size="md" shape="pill" isFullWidth>Delete</Button>
-            <Drawer.Close render={<Button variant="secondary" size="md" shape="pill" isFullWidth>Cancel</Button>} />
+            <Button variant="danger" size="md" shape="full" isFullWidth>Delete</Button>
+            <Drawer.Close render={<Button variant="secondary" size="md" shape="full" isFullWidth>Cancel</Button>} />
           </Drawer.Footer>
         </Drawer.Panel>
       </Drawer>
@@ -95,7 +95,7 @@ export const States: Story = {
             ))}
           </Drawer.Body>
           <Drawer.Footer>
-            <Button size="md" shape="pill" isFullWidth>Save</Button>
+            <Button size="md" shape="full" isFullWidth>Save</Button>
           </Drawer.Footer>
         </Drawer.Panel>
       </Drawer>
@@ -108,7 +108,7 @@ export const States: Story = {
           </Drawer.Body>
           <Drawer.Footer>
             {/* The handle still drags — that is deliberate, and documented. */}
-            <Drawer.Close render={<Button size="md" shape="pill" isFullWidth>Done</Button>} />
+            <Drawer.Close render={<Button size="md" shape="full" isFullWidth>Done</Button>} />
           </Drawer.Footer>
         </Drawer.Panel>
       </Drawer>

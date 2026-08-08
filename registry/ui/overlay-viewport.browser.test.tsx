@@ -24,6 +24,7 @@ import { act } from "react";
 import type { ReactElement } from "react";
 
 import { Button } from "@/ui/button/button.tsx";
+import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.tsx";
 import { Popover } from "@/ui/popover/popover.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
@@ -53,7 +54,33 @@ function mountAt(ui: ReactElement, corner: { bottom: number; right: number }) {
 }
 
 async function settled(el: Element) {
-  await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
+  // Wait for the transition to EXIST before waiting for it to finish.
+  //
+  // Base UI suppresses transitions for exactly one frame after a surface
+  // opens — it writes `style="transition: none"` inline so the panel cannot
+  // animate from a stale position — and an inline style beats every class.
+  // So `getAnimations()` sampled on that frame returns [], this helper
+  // resolves instantly, and the caller reads geometry or computed style in
+  // the MIDDLE of the transition it thought it had awaited.
+  //
+  // That was not theoretical: Select's "opens BELOW the trigger" and "the
+  // enter transition ACTUALLY runs on scale" both flaked on main, one or the
+  // other on nearly every run, and this is the single cause of both. A panel
+  // read while `scale-98` is still applied is 2% smaller and 2px lower, which
+  // is exactly the 10.35-versus-8 the offset assertion kept reporting.
+  for (let i = 0; i < 3 && el.getAnimations().length === 0; i++) {
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  }
+  // Then DRAIN, rather than awaiting one batch. Waiting for a transition to
+  // appear can itself let a second one start — Switch's track begins moving
+  // between two accent fills during those frames — and a single
+  // `Promise.all` returns while that one is still mid-flight, which reads as
+  // an interpolated colour that matches no token at all.
+  for (let i = 0; i < 5; i++) {
+    const running = el.getAnimations();
+    if (running.length === 0) break;
+    await Promise.all(running.map((a) => a.finished.catch(() => undefined)));
+  }
 }
 
 afterEach(() => {
@@ -79,6 +106,20 @@ const CASES: Array<{ name: string; slot: string; ui: ReactElement }> = [
     name: "Multiselect",
     slot: "multiselect-panel",
     ui: <Multiselect label="Services" items={MANY_MULTI} />,
+  },
+  {
+    name: "DatePicker",
+    slot: "date-picker-panel",
+    // The Calendar card is a fixed 320 × ~390, which is bigger than the space
+    // left below a trigger pinned 8px off the bottom — so this case is a real
+    // cap, not a formality.
+    ui: (
+      <DatePicker
+        label="Deadline"
+        defaultMonth={new Date(2026, 7, 1, 12)}
+        today={new Date(2026, 7, 6, 12)}
+      />
+    ),
   },
   {
     name: "Popover",

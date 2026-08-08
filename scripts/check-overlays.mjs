@@ -27,7 +27,7 @@
 // `--available-width` is required alongside the height for the same reason in
 // the other axis: a wide panel anchored to a trigger near the right edge.
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { ROOT } from "./lib/manifest.mjs";
 
@@ -68,6 +68,34 @@ function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 }
 
+/**
+ * A constraint can live in a RECIPE the component composes.
+ *
+ * This gate reads one file and asks whether it caps itself. That held while
+ * every panel wrote its own classes — and stopped holding the moment Menu and
+ * ContextMenu moved their shared panel into `lib/menu-surface`, where both
+ * caps are present and correct and neither component file mentions them. The
+ * gate reported two components as unconstrained while the browser test was
+ * asserting, on both, that the resolved max-height equals the positioner's
+ * published measurement.
+ *
+ * So the file is the wrong unit: what matters is the CSS the panel ends up
+ * with. Any `@/lib/*` module the component imports is read alongside it —
+ * which is also the first-of-its-kind rule applied to a gate's own input,
+ * exactly as check:utilities had to learn that a `.ts` file can be entirely
+ * utility classes.
+ */
+const LIB_IMPORT = /from\s+["']@\/lib\/([\w-]+)["']/g;
+
+function sourceWithRecipes(file, source) {
+  let out = source;
+  for (const [, name] of source.matchAll(LIB_IMPORT)) {
+    const recipe = join(ROOT, "registry/lib", name, `${name}.ts`);
+    if (existsSync(recipe)) out += `\n${stripComments(readFileSync(recipe, "utf8"))}`;
+  }
+  return out;
+}
+
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
     const full = join(dir, name);
@@ -87,8 +115,10 @@ for (const file of walk(join(ROOT, "registry/ui"))) {
   if (!POSITIONER.test(source)) continue;
   anchored++;
   if (ALLOWED.has(rel)) continue;
+  // Read the panel's actual CSS, recipe included — see sourceWithRecipes.
+  const effective = sourceWithRecipes(file, source);
   for (const { what, test, fix } of REQUIRED) {
-    if (!test.test(source)) {
+    if (!test.test(effective)) {
       errors.push(`${rel}: anchors a panel but does not honour ${what} — ${fix}.`);
     }
   }

@@ -47,11 +47,30 @@ function nameOf(dependency) {
   return at > 0 ? dependency.slice(0, at) : dependency;
 }
 
+const manifest = readManifest();
+
+/**
+ * `@/ui/calendar` → the item that installs to `ui/calendar.tsx`.
+ *
+ * The alias a distributed file imports is the CONSUMER's path, so the only
+ * honest way to resolve it is through the install targets — which is also
+ * what makes a target rename show up here rather than in someone's build.
+ */
+const byTarget = new Map();
+for (const item of manifest.items) {
+  for (const file of item.files ?? []) {
+    if (!file.target) continue;
+    byTarget.set(`@/${file.target.replace(/\.tsx?$/, "")}`, item.name);
+  }
+}
+
 const errors = [];
 let checked = 0;
+let aliased = 0;
 
-for (const item of readManifest().items) {
+for (const item of manifest.items) {
   const declared = new Map((item.dependencies ?? []).map((d) => [nameOf(d), d]));
+  const registry = new Set(item.registryDependencies ?? []);
   const imported = new Set();
 
   for (const file of item.files ?? []) {
@@ -60,9 +79,33 @@ for (const item of readManifest().items) {
     if (!existsSync(full)) continue;
     const source = readFileSync(full, "utf8");
     for (const [, specifier] of source.matchAll(IMPORT)) {
-      // Relative and aliased imports are files, not packages — the alias ones
-      // are what `registryDependencies` is for.
-      if (specifier.startsWith(".") || specifier.startsWith("@/") || specifier.startsWith("@bydiorama/")) continue;
+      // Relative imports are files inside the item itself.
+      if (specifier.startsWith(".")) continue;
+      // An aliased import IS a registry item, and until this check existed
+      // nothing verified it was declared: `@/` was skipped with a comment
+      // saying "the alias ones are what registryDependencies is for", and
+      // then nobody compared the two. A consumer who installs `date-picker`
+      // without `calendar` receives a file importing a module they do not
+      // have — the same failure this gate was written for, one namespace over.
+      if (specifier.startsWith("@/")) {
+        aliased++;
+        const target = byTarget.get(specifier.replace(/\.tsx?$/, ""));
+        if (!target) {
+          errors.push(
+            `${item.name}: imports "${specifier}", which is not any item's install target. ` +
+              `A distributed file must import the path the CONSUMER will have — check the ` +
+              `\`target\` fields in ui.manifest.json, not this repo's folder layout.`,
+          );
+        } else if (target !== item.name && !registry.has(target)) {
+          errors.push(
+            `${item.name}: imports "${specifier}" but does not list "${target}" in ` +
+              `\`registryDependencies\`. Installing this item alone would deliver source ` +
+              `that cannot resolve its own import.`,
+          );
+        }
+        continue;
+      }
+      if (specifier.startsWith("@bydiorama/")) continue;
       const pkg = packageOf(specifier);
       if (!ASSUMED.has(pkg)) imported.add(pkg);
     }
@@ -101,4 +144,7 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`dependencies ok — ${checked} item(s), imports match declarations`);
+console.log(
+  `dependencies ok — ${checked} item(s), imports match declarations ` +
+    `(${aliased} cross-item import(s) resolved against install targets)`,
+);

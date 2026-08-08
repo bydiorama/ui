@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-add-menu-and-context-menu",
+  "date": "2026-08-07",
+  "item": "menu",
+  "kind": "addition",
+  "summary": "Menu and ContextMenu, both on Base UI (ADR 0012), sharing ONE surface. They are not cousins that look alike: Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim, so ContextMenu ships only Root, Trigger and Panel and its rows ARE Menu's. The panel and row recipes live in `lib/menu-surface`, and the browser test renders a Menu row beside a ContextMenu row and compares their computed styles — a lib recipe has no doc for check:contrast to see, so the relationship is what gets asserted. Item.onSelect is named for the verb rather than the pointer, and the type test proves onClick does not compile. Two claims in the first draft of the docs were wrong and the browser found both: that the arrows SKIP disabled rows (they reach them, which is right — a row a screen-reader user cannot reach is one they cannot be told the reason for), and that Shift+F10 is something this library implements (it is not; Base UI's trigger has no keydown handler at all, the BROWSER turns the chord into a native contextmenu event, and that only works if the caller made the region focusable).",
+  "affects": [
+    "item:menu",
+    "item:context-menu",
+    "item:menu-surface",
+    "slot:menu-panel",
+    "slot:menu-item",
+    "slot:menu-separator",
+    "slot:menu-group",
+    "slot:menu-sub-trigger",
+    "slot:context-menu-trigger",
+    "slot:context-menu-panel"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/K09-0"
+  }
+}

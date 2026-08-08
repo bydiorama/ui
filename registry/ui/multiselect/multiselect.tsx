@@ -5,7 +5,7 @@ import { Check, ChevronDown, Close, Search } from "griddy-icons";
 import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
-import { Badge } from "@/ui/badge/badge.tsx";
+import { Badge } from "@/ui/badge";
 
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;

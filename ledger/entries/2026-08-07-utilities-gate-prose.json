@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-utilities-gate-prose",
+  "date": "2026-08-07",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:utilities read prose out of accessible names and reported it as broken utilities. It scans every string literal in a file and splits on whitespace, so a word in an aria-label is a candidate class; most prose escapes by accident because capitals and punctuation fail the shape filter, but an all-lowercase hyphenated word does not. `aria-label=\"Brand asset — right-click or press Shift+F10 for actions\"` failed the build demanding `--spacing-click`, because `right-` is a real spacing prefix. Rewording the sentence would have been the cheap fix and the wrong one — a gate that makes people write worse accessible names to keep it quiet is a gate that gets worked around, which is the same lesson stripComments already learned one layer down. The values of prose attributes (aria-label, title, alt, placeholder, label, description and friends) are now blanked before scanning, which costs no coverage: none of them ever holds a class. Probed both ways — two nonexistent utilities in a className still fail, and the aria-label no longer does. check:overlays needed the same widening for the same reason: it reads one component file and asks whether the panel caps itself, which stopped being the right unit the moment Menu and ContextMenu moved their shared panel into lib/menu-surface. Both caps were present and correct there and neither component file mentioned them, so the gate reported two unconstrained panels while the browser test was asserting on both that the resolved max-height equals the positioner's measurement. It now reads any @/lib/* recipe the component imports alongside it — probed by deleting the caps from the recipe and watching all four errors return.",
+  "affects": [
+    "gate:utilities",
+    "gate:overlays"
+  ]
+}

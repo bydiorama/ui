@@ -35,10 +35,13 @@ import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Calendar } from "@/ui/calendar/calendar.tsx";
 import { Card } from "@/ui/card/card.tsx";
+import { ContextMenu } from "@/ui/context-menu/context-menu.tsx";
+import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Drawer } from "@/ui/drawer/drawer.tsx";
 import { Header } from "@/ui/header/header.tsx";
 import { Input } from "@/ui/input/input.tsx";
+import { Menu } from "@/ui/menu/menu.tsx";
 import { Modal } from "@/ui/modal/modal.tsx";
 import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.tsx";
 import { Popover } from "@/ui/popover/popover.tsx";
@@ -147,7 +150,7 @@ const CASES: Array<{
         </div>
         <div className="flex items-center gap-md">
           <Button shape="soft">Soft corners</Button>
-          <Button shape="pill">Pill shape</Button>
+          <Button shape="full">Rounded full</Button>
         </div>
       </div>
     ),
@@ -274,15 +277,39 @@ const CASES: Array<{
   },
   {
     name: "tabs",
+    // The sheet's four rows, in its own order — a variant reachable through
+    // the API and drawn in no case is how `outline` survived a release on
+    // Button. Vertical and ghost both arrived with the redrawn sheet.
     ui: (
-      <Tabs defaultValue="links">
-        <Tabs.List>
-          <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
-          <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
-          <Tabs.Tab value="advanced">Advanced settings</Tabs.Tab>
-        </Tabs.List>
-        <Tabs.Panel value="links" className="text-body-sm text-ink-secondary">Links panel</Tabs.Panel>
-      </Tabs>
+      <div className="flex flex-col gap-lg">
+        <Tabs defaultValue="links">
+          <Tabs.List>
+            <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+            <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
+        <Tabs defaultValue="links">
+          <Tabs.List>
+            <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+            <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+            <Tabs.Tab value="advanced" isDisabled>Advanced settings</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
+        <Tabs defaultValue="links" orientation="vertical">
+          <Tabs.List>
+            <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+            <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+            <Tabs.Tab value="advanced" isDisabled>Advanced settings</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
+        <Tabs defaultValue="links" variant="ghost">
+          <Tabs.List>
+            <Tabs.Tab value="links" count={1}>Links</Tabs.Tab>
+            <Tabs.Tab value="appearance">Appearance</Tabs.Tab>
+            <Tabs.Tab value="advanced">Advanced Settings</Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
+      </div>
     ),
   },
   {
@@ -314,6 +341,44 @@ const CASES: Array<{
         defaultValue={new Date(2026, 7, 3, 12)}
         today={new Date(2026, 7, 6, 12)}
       />
+    ),
+  },
+  {
+    name: "date-picker",
+    // Closed only: the panel is portalled outside the frame this case
+    // captures, and its appearance is asserted in the contract suite. Beside
+    // a Select at the same size, because the claim is that the two are one
+    // surface — a diff here catches them drifting apart in a way no
+    // computed-value assertion describes.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Select label="Services" items={SELECT_ITEMS} />
+        <DatePicker
+          label="Deadline"
+          defaultValue={new Date(2026, 7, 3, 12)}
+          defaultMonth={new Date(2026, 7, 1, 12)}
+          today={new Date(2026, 7, 6, 12)}
+        />
+        <DatePicker
+          label="Empty"
+          defaultMonth={new Date(2026, 7, 1, 12)}
+          today={new Date(2026, 7, 6, 12)}
+          helperText="You can change this later."
+        />
+        <DatePicker
+          label="With error"
+          defaultMonth={new Date(2026, 7, 1, 12)}
+          today={new Date(2026, 7, 6, 12)}
+          errorText="A deadline is required."
+        />
+        <DatePicker
+          label="Disabled"
+          defaultValue={new Date(2026, 7, 3, 12)}
+          defaultMonth={new Date(2026, 7, 1, 12)}
+          today={new Date(2026, 7, 6, 12)}
+          isDisabled
+        />
+      </div>
     ),
   },
   {
@@ -386,6 +451,51 @@ const CASES: Array<{
     ),
   },
   {
+    name: "menu",
+    // Portalled INTO the frame, or the panel paints outside the capture and
+    // the case compares an empty trigger row.
+    ui: (portalContainer) => (
+      <div className="flex min-h-80 items-start">
+        <Menu defaultIsOpen>
+          <Menu.Trigger render={<Button variant="secondary">Open menu</Button>} />
+          <Menu.Panel container={portalContainer}>
+            <Menu.Item>Profile</Menu.Item>
+            <Menu.Separator />
+            <Menu.Item>Brand panel</Menu.Item>
+            <Menu.Group label="Team">
+              <Menu.Item>Members</Menu.Item>
+              <Menu.Item isDisabled>Admin settings</Menu.Item>
+            </Menu.Group>
+            <Menu.Sub>
+              <Menu.SubTrigger>Team settings</Menu.SubTrigger>
+              <Menu.Panel container={portalContainer} side="right">
+                <Menu.Item>Invitations</Menu.Item>
+              </Menu.Panel>
+            </Menu.Sub>
+          </Menu.Panel>
+        </Menu>
+      </div>
+    ),
+  },
+  {
+    name: "context-menu",
+    ui: (portalContainer) => (
+      <div className="flex min-h-80 items-start">
+        <ContextMenu defaultIsOpen>
+          <ContextMenu.Trigger tabIndex={0} aria-label="Brand asset" className="sr-only">
+            region
+          </ContextMenu.Trigger>
+          <ContextMenu.Panel container={portalContainer}>
+            <Menu.Item>Duplicate</Menu.Item>
+            <Menu.Item>Rename</Menu.Item>
+            <Menu.Separator />
+            <Menu.Item isDisabled>Delete</Menu.Item>
+          </ContextMenu.Panel>
+        </ContextMenu>
+      </div>
+    ),
+  },
+  {
     name: "popover",
     ui: (portalContainer) => (
       <div className="flex min-h-72 items-center justify-center">
@@ -446,7 +556,7 @@ const CASES: Array<{
             <Input label="Studio name" defaultValue="Diorama Studio" />
           </Drawer.Body>
           <Drawer.Footer>
-            <Button shape="pill" isFullWidth>Save profile</Button>
+            <Button shape="full" isFullWidth>Save profile</Button>
           </Drawer.Footer>
         </Drawer.Panel>
       </Drawer>

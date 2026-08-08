@@ -18,7 +18,7 @@ import {
 } from "react";
 import { DragIndicator } from "griddy-icons";
 
-import { Button } from "@/ui/button/button.tsx";
+import { Button } from "@/ui/button";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { cn } from "@/lib/cn";
 import { useControllableState } from "@/hooks/use-controllable-state";

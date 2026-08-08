@@ -103,6 +103,10 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-overlay": NEUTRAL[80],
     "--ui-bg-hover": NEUTRAL[90],
     "--ui-bg-active": NEUTRAL[80],
+    // The value the sheet already draws for a selected tab. Pinned so the
+    // light drawing is unchanged; only dark, which was derived and unreadable,
+    // moves. Dark is left to derivation, which now steps the right way.
+    "--ui-bg-selected": NEUTRAL[90],
     "--ui-bg-accent": BLUE[80],
     "--ui-bg-accent-hover": BLUE[70],
     "--ui-bg-accent-active": BLUE[60],

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-07-badge-warning-tabs-orientation",
+  "date": "2026-08-07",
+  "item": "badge",
+  "kind": "addition",
+  "summary": "Badge gains the `warning` variant the sheet now draws in all three size rows, completing the intent set the token layer already carried — success, warning and danger all existed as roles and only two had been drawn. The browser test asserts the three status variants are three DIFFERENT colours rather than checking three literals, because a copy-paste in the VARIANT map would leave every literal assertion passing while warning painted the success tint; Badge has been here before, with two sizes that were pixel-identical while every test passed. The type test's `@ts-expect-error unknown variant` sat on `variant=\"warning\"`, so the directive reporting as UNUSED is what said the sheet had grown a third tint — it now sits on `caution`, a synonym the system deliberately does not have.",
+  "affects": ["item:badge", "prop:variant"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GPU-0"
+  }
+}

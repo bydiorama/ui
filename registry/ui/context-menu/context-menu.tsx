@@ -1,6 +1,6 @@
 "use client";
 
-import { ContextMenu as BaseContextMenu } from "@base-ui-components/react/context-menu";
+import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
 import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode } from "react";
 
 import { cn } from "@/lib/cn";

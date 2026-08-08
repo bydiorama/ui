@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
@@ -114,6 +114,40 @@ describe("Header is a banner that contains a navigation, not one that IS one", (
     for (const s of Array.from(c.querySelectorAll<HTMLElement>('[data-slot="header-spacer"]'))) {
       expect(s.getAttribute("aria-hidden")).toBe("true");
     }
+  });
+
+  test("render swaps the item's own tag without dropping its wiring", async () => {
+    const onLinkClick = vi.fn();
+    const c = mount(
+      <Header>
+        <Header.Nav label="Primary">
+          <Header.Item
+            // A FRAGMENT, not a path — the same fixture problem the Sidebar's
+            // render test had. Playwright follows a real click on a real
+            // <a href="/agent">, the test iframe navigates away, and the whole
+            // FILE dies with "Cannot connect to the iframe". Same-document,
+            // and every assertion below is unchanged.
+            href="#agent"
+            isCurrent
+            render={<a href="#agent" data-testid="custom-link" onClick={onLinkClick} />}
+          >
+            Agent
+          </Header.Item>
+        </Header.Nav>
+      </Header>,
+    );
+    // Passed through, not wrapped (§3): the render element's own tag and
+    // attributes carry the DOM node.
+    const item = c.querySelector<HTMLElement>('[data-slot="header-item"]')!;
+    expect(item.tagName).toBe("A");
+    expect(item.getAttribute("data-testid")).toBe("custom-link");
+    // But what render exists to preserve — the item's own wiring — still
+    // lands on it: aria-current, its content, and its click handler chains
+    // rather than being replaced by the element's own.
+    expect(item.getAttribute("aria-current")).toBe("page");
+    expect(item.textContent).toBe("Agent");
+    await userEvent.click(item);
+    expect(onLinkClick).toHaveBeenCalledTimes(1);
   });
 });
 

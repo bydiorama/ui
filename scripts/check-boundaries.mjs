@@ -24,7 +24,7 @@ import { ROOT } from "./lib/manifest.mjs";
 
 /** Package prefixes that are behaviour mechanics, not our API. */
 const BEHAVIOUR_PACKAGES = [
-  "@base-ui-components",
+  "@base-ui",
   "@radix-ui",
   "radix-ui",
   "@react-aria",

@@ -58,20 +58,20 @@ export default defineConfig({
    *
    * THIS LIST MUST GROW. It is explicit, so the first component to import a
    * new behaviour-layer module reintroduces the flake until its subpath is
-   * added here — Tabs did exactly that. If you add a `@base-ui-components/*`
+   * added here — Tabs did exactly that. If you add a `@base-ui/*`
    * import anywhere, add it below in the same commit.
    */
   optimizeDeps: {
     include: [
       "react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime",
-      "@base-ui-components/react/popover",
-      "@base-ui-components/react/dialog",
-      "@base-ui-components/react/combobox",
-      "@base-ui-components/react/menu",
-      "@base-ui-components/react/context-menu",
-      "@base-ui-components/react/select",
-      "@base-ui-components/react/slider",
-      "@base-ui-components/react/tabs",
+      "@base-ui/react/popover",
+      "@base-ui/react/dialog",
+      "@base-ui/react/combobox",
+      "@base-ui/react/menu",
+      "@base-ui/react/context-menu",
+      "@base-ui/react/select",
+      "@base-ui/react/slider",
+      "@base-ui/react/tabs",
       "griddy-icons",
       "clsx", "tailwind-merge",
     ],

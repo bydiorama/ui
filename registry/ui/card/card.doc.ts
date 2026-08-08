@@ -22,6 +22,10 @@ Card
   `.trim(),
 
   props: {
+    className: {
+      type: "string",
+      notes: "SANCTIONED for adjusting padding, radius, border and shadow, not just for layout. `cn()` is `clsx` + `tailwind-merge` (CONVENTIONS §5), so a conflicting utility in className wins over the root's own — `className=\"p-md rounded-lg border-0 shadow-none\"` produces a smaller, squarer, borderless, flat surface with no source change. This is how a consumer reaches a shape Card does not (yet) expose a dedicated prop for — e.g. a border-only surface (no shadow), a denser inset, or a narrower minimum width than the default min-w-80. Prefer a real prop once a shape is common enough to need one (see knownGaps); until then, this is not a workaround, it is the mechanism.",
+    },
     "Header.children": { type: "ReactNode", required: true, notes: "The title." },
     "Header.actions": { type: "ReactNode", notes: "Slot: an Edit or delete control. Passed through, never wrapped (§3)." },
     "Header.headingLevel": {
@@ -35,6 +39,7 @@ Card
     "Set headingLevel to match the page outline rather than accepting the default everywhere.",
     "Let boxed children (Input, Banner) sit flush; Header and Footer already carry the inset.",
     "Pass aria-labelledby pointing at the title when the card should be a navigable region.",
+    "Reach for className overrides (shadow-none, a different p-*/rounded-*, a lower min-w-*) when the default surface is the wrong shape — see the className prop entry. This is sanctioned, not a hack.",
   ],
 
   dont: [
@@ -56,6 +61,7 @@ Card
   knownGaps: [
     "ALIGNMENT GAP, open: Header and Footer take the unboxed inset, but an Input's own label does not — an Input placed directly in a Card has its label 8px to the left of the card title. The sheet wraps each field label in its own inset frame. Either Input grows an inset-aware mode or Card grows a field wrapper; a wrapper that only re-declares flex-col was tried and removed for earning nothing.",
     "No media/image region, no footer divider, no collapsible variant. None are drawn.",
+    "No first-class prop for a border-only surface (shadow off) or a narrower min-width — className overrides both today (see the className prop entry) and that is sanctioned, not a stopgap, but a consuming app whose own house style is border-first has to know the mechanism exists rather than discover it. Worth a real prop if enough consumers reach for the same override — see this repo's issue #10 for the evidence (one entire consuming-app component family blocked on exactly this).",
     "The sheet's icon-only action button carries a raw 8px radius and a 16px padding on a 32px box; that is Button's territory and was not transcribed.",
   ],
 

@@ -80,7 +80,6 @@ Popover                      isOpen? / defaultIsOpen? / onOpenChange? / isModal?
     "No arrow. Base UI provides Popover.Arrow; the sheet draws none, so none is exposed yet.",
     "No dark-scheme values for the panel are drawn — the resolver derives them, unverified against a design.",
     "The actions row is composed at the call site rather than being a Popover.Actions part — the sheet sits it flush at the panel padding while title and description take the inset, so it is deliberately not wrapped.",
-    "Base UI is at 1.0.0-rc.0, a pre-stable release (ADR 0012 records this deliberately). Expect API movement before 1.0 final.",
   ],
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CXA-0",

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-ts-constants-emitter",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Added packages/tokens/src/emit/ts.ts (toTsConstants), the third token emitter alongside toCss and toTailwindTheme, and the last piece Phase 1's exit gate was missing (index.ts's own trailing comment named it as still-to-come). For contexts with no CSS variable resolution -- email HTML inline styles, PDF/canvas rendering, chart series colours -- where var() and light-dark() do not exist. Emits a flat Record<token, value> keyed by the same --ui-* names the contract already uses, for one caller-chosen scheme, with no invented nesting: what shape a consumer wants (the way tokenAdapters.ts already projects the legacy resolver's BrandTokens onto EmailThemeTokens/TemplateBrandStyle/a chart palette) is that consumer's decision against real call sites, not this emitter's to guess. FIXED_TOKEN_VALUES' few var(--ui-...) aliases (single refs like --ui-space-stack-md and composites like --ui-motion-micro, which chains a duration AND an easing in one string) needed their own resolution pass, since a plain TS object cannot resolve CSS custom properties at runtime -- bounded to 10 passes and throws on an unresolved reference rather than emitting var( literally into JS, which would compile and then silently fail wherever it was consumed. Does not touch service-portal's src/lib/design-tokens.ts (the hand-authored file this emitter is meant to retire) or tokenAdapters.ts (which currently operates on the legacy resolver's BrandTokens, not this contract at all) -- that migration is Phase 4 step 3, the Brand Theme cutover, itself gated on a colorScheme decision. This entry only unblocks it by existing.",
+  "affects": ["package:tokens", "emit:ts"],
+  "migration": {
+    "manual": "No consumer migration yet -- nothing outside @bydiorama/tokens imports toTsConstants. When service-portal's Brand Theme cutover (Phase 4 step 3) is scoped, it becomes the retirement path for src/lib/design-tokens.ts and the resolution source tokenAdapters.ts's per-surface functions (toEmailTheme, toSignatureBrandStyle, toChartPalette) read from, in place of the legacy ResolvedBrandTheme/BrandTokens shape."
+  }
+}

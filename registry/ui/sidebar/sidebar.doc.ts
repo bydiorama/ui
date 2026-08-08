@@ -60,6 +60,7 @@ Sidebar                    label (required) / isLabelHidden?
     },
     "Item.icon": { type: "ReactElement", notes: "Slot: leading glyph, decorative. Never wrapped (§3)." },
     "Item.trailing": { type: "ReactElement", notes: "Slot: a count or chevron." },
+    "Item.render": { type: "ReactElement", notes: "Slot: swap the row's own <a>/<div> for this element — pass render={<Link href={href} />} so the app's router owns the transition. Passed through, never wrapped (§3): the row's data-slot, aria-current, the isDisabled invariant and its className merge onto it rather than replacing what it carries." },
     "Section.label": { type: "string", required: true, notes: "The primary-level heading." },
     "Section.isCollapsible": { type: "boolean", default: "false", notes: "OFF by default. The sheet draws a chevron on 'Brand' and none on 'Most recent', so collapsibility is a property of a section rather than the definition of one — and a header that cannot collapse renders as a span, not a button that does nothing." },
     "Section.isOpen / defaultIsOpen / onOpenChange": { type: "boolean / boolean / (isOpen: boolean) => void", notes: "Controlled and uncontrolled, via useControllableState. Ignored unless isCollapsible." },

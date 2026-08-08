@@ -14,6 +14,7 @@ import {
   type Ref,
 } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Search } from "griddy-icons";
+import { useRender } from "@base-ui/react/use-render";
 
 import { cn } from "@/lib/cn";
 import { chromeControl } from "@/lib/chrome-control";
@@ -387,6 +388,15 @@ export interface SidebarItemProps extends Omit<HTMLAttributes<HTMLElement>, "chi
   isDisabled?: boolean;
   icon?: ReactElement;
   trailing?: ReactElement;
+  /**
+   * Slot: renders as this element instead of the default `<a>`/`<div>`.
+   * Passed through, never wrapped (§3) — pass `render={<Link href={href} />}`
+   * so an internal href gets `next/link`'s client-side transition instead of
+   * a full document navigation. The row's own wiring (data-slot,
+   * aria-current, the disabled invariant, its className) merges onto the
+   * element rather than replacing what it already carries.
+   */
+  render?: ReactElement;
 }
 
 function SidebarItem({
@@ -396,24 +406,26 @@ function SidebarItem({
   isDisabled = false,
   icon,
   trailing,
+  render,
   className,
   onClick,
   ...rest
 }: SidebarItemProps) {
   const inSection = useContext(InSection);
   const isLink = href !== undefined;
-  const Row = isLink ? "a" : "div";
 
-  const row = (
-    <Row
-      {...(rest as HTMLAttributes<HTMLElement>)}
-      {...(href !== undefined ? { href } : {})}
-      data-slot="sidebar-item"
-      data-current={isCurrent || undefined}
-      data-disabled={isDisabled || undefined}
-      {...(isCurrent && !isDisabled ? { "aria-current": "page" as const } : {})}
-      {...(isDisabled ? { "aria-disabled": true as const } : {})}
-      onClick={
+  const row = useRender({
+    render,
+    defaultTagName: isLink ? "a" : "div",
+    props: {
+      ...(rest as HTMLAttributes<HTMLElement>),
+      ...(href !== undefined ? { href } : {}),
+      "data-slot": "sidebar-item",
+      "data-current": isCurrent || undefined,
+      "data-disabled": isDisabled || undefined,
+      ...(isCurrent && !isDisabled ? { "aria-current": "page" as const } : {}),
+      ...(isDisabled ? { "aria-disabled": true as const } : {}),
+      onClick:
         isDisabled
           ? ((event) => {
               // Non-navigation is an invariant rather than optional component
@@ -421,9 +433,8 @@ function SidebarItem({
               event.preventDefault();
               onClick?.(event);
             }) as MouseEventHandler<HTMLElement>
-          : onClick
-      }
-      className={cn(
+          : onClick,
+      className: cn(
         // The sheet's row: p-md (12+12) around a 16px line at leading-normal
         // (21.6px) measures 45.6 — its drawn 46. min-h-9 (36px) is a floor for
         // a caller who puts something shorter in the slot, and still clears
@@ -450,25 +461,25 @@ function SidebarItem({
         // re-skins its nav — so the rail gets its own step.
         isDisabled && "cursor-not-allowed text-ink-nav-disabled",
         className,
-      )}
-    >
-      {isLink || icon || trailing ? (
-        <>
-          <span className="flex min-w-0 items-center gap-sm [&_svg]:size-4 [&_svg]:shrink-0">
-            {icon}
-            <span data-slot="sidebar-text" className="truncate">
-              {children}
+      ),
+      children:
+        isLink || icon || trailing ? (
+          <>
+            <span className="flex min-w-0 items-center gap-sm [&_svg]:size-4 [&_svg]:shrink-0">
+              {icon}
+              <span data-slot="sidebar-text" className="truncate">
+                {children}
+              </span>
             </span>
-          </span>
-          {trailing}
-        </>
-      ) : (
-        // A bare slot: a search field or a progress bar fills the row itself
-        // rather than being squeezed beside a label it does not have.
-        children
-      )}
-    </Row>
-  );
+            {trailing}
+          </>
+        ) : (
+          // A bare slot: a search field or a progress bar fills the row
+          // itself rather than being squeezed beside a label it does not have.
+          children
+        ),
+    },
+  });
 
   // `contents` so the <li> adds semantics without a box that would break the
   // row's own layout.

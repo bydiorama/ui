@@ -1,6 +1,6 @@
 "use client";
 
-import { Combobox as BaseCombobox } from "@base-ui-components/react/combobox";
+import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
 import { Check, ChevronDown, Close, Search } from "griddy-icons";
 import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 

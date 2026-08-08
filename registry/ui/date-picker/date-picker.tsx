@@ -1,6 +1,6 @@
 "use client";
 
-import { Popover as BasePopover } from "@base-ui-components/react/popover";
+import { Popover as BasePopover } from "@base-ui/react/popover";
 import { ChevronDown, ChevronUp } from "griddy-icons";
 import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 

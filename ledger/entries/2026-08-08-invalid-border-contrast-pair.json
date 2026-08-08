@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-invalid-border-contrast-pair",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "NONTEXT_CONTRAST_PAIRS gains [--ui-intent-danger-fg, --ui-bg-field]: the INVALID border on a form field. Input, Select, DatePicker and now Textarea all draw it, none of them had ever declared it, and an unlisted pair is an unchecked pair -- so the one boundary in this library whose entire job is to say 'this control is in error' had never been measured in either scheme. It is the SC 1.4.11 case exactly: state carried by a boundary against the field's own fill. Measured on adding: 5.94:1 light, 11.88:1 dark, against a 3:1 floor -- it passes comfortably, which is the outcome worth recording, because the pair was found by asking WHY the role looked wrong rather than by anything failing. The role reads like a mistake and is not. `border-danger` resolves to --ui-intent-danger-fg, an INK role used as a control boundary, which under the add-component rule normally means the role you actually want does not exist yet -- and a plausible-looking one DOES exist, named --ui-intent-danger-border. It is the wrong one: measured 1.45:1 light and 1.76:1 dark, because it is the edge of a danger-TINTED SURFACE (a Banner's) rather than the edge of a control in an error state. Swapping to it on the strength of its name would have taken a conformant boundary to roughly half the required ratio, in all four components at once, while every gate stayed green. Both numbers are now in the contract's comment so the next reader gets a measurement instead of a name. Declared in textarea.doc.ts; the other three fields should declare it too, which is a one-line change each and is left as a deliberate follow-up rather than folded into a component addition.",
+  "affects": [
+    "token:--ui-intent-danger-fg",
+    "token:--ui-bg-field",
+    "token:--ui-intent-danger-border",
+    "contrast-pairs:textarea",
+    "package:tokens",
+    "gate:check:contrast",
+    "component:input",
+    "component:select",
+    "component:date-picker",
+    "component:textarea"
+  ],
+  "migration": {
+    "manual": "No consumer action. The pair now appears in registry/contrast.generated.json and is audited in both schemes on every run of `pnpm check:contrast`. Follow-up worth doing together rather than piecemeal: add the same pair to input.doc.ts, select.doc.ts and date-picker.doc.ts, and decide the disabled-placeholder question recorded in textarea.doc.ts knownGaps -- a disabled field's placeholder keeps the enabled placeholder ink (measured rgb(105,99,93) in both states) across all four."
+  }
+}

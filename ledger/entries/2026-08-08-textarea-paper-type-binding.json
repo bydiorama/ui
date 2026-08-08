@@ -4,14 +4,18 @@
   "date": "2026-08-08",
   "item": "textarea",
   "kind": "fix",
-  "summary": "One design fix pushed back into Paper on the 'Component --- Text Area' sheet: the focused row's value text carried a raw 14px font size while the two rows above it bound the same value to var(--ui-text-body-md). Rebound to the token. It is the sheet disagreeing with itself rather than a judgement call, which is why it was fixed rather than raised -- 14px and --ui-text-body-md happen to resolve to the same number today, so nothing looked wrong and nothing would have until a brand seed moved the base size and one of the three rows stayed behind. Two further deviations on the same sheet were NOT changed, because each is a decision for design rather than a transcription slip, and both are recorded under needsDesign in textarea.doc.ts where `pnpm design:gaps` collects them: (1) the line-height is a raw 18px on 14px type, a ratio of 1.286 that is off the --ui-leading-* scale entirely (tight 1.25, snug 1.3) -- the component ships leading-snug, the nearest role, 0.2px per line larger, which lands the 6-row box on the sheet's own 128px; the same raw 18px sits on the Input sheet where it is not load-bearing, and here it multiplies down every line of a paragraph; (2) the sheet draws the typed value in --ui-text-secondary while Input ships --ui-text-primary, and Textarea follows Input so that a form holding both does not show two inks for the same thing.",
+  "summary": "The 'Component --- Text Area' sheet reconciled with the code, so the two now agree on every value the component renders. Token flow stays repo -> Paper: where the sheet and the code disagreed, the code's value was the one drawn. Four changes. (1) The focused row's value carried a raw 14px while the two rows above bound the same value to var(--ui-text-body-md); rebound to the token. They resolve to the same number today, so nothing looked wrong and nothing would have until a brand seed moved the base size and one of three rows stayed behind. (2) Line-height was a raw 18px on 14px type -- 1.286, off the --ui-leading-* scale entirely (tight 1.25, snug 1.3). All three field texts are now bound to var(--ui-leading-snug), the role the component ships; it is 0.2px per line larger and lands the 6-row lg box on the sheet's own 128px. (3) The typed value was --ui-text-secondary; Input ships --ui-text-primary and a form holding both must not show two inks for the same thing, so the sheet now carries --ui-text-primary. (4) Two sections ADDED, for states the sheet had never drawn and a scale it had never shown: 'Text Area Sizes' (lg/md/sm at their real 128/113/105 boxes, each captioned with its type, inset and height) and 'Text Area States' (hover = border-subtle -> border-default, error = the --ui-intent-danger-fg edge with its caption, disabled = bg-sunken with text-disabled ink and no grip; focus was already drawn). The artboard is now height: fit-content rather than a guessed fixed height. Nothing in the sheet is now derived-but-undrawn, which is why textarea.doc.ts's needsDesign is down to one entry -- the character counter, which is a live-region design question rather than a value.",
   "affects": [
     "design:textarea",
     "design:paper-text-area-sheet",
-    "token:--ui-text-body-md"
+    "token:--ui-text-body-md",
+    "token:--ui-leading-snug",
+    "token:--ui-text-primary",
+    "token:--ui-intent-danger-fg",
+    "token:--ui-bg-sunken"
   ],
   "migration": {
-    "manual": "No code change. The Paper sheet now resolves its value type through the token, so a brand seed that moves the base size moves all three rows together."
+    "manual": "No code change -- the code was the source. The sheet now resolves its type through tokens, so a brand seed that moves the base size or the leading moves every row together, and the sizes and states a reader needs are on the sheet rather than in a doc's derivation list."
   },
   "provenance": {
     "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D7G-0"

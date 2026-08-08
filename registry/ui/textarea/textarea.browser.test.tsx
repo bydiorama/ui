@@ -127,6 +127,28 @@ describe("Textarea states", () => {
     expect(getComputedStyle(textarea).cursor).toBe("not-allowed");
   });
 
+  /**
+   * What each audience gets from the state, asserted rather than assumed —
+   * Button's `isBusy` set aria-busy and drew nothing for its whole life, and
+   * nothing caught it because the half that worked was the a11y half.
+   *
+   * Sighted: a sunken fill, a quieter value, no grip. Keyboard: out of the
+   * tab order. Pointer: not-allowed. The disabled PLACEHOLDER is deliberately
+   * not asserted here — see the doc's knownGaps; it does not change, and that
+   * is a cross-component question rather than this component's to answer.
+   */
+  test("isDisabled is visible to sighted users, not only to the platform", () => {
+    const enabled = mount(<Textarea label="Message" defaultValue="text" />);
+    const enabledInk = getComputedStyle(enabled.textarea).color;
+    const enabledFill = getComputedStyle(enabled.control).backgroundColor;
+    unmount();
+
+    const off = mount(<Textarea label="Message" defaultValue="text" isDisabled />);
+    expect(getComputedStyle(off.textarea).color).not.toBe(enabledInk);
+    expect(getComputedStyle(off.control).backgroundColor).not.toBe(enabledFill);
+    expect(getComputedStyle(off.textarea).resize).toBe("none");
+  });
+
   test("typing over multiple lines keeps the newlines", async () => {
     const { textarea } = mount(<Textarea label="Message" defaultValue="" />);
     textarea.focus();

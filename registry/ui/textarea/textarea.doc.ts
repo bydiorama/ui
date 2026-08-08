@@ -150,6 +150,7 @@ Textarea
     "No auto-grow. `field-sizing: content` would do it in one declaration but is not drawn, is not in every engine yet, and interacts with the resize drag — it is a design decision before it is an implementation one.",
     "Errors are announced via aria-describedby, which a screen reader reads on focus. An error appearing while focus is elsewhere (after a submit) is NOT announced — that belongs to a form-level error summary with focus management, not to this component.",
     "No read-only visual state; native readOnly renders as default today. Same as Input.",
+    "A DISABLED field's placeholder does not change ink. Measured: the value drops from rgb(29,27,25) to rgb(183,176,169) as it should, while the placeholder stays at rgb(105,99,93) in both states — `disabled:text-ink-disabled` sets the colour property, and the ::placeholder pseudo has its own from `placeholder:text-ink-placeholder`. So an EMPTY disabled field is distinguished only by its sunken fill and its cursor. It is a one-class fix (disabled:placeholder:text-ink-disabled) and is deliberately NOT applied here, because Input, Select and DatePicker all behave the same way and fixing one field alone would reintroduce exactly the seam the size scale was added to remove. It wants doing across the four together.",
     "The resize grip is the browser's, so it is drawn in the UA's colours rather than the theme's. Styling it means ::-webkit-resizer, which is one engine only.",
   ],
 

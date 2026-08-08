@@ -92,7 +92,7 @@ Input
   knownGaps: [
     "Errors are announced via aria-describedby, which a screen reader reads on focus. An error appearing while focus is elsewhere (after a submit) is NOT announced — that belongs to a form-level error summary with focus management, not to this component. Do not add role=\"alert\" per field: a form failing with five errors would interrupt five times.",
     "No hover state was drawn in the design sheet. The implemented hover (subtle → default border) is DERIVED from Button's secondary variant so controls behave alike — confirm with design.",
-    "No textarea or multi-line variant yet; the size table and slot pattern are meant to carry over unchanged.",
+    "Multi-line is a separate component (Textarea), not a prop here. Enter submits in an Input and inserts a newline in a textarea, and the height comes from `rows` rather than a size step — one component would have to branch on both. Textarea reuses this control surface and asserts the match against a real Input; what did NOT carry over is the size table, which Textarea ships in one size only because the sheet draws one.",
     "No read-only visual state; native readOnly renders as default today.",
   ],
 

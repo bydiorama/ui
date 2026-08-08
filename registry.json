@@ -641,6 +641,26 @@
       ]
     },
     {
+      "name": "textarea",
+      "type": "registry:ui",
+      "description": "Multi-line text field with its label, helper text and error message as one accessible unit. The control surface is Input's, so the two stack in a form without a seam; height comes from the native rows attribute and grows with a vertical drag. The label prop is required by the type system — a placeholder is not a label. errorText wires aria-invalid and aria-describedby together so the two cannot drift apart.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/textarea/textarea.tsx",
+          "type": "registry:ui",
+          "target": "ui/textarea.tsx"
+        },
+        {
+          "path": "registry/ui/textarea/textarea.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/textarea.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "ui-craft",
       "type": "registry:file",
       "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",

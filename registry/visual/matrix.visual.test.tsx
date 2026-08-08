@@ -53,6 +53,7 @@ import { CardSorting } from "@/ui/card-sorting/card-sorting.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 import { Switch } from "@/ui/switch/switch.tsx";
 import { Tabs } from "@/ui/tabs/tabs.tsx";
+import { Textarea } from "@/ui/textarea/textarea.tsx";
 
 const PAIR = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
 const SCHEMES = ["light", "dark"] as const;
@@ -204,6 +205,32 @@ const CASES: Array<{
         <Input label="With helper" helperText="Persistent guidance." placeholder="name@bydiorama.com" />
         <Input label="With error" errorText="That address is not valid." defaultValue="nope" />
         <Input label="Disabled" isDisabled placeholder="Unavailable" />
+      </div>
+    ),
+  },
+  {
+    name: "textarea",
+    // The DEFAULT box leads, because the sheet's 128px six-row field is the
+    // thing a reviewer holds the Paper export against, and a case built
+    // entirely from short rows would compare everything except it. The rest
+    // are shortened so the frame does not grow past the capture viewport —
+    // a case taller than ~900px comes back cropped, and a cropped baseline
+    // compares cleanly against itself forever.
+    //
+    // The Input at the top is the point of the whole component: the two are
+    // ONE surface, and a diff here catches them drifting apart in a way no
+    // computed-value assertion describes. The three sizes are below it for
+    // the same reason Badge's two sizes now sit side by side — a scale whose
+    // steps are never drawn together is a scale nobody checks.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Input label="Company name" placeholder="Diorama s.r.o." />
+        <Textarea label="Label" helperText="Up to 120 words." placeholder="Your message" />
+        <Textarea label="With error" rows={2} errorText="This field is required." defaultValue="nope" />
+        <Textarea label="Disabled" rows={2} isDisabled placeholder="Unavailable" />
+        {(["lg", "md", "sm"] as const).map((size) => (
+          <Textarea key={size} label={size} size={size} rows={2} placeholder="Your message" />
+        ))}
       </div>
     ),
   },

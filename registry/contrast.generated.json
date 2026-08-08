@@ -750,5 +750,62 @@
       "dark": 1.48,
       "role": "the strip boundary"
     }
+  ],
+  "Textarea": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 15.53,
+      "role": "the value"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.54,
+      "role": "the placeholder"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.97,
+      "role": "the label"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the helper text"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the focus ring"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-field",
+      "floor": "non-text",
+      "light": 5.94,
+      "dark": 11.88,
+      "role": "the invalid border — the boundary that says the control is in error (SC 1.4.11)"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-field",
+      "floor": "decorative",
+      "light": 1.47,
+      "dark": 1.49
+    }
   ]
 }

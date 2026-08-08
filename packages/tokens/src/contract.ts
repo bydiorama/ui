@@ -338,4 +338,18 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   ["--ui-border-strong", "--ui-bg-surface"],
   ["--ui-bg-accent-legible", "--ui-bg-sunken"],
   ["--ui-bg-accent-legible", "--ui-bg-base"],
+  // The INVALID border on a form field — Input, Select, DatePicker and
+  // Textarea all draw it, and none of them had ever declared it, so the one
+  // boundary in this library whose whole job is to say "this control is in
+  // error" was going unmeasured. It is the SC 1.4.11 case exactly: state
+  // conveyed by a boundary against the field's own fill.
+  //
+  // Note which role it is. `border-danger` resolves to --ui-intent-danger-fg,
+  // an INK role used as a boundary, which normally means the role you want
+  // does not exist yet. Here it is right and the tidy-looking alternative is
+  // wrong: --ui-intent-danger-border measures 1.45:1 light / 1.76:1 dark,
+  // because it is the edge of a danger-TINTED SURFACE (a Banner), not the
+  // edge of a control in an error state. Names are not guarantees; this pair
+  // is in the list so the next person reads a number instead of a name.
+  ["--ui-intent-danger-fg", "--ui-bg-field"],
 ] as const;

@@ -97,6 +97,7 @@
       "type": "registry:ui",
       "description": "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand switcher and an avatar menu, and calling all of that navigation would make the landmark useless to skip to; the item row names itself. Header.MenuButton is the control the navigation COLLAPSES INTO: there is no rail, so below the breakpoint the Sidebar is removed rather than narrowed and this button is what remains of it, opening the same Sidebar inside a Sheet. An item is a real <a> when given an href and a <button> otherwise, because the design draws two carrying a chevron that open menus rather than navigate.",
       "dependencies": [
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -141,7 +142,7 @@
       "type": "registry:ui",
       "description": "A panel anchored to a trigger, for secondary content that should not take over the page. Compound: Trigger, Panel, Title, Description, Close. Positioning, focus restoration, dismissal and ARIA wiring come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. Bare text inside the 32px-radius panel is inset one step; boxed children sit flush.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "@bydiorama/cn"
@@ -164,7 +165,7 @@
       "type": "registry:ui",
       "description": "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Compound: Trigger, Surface, Title, Description, Footer, Close. Always modal — a non-modal dialog with a scrim is a Popover. Dismissal by Escape and scrim-click is on by default and can be turned off for unsaved work. Built on the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "@bydiorama/cn"
@@ -187,7 +188,7 @@
       "type": "registry:ui",
       "description": "A filterable list of options where more than one can be chosen, with the selection shown as removable chips. Listbox/combobox ARIA, aria-multiselectable, active-descendant management, typeahead, filtering and dismissal all come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. The trigger reuses Input's control surface; chips are Badge components with real remove buttons.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0",
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -212,7 +213,7 @@
       "type": "registry:ui",
       "description": "Choose ONE value from a list. The trigger is Input's control surface, exactly as Multiselect's is — a field is a field, and three components inventing three variants of the same box is how a system stops looking like one. Listbox ARIA, typeahead, roving focus and dismissal come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0",
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -437,6 +438,7 @@
       "type": "registry:ui",
       "description": "The primary navigation rail, built from ROWS rather than links: a row becomes an <a> when given an href and is otherwise a plain slot, because the design puts a search field in one and a progress bar in another. Sections carry the second level, optionally collapsible, at the same inset — hierarchy is type and colour, not indentation. The current page is announced through aria-current rather than fill alone. First consumer of the --ui-nav-* role family, so a themed portal re-skins its chrome by re-binding six roles. No roving tabindex and no menu roles — navigation is links, and the browser's own contract is worth more than arrow keys.",
       "dependencies": [
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
@@ -461,7 +463,7 @@
       "type": "registry:ui",
       "description": "A panel that comes up from the bottom and is dismissed by dragging it down. Distinct from Sheet, and the distinction is the GESTURE rather than the geometry: a Sheet is anchored to a side edge and dismissed by scrim or Escape, while a Drawer carries a handle, follows the finger, and closes past a distance or velocity threshold. Base UI supplies the focus trap, scroll lock, Escape and focus restoration (ADR 0012); the drag is ours, with no drag library in the dependency list. The handle is a real button as well as a drag target, which is the single-pointer alternative WCAG 2.5.7 requires.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "@bydiorama/cn",
@@ -485,7 +487,7 @@
       "type": "registry:ui",
       "description": "A panel that slides in from the left or right edge of the screen — the mobile counterpart to a Sidebar, which is what it usually holds. Third component on the Base UI behaviour layer, deliberately Modal's shape because the focus trap, scroll lock, Escape and focus restoration are the same problem; only the panel's position differs. Full height, 80% width capped at the rail's own, with the two INNER corners rounded so it reads as a drawer rather than a modal. It carries no chrome of its own: the design draws the back and close controls inside the navigation's own header band.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "@bydiorama/cn"
@@ -508,7 +510,7 @@
       "type": "registry:ui",
       "description": "A single-value slider in two track heights (20/8px), with an optional label and value. Pointer capture, keyboard stepping, Home/End, RTL and touch come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature — the value is a number, never an array. The control is padded to a 24px target even when the painted track is 8px.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "@bydiorama/cn"
@@ -531,7 +533,7 @@
       "type": "registry:ui",
       "description": "A segmented control that switches which panel is shown. Compound: List, Tab, Panel. Roving tabindex, arrow navigation, Home/End and the two-way tab-to-panel ARIA pairing come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. Activation is manual: arrows move focus, Enter or Space selects.",
       "dependencies": [
-        "@base-ui-components/react@1.0.0-rc.0"
+        "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
         "@bydiorama/cn"

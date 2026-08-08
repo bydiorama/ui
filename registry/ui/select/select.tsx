@@ -1,6 +1,6 @@
 "use client";
 
-import { Select as BaseSelect } from "@base-ui-components/react/select";
+import { Select as BaseSelect } from "@base-ui/react/select";
 import { Check, ChevronDown } from "griddy-icons";
 import { useId, type ComponentPropsWithoutRef } from "react";
 

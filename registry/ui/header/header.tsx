@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { Menu } from "griddy-icons";
+import { useRender } from "@base-ui/react/use-render";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
@@ -163,20 +164,30 @@ export interface HeaderItemProps extends Omit<HTMLAttributes<HTMLElement>, "chil
   icon?: ReactElement;
   /** Trailing slot — the sheet puts a chevron here on the two menu items. */
   trailing?: ReactElement;
+  /**
+   * Slot: renders as this element instead of the default `<a>`/`<button>`.
+   * Passed through, never wrapped (§3) — pass `render={<Link href={href} />}`
+   * so an internal href gets `next/link`'s client-side transition instead of
+   * a full document navigation. The item's own wiring (data-slot,
+   * aria-current, its className, its click handling) merges onto the element
+   * rather than replacing what it already carries.
+   */
+  render?: ReactElement;
 }
 
-function HeaderItem({ children, href, isCurrent = false, icon, trailing, className, ...rest }: HeaderItemProps) {
+function HeaderItem({ children, href, isCurrent = false, icon, trailing, render, className, ...rest }: HeaderItemProps) {
   const inNav = useContext(InNav);
   const isLink = href !== undefined;
-  const Row = isLink ? "a" : "button";
 
-  const row = (
-    <Row
-      {...(isLink ? { href } : { type: "button" as const })}
-      data-slot="header-item"
-      data-current={isCurrent || undefined}
-      {...(isCurrent ? { "aria-current": "page" as const } : {})}
-      className={cn(
+  const row = useRender({
+    render,
+    defaultTagName: isLink ? "a" : "button",
+    props: {
+      ...(isLink ? { href } : { type: "button" as const }),
+      "data-slot": "header-item",
+      "data-current": isCurrent || undefined,
+      ...(isCurrent ? { "aria-current": "page" as const } : {}),
+      className: cn(
         // Compact-control anatomy: an 8px inline / 4px block inset around a
         // 12px label, with the same soft radius and 16px glyph as Button sm.
         // min-h-6 keeps the target at SC 2.5.8's 24px floor.
@@ -189,14 +200,17 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, classNa
         "data-[current]:bg-hover",
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
         className,
-      )}
-      {...(rest as HTMLAttributes<HTMLElement>)}
-    >
-      {icon}
-      {children}
-      {trailing}
-    </Row>
-  );
+      ),
+      ...(rest as HTMLAttributes<HTMLElement>),
+      children: (
+        <>
+          {icon}
+          {children}
+          {trailing}
+        </>
+      ),
+    },
+  });
 
   // `contents` so the <li> adds semantics without a box that changes layout.
   return inNav ? <li className="contents">{row}</li> : row;

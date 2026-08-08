@@ -89,6 +89,44 @@ not design, provided they are unstyled and wrapped behind our own API.
   fights the contract, use its `render` escape hatch rather than accepting the
   wrapper.
 
+## Update (2026-08-08)
+
+The "no stable release yet" framing above is now eight releases out of date —
+recorded here rather than edited into the original text, which stands as what
+was true and known at adoption. Base UI shipped stable **v1.0.0** on
+2025-12-11 under a renamed package, **`@base-ui/react`** (the org-scoped
+rename was the entirety of the v1.0.0 changelog's breaking-change list — no
+other API surface moved), and has since shipped through **v1.7.0**
+(2026-08-04) with no further breaking changes to any part this repo consumes.
+Migrated `1.0.0-rc.0` → `1.7.0` across the manifest and all 8 consuming files
+this same day, verified by diffing the published `.d.ts` for every
+Dialog/Popover/Select/Combobox/Slider/Tabs part in use against both package
+versions' npm tarballs directly, not just changelog prose. Point 1's caution
+("a bet on direction, not a majority choice") is worth revisiting on its own
+terms now that the bet has a stable, actively-maintained 1.x line behind it —
+that is a separate decision from this correction, not made here.
+
+## Update (2026-08-08, second)
+
+`Header.Item` and `Sidebar.Item` — both listed above as "Native or
+presentational" / "Layout", explicitly outside "the behaviour layer" this ADR
+scopes to the popover-class components (point 1) — now import
+`@base-ui/react/use-render` in their own implementation files. This is not a
+retrofit of point 4 ("nothing already shipped is retrofitted... native stays
+native"): neither component gained focus management, dismissal,
+collision-aware positioning, or any of the interaction behaviour this ADR is
+about. `useRender` is Base UI's public, general-purpose prop-merge utility —
+the same "external props win except event handlers (chained) and className
+(concatenated)" algorithm Sheet/Modal's own `render` slots already run on
+internally — reused here only so `Header.Item`/`Sidebar.Item` could gain a
+`render` escape hatch (CONVENTIONS §9: link-rendering components must accept
+one) without hand-rolling an equivalent merge that could silently diverge
+from it. `check:boundaries` still applies (only the component's own file may
+import it, no Base UI type may reach an exported signature) — it is the
+narrower "reuse a tested utility" case the Consequences section's `render`
+paragraph already anticipated, not a widening of what counts as this ADR's
+behaviour layer.
+
 ## Rejected
 
 - **React Aria hooks.** Covers all six classes including DnD and dates, and

@@ -6,6 +6,7 @@ export function Valid() {
     <>
       <Sidebar label="Primary">
         <Sidebar.Item href="/exports">Exports</Sidebar.Item>
+        <Sidebar.Item href="/reports" render={<a href="/reports" />}>Reports</Sidebar.Item>
       </Sidebar>
       <Sidebar label="Primary" isLabelHidden className="h-full">
         <Sidebar.Group>

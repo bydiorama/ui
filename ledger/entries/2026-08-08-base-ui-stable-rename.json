@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-base-ui-stable-rename",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "fix",
+  "summary": "@base-ui-components/react@1.0.0-rc.0 -> @base-ui/react@1.7.0 across the manifest, the 8 consuming registry files, package.json, check:boundaries' BEHAVIOUR_PACKAGES allow-list, and the Storybook browser test suite's optimizeDeps list. ADR 0012 pinned the RC exactly rather than with a caret specifically because a pre-1.0 RC is where an API moves; rc.0 turned out to be the last version ever published under that name before the whole package moved to the @base-ui org, which pnpm has been printing a deprecation notice for since. Verified before changing anything, not assumed safe from the rename alone: downloaded both the rc.0 and 1.7.0 npm tarballs and diffed the shipped .d.ts for every Dialog/Popover/Select/Combobox/Slider/Tabs part the 8 files actually import. Zero prop or sub-component changes -- the entirety of the v1.0.0 changelog's breaking-change list is the package rename itself, and nothing broke again through 1.7.0. Also removed the now-false 'Base UI is at 1.0.0-rc.0, pre-stable' knownGaps entries from modal/multiselect/popover.doc.ts, and added an Update section to ADR 0012 recording the correction without rewriting the original decision text.",
+  "affects": ["manifest", "package.json", "gate:boundaries", "storybook:test-config", "registry:modal", "registry:drawer", "registry:sheet", "registry:slider", "registry:tabs", "registry:multiselect", "registry:popover", "registry:select"],
+  "migration": {
+    "manual": "Installing any Base UI-backed component through a registry CLI now installs @base-ui/react@1.7.0 instead of the deprecated @base-ui-components/react@1.0.0-rc.0. No source or prop changes on either side of this rename -- existing consumers on the old package name can move to the new one whenever convenient; nothing about the components' behavior changed."
+  }
+}

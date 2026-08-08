@@ -10,6 +10,7 @@ export function Valid() {
         <Header.Item href="/agent">Agent</Header.Item>
         <Header.Item trailing={<span aria-hidden="true">.</span>}>Create</Header.Item>
         <Header.Item href="/library" isCurrent icon={<svg aria-hidden="true" />}>Library</Header.Item>
+        <Header.Item href="/reports" render={<a href="/reports" />}>Reports</Header.Item>
       </Header.Nav>
       <Header.Spacer />
       <Header.End><button type="button">Menu</button></Header.End>

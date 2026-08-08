@@ -50,12 +50,12 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       "react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime",
-      "@base-ui-components/react/popover",
-      "@base-ui-components/react/dialog",
-      "@base-ui-components/react/combobox",
-      "@base-ui-components/react/select",
-      "@base-ui-components/react/slider",
-      "@base-ui-components/react/tabs",
+      "@base-ui/react/popover",
+      "@base-ui/react/dialog",
+      "@base-ui/react/combobox",
+      "@base-ui/react/select",
+      "@base-ui/react/slider",
+      "@base-ui/react/tabs",
       "griddy-icons",
       "clsx", "tailwind-merge",
     ],

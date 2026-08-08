@@ -381,3 +381,55 @@ describe("A disabled row is announced, not hidden", () => {
     expect(disabled.color).not.toBe(available.color);
   });
 });
+
+describe("render swaps the row's own tag without dropping its wiring", () => {
+  test("the render element's tag and attributes carry the DOM node", async () => {
+    const onLinkClick = vi.fn();
+    const c = mount(
+      <Sidebar label="Primary">
+        <Sidebar.Item
+          href="/exports"
+          isCurrent
+          render={<a href="/exports" data-testid="custom-link" onClick={onLinkClick} />}
+        >
+          Exports
+        </Sidebar.Item>
+      </Sidebar>,
+    );
+    // Passed through, not wrapped (§3).
+    const row = c.querySelector<HTMLElement>('[data-slot="sidebar-item"]')!;
+    expect(row.tagName).toBe("A");
+    expect(row.getAttribute("data-testid")).toBe("custom-link");
+    // But what render exists to preserve — the row's own wiring — still
+    // lands: aria-current, its content, and its click handler chains rather
+    // than being replaced by the element's own.
+    expect(row.getAttribute("aria-current")).toBe("page");
+    expect(row.textContent).toBe("Exports");
+    await userEvent.click(row);
+    expect(onLinkClick).toHaveBeenCalledTimes(1);
+  });
+
+  test("the disabled invariant survives a render element with its own onClick", () => {
+    const onLinkClick = vi.fn();
+    const onClick = vi.fn();
+    const c = mount(
+      <Sidebar label="Primary">
+        <Sidebar.Item
+          href="/b"
+          isDisabled
+          onClick={onClick}
+          render={<a href="/b" onClick={onLinkClick} />}
+        >
+          Unavailable
+        </Sidebar.Item>
+      </Sidebar>,
+    );
+    const row = c.querySelector<HTMLAnchorElement>("[data-disabled]")!;
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+    // Non-navigation is an invariant regardless of which element renders the
+    // row — a render slot is not a way to route around it.
+    expect(row.dispatchEvent(event)).toBe(false);
+    expect(event.defaultPrevented).toBe(true);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+});

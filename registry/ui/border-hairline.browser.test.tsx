@@ -52,6 +52,34 @@ describe("a ring is a box-shadow, and box-shadow does NOT floor", () => {
   });
 });
 
+describe("OUTLINE floors the same way a border does — and a ring still does not", () => {
+  test("a 1.5px outline reports 1px, exactly like a 1.5px border", () => {
+    // Added when Avatar took the sheet's 1.5px inset hairline. The natural
+    // assumption from the tests above is that `outline` behaves like the
+    // box-shadow ring, because both paint outside the box and neither is part
+    // of layout. It does not: outline-width snaps to device pixels the way
+    // border-width does, so the same 1.5px is real in a ring and lost in an
+    // outline. Two of the three properties floor; only the ring survives.
+    probe = document.createElement("div");
+    probe.style.outline = "1.5px solid red";
+    document.body.appendChild(probe);
+    expect(getComputedStyle(probe).outlineWidth).toBe("1px");
+  });
+
+  test("outline-OFFSET snaps too, which is the half of this that surprises", () => {
+    // Written first as "offset is a length, not a stroke, so it keeps its half
+    // pixel" — and that was wrong, measured. BOTH halves of an outline snap,
+    // so a 1.5px inset hairline is a 1px hairline inset by 1px at dPR 1: it
+    // stays flush to the radius rather than drifting half a pixel off it,
+    // which is the behaviour you want and not the one the reasoning predicted.
+    probe = document.createElement("div");
+    probe.style.outline = "1.5px solid red";
+    probe.style.outlineOffset = "-1.5px";
+    document.body.appendChild(probe);
+    expect(getComputedStyle(probe).outlineOffset).toBe("-1px");
+  });
+});
+
 describe("a border's computed width is what the DISPLAY can draw", () => {
   test("the test browser runs at devicePixelRatio 1", () => {
     // Everything below depends on this. If a future runner changes it, these

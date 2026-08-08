@@ -34,7 +34,7 @@
     {
       "name": "menu-surface",
       "type": "lib",
-      "description": "The menu surface: one panel recipe and one row recipe, shared by Menu and ContextMenu. Not two components that happen to look alike \u2014 Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim, so they are literally the same rows in the same popup, differing only in what opens them. A recipe rather than a component for the same reason chrome-control is: it styles, it does not wrap, so the behaviour layer keeps ownership of roles, roving focus, typeahead and dismissal.",
+      "description": "The menu surface: one panel recipe and one row recipe, shared by Menu and ContextMenu. Not two components that happen to look alike — Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim, so they are literally the same rows in the same popup, differing only in what opens them. A recipe rather than a component for the same reason chrome-control is: it styles, it does not wrap, so the behaviour layer keeps ownership of roles, roving focus, typeahead and dismissal.",
       "files": [
         {
           "path": "registry/lib/menu-surface/menu-surface.ts",
@@ -393,7 +393,7 @@
     {
       "name": "menu",
       "type": "ui",
-      "description": "A list of commands, opened from a trigger. The whole ARIA menu contract \u2014 role=menu and menuitem, roving focus, typeahead, Escape and outside-press dismissal, submenu timing and the aria-haspopup/aria-expanded wiring \u2014 comes from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. Its panel and rows come from the shared menu surface, which ContextMenu draws from the same recipe, so the two cannot drift apart. Item.onSelect is named for the verb rather than for the pointer, because a menu row is chosen by keyboard as often as by mouse.",
+      "description": "A list of commands, opened from a trigger. The whole ARIA menu contract — role=menu and menuitem, roving focus, typeahead, Escape and outside-press dismissal, submenu timing and the aria-haspopup/aria-expanded wiring — comes from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature. Its panel and rows come from the shared menu surface, which ContextMenu draws from the same recipe, so the two cannot drift apart. Item.onSelect is named for the verb rather than for the pointer, because a menu row is chosen by keyboard as often as by mouse.",
       "files": [
         {
           "path": "registry/ui/menu/menu.tsx",
@@ -422,7 +422,7 @@
     {
       "name": "context-menu",
       "type": "ui",
-      "description": "The same menu, opened by a right-click on a region rather than by a button. Only three parts live here \u2014 Root, Trigger and Panel \u2014 because Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim; duplicating them would create two drawings of one surface. Requires the `menu` item for its rows. The keyboard path matters more here than anywhere else in the library: a surface that only opens on right-click is unreachable without a pointer, so Base UI opens it on Shift+F10 and the context-menu key as well.",
+      "description": "The same menu, opened by a right-click on a region rather than by a button. Only three parts live here — Root, Trigger and Panel — because Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim; duplicating them would create two drawings of one surface. Requires the `menu` item for its rows. The keyboard path matters more here than anywhere else in the library: a surface that only opens on right-click is unreachable without a pointer, so Base UI opens it on Shift+F10 and the context-menu key as well.",
       "files": [
         {
           "path": "registry/ui/context-menu/context-menu.tsx",
@@ -712,6 +712,34 @@
       "peerDependencies": [
         "react",
         "@base-ui/react"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "accordion",
+      "type": "ui",
+      "description": "A list of disclosures. Compound: Item, Trigger, Panel. Single-open by default with an isMultiple switch, a plain and a card variant, and a panel whose height animates from the content it actually holds — so it can carry form controls rather than only copy. Each trigger is a real button inside a real heading at a heading level you choose, so the list is navigable by heading. Roving focus, open-state ARIA and the height measurement come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
+      "files": [
+        {
+          "path": "registry/ui/accordion/accordion.tsx",
+          "target": "ui/accordion.tsx"
+        },
+        {
+          "path": "registry/ui/accordion/accordion.doc.ts",
+          "target": "ui/accordion.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn"
+      ],
+      "peerDependencies": [
+        "react",
+        "@base-ui/react",
+        "griddy-icons"
       ],
       "status": "stable"
     },

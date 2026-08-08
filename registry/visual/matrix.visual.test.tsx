@@ -20,7 +20,7 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
-import { ChevronDown, Search } from "griddy-icons";
+import { ChevronDown, InfoCircle, Search } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
@@ -29,6 +29,7 @@ import type { ReactElement } from "react";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@bydiorama/tokens";
 
+import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
@@ -489,12 +490,91 @@ const CASES: Array<{
     ),
   },
   {
-    name: "avatar",
+    name: "accordion",
+    // The sheet's two variants side by side, each with one row open, because
+    // the open row is the only place the panel, its inset and the rotated
+    // chevron are all visible at once. Short answers keep the frame under the
+    // capture viewport — a case taller than ~900px comes back cropped.
     ui: (
-      <div className="flex items-center gap-md">
-        <Avatar name="Mira Vance" />
-        <Avatar name="Mira Vance" shape="rounded" />
-        <Avatar name="Diorama Studio" initials="DS" />
+      <div className="flex flex-col gap-lg">
+        <Accordion defaultValue={["a"]}>
+          <Accordion.Item value="a">
+            <Accordion.Trigger icon={<InfoCircle />}>What does your process look like?</Accordion.Trigger>
+            <Accordion.Panel>Discovery, concept, then handover.</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value="b">
+            <Accordion.Trigger icon={<InfoCircle />}>How long does it take?</Accordion.Trigger>
+            <Accordion.Panel>Six to ten weeks.</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
+        {/* Distinct copy from the list above: each panel is a role=region
+            landmark named by its trigger, and two identically-named
+            landmarks on one page fail axe's landmark-unique. */}
+        <Accordion variant="card" defaultValue={["a"]}>
+          <Accordion.Item value="a">
+            <Accordion.Trigger icon={<InfoCircle />}>What does a card row look like?</Accordion.Trigger>
+            <Accordion.Panel>Discovery, concept, then handover.</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value="b">
+            <Accordion.Trigger icon={<InfoCircle />}>How much does a card cost?</Accordion.Trigger>
+            <Accordion.Panel>Six to ten weeks.</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value="c" isDisabled>
+            <Accordion.Trigger icon={<InfoCircle />}>Unavailable for now</Accordion.Trigger>
+            <Accordion.Panel>Never seen.</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
+      </div>
+    ),
+  },
+  {
+    name: "avatar",
+    // The sheet's own three sections, in its order: shape, group, status.
+    // Both shapes appear in every row because the sheet draws both, and the
+    // status row is the only place the three dot fills can be compared to each
+    // other — a set where two states paint the same colour conveys two states
+    // and shows one, which no computed-value assertion in isolation notices.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <div className="flex items-center gap-md">
+          {(["lg", "md", "sm"] as const).map((size) => (
+            <Avatar key={size} name="Mira Vance" size={size} />
+          ))}
+          {(["lg", "md", "sm"] as const).map((size) => (
+            <Avatar key={size} name="Mira Vance" size={size} shape="full" />
+          ))}
+          <Avatar name="Diorama Studio" initials="DS" />
+        </div>
+        <div className="flex items-center gap-lg">
+          <Avatar.Group>
+            <Avatar name="Mira Vance" />
+            <Avatar name="Peter Roth" />
+            <Avatar name="Dana Ilic" />
+          </Avatar.Group>
+          <Avatar.Group max={3} overflowLabel="4 more people">
+            <Avatar name="Mira Vance" />
+            <Avatar name="Peter Roth" />
+            <Avatar name="Dana Ilic" />
+            <Avatar name="Anna Kis" />
+            <Avatar name="Bo Lin" />
+            <Avatar name="Cy Ray" />
+            <Avatar name="Eve Novak" />
+          </Avatar.Group>
+        </div>
+        <div className="flex items-center gap-md">
+          {(["success", "neutral", "danger"] as const).map((status) => (
+            <Avatar key={status} name="Mira Vance" status={status} statusLabel={status} />
+          ))}
+          {(["success", "neutral", "danger"] as const).map((status) => (
+            <Avatar
+              key={status}
+              name="Mira Vance"
+              shape="full"
+              status={status}
+              statusLabel={status}
+            />
+          ))}
+        </div>
       </div>
     ),
   },
@@ -633,7 +713,27 @@ describe("visual baselines", () => {
           // same machine renders the same frame identically, so any drift IS
           // a change. Probed by moving the thumb 4px and watching switch AND
           // card-sorting fail, in both schemes.
-          comparatorOptions: { allowedMismatchedPixels: 0 },
+          //
+          // `threshold: 0` is the other half, and without it the zero above
+          // was worth much less than it looked. `allowedMismatchedPixels`
+          // caps HOW MANY pixels may differ; `threshold` decides which pixels
+          // COUNT as differing, in YIQ perceived-colour space, and it
+          // defaults to 0.1 — lenient. So a change that alters many pixels
+          // SLIGHTLY registered as zero mismatches and passed at zero
+          // tolerance.
+          //
+          // Found by changing Avatar's default shape from a circle to a
+          // rounded square and watching the header case pass. The two render
+          // 112 different pixels — the whole 24x24 avatar box — but they are
+          // low-contrast neutrals, so each pixel's delta (2-20 per channel on
+          // an anti-aliased corner) sat under the default threshold. The same
+          // blind spot covers any radius, shadow, hairline or AA change on a
+          // quiet surface, which is most of this library.
+          //
+          // 0 is safe here for the same reason the pixel count is: these
+          // baselines are machine-specific by construction, so the same
+          // machine renders the same frame byte-identically.
+          comparatorOptions: { allowedMismatchedPixels: 0, threshold: 0 },
         });
       });
     }

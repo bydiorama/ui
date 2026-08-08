@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-visual-threshold-and-negative-utilities",
+  "date": "2026-08-08",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Two gates that reported success while measuring less than they claimed. Both were found by probing, not by anything failing. (1) THE VISUAL COMPARATOR HAD A SECOND TOLERANCE NOBODY SET. `allowedMismatchedPixels: 0` caps how many pixels may differ; pixelmatch's `threshold` decides which pixels COUNT as differing, in YIQ perceived-colour space, and it defaults to 0.1 -- lenient. So a change that alters many pixels SLIGHTLY registered as ZERO mismatches and passed at zero tolerance. Found by changing Avatar's default shape from a circle to a soft square and watching the header case pass: the two renders differ by 112 pixels, the entire 24x24 avatar box, verified by decoding both PNGs and diffing them by hand -- but they are low-contrast neutrals, so each anti-aliased corner pixel's delta (2-20 per channel) sat under the default. The blind spot covered every radius, shadow, hairline and anti-aliasing change on a quiet surface, which is most of this library; the earlier probe that appeared to validate `allowedMismatchedPixels: 0` (moving a Switch thumb 4px) only ever exercised HIGH-contrast changes, which is why it looked right. Now `threshold: 0`. All 50 cases pass unchanged at that setting, which also demonstrates the determinism the zero already assumed. Probed by re-applying the circle and watching both header cases fail. (2) CHECK:UTILITIES COULD NOT SEE A NEGATIVE UTILITY. The class filter was anchored `^[a-z]`, so `-ml-xs` and `-space-x-xs` were dropped before any namespace was consulted -- a `-space-x-nudge` typo would have emitted no CSS with the gate green. No component had ever used one, so nothing had exposed it; Avatar.Group is the first, which is the first-of-its-kind rule landing on a SIGN rather than on a namespace or a file extension. The filter now allows a leading `-` and strips it for the lookup (the sign is Tailwind's, not the token's), while errors still name the class as authored. Probed both ways: with the old filter a deliberate `-ml-nudge` reported green; with the new one it fails naming --spacing-nudge.",
+  "affects": [
+    "gate:test:visual",
+    "gate:check:utilities",
+    "script:check-utilities.mjs",
+    "visual:matrix",
+    "config:comparatorOptions"
+  ],
+  "migration": {
+    "manual": "No consumer action. Two notes for maintainers. Baselines recorded before this change were compared leniently, so a small low-contrast drift may be baked into any of them -- they are not re-recorded here, because doing so blind would replace reviewed images with unreviewed ones; regenerate and LOOK at any baseline you have reason to doubt. And when adding a negative utility, expect check:utilities to have an opinion about it now."
+  }
+}

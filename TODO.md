@@ -59,7 +59,6 @@ Quick wins:
 - [ ] Image preview (Business Cards)
 
 Design:
-- [ ] Accordion
 - [ ] Aspect Ratio
 - [ ] Card Selected
 - [ ] Card Task
@@ -72,11 +71,10 @@ Design:
 - [ ] Radio
 - [ ] Table
 - [ ] Table Line Items
-- [ ] Tabs Underlined
-- [ ] Text Area
 - [ ] Toast
 - [ ] Tooltip
 - [ ] Weight Allocator
+- [ ] Widget
 - [ ] Wizard Layouts/Steps
 - [ ] Progress Long Operations
 - [ ] Progress Sectioned List

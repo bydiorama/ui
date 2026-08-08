@@ -36,17 +36,77 @@ const PHOTO =
 
 export const Playground: Story = {};
 
-/** Mirrors the sheet: photo and initials, rounded and circle. */
+/** Mirrors the sheet's own four tiles: photo and initials, soft and full. */
 export const Matrix: Story = {
   render: () => (
     <div>
-      <Row label="rounded">
-        <Avatar name="Miroslava Vrbová" src={PHOTO} shape="rounded" />
-        <Avatar name="Miroslava Vrbová" shape="rounded" />
+      <Row label="soft">
+        <Avatar name="Miroslava Vrbová" src={PHOTO} shape="soft" />
+        <Avatar name="Miroslava Vrbová" shape="soft" />
       </Row>
-      <Row label="circle">
-        <Avatar name="Miroslava Vrbová" src={PHOTO} shape="circle" />
-        <Avatar name="Miroslava Vrbová" shape="circle" />
+      <Row label="full">
+        <Avatar name="Miroslava Vrbová" src={PHOTO} shape="full" />
+        <Avatar name="Miroslava Vrbová" shape="full" />
+      </Row>
+    </div>
+  ),
+};
+
+/**
+ * The sheet's second section. The counter is the same tile as an avatar with
+ * no photo, so a stack reads as one object rather than as avatars plus a chip.
+ */
+export const Group: Story = {
+  render: () => (
+    <div>
+      <Row label="stack">
+        <Avatar.Group>
+          <Avatar name="Miroslava Vrbová" src={PHOTO} />
+          <Avatar name="Peter Roth" />
+          <Avatar name="Dana Ilic" />
+        </Avatar.Group>
+      </Row>
+      <Row label="stack + counter">
+        <Avatar.Group max={3} overflowLabel="4 more people">
+          <Avatar name="Miroslava Vrbová" src={PHOTO} />
+          <Avatar name="Peter Roth" />
+          <Avatar name="Dana Ilic" />
+          <Avatar name="Anna Kis" />
+          <Avatar name="Bo Lin" />
+          <Avatar name="Cy Ray" />
+          <Avatar name="Eve Novak" />
+        </Avatar.Group>
+      </Row>
+      <Row label="full, lg">
+        <Avatar.Group max={2} overflowLabel="2 more people" size="lg" shape="full">
+          <Avatar name="Miroslava Vrbová" src={PHOTO} size="lg" shape="full" />
+          <Avatar name="Peter Roth" size="lg" shape="full" />
+          <Avatar name="Dana Ilic" size="lg" shape="full" />
+          <Avatar name="Anna Kis" size="lg" shape="full" />
+        </Avatar.Group>
+      </Row>
+    </div>
+  ),
+};
+
+/**
+ * The sheet's third section. Every dot carries a LABEL as well as a colour —
+ * the type insists, because a colour on its own is not a message.
+ */
+export const Status: Story = {
+  render: () => (
+    <div>
+      {(["soft", "full"] as const).map((shape) => (
+        <Row key={shape} label={shape}>
+          <Avatar name="Miroslava Vrbová" src={PHOTO} shape={shape} status="success" statusLabel="Online" />
+          <Avatar name="Peter Roth" shape={shape} status="neutral" statusLabel="Away" />
+          <Avatar name="Dana Ilic" shape={shape} status="danger" statusLabel="Do not disturb" />
+        </Row>
+      ))}
+      <Row label="sizes">
+        {(["lg", "md", "sm"] as const).map((size) => (
+          <Avatar key={size} name="Miroslava Vrbová" src={PHOTO} size={size} status="success" statusLabel="Online" />
+        ))}
       </Row>
     </div>
   ),
@@ -103,10 +163,25 @@ export const BrandThemed: Story = {
     const Panel = ({ style, title }: { style: React.CSSProperties; title: string }) => (
       <div style={style} className="flex-1 rounded-lg bg-base p-xl">
         <p className="pb-md text-caption text-ink-muted">{title}</p>
-        <div className="flex items-center gap-md">
-          <Avatar name="Miroslava Vrbová" src={PHOTO} />
-          <Avatar name="Miroslava Vrbová" />
-          <Avatar name="Diorama" shape="rounded" />
+        <div className="flex flex-col gap-md">
+          <div className="flex items-center gap-md">
+            <Avatar name="Miroslava Vrbová" src={PHOTO} />
+            <Avatar name="Miroslava Vrbová" />
+            <Avatar name="Diorama" shape="full" />
+          </div>
+          {/* The dots are inside the themed subtree on purpose: their fills are
+              intent roles, and a brand seed re-tones them. */}
+          <div className="flex items-center gap-md">
+            <Avatar name="Mira Vance" status="success" statusLabel="Online" />
+            <Avatar name="Peter Roth" status="neutral" statusLabel="Away" />
+            <Avatar name="Dana Ilic" status="danger" statusLabel="Do not disturb" />
+          </div>
+          <Avatar.Group max={2} overflowLabel="2 more people">
+            <Avatar name="Mira Vance" src={PHOTO} />
+            <Avatar name="Peter Roth" />
+            <Avatar name="Dana Ilic" />
+            <Avatar name="Anna Kis" />
+          </Avatar.Group>
         </div>
       </div>
     );

@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-avatar-group-status-and-shape-rename",
+  "date": "2026-08-08",
+  "item": "avatar",
+  "kind": "breaking",
+  "summary": "Avatar expanded to the redrawn sheet, which grew from one row to three sections. THE BREAKING PART: `shape` is now \"soft\" | \"full\" and defaults to \"soft\". It was \"circle\" | \"rounded\" defaulting to \"circle\" -- a synonym pair for two shapes that already had names on Button (CONVENTIONS §2 says variant values are shared vocabulary where the meaning is shared), and the sheet's own layers are named \"Avatar Rounded Soft\" and \"Avatar Rounded Full\". The soft radius per size is now Button's soft radius per size, so a row of both is concentric. The default flip is a VISUAL change at every existing call site: avatars that were circles are now soft squares. It is the right way round -- the Header sheet's own User Avatar is radius-md, so the old default disagreed with the composition that uses it -- but it is a change, and the old values are a type error rather than a silent no-op. NEW: `status` + `statusLabel`, a corner dot in success/neutral/danger, with the label REQUIRED BY THE TYPE whenever status is set (the isIconOnly/aria-label shape) because a dot is colour and position only and WCAG 1.4.1 is not satisfiable by documentation. NEW: `Avatar.Group`, a stack overlapping by the sheet's 4px with an optional \"+N\" tile; `max` and `overflowLabel` are likewise a union, since \"+4\" is a glyph and a number. The overlap comes from the container (`-space-x-xs`) rather than by rewriting children, so slot contents are never touched (§3). REFACTOR: the component is now two nodes. The root holds the box, className, ref and the positioning context; a new `avatar-frame` holds the well, radius, the sheet's 1.5px inset hairline and the clipping. The dot is a SIBLING of the frame, not a child, because the frame is overflow-clip and a corner dot inside it would be cut in half by the radius. Three of the sheet's own values were NOT transcribed, because each measured wrong -- see the design entry.",
+  "affects": [
+    "component:avatar",
+    "item:avatar",
+    "prop:shape",
+    "prop:status",
+    "prop:statusLabel",
+    "prop:max",
+    "prop:overflowLabel",
+    "slot:avatar",
+    "slot:avatar-frame",
+    "slot:avatar-status",
+    "slot:avatar-group",
+    "slot:avatar-overflow",
+    "registry:avatar",
+    "visual:avatar",
+    "visual:header",
+    "contrast-pairs:avatar",
+    "token:--ui-intent-success-fg",
+    "token:--ui-intent-danger-fg",
+    "token:--ui-text-muted"
+  ],
+  "migration": {
+    "manual": "REQUIRED: replace shape=\"circle\" with shape=\"full\" and shape=\"rounded\" with shape=\"soft\". Both old values now fail to compile, deliberately -- a silently-ignored shape prop would be worse. THEN DECIDE THE DEFAULT: any <Avatar> with no shape prop changes from a circle to a soft square. If a surface wants circles, pass shape=\"full\" explicitly. In this repo the only call sites were the Header and Sidebar stories and the visual matrix; the Header sheet draws radius-md, so the new default matches it. Also note the doc previously declared a contrast pair the component never rendered (--ui-text-primary on the well, while the code renders --ui-text-muted); the declared pair is now the rendered one, so the generated figure changes from 14.11:1 to the real 4.87:1."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/MLS-0"
+  }
+}

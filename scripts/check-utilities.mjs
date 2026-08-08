@@ -139,7 +139,7 @@ const COVERS_TRANSFORM = new Set(["transition-transform", "transition-all"]);
 const ENTER_EXIT = /data-\[(?:starting|ending)-style\]:-?(scale|translate|rotate)-/g;
 
 const VARIANT =
-  /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-busy|aria-\[[^\]]+\]|data-\[[^\]]+\]|has-\[[^\]]+\]|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
+  /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-[a-z-]+|aria-\[[^\]]+\]|data-\[[^\]]+\]|has-\[[^\]]+\]|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
 
 /**
  * Comments are not code, and this gate must not read them.
@@ -185,7 +185,14 @@ function classesIn(source) {
       .flatMap((m) => (m[1] ?? m[2] ?? m[3] ?? "").split(/\s+/))
       // `:` must be allowed here — variant prefixes are stripped below, and
       // filtering them out first silently skipped every hover/disabled state.
-      .filter((c) => /^[a-z][\w:[\]().,%/#-]*$/.test(c))
+      // A leading `-` must be allowed through. Tailwind spells a negative
+      // utility `-ml-xs` / `-space-x-xs`, and an anchored `^[a-z]` filter drops
+      // the whole class before any namespace is consulted — so every negative
+      // utility in the library was unscanned, and `-space-x-nudge` would have
+      // emitted no CSS with the gate green. Avatar.Group is the first component
+      // to need one, which is the first-of-its-kind rule landing on a SIGN
+      // rather than on a namespace or a file extension.
+      .filter((c) => /^-?[a-z][\w:[\]().,%/#-]*$/.test(c))
       .map((c) => {
         let out = c;
         while (VARIANT.test(out)) out = out.replace(VARIANT, "");
@@ -253,7 +260,11 @@ for (const file of walk(join(ROOT, "registry"))) {
     );
   }
 
-  for (const cls of classes) {
+  for (const rawCls of classes) {
+    // `-ml-xs` resolves the SAME theme key as `ml-xs`; the sign is Tailwind's,
+    // not the token's. Normalise it away for the lookup so a negative utility
+    // is checked exactly as its positive twin is.
+    const cls = rawCls.startsWith("-") ? rawCls.slice(1) : rawCls;
     // Arbitrary values name their own value and bypass the theme by design,
     // in BOTH syntaxes: brackets for literals (`ring-[1.5px]`) and parens for
     // custom properties (`shadow-(--ui-focus-ring)`). Skipping only brackets
@@ -263,7 +274,7 @@ for (const file of walk(join(ROOT, "registry"))) {
     const sizing = cls.match(SIZING);
     if (sizing && SPACING_STEPS.has(sizing[1])) {
       errors.push(
-        `${rel}: "${cls}" resolves to the SPACING step --ui-space-${sizing[1]}, not a width. ` +
+        `${rel}: "${rawCls}" resolves to the SPACING step --ui-space-${sizing[1]}, not a width. ` +
           `Use a purpose-named chrome token (max-w-nav, max-w-dialog-md) or an explicit value.`,
       );
       continue;
@@ -279,7 +290,7 @@ for (const file of walk(join(ROOT, "registry"))) {
       // Numeric keys are Tailwind's built-in scale (ring-1, p-0, size-6).
       if (BUILTIN.has(key) || /^\d/.test(key)) break;
       if (!declared.has(namespace + key)) {
-        errors.push(`${rel}: "${cls}" needs ${namespace}${key}, which the token theme does not emit`);
+        errors.push(`${rel}: "${rawCls}" needs ${namespace}${key}, which the token theme does not emit`);
       }
       break;
     }

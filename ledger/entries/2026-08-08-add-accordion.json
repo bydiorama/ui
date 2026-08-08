@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-add-accordion",
+  "date": "2026-08-08",
+  "item": "accordion",
+  "kind": "addition",
+  "summary": "Accordion, from the 'Component --- Accordion' sheet. Compound: Item, Trigger, Panel, with plain and card variants and a panel whose height animates. Unusually, the DESIGN was drawn against the behaviour layer's anatomy -- the sheet's layers are named Accordion Root / Item / Header / Trigger / Panel / Panel Inner Container, which are Base UI's parts exactly -- so the DOM here is that structure one-for-one and every value on the sheet has a single place to land. Trigger renders the Header AND the button as one part, because the header carries nothing of its own; both data-slots are present so the DOM still matches the sheet layer for layer. WHY NOT <details>/<summary>, since the platform does a real share of this: summary is not a button and its ARIA mapping is inconsistent across screen readers, while the sheet's row is a heading CONTAINING a control; the panel height has to animate, and the behaviour layer publishes --accordion-panel-height where the native route needs ::details-content plus interpolate-size (one engine today); single/multiple has to be driven from state, where `name` is markup-level; and hiddenUntilFound exists for find-in-page. NOT one of the reasons, though it was the first one written down: arrow-key navigation between headers does NOT exist -- `loopFocus` is accepted as a prop and no key handler is implemented, confirmed in the source and then in the browser. Arrow keys are OPTIONAL in the APG accordion pattern so Tab-only conforms; the claim was removed and the actual behaviour is pinned by a test rather than left to be rediscovered as a bug. Three things the behaviour layer does that a wrapper must not assume away, each found by testing rather than by reading: `multiple` defaults to false (which is what the sheet draws); a disabled trigger is marked aria-disabled and KEPT FOCUSABLE rather than given the native attribute, so `disabled:` and `enabled:` variants match nothing and both shipped here as dead classes until the test caught them; and the chevron's rotation has to hang off the TRIGGER's data-panel-open through a group variant, since a child never has that attribute itself. headingLevel is a prop with no guessed default, for the same reason Card's is. onValueChange is re-wrapped so the behaviour layer's second event-details argument never reaches a consumer's signature.",
+  "affects": [
+    "component:accordion",
+    "item:accordion",
+    "slot:accordion",
+    "slot:accordion-item",
+    "slot:accordion-header",
+    "slot:accordion-trigger",
+    "slot:accordion-label",
+    "slot:accordion-indicator",
+    "slot:accordion-panel",
+    "slot:accordion-panel-inner",
+    "prop:variant",
+    "prop:headingLevel",
+    "prop:value",
+    "prop:defaultValue",
+    "prop:onValueChange",
+    "prop:isMultiple",
+    "prop:isDisabled",
+    "prop:icon",
+    "registry:accordion",
+    "manifest:accordion",
+    "visual:accordion",
+    "contrast-pairs:accordion",
+    "config:optimizeDeps"
+  ],
+  "migration": {
+    "manual": "New item, nothing to migrate. Two notes for anyone extending it. `@base-ui/react/accordion` was added to optimizeDeps.include in apps/storybook/vitest.config.ts -- the list must grow with every new behaviour-layer subpath or the first run after adding a story flakes. And do not reach for `disabled:`/`enabled:` variants on the trigger: the behaviour layer uses aria-disabled and keeps the control focusable, so style it with aria-disabled variants."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EV6-0"
+  }
+}

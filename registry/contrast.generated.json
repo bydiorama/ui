@@ -1,12 +1,100 @@
 {
-  "Avatar": [
+  "Accordion": [
     {
       "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "a trigger label on the plain variant"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "a trigger label on a card"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.97,
+      "role": "panel copy on the plain variant"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 7.32,
+      "role": "panel copy on a card"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.36,
+      "dark": 5.19,
+      "role": "the chevron on a card"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the keyboard focus ring"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-elevated",
+      "floor": "decorative",
+      "light": 1.94,
+      "dark": 2.63
+    }
+  ],
+  "Avatar": [
+    {
+      "fg": "--ui-text-muted",
       "bg": "--ui-bg-sunken",
       "floor": "text",
-      "light": 14.11,
-      "dark": 13.79,
-      "role": "initials on the well"
+      "light": 4.87,
+      "dark": 7.11,
+      "role": "initials on the well — the pair the component actually renders"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 6.06,
+      "dark": 9.26,
+      "role": "the success dot against its ring"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 5.78,
+      "dark": 6.47,
+      "role": "the neutral dot against its ring"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 5.8,
+      "dark": 9.6,
+      "role": "the danger dot against its ring"
+    },
+    {
+      "fg": "--ui-bg-surface",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.19,
+      "dark": 1.1
     }
   ],
   "Badge": [

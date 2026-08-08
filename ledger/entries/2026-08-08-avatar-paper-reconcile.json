@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-avatar-paper-reconcile",
+  "date": "2026-08-08",
+  "item": "avatar",
+  "kind": "a11y",
+  "summary": "Four values on the Avatar sheet measured wrong and were reconciled to the code (flow stays repo -> Paper). (1) INITIALS INK. The sheet drew initials in --ui-text-disabled, which measures 1.76:1 on the --ui-bg-sunken well -- initials identify a person and have to clear AA. The code already used --ui-text-muted (4.87 light / 7.11 dark) and the sheet now does too, across all 17 initials and the +4 counter. (2) NEUTRAL STATUS DOT. The sheet drew --ui-bg-emphasis-active, which measures 10.34:1 in light and 1.31:1 in DARK -- a state indicator invisible in the scheme nobody opened. Now --ui-text-muted, which is what Banner's own neutral variant uses and which holds in both (5.78 / 6.47). (3) SUCCESS DOT. The sheet drew --ui-data-transactional-fg, a data-visualisation category role that happens to be the same green; now the intent role it always should have been. (4) DOT RINGS. Each dot was ringed with a lighter step of its OWN hue, and the error dot's ring was a RAW PALETTE STEP (--ui-red-60) -- off the role layer entirely, and a same-hue ring does not separate the dot from a photo behind it. All three now ring with --ui-bg-surface, matching the avatar's own hairline. Also fixed: the sheet's two group rows disagreed on the overlap, -4px for the plain stack and -12px for the stack-with-counter, and the tighter one clipped the initials illegibly ('MV' rendered as 'M'). Both are now -4px, the value that keeps them readable. Note for whoever edits this sheet next: `update_styles` silently DROPS a margin change -- it reports success and the value does not move -- so the counter row had to be rebuilt with x-paper-clone. All three dot fills are now declared as contrast pairs in avatar.doc.ts and measured by check:contrast in both schemes.",
+  "affects": [
+    "design:avatar",
+    "design:paper-avatar-sheet",
+    "token:--ui-text-muted",
+    "token:--ui-text-disabled",
+    "token:--ui-intent-success-fg",
+    "token:--ui-intent-danger-fg",
+    "token:--ui-bg-emphasis-active",
+    "token:--ui-bg-surface",
+    "contrast-pairs:avatar"
+  ],
+  "migration": {
+    "manual": "No code change -- the code was the source for three of the four. The sheet now carries no raw palette step and no role that fails in dark."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/MLS-0"
+  }
+}

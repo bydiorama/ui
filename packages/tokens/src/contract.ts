@@ -352,4 +352,16 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // edge of a control in an error state. Names are not guarantees; this pair
   // is in the list so the next person reads a number instead of a name.
   ["--ui-intent-danger-fg", "--ui-bg-field"],
+  // Avatar's status dot, against the ring it is drawn with. The dot is a
+  // graphical object carrying meaning (SC 1.4.11) and its ONLY visual channel
+  // is colour, so what it must clear is the surface immediately around it.
+  //
+  // Both of these come from the intent family rather than from what the sheet
+  // drew, and the neutral one is why the list matters: the sheet's neutral
+  // fill was --ui-bg-emphasis-active, which measures 10.34:1 in light and
+  // 1.31:1 in DARK — a state indicator that disappears in the scheme nobody
+  // opened. Neutral now uses --ui-text-muted, Banner's own neutral ink, which
+  // is already audited on this ground a few lines above.
+  ["--ui-intent-success-fg", "--ui-bg-surface"],
+  ["--ui-intent-danger-fg", "--ui-bg-surface"],
 ] as const;

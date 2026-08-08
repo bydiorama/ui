@@ -12,7 +12,7 @@ export const sliderDoc = {
     { part: "control", slot: "slider-control", notes: "The pointer target. Padded ONLY at sm and md, each to exactly 24px; lg and xl clear the floor on their own and keep the sheet's row height." },
     { part: "row", slot: "slider-row", notes: "Holds the steppers, the track and the value control. Present whether or not the steppers are, so the track does not change shape when they appear." },
     { part: "track", slot: "slider-track", notes: "bg-sunken. A pill at sm/md/lg; radius-md at xl, so it matches the 32px controls it shares a row with." },
-    { part: "fill", slot: "slider-fill", notes: "--ui-gradient-accent, from the start to the value. A background-IMAGE, so it needs the `image:` hint — bg-(--ui-gradient-accent) would set a background-COLOUR and paint nothing." },
+    { part: "fill", slot: "slider-fill", notes: "--ui-gradient-accent, from the start to the value. Rounded on its LEADING edge only: the fill ends at the thumb's centre, so a trailing radius curves away and leaves a crescent of bare track between fill and thumb. Square, the two read as one form, which is how the sheet draws it. A background-IMAGE, so it needs the `image:` hint — bg-(--ui-gradient-accent) would set a background-COLOUR and paint nothing." },
     { part: "decrement", slot: "slider-decrement", notes: "Optional. The shared 32px chrome control; steps down by one `step`." },
     { part: "increment", slot: "slider-increment", notes: "Optional. Steps up by one `step`." },
     { part: "thumb", slot: "slider-thumb", notes: "16/16/24/20px by size, bg-base with a 2px accent ring. Contains the native input[type=range] that IS the control." },

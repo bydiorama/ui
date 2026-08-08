@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-sidebar-disabled-ink-misuse",
+  "date": "2026-08-08",
+  "item": "sidebar",
+  "kind": "a11y",
+  "summary": "Four uses of --ui-text-disabled in the Sidebar sheet on content that is not disabled, all corrected in Paper. It measures 2.14:1 in light and 2.51:1 in dark, and WCAG exempts disabled CONTROLS, not text that happens to be quiet: the profile row's email address, the 'Select brand' group label, and both search placeholders. Shipped as --ui-text-muted (5.93 / 4.94) for the address, the rail's own --ui-nav-ink-muted (10.66 / 6.97) for the label, and --ui-text-placeholder (5.93 / 4.65) for the placeholders — the role that exists for exactly that. The one remaining --ui-text-disabled in the artboard is a genuinely disabled nav row and is correct. Same defect class as the Calendar weekday headers, which drew the same role for the same reason.",
+  "affects": ["item:sidebar", "token:--ui-text-disabled", "slot:sidebar-profile-email", "slot:sidebar-heading", "slot:sidebar-search"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HE2-0"
+  }
+}

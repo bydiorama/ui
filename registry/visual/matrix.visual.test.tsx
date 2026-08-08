@@ -427,17 +427,38 @@ const CASES: Array<{
   },
   {
     name: "sidebar",
+    // Both layers, side by side. The second REPLACES the first at runtime, so
+    // one rail can only ever show one of them — and a layer drawn in no case
+    // is a layer no one looks at.
     ui: (
-      <Sidebar label="Primary">
-        <Sidebar.Section label="Brand" isCollapsible>
-          <Sidebar.Item href="/brand/guidelines" isCurrent>Brand Guidelines</Sidebar.Item>
-          <Sidebar.Item href="/brand/assets">Assets</Sidebar.Item>
-        </Sidebar.Section>
-        <Sidebar.Item href="/exports">Exports</Sidebar.Item>
-        <Sidebar.Section label="Settings">
-          <Sidebar.Item href="/settings/team">Team</Sidebar.Item>
-        </Sidebar.Section>
-      </Sidebar>
+      <div className="flex gap-lg">
+        <Sidebar label="Primary">
+          <Sidebar.Main>
+            <Sidebar.Profile name="Jakub Otcenas" email="jakub@bydiorama.com" layer="profile" />
+            <Sidebar.Item href="/agent">Agent</Sidebar.Item>
+            <Sidebar.Section label="Brand" isCollapsible>
+              <Sidebar.Item href="/brand/guidelines" isCurrent>Brand Guidelines</Sidebar.Item>
+              <Sidebar.Item href="/brand/assets">Assets</Sidebar.Item>
+            </Sidebar.Section>
+            <Sidebar.Item href="/exports">Exports</Sidebar.Item>
+          </Sidebar.Main>
+          <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back to navigation">
+            <Sidebar.Item href="/x">Never shown here</Sidebar.Item>
+          </Sidebar.Layer>
+        </Sidebar>
+        <Sidebar label="Profile" defaultLayer="profile">
+          <Sidebar.Main>
+            <Sidebar.Item href="/agent">Never shown here</Sidebar.Item>
+          </Sidebar.Main>
+          <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back to navigation">
+            <Sidebar.Heading>Select brand</Sidebar.Heading>
+            <Sidebar.Search label="Search brands" />
+            <Sidebar.Item href="/diorama">Diorama</Sidebar.Item>
+            <Sidebar.Item href="/ohpen" isCurrent>Ohpen</Sidebar.Item>
+            <Sidebar.Item href="/admin">Admin</Sidebar.Item>
+          </Sidebar.Layer>
+        </Sidebar>
+      </div>
     ),
   },
   {

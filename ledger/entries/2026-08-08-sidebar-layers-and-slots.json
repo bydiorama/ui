@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-sidebar-layers-and-slots",
+  "date": "2026-08-08",
+  "item": "sidebar",
+  "kind": "addition",
+  "summary": "The rail becomes two surfaces and grows its own controls. Sidebar.Main and Sidebar.Layer are the two-layer swap the sheet draws: pressing Sidebar.Profile REPLACES the navigation with a second screen — 'Profile Settings' and a brand switcher — rather than covering it, which is the same choice Calendar's month and year selects make and for the same reason: on the narrow screen this rail lives on, a panel over a panel is two surfaces where the drawing has one. Only those two parts know about the swap, so no row has to ask whether a layer is open. Sidebar.Search is the rail's own field (40px at radius-sm with a 1px edge, where Input's is 48px at radius-md with 1.5px — a rail is denser than a form), Sidebar.Slot is a row that holds a control and adds nothing to it, and Sidebar.Heading is the standalone group label. Layer.backLabel is REQUIRED and deliberately not defaulted to 'Back': a rail may hold more than one layer.",
+  "affects": [
+    "item:sidebar",
+    "prop:layer",
+    "slot:sidebar-main",
+    "slot:sidebar-layer",
+    "slot:sidebar-layer-back",
+    "slot:sidebar-profile",
+    "slot:sidebar-search",
+    "slot:sidebar-slot",
+    "slot:sidebar-heading"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HE2-0"
+  }
+}

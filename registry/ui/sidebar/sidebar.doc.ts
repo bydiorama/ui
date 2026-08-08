@@ -7,6 +7,15 @@ export const sidebarDoc = {
     "The primary navigation rail: a named <nav> built from ROWS, not links. A row becomes a link when given an href and is otherwise a plain slot, because the sheet puts a search field in one and a progress bar in another. First consumer of the --ui-nav-* role family, which had existed in the contract since Phase 1 without ever being rendered.",
 
   anatomy: [
+    { part: "main", slot: "sidebar-main", notes: "The navigation itself. Renders nothing while a layer is showing — so the two-layer swap has exactly two participants and every other part stays ignorant of it." },
+    { part: "layer", slot: "sidebar-layer", notes: "A secondary screen that REPLACES the navigation: the sheet's 'Profile Settings', with a brand switcher under it. Same shape as Calendar's month and year selects, for the same reason — on a narrow screen a panel over a panel is two surfaces where the drawing has one." },
+    { part: "layer back", slot: "sidebar-layer-back", notes: "The 32px chrome control in the sheet's 56px band. Named for where it RETURNS to, never just 'Back'." },
+    { part: "layer title", slot: "sidebar-layer-title", notes: "The layer's heading, at the second-level row's own type and inset." },
+    { part: "profile", slot: "sidebar-profile", notes: "Avatar, name, address and a trailing chevron; the way into a layer. A real button — it opens a screen — but NOT aria-expanded, because nothing expands." },
+    { part: "profile name / email", slot: "sidebar-profile-name, sidebar-profile-email", notes: "16px/600 in nav ink, and 12px/500 in MUTED ink. The sheet drew the address in --ui-text-disabled at 2.14:1; an address is content, so WCAG's disabled exemption does not apply." },
+    { part: "search", slot: "sidebar-search", notes: "The rail's own field: 40px at radius-sm with a 1px edge, where Input's is 48px at radius-md with 1.5px. A rail is denser than a form. The WRAPPER draws the focus ring, which is the one place the inner control may carry outline-none." },
+    { part: "slot", slot: "sidebar-slot", notes: "A row that holds a CONTROL — a Button, an Input, a Progress bar. The row's inset and nothing else: no role, no tab stop, no click target of its own." },
+    { part: "heading", slot: "sidebar-heading", notes: "A standalone group label — the sheet's 'Select brand'. Drawn in --ui-text-disabled (2.14:1); ships as the rail's own muted step." },
     { part: "root", slot: "sidebar", notes: "A <nav>, named by its label. w-nav (--ui-nav-width, 17rem), bg-nav, radius-lg, and NO padding of its own." },
     { part: "label", slot: "sidebar-label", notes: "Names the landmark. sr-only by default — the sheet draws no rail heading — never removed." },
     { part: "body", slot: "sidebar-body", notes: "The scroll column. p-sm and NO gap; the 8 here plus each row's 12 is the sheet's 20px text inset, and the rows stack flush." },
@@ -29,6 +38,17 @@ Sidebar                    label (required) / isLabelHidden?
   `.trim(),
 
   props: {
+    layer: { type: "string | null", notes: "Which secondary layer is showing; null is the navigation. Controlled/uncontrolled through the shared hook (§4) rather than left to each part, because the layer closes from a back button inside it and opens from a row that is not." },
+    defaultLayer: { type: "string | null", default: "null", notes: "Uncontrolled starting layer — never `initialLayer` (§1)." },
+    onLayerChange: { type: "(layer: string | null) => void", notes: "Fires for the profile row and for the back control." },
+    "Layer.id": { type: "string", required: true, notes: "Matched against the Sidebar's `layer` and against Profile's `layer`." },
+    "Layer.title": { type: "string", required: true, notes: "The layer's heading." },
+    "Layer.backLabel": { type: "string", required: true, notes: "The back control's accessible name. Required and NOT defaulted to 'Back' — a rail may hold more than one layer, and 'Back' alone leaves a screen-reader user to guess what they are returning to." },
+    "Profile.name": { type: "string", required: true },
+    "Profile.email": { type: "string", notes: "Rendered in muted ink, not the disabled role. See anatomy." },
+    "Profile.avatar": { type: "ReactElement", notes: "Slot: an Avatar at 32px. Never wrapped (§3)." },
+    "Profile.layer": { type: "string", notes: "The layer this row opens. Without it the row is a plain button and the caller wires onClick." },
+    "Search.label": { type: "string", required: true, notes: "Visually hidden — the sheet draws a placeholder and no label, and a placeholder is not a label (§10)." },
     label: { type: "string", required: true, notes: "Required — a page may carry several <nav> landmarks and they are indistinguishable without names." },
     isLabelHidden: { type: "boolean", default: "true", notes: "Hidden by DEFAULT, unlike every other label in the system: the sheet draws no rail heading, so the label exists to name the landmark rather than to be read." },
     "Item.href": { type: "string", notes: "OPTIONAL. With it the row is a real <a> — middle-click, open-in-new-tab and the UA's focus handling all come free. Without it the row is a plain slot and its children fill it, which is how a search field or a progress bar sits in the rail." },
@@ -61,6 +81,7 @@ Sidebar                    label (required) / isLabelHidden?
   ],
 
   a11y: {
+    layers: "Opening a layer moves focus to its back control; closing returns focus to the row that opened it. The row is UNMOUNTED while the layer shows, so the return is done by finding the row again after the re-render — focusing a remembered node there lands on <body>, which is what the browser test caught.",
     role: "navigation landmark. A Section is a <ul> of links; rows outside a Section are not list items, because a search field announced as a list item is a lie about the page structure.",
     name: "The `label` prop via aria-labelledby. Each section's <ul> is reached from its header through aria-controls, so the disclosure and the list it reveals cannot drift apart.",
     keyboard: [
@@ -80,7 +101,7 @@ Sidebar                    label (required) / isLabelHidden?
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "No collapsed rail is drawn, though --ui-nav-rail-width exists for one.",
+    "A collapsed rail IS now drawn — a 50px column of icon-only rows, artboard node HFP-0 — and is NOT built. It was a design question when nothing was drawn; it is now a scope note. Building it needs an answer on what a row shows at that width and how the section disclosure behaves with no room for a label.",
     "Row hover and focus are derived from --ui-nav-active-bg; the sheet draws rest and current only.",
   ],
 

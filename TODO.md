@@ -27,9 +27,12 @@ different people:
 Both were blocked on a component that did not exist, and both are code work
 rather than design:
 
-- [ ] **Calendar** renders its month and year as a heading because there was
-      no Select. Wire them to the real component and drop the apology in
-      `calendar.doc.ts`.
+- [x] **Calendar** renders its month and year as a heading because there was
+      no Select. *Done — but NOT by wiring Select in: the two triggers swap
+      the day grid for a listbox in place, because inside DatePicker the
+      calendar card is already a popover and a popover over a popover is two
+      surfaces where the sheet draws one. See
+      `ledger/entries/2026-08-07-calendar-month-year-selects.json`.*
 - [ ] **Drawer** draws two select fields in its content that were never built.
       Same.
 
@@ -153,7 +156,32 @@ choose.
 
 - [ ] No today state is drawn. The outline is derived. *(Which day is today is
       now a `today` prop — the component used to read the real clock, which
-      made its visual baseline rot overnight.)*
+      made its visual baseline rot overnight.)* It now carries to the month
+      and year lists too, so it needs answering for three cells, not one.
+- [ ] The month list fills **June** while its own header reads **August**, so
+      the sheet does not say whether the fill marks the visible month or the
+      selected date's month. Shipped as the visible one, mirroring the day
+      grid. Fix the sheet or say which it is.
+- [ ] The year grid's window (27 years, centred on the visible year) and the
+      arrows' paging step (a whole screenful) are both **derived** — the sheet
+      draws one static screenful.
+- [ ] The month/year triggers are **24px** tall, SC 2.5.8's floor exactly,
+      because the sheet's header row is 32px overall and a taller trigger
+      would push the arrows out of line.
+
+### Date Picker
+
+- [ ] The trigger is drawn at `px-lg` (16) where Input's control is `px-md`
+      (12) — the same divergence Select records. Shipped as Input's.
+- [ ] **One size only.** The sheet draws the 48px field and nothing else,
+      while Input, Select and Multiselect all have three.
+- [ ] The field draws "August 3rd, 2026", an English ordinal no `Intl` option
+      produces. Shipped as `dateStyle: "long"`, with `formatValue` as the
+      call-site escape hatch.
+- [ ] No disabled, error or busy state is drawn for the field; all three are
+      derived from Input's.
+- [ ] **No clear affordance is drawn.** Clearing is "click the selected day
+      again", which is discoverable only by accident.
 
 ### Card Sorting
 

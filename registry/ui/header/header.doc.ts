@@ -78,7 +78,7 @@ can arrive later without changing any of this.
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "No collapsed rail is drawn, so the Sidebar compresses to Header.MenuButton instead. A rail would be a second, different answer — confirm whether it is wanted.",
+    "A collapsed rail IS now drawn on the Sidebar artboard (HFP-0, 50px) and is not built, so below the breakpoint the Sidebar still compresses to Header.MenuButton. The two are different answers to the same question and both are now drawn — confirm which one a given layout should use.",
     "The bar's inline padding is a raw 20px, off the spacing scale, and the design's own mobile bar uses 12. Shipped as 16.",
     "No current state is drawn for a nav item; its fill is derived from --ui-bg-hover.",
   ],

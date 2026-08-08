@@ -381,3 +381,288 @@ describe("A disabled row is announced, not hidden", () => {
     expect(disabled.color).not.toBe(available.color);
   });
 });
+
+describe("The rail is two layers, and the second replaces the first", () => {
+  const profile = () => document.querySelector<HTMLButtonElement>('[data-slot="sidebar-profile"]')!;
+  const layer = () => document.querySelector<HTMLElement>('[data-slot="sidebar-layer"]');
+  const main = () => document.querySelector<HTMLElement>('[data-slot="sidebar-main"]');
+  const back = () => document.querySelector<HTMLButtonElement>('[data-slot="sidebar-layer-back"] button')!;
+
+  function Rail() {
+    return (
+      <Sidebar label="Primary">
+        <Sidebar.Main>
+          <Sidebar.Profile name="Jakub Otcenas" email="jakub@bydiorama.com" layer="profile" />
+          <Sidebar.Item href="/agent">Agent</Sidebar.Item>
+        </Sidebar.Main>
+        <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back to navigation">
+          <Sidebar.Heading>Select brand</Sidebar.Heading>
+          <Sidebar.Search label="Search brands" />
+          <Sidebar.Item href="/ohpen" isCurrent>Ohpen</Sidebar.Item>
+        </Sidebar.Layer>
+      </Sidebar>
+    );
+  }
+
+  test("the second layer REPLACES the navigation rather than covering it", async () => {
+    mount(<Rail />);
+    expect(main()).not.toBeNull();
+    expect(layer()).toBeNull();
+    await userEvent.click(profile());
+    // Both halves: the layer arrives AND the navigation goes. A layer that
+    // merely rendered on top would leave the rows beneath reachable by Tab.
+    expect(layer()).not.toBeNull();
+    expect(main()).toBeNull();
+    expect(document.querySelector('[data-slot="sidebar-item"]')?.textContent).toBe("Ohpen");
+  });
+
+  test("focus moves INTO the layer and comes back to the row that opened it", async () => {
+    mount(<Rail />);
+    const opener = profile();
+    await userEvent.click(opener);
+    // Otherwise a keyboard user presses the profile row and is left standing
+    // on a row that no longer exists — §10, focus is never lost.
+    await expect.poll(() => document.activeElement).toBe(back());
+    await userEvent.click(back());
+    await expect.poll(() => document.activeElement).toBe(profile());
+    expect(main()).not.toBeNull();
+  });
+
+  test("the back control is NAMED for where it returns to", async () => {
+    mount(<Rail />);
+    await userEvent.click(profile());
+    // "Back" alone leaves a screen-reader user to guess, and a rail may hold
+    // more than one layer — which is why backLabel is required.
+    expect(back().getAttribute("aria-label")).toBe("Back to navigation");
+  });
+
+  test("a controlled layer is the caller's alone", async () => {
+    mount(
+      <Sidebar label="Primary" layer={null}>
+        <Sidebar.Main>
+          <Sidebar.Profile name="Jakub" layer="profile" />
+        </Sidebar.Main>
+        <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back">
+          <Sidebar.Item href="/x">Brand</Sidebar.Item>
+        </Sidebar.Layer>
+      </Sidebar>,
+    );
+    await userEvent.click(profile());
+    expect(layer(), "the component must not open itself when the caller holds the state").toBeNull();
+  });
+
+  test("the profile row announces its parts and is a real button", () => {
+    mount(<Rail />);
+    expect(profile().tagName).toBe("BUTTON");
+    expect(profile().textContent).toContain("Jakub Otcenas");
+    expect(profile().textContent).toContain("jakub@bydiorama.com");
+    // Not aria-expanded: nothing expands. The rail swaps screens, so the row
+    // is navigation between two of them.
+    expect(profile().getAttribute("aria-expanded")).toBeNull();
+  });
+});
+
+describe("The rail's own controls", () => {
+  test("the email is readable ink, not the disabled role", () => {
+    const c = mount(
+      <Sidebar label="Primary">
+        <Sidebar.Main>
+          <Sidebar.Profile name="Jakub" email="jakub@bydiorama.com" />
+        </Sidebar.Main>
+      </Sidebar>,
+    );
+    const email = c.querySelector<HTMLElement>('[data-slot="sidebar-profile-email"]')!;
+    // The sheet drew --ui-text-disabled: 2.14:1 in light, 2.51:1 in dark. An
+    // address is CONTENT, so WCAG's disabled exemption does not apply.
+    // text-ink-muted measures 5.93 / 4.94. Corrected in Paper.
+    expect(getComputedStyle(email).color).toBe("rgb(105, 99, 93)");
+  });
+
+  test("the search field is LABELLED, and the placeholder is not the label", () => {
+    const c = mount(
+      <Sidebar label="Primary">
+        <Sidebar.Main>
+          <Sidebar.Search label="Search brands" />
+        </Sidebar.Main>
+      </Sidebar>,
+    );
+    const input = c.querySelector<HTMLInputElement>('input[type="search"]')!;
+    const labelled = c.querySelector<HTMLLabelElement>(`label[for="${CSS.escape(input.id)}"]`)!;
+    expect(labelled.textContent).toBe("Search brands");
+    expect(input.placeholder).toBe("Search");
+    // A placeholder disappears the moment anything is typed, taking the
+    // field's name with it (§10).
+    expect(input.getAttribute("aria-label")).toBeNull();
+  });
+
+  test("the search WRAPPER draws the ring, so the input can be outline-none", async () => {
+    const c = mount(
+      <Sidebar label="Primary">
+        <Sidebar.Main>
+          <Sidebar.Search label="Search brands" />
+        </Sidebar.Main>
+      </Sidebar>,
+    );
+    const field = c.querySelector<HTMLElement>('[data-slot="sidebar-search"]')!;
+    const input = c.querySelector<HTMLInputElement>('input[type="search"]')!;
+    expect(getComputedStyle(field).boxShadow).toBe("none");
+    input.focus();
+    await settled(field);
+    // focus-within on the wrapper is the ONE place outline-none on the inner
+    // control is safe (§6).
+    expect(getComputedStyle(field).boxShadow).not.toBe("none");
+  });
+
+  test("a Slot holds a control at the row inset and adds nothing to it", () => {
+    const c = mount(
+      <Sidebar label="Primary">
+        <Sidebar.Main>
+          <Sidebar.Slot>
+            <button type="button" data-testid="inner">Do a thing</button>
+          </Sidebar.Slot>
+        </Sidebar.Main>
+      </Sidebar>,
+    );
+    const slot = c.querySelector<HTMLElement>('[data-slot="sidebar-slot"]')!;
+    // No role, no tab stop, no click target of its own — whatever goes in
+    // keeps its own semantics.
+    expect(slot.getAttribute("role")).toBeNull();
+    expect(slot.getAttribute("tabindex")).toBeNull();
+    expect(slot.querySelector('[data-testid="inner"]')).not.toBeNull();
+  });
+});
+
+describe("A layer showing from the start does not steal focus", () => {
+  test("defaultLayer mounts the layer WITHOUT moving focus into it", () => {
+    mount(
+      <Sidebar label="Primary" defaultLayer="profile">
+        <Sidebar.Main>
+          <Sidebar.Profile name="Jakub" layer="profile" />
+        </Sidebar.Main>
+        <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back to navigation">
+          <Sidebar.Item href="/x">Ohpen</Sidebar.Item>
+        </Sidebar.Layer>
+      </Sidebar>,
+    );
+    expect(document.querySelector('[data-slot="sidebar-layer"]')).not.toBeNull();
+    // Focus follows a USER opening the layer, not the layer existing. A rail
+    // rendered with its second screen already showing must leave the page's
+    // focus where it was — the same rudeness as a menu that opens itself.
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  test("but a user-driven open still moves focus in", async () => {
+    mount(
+      <Sidebar label="Primary">
+        <Sidebar.Main>
+          <Sidebar.Profile name="Jakub" layer="profile" />
+        </Sidebar.Main>
+        <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back to navigation">
+          <Sidebar.Item href="/x">Ohpen</Sidebar.Item>
+        </Sidebar.Layer>
+      </Sidebar>,
+    );
+    await userEvent.click(document.querySelector<HTMLElement>('[data-slot="sidebar-profile"]')!);
+    await expect.poll(() => document.activeElement?.getAttribute("aria-label")).toBe("Back to navigation");
+  });
+});
+
+describe("Every label in the rail sits on ONE lane", () => {
+  test("row, heading, layer title, profile and search text all share a left edge", async () => {
+    const c = mount(
+      <Sidebar label="Primary" className="w-nav">
+        <Sidebar.Main>
+          <Sidebar.Profile name="Jakub Otcenas" email="jakub@bydiorama.com" layer="profile" avatar={<svg />} />
+          <Sidebar.Heading>Most recent</Sidebar.Heading>
+          <Sidebar.Search label="Search the workspace" />
+          <Sidebar.Item href="/agent">Agent</Sidebar.Item>
+          <Sidebar.Section label="Create" isCollapsible>
+            <Sidebar.Item href="/overview">Overview</Sidebar.Item>
+          </Sidebar.Section>
+        </Sidebar.Main>
+        <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back to navigation">
+          <Sidebar.Heading>Select brand</Sidebar.Heading>
+          <Sidebar.Item href="/ohpen">Ohpen</Sidebar.Item>
+        </Sidebar.Layer>
+      </Sidebar>,
+    );
+    const rail = c.querySelector<HTMLElement>('[data-slot="sidebar"]')!.getBoundingClientRect().left;
+    const lane = (el: Element) => Math.round(el.getBoundingClientRect().left - rail);
+
+    // The sheet measures ONE lane at 20px from the rail's edge, for every
+    // piece of text in it: row labels, the section heading, the layer title,
+    // the profile row's avatar and the search field's placeholder. Three of
+    // these shipped at 24 and 28 — "the indentation of various text classes"
+    // is exactly what that looks like from the outside.
+    const lanes = {
+      row: lane(c.querySelector('[data-slot="sidebar-item"] [data-slot="sidebar-text"]')!),
+      sectionLabel: lane(c.querySelector('[data-slot="sidebar-section-label"] [data-slot="sidebar-text"]')!),
+      heading: lane(c.querySelector('[data-slot="sidebar-heading"] [data-slot="sidebar-text"]')!),
+      profileAvatar: lane(c.querySelector('[data-slot="sidebar-profile-avatar"]')!),
+      searchText: lane(c.querySelector('[data-slot="sidebar-search"] input')!),
+    };
+    for (const [part, value] of Object.entries(lanes)) {
+      expect(value, `${part} is off the 20px lane`).toBe(20);
+    }
+
+    // The layer's own text is on the same lane, which is what makes the two
+    // screens read as one surface rather than two.
+    await userEvent.click(c.querySelector<HTMLElement>('[data-slot="sidebar-profile"]')!);
+    expect(lane(document.querySelector('[data-slot="sidebar-layer-title"] [data-slot="sidebar-text"]')!)).toBe(20);
+    expect(lane(document.querySelector('[data-slot="sidebar-heading"] [data-slot="sidebar-text"]')!)).toBe(20);
+    expect(lane(document.querySelector('[data-slot="sidebar-item"] [data-slot="sidebar-text"]')!)).toBe(20);
+  });
+
+  test("a boxed control sits 8px inside the text lane, as the field does", () => {
+    const c = mount(
+      <Sidebar label="Primary" className="w-nav">
+        <Sidebar.Main>
+          <Sidebar.Search label="Search" />
+          <Sidebar.Slot>
+            <button type="button" data-testid="inner">New chat</button>
+          </Sidebar.Slot>
+        </Sidebar.Main>
+      </Sidebar>,
+    );
+    const rail = c.querySelector<HTMLElement>('[data-slot="sidebar"]')!.getBoundingClientRect().left;
+    const lane = (el: Element) => Math.round(el.getBoundingClientRect().left - rail);
+    // A box, not a label: it shares the search field's edge so the two stack
+    // without a step between them.
+    expect(lane(c.querySelector('[data-slot="sidebar-search"]')!)).toBe(12);
+    expect(lane(c.querySelector('[data-testid="inner"]')!)).toBe(12);
+  });
+});
+
+describe("The search field is the sheet's field, measured", () => {
+  test("every drawn number, against node LFL-0 on the Sidebar artboard", () => {
+    const c = mount(
+      <Sidebar label="Primary" className="w-nav">
+        <Sidebar.Main>
+          <Sidebar.Search label="Search the workspace" />
+        </Sidebar.Main>
+      </Sidebar>,
+    );
+    const field = c.querySelector<HTMLElement>('[data-slot="sidebar-search"]')!;
+    const style = getComputedStyle(field);
+    // The sheet: height 40, radius-sm, px-sm, py-xs, gap-sm, bg-base, and a
+    // 1px OUTLINE rather than a border — the outline is why the placeholder
+    // lands on the same lane as every row label instead of 1px inside it.
+    expect(field.getBoundingClientRect().height).toBe(40);
+    expect(style.borderRadius).toBe("4px");
+    expect(style.paddingLeft).toBe("8px");
+    expect(style.paddingTop).toBe("4px");
+    expect(style.columnGap).toBe("8px");
+    expect(style.outlineStyle).toBe("solid");
+    expect(style.outlineWidth).toBe("1px");
+    expect(style.borderTopWidth).toBe("0px");
+
+    // The glyph is TRAILING, as the sheet orders its children — text, then
+    // icon — and sits in a 4px box of its own, which is what sets the field's
+    // right inset.
+    const input = field.querySelector<HTMLInputElement>("input")!;
+    const icon = field.querySelector("svg")!;
+    expect(input.getBoundingClientRect().left).toBeLessThan(icon.getBoundingClientRect().left);
+    expect(icon.getBoundingClientRect().width).toBe(16);
+    expect(getComputedStyle(icon.parentElement!).padding).toBe("4px");
+  });
+});

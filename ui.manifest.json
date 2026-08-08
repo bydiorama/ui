@@ -597,7 +597,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "use-controllable-state"
+        "use-controllable-state",
+        "chrome-control"
       ],
       "peerDependencies": [
         "react",

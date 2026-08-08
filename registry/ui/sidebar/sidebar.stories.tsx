@@ -3,6 +3,7 @@ import { ArrowLeft, Close, Search } from "griddy-icons";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
+import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Input } from "@/ui/input/input.tsx";
@@ -52,6 +53,71 @@ export const Matrix: Story = { render: () => <Rail /> };
  * the last holds a progress bar. None of those are navigation, and forcing
  * them through a link API would mean an <a> wrapping a form control.
  */
+/**
+ * The two layers the sheet draws: the navigation, and the profile screen the
+ * profile row leads to. The second REPLACES the first — on the narrow screen
+ * this rail lives on, a panel over a panel is two surfaces where the drawing
+ * has one.
+ */
+export const TwoLayers: Story = {
+  render: () => (
+    <div className="h-[640px] w-nav">
+      <Sidebar label="Primary" className="h-full">
+        <Sidebar.Main>
+          <Sidebar.Profile
+            name="Jakub Otcenas"
+            email="jakub@bydiorama.com"
+            layer="profile"
+            avatar={<Avatar name="Jakub Otcenas" size="sm" />}
+          />
+          <Sidebar.Item href="#agent">Agent</Sidebar.Item>
+          <Sidebar.Section label="Create" isCollapsible>
+            <Sidebar.Item href="#overview">Overview</Sidebar.Item>
+            <Sidebar.Item href="#logos">Logos</Sidebar.Item>
+            <Sidebar.Item href="#colors">Colors</Sidebar.Item>
+          </Sidebar.Section>
+          <Sidebar.Item href="#intelligence">Intelligence</Sidebar.Item>
+          <Sidebar.Item href="#library">Library</Sidebar.Item>
+          <Sidebar.Item href="#work">Work</Sidebar.Item>
+        </Sidebar.Main>
+
+        <Sidebar.Layer id="profile" title="Profile Settings" backLabel="Back to navigation">
+          <Sidebar.Heading>Select brand</Sidebar.Heading>
+          <Sidebar.Search label="Search brands" />
+          <Sidebar.Item href="#diorama">Diorama</Sidebar.Item>
+          <Sidebar.Item href="#prosight">Prosight</Sidebar.Item>
+          <Sidebar.Item href="#ohpen" isCurrent>Ohpen</Sidebar.Item>
+          <Sidebar.Item href="#gerulata">Gerulata</Sidebar.Item>
+          <Sidebar.Item href="#barani">BARANI</Sidebar.Item>
+          <Sidebar.Spacer />
+          <Sidebar.Item href="#admin">Admin</Sidebar.Item>
+          <Sidebar.Item href="#signout">Signout</Sidebar.Item>
+        </Sidebar.Layer>
+      </Sidebar>
+    </div>
+  ),
+};
+
+/** The rail's own controls: a search field, a slot holding a Button. */
+export const SearchAndSlots: Story = {
+  render: () => (
+    <div className="h-[420px] w-nav">
+      <Sidebar label="Primary" className="h-full">
+        <Sidebar.Main>
+          <Sidebar.Search label="Search the workspace" />
+          <Sidebar.Heading>Most recent</Sidebar.Heading>
+          <Sidebar.Item href="#a">What&apos;s our primary colour in CMYK</Sidebar.Item>
+          <Sidebar.Item href="#b">Please create a LinkedIn carousel post</Sidebar.Item>
+          <Sidebar.Spacer />
+          <Sidebar.Slot>
+            <Button size="md" isFullWidth>New chat</Button>
+          </Sidebar.Slot>
+        </Sidebar.Main>
+      </Sidebar>
+    </div>
+  ),
+};
+
 export const Slots: Story = {
   render: () => (
     <div className="h-[36rem] w-fit">

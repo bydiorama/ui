@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-08-sidebar-one-text-lane",
+  "date": "2026-08-08",
+  "item": "sidebar",
+  "kind": "visual",
+  "summary": "Every piece of text in the rail sits on ONE lane, 20px from its edge — measured in the sheet at worldX -813 against a rail at -833, for the row labels, the section heading, the layer title, the profile row's avatar and the search field's placeholder alike. Three new parts missed it: the heading and the layer title carried an extra px-sm and landed at 28, and the search field's text at 24. Reported as 'the indentation of various text classes', which is exactly what three lanes look like from the outside. The search field's edge is now an OUTLINE rather than a border, which is what the sheet draws and for a reason that only appears when measured: a border takes layout space, so the input's text landed 1px inside the lane while every other label sat on it. A browser test now measures every label's left edge against the rail and requires 20 — a relationship, not a coordinate, so it fails on any part that drifts off. Boxed controls (the field, a Slot's Button) share their own lane at 12, 8px inside the text one.",
+  "affects": ["item:sidebar", "slot:sidebar-heading", "slot:sidebar-layer-title", "slot:sidebar-search", "slot:sidebar-slot", "slot:sidebar-text"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HE2-0"
+  }
+}

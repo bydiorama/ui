@@ -529,7 +529,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/chrome-control"
       ],
       "files": [
         {

@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-header-current-recedes",
+  "date": "2026-08-09",
+  "item": "header",
+  "kind": "visual",
+  "summary": "The current page in a Header.Nav now RECEDES instead of being emphasised: no fill, ink stepped back to --ui-text-muted. You cannot navigate to the page you are on, so the items worth pointing at are the ones at full strength — an emphasised fill there spends the loudest thing in the bar on the least actionable item. FILL and INK become separate channels: fill answers the pointer, ink says where you are. Hover still applies to the current item ('hovering the current item did nothing at all' was the original defect and it stays fixed); the fill answers the pointer and the muted ink persists underneath it. This replaces the four-step fill ramp, and it dissolves that ramp's problem rather than tuning it: those four steps existed because hover and current shared bg-hover, then they inverted in dark because --ui-bg-elevated is a surface role and the surface scale inverts (hover 1.247 against the bar, current 1.210 — 1.031 apart and backwards). With one fill left there is no ramp to order, in either scheme. Measured: --ui-text-muted on the bar is 5.78:1 light / 6.47:1 dark, and 4.87:1 / 7.11:1 on the hover fill — both declared as contrast pairs, both clearing AA, because a receding label is still body text and WCAG exempts disabled controls rather than quiet ones. The browser test now asserts the two channels in both schemes rather than measuring a ramp. Two things recorded rather than decided: the hover fill is still `bg-elevated`, a surface role that is also the chrome control's resting fill, and moving it to `bg-hover` now costs one line; and Sidebar and NavRail still EMPHASISE their current row, which may or may not be intended — a rail is a persistent map, a bar is a short row you read across.",
+  "affects": [
+    "item:header",
+    "prop:Item.isCurrent",
+    "slot:header-item"
+  ],
+  "migration": {
+    "manual": "The current nav item loses its background and its label goes from primary to muted ink. Nothing to change at a call site — `isCurrent` is unchanged and still sets aria-current. If you styled around the current item's fill (an override, a screenshot baseline, a test pinning its backgroundColor), it is now transparent like every other resting item and the difference is in `color`."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0"
+  }
+}

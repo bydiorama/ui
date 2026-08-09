@@ -223,34 +223,37 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap no-underline",
         "text-ink-primary",
         "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-        // A four-step ramp, and it exists because the three-step one had a
-        // hole: hover and current were BOTH `bg-hover`, so the page you were
-        // on looked identical to the one under the pointer, and hovering the
-        // current item changed nothing at all. Sidebar never hit this because
-        // its rows step from 500 to 600 as well as filling; a 12px bold bar
-        // item has no weight left to spend.
+        // TWO CHANNELS, not one, and they are separate on purpose: FILL answers
+        // the pointer, INK says where you are.
         //
-        // The ramp then INVERTED in dark, and this file was not where the
-        // defect lived. `--ui-bg-elevated` raised 0.06 in dark against
-        // `bg-hover`'s 0.05, so the second rung overshot the third: measured
-        // against the bar, hover 1.247 and current 1.210 — the page you are on
-        // read QUIETER than the one under the pointer, 1.031 apart. The fix is
-        // in the resolver (elevation now stays inside the interaction ramp in
-        // both schemes) and the guarantee is `resolve.test.ts`'s fill-stack
-        // ordering test. Light was 1.079 / 1.188 / 1.434 throughout and never
-        // showed it, which is why the browser test below now measures the
-        // ORDER in both schemes rather than asserting the four fills differ —
-        // "differ" passes at 1.031.
+        // The current page RECEDES. It carries no fill and steps its ink back
+        // to muted, because you cannot go there — the items worth pointing at
+        // are the ones at full strength, and an emphasised fill on the page you
+        // are already on spends the loudest thing in the bar on the least
+        // actionable item.
         //
-        // The steps are mutually exclusive by CONSTRUCTION rather than by
-        // stylesheet order. `hover:bg-elevated` and `data-[current]:bg-hover`
-        // carry different modifiers, so tailwind-merge does not see them as
-        // conflicting, keeps both, and the winner falls to the order Tailwind
-        // happens to sort variants in — which is exactly what cn() exists to
-        // prevent. `not-data-[current]:` makes the question moot.
-        "not-data-[current]:hover:bg-elevated",
-        "data-[current]:bg-hover",
-        "data-[current]:hover:bg-active",
+        // This replaces a four-step FILL ramp, and it dissolves that ramp's
+        // whole problem rather than tuning it. Those four steps existed because
+        // hover and current shared a fill; then they INVERTED in dark, because
+        // `--ui-bg-elevated` raised 0.06 against `bg-hover`'s 0.05 and a
+        // surface role landed between two interaction ones (hover 1.247,
+        // current 1.210 against the bar — 1.031 apart, and backwards). That was
+        // a resolver defect and is fixed there. But with only ONE fill left
+        // there is no ramp to order, in either scheme, and nothing for the
+        // surface scale's inversion to catch.
+        //
+        // Hover applies to the current item too. "Hovering the current item did
+        // nothing at all" was the original defect and it stays fixed — the fill
+        // answers the pointer, the muted ink persists underneath it.
+        //
+        // The ink pair needs no `not-data-[current]:` guard the way the fills
+        // did. `data-[current]:text-ink-muted` compiles to a class-plus-
+        // attribute selector, which outranks the bare `text-ink-primary` by
+        // specificity rather than by the order Tailwind happens to sort
+        // variants in — and tailwind-merge keeps both, because their modifiers
+        // differ.
+        "hover:bg-elevated",
+        "data-[current]:text-ink-muted",
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
         className,
       ),

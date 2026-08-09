@@ -44,7 +44,12 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
       notes:
         "Item's props extend AnchorHTMLAttributes, so an external destination opens in a new tab through this API. They used to extend HTMLAttributes, which has none of these — the only way out was the `render` slot, which means writing the href twice and keeping the two copies in step. `type` is the one anchor attribute removed: on the button branch it is what stops a nav item submitting a form around it.",
     },
-    "Item.isCurrent": { type: "boolean", default: "false", notes: "Sets aria-current=\"page\" and takes the third step of a four-step fill ramp: rest is transparent, hover is bg-elevated, current is bg-hover, current+hover is bg-active. It shipped as THREE steps with hover and current both bg-hover, so the page you were on was indistinguishable from the one under the pointer and hovering the current item did nothing. Sidebar never hit this because its rows change weight too; a 12px bold bar item has none to spend. The four steps then INVERTED in dark — bg-elevated raised further than bg-hover there, so the current page read quieter than the item under the pointer, 1.031 apart. That was a resolver defect, not this component's: elevation now stays inside the interaction ramp in both schemes, and the ordering is asserted in resolve.test.ts and again in the browser at both schemes." },
+    "Item.isCurrent": {
+      type: "boolean",
+      default: "false",
+      notes:
+        "Sets aria-current=\"page\" and makes the item RECEDE: no fill, ink stepped back to muted. You cannot navigate to the page you are on, so the items worth pointing at are the ones at full strength — an emphasised fill there spends the loudest thing in the bar on the least actionable item. FILL and INK are separate channels: fill answers the pointer (hover, on the current item too), ink says where you are. This replaced a four-step fill ramp that was wrong twice — first with hover and current sharing bg-hover, so the page you were on looked like the one under the pointer; then as four steps that ordered correctly in light and INVERTED in dark, 1.031 apart and backwards, because bg-elevated is a surface role and the surface scale inverts. With one fill left there is no ramp to order, which is the point. NOTE the divergence: Sidebar and NavRail still EMPHASISE their current row (nav-active-bg). A rail is a persistent map where the current row anchors you; a bar is a short row you read across. Confirm whether that difference is intended.",
+    },
     "Item.icon": { type: "ReactElement", notes: "Slot: leading glyph, decorative." },
     "Item.trailing": { type: "ReactElement", notes: "Slot: the sheet puts a chevron here on its two menu items." },
     "MenuButton.label": {
@@ -66,7 +71,7 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
 
   dont: [
     "Do not wrap the whole bar in a nav. The banner holds more than navigation, and a landmark that contains everything helps nobody.",
-    "Do not convey the current page by fill alone — aria-current is what is announced.",
+    "Do not convey the current page by ink alone — aria-current is what is announced, and it is the channel a screen reader has.",
     "Do not render two Headers as siblings on one page. <header> is the BANNER landmark, a document may have exactly one, and axe fails on the second (landmark-no-duplicate-banner). A Header used as chrome inside a section is fine — the role only applies outside article/aside/main/nav/section.",
     "Do not treat NavRail as Sidebar collapsed. They are sibling components (ADR 0015) and a layout renders one or the other; below the breakpoint this bar's menu button carries the navigation instead.",
     "Do not put the mobile menu's panel here; that is a Sheet, and this bar only holds its trigger.",
@@ -82,10 +87,10 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
     target: "An item is a compact 24px control — SC 2.5.8's floor exactly rather than comfortably over it. See knownGaps.",
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-surface", floor: "text", role: "item labels on the bar" },
-      { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the menu button's glyph on its chrome fill" },
-      { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "a nav item's label on the hover fill — the ramp's second step, which is also the chrome control's resting fill" },
-      { fg: "--ui-text-primary", bg: "--ui-bg-hover", floor: "text", role: "the menu button's glyph while hovered, and a nav item's label while it is the current page" },
-      { fg: "--ui-text-primary", bg: "--ui-bg-active", floor: "text", role: "the current nav item's label while it is also hovered — the ramp's fourth step" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-surface", floor: "text", role: "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the menu button's glyph on its chrome fill, and a nav item's label on the hover fill" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-elevated", floor: "text", role: "the current item's label while it is hovered — the fill answers the pointer, the muted ink persists underneath it" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-hover", floor: "text", role: "the menu button's glyph while hovered" },
       { fg: "--ui-text-disabled", bg: "--ui-bg-sunken", floor: "decorative", why: "WCAG 1.4.3 exempts disabled controls, and a disabled chrome control has to read as unavailable — holding it to 4.5:1 would make it indistinguishable from an available one, which is the real failure. The chrome control has no doc of its own (it is a lib recipe), so its states are declared by the component that ships it.", role: "a disabled chrome control" },
     ],
   },
@@ -99,7 +104,8 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
   knownGaps: [
     "Header.Item forwards a ref so it can BE a Menu trigger — the sheet draws 'Create' and 'Work' as nav items that open a menu rather than navigate. Compose them as `<Menu.Trigger render={<Header.Item trailing={<ChevronDown/>}>Create</Header.Item>} />`; note the trigger's data-slot then wins over `header-item`, which is true of every render slot here.",
     "The sheet's bar uses a raw 20px inline padding, which is off the spacing scale entirely — and its own mobile drawing of the same bar uses 12. Shipped as px-lg (16); confirm with design.",
-    "The four-step current/hover ramp is DERIVED. The sheet draws every item in one state, so rest/hover/current/current+hover are this library's reading of the roles that exist; what the sheet settled is only that the two must differ. The ramp borrows a SURFACE role (bg-elevated) for its hover step — that is what the chrome control resting beside it in the same bar is filled with, and it is what let a dark-scheme derivation invert the whole ladder. Reading it from interaction roles would need a third one; the system has exactly two (`bg-hover`, `bg-active`) and `bg-selected` collides with `bg-hover` in theme zero's authored light map. Left as the sheet draws it, with the ordering now enforced at the token layer.",
+    "The hover fill is `bg-elevated`, a SURFACE role — which is also what the chrome control resting beside it in the same bar is filled with, so a hovered nav item and a resting menu button are the same colour. It was a fill RAMP's second step when that mattered; now that the current item carries no fill, hover is the only one and moving it to `bg-hover` — the role named for the job — costs nothing. Left as the sheet draws it; one line to change.",
+    "Current is conveyed by ink alone, plus aria-current. `--ui-text-muted` on the bar measures 5.78:1 light / 6.47:1 dark, so it is legible, but a reader with reduced colour discrimination has only the weight-free ink difference to go on visually. The bar has no weight left to spend (12px bold already), which is what ruled out the Sidebar's approach. If that proves too quiet, the channels available are a rule under the item or an opacity step — both drawn decisions, neither taken.",
     "No responsive behaviour of its own. The sheet draws a desktop bar and a mobile bar; which one shows is the caller's layout decision, not a prop.",
     "No sticky or scrolled state, no elevation change on scroll — none is drawn.",
   ],

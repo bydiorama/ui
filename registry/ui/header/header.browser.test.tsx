@@ -234,14 +234,16 @@ describe("Header paints the sheet's bar", () => {
     expect(trailing.getBoundingClientRect().height).toBe(16);
   });
 
-  test("current and resting items differ in FILL, not only in aria", () => {
+  test("current and resting items differ in INK, not only in aria", () => {
     mount(<Basic />);
-    const a = getComputedStyle(items()[2]!);
-    const b = getComputedStyle(items()[0]!);
+    const current = getComputedStyle(items()[2]!);
+    const resting = getComputedStyle(items()[0]!);
     // Asserted as a difference: equal values would pass while the two states
-    // silently converged into one.
-    expect(a.backgroundColor).not.toBe(b.backgroundColor);
-    expect(a.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    // silently converged into one. The channel is INK now — the current page
+    // recedes rather than being emphasised, so neither carries a fill.
+    expect(current.color).not.toBe(resting.color);
+    expect(current.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(resting.backgroundColor).toBe("rgba(0, 0, 0, 0)");
   });
 
   test("the focus ring is PAINTED on an item", async () => {
@@ -350,60 +352,61 @@ describe("the current page is not the item under the pointer", () => {
   }
 
   /**
-   * The four fills, in ORDER away from the bar — not merely four values.
+   * TWO CHANNELS, kept separate: fill answers the pointer, ink says where you
+   * are. Asserted in both schemes, because the surface scale inverts between
+   * them and every previous version of this test was wrong in exactly one.
    *
-   * This shipped twice. First as THREE steps: hover and current were both
-   * `bg-hover`, so the page you were on was indistinguishable from the one
-   * under the pointer. The four-step ramp fixed that in light and INVERTED in
-   * dark, because `bg-elevated` — a surface role borrowed for an interaction
-   * state — raised further than `bg-hover` there. Measured against the bar:
-   * light 1.079 / 1.188 / 1.434, dark 1.247 / 1.210 / 1.481. The second and
-   * third rungs were 1.031 apart and the wrong way round.
-   *
-   * The previous version of this test asserted the four fills DIFFER, and
-   * 1.031 is a difference — it passed against the bug in the scheme nobody
-   * opened. What separates the two is the ORDER, measured in both schemes.
+   * The state this replaced was a four-step FILL ramp. It shipped twice and
+   * was wrong twice: first as three steps, where hover and current shared
+   * `bg-hover` and the page you were on was indistinguishable from the one
+   * under the pointer; then as four, which ordered correctly in light and
+   * INVERTED in dark — hover 1.247, current 1.210 against the bar, 1.031 apart
+   * and backwards, because `bg-elevated` is a surface role and the surface
+   * scale inverts. With the current item carrying no fill at all there is one
+   * fill left and no ramp to order, which is why this test no longer measures
+   * one.
    */
   test.each(["light", "dark"] as const)(
-    "rest → hover → current → current+hover steps monotonically away from the bar — %s",
+    "the current page recedes in INK; the pointer is answered in FILL — %s",
     async (scheme) => {
       const c = mountIn(scheme);
       const bar = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="header"]')!).backgroundColor;
       const [plain, current] = Array.from(c.querySelectorAll<HTMLElement>('[data-slot="header-item"]'));
 
-      const rest = getComputedStyle(plain!).backgroundColor;
-      const currentRest = getComputedStyle(current!).backgroundColor;
+      // Neither item paints at rest. The current one is NOT emphasised with a
+      // fill — that is the change, and asserting it here is what stops the old
+      // ramp creeping back.
+      expect(getComputedStyle(plain!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+      expect(getComputedStyle(current!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
 
+      // It recedes instead: muted ink, and quieter against the bar than a
+      // resting item. Asserted as a RELATIONSHIP rather than as two hexes,
+      // because two roles that silently converged would pass a hex check.
+      const restInk = getComputedStyle(plain!).color;
+      const currentInk = getComputedStyle(current!).color;
+      expect(currentInk).not.toBe(restInk);
+      expect(
+        contrast(currentInk, bar),
+        `${scheme}: the current item's ink is not quieter than a resting item's`,
+      ).toBeLessThan(contrast(restInk, bar));
+      // Quieter, never illegible — muted ink is body text and WCAG exempts
+      // disabled controls, not quiet ones.
+      expect(contrast(currentInk, bar), `${scheme}: current ink under AA`).toBeGreaterThanOrEqual(4.5);
+
+      // Hover answers the pointer on BOTH — "hovering the current item did
+      // nothing at all" was the original defect and it stays fixed.
       await userEvent.hover(plain!);
       await settled(plain!);
-      const hover = getComputedStyle(plain!).backgroundColor;
+      const hoverFill = getComputedStyle(plain!).backgroundColor;
+      expect(hoverFill).not.toBe("rgba(0, 0, 0, 0)");
+      expect(contrast(hoverFill, bar), `${scheme}: the hover fill is invisible`).toBeGreaterThanOrEqual(1.04);
 
       await userEvent.hover(current!);
       await settled(current!);
-      const currentHover = getComputedStyle(current!).backgroundColor;
-
-      // Rest paints nothing at all — the bar shows through.
-      expect(rest).toBe("rgba(0, 0, 0, 0)");
-
-      const steps = [
-        ["hover", hover],
-        ["current", currentRest],
-        ["current+hover", currentHover],
-      ] as const;
-      const away = steps.map(([, fill]) => contrast(fill, bar));
-
-      // Every rung further from the bar than the last, with a real gap. A
-      // strictly-greater check would pass at 1.001.
-      const SEPARATION = 1.04;
-      for (const [i, [label, fill]] of steps.entries()) {
-        const previous = i === 0 ? 1 : away[i - 1]!;
-        expect(
-          away[i]!,
-          `${scheme}: ${label} (${fill}, ${away[i]!.toFixed(3)} from the bar) does not step past ${
-            i === 0 ? "the bar" : steps[i - 1]![0]
-          } (${previous.toFixed(3)})`,
-        ).toBeGreaterThanOrEqual(previous * SEPARATION);
-      }
+      expect(getComputedStyle(current!).backgroundColor).toBe(hoverFill);
+      // And the ink stays muted underneath it: hovering does not promote the
+      // page you are already on.
+      expect(getComputedStyle(current!).color).toBe(currentInk);
     },
   );
 });

@@ -561,12 +561,12 @@
       "role": "item labels on the bar"
     },
     {
-      "fg": "--ui-text-primary",
-      "bg": "--ui-bg-elevated",
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
       "floor": "text",
-      "light": 15.53,
-      "dark": 11.2,
-      "role": "the menu button's glyph on its chrome fill"
+      "light": 5.78,
+      "dark": 6.47,
+      "role": "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones"
     },
     {
       "fg": "--ui-text-primary",
@@ -574,7 +574,15 @@
       "floor": "text",
       "light": 15.53,
       "dark": 11.2,
-      "role": "a nav item's label on the hover fill — the ramp's second step, which is also the chrome control's resting fill"
+      "role": "the menu button's glyph on its chrome fill, and a nav item's label on the hover fill"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.78,
+      "role": "the current item's label while it is hovered — the fill answers the pointer, the muted ink persists underneath it"
     },
     {
       "fg": "--ui-text-primary",
@@ -582,15 +590,7 @@
       "floor": "text",
       "light": 14.11,
       "dark": 10.38,
-      "role": "the menu button's glyph while hovered, and a nav item's label while it is the current page"
-    },
-    {
-      "fg": "--ui-text-primary",
-      "bg": "--ui-bg-active",
-      "floor": "text",
-      "light": 11.68,
-      "dark": 8.48,
-      "role": "the current nav item's label while it is also hovered — the ramp's fourth step"
+      "role": "the menu button's glyph while hovered"
     },
     {
       "fg": "--ui-text-disabled",

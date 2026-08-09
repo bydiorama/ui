@@ -852,7 +852,7 @@
       "fg": "--ui-bg-accent-legible",
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
-      "light": 3.61,
+      "light": 3.07,
       "dark": 10.07,
       "role": "the fill against its track"
     },
@@ -956,7 +956,7 @@
       "fg": "--ui-bg-accent-legible",
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
-      "light": 3.61,
+      "light": 3.07,
       "dark": 10.07,
       "role": "the THUMB's ring against the track — the thumb is what identifies the control and marks the value, so this is the pair SC 1.4.11 turns on"
     },
@@ -964,7 +964,7 @@
       "fg": "--ui-bg-accent-legible",
       "bg": "--ui-bg-base",
       "floor": "non-text",
-      "light": 4.39,
+      "light": 3.73,
       "dark": 7,
       "role": "the thumb's ring against the thumb's own white fill — a ring that vanishes into the thumb identifies nothing either"
     },
@@ -997,7 +997,7 @@
       "fg": "--ui-bg-accent-legible",
       "bg": "--ui-bg-base",
       "floor": "non-text",
-      "light": 4.39,
+      "light": 3.73,
       "dark": 7,
       "role": "the ON track against the page"
     },
@@ -1122,22 +1122,6 @@
       "light": 9.65,
       "dark": 4.57,
       "role": "the same row's other lanes"
-    },
-    {
-      "fg": "--ui-bg-accent-legible",
-      "bg": "--ui-bg-accent-subtle",
-      "floor": "non-text",
-      "light": 3.55,
-      "dark": 4.86,
-      "role": "the selected row's 3px leading edge — the wash alone is colour, and this is the row's own non-colour cue"
-    },
-    {
-      "fg": "--ui-bg-accent-legible",
-      "bg": "--ui-bg-accent-subtle-hover",
-      "floor": "non-text",
-      "light": 3.06,
-      "dark": 4.05,
-      "role": "the same edge against the hovered wash. The edge is hidden while the pointer is on the row, so this is the pair a keyboard-driven hover or a stalled transition can still land on"
     },
     {
       "fg": "--ui-focus-ring-color",

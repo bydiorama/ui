@@ -32,7 +32,7 @@ export const tableDoc = {
     { part: "body", slot: "table-body", notes: "The <tbody>. Carries aria-busy while loading." },
     { part: "row", slot: "table-row", notes: "A <tr>. Carries data-state selected/default, data-disabled, the press target and the focus ring — but NOT the fill, the divider or the corners. Those are on its cells: a <tr> renders no border-radius in either border model, and the separate model ignores a border on a row." },
     { part: "select-all", slot: "table-select-all", notes: "The header's select lane. Holds a Checkbox whose mixed state resolves to ALL." },
-    { part: "select-row", slot: "table-select-row", notes: "A row's select lane. Also draws the selected row's 3px leading edge, which is dropped while the row is hovered so the wash is the only thing changing under the pointer." },
+    { part: "select-row", slot: "table-select-row", notes: "A row's select lane. Holds the row's own Checkbox, which is the non-colour half of what a selected row communicates." },
     { part: "cell", slot: "table-cell", notes: "A <td>. Primary ink and medium weight on the primary column, secondary and regular elsewhere. Also carries the row's fill and hover/press states, the 1px bg-elevated divider, and — on the first row's outer two cells — the radius-md top corners." },
     { part: "loading row", slot: "table-loading-row", notes: "A placeholder row at the real row's height, in the real lanes." },
     { part: "skeleton", slot: "table-skeleton", notes: "A 10px sunken bar. Widths ripple deterministically by row and column — a visual baseline has to be reproducible." },
@@ -168,7 +168,7 @@ Table<Row>
     focus:
       "Each control owns its own indicator. The ROW additionally draws a 2px inset outline whenever a control inside it has focus-visible, which is what the sheet's focus row is describing — it says which row you are standing in while tabbing down a column of checkboxes. An outline rather than a box-shadow, so it survives forced-colors mode.",
     selection:
-      "Rows are not tab stops and carry no aria-selected. Everything a row does is reachable from the checkbox inside it, and aria-selected on a row is only meaningful inside role=\"grid\" — which would mean full APG grid navigation, not an attribute. A mixed select-all resolves to ALL, never to none: at three of eight chosen, 'the rest too' is the far more common intent and the undo for guessing wrong is eight clicks.",
+      "A selected row is its wash plus its checked box — no leading edge, no marker. Rows are not tab stops and carry no aria-selected. Everything a row does is reachable from the checkbox inside it, and aria-selected on a row is only meaningful inside role=\"grid\" — which would mean full APG grid navigation, not an attribute. A mixed select-all resolves to ALL, never to none: at three of eight chosen, 'the rest too' is the far more common intent and the undo for guessing wrong is eight clicks.",
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-surface", floor: "text", role: "the primary column's ink on a resting row" },
       { fg: "--ui-text-secondary", bg: "--ui-bg-surface", floor: "text", role: "every other column's ink on a resting row" },
@@ -183,18 +183,6 @@ Table<Row>
       { fg: "--ui-text-secondary", bg: "--ui-bg-accent-subtle", floor: "text", role: "the selected row's other lanes" },
       { fg: "--ui-text-primary", bg: "--ui-bg-accent-subtle-hover", floor: "text", role: "the selected row under the pointer" },
       { fg: "--ui-text-secondary", bg: "--ui-bg-accent-subtle-hover", floor: "text", role: "the same row's other lanes" },
-      {
-        fg: "--ui-bg-accent-legible",
-        bg: "--ui-bg-accent-subtle",
-        floor: "non-text",
-        role: "the selected row's 3px leading edge — the wash alone is colour, and this is the row's own non-colour cue",
-      },
-      {
-        fg: "--ui-bg-accent-legible",
-        bg: "--ui-bg-accent-subtle-hover",
-        floor: "non-text",
-        role: "the same edge against the hovered wash. The edge is hidden while the pointer is on the row, so this is the pair a keyboard-driven hover or a stalled transition can still land on",
-      },
       {
         fg: "--ui-focus-ring-color",
         bg: "--ui-bg-surface",
@@ -232,7 +220,7 @@ Table<Row>
     "sm is annotated 'radius-md 8' and painted radius-lg, like md and lg. Shipped uniform at radius-lg.",
     "The inner radius is drawn at 12px, which is off the --ui-radius-* scale (4/8/16/24/32). Shipped as calc(radius-lg - space-xs) on a clipping node of its own, which is the concentric arithmetic and lands on 12 exactly. Confirm, or put 12 on the scale.",
     "The first data row is drawn with radius-md top corners while the header above it and the last row below it are drawn at 12px — three different corner values in one frame. All three ship as drawn.",
-    "The selected row's '3px accent-legible edge' is annotated and never painted. Shipped, because the wash on its own is colour and the row otherwise has no second channel.",
+    "The selected row's '3px accent-legible edge' is annotated in the gutter and never painted. NOT shipped: selection is only reachable through the select lane, so a selected row always carries a checked box, which is the non-colour channel SC 1.4.1 asks for. Building it also floored --ui-bg-accent-legible against the accent wash and darkened the Switch, the Slider, Progress and ImageUpload — a table row costing four other components a shade. Confirm the annotation is stale.",
     "The disabled row is annotated text-disabled, which measures 2.09:1 in light. WCAG exempts an inactive CONTROL's label; a row's DATA is content. Shipped at text-muted, the quietest ink that clears AA here.",
     "The checkbox is scaled 16/18/20 with radii 4/4/5 across the three sizes, and the Checkbox sheet defines exactly one 18px box at radius-sm — 5px is off the radius scale. Shipped at 18 everywhere. If Checkbox should grow a size axis that is Checkbox's change, with its own sheet.",
     "The gap between a header label and its sort arrow is 6px, which is off the spacing scale (4/8/12). Shipped at space-xs.",
@@ -245,7 +233,7 @@ Table<Row>
   knownGaps: [
     "The row fill, the divider and the first row's corners live on the CELLS, not the row. A consumer styling the table-row slot with a background paints behind the cells and sees nothing; reach for the table-cell slot instead.",
     "With `rows` empty and no `empty` passed, the body is one blank row at the lane widths. That is deliberate — the frame never collapses — but it says nothing, so pass an EmptyState.",
-    "The selected row's leading edge is hidden while the row is hovered. Selection still carries a non-colour cue there — the checkbox is checked — but the edge itself is a hover-dependent affordance, which no other component here has.",
+    "A selected row is distinguished by its wash and by its checked box, and by nothing else. There is no leading edge or marker; a consumer who needs one adds it to a cell through the table-cell slot.",
     "Table sorts and filters nothing. `onSortChange` reports the intent; ordering the rows is the caller's.",
     "Row selection has no shift-click range. The checkbox and the row press each toggle one row.",
     "The row press has no keyboard counterpart of its own — the checkbox inside the row is that path. There is no way to activate a row from the keyboard without moving to its checkbox first.",

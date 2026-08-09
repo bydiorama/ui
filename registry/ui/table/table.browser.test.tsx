@@ -498,7 +498,7 @@ describe("selection", () => {
     expect(onSelectionChange).toHaveBeenLastCalledWith(["tschichold"]);
   });
 
-  test("a selected row is washed AND edged — the wash alone is colour", () => {
+  test("a selected row is washed, and the CHECKBOX is what makes that not colour alone", () => {
     const { rows } = mount(<Table {...selectable} defaultSelectedIds={["tschichold"]} />);
     const selected = rows[0]!;
 
@@ -507,28 +507,23 @@ describe("selection", () => {
         .backgroundColor,
     ).toBe(tokenColor("--ui-bg-accent-subtle"));
 
-    const lane = selected.querySelector<HTMLElement>('[data-slot="table-select-row"]')!;
-    const edge = getComputedStyle(lane, "::before");
-    expect(edge.width).toBe("3px");
-    expect(edge.backgroundColor).toBe(tokenColor("--ui-bg-accent-legible"));
+    // SC 1.4.1 is satisfied by the checked box, not by a second colour: the
+    // wash is the only place this component spends colour, and selection is
+    // only reachable at all when the select lane exists.
+    expect(selected.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked).toBe(true);
   });
 
-  test("the edge is dropped while the row is HOVERED", async () => {
+  test("no row draws a leading edge, in any state", () => {
+    // Pinned because one existed. The sheet ANNOTATES a 3px accent-legible
+    // edge and never paints it, and shipping the annotation floored
+    // --ui-bg-accent-legible against the accent wash — darkening the Switch,
+    // the Slider, Progress and ImageUpload, none of which are tables.
     const { rows } = mount(<Table {...selectable} defaultSelectedIds={["tschichold"]} />);
-    const lane = rows[0]!.querySelector<HTMLElement>('[data-slot="table-select-row"]')!;
-
-    expect(getComputedStyle(lane, "::before").display).not.toBe("none");
-    await userEvent.hover(hoverTarget(rows[0]!));
-    await settled(rows[0]!);
-    expect(getComputedStyle(lane, "::before").display).toBe("none");
-    // The row still carries a cue that is not colour: its checkbox is checked.
-    expect(rows[0]!.querySelector<HTMLInputElement>('input[type="checkbox"]')!.checked).toBe(true);
-  });
-
-  test("an unselected row draws no edge at all", () => {
-    const { rows } = mount(<Table {...selectable} defaultSelectedIds={["tschichold"]} />);
-    const lane = rows[1]!.querySelector<HTMLElement>('[data-slot="table-select-row"]')!;
-    expect(getComputedStyle(lane, "::before").content).toBe("none");
+    for (const row of rows) {
+      for (const cell of [...row.children] as HTMLElement[]) {
+        expect(getComputedStyle(cell, "::before").content).toBe("none");
+      }
+    }
   });
 
   test("there is no select lane, and no press, when selection is off", async () => {

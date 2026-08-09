@@ -470,11 +470,13 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // decoration. `text-secondary` on `sunken` had never been measured: the two
   // inks audited on that well are primary and muted.
   ["--ui-text-secondary", "--ui-bg-sunken"],
-  // The selected TABLE ROW's leading edge, against the wash it is drawn on.
-  // The wash alone is colour, and colour alone is what SC 1.4.1 is about; the
-  // edge is the row's own non-colour cue, so it has to be identifiable.
-  ["--ui-bg-accent-legible", "--ui-bg-accent-subtle"],
-  ["--ui-bg-accent-legible", "--ui-bg-accent-subtle-hover"],
+  // NOT here: `--ui-bg-accent-legible` against the accent washes. A selected
+  // table row was briefly drawn with a 3px leading edge in that role, and
+  // listing the pair floored the token against the WASH as well as the sunken
+  // well — which darkened the Switch track, the Slider fill, the Progress fill
+  // and ImageUpload's, none of which had anything to do with a table. The edge
+  // is gone and so is the pair: a pair nothing renders is not a safety net, it
+  // is a constraint on every component that does render the role.
   // A focus ring drawn INSIDE a table row. Every ring pair here measured
   // against `bg-base`, and a row is `bg-surface` — one step off the page, and
   // the step is in the direction that costs contrast in light.

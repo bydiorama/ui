@@ -329,17 +329,6 @@ export function Table<Row>({
       options.isFirst && options.isTrailing && "rounded-tr-md",
     );
 
-  /**
-   * The selected row's leading edge.
-   *
-   * Dropped while the row is HOVERED: the wash changes under the pointer and
-   * the edge on top of it reads as a second, competing change. The row keeps a
-   * non-colour cue throughout — its checkbox is checked — so nothing depends
-   * on the edge being there for the moment the pointer is on it.
-   */
-  const selectedEdge =
-    "before:absolute before:inset-y-0 before:left-0 before:w-0.75 before:bg-accent-legible before:content-[''] group-hover/row:before:hidden";
-
   return (
     <div
       ref={ref}
@@ -599,7 +588,7 @@ export function Table<Row>({
                     <td
                       data-slot="table-select-row"
                       className={cn(
-                        "relative align-middle",
+                        "align-middle",
                         metrics.pl,
                         rowSurface({
                           isSelected,
@@ -609,7 +598,6 @@ export function Table<Row>({
                           isLeading: true,
                           isTrailing: false,
                         }),
-                        isSelected && selectedEdge,
                       )}
                     >
                       <Checkbox
@@ -635,7 +623,7 @@ export function Table<Row>({
                         key={column.key}
                         data-slot="table-cell"
                         className={cn(
-                          "relative align-middle leading-normal tracking-normal",
+                          "align-middle leading-normal tracking-normal",
                           padding(index),
                           rowSurface({
                             isSelected,
@@ -659,9 +647,6 @@ export function Table<Row>({
                               : "text-ink-secondary",
                           isEnd && "text-right",
                           column.isNumeric && "tabular-nums",
-                          // With no select lane the edge lands on the first
-                          // data cell instead.
-                          isSelected && !isSelectable && index === 0 && selectedEdge,
                         )}
                       >
                         {column.cell(row)}

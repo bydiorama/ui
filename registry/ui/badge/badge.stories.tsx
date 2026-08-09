@@ -21,10 +21,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const VARIANTS = ["selected", "unselected", "success", "danger", "warning"] as const;
+const VARIANTS = ["selected", "unselected", "neutral", "success", "danger", "warning"] as const;
 const LABELS = {
   selected: "Selected",
   unselected: "Unselected",
+  // Categorical data with no intent — the commonest badge in an admin table.
+  neutral: "Consulting",
   success: "Ready",
   danger: "Failed",
   warning: "Warning",
@@ -99,6 +101,60 @@ export const WithTrailingSlot: Story = {
       </Row>
     </div>
   ),
+};
+
+/**
+ * Where the neutral variant actually lives: an admin table's category columns.
+ *
+ * The composition matters, not the swatch. A badge in a table sits on a
+ * `bg-surface` row inside a `bg-elevated` mat — one step further from the page
+ * than the panels every other story mounts on — and `neutral`'s `bg-sunken`
+ * fill measures 1.188:1 against that row in light but only 1.098:1 in dark,
+ * where the tinted status variants sit at 1.201 and 1.629. Drawn side by side
+ * in both schemes so the difference is a thing you look at rather than a
+ * number in a doc. See the doc's needsDesign.
+ */
+export const InATableRow: Story = {
+  render: () => {
+    const ROWS = [
+      { name: "ssleek", industry: "Technology", type: "Startup", state: "Ready" },
+      { name: "Everkind", industry: "Consulting", type: "Scale-up", state: "Failed" },
+      { name: "nurossi", industry: "Manufacturing", type: "Enterprise", state: "Warning" },
+    ] as const;
+    const STATE = { Ready: "success", Failed: "danger", Warning: "warning" } as const;
+    const Table = ({ style, title }: { style: React.CSSProperties; title: string }) => (
+      // `bg-base` on the themed wrapper, not just the tokens: a scheme-pinned
+      // subtree with no ground of its own puts dark ink on the story's white
+      // page, which is a contrast failure the story invents rather than one
+      // the component has.
+      <div style={style} className="flex-1 rounded-lg bg-base p-xl">
+        <p className="pb-md text-caption text-ink-muted">{title}</p>
+        <div className="rounded-lg border border-edge-subtle bg-elevated p-xs">
+          {ROWS.map((row, i) => (
+            <div
+              key={row.name}
+              className={`flex items-center gap-md bg-surface px-md py-sm text-label-sm text-ink-primary ${
+                i < ROWS.length - 1 ? "border-b border-b-elevated" : ""
+              }`}
+            >
+              <span className="w-24 shrink-0 font-medium">{row.name}</span>
+              <Badge variant="neutral">{row.industry}</Badge>
+              <Badge variant="neutral">{row.type}</Badge>
+              <span className="flex-1" />
+              <Badge variant={STATE[row.state]}>{row.state}</Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    const pair = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+    return (
+      <div className="flex gap-xl">
+        <Table style={{ ...toStyleObject(pair, "light"), colorScheme: "light" } as React.CSSProperties} title="light" />
+        <Table style={{ ...toStyleObject(pair, "dark"), colorScheme: "dark" } as React.CSSProperties} title="dark" />
+      </div>
+    );
+  },
 };
 
 const STRESS_BRAND: ThemeSeed = {

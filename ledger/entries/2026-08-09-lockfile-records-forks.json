@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-lockfile-records-forks",
+  "date": "2026-08-09",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The consumer lockfile now RECORDS a local fork instead of only warning about one, and ADR 0010 stops contradicting Input. Two pieces of contract hygiene from the same consumer review. (1) `lock` already detected a file whose installed content diverged from the registry and printed '⚠ diverges from registry', but the warning went to a terminal while `files` recorded the fork's OWN hash — so from the next command onward a fork was indistinguishable from a clean install, and `sync` reported it as `stale`, the same word a clean install gets when upstream moves. One reads as 'run the update', the other as 'you will lose work'; they printed the same, and a consumer's Badge fork was overwritten across two syncs with every check green. LockedItem gains `forked`: the target mapped to the hash the REGISTRY shipped for it at lock time. The upstream hash is the second half and not decoration — `files[target]` is the fork, so 'has the thing I forked changed underneath me?' has no baseline without it, and that is the question deciding whether a fork still needs carrying. `sync` gains `forked` and `forked-and-stale` statuses and names the affected files ('re-installing this item OVERWRITES: ...'). A fork the registry has since adopted reads as `current`: the flag is a claim about divergence, not a permanent label. (2) ADR 0010 point 3 said --ui-border-control 'currently has no consumer — that is its job, not a defect', which outlived its truth: it ships in Button's outline ring, Checkbox's unchecked box, Multiselect's option box and Switch's hovered off-track, none of them a form-conformance engagement. Read against Input shipping border-subtle, the two descriptions appeared to contradict each other. The ADR gains a § 'Which token an edge takes' stating the actual rule — is this boundary the only thing identifying the control? — and it is now the ONLY place that rule is written; contract.ts defers to it instead of half-restating it, and Input declares its resting hairline as a measured decorative pair so the knowing trade against SC 1.4.11 is a number in check:contrast rather than an absence.",
+  "affects": [
+    "decision:0010-border-stack",
+    "token:--ui-border-control",
+    "token:--ui-border-subtle",
+    "item:input"
+  ],
+  "migration": {
+    "manual": "An existing ui.lock.json stays valid — `forked` is optional and absent means 'no forks recorded'. To pick up the flag for a fork you already carry, re-run `lock <item> --revision <sha>`: it re-detects the divergence and writes it down. Nothing changes for a component; the Input change is documentation of an existing decision, not a new value."
+  }
+}

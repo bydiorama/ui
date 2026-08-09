@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
-import type { ReactElement } from "react";
+import type { CSSProperties, ReactElement } from "react";
 
 import { Avatar } from "./avatar.tsx";
 
@@ -99,29 +99,113 @@ describe("Avatar rendering", () => {
   });
 
   /**
-   * The sheet's hairline, which the component did not have before this pass.
+   * A lone avatar wears NO edge, and that is the fix rather than an omission.
    *
-   * Two ways this fails silently and neither is visible in the source. The
-   * width and the colour are BOTH `outline-*` utilities, so tailwind-merge can
-   * classify one as the other and delete it — the exact shape of the
-   * `text-button-sm` bug. And an outline whose style resolves to `none` paints
-   * nothing at any width, which is how Button's focus ring disappeared. So
-   * assert all three parts, not the ring's existence.
+   * It used to carry a full-perimeter hairline in the page's colour — which is
+   * what shadcn, MUI, Atlassian and Flowbite all ship, and what all of them
+   * have filed against them (MUI #21700). Three of that ring's four sides
+   * never touch another avatar: they sit on the ground claiming to BE the
+   * ground, and are wrong the moment the avatar is on a card. Separating two
+   * overlapping avatars is the GROUP's job, and it does it on one edge.
    */
-  test("the frame draws the sheet's 1.5px inset hairline", () => {
-    const { frame } = mount(<Avatar name="X Y" />);
-    const style = getComputedStyle(frame);
+  test("a lone avatar has no ring at all — there is nothing behind it", () => {
+    const { frame, avatar } = mount(<Avatar name="X Y" />);
+    for (const part of [avatar, frame]) {
+      const style = getComputedStyle(part);
+      // `none` OR zero width — either way nothing paints. Asserted both ways
+      // because an outline with a colour and no style is the failure mode that
+      // shipped once already (Button's focus ring).
+      expect(style.outlineStyle === "none" || style.outlineWidth === "0px").toBe(true);
+      expect(style.boxShadow).toBe("none");
+    }
+  });
+});
 
+/**
+ * The seam: painted on ONE edge, only inside a group, and only where it lands
+ * on another avatar.
+ *
+ * The version this replaced put a full-perimeter ring in `bg-surface` on every
+ * avatar — the industry-standard implementation, and the industry-standard bug
+ * with it (MUI #21700, and the same code in shadcn, Atlassian and Flowbite).
+ * Three of that ring's four sides sit on the ground claiming to BE it, which
+ * is a visible mismatched rim on a card (#FDFCFB on #F6F3F0) and pure
+ * liability on a lone avatar, where there is nothing behind it at all.
+ *
+ * Primer's insight is the fix: paint the seam only where it does work. Here it
+ * is the LEADING edge — the one that lands on top of the avatar beneath it —
+ * which under DOM-order stacking needs no z-index inversion, unlike Primer's
+ * trailing border.
+ */
+describe("the seam is painted where it does work, and nowhere else", () => {
+  function group(style?: CSSProperties) {
+    return mount(
+      <div style={style}>
+        <Avatar.Group max={2} overflowLabel="1 more person">
+          <Avatar name="Mira Vance" status="success" statusLabel="Online" />
+          <Avatar name="Peter Roth" />
+          <Avatar name="Dana Ilic" />
+        </Avatar.Group>
+      </div>,
+    );
+  }
+
+  test("the first child carries no seam; every other child does", () => {
+    const { container: c } = group();
+    const stacked = [
+      ...c.querySelectorAll<HTMLElement>('[data-slot="avatar"]'),
+      c.querySelector<HTMLElement>('[data-slot="avatar-overflow"]')!,
+    ];
+    expect(stacked).toHaveLength(3);
+
+    // Nothing to separate from on the left of the first one.
+    expect(getComputedStyle(stacked[0]!).boxShadow).toBe("none");
+    for (const part of stacked.slice(1)) {
+      const shadow = getComputedStyle(part).boxShadow;
+      expect(shadow, "a stacked child needs a leading seam").not.toBe("none");
+      // Offset toward the LEADING edge and nowhere else: no blur, no spread,
+      // so it is a copy of the shape rather than a glow. A positive x here
+      // would put the seam on the ground instead of on the avatar beneath.
+      expect(shadow).toContain("-1.5px 0px 0px 0px");
+      // The surface by default, from the var()'s fallback.
+      expect(shadow).toContain("rgb(253, 252, 251)");
+    }
+  });
+
+  test("the seam sits INSIDE the overlap, so it never reaches the ground", () => {
+    const { container: c } = group();
+    const [first, second] = [...c.querySelectorAll<HTMLElement>('[data-slot="avatar"]')];
+    const a = first!.getBoundingClientRect();
+    const b = second!.getBoundingClientRect();
+    // Overlap is 4px and the seam extends 1.5px back from the leading edge —
+    // the whole seam is over the avatar beneath. This is the property that
+    // makes the ground irrelevant, so it is asserted as a relationship rather
+    // than left to the two constants agreeing by luck.
+    const overlap = a.right - b.left;
+    expect(overlap).toBeCloseTo(4, 1);
+    expect(overlap).toBeGreaterThan(1.5);
+  });
+
+  test("a container rebinds one value and the seam follows", () => {
+    const { container: c } = group({ "--ui-avatar-ring-color": "var(--ui-bg-elevated)" } as CSSProperties);
+    const second = [...c.querySelectorAll<HTMLElement>('[data-slot="avatar"]')][1]!;
+    // The same escape hatch every library lands on — it now governs a 1.5px
+    // sliver rather than every avatar's whole perimeter.
+    expect(getComputedStyle(second).boxShadow).toContain("rgb(246, 243, 240)");
+  });
+
+  test("the status dot keeps an opaque ring — a cut-out there would show the photo", () => {
+    const { container: c } = mount(
+      <Avatar name="Mira Vance" src="/photo.jpg" status="success" statusLabel="Online" />,
+    );
+    const dot = c.querySelector<HTMLElement>('[data-slot="avatar-status"]')!;
+    const style = getComputedStyle(dot);
     expect(style.outlineStyle).toBe("solid");
-    // 1px and -1px, not 1.5 — BOTH halves of an outline snap to whole device
-    // pixels, exactly as border-width does, and the test browser runs at
-    // dPR 1. That is the platform, not a lost class;
-    // `border-hairline.browser.test.tsx` pins it for outline as well as
-    // border so it is not re-investigated. At dPR 2 both are exact.
-    expect(style.outlineWidth).toBe("1px");
-    expect(style.outlineOffset).toBe("-1px");
-    // --ui-bg-surface in light. A width with no colour would report the ink.
     expect(style.outlineColor).toBe("rgb(253, 252, 251)");
+    // OUTSET, unlike the old frame ring: it separates the mark from the image
+    // underneath it, and most of it is painted over that image rather than
+    // over the ground.
+    expect(style.outlineOffset).toBe("0px");
   });
 });
 
@@ -284,7 +368,11 @@ describe("Avatar.Group", () => {
     expect(o.borderRadius).toBe(a.borderRadius);
     expect(o.backgroundColor).toBe(a.backgroundColor);
     expect(o.color).toBe(a.color);
-    expect(o.outlineWidth).toBe(a.outlineWidth);
-    expect(o.outlineColor).toBe(a.outlineColor);
+    // And the seam, from the same container rule — the counter is a child like
+    // any other, so it gets one for being second and the avatar gets none for
+    // being first. The previous version of this compared two `outline-width`s
+    // that both became `0px` and passed vacuously.
+    expect(getComputedStyle(counter).boxShadow).not.toBe("none");
+    expect(getComputedStyle(c.querySelector<HTMLElement>('[data-slot="avatar"]')!).boxShadow).toBe("none");
   });
 });

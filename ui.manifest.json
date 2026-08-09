@@ -295,7 +295,7 @@
     {
       "name": "badge",
       "type": "ui",
-      "description": "A short status or selection label. Four variants (selected, unselected, success, danger), two sizes, pill or rounded, with an optional trailing slot. Renders a span and takes no interaction props: anything actionable is a real button passed into iconEnd, keeping the accessible name at the call site.",
+      "description": "A short status or selection label. Six variants (selected, unselected, neutral, success, warning, danger), two sizes, pill or rounded, with an optional trailing slot. Renders a span and takes no interaction props: anything actionable is a real button passed into iconEnd, keeping the accessible name at the call site.",
       "files": [
         {
           "path": "registry/ui/badge/badge.tsx",

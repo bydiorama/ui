@@ -31,6 +31,19 @@ an item whose installed content already differs from the registry's current
 version is flagged (`⚠ diverges from registry: ...`) rather than silently
 baselined as if it matched.
 
+That divergence is also **written down**, as `forked` on the item: the
+target, mapped to the hash the registry shipped for it at that moment. Both
+halves matter. Without the record, `files` holds the fork's own hash, so from
+the next command on a fork is indistinguishable from a clean install and
+`sync` calls it `stale` — the same word a clean install gets when upstream
+moves. Without the *upstream* hash there is no baseline for "has the thing I
+forked changed underneath me?", which is the question that decides whether a
+fork still needs carrying.
+
+A warning printed to a terminal is not a record. A consumer carrying a local
+Badge fork had it overwritten across two checkpoint syncs with every check
+green, because the lockfile agreed with the fork either way.
+
 ```sh
 node --experimental-strip-types bin/ui.ts lock header sidebar \
   --cwd ../service-portal \
@@ -49,6 +62,15 @@ content and reports, per item:
   registry hasn't changed underneath it. A local edit, plain and simple.
 - **modified-and-stale** — installed differs from *both* the lock and the
   current registry. Two independent changes to reconcile, not one.
+- **forked** — the lockfile declares this a deliberate fork and it still
+  differs from what the registry ships. Reported as its own word, with the
+  affected files named, because re-installing the item destroys work: `⚠`
+  says "pull this in", `✎ forked` says "you will lose something". A fork the
+  registry has since *adopted* reads as **current** — the flag is a claim
+  about divergence, not a permanent label.
+- **forked-and-stale** — the fork stands *and* the file it was forked from
+  has changed underneath it. The one that needs re-deriving, and the reason
+  `forked` stores the upstream hash rather than just the target name.
 - **missing-upstream** — the item no longer exists in the registry at all.
 
 The three-way comparison (installed / locked / registry) is the whole

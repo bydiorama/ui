@@ -7,7 +7,7 @@ export const headerDoc = {
     "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand mark that links home and an avatar that opens the account menu, and calling all of that navigation would make the landmark useless to skip to. The item row names itself.",
 
   anatomy: [
-    { part: "root", slot: "header", notes: "A <header>. 48px tall: py-sm around a 32px control, px-lg, bg-surface." },
+    { part: "root", slot: "header", notes: "A <header>. 48px tall — PINNED (h-12), not emergent from py-sm around the tallest child: a bar whose tallest child is a 24px Header.Item used to render at 40px, silently. px-lg, bg-surface." },
     { part: "start", slot: "header-start", notes: "Leading controls — the brand mark, which LINKS to the app home, and a back button, which is a button because popping history is an action. Slots: the caller supplies real elements with their own names." },
     { part: "nav", slot: "header-nav", notes: "A named <nav> wrapping a <ul> of items. gap-xs, p-xs." },
     { part: "item", slot: "header-item", notes: "A compact 24px control at 12px bold: px-sm, py-xs, radius-sm, with 16px icon slots. An <a> when given href, a <button> otherwise." },
@@ -39,7 +39,12 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
   props: {
     "Nav.label": { type: "string", required: true, notes: "Required — a page carries several navigations and <nav> landmarks are indistinguishable without names. Sidebar's rule, for the same reason." },
     "Item.href": { type: "string", notes: "OPTIONAL. With it the item is a real <a>; without it, a <button>. The sheet draws two items carrying a chevron that open menus rather than navigate, and a link that does not navigate is the commonest lie in a bar." },
-    "Item.isCurrent": { type: "boolean", default: "false", notes: "Sets aria-current=\"page\" and takes the third step of a four-step fill ramp: rest is transparent, hover is bg-elevated, current is bg-hover, current+hover is bg-active. It shipped as THREE steps with hover and current both bg-hover, so the page you were on was indistinguishable from the one under the pointer and hovering the current item did nothing. Sidebar never hit this because its rows change weight too; a 12px bold bar item has none to spend." },
+    "Item.target / Item.rel / Item.download / Item.referrerPolicy": {
+      type: "the native anchor attributes",
+      notes:
+        "Item's props extend AnchorHTMLAttributes, so an external destination opens in a new tab through this API. They used to extend HTMLAttributes, which has none of these — the only way out was the `render` slot, which means writing the href twice and keeping the two copies in step. `type` is the one anchor attribute removed: on the button branch it is what stops a nav item submitting a form around it.",
+    },
+    "Item.isCurrent": { type: "boolean", default: "false", notes: "Sets aria-current=\"page\" and takes the third step of a four-step fill ramp: rest is transparent, hover is bg-elevated, current is bg-hover, current+hover is bg-active. It shipped as THREE steps with hover and current both bg-hover, so the page you were on was indistinguishable from the one under the pointer and hovering the current item did nothing. Sidebar never hit this because its rows change weight too; a 12px bold bar item has none to spend. The four steps then INVERTED in dark — bg-elevated raised further than bg-hover there, so the current page read quieter than the item under the pointer, 1.031 apart. That was a resolver defect, not this component's: elevation now stays inside the interaction ramp in both schemes, and the ordering is asserted in resolve.test.ts and again in the browser at both schemes." },
     "Item.icon": { type: "ReactElement", notes: "Slot: leading glyph, decorative." },
     "Item.trailing": { type: "ReactElement", notes: "Slot: the sheet puts a chevron here on its two menu items." },
     "MenuButton.label": {
@@ -88,12 +93,13 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
     "The bar's inline padding is a raw 20px, off the spacing scale, and the design's own mobile bar uses 12. Shipped as 16.",
+    "`--ui-bg-selected` and `--ui-bg-hover` are the SAME value in theme zero's authored light map (neutral-90), which is why the item ramp cannot be built out of interaction roles alone. The contract's own note on bg-selected says \"not hover\"; the authored value makes it hover. Confirm whether a selected fill should sit past `bg-active` in light, as the derivation puts it.",
   ],
 
   knownGaps: [
     "Header.Item forwards a ref so it can BE a Menu trigger — the sheet draws 'Create' and 'Work' as nav items that open a menu rather than navigate. Compose them as `<Menu.Trigger render={<Header.Item trailing={<ChevronDown/>}>Create</Header.Item>} />`; note the trigger's data-slot then wins over `header-item`, which is true of every render slot here.",
     "The sheet's bar uses a raw 20px inline padding, which is off the spacing scale entirely — and its own mobile drawing of the same bar uses 12. Shipped as px-lg (16); confirm with design.",
-    "The four-step current/hover ramp is DERIVED. The sheet draws every item in one state, so rest/hover/current/current+hover are this library's reading of the roles that exist; what the sheet settled is only that the two must differ.",
+    "The four-step current/hover ramp is DERIVED. The sheet draws every item in one state, so rest/hover/current/current+hover are this library's reading of the roles that exist; what the sheet settled is only that the two must differ. The ramp borrows a SURFACE role (bg-elevated) for its hover step — that is what the chrome control resting beside it in the same bar is filled with, and it is what let a dark-scheme derivation invert the whole ladder. Reading it from interaction roles would need a third one; the system has exactly two (`bg-hover`, `bg-active`) and `bg-selected` collides with `bg-hover` in theme zero's authored light map. Left as the sheet draws it, with the ordering now enforced at the token layer.",
     "No responsive behaviour of its own. The sheet draws a desktop bar and a mobile bar; which one shows is the caller's layout decision, not a prop.",
     "No sticky or scrolled state, no elevation change on scroll — none is drawn.",
   ],

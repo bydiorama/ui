@@ -11,6 +11,10 @@ export function Valid() {
         <Header.Item trailing={<span aria-hidden="true">.</span>}>Create</Header.Item>
         <Header.Item href="/library" isCurrent icon={<svg aria-hidden="true" />}>Library</Header.Item>
         <Header.Item href="/reports" render={<a href="/reports" />}>Reports</Header.Item>
+        {/* An external destination through the item's OWN API. Before Item
+            extended AnchorHTMLAttributes this needed `render`, which meant
+            writing the href twice and keeping the two copies in step. */}
+        <Header.Item href="https://status.example.com" target="_blank" rel="noreferrer">Status</Header.Item>
       </Header.Nav>
       <Header.Spacer />
       <Header.End><button type="button">Menu</button></Header.End>

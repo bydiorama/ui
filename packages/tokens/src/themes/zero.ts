@@ -16,8 +16,24 @@
  */
 
 import { BLUE, GREEN, LAVENDER, NEUTRAL, ORANGE, RED } from "../palette.ts";
+import { flatten } from "../color.ts";
 import type { ResolvedTheme } from "../contract.ts";
 import type { ThemeSeed } from "../seed.ts";
+
+/**
+ * An authored dark intent ground, COMPOSITED over the dark page.
+ *
+ * The handover writes these as `rgba(...)` literals because a flat Paper file
+ * cannot hold a `light-dark()` pair — a transcription convenience, not a
+ * decision that the ground is translucent. Left translucent it is: the light
+ * column authors opaque ramp-90 steps, and the same token in dark measured
+ * 5.68:1 on the page and 7.79:1 on a card, because the ink's ground depended
+ * on what a consumer put the Banner or Badge on. The audit only ever sees the
+ * page. Composited here, so the measured number is the number everywhere and
+ * the two columns are built the same way. The alpha and the page are both
+ * still visible in the call, so the drawn value is not lost.
+ */
+const onDarkPage = (tint: string) => flatten(tint, NEUTRAL[20]);
 
 export const THEME_ZERO: ThemeSeed = {
   colors: {
@@ -221,15 +237,18 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-focus-ring-color": BLUE[70],
     "--ui-focus-ring": `0 0 0 2px ${NEUTRAL[20]}, 0 0 0 4px ${BLUE[70]}`,
     "--ui-intent-success-fg": GREEN[80],
-    "--ui-intent-success-bg": "rgba(70, 164, 105, 0.18)",
+    "--ui-intent-success-bg": onDarkPage("rgba(70, 164, 105, 0.18)"),
     "--ui-intent-warning-fg": ORANGE[80],
-    "--ui-intent-warning-bg": "rgba(204, 128, 67, 0.18)",
+    "--ui-intent-warning-bg": onDarkPage("rgba(204, 128, 67, 0.18)"),
     "--ui-intent-danger-fg": RED[80],
-    "--ui-intent-danger-bg": "rgba(212, 116, 74, 0.18)",
+    "--ui-intent-danger-bg": onDarkPage("rgba(212, 116, 74, 0.18)"),
+    // NOT composited: this is a BORDER on a tinted surface, not a ground
+    // carrying ink, so nothing measures an ink pair against it and letting the
+    // panel beneath show through the edge is the drawn behaviour.
     "--ui-intent-danger-border": "rgba(212, 116, 74, 0.36)",
     "--ui-text-on-danger-subtle": RED[80],
     "--ui-intent-info-fg": BLUE[80],
-    "--ui-intent-info-bg": "rgba(87, 153, 177, 0.18)",
+    "--ui-intent-info-bg": onDarkPage("rgba(87, 153, 177, 0.18)"),
     "--ui-data-informational-fg": BLUE[80],
     "--ui-data-commercial-fg": ORANGE[80],
     "--ui-data-transactional-fg": GREEN[80],

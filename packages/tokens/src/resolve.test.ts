@@ -128,13 +128,33 @@ test("text-on-muted flips for a dark muted block on a light page", () => {
   assert.notEqual(theme["--ui-text-on-muted"], theme["--ui-text-primary"]);
 });
 
-test("elevated surfaces are never darker than what they float over", () => {
+test("elevated surfaces are raised where raising is possible, and never invisible", () => {
+  // The rule used to be only the first half — "never darker than what it
+  // floats over" — and a surface already at the top of the lightness range
+  // satisfied it by not moving at all. `bg-elevated` then equalled
+  // `bg-surface`, which the pale-yellow-on-white brand does exactly.
+  //
+  // For a modal that is survivable: its border and shadow carry the
+  // separation. For the two things in this system that are a FILL WITH NO
+  // EDGE — the chrome control, and a Header item's hover — it means there is
+  // no control and no hover feedback at all. So visibility is the harder
+  // requirement and direction gives way to it.
   for (const { name, seed } of ALL_SEEDS) {
     for (const scheme of ["light", "dark"] as const) {
       const { theme } = resolveTheme(seed, { scheme });
       const surface = toOklch(theme["--ui-bg-surface"])!;
       const elevated = toOklch(theme["--ui-bg-elevated"])!;
-      assert.ok(elevated.L >= surface.L - 0.001, `${name} (${scheme}): elevated is darker than surface`);
+      const ratio = contrastRatio(theme["--ui-bg-elevated"], theme["--ui-bg-surface"]);
+
+      assert.ok(
+        ratio >= 1.02,
+        `${name} (${scheme}): bg-elevated measures ${ratio.toFixed(3)} against bg-surface — a raised surface nobody can see`,
+      );
+      // Raised, unless the surface had no headroom left to raise into.
+      const headroom = surface.L < 0.99;
+      if (headroom) {
+        assert.ok(elevated.L >= surface.L - 0.001, `${name} (${scheme}): elevated is darker than surface with headroom to spare`);
+      }
     }
   }
 });
@@ -285,6 +305,93 @@ test("the border stack is ordered by MEASURED contrast, in both schemes", () => 
         strong >= control,
         `${name} (${scheme}): border-strong (${strong.toFixed(2)}) is weaker than border-control (${control.toFixed(2)}) — the stack is inverted`,
       );
+    }
+  }
+});
+
+test("the neutral fill stack is ordered by MEASURED contrast, in both schemes", () => {
+  // The sibling of the border-stack test above, and it exists for the same
+  // reason: the names ordered correctly while the values did not.
+  //
+  // Every neutral ramp in this library is drawn as elevated → hover → active —
+  // Header.Item's four-step item ramp, the chrome control's rest → hover →
+  // press, Multiselect's selected vs highlighted rows. In DARK, elevation and
+  // interaction both move the page LIGHTER, so a raise larger than hover's step
+  // interleaves the two: theme zero's dark scheme measured elevated 1.247
+  // against surface while hover measured 1.210, so all three ramps ran
+  // backwards at their first rung, 1.031 apart — invisible AND inverted. Light
+  // was unaffected and every gate was green, because a computed-style test that
+  // asserts "these fills differ" passes at 1.031.
+  //
+  // Asserted as an ORDERING against the ground rather than as hexes: pinned
+  // values would pass while any two of them converged, which is the failure
+  // that actually happened.
+  const SEPARATION = 1.04;
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      const ground = theme["--ui-bg-surface"];
+      const against = (token: (typeof BRANDABLE_TOKENS)[number]) =>
+        contrastRatio(flatten(theme[token], ground), ground);
+
+      const elevated = against("--ui-bg-elevated");
+      const hover = against("--ui-bg-hover");
+      const active = against("--ui-bg-active");
+
+      // A raised surface that measures as nothing is not a surface. A brand
+      // whose page is already white cannot be raised, so the derivation steps
+      // the other way rather than emitting `bg-surface` twice — the chrome
+      // control and a Header item's hover are a FILL WITH NO EDGE and have
+      // nothing else to fall back on.
+      assert.ok(
+        elevated >= 1.02,
+        `${name} (${scheme}): bg-elevated is indistinguishable from bg-surface (${elevated.toFixed(3)})`,
+      );
+      assert.ok(
+        hover >= elevated * SEPARATION,
+        `${name} (${scheme}): bg-hover (${hover.toFixed(3)}) does not step past bg-elevated (${elevated.toFixed(3)}) — a hovered item reads quieter than a resting chrome control`,
+      );
+      assert.ok(
+        active >= hover * SEPARATION,
+        `${name} (${scheme}): bg-active (${active.toFixed(3)}) does not step past bg-hover (${hover.toFixed(3)})`,
+      );
+    }
+  }
+});
+
+test("an intent ground carries its ink on ANY surface, not only on the page", () => {
+  // A derived intent ground used to be a 14% tint, and the audit flattens
+  // every pair over `bg-base` — so the measured number was the number you got
+  // on the PAGE and nowhere else. A Badge in a Table sits on a `bg-elevated`
+  // mat or a `bg-sunken` well, and the same ink measured 4.87 / 4.57 / 4.47
+  // there on the pale-yellow stress brand. Nothing was wrong with the ink; the
+  // ground moved under it, and no gate could see it because no pair can name
+  // "over elevated".
+  //
+  // Compositing at derivation is what makes the audited number true
+  // everywhere, and it is the rule `--ui-border-control` already follows.
+  // Asserted across the grounds a component may legitimately put a tinted
+  // label on.
+  const GROUNDS = ["--ui-bg-base", "--ui-bg-surface", "--ui-bg-elevated", "--ui-bg-sunken"] as const;
+  const INTENTS = ["success", "warning", "danger", "info"] as const;
+
+  for (const { name, seed } of ALL_SEEDS) {
+    // Theme zero's own DARK intents are authored translucent (the handover
+    // draws them that way), so it is checked through the authored path in
+    // light and left to the derivation in dark, exactly as it ships.
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      for (const intent of INTENTS) {
+        const fg = theme[`--ui-intent-${intent}-fg` as const];
+        const ratios = GROUNDS.map((g) => contrastRatio(fg, flatten(theme[`--ui-intent-${intent}-bg` as const], theme[g])));
+        const [worst, best] = [Math.min(...ratios), Math.max(...ratios)];
+        assert.ok(
+          best - worst < 0.01,
+          `${name} (${scheme}): ${intent} ink measures ${worst.toFixed(2)}–${best.toFixed(2)} depending on which surface the tint lands on — the ground is translucent, so its audited value is only true on the page`,
+        );
+      }
     }
   }
 });

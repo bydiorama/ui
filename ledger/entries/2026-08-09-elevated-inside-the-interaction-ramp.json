@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-elevated-inside-the-interaction-ramp",
+  "date": "2026-08-09",
+  "item": "system",
+  "kind": "token",
+  "summary": "--ui-bg-elevated is corrected in two ways, and both were only visible by measuring a running browser. (1) IN DARK IT OVERSHOT THE INTERACTION RAMP. Elevation raised 0.06 while --ui-bg-hover raises 0.05, so the raised SURFACE landed between hover and active: measured against --ui-bg-surface in theme zero's dark scheme, elevated 1.247 and hover 1.210. Every neutral ramp in the library is drawn as elevated → hover → active, so all of them inverted at their first rung, 1.031 apart — invisible AND backwards. Header.Item's four-step item ramp (the page you were on read quieter than the one under the pointer), the chrome control's rest → hover (hovering made it very slightly darker), and Multiselect's selected-vs-highlighted rows. Light was 1.079 / 1.188 / 1.434 throughout and never showed it, because theme zero AUTHORS light elevation and the derivation moves light elevation the opposite way from hover. Dark now raises 0.03 → 1.121, inside bg-hover in both schemes. (2) IT COULD COLLAPSE ONTO WHAT IT FLOATS OVER. A surface already at the top of the lightness range cannot be raised, so a brand seeded with surface #ffffff got elevated == surface. For a modal that is survivable — its border and shadow carry the separation — but the chrome control and a Header item's hover are a FILL WITH NO EDGE, so it meant no control and no hover feedback at all. When the raise measures as nothing the derivation now steps down instead. Two resolver tests enforce it across every stress brand and both schemes: the neutral fill stack must be ordered by MEASURED contrast (elevated < hover < active, with a real margin), and elevated must measure at least 1.02 against surface. Found by a consumer measuring computed styles in a real browser, not by reading code.",
+  "affects": [
+    "token:--ui-bg-elevated",
+    "item:header",
+    "item:multiselect",
+    "lib:chrome-control"
+  ],
+  "migration": {
+    "manual": "Dark-scheme cards, menu panels, chrome controls, dropzones and table mats are one step less raised than before (1.247 → 1.121 against bg-surface); their ink contrast improves accordingly. Nothing to change at a call site. If you pinned a dark bg-elevated hex in a test or a screenshot baseline, re-take it. A brand theme whose `surface` is pure white now gets a recessed bg-elevated rather than one identical to the surface — if you compensated for the collapse with a local override, remove it."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0"
+  }
+}

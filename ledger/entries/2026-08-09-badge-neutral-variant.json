@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-badge-neutral-variant",
+  "date": "2026-08-09",
+  "item": "badge",
+  "kind": "addition",
+  "summary": "Badge gains a `neutral` variant: status data that carries no INTENT — an industry, a type, a plan tier. It is the commonest badge in an admin table and the set had no answer for it, so a consumer carried a documented local fork of Badge through two checkpoint syncs. `unselected` is a CHOICE state wearing an outline, and tinting a category green or blue teaches nothing when the value never varies — the Patterns index sheet draws exactly this and says so in its own don't-list ('Don't colour a category that never varies. An industry badge that is always blue teaches nothing'). Ships as `bg-sunken text-ink-muted` with no border: the same two roles Banner's own `neutral` variant uses, because it is the same concept and §2 gives a concept one vocabulary. Measured 4.87:1 light and 7.11:1 dark, Banner's own numbers. The sheet drew it as --ui-bg-active, which is an INTERACTION role — a resting badge would then be the exact colour of a pressed table row, and a row of them would change meaning under the pointer — so the role is corrected and the WEIGHT is recorded as an open question in needsDesign: against a table row (bg-surface) sunken measures 1.188:1 light but only 1.098:1 dark, where the tinted status variants sit at 1.201 and 1.629. A story renders the real composition — neutral and status badges on bg-surface rows inside a bg-elevated mat, in both schemes — so that difference is a thing you look at rather than a number in a doc.",
+  "affects": [
+    "item:badge",
+    "prop:variant"
+  ],
+  "migration": {
+    "manual": "Additive; no existing variant changes. If you forked Badge locally to add a neutral variant, delete the fork and pass variant=\"neutral\" — check the fill first, since this ships bg-sunken and a fork transcribed from the sheet would be bg-active."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0"
+  }
+}

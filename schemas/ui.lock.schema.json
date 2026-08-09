@@ -33,6 +33,11 @@
             "type": "object",
             "description": "Keyed by the file's target path in the consumer app (matches the registry item's `files[].target`). Value is `sha256:<hex>` of the file's content at lock time.",
             "additionalProperties": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+          },
+          "forked": {
+            "type": "object",
+            "description": "Targets whose installed content did NOT match the registry's at lock time -- a deliberate local fork -- mapped to `sha256:<hex>` of what the REGISTRY shipped for them then. Recorded rather than only warned about: `files` stores the fork's own hash, so without this a fork is indistinguishable from a clean install and `sync` reports it as merely `stale`, the same word a clean install gets when upstream moves. The upstream hash is the other half: it is the only baseline for \"has the thing I forked changed underneath me?\", which `files[target]` cannot answer for a forked file. Omitted when nothing is forked.",
+            "additionalProperties": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
           }
         }
       }

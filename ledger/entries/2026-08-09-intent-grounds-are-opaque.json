@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-intent-grounds-are-opaque",
+  "date": "2026-08-09",
+  "item": "system",
+  "kind": "a11y",
+  "summary": "The intent GROUNDS (--ui-intent-success-bg, -warning-bg, -danger-bg, -info-bg and -danger-bg-hover) are composited at derivation instead of shipped as translucent tints. Contrast against a translucent value is only defined once something flattens it, and here that something is whatever a consumer puts the label on — while the audit flattens every pair over --ui-bg-base. So the measured number was the number you got ON THE PAGE and nowhere else. Measured on the pale-yellow stress brand in light: warning ink 4.87:1 on the page, 4.57 on a Table's bg-elevated mat, 4.47 on a bg-sunken well; danger 4.75 / 4.45 / 4.36; info 4.80 / 4.50 / 4.39. Nothing was wrong with the ink — the ground moved under it, and no gate could see it because a contrast pair names two tokens and cannot say 'over elevated'. It is the same rule --ui-border-control already follows ('opaque, not an alpha hairline: it must MEASURE at 3:1, so it is composited by construction'), applied to the fills that carry intent ink. Theme zero's authored LIGHT intents were already opaque ramp-90 steps; its authored DARK ones were rgba literals — a transcription convenience, because a flat Paper file cannot hold a light-dark() pair — and are now composited over the dark page, which is what the audit already reported for them. --ui-intent-danger-border stays translucent: it is a border on a tinted surface, not a ground carrying ink. A resolver test asserts an intent ink measures the same on bg-base, bg-surface, bg-elevated and bg-sunken, in every stress brand and both schemes. Surfaced by the elevated-ramp fix moving a stress brand's light bg-elevated off pure white, which pushed one of these under AA where axe could finally see it.",
+  "affects": [
+    "token:--ui-intent-success-bg",
+    "token:--ui-intent-warning-bg",
+    "token:--ui-intent-danger-bg",
+    "token:--ui-intent-danger-bg-hover",
+    "token:--ui-intent-info-bg",
+    "item:badge",
+    "item:banner"
+  ],
+  "migration": {
+    "manual": "A tinted Badge or Banner no longer shows the surface beneath it through its fill — it paints the same colour on a page, a card, a row or a well, which is the colour the audit always reported. Theme zero's light values are byte-identical; its dark values become the opaque equivalent of what they composited to on the page. If you deliberately layered a tinted surface over an image or another tint expecting it to show through, it no longer will."
+  }
+}

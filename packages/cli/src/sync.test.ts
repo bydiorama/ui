@@ -60,6 +60,60 @@ test("a consumer edit that coincidentally matches the new upstream value reads a
   assert.equal(result.files[0]!.staleUpstream, false);
 });
 
+test("forked: a declared fork is NOT reported as merely stale", async () => {
+  // The case that shipped wrong. A fork matches its own lock hash by
+  // construction, so `modified` is false and the only word left was `stale` —
+  // the same word a clean install gets when the registry moves on. One reads
+  // as "run the update", the other as "you will lose work". A consumer's
+  // Badge fork was overwritten with every check green.
+  const locked: LockedItem = {
+    revision: "abc",
+    lockedAt: "2026-01-01T00:00:00.000Z",
+    files: { "a.ts": hashContent("my fork") },
+    forked: { "a.ts": hashContent(V1) },
+  };
+  const result = await diffItem("widget", locked, fakeReader({ "a.ts": "my fork" }), identity, fakeRegistry({ "a.ts": V1 }), []);
+  assert.equal(result.status, "forked");
+  assert.equal(result.files[0]!.forked, true);
+  assert.equal(result.files[0]!.modified, false);
+
+  // Same inputs WITHOUT the flag: indistinguishable from upstream moving on,
+  // which is exactly what the flag exists to separate.
+  const unflagged: LockedItem = {
+    revision: locked.revision,
+    lockedAt: locked.lockedAt,
+    files: locked.files,
+  };
+  const before = await diffItem("widget", unflagged, fakeReader({ "a.ts": "my fork" }), identity, fakeRegistry({ "a.ts": V1 }), []);
+  assert.equal(before.status, "stale");
+});
+
+test("forked-and-stale: the fork stands and the registry has moved under it", async () => {
+  const locked: LockedItem = {
+    revision: "abc",
+    lockedAt: "2026-01-01T00:00:00.000Z",
+    files: { "a.ts": hashContent("my fork") },
+    forked: { "a.ts": hashContent(V1) },
+  };
+  const result = await diffItem("widget", locked, fakeReader({ "a.ts": "my fork" }), identity, fakeRegistry({ "a.ts": V2 }), []);
+  assert.equal(result.status, "forked-and-stale");
+  assert.equal(result.files[0]!.forked, true);
+});
+
+test("a fork upstream has since ADOPTED stops being reported as one", async () => {
+  // The flag is a claim about divergence, not a permanent label. Once the
+  // registry ships what the consumer forked to, there is nothing to lose.
+  const locked: LockedItem = {
+    revision: "abc",
+    lockedAt: "2026-01-01T00:00:00.000Z",
+    files: { "a.ts": hashContent("my fork") },
+    forked: { "a.ts": hashContent(V1) },
+  };
+  const result = await diffItem("widget", locked, fakeReader({ "a.ts": "my fork" }), identity, fakeRegistry({ "a.ts": "my fork" }), []);
+  assert.equal(result.status, "current");
+  assert.equal(result.files[0]!.forked, false);
+});
+
 test("a file deleted from disk is reported, not silently skipped", async () => {
   const locked: LockedItem = { revision: "abc", lockedAt: "2026-01-01T00:00:00.000Z", files: { "a.ts": hashContent(V1) } };
   const result = await diffItem("widget", locked, fakeReader({}), identity, fakeRegistry({ "a.ts": V1 }), []);

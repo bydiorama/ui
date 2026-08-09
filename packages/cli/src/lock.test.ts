@@ -32,6 +32,23 @@ test("a file not present in this consumer is skipped, not locked as missing", as
 
 test("flags a file whose installed content already diverges from the registry, rather than baselining it silently", async () => {
   const reader = async (p: string) => ({ "a.ts": "hand-edited already", "b.ts": "content-b" } as Record<string, string>)[p] ?? null;
-  const { divergesFromRegistry } = await lockItem(WIDGET, "sha1", "2026-01-01T00:00:00.000Z", reader, identity);
+  const { locked, divergesFromRegistry } = await lockItem(WIDGET, "sha1", "2026-01-01T00:00:00.000Z", reader, identity);
   assert.deepEqual(divergesFromRegistry, ["a.ts"]);
+  // And WRITES it down. Returning the divergence let `lock` print a warning
+  // to a terminal, while the lockfile recorded the fork's own hash — so from
+  // the next command onward the fork was indistinguishable from a clean
+  // install and `sync` called it "stale". A warning nobody can re-read is not
+  // a record.
+  // Mapped to what the REGISTRY shipped, not just named: `files["a.ts"]` is
+  // the fork, so it cannot answer "has the thing I forked changed since?".
+  assert.deepEqual(locked.forked, { "a.ts": hashContent("content-a") });
+  assert.equal(locked.files["a.ts"], hashContent("hand-edited already"));
+});
+
+test("a clean lock carries no `forked` key at all", async () => {
+  const reader = async (p: string) => ({ "a.ts": "content-a", "b.ts": "content-b" } as Record<string, string>)[p] ?? null;
+  const { locked } = await lockItem(WIDGET, "sha1", "2026-01-01T00:00:00.000Z", reader, identity);
+  // Absent rather than `[]`, so a lockfile with no forks reads exactly as it
+  // did before this existed — and `"forked" in item` is a usable question.
+  assert.equal("forked" in locked, false);
 });

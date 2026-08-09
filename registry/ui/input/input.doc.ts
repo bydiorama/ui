@@ -80,6 +80,13 @@ Input
       { fg: "--ui-text-placeholder", bg: "--ui-bg-field", floor: "text", role: "the placeholder" },
       { fg: "--ui-text-secondary", bg: "--ui-bg-base", floor: "text", role: "the label" },
       { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the focus ring" },
+      {
+        fg: "--ui-border-subtle",
+        bg: "--ui-bg-field",
+        floor: "decorative",
+        role: "the resting hairline",
+        why: "ADR 0010 § 'Which token an edge takes': the field is identified by its fill, its persistent visible label and its padding, so the hairline is a hint and not the boundary anything depends on. That is a KNOWING trade against SC 1.4.11 on a resting form control, and it is declared here — as a measured decorative pair — rather than left as an absence, because an unlisted pair is an unchecked pair and this is the one edge in the library that is deliberately under the non-text floor. `border-control` is the one-token switch for an engagement that needs the other answer; Checkbox already takes it, because a checkbox's box IS its boundary.",
+      },
     ],
   },
 

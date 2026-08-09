@@ -259,7 +259,11 @@ const CASES: Array<{
       <div className="flex flex-col gap-md">
         {(["sm", "md"] as const).map((size) => (
           <div key={size} className="flex items-center gap-md">
-            {(["selected", "unselected", "success", "danger"] as const).map((variant) => (
+            {/* EVERY variant, not a sample. `warning` was added and never
+                entered this matrix, and `neutral` would have gone the same
+                way — a variant the visual gate never renders is a variant the
+                visual gate cannot defend. */}
+            {(["selected", "unselected", "neutral", "success", "warning", "danger"] as const).map((variant) => (
               <Badge key={variant} variant={variant} size={size}>
                 {variant}
               </Badge>

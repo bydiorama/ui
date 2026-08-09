@@ -291,6 +291,38 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     : `linear-gradient(in oklab 270deg, ${accent} 0%, ${accent} 100%)`;
 
 
+  /**
+   * The raised surface, and the two ways the obvious one-liner was wrong.
+   *
+   * 1. IT MUST STAY INSIDE THE INTERACTION RAMP. `bg-hover` and `bg-active`
+   *    step 0.05 and 0.10 away from the surface, and in DARK elevation moves
+   *    the same way they do — so a 0.06 raise landed BETWEEN them. Measured
+   *    against `bg-surface` in theme zero's dark scheme: elevated 1.247,
+   *    hover 1.210. Every ramp in the library built as elevated → hover →
+   *    active therefore inverted at its first rung, at a separation of 1.031
+   *    — Header.Item's four-step item ramp, the chrome control's rest →
+   *    hover, and Multiselect's selected-vs-highlighted rows. Light never
+   *    showed it because theme zero AUTHORS light elevation (neutral-95,
+   *    1.079) and the derivation moves light elevation the other way from
+   *    hover entirely. 0.03 puts dark where light has always been (1.121),
+   *    inside `bg-hover` in both schemes.
+   *
+   * 2. IT MUST ACTUALLY MOVE. A surface already at the top of the lightness
+   *    range cannot be raised, so the role silently collapsed onto
+   *    `bg-surface`. For a modal that is survivable — its border and shadow
+   *    carry the separation. For the two things in this system that are a
+   *    FILL WITH NO EDGE, the chrome control and a Header item's hover, it
+   *    means no control and no hover feedback at all; the stress brand
+   *    (surface #ffffff) reproduces it exactly. When the raise measures as
+   *    nothing, go the other way rather than emit a value identical to the
+   *    thing it floats over.
+   */
+  const elevated = (() => {
+    const raised = shiftL(colors.surface, dark ? 0.03 : 0.02);
+    if (contrastRatio(raised, colors.surface) >= 1.02) return raised;
+    return shiftL(colors.surface, -0.03);
+  })();
+
   const shape = seed.shape ?? {};
   const px = (n: number) => (n === 0 ? "0" : `${Math.round(n)}px`);
   const radiusKnob = (key: keyof typeof SEED_BOUNDS.radiusPx) =>
@@ -443,13 +475,12 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // not quiet ones. The sheet used a raw --ui-neutral-80 here.
     "--ui-text-on-media-muted": legibleOn(towardL(onScrim, scrimFloor, 0.35), scrimFloor, AA_TEXT),
 
-    // Surfaces. Elevated is never DARKER than what it floats over — that is
-    // what "raised" reads as in both schemes. A brand whose surface is already
-    // white gets elevated == surface, and the separation falls to the border
-    // and shadow, which is how a modal on a white page has always read.
+    // Surfaces. Elevated is raised rather than recessed wherever raising is
+    // possible, and always INSIDE the interaction ramp — see the `elevated`
+    // derivation above for both rules and the measurements behind them.
     "--ui-bg-base": colors.bg,
     "--ui-bg-surface": colors.surface,
-    "--ui-bg-elevated": shiftL(colors.surface, dark ? 0.06 : 0.02),
+    "--ui-bg-elevated": elevated,
     "--ui-bg-sunken": shiftL(colors.surface, dark ? -0.03 : -0.04),
     // A field is RECESSED from whatever contains it, and the surface scale
     // inverts between schemes: in light that means the page's lightest value,
@@ -517,14 +548,28 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // substitution-timing detail no one should have to be right about.
     "--ui-focus-ring": `0 0 0 2px ${colors.bg}, 0 0 0 4px ${link}`,
 
-    // Intents
+    // Intents.
+    //
+    // The grounds are COMPOSITED, not translucent — the same rule
+    // `--ui-border-control` follows a few lines up, for the same reason:
+    // contrast against a translucent value is only defined once something
+    // flattens it, and here that something is whatever a consumer puts the
+    // badge on. The audit flattens over `bg-base`, so a 14% tint measured
+    // ~4.8:1 there and then went UNDER AA the moment the same Badge sat on a
+    // Table's `bg-elevated` mat or a `bg-sunken` well — measured on the
+    // pale-yellow stress brand: warning 4.87 on the page, 4.57 on elevated,
+    // 4.47 on sunken; danger 4.75 / 4.45 / 4.36. Nothing was wrong with the
+    // ink; the ground moved under it. Theme zero's authored light intents are
+    // already opaque ramp-90 steps, so this makes every brand behave the way
+    // the designed theme always has, and makes the audited number the number
+    // a consumer actually gets.
     "--ui-intent-success-fg": legibleOn(INTENT_HUES.success, colors.bg),
-    "--ui-intent-success-bg": withAlpha(INTENT_HUES.success, 0.14),
+    "--ui-intent-success-bg": flatten(withAlpha(INTENT_HUES.success, 0.14), colors.bg),
     "--ui-intent-warning-fg": legibleOn(INTENT_HUES.warning, colors.bg),
-    "--ui-intent-warning-bg": withAlpha(INTENT_HUES.warning, 0.14),
+    "--ui-intent-warning-bg": flatten(withAlpha(INTENT_HUES.warning, 0.14), colors.bg),
     "--ui-intent-danger-fg": legibleOn(INTENT_HUES.danger, colors.bg),
-    "--ui-intent-danger-bg": withAlpha(INTENT_HUES.danger, 0.14),
-    "--ui-intent-danger-bg-hover": withAlpha(INTENT_HUES.danger, 0.22),
+    "--ui-intent-danger-bg": flatten(withAlpha(INTENT_HUES.danger, 0.14), colors.bg),
+    "--ui-intent-danger-bg-hover": flatten(withAlpha(INTENT_HUES.danger, 0.22), colors.bg),
     "--ui-intent-danger-border": withAlpha(INTENT_HUES.danger, 0.32),
     // Deeper than -fg: measured against the tint it actually sits on, at the
     // stricter floor a filled control deserves.
@@ -534,7 +579,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
       7,
     ),
     "--ui-intent-info-fg": legibleOn(INTENT_HUES.info, colors.bg),
-    "--ui-intent-info-bg": withAlpha(INTENT_HUES.info, 0.14),
+    "--ui-intent-info-bg": flatten(withAlpha(INTENT_HUES.info, 0.14), colors.bg),
 
     // Categorical data
     "--ui-data-informational-fg": legibleOn(DATA_HUES.informational, colors.bg),

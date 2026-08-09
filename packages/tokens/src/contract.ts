@@ -142,10 +142,19 @@ export const BRANDABLE_TOKENS = [
   // the ramp cannot start below the floor whatever the brand seed is.
   "--ui-gradient-accent",
 
-  // Borders and focus. Four structural weights plus focus (ADR 0010):
-  // subtle is the everyday hairline (inputs included — the field is identified
-  // by fill, label and padding); control is the SC 1.4.11-conformant boundary
-  // for engagements that require it on form controls.
+  // Borders and focus. Four structural weights plus focus, ordered by measured
+  // contrast: subtle → default → control → strong.
+  //
+  // WHICH ONE AN EDGE TAKES IS ADR 0010's § "Which token an edge takes", and
+  // it is not restated here. It used to be — half of it, in a form that read
+  // as "control is the conformant boundary for form controls" while Input
+  // ships `subtle` and Checkbox ships `control`. Two half-statements of one
+  // decision, in two files, disagreeing: raised by a consumer review that had
+  // to reconcile them (2026-08-09). The rule turns on whether the boundary is
+  // the only thing identifying the control, which is a property of the
+  // drawing rather than of the component's category — so it lives in the
+  // decision record, and a component records its own measurement in its doc's
+  // contrastPairs where `check:contrast` reads it.
   "--ui-border-subtle",
   "--ui-border-default",
   "--ui-border-control",

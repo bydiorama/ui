@@ -5,6 +5,8 @@ import { act } from "react";
 import type { ReactElement } from "react";
 import { ChevronDown } from "griddy-icons";
 
+import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@bydiorama/tokens";
+
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Header } from "./header.tsx";
 
@@ -104,6 +106,25 @@ describe("Header is a banner that contains a navigation, not one that IS one", (
     expect(items()[1]!.getAttribute("type")).toBe("button");
   });
 
+  test("an external item opens in a new tab through its OWN API", () => {
+    const c = mount(
+      <Header>
+        <Header.Nav label="Primary">
+          <Header.Item href="https://status.example.com" target="_blank" rel="noreferrer">
+            Status
+          </Header.Item>
+        </Header.Nav>
+      </Header>,
+    );
+    // Item's props extend AnchorHTMLAttributes. They used to extend
+    // HTMLAttributes, which has no target and no rel, so the only route to a
+    // new tab was `render` — and that means writing the href twice.
+    const item = c.querySelector<HTMLAnchorElement>('[data-slot="header-item"]')!;
+    expect(item.getAttribute("target")).toBe("_blank");
+    expect(item.getAttribute("rel")).toBe("noreferrer");
+    expect(item.getAttribute("href")).toBe("https://status.example.com");
+  });
+
   test("the current page is ANNOUNCED, not just filled", () => {
     mount(<Basic />);
     const current = items()[2]!;
@@ -156,17 +177,39 @@ describe("Header is a banner that contains a navigation, not one that IS one", (
 });
 
 describe("Header paints the sheet's bar", () => {
-  test("the bar is 48px on a 32px control", () => {
+  test("the bar is 48px, and it is 48px because it is PINNED", () => {
     const c = mount(<Basic />);
     const bar = c.querySelector<HTMLElement>('[data-slot="header"]')!;
     const style = getComputedStyle(bar);
-    // py-sm (8+8) around a 32px control is the sheet's 48.
+    expect(bar.getBoundingClientRect().height).toBe(48);
+    // py-sm (8+8) is the 32px content lane the sheet draws its controls in.
     expect(style.paddingTop).toBe("8px");
     expect(style.paddingBottom).toBe("8px");
     // px-lg, NOT the sheet's raw 20px — 20 is off the spacing scale, and the
     // mobile drawing of the same bar uses 12. Recorded as a design defect.
     expect(style.paddingLeft).toBe("16px");
     expect(style.backgroundColor).toBe("rgb(253, 252, 251)");
+  });
+
+  /**
+   * The height used to be EMERGENT — py-sm around whatever the tallest child
+   * happened to be, which assumed a 32px control was present. A bar carrying
+   * only 24px Header.Items rendered at 40px, so one route in an app had a
+   * shorter app bar than every other and nothing said so; it was only found by
+   * measuring. The fixture below is that bar: nothing 32px tall in it.
+   */
+  test("a bar with no 32px control in it is still 48px", () => {
+    const c = mount(
+      <Header>
+        <Header.Nav label="Primary">
+          <Header.Item href="#a">Sign in</Header.Item>
+        </Header.Nav>
+      </Header>,
+    );
+    const bar = c.querySelector<HTMLElement>('[data-slot="header"]')!;
+    const item = c.querySelector<HTMLElement>('[data-slot="header-item"]')!;
+    expect(item.getBoundingClientRect().height).toBeLessThan(32);
+    expect(bar.getBoundingClientRect().height).toBe(48);
   });
 
   test("an item uses the compact control inset and soft radius", () => {
@@ -282,38 +325,96 @@ describe("The navigation collapses into a single menu button", () => {
 });
 
 describe("the current page is not the item under the pointer", () => {
-  test("rest, hover, current and current+hover are four different fills", async () => {
-    mount(
-      <Header>
-        <Header.Nav label="Ramp">
-          <Header.Item href="#plain">Agent</Header.Item>
-          <Header.Item href="#current" isCurrent>Library</Header.Item>
-        </Header.Nav>
-      </Header>,
+  /** Renders inside a scheme-pinned frame, so dark is really dark. */
+  function mountIn(scheme: "light" | "dark") {
+    container = document.createElement("div");
+    Object.assign(
+      container.style,
+      toStyleObject(resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED }), scheme) as unknown as Record<string, string>,
+      { colorScheme: scheme },
     );
-    const [plain, current] = items();
+    container.className = "bg-base";
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root!.render(
+        <Header>
+          <Header.Nav label="Ramp">
+            <Header.Item href="#plain">Agent</Header.Item>
+            <Header.Item href="#current" isCurrent>Library</Header.Item>
+          </Header.Nav>
+        </Header>,
+      );
+    });
+    return container;
+  }
 
-    const rest = getComputedStyle(plain!).backgroundColor;
-    const currentRest = getComputedStyle(current!).backgroundColor;
+  /**
+   * The four fills, in ORDER away from the bar — not merely four values.
+   *
+   * This shipped twice. First as THREE steps: hover and current were both
+   * `bg-hover`, so the page you were on was indistinguishable from the one
+   * under the pointer. The four-step ramp fixed that in light and INVERTED in
+   * dark, because `bg-elevated` — a surface role borrowed for an interaction
+   * state — raised further than `bg-hover` there. Measured against the bar:
+   * light 1.079 / 1.188 / 1.434, dark 1.247 / 1.210 / 1.481. The second and
+   * third rungs were 1.031 apart and the wrong way round.
+   *
+   * The previous version of this test asserted the four fills DIFFER, and
+   * 1.031 is a difference — it passed against the bug in the scheme nobody
+   * opened. What separates the two is the ORDER, measured in both schemes.
+   */
+  test.each(["light", "dark"] as const)(
+    "rest → hover → current → current+hover steps monotonically away from the bar — %s",
+    async (scheme) => {
+      const c = mountIn(scheme);
+      const bar = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="header"]')!).backgroundColor;
+      const [plain, current] = Array.from(c.querySelectorAll<HTMLElement>('[data-slot="header-item"]'));
 
-    await userEvent.hover(plain!);
-    await settled(plain!);
-    const hover = getComputedStyle(plain!).backgroundColor;
+      const rest = getComputedStyle(plain!).backgroundColor;
+      const currentRest = getComputedStyle(current!).backgroundColor;
 
-    await userEvent.hover(current!);
-    await settled(current!);
-    const currentHover = getComputedStyle(current!).backgroundColor;
+      await userEvent.hover(plain!);
+      await settled(plain!);
+      const hover = getComputedStyle(plain!).backgroundColor;
 
-    // Four values, four steps. This shipped as THREE — hover and current were
-    // both bg-hover, so the page you were on was indistinguishable from the
-    // one under the pointer, and hovering the current item did nothing. The
-    // assertion is that they all DIFFER rather than what each one is: pinning
-    // the four hexes would pass while any two of them silently converged,
-    // which is the only failure that matters here.
-    const fills = [rest, hover, currentRest, currentHover];
-    expect(new Set(fills).size, `ramp collapsed: ${fills.join(" / ")}`).toBe(4);
+      await userEvent.hover(current!);
+      await settled(current!);
+      const currentHover = getComputedStyle(current!).backgroundColor;
 
-    // And the direction: transparent, then progressively heavier.
-    expect(rest).toBe("rgba(0, 0, 0, 0)");
-  });
+      // Rest paints nothing at all — the bar shows through.
+      expect(rest).toBe("rgba(0, 0, 0, 0)");
+
+      const steps = [
+        ["hover", hover],
+        ["current", currentRest],
+        ["current+hover", currentHover],
+      ] as const;
+      const away = steps.map(([, fill]) => contrast(fill, bar));
+
+      // Every rung further from the bar than the last, with a real gap. A
+      // strictly-greater check would pass at 1.001.
+      const SEPARATION = 1.04;
+      for (const [i, [label, fill]] of steps.entries()) {
+        const previous = i === 0 ? 1 : away[i - 1]!;
+        expect(
+          away[i]!,
+          `${scheme}: ${label} (${fill}, ${away[i]!.toFixed(3)} from the bar) does not step past ${
+            i === 0 ? "the bar" : steps[i - 1]![0]
+          } (${previous.toFixed(3)})`,
+        ).toBeGreaterThanOrEqual(previous * SEPARATION);
+      }
+    },
+  );
 });
+
+/** WCAG relative-luminance contrast between two `rgb(...)` strings. */
+function contrast(a: string, b: string): number {
+  const lum = (css: string) => {
+    const [r, g, bl] = css.match(/\d+(\.\d+)?/g)!.slice(0, 3).map(Number) as [number, number, number];
+    const ch = (v: number) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+    return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(bl);
+  };
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
+  return (x + 0.05) / (y + 0.05);
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-avatar-ring-reads-its-ground",
+  "date": "2026-08-09",
+  "item": "avatar",
+  "kind": "visual",
+  "summary": "Avatar stops carrying an edge at all, and Avatar.Group paints a seam only where one is needed. The frame used to draw a full-perimeter 1.5px hairline in --ui-bg-surface — the industry-standard implementation (shadcn `*:ring-2 *:ring-background`, MUI `2px solid background.paper`, Atlassian's 'surface-coloured ring', Flowbite's `ring-white dark:ring-gray-800`) and the industry-standard bug with it, filed against MUI as #21700: 'Avatar group uses the background colour set for the app for the Avatar borders, but doesn't pick up on the background colour of the div it's within.' Three of that ring's four sides never touch another avatar: they sit on the ground claiming to BE the ground, so on a Card, a Menu panel or a Table row it painted a visible mismatched rim (#FDFCFB on #F6F3F0) — and a LONE avatar, which is most call sites in an app, wore it for nothing at all. The component's own comment always said the ring existed 'so two overlapping avatars read as two rather than as one shape'. So it is now painted only there. Primer is the one library that gets this right — a directional `border-right` instead of a ring — and this takes its insight with a better mechanism: an offset box-shadow on the LEADING edge of every group child but the first. A shadow copies the border-box SHAPE, so it follows `soft` and `full` with no per-shape geometry and stays resolution-independent; the leading edge means DOM order already puts the seam on top of the avatar beneath, where Primer has to invert the z-index to get its trailing border there. The seam is 1.5px inside a 4px overlap, so by construction it never reaches the ground. Verified by rendering both shapes at all three sizes over four grounds in Chromium, plus a 5x magnification confirming the seam follows the radius. NOT a mask: a cut-out is the only truly ground-independent answer and it clips tightly enough that an outer focus ring becomes impossible (Vaadin #26 — and an avatar is going to become a control), lands on fractional pixels and jitters on resize, and the radial-gradient form everyone ships is a circle trick while `soft` is this component's default. --ui-avatar-ring-color survives for the two things that still paint — the seam and the status dot's ring — and the dot keeps an opaque ring because it separates a 4px mark from the photograph beneath it, which is the one case a hole cannot serve.",
+  "affects": [
+    "item:avatar",
+    "slot:avatar-frame",
+    "slot:avatar-group",
+    "slot:avatar-status",
+    "slot:avatar-overflow",
+    "css-var:--ui-avatar-ring-color"
+  ],
+  "migration": {
+    "manual": "A lone Avatar no longer paints a hairline. If your layout depended on that 1.5px ring to separate an avatar from a same-coloured ground, give the container the contrast instead — the ring was never a boundary, it was a claim about the page. Anything that bound --ui-avatar-ring-color to fix a mismatched rim can drop the binding: there is no rim. Keep the binding only if you want the SEAM inside a stack to read as a cut through it on a non-surface ground. Any local `outline-*` override on avatar parts should be removed."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/19YU-0"
+  }
+}

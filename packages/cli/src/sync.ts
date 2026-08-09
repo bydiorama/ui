@@ -15,7 +15,14 @@ import type { LockedItem, UiLock } from "./lockfile.ts";
 import type { RegistrySource } from "./registry-source.ts";
 import { entriesForItem, type LedgerEntry, type LedgerSource } from "./ledger-source.ts";
 
-export type ItemStatus = "current" | "stale" | "modified" | "modified-and-stale" | "missing-upstream";
+export type ItemStatus =
+  | "current"
+  | "stale"
+  | "modified"
+  | "modified-and-stale"
+  | "forked"
+  | "forked-and-stale"
+  | "missing-upstream";
 
 export interface FileDiff {
   target: string;
@@ -31,6 +38,21 @@ export interface FileDiff {
    *  informational, distinct from `modified`, so "local edit" and "upstream
    *  moved on its own" are never collapsed into one undifferentiated flag. */
   staleUpstream: boolean;
+  /**
+   * The lockfile records this target as a deliberate FORK, and the installed
+   * file still differs from what the registry ships.
+   *
+   * Without this the case was reported as `stale` and read as routine: a fork
+   * matches its own lock hash by construction, so `modified` is false and the
+   * only signal left is "upstream moved", which is the same words a clean
+   * install gets. Anything that overwrites files — an `add`, a re-install —
+   * now has one boolean to refuse on, and a reader has one word that means
+   * "you will lose work here".
+   *
+   * It clears itself: a fork the consumer abandons, or one upstream has since
+   * adopted, matches the registry again and stops being reported.
+   */
+  forked: boolean;
 }
 
 export interface ItemSyncResult {
@@ -60,6 +82,8 @@ export async function diffItem(
   const registryItem = await registrySource(itemName);
   const currentByTarget = new Map((registryItem?.files ?? []).map((f) => [f.target, f.content]));
 
+  const forkedFrom = locked.forked ?? {};
+
   const files: FileDiff[] = [];
   for (const [target, lockedHash] of Object.entries(locked.files)) {
     const installedContent = await readInstalledFile(resolveTargetToPath(target));
@@ -83,23 +107,43 @@ export async function diffItem(
       currentUpstreamHash,
       modified: !matchesUpstream && !matchesLocked,
       staleUpstream: !matchesUpstream && matchesLocked,
+      // Declared at lock time AND still divergent. A fork upstream has since
+      // adopted matches the registry and is simply current.
+      forked: target in forkedFrom && !matchesUpstream,
     });
   }
 
   const newUpstreamFiles = [...currentByTarget.keys()].filter((t) => !(t in locked.files));
 
   const anyModified = files.some((f) => f.modified);
-  const anyUpstreamMoved = files.some((f) => f.currentUpstreamHash !== f.lockedHash);
+  const anyForked = files.some((f) => f.forked);
+  // "Has upstream moved" is measured against the lock hash — EXCEPT on a
+  // forked target, where the lock hash is the fork and would report movement
+  // that never happened. There the baseline is what the registry shipped when
+  // the fork was declared.
+  const anyUpstreamMoved = files.some((f) => {
+    const baseline = forkedFrom[f.target] ?? f.lockedHash;
+    return f.currentUpstreamHash !== baseline;
+  });
 
+  // `forked` outranks `stale`, and that ordering is the fix. A fork matches
+  // its own lock hash by construction, so it is never `modified` — which left
+  // `stale` as the only word for it, the same word a clean install gets when
+  // the registry moves on. One reads as "run the update", the other as "you
+  // will lose work". They must not print the same.
   const status: ItemStatus = registryItem === null
     ? "missing-upstream"
     : anyModified && anyUpstreamMoved
       ? "modified-and-stale"
       : anyModified
         ? "modified"
-        : files.some((f) => f.staleUpstream)
-          ? "stale"
-          : "current";
+        : anyForked && anyUpstreamMoved
+          ? "forked-and-stale"
+          : anyForked
+            ? "forked"
+            : files.some((f) => f.staleUpstream)
+              ? "stale"
+              : "current";
 
   return {
     item: itemName,

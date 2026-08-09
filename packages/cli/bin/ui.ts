@@ -161,8 +161,19 @@ async function cmdSync(flags: Record<string, string | boolean>) {
   }
 
   for (const r of results) {
-    const icon = r.status === "current" ? "✓" : r.status === "missing-upstream" ? "?" : "⚠";
+    const icon =
+      r.status === "current" ? "✓"
+      : r.status === "missing-upstream" ? "?"
+      : r.status === "forked" || r.status === "forked-and-stale" ? "✎"
+      : "⚠";
     console.log(`${icon} ${r.item}: ${r.status}`);
+    // Named files, not just a status word. A fork is work that a re-install
+    // destroys, so the report says exactly which files to keep before running
+    // anything that writes.
+    const forked = r.files.filter((f) => f.forked).map((f) => f.target);
+    if (forked.length) {
+      console.log(`    forked locally — re-installing this item OVERWRITES: ${forked.join(", ")}`);
+    }
     for (const entry of r.ledgerEntries) {
       console.log(`    [${entry.kind}] ${entry.id} — ${entry.summary.split("\n")[0]!.slice(0, 100)}`);
     }

@@ -47,6 +47,64 @@ const DOT_SIZE = {
 } as const satisfies Record<AvatarSize, string>;
 
 /**
+ * The seam colour, and where it is and is not painted.
+ *
+ * EVERY avatar in every library carries a full-perimeter ring in the page's
+ * colour — shadcn (`*:ring-2 *:ring-background`), MUI (`2px solid
+ * background.paper`), Atlassian, Flowbite. All of them have the same defect,
+ * and MUI has it on file (#21700): "Avatar group uses the background colour
+ * set for the app for the Avatar borders, but doesn't pick up on the
+ * background colour of the div it's within." Their answer, and ours until now,
+ * is to let the consumer rebind the colour.
+ *
+ * The sharper answer is Primer's: paint the seam ONLY where it does work.
+ * A ring's whole job is to separate two OVERLAPPING avatars — the component's
+ * own comment has always said so — and three of its four sides never touch
+ * another avatar. Those three sides are the entire defect: they sit on the
+ * ground, claim to BE the ground, and are wrong the moment the avatar is on a
+ * card, a menu panel or a table row. A lone avatar has nothing behind it at
+ * all and wore the ring anyway, which is most call sites in an app.
+ *
+ * So the frame carries no ring. `Avatar.Group` paints a seam on the LEADING
+ * edge of every child but the first — the one edge that lands on top of the
+ * avatar beneath it — and it never reaches the ground. Drawn as an offset
+ * `box-shadow` rather than a border: a shadow copies the border-box SHAPE, so
+ * it follows `soft` and `full` alike with no per-shape geometry, stays
+ * resolution-independent, and needs none of the pixel maths a mask does. Primer
+ * uses `border-right` and has to invert the z-index so the earlier avatar
+ * paints on top; putting the seam on the LEADING edge instead means DOM order
+ * already puts it in the right place.
+ *
+ * `--ui-avatar-ring-color` survives for the two things that still paint: the
+ * seam, and the status dot's ring. It is the same escape hatch every library
+ * lands on, and it now matters for a 1.5px sliver rather than for every
+ * avatar's whole perimeter. The fallback lives in the `var()` rather than as a
+ * declaration on the element, because a declaration would beat an ancestor's
+ * binding and make the property useless for the case it exists for.
+ *
+ * NOT a mask. A cut-out is the only truly ground-independent answer and it is
+ * the wrong trade here: it clips tightly enough that an outer focus ring
+ * becomes impossible (Vaadin #26 — and this avatar is going to become a
+ * control), it lands on fractional pixels and jitters on resize, and the
+ * radial-gradient form everyone ships is a CIRCLE trick while `soft` is this
+ * component's default.
+ *
+ * The STATUS DOT below keeps an opaque ring, and it is the one case a cut-out
+ * could never serve: it separates a 4px mark from the photograph beneath it,
+ * so a hole there shows the photograph. Outset rather than inset, and mostly
+ * painted over the image — only a sliver at the corner reaches the ground.
+ *
+ * Every class here is written out IN FULL rather than composed from a shared
+ * constant, and that is not a style preference. Tailwind scans SOURCE TEXT: a
+ * class built by interpolation never appears literally, so the rule is never
+ * generated and `outline-color` silently falls back to `currentColor` — a
+ * near-black ring round the dot instead of the ground. Probed exactly that
+ * way; it computed to rgb(29, 27, 25). `check:utilities` cannot see it either,
+ * because arbitrary values are skipped there by design.
+ */
+const DOT_RING = "outline-[1.5px] outline-[color:var(--ui-avatar-ring-color,var(--ui-bg-surface))]";
+
+/**
  * Dot fills, as ROLES rather than as the sheet's values.
  *
  * The sheet drew success from `--ui-data-transactional-fg` — a data-viz
@@ -131,7 +189,12 @@ const AvatarRoot = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(prop
       data-size={size}
       data-shape={shape}
       data-status={status}
-      className={cn("relative inline-flex shrink-0 select-none", SIZE[size], className)}
+      // The radius is on the ROOT as well as the frame, and it is load-bearing
+      // rather than decorative: the root does not clip, so it changes nothing
+      // visually — but `Avatar.Group` draws the seam as a box-shadow on this
+      // node, and a shadow copies the BORDER-BOX shape. Without the radius here
+      // the seam would be a square offset behind a rounded tile.
+      className={cn("relative inline-flex shrink-0 select-none", radius, SIZE[size], className)}
       {...rest}
     >
       <span
@@ -139,12 +202,10 @@ const AvatarRoot = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(prop
         className={cn(
           "flex size-full items-center justify-center overflow-clip",
           "font-body font-medium tracking-tight",
-          // The sheet's hairline: an INSET ring in the page's own surface, so
-          // two overlapping avatars in a group read as two rather than as one
-          // shape. `outline` rather than `border`, because a border would eat
-          // 1.5px of the image and Chromium floors it to a whole device pixel
-          // anyway (border-hairline.browser.test.tsx).
-          "outline-[1.5px] outline-offset-[-1.5px] outline-surface",
+          // NO ring. It used to carry a full-perimeter hairline in the page's
+          // colour, which is what every library ships and what made the avatar
+          // wrong on any ground but one. Separating two overlapping avatars is
+          // the group's job and the group does it on one edge — see SEAM.
           // No image means initials on a recessed well. Ink is `muted`, not
           // the sheet's `disabled`: initials identify a person and must clear
           // AA. Measured, disabled is 1.76:1 on this well and muted is 4.87:1.
@@ -175,7 +236,10 @@ const AvatarRoot = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(prop
             aria-hidden="true"
             data-slot="avatar-status"
             className={cn(
-              "absolute rounded-full outline-[1.5px] outline-surface",
+              // The dot's ring is OUTSET — it separates the mark from the photo
+              // under it — so no negative offset here.
+              "absolute rounded-full",
+              DOT_RING,
               DOT_SIZE[size],
               DOT_FILL[status],
             )}
@@ -239,22 +303,40 @@ function AvatarGroup({
   return (
     <span
       data-slot="avatar-group"
-      // The sheet's 4px overlap, as a negative margin on every child but the
-      // first — which is exactly what it draws (`margin-left: -4px`).
-      className={cn("inline-flex items-center -space-x-xs", className)}
+      className={cn(
+        // The sheet's 4px overlap, as a negative margin on every child but the
+        // first — which is exactly what it draws (`margin-left: -4px`).
+        "inline-flex items-center -space-x-xs",
+        // The seam, on the LEADING edge of every child but the first — the one
+        // edge that lands on top of the avatar beneath it, and the only place a
+        // separation is needed. An offset box-shadow rather than a border,
+        // because a shadow copies the border-box SHAPE: it follows `soft` and
+        // `full` with no per-shape geometry. The offset is smaller than the
+        // 4px overlap by construction, so the seam never reaches the ground.
+        //
+        // The first child gets nothing, and neither does a lone avatar outside
+        // a group — which is the whole point. This is where every library
+        // (shadcn, MUI, Atlassian, Flowbite) paints a full ring in the page's
+        // colour instead, and where all of them acquire the same bug.
+        "[&>*:not(:first-child)]:shadow-[-1.5px_0_0_0_var(--ui-avatar-ring-color,var(--ui-bg-surface))]",
+        // The stack reverses under RTL, so the leading edge does too. A
+        // box-shadow offset is the one thing here with no logical form.
+        "rtl:[&>*:not(:first-child)]:shadow-[1.5px_0_0_0_var(--ui-avatar-ring-color,var(--ui-bg-surface))]",
+        className,
+      )}
       {...rest}
     >
       {shown}
       {hidden > 0 && (
         // The counter is the same tile as an avatar with no photo, on purpose:
-        // it sits in the stack, so it has to carry the same well, radius and
-        // hairline or it reads as a different kind of object.
+        // it sits in the stack, so it has to carry the same well and radius or
+        // it reads as a different kind of object. Its seam comes from the same
+        // container rule the avatars get — it is a child like any other.
         <span
           data-slot="avatar-overflow"
           className={cn(
             "relative inline-flex shrink-0 select-none items-center justify-center",
             "bg-sunken text-ink-muted font-body font-medium tracking-tight",
-            "outline-[1.5px] outline-offset-[-1.5px] outline-surface",
             SIZE[size],
             shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
           )}

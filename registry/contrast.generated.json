@@ -13,7 +13,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "a trigger label on a card"
     },
     {
@@ -29,7 +29,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 8.3,
+      "dark": 9.24,
       "role": "panel copy on a card"
     },
     {
@@ -37,7 +37,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.36,
-      "dark": 5.19,
+      "dark": 5.78,
       "role": "the chevron on a card"
     },
     {
@@ -53,7 +53,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "decorative",
       "light": 1.94,
-      "dark": 2.63
+      "dark": 2.93
     }
   ],
   "AspectRatio": [
@@ -80,7 +80,7 @@
       "floor": "non-text",
       "light": 6.06,
       "dark": 9.26,
-      "role": "the success dot against its ring"
+      "role": "the success dot against its ring, at the ring's default colour"
     },
     {
       "fg": "--ui-text-muted",
@@ -88,7 +88,7 @@
       "floor": "non-text",
       "light": 5.78,
       "dark": 6.47,
-      "role": "the neutral dot against its ring"
+      "role": "the neutral dot against its ring, at the ring's default colour"
     },
     {
       "fg": "--ui-intent-danger-fg",
@@ -96,7 +96,7 @@
       "floor": "non-text",
       "light": 5.8,
       "dark": 9.6,
-      "role": "the danger dot against its ring"
+      "role": "the danger dot against its ring, at the ring's default colour"
     },
     {
       "fg": "--ui-bg-surface",
@@ -122,6 +122,14 @@
       "light": 5.93,
       "dark": 4.94,
       "role": "unselected badge ink"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-sunken",
+      "floor": "text",
+      "light": 4.87,
+      "dark": 7.11,
+      "role": "neutral badge — the same pair Banner's neutral variant declares"
     },
     {
       "fg": "--ui-intent-success-fg",
@@ -252,7 +260,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 8.3,
+      "dark": 9.24,
       "role": "a hovered ghost label, on the fill the sheet's Ghost Hover frame actually draws"
     },
     {
@@ -260,7 +268,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "a PRESSED ghost label — the ink step that keeps press from being motion alone"
     },
     {
@@ -278,7 +286,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.19,
+      "dark": 5.78,
       "role": "an unselected day, month or year"
     },
     {
@@ -336,7 +344,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "title on the card surface"
     },
     {
@@ -344,7 +352,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.11,
-      "dark": 1.05,
+      "dark": 1.17,
       "role": "the card surface against the page"
     }
   ],
@@ -354,7 +362,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "the row's own content"
     },
     {
@@ -362,7 +370,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.19,
+      "dark": 5.78,
       "role": "the grip"
     },
     {
@@ -370,7 +378,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.39,
-      "dark": 5.09,
+      "dark": 5.67,
       "role": "the outline on a lifted or dragging row"
     }
   ],
@@ -557,7 +565,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "the menu button's glyph on its chrome fill"
     },
     {
@@ -565,7 +573,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "a nav item's label on the hover fill — the ramp's second step, which is also the chrome control's resting fill"
     },
     {
@@ -658,7 +666,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 8.3,
+      "dark": 9.24,
       "role": "the prompt, and the busy status — NOT the sheet's --ui-text-disabled, which measures 1.94:1 here"
     },
     {
@@ -666,7 +674,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.39,
-      "dark": 6.92,
+      "dark": 7.7,
       "role": "the browse control at rest"
     },
     {
@@ -706,7 +714,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "a file row's name"
     },
     {
@@ -714,7 +722,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.19,
+      "dark": 5.78,
       "role": "a file row's detail, and its cancel glyph"
     },
     {
@@ -781,6 +789,14 @@
       "light": 5.96,
       "dark": 4.85,
       "role": "the focus ring"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-field",
+      "floor": "decorative",
+      "light": 1.47,
+      "dark": 1.49,
+      "role": "the resting hairline"
     }
   ],
   "Menu": [
@@ -901,7 +917,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "the title on the panel"
     },
     {
@@ -909,7 +925,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 8.3,
+      "dark": 9.24,
       "role": "the description"
     },
     {
@@ -917,7 +933,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.11,
-      "dark": 1.05,
+      "dark": 1.17,
       "role": "the panel against the page"
     }
   ],
@@ -1122,7 +1138,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.19,
+      "dark": 5.78,
       "role": "a resting column header, on the mat"
     },
     {
@@ -1210,7 +1226,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.08,
-      "dark": 1.25
+      "dark": 1.12
     },
     {
       "fg": "--ui-bg-sunken",
@@ -1242,7 +1258,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 10.06,
+      "dark": 11.2,
       "role": "count ink on its pill"
     },
     {

@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-header-height-and-anchor-props",
+  "date": "2026-08-09",
+  "item": "header",
+  "kind": "fix",
+  "summary": "Two gaps a consumer hit while composing the bar across five app surfaces. (1) THE 48px HEIGHT WAS EMERGENT, NOT PINNED. The bar was py-sm around whatever its tallest child happened to be, which silently assumed a 32px control was present — so a bar whose tallest child is a 24px Header.Item rendered at 40px, and one route in an app had a shorter app bar than every other with nothing to say so. Both public call sites had already worked around it with their own h-12. The component now owns the height its own sheet specifies (h-12); py-sm stays, as the 32px content lane the sheet draws its controls in. The browser test mounts a bar containing nothing 32px tall and asserts 48. (2) Header.Item COULD NOT CARRY target/rel. Its props extended HTMLAttributes<HTMLElement>, which has no target, no rel, no download and no referrerPolicy, so an item pointing off the app could not open in a new tab through its own API — the only route was the `render` slot, which means writing the href twice and keeping the two copies in step. They now extend AnchorHTMLAttributes<HTMLElement>. `type` is the one anchor attribute removed: on the button branch it is the type=\"button\" that stops a nav item submitting a form around it, and on an anchor it is a MIME hint nothing here wants.",
+  "affects": [
+    "item:header",
+    "slot:header",
+    "prop:Item.target",
+    "prop:Item.rel",
+    "prop:Item.download",
+    "prop:Item.referrerPolicy"
+  ],
+  "migration": {
+    "manual": "A bar with no 32px control in it grows from its emergent height to 48px. If your app added its own `h-12` to compensate, remove it — the class merges either way, so leaving it is harmless. An external Header.Item routed through `render` purely to reach target/rel can drop the render element and pass target/rel directly."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0"
+  }
+}

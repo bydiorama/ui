@@ -2,7 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactElement, type ReactNode } fr
 
 import { cn } from "@/lib/cn";
 
-export type BadgeVariant = "selected" | "unselected" | "success" | "warning" | "danger";
+export type BadgeVariant = "selected" | "unselected" | "neutral" | "success" | "warning" | "danger";
 export type BadgeSize = "md" | "sm";
 /**
  * One vocabulary with Button (§2): `full` is `rounded-full`, `soft` is the
@@ -38,6 +38,24 @@ const SIZE = {
 const VARIANT = {
   selected: "bg-accent border-accent text-ink-on-accent",
   unselected: "bg-base border-edge-subtle text-ink-muted",
+  /**
+   * Status data that carries no INTENT — an industry, a type, a plan tier.
+   * The commonest badge in an admin table, and the set had no answer for it:
+   * `unselected` is a choice state wearing an outline, and tinting a category
+   * green or blue teaches nothing when the value never varies. The Patterns
+   * index sheet draws exactly this and says so ("Don't colour a category that
+   * never varies").
+   *
+   * The same two roles Banner's own `neutral` uses, because it is the same
+   * concept and §2 says a concept gets one vocabulary — measured 4.87:1 light
+   * and 7.11:1 dark, the numbers in Banner's own note.
+   *
+   * The sheet drew it as `--ui-bg-active`, which is an INTERACTION role: a
+   * resting badge would then be the exact colour of a pressed table row, and
+   * a row of them would change meaning under the pointer. Recorded as a delta
+   * with the measurement, because sunken IS quieter in dark — see needsDesign.
+   */
+  neutral: "bg-sunken border-transparent text-ink-muted",
   success: "bg-success-subtle border-transparent text-success",
   // The sheet's "Warning" row, added to all three sizes. It completes the
   // intent set the token layer already carried — success, warning and danger

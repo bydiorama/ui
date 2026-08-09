@@ -1,6 +1,7 @@
 import {
   createContext,
   forwardRef,
+  type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
   useContext,
   useId,
@@ -45,10 +46,18 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
       ref={ref}
       data-slot="header"
       className={cn(
-        // 48px tall: py-sm around a 32px control. px-lg, not the sheet's raw
-        // 20px — 20 is off the spacing scale entirely, and the mobile drawing
-        // of this same bar uses 12. Recorded as a design defect.
-        "flex items-center gap-sm px-lg py-sm",
+        // 48px, PINNED rather than emergent. It used to be py-sm around
+        // whatever the tallest child happened to be, which silently assumed a
+        // 32px control was present: a bar whose tallest child is a 24px
+        // Header.Item rendered at 40px, so one route in an app had a shorter
+        // app bar than every other and nothing said so. Both public call sites
+        // had already worked around it with their own `h-12`. The component
+        // owns the height its own sheet specifies.
+        //
+        // py-sm stays: with the height fixed it is the 32px content lane the
+        // sheet draws the controls in, and it keeps a taller child from
+        // sitting flush against the edge.
+        "flex h-12 items-center gap-sm px-lg py-sm",
         "bg-surface text-ink-primary",
         className,
       )}
@@ -150,10 +159,28 @@ function HeaderNav({ children, label, className, ...rest }: HeaderNavProps) {
   );
 }
 
-export interface HeaderItemProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+/**
+ * Anchor attributes, not merely element attributes.
+ *
+ * `HTMLAttributes<HTMLElement>` has no `target`, no `rel`, no `download` and
+ * no `referrerPolicy` — so an item that navigates OFF the app could not open
+ * in a new tab through its own API, and the only way out was the `render`
+ * slot, which means writing the href twice and keeping the two in step. An
+ * item is an `<a>` whenever it has an href; its props should say so.
+ *
+ * `type` is removed because the two branches disagree about it: on the button
+ * branch it is the `type="button"` that stops a nav item submitting a form
+ * around it, and on an anchor it is a MIME hint nothing here wants.
+ */
+export interface HeaderItemProps
+  extends Omit<AnchorHTMLAttributes<HTMLElement>, "children" | "href" | "type"> {
   children: ReactNode;
   /** Makes the item a link. Without it the item is a button — the sheet draws
-   *  two that open menus rather than navigate, and they carry a chevron. */
+   *  two that open menus rather than navigate, and they carry a chevron.
+   *
+   *  `target`/`rel` come with it: an external destination opens in a new tab
+   *  through this API rather than through `render`. They are inert on the
+   *  button branch, exactly as they are on any `<button>`. */
   href?: string;
   /**
    * Marks the current page. Sets aria-current, which is what is announced —
@@ -202,6 +229,18 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         // current item changed nothing at all. Sidebar never hit this because
         // its rows step from 500 to 600 as well as filling; a 12px bold bar
         // item has no weight left to spend.
+        //
+        // The ramp then INVERTED in dark, and this file was not where the
+        // defect lived. `--ui-bg-elevated` raised 0.06 in dark against
+        // `bg-hover`'s 0.05, so the second rung overshot the third: measured
+        // against the bar, hover 1.247 and current 1.210 — the page you are on
+        // read QUIETER than the one under the pointer, 1.031 apart. The fix is
+        // in the resolver (elevation now stays inside the interaction ramp in
+        // both schemes) and the guarantee is `resolve.test.ts`'s fill-stack
+        // ordering test. Light was 1.079 / 1.188 / 1.434 throughout and never
+        // showed it, which is why the browser test below now measures the
+        // ORDER in both schemes rather than asserting the four fills differ —
+        // "differ" passes at 1.031.
         //
         // The steps are mutually exclusive by CONSTRUCTION rather than by
         // stylesheet order. `hover:bg-elevated` and `data-[current]:bg-hover`

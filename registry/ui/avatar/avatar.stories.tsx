@@ -144,6 +144,56 @@ export const NameHandling: Story = {
   ),
 };
 
+/**
+ * The composition that found the defect, and the answer to it.
+ *
+ * An avatar used to carry a full-perimeter hairline in the page's colour —
+ * which is what shadcn, MUI, Atlassian and Flowbite all ship, and what MUI has
+ * on file as #21700. Three of that ring's four sides never touch another
+ * avatar: they sit on the ground claiming to BE the ground, so the moment an
+ * avatar is on a card, a menu panel or a table row it wears a visible
+ * mismatched rim. A lone avatar wore it for nothing at all.
+ *
+ * Now nothing is painted except the seam, on the leading edge of a stacked
+ * child, where it lands on the avatar beneath it. Every ground below is
+ * unbound — there is nothing left to reconcile.
+ */
+export const OnOtherGrounds: Story = {
+  render: () => {
+    const GROUNDS = [
+      { label: "bg-surface — the seam's default colour", ground: "bg-surface" },
+      { label: "bg-elevated — a card, a menu panel", ground: "bg-elevated" },
+      { label: "bg-sunken — a well", ground: "bg-sunken" },
+      { label: "bg-accent-subtle — a selected table row", ground: "bg-accent-subtle" },
+    ] as const;
+    return (
+      <div className="flex flex-col gap-md">
+        {GROUNDS.map(({ label, ground }) => (
+          <div key={label} className={`rounded-lg p-lg ${ground}`}>
+            <p className="pb-sm text-caption text-ink-muted">{label}</p>
+            <div className="flex items-center gap-xl">
+              {(["soft", "full"] as const).map((shape) => (
+                <div key={shape} className="flex items-center gap-md">
+                  {/* Lone — no edge of its own, so no ground to be wrong about. */}
+                  <Avatar name="Miroslava Vrbová" src={PHOTO} shape={shape} status="success" statusLabel="Online" />
+                  {/* Stacked — the seam, and only where it does work. */}
+                  <Avatar.Group max={3} overflowLabel="2 more people" shape={shape}>
+                    <Avatar name="Mira Vance" src={PHOTO} shape={shape} />
+                    <Avatar name="Peter Roth" shape={shape} />
+                    <Avatar name="Dana Ilic" shape={shape} />
+                    <Avatar name="Anna Kis" shape={shape} />
+                    <Avatar name="Bo Lin" shape={shape} />
+                  </Avatar.Group>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  },
+};
+
 const STRESS_BRAND: ThemeSeed = {
   colors: {
     bg: "#fffdf5",

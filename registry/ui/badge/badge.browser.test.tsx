@@ -67,6 +67,10 @@ describe("Badge variants resolve to the designed roles", () => {
   test.each([
     ["selected", "rgb(158, 219, 243)", "rgb(29, 27, 25)"],
     ["unselected", "rgb(255, 255, 255)", "rgb(105, 99, 93)"],
+    // The same two roles Banner's neutral variant uses — one vocabulary per
+    // concept (§2). The sheet drew --ui-bg-active here, an INTERACTION role,
+    // which would have made a resting badge the colour of a pressed row.
+    ["neutral", "rgb(237, 232, 227)", "rgb(105, 99, 93)"],
     ["success", "rgb(214, 239, 203)", "rgb(36, 110, 65)"],
     ["warning", "rgb(248, 231, 217)", "rgb(143, 84, 38)"],
     // The sheet used --ui-bg-danger-solid as ink; the fixed role is the
@@ -79,22 +83,44 @@ describe("Badge variants resolve to the designed roles", () => {
     expect(style.color).toBe(fg);
   });
 
-  test("the three status variants are three DIFFERENT colours", () => {
-    // Asserted as a difference, not as three separate literals: a copy-paste
+  test("the four data variants are four DIFFERENT colours", () => {
+    // Asserted as a difference, not as four separate literals: a copy-paste
     // in the VARIANT map would leave every one of those literal assertions
     // passing while warning painted the success tint. Badge has been here
     // before — its two sizes were pixel-identical while every test passed.
     const fills = new Set<string>();
+    for (const variant of ["neutral", "success", "warning", "danger"] as const) {
+      const { badge } = mount(<Badge variant={variant}>Label</Badge>);
+      fills.add(getComputedStyle(badge).backgroundColor);
+      act(() => root?.unmount());
+      container?.remove();
+    }
+    expect(fills.size).toBe(4);
+
+    // Ink is checked over the intents only: `neutral` deliberately reuses the
+    // muted ink `unselected` already carries, because it is the absence of an
+    // intent rather than a fourth one.
     const inks = new Set<string>();
     for (const variant of ["success", "warning", "danger"] as const) {
       const { badge } = mount(<Badge variant={variant}>Label</Badge>);
-      fills.add(getComputedStyle(badge).backgroundColor);
       inks.add(getComputedStyle(badge).color);
       act(() => root?.unmount());
       container?.remove();
     }
-    expect(fills.size).toBe(3);
     expect(inks.size).toBe(3);
+  });
+
+  test("neutral is a TINT, not an outline — it is data, not a choice", () => {
+    const neutral = mount(<Badge variant="neutral">Consulting</Badge>);
+    // The distinction the variant exists to make: `unselected` is a choice
+    // state wearing a border, `neutral` is categorical data wearing a fill.
+    expect(getComputedStyle(neutral.badge).borderTopColor).toBe("rgba(0, 0, 0, 0)");
+    const neutralFill = getComputedStyle(neutral.badge).backgroundColor;
+    act(() => root?.unmount());
+    container?.remove();
+
+    const unselected = mount(<Badge variant="unselected">Consulting</Badge>);
+    expect(getComputedStyle(unselected.badge).backgroundColor).not.toBe(neutralFill);
   });
 
   test("status variants carry no visible border; choice variants do", () => {

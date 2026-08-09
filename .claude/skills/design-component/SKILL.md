@@ -42,6 +42,30 @@ side, which is the whole reason this step exists.
   is not what ships, and an icon layer called `SVG` has lost the one thing the
   sheet knew: which glyph it is.
 
+### 1b · Read the primitive before you draw a control that already exists
+
+**`pnpm design:primitives [name…]`** prints the size, radius, variant and
+prop-default maps straight out of `registry/ui/*.tsx`. Run it before drawing
+any Button, Input, Textarea, Tabs, Badge, Select or Accordion, and draw the
+numbers it gives you.
+
+Tokens are not enough, and one sheet proved it: Buttons drawn as pills, fields
+with a 1px `border-control` edge, segmented rows at 32px — every value a legal
+token, not one of them what ships. `shape` defaults to **`soft`**; a Button's
+edge is an inset **`ring-[1.5px]`**, not a border; `secondary` carries **no
+fill**; a field's resting edge is a **1.5px `border-subtle`** hairline because
+the focus ring — not the border — carries SC 1.4.11.
+
+**Never transcribe those numbers into this file.** A table here is a second
+copy of `button.tsx` that goes stale the first time someone edits the real
+one, and a sheet built from the stale copy still looks approvable. The script
+reads source at run time and so has nothing of its own to drift.
+
+**An off-scale value inside a component is the component's, not yours.** Tabs
+insets its track `p-[2px]` and says in a comment why the scale cannot express
+it. "Correcting" that on a sheet is drift wearing compliance; match it and
+leave the gap recorded where it already is.
+
 ## The handoff sheet format
 
 Measured off the Button sheet with `get_computed_styles`, not eyeballed —
@@ -76,7 +100,7 @@ for another reason, and use 1280 for anything new.
 | Sheet heading | row, `gap: space-lg`. Title `text-title-lg` / 500 / tracking-tight, **`width: 20%`**; intro paragraphs `text-body-sm` / 400 in `text-muted` |
 | Section | column, `gap: space-2xl`. Head row is the same 20% title lane at `text-title-md`, description `text-body-sm` muted |
 | Annotation row | `border-top: 1px` `border-subtle`, `padding-block: space-sm`. Name lane **120–150px fixed**, `text-label-sm` / 600 primary; note `text-label-sm` / 400 muted |
-| Token map row | a 16px swatch, then a **200px** `Geist Mono` 11px name, then the role in muted `label-sm` |
+| Token map row | a 16px swatch, then a **200px** name lane at `text-label-sm` on a `bg-sunken` / `radius-sm` inset, then the role in muted `label-sm` |
 | Specimen | on `bg-surface` inside a `radius-md` frame with a `border-subtle` hairline — a bar or a rail painted `bg-surface` is otherwise invisible on `bg-base` |
 | Icons | real glyphs from the icon set, each layer named for its export (`Search`). See **`griddy-icons-in-paper`** |
 
@@ -189,6 +213,21 @@ pressed must move one direction, in both schemes.
   `pnpm design:gaps` collects.
 - `finish_working_on_nodes` when done. Never leave node IDs in user-facing text.
 
+**Sweep the board before you call it done — a screenshot cannot see any of
+this.** Each `find_nodes` query below must come back empty; each one is a
+defect that shipped on a sheet that looked finished.
+
+```js
+find_nodes({ nodeId, filters: [{ styleName: "font-family", styleValue: "system-ui, sans-serif" }] })
+find_nodes({ nodeId, filters: [{ styleName: "font-family", styleValue: "*Mono*" }] })
+find_nodes({ nodeId, filters: [{ styleName: "font-size",   styleValue: "11px" }] })   // and 10px
+find_nodes({ nodeId, filters: [{ styleName: "border-radius", styleValue: "6px" }] })  // and 2px, 3px
+```
+
+Then `find_nodes` for `box-shadow: *` and check every hit against a resolved
+`--ui-shadow-*` value. Report the counts — "verified 0" is evidence; "looks
+right" is not.
+
 ## Placeholder data
 
 **Use famous graphic designers and inventors of European descent.** Not
@@ -236,6 +275,11 @@ Conventions that come with it:
 | Trap | Rule |
 | --- | --- |
 | `--ui-*` set on a frame, children unchanged | Custom properties do not cascade in Paper. Dark needs explicit values, applied per node |
+| `fontFamily` set once on the artboard | **Neither does font.** Every text node needs its own `font-family: var(--ui-font-body)`, or all of them render `system-ui` — the whole board in the wrong face, and nothing looks broken. Sweep it: `find_nodes` for `font-family: "system-ui, sans-serif"` must return **0** |
+| Reaching for mono for numbers or token names | There is no mono face (ADR 0011). Numeric alignment is `font-variant-numeric: tabular-nums`; token strings get a `bg-sunken` / `radius-sm` inset in the body face |
+| A label at 11px because it "reads as a caption" | 12px is the floor and `--ui-text-caption` **is** 12px. ADR 0009 §2 records the 11px specimen as an annotation error — do not re-derive it |
+| `--ui-bg-emphasis` for a selected chip, segment or row | The chosen item in a set is `--ui-bg-selected`, as Tabs draws it. Emphasis is a filled action; only the single primary action in a view gets a filled accent (`ui-craft` 18) |
+| An invented shadow | Paper has no shadow token type, so paste the resolved `--ui-shadow-*` value and put the role in the layer name — that name is the only record the implementer gets |
 | Reading dark values off the Paper token list | It is light-only. Resolve from `packages/tokens` (§ 2) |
 | Hover and selected drawn from `--ui-bg-hover` and `--ui-bg-selected` | Identical in light (`#EDE8E3`). Two states that must differ and don't = a missing token, not a design choice |
 | A 2px accent edge on its own subtle tint | `--ui-bg-accent` is a *light* blue; on `--ui-bg-accent-subtle` it vanishes. `--ui-bg-accent-legible` exists for this |

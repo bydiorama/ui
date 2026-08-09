@@ -31,6 +31,7 @@
     "check:visual-coverage": "node scripts/check-visual-coverage.mjs",
     "check:visual-runner": "node scripts/check-visual-runner.mjs",
     "design:gaps": "node scripts/report-design-gaps.mjs",
+    "design:primitives": "node scripts/report-primitive-geometry.mjs",
     "skills:build": "node scripts/build-skills.mjs",
     "check:skills": "node scripts/validate-skills.mjs && node scripts/build-skills.mjs --check",
     "test:visual": "pnpm --filter @bydiorama/storybook run test:visual",

@@ -56,7 +56,20 @@ const NAMESPACES = [
   // (`border-b-elevated`), so nothing had ever written the bare form; Table's
   // row divider is the first, and the gate rejected a correct utility.
   // `border-b-elevated` and `border-elevated` still resolve their colour.
-  [/^border-(?![xytrbles]$)(?:[xytrbles]-)?([a-z][\w-]*)$/, "--color-"],
+  //
+  // The SECOND lookahead is a sided WIDTH — `border-t-0`, `border-x-2`. The
+  // loop already waves through a key starting with a digit, so a bare
+  // `border-0` was always safe; what it could not survive was the optional
+  // side group BACKTRACKING. Given `border-t-0` the group matches `t-`, the
+  // capture then fails on `0`, the engine drops the group and re-runs the
+  // capture from `t` — which happily takes `t-0` and demands `--color-t-0`.
+  // The digit guard has to sit outside the optional group for that reason;
+  // inside it, backtracking simply steps around it. NavRail is the first to
+  // write a sided zero (a Section suppresses its own divider at the top of
+  // the rail), and this is the fourth blind spot the `border-*` namespace has
+  // had — it stays the most error-prone pattern here because it is the one
+  // prefix carrying colours, widths, styles AND a length.
+  [/^border-(?![xytrbles]$)(?![xytrbles]-\d)(?:[xytrbles]-)?([a-z][\w-]*)$/, "--color-"],
   // `outline-offset-*` and the line styles are built-ins, not colours.
   [/^outline-(?!offset-|solid|dashed|dotted|double)(.+)$/, "--color-"],
   // Every spacing-namespace prefix, not a sample of them. `mt-` was absent

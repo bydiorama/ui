@@ -30,6 +30,7 @@ import { Header } from "@/ui/header/header.tsx";
 import { EmptyState } from "@/ui/empty-state/empty-state.tsx";
 import { ImageUpload } from "@/ui/image-upload/image-upload.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
+import { NavRail } from "@/ui/nav-rail/nav-rail.tsx";
 import { Table } from "@/ui/table/table.tsx";
 
 let container: HTMLDivElement | null = null;
@@ -121,6 +122,24 @@ const CASES: Array<[name: string, ui: ReactElement]> = [
         <Sidebar.Item href="#a">Row</Sidebar.Item>
       </Sidebar.Section>
     </Sidebar>,
+  ],
+  [
+    // A rail row is ONLY its glyph — there is no label beside it to make an
+    // oversized icon look merely off. At 24px griddy's default fills the whole
+    // 32px row edge to edge, which reads as a filled square rather than a
+    // wrong icon, so this is the case where the slot matters most.
+    "NavRail item",
+    <NavRail label="Primary">
+      <NavRail.Section label="Brand">
+        <NavRail.Item icon={<Search />} label="Search everything" href="#a" />
+      </NavRail.Section>
+    </NavRail>,
+  ],
+  [
+    "NavRail slot",
+    <NavRail label="Primary">
+      <NavRail.Slot><Search /></NavRail.Slot>
+    </NavRail>,
   ],
 ];
 

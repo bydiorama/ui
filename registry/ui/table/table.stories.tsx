@@ -333,3 +333,42 @@ export const BrandThemed: Story = {
     );
   },
 };
+
+/**
+ * The two responsive levers, side by side.
+ *
+ * `fixed` (the default) always fits its frame — it squeezes rather than
+ * scrolling, which is right when the sheet drew the lanes. `auto` sizes every
+ * lane to its content and lets the grid grow past the frame, which is right
+ * when the content is unknown. Either one scrolls once `minWidth` gives it a
+ * floor, and the frame no longer CLIPS the overflow away, which is what it
+ * used to do.
+ */
+export const Responsive: Story = {
+  render: () => (
+    <div className="flex flex-col gap-xl" style={{ width: 420 }}>
+      <div className="flex flex-col gap-sm">
+        <p className="text-caption text-ink-muted">fixed · 420px frame — lanes compress to fit</p>
+        <Table
+          caption="Designers, fixed lanes"
+          columns={COLUMNS}
+          rows={DESIGNERS.slice(0, 3)}
+          getRowId={(row) => row.id}
+        />
+      </div>
+      <div className="flex flex-col gap-sm">
+        <p className="text-caption text-ink-muted">
+          auto + minWidth · the frame scrolls, and becomes a tab stop while it does
+        </p>
+        <Table
+          caption="Designers, content-sized lanes"
+          columns={COLUMNS}
+          rows={DESIGNERS.slice(0, 3)}
+          getRowId={(row) => row.id}
+          layout="auto"
+          minWidth={720}
+        />
+      </div>
+    </div>
+  ),
+};

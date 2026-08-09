@@ -335,7 +335,7 @@ function SidebarSection({
           className={cn(
             headingClass,
             "cursor-pointer transition-[background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-            "hover:bg-nav-active",
+            "hover:bg-nav-hover",
             "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
           )}
         >
@@ -452,8 +452,13 @@ function SidebarItem({
         // Hover and current are gated on `not-[[data-disabled]]` so an
         // unavailable row cannot light up as if it were reachable.
         isLink && !isDisabled && [
-          "hover:bg-nav-active hover:text-ink-nav",
-          // The fill is barely visible, so weight and ink carry the state too.
+          // Hover and current are two FILLS now, not one. They shared
+          // `--ui-nav-active-bg` until a 48px rail had to tell them apart
+          // without a label to change weight; the family gained
+          // `--ui-nav-hover-bg` rather than the row gaining a marker, and this
+          // rail takes the same step so the two stay interchangeable.
+          "not-data-[current]:hover:bg-nav-hover not-data-[current]:hover:text-ink-nav",
+          // The fill is subtle, so weight and ink carry the state too.
           "data-[current]:bg-nav-active data-[current]:text-ink-nav-active data-[current]:font-bold",
         ],
         // The sheet draws this row in --ui-text-disabled. That is the page's
@@ -539,7 +544,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
         className={cn(
           "flex w-full items-center gap-sm rounded-sm p-xs text-left",
           "cursor-pointer transition-[background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-          "hover:bg-nav-active",
+          "hover:bg-nav-hover",
           "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
           className,
         )}

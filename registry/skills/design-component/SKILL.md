@@ -33,9 +33,77 @@ side, which is the whole reason this step exists.
 - **A reference artboard the user points at is a moodboard, not your canvas.**
   Screenshot it, take the ideas, and `create_artboard` for the spec. Never
   edit the references — the user is still reading them.
-- Match the file's existing handoff convention. On this file that is
-  `Component --- <Name>`, a title with a one-line subtitle, and numbered
-  sections. A sheet that looks unlike its neighbours reads as a draft.
+- Match the file's existing handoff convention — § *The handoff sheet format*
+  below has the measured values. A sheet that looks unlike its neighbours
+  reads as a draft.
+- **Never hand-draw an icon.** Extract the real glyph from the installed icon
+  set and name its layer after the export — the **`griddy-icons-in-paper`**
+  skill is the method. A drawn approximation looks close enough to approve and
+  is not what ships, and an icon layer called `SVG` has lost the one thing the
+  sheet knew: which glyph it is.
+
+## The handoff sheet format
+
+Measured off the Button sheet with `get_computed_styles`, not eyeballed —
+which is how a new sheet ends up looking like its neighbours rather than
+nearly like them. `Handoff - Components` is the page; `Component --- <Name>`
+is the artboard name.
+
+### Artboard and guides
+
+| Setting | Value |
+|---|---|
+| Width | **1280px** |
+| Height | `fit-content` — never a guessed number; content decides |
+| Grid guide | **4px** — the spacing scale's own base, so a nudge lands on a step |
+| Column guide | **centre, 12 columns, 96px wide, 4px gutter** |
+
+The columns close at 12 × 96 + 11 × 4 = **1196**, centred in 1280, which leaves
+a 42px margin each side. Guides are an editor setting — the MCP surface does
+not expose them, so set them on the artboard by hand once and every later sheet
+inherits the same rhythm by being duplicated from it.
+
+**The sheets built before this was settled are 1120 wide.** They are internally
+consistent and were measured that way; leave them unless you are reflowing one
+for another reason, and use 1280 for anything new.
+
+### Structure
+
+| Part | Value |
+|---|---|
+| Artboard | `padding: 64px`, `bg-base`, column, `align-items: center` |
+| Container | column, `align-self: stretch`, `gap: 64px` |
+| Sheet heading | row, `gap: space-lg`. Title `text-title-lg` / 500 / tracking-tight, **`width: 20%`**; intro paragraphs `text-body-sm` / 400 in `text-muted` |
+| Section | column, `gap: space-2xl`. Head row is the same 20% title lane at `text-title-md`, description `text-body-sm` muted |
+| Annotation row | `border-top: 1px` `border-subtle`, `padding-block: space-sm`. Name lane **120–150px fixed**, `text-label-sm` / 600 primary; note `text-label-sm` / 400 muted |
+| Token map row | a 16px swatch, then a **200px** `Geist Mono` 11px name, then the role in muted `label-sm` |
+| Specimen | on `bg-surface` inside a `radius-md` frame with a `border-subtle` hairline — a bar or a rail painted `bg-surface` is otherwise invisible on `bg-base` |
+| Icons | real glyphs from the icon set, each layer named for its export (`Search`). See **`griddy-icons-in-paper`** |
+
+The **20% title lane is the thing that makes the page feel like one document.**
+Every head — sheet, section, and the parts table's first column — lands on it.
+
+Sections that earn their place on a handoff sheet, in this order: Anatomy ·
+the component's own axis (sizes, levels, states) · behaviour that spans
+components · Token map · **Gaps**.
+
+### The Gaps section is not optional
+
+It mirrors the doc's `needsDesign` and `knownGaps`, so the disagreement
+between the drawing and the code is visible to whoever picks the work up
+rather than living in a comment nobody opens. One badge per row, from a fixed
+vocabulary:
+
+| Badge | Fill | Means |
+|---|---|---|
+| **Not built** / **Missing** | `intent-warning-bg` | Drawn here, absent in code |
+| **Conflict** | `intent-warning-bg` | The sheet and the code disagree; someone must choose |
+| **Built** / **Closed** / **Decided** | `intent-success-bg` | Was open, now resolved — say which way |
+| **Derived** / **Corrected** / **Absent** | `bg-elevated` | The library's own reading, a design defect fixed, or simply not drawn |
+
+**Update the badge when the gap closes; do not delete the row.** A resolved
+decision with its reasoning attached is what stops the next person
+re-deriving it — that is the whole value of the section.
 
 ### 2 · Get the token values from the REPO, not from Paper
 
@@ -179,13 +247,22 @@ Conventions that come with it:
 | A state drawn in light only | Half a spec. The dark half is where the ramp bugs are |
 | Judging a hairline or a 2px edge from a 1x screenshot | `scale: 2`, or you will "fix" something that was already right |
 | A value on the sheet that is not a token | It is a design bug by the time it reaches `add-component`. Either it is a role, or it is a **new** role you name and flag |
+| A screenshot of a section that comes back on BLACK | Nothing is wrong. A frame with no fill is transparent, and `get_screenshot` backs transparency with black — so `text-primary` labels look like they have vanished. Screenshot the ARTBOARD to judge colour; sections are for layout |
+| `get_screenshot` returning nothing at all, repeatedly | The artboard is too tall to render (roughly 3–4k px and up). Not a transient failure and not worth retrying — capture the sections instead, and say in the handoff that the whole board was never seen in one frame |
+| A cloned overlay landing as a thin strip | The source was `position: absolute` inside a phone frame; cloned into a flex column it leaves the flow and the column collapses under it. Set `position: relative` and an explicit width/height on the clone |
+| Cloning a specimen by the layer name that sounds right | Open it first. "Nav Rail Level 2" was an agent-history rail in one place and a collapsed rail in another, and both captions were written before either was looked at |
+| A specimen painted `bg-surface` on a `bg-base` artboard | Invisible. Give it a `radius-md` frame with a `border-subtle` hairline — the sheet is documentation, so a boundary that does not exist in the product is allowed here |
+| An icon drawn by hand because it was quicker | It is a lie in a contract: close enough to approve, not what renders. Extract it (**`griddy-icons-in-paper`**) |
+| An icon layer left called `SVG` | The glyph's identity is gone — path data is unreadable, so the layer name is the only record, and recovering it means matching 1159 candidates by eye. The implementer guesses instead, which is the decision the sheet existed to make |
 
 ## Definition of done
 
 Every state the component can enter, drawn · all three sizes · **both
 schemes, with the interaction ramp checked as a sequence** · every colour a
-role token or a named new one · a token map section · new tokens and unresolved
-gaps reported to the user · exported to `design/` with the Paper URL ·
+role token or a named new one · **every icon extracted from the set and its
+layer named for the export** · a token map section · **a Gaps section
+mirroring the doc, one badge per row** · new tokens and unresolved gaps
+reported to the user · exported to `design/` with the Paper URL ·
 `finish_working_on_nodes` called.
 
 A sheet missing any of these is a mood board, whatever it looks like.

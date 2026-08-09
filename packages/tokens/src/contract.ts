@@ -224,6 +224,7 @@ export const BRANDABLE_TOKENS = [
   "--ui-nav-ink-muted",
   "--ui-nav-ink-disabled",
   "--ui-nav-border",
+  "--ui-nav-hover-bg",
   "--ui-nav-active-bg",
   "--ui-nav-active-ink",
   "--ui-nav-width",
@@ -397,6 +398,20 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-intent-info-fg", "--ui-intent-info-bg"],
   ["--ui-nav-ink", "--ui-nav-bg"],
   ["--ui-nav-active-ink", "--ui-nav-active-bg"],
+  // A rail row under the pointer, and the marker on the current one. Both put
+  // `nav-ink` on the ACTIVE fill rather than on the rail — the pair the family
+  // never had, because Sidebar's hover lifts its ink onto that same fill and
+  // nobody listed it. NavRail leans on it harder: with no label to change
+  // weight, the marker is the only thing separating current from hover, so an
+  // unlisted pair here would be the one measurement that matters going
+  // unmeasured. Fifth time that sentence has been earned.
+  ["--ui-nav-ink", "--ui-nav-active-bg"],
+  // The rail's hover fill. It exists because a 2px left-edge marker was the
+  // wrong way to separate current from hover — a rule inside a control reads
+  // as clutter, and Menu.Separator had already written the principle down
+  // ("SPACE, not a rule"). Depth is the channel that was missing, so depth is
+  // what was added, and the new ground carries ink that has to be measured.
+  ["--ui-nav-ink", "--ui-nav-hover-bg"],
   // Ink on an image scrim, measured against the palest ground that scrim can
   // produce rather than against the ink it is made of. The sheet drew this
   // pair at 48% with `--ui-text-inverse` and `--ui-neutral-80`, which measure

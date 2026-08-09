@@ -1,4 +1,7 @@
-import { useCallback, type CSSProperties, type MouseEvent, type ReactNode, type Ref } from "react";
+import {
+  useCallback, useEffect, useId, useRef, useState,
+  type CSSProperties, type MouseEvent, type ReactNode, type Ref,
+} from "react";
 import { ChevronDown } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
@@ -6,6 +9,7 @@ import { Checkbox } from "@/ui/checkbox";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
 export type TableSize = "lg" | "md" | "sm";
+export type TableLayout = "fixed" | "auto";
 export type TableSortDirection = "ascending" | "descending";
 
 export interface TableSort {
@@ -130,6 +134,33 @@ interface TableBaseProps<Row> {
    * loses the one thing that said what was being filtered.
    */
   empty?: ReactNode;
+  /**
+   * How the lanes are sized.
+   *
+   * `fixed` is the DEFAULT and it is what the sheet draws: lanes are declared,
+   * the primary column flexes, and the header, the rows, the skeleton and the
+   * empty state all agree because none of them depends on content. That
+   * agreement is the whole reason the lane system exists, and it is the reason
+   * this default differs from the browser's — under `auto` the lanes shift
+   * between loading and loaded, because the skeleton's placeholder text is not
+   * the data's.
+   *
+   * `auto` is the browser's own algorithm: every lane sizes to its content,
+   * `width` becomes a hint rather than an instruction, and the table grows past
+   * its container rather than squeezing. Reach for it when the content is
+   * unknown — which is most tables that were not drawn — and accept the shift.
+   */
+  layout?: TableLayout;
+  /**
+   * A floor for the grid, in px, below which the frame scrolls horizontally
+   * instead of compressing.
+   *
+   * Optional and unset by default, because a table that fits should not invent
+   * a scrollbar. With `layout="auto"` it is usually unnecessary: content
+   * already pushes the grid past the frame. With `fixed` it is the ONLY way to
+   * scroll, since `w-full` means the lanes always add up to the container.
+   */
+  minWidth?: number;
   className?: string;
   ref?: Ref<HTMLDivElement>;
 }
@@ -207,6 +238,8 @@ export function Table<Row>({
   isLoading = false,
   loadingRowCount = 3,
   empty,
+  layout = "fixed",
+  minWidth,
   isSelectable = false,
   getRowLabel,
   selectAllLabel,
@@ -217,6 +250,33 @@ export function Table<Row>({
   ref,
 }: TableProps<Row>) {
   const metrics = SIZE[size];
+  const captionId = useId();
+
+  /**
+   * The scroll region is a tab stop ONLY while it actually scrolls.
+   *
+   * A region a keyboard user cannot reach is content they cannot read (SC
+   * 2.1.1), so a scrolling frame has to be focusable. Making it unconditionally
+   * focusable is the version most implementations ship, and it puts a silent,
+   * nameless tab stop in front of every table that fits — so the tabindex is
+   * driven by measurement instead. `scrollWidth > clientWidth` is the whole
+   * test, re-run on resize because the answer changes with the viewport rather
+   * than with the data.
+   */
+  const clip = useRef<HTMLDivElement | null>(null);
+  const [isScrollable, setIsScrollable] = useState(false);
+  useEffect(() => {
+    const node = clip.current;
+    if (!node) return;
+    const measure = () => setIsScrollable(node.scrollWidth > node.clientWidth);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+    // Re-measured when the shape of the grid changes, not only on resize: a
+    // column added or a layout swapped changes the answer without any element
+    // changing size.
+  }, [columns, layout, minWidth, size, isSelectable]);
 
   const [activeSort, setSort] = useControllableState<TableSort | null>({
     ...(sort !== undefined ? { value: sort } : {}),
@@ -355,20 +415,39 @@ export function Table<Row>({
         rows either. One element that clips at exactly the inner radius solves
         both, and leaves the rows and cells untouched.
       */}
-      <div data-slot="table-body-clip" className="overflow-clip rounded-(--ui-table-body-radius)">
+      {/*
+        `overflow-x-auto`, not `overflow-clip`. It still clips the corners —
+        any non-visible overflow does — and it adds the one thing clipping
+        could not: a table too wide for its frame SCROLLS rather than losing
+        its right-hand columns silently. Clipping was the documented behaviour
+        and it is the worse half of the two, because data disappears with no
+        affordance at all.
+
+        role/aria/tabIndex are applied together or not at all: a named region
+        that cannot be reached is as useless as a reachable one with no name.
+      */}
+      <div
+        ref={clip}
+        data-slot="table-body-clip"
+        data-scrollable={isScrollable || undefined}
+        className="overflow-x-auto rounded-(--ui-table-body-radius)"
+        {...(isScrollable ? { role: "region", "aria-labelledby": captionId, tabIndex: 0 } : {})}
+      >
         <table
           data-slot="table-grid"
+          {...(minWidth === undefined ? {} : { style: { minWidth } })}
           className={cn(
             // SEPARATE, not collapse. `border-radius` does not apply in the
             // collapsing model at all, and the sheet rounds the first data
             // row's top corners — so the corners, the row fills and the
             // dividers all have to live on the CELLS. `border-spacing-0`
             // keeps them touching, which is what collapse was doing for us.
-            "w-full table-fixed border-separate border-spacing-0 text-left",
+            "w-full border-separate border-spacing-0 text-left",
+            layout === "auto" ? "table-auto" : "table-fixed",
             metrics.body,
           )}
         >
-        <caption className="sr-only">{caption}</caption>
+        <caption id={captionId} className="sr-only">{caption}</caption>
 
         <colgroup>
           {isSelectable ? <col style={{ width: selectLaneWidth(size) }} /> : null}

@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-header-current-ramp",
+  "date": "2026-08-09",
+  "item": "header",
+  "kind": "visual",
+  "summary": "Header.Item's fill ramp goes from three steps to four, and the third of them was a real defect: hover and current were BOTH --ui-bg-hover, so the page you were on looked identical to the one under the pointer, and hovering the current item changed nothing at all. It now runs transparent → bg-elevated (hover) → bg-hover (current) → bg-active (current AND hovered). Sidebar never hit this because its rows step from 500 to 600 as well as filling; a 12px bold bar item has no weight left to spend, which is why the bar needs a fourth fill where the rail does not. The steps are mutually exclusive by CONSTRUCTION — `not-data-[current]:hover:` — rather than by stylesheet order: `hover:bg-elevated` and `data-[current]:bg-hover` carry different modifiers, so tailwind-merge does not see them as conflicting, keeps both, and the winner would fall to the order Tailwind happens to sort variants in, which is exactly what cn() exists to prevent. The browser test asserts the four fills DIFFER rather than pinning four hexes, because pinning them would pass while any two silently converged; probed against the old code, where it reports three of the four as one value. Two further gaps closed alongside: the brand mark is now a LINK to the app home named for its destination rather than a button labelled 'Switch brand' (the switcher lives in the account menu and in the rail's profile layer), and the desktop bar composes Menu.Trigger around Header.MenuButton — the bare trigger with no panel behind it was the anti-pattern this component's own `dont` list names, sitting in the story every other story renders.",
+  "affects": [
+    "item:header",
+    "prop:Item.isCurrent",
+    "slot:header-menu-button",
+    "slot:header-start"
+  ],
+  "migration": {
+    "manual": "A nav item's hover fill is lighter than before and its current fill is unchanged. If you relied on hover and current looking the same, they no longer do — that was the bug. Callers rendering a bare Header.MenuButton should wrap it in a Menu.Trigger (desktop) or Sheet.Trigger (mobile); a trigger with no panel is unchanged in behaviour but was never intended."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/ZBB-0"
+  }
+}

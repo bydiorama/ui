@@ -196,8 +196,22 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap no-underline",
         "text-ink-primary",
         "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-        "hover:bg-hover",
+        // A four-step ramp, and it exists because the three-step one had a
+        // hole: hover and current were BOTH `bg-hover`, so the page you were
+        // on looked identical to the one under the pointer, and hovering the
+        // current item changed nothing at all. Sidebar never hit this because
+        // its rows step from 500 to 600 as well as filling; a 12px bold bar
+        // item has no weight left to spend.
+        //
+        // The steps are mutually exclusive by CONSTRUCTION rather than by
+        // stylesheet order. `hover:bg-elevated` and `data-[current]:bg-hover`
+        // carry different modifiers, so tailwind-merge does not see them as
+        // conflicting, keeps both, and the winner falls to the order Tailwind
+        // happens to sort variants in — which is exactly what cn() exists to
+        // prevent. `not-data-[current]:` makes the question moot.
+        "not-data-[current]:hover:bg-elevated",
         "data-[current]:bg-hover",
+        "data-[current]:hover:bg-active",
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
         className,
       ),

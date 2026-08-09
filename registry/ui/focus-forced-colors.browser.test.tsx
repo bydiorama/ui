@@ -16,15 +16,34 @@ afterEach(() => {
   root = null; container = null;
 });
 
-/** Every rule in the compiled sheet, flattened including @media blocks. */
-function rulesText(): string {
-  let out = "";
+/**
+ * Every `@media (forced-colors: active)` block in the compiled sheet.
+ *
+ * Walked STRUCTURALLY, and the previous version — a regex over the flattened
+ * text — is why. It looked for `outline-width` between a block's opening brace
+ * and the first `}`, which quietly assumed every bare `forced-colors:` utility
+ * Tailwind emits is an outline one. Tailwind puts them all in ONE block sorted
+ * by property, so the first non-outline utility to exist anywhere in the
+ * library pushed the outline rules past that first brace and the assertion
+ * broke — reported as "no forced-colors fallback exists" when eleven of them
+ * did. NavRail's marker was that first utility (`forced-colors:bg-[CanvasText]`,
+ * keeping a 2px current-page bar visible where a background is otherwise
+ * forced). A structural walk cannot be reordered out of correctness.
+ */
+function forcedColorRules(): CSSRule[] {
+  const found: CSSRule[] = [];
+  const visit = (rules: CSSRuleList) => {
+    for (const rule of Array.from(rules)) {
+      const media = (rule as CSSMediaRule).media?.mediaText ?? "";
+      const nested = (rule as CSSGroupingRule).cssRules;
+      if (media.includes("forced-colors: active")) found.push(...Array.from(nested ?? []));
+      else if (nested) visit(nested);
+    }
+  };
   for (const sheet of Array.from(document.styleSheets)) {
-    let rules: CSSRuleList;
-    try { rules = sheet.cssRules; } catch { continue; }
-    for (const rule of Array.from(rules)) out += rule.cssText + "\n";
+    try { visit(sheet.cssRules); } catch { continue; }
   }
-  return out;
+  return found;
 }
 
 describe("every box-shadow focus ring has a forced-colors fallback", () => {
@@ -32,9 +51,13 @@ describe("every box-shadow focus ring has a forced-colors fallback", () => {
     // Read from document.styleSheets — layer 3 — rather than inventing a class
     // at runtime: Tailwind only compiles what it finds when scanning source, so
     // a probe class would be absent even when the component's rule exists.
-    const css = rulesText();
-    expect(css).toContain("forced-colors: active");
-    expect(css).toMatch(/forced-colors: active\)?\s*\{[^}]*outline-width/s);
+    const inForcedColors = forcedColorRules();
+    expect(inForcedColors.length, "no @media (forced-colors: active) block compiled at all").toBeGreaterThan(0);
+    const outlines = inForcedColors.filter((r) => /outline(-width)?\s*:/.test(r.cssText));
+    expect(
+      outlines.length,
+      `forced-colors blocks exist but none draws an outline:\n${inForcedColors.map((r) => r.cssText).join("\n")}`,
+    ).toBeGreaterThan(0);
   });
 
   test("Button's ring is an OUTLINE, which forced colours keeps", () => {

@@ -105,6 +105,11 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   call site rather than buried in the component.
 - A missing glyph is a gap filed against the icon set — not a reason to import a
   foreign icon.
+- *Design side, for reference rather than as a rule of this file:* a sheet
+  should carry the real glyph with its layer named for the export, so it says
+  which icon it means instead of leaving that to whoever implements it. See the
+  `griddy-icons-in-paper` skill. (Making that binding here would need an ADR —
+  see § Changing these rules.)
 - **The component sizes the slot; the icon library does not.** `griddy-icons`
   renders `width="24" height="24"` as presentation *attributes*, so an
   unconstrained slot ships 24px whatever the control's size prop says — and the

@@ -107,7 +107,7 @@
     {
       "name": "header",
       "type": "registry:ui",
-      "description": "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand switcher and an avatar menu, and calling all of that navigation would make the landmark useless to skip to; the item row names itself. Header.MenuButton is the control the navigation COLLAPSES INTO: there is no rail, so below the breakpoint the Sidebar is removed rather than narrowed and this button is what remains of it, opening the same Sidebar inside a Sheet. An item is a real <a> when given an href and a <button> otherwise, because the design draws two carrying a chevron that open menus rather than navigate.",
+      "description": "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand mark that links home and an avatar that opens the account menu, and calling all of that navigation would make the landmark useless to skip to; the item row names itself. Header.MenuButton opens ONE of two surfaces, chosen by the layout rather than by a prop: a Menu on desktop, and below the breakpoint a Sheet carrying the whole Sidebar, which is removed rather than narrowed. A nav item's current state takes the third step of a four-step fill ramp, because hover and current shared one fill until they were drawn side by side. An item is a real <a> when given an href and a <button> otherwise, because the design draws two carrying a chevron that open menus rather than navigate.",
       "dependencies": [
         "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
@@ -544,6 +544,30 @@
           "path": "registry/ui/sidebar/sidebar.doc.ts",
           "type": "registry:ui",
           "target": "ui/sidebar.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "nav-rail",
+      "type": "registry:ui",
+      "description": "The navigation rail at its narrow width: 48px, one icon per row. A SIBLING of Sidebar rather than a mode of it — six of Sidebar's ten parts change what they MEAN at this width rather than what they measure, which is the same test CONVENTIONS §7a already uses to split Sheet from Drawer (ADR 0015). The one-line difference: at full width a row is a slot, at rail width a row is a control, so a row is an <a> when it navigates and a <button> when it acts and never a container. Both the icon and the label are REQUIRED types, because the label is invisible and there is no text to fall back to. Sidebar's first level survives as a named group with a hairline, since a label-plus-chevron disclosure cannot exist at this width. The current row carries a 2px marker as well as aria-current: --ui-nav-active-bg is the family's only fill, so hover and current would otherwise paint the same square. Shares the --ui-nav-* family and the row lane with Sidebar, so a layout can swap one for the other without the navigation moving or changing colour.",
+      "dependencies": [
+        "@base-ui/react@1.7.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/chrome-control"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/nav-rail/nav-rail.tsx",
+          "type": "registry:ui",
+          "target": "ui/nav-rail.tsx"
+        },
+        {
+          "path": "registry/ui/nav-rail/nav-rail.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/nav-rail.doc.ts"
         }
       ]
     },

@@ -110,6 +110,26 @@ What feels off at 10% speed is what is subtly wrong at full speed.
     "fixing" with JS state — the focus ring is the static cue and the resulting
     action is the acknowledgement. Rule 8 already requires a non-motion channel.
 
+### Separation and state
+
+20. **Never signal a state with a partial edge.** No left bar, no bottom rule,
+    no inset stripe — not for hover, not for current, not for active-focused,
+    and least of all thick. A ruler inside a control reads as clutter and
+    multiplies: every marked row adds another line to the page. The channels
+    that work are **a background step, a full thin outline or border, or
+    elevation** — each of which changes the whole surface rather than
+    decorating one side of it.
+21. **Group with space, not with lines.** A separator earns its place only when
+    space genuinely cannot do the job, and in this library it never has:
+    `Menu.Separator` is 8px above and below with **nothing painted**, and it
+    still announces as `role="separator"`. Grouping is the DIFFERENCE between
+    two gaps. Reach for a rule and you are usually solving a spacing problem
+    with ink.
+22. **Two states that must differ need two values.** If hover and current would
+    paint the same fill, the answer is a missing token, not a marker bolted on
+    the side. The nav family had one fill and grew `--ui-nav-hover-bg` the day
+    a 48px rail had no label left to change weight.
+
 ### Colour
 
 18. **Semantic tokens only.** `--ui-*` roles, never raw values, never palette

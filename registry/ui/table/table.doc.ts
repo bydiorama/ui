@@ -130,6 +130,17 @@ Table<Row>
       notes:
         "The frame keeps its shape and the header stays; only the body changes. aria-busy goes on the <tbody>, so assistive tech is told the region is updating rather than told there are three rows of nothing.",
     },
+    layout: {
+      type: '"fixed" | "auto"',
+      default: '"fixed"',
+      notes:
+        "How the lanes are sized. `fixed` is the sheet's model and stays the DEFAULT even though the browser's own default is auto — under `auto` the lanes shift between loading and loaded, because the skeleton's placeholder text is not the data's, and lane agreement across header, rows, skeleton and empty state is the whole reason the lane system exists. `auto` hands sizing back to the browser: every lane fits its content, `width` becomes a hint, and the grid grows past its frame rather than squeezing. Reach for it when the content is unknown, which is most tables that were never drawn.",
+    },
+    minWidth: {
+      type: "number",
+      notes:
+        "A floor for the grid in px, below which the frame scrolls horizontally instead of compressing. Unset by default — a table that fits should not invent a scrollbar. With `auto` it is usually unnecessary; with `fixed` it is the ONLY way to scroll, because `w-full` means the lanes always add up to the container.",
+    },
     empty: {
       type: "ReactNode",
       notes:
@@ -138,6 +149,8 @@ Table<Row>
   },
 
   do: [
+    "Reach for layout=\"auto\" when the content is unknown, and keep `fixed` when the sheet drew the lanes. The trade is lane stability between loading and loaded, not correctness.",
+    "Give a wide table a `minWidth` so it scrolls rather than compressing. The scroll region names itself from the caption and becomes a tab stop only while it actually scrolls, which is SC 2.1.1 without a tab stop in front of every table that fits.",
     "Give exactly one column no `width` — that is the lane that flexes.",
     "Mark money, counts and years `isNumeric` so the figures form a column.",
     "Hold the sort state and do the sorting yourself; `onSortChange` reports, it does not act.",
@@ -237,8 +250,9 @@ Table<Row>
     "Table sorts and filters nothing. `onSortChange` reports the intent; ordering the rows is the caller's.",
     "Row selection has no shift-click range. The checkbox and the row press each toggle one row.",
     "The row press has no keyboard counterpart of its own — the checkbox inside the row is that path. There is no way to activate a row from the keyboard without moving to its checkbox first.",
-    "The frame clips, so a table wider than its container squeezes its lanes rather than scrolling. Wrap it yourself if you need a scroll container; the corners will then be the wrapper's problem.",
-    "Column widths are px numbers. Percentages and fr units are not supported — the lane system exists so the header, the rows, the skeleton and the empty state agree, and mixed units make that agreement conditional on the container.",
+    "Under the default `fixed` layout a table still fits its container by squeezing, because `w-full` makes the lanes add up to it — `minWidth` or `layout=\"auto\"` is what makes it scroll instead. What no longer happens is the frame CLIPPING the overflow away, which is what it used to do: columns past the edge disappeared with no affordance at all.",
+    "Column widths are px numbers. Percentages and fr units are not supported — the lane system exists so the header, the rows, the skeleton and the empty state agree, and mixed units make that agreement conditional on the container. `layout=\"auto\"` is the escape hatch, and it trades exactly that agreement away: the lanes will move when the data arrives.",
+    "No column-priority hiding and no card/stacked view. The two other standard responsive strategies are compositions rather than props — a caller narrows `columns` at a breakpoint, or renders something else entirely below one.",
     "`isLoading` wins over `empty`. There is no state that shows both.",
     "The focus ring on a row is square; the sheet draws it at radius-sm. A <tr> cannot reliably take a border-radius in either border model, and the ring is drawn on the row rather than on its cells.",
   ],

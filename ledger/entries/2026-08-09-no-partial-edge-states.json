@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-no-partial-edge-states",
+  "date": "2026-08-09",
+  "item": "system",
+  "kind": "visual",
+  "summary": "A partial edge is never a state. NavRail shipped a 2px bar down the current row's leading edge to separate it from hover, and separated its groups with hairlines — both wrong, and both against a rule this library had already written: Menu.Separator is \"SPACE, not a rule — 8px above and below, and nothing painted\". A ruler inside a control reads as clutter and multiplies down a list. The marker was the wrong answer to a REAL problem, which is the part worth keeping: --ui-nav-active-bg was the family's only fill, so hover and current painted the identical square and a rail row has no label to change weight the way Sidebar's does. The fix is a token, not a decoration — --ui-nav-hover-bg joins the contract, and rest/hover/current are now three fills in both rails. Sidebar takes the same step so the two stay interchangeable, and keeps its weight change on top. Grouping in NavRail is now the DIFFERENCE between the body's gap-md and a section's gap-xs, which also removes the `first:` selector the hairline needed and had mis-set. A fourth step for current-AND-hovered was attempted and abandoned on evidence: past --ui-nav-active-bg the value is an accent WASH under the `tinted` nav style, landing darker for a dark accent and lighter for a light one, so the two grounds straddle the ink, legibleOn flips for one of them and no single value clears both — the resolver test caught it at 3.70:1 and then 3.89:1 across two attempts. Three fills the resolver can always satisfy beat four that break a brand style. Codified as ui-craft rules 20–22 and three ratchet entries; the browser test asserts no element paints a border on fewer than four sides, probed against a re-added marker.",
+  "affects": [
+    "item:nav-rail",
+    "item:sidebar",
+    "token:--ui-nav-hover-bg"
+  ],
+  "migration": {
+    "manual": "--ui-nav-hover-bg is new; a consumer with a hand-written nav theme should give it a value between --ui-nav-bg and --ui-nav-active-bg, or let the resolver derive it. A rail row's hover fill is lighter than before — it used to be the current row's fill, which is the bug."
+  }
+}

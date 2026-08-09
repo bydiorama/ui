@@ -19,6 +19,10 @@ function mount(ui: ReactElement) {
   return container;
 }
 
+async function settled(el: Element) {
+  await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
+}
+
 afterEach(() => {
   act(() => root?.unmount());
   container?.remove();
@@ -274,5 +278,42 @@ describe("The navigation collapses into a single menu button", () => {
     );
     expect(bar.querySelector('[data-slot="header-nav"]')).toBeNull();
     expect(bar.querySelector('[data-slot="header-menu-button"]')).not.toBeNull();
+  });
+});
+
+describe("the current page is not the item under the pointer", () => {
+  test("rest, hover, current and current+hover are four different fills", async () => {
+    mount(
+      <Header>
+        <Header.Nav label="Ramp">
+          <Header.Item href="#plain">Agent</Header.Item>
+          <Header.Item href="#current" isCurrent>Library</Header.Item>
+        </Header.Nav>
+      </Header>,
+    );
+    const [plain, current] = items();
+
+    const rest = getComputedStyle(plain!).backgroundColor;
+    const currentRest = getComputedStyle(current!).backgroundColor;
+
+    await userEvent.hover(plain!);
+    await settled(plain!);
+    const hover = getComputedStyle(plain!).backgroundColor;
+
+    await userEvent.hover(current!);
+    await settled(current!);
+    const currentHover = getComputedStyle(current!).backgroundColor;
+
+    // Four values, four steps. This shipped as THREE — hover and current were
+    // both bg-hover, so the page you were on was indistinguishable from the
+    // one under the pointer, and hovering the current item did nothing. The
+    // assertion is that they all DIFFER rather than what each one is: pinning
+    // the four hexes would pass while any two of them silently converged,
+    // which is the only failure that matters here.
+    const fills = [rest, hover, currentRest, currentHover];
+    expect(new Set(fills).size, `ramp collapsed: ${fills.join(" / ")}`).toBe(4);
+
+    // And the direction: transparent, then progressively heavier.
+    expect(rest).toBe("rgba(0, 0, 0, 0)");
   });
 });

@@ -350,6 +350,25 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
         ? flatten(withAlpha(accent, 0.14), shiftL(navBg, dark ? 0.06 : -0.04))
         : shiftL(navBg, dark ? 0.06 : -0.04);
 
+  /**
+   * The other two rungs of the same ladder — half a step under the pointer,
+   * half a step past `active` when the current row is also hovered.
+   *
+   * The family had exactly ONE fill until a rail had to tell hover from
+   * current without a label to change weight, and the first answer was a 2px
+   * marker down the row's leading edge. A rule inside a control is clutter,
+   * and this library had already said so once: Menu.Separator is "SPACE, not
+   * a rule". Depth was the channel that did not exist, so depth is what was
+   * added — same derivation, same direction, at 0.5x and 1.5x the step.
+   */
+  const navHoverBg =
+    navStyle === "accent"
+      ? shiftL(accent, awayFromInk * 0.05)
+      : navStyle === "tinted"
+        ? flatten(withAlpha(accent, 0.07), shiftL(navBg, dark ? 0.03 : -0.02))
+        : shiftL(navBg, dark ? 0.03 : -0.02);
+
+
   const dangerSolid = legibleOn(INTENT_HUES.danger, colors.bg, 3);
 
   // The accent, floored at 3:1 against the SUNKEN well. Hoisted out of the
@@ -565,6 +584,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // below --ui-nav-ink-muted without vanishing. WCAG exempts disabled
     // controls from contrast, which is a permission and not a target.
     "--ui-nav-ink-disabled": towardL(navInk, navBg, 0.62),
+    "--ui-nav-hover-bg": navHoverBg,
     "--ui-nav-active-bg": navActiveBg,
     // The active label is TEXT ON THE RAIL, so it clears AA against the rail's
     // own background rather than the page's.
@@ -572,12 +592,29 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // a translucent value is undefined until it is. The sheet used
     // --ui-text-placeholder here, the faintest role in the scale, which made
     // the current page less prominent than its unselected siblings.
+    //
+    // There is deliberately no fourth fill for "current AND hovered", and the
+    // reason is a constraint rather than a shrug. A step past `active-bg` is
+    // an accent WASH under `tinted`, so with a dark accent it lands darker and
+    // with a light one lighter — the two grounds straddle the ink, `legibleOn`
+    // flips to the opposite ink for one of them, and no single value clears
+    // both. Three fills the resolver can always satisfy beat four that break a
+    // brand style. Header can afford its fourth step because the page family
+    // has three independent surface roles; the nav family has one and derives
+    // the rest.
     "--ui-nav-active-ink":
       navStyle === "accent"
         ? navInk
         : legibleOn(colors.textPrimary, flatten(navActiveBg, navBg), AA_TEXT),
     "--ui-nav-width": "17rem",
-    "--ui-nav-rail-width": "3.5rem",
+    // 3rem, and the number is DRAWN rather than chosen. It shipped as 3.5rem
+    // while nothing rendered it — a reserved guess — and two written records
+    // then disagreed with it and with each other (48px in TODO, 50px in
+    // sidebar.doc). The artboard settles it: the rail declares no width at all,
+    // it is `fit-content` around a row of `space-sm` padding on the shared 32px
+    // chrome control, so 8 + 32 + 8 = 48. A token nothing consumes is a guess
+    // until the first component measures it (ADR 0015).
+    "--ui-nav-rail-width": "3rem",
     // 26rem is the 416px the Modal sheet draws. lg is DERIVED for
     // content-heavy dialogs; no second width is drawn.
     "--ui-dialog-width-md": "26rem",

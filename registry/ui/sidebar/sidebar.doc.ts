@@ -79,6 +79,7 @@ Sidebar                    label (required) / isLabelHidden?
     "Do not indent the second level; the sheet keeps both at 20px, and an indent would be a redundant second signal costing room on a narrow rail.",
     "Do not add a gap between rows. The sheet stacks them flush and the rhythm is each row's own 12px padding — a gap is a second, competing spacing system.",
     "Do not nest a third level; the sheet draws two and deeper trees want a different pattern.",
+    "Do not narrow this component to make a rail. NavRail is the rail (ADR 0015) — a Section header cannot disclose at 48px, and Search, Profile, Heading and Slot have nowhere to put what they hold.",
   ],
 
   a11y: {
@@ -102,18 +103,17 @@ Sidebar                    label (required) / isLabelHidden?
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "A collapsed rail IS now drawn — a 50px column of icon-only rows, artboard node HFP-0 — and is NOT built. It was a design question when nothing was drawn; it is now a scope note. Building it needs an answer on what a row shows at that width and how the section disclosure behaves with no room for a label.",
-    "Row hover and focus are derived from --ui-nav-active-bg; the sheet draws rest and current only.",
+    "Row focus is derived; the sheet draws rest and current only. Hover is now its own fill (--ui-nav-hover-bg), added when NavRail needed to tell hover from current without a label to change weight.",
   ],
 
   knownGaps: [
-    "No collapsed rail. `--ui-nav-rail-width` (3.5rem) exists and now has a `w-nav-rail` utility, but the sheet draws no collapsed state, so none is implemented — the token is ready for it.",
+    "No collapsed mode, and there will not be one. The narrow rail is NavRail, a sibling component (ADR 0015): six of the ten parts below change what they MEAN at 48px rather than what they measure, which is the same test CONVENTIONS §7a uses to split Sheet from Drawer. A layout renders one or the other, and neither knows about the other. The trigger to revisit is an ANIMATED width transition, which two trees cannot do as cleanly as one component with a mode.",
     "No mobile drawer. The sheet's mobile composition is this Sidebar inside an overlay; the overlay itself is a Sheet, not a Sidebar variant, and is not built yet.",
-    "The rail's own hover and focus states for a row are DERIVED from --ui-nav-active-bg rather than drawn — the sheet draws rest and current only.",
+    "Hover and focus are DERIVED — the sheet draws rest and current only. Hover moved off --ui-nav-active-bg onto its own --ui-nav-hover-bg step, so rest, hover and current are three fills rather than two; the weight change on current stays.",
     "No section dividers. An Avatar and account menu are drawn in the mobile examples but belong to the composition around the rail, not to it.",
   ],
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HE2-0",
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/ZCP-0",
 } as const;
 
 export type SidebarDoc = typeof sidebarDoc;

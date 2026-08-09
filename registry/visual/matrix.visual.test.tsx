@@ -20,7 +20,7 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
-import { ChevronDown, Image, Inbox, InfoCircle, Search } from "griddy-icons";
+import { ChevronDown, Colors, ExpandSidebar, Home, Image, Inbox, InfoCircle, Search, UsersGroup } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
@@ -56,6 +56,7 @@ import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
 import { CardSorting } from "@/ui/card-sorting/card-sorting.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
+import { NavRail } from "@/ui/nav-rail/nav-rail.tsx";
 import { EmptyState } from "@/ui/empty-state/empty-state.tsx";
 import { Switch } from "@/ui/switch/switch.tsx";
 import { Table, type TableColumn } from "@/ui/table/table.tsx";
@@ -597,6 +598,42 @@ const CASES: Array<{
             <Sidebar.Item href="/ohpen" isCurrent>Ohpen</Sidebar.Item>
             <Sidebar.Item href="/admin">Admin</Sidebar.Item>
           </Sidebar.Layer>
+        </Sidebar>
+      </div>
+    ),
+  },
+  {
+    name: "nav-rail",
+    // Beside the Sidebar it is an ALTERNATIVE to, because the relationship is
+    // what a diff has to protect: the two share the fill and the row lane, and
+    // a change to either that breaks the pairing is invisible in a case that
+    // draws only one. Rest, current and disabled are all on the rail — the
+    // current row's 2px marker is the smallest thing in this whole matrix and
+    // the only signal separating it from hover, so it is drawn deliberately.
+    ui: (
+      <div className="flex items-start gap-lg">
+        <NavRail label="Rail">
+          <NavRail.Slot>
+            <button type="button" aria-label="Expand navigation" className={chromeControl()}>
+              <ExpandSidebar />
+            </button>
+          </NavRail.Slot>
+          <NavRail.Section label="Workspace">
+            <NavRail.Item icon={<Home />} label="Overview" href="/overview" />
+            <NavRail.Item icon={<Search />} label="Search everything" />
+          </NavRail.Section>
+          <NavRail.Section label="Brand profile">
+            <NavRail.Item icon={<Image />} label="Logos" href="/logos" />
+            <NavRail.Item icon={<Colors />} label="Colours" href="/colours" isCurrent />
+            <NavRail.Item icon={<UsersGroup />} label="Members" href="/members" isDisabled />
+          </NavRail.Section>
+        </NavRail>
+        <Sidebar label="Expanded, for comparison">
+          <Sidebar.Item href="/overview" icon={<Home />}>Overview</Sidebar.Item>
+          <Sidebar.Section label="Brand profile" isCollapsible>
+            <Sidebar.Item href="/logos">Logos</Sidebar.Item>
+            <Sidebar.Item href="/colours" isCurrent>Colours</Sidebar.Item>
+          </Sidebar.Section>
         </Sidebar>
       </div>
     ),

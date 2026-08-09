@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-nav-rail-width-and-border-gate",
+  "date": "2026-08-09",
+  "item": "system",
+  "kind": "token",
+  "summary": "--ui-nav-rail-width moves from 3.5rem to 3rem, and check:utilities loses its fourth border-* blind spot. The token was a guess written while nothing rendered it, and two written records then disagreed with it and with each other — 48px in TODO, 50px in sidebarDoc, 56px in the resolver. The artboard settles it and none of the three had read it: the drawn rail declares no width at all, it is fit-content around space-sm padding on the shared 32px chrome control, so 8 + 32 + 8 = 48. The general lesson is worth more than the number — a token nothing consumes is a guess until the first component measures it. The gate fix is the first-of-its-kind rule again: NavRail is the first file to write a SIDED ZERO (`border-t-0`, a Section suppressing its own divider at the top of the rail), and the border-colour pattern swallowed it. The optional side group matched `t-`, the capture failed on `0`, the engine backtracked, dropped the group and re-ran the capture from `t` — which took `t-0` and demanded a --color-t-0 nobody could emit. The digit guard has to sit OUTSIDE the optional group for exactly that reason; inside it, backtracking steps around it. Probed three ways: green on the correct code, still failing on a sided colour typo, and waving a sided width through. border-* stays the most error-prone pattern in that gate because it is the one prefix carrying colours, widths, styles and a length at once.",
+  "affects": [
+    "token:--ui-nav-rail-width",
+    "pair:--ui-nav-ink|--ui-nav-active-bg",
+    "item:system"
+  ],
+  "migration": {
+    "manual": "w-nav-rail / max-w-nav-rail now resolve to 48px instead of 56px. Nothing consumed them before NavRail, so no rendered surface changes."
+  }
+}

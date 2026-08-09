@@ -13,6 +13,14 @@ editable source.** Token flow is repo → Paper, never the reverse.
 | Token snapshot at adoption | `tokens.snapshot.json` (Paper's token list the day the values were ported) |
 | Section exports | `exports/` (PNG, 1x) |
 
+## Drawing into the file
+
+Sheets are built with the **`design-component`** skill, which carries the
+handoff format (the 20% title lane, the annotation rows, the Gaps badges).
+Icons come from the installed set via **`griddy-icons-in-paper`** — extracted,
+never hand-drawn, and every glyph layer named for its export so the sheet
+records which icon it means.
+
 ## Known deltas between the sheet and the code (accepted)
 
 - `caption` renders 11px in the specimen; the contract says 12px (floor).

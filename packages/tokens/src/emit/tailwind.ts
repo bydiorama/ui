@@ -61,6 +61,7 @@ function utilityName(token: BrandableToken): string | null {
   // had never surfaced.
   if (name.startsWith("nav-")) {
     if (name === "nav-bg") return "--color-nav";
+    if (name === "nav-hover-bg") return "--color-nav-hover";
     if (name === "nav-active-bg") return "--color-nav-active";
     if (name === "nav-border") return "--color-edge-nav";
     if (name === "nav-ink") return "--color-ink-nav";

@@ -65,7 +65,15 @@ function mount(ui: ReactElement) {
     cells: all<HTMLTableCellElement>("table-cell"),
     sorts: all<HTMLButtonElement>("table-sort"),
     checkboxes: [...container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')],
+    clip: container.querySelector<HTMLElement>('[data-slot="table-body-clip"]')!,
   };
+}
+
+/** ResizeObserver fires off the main thread; give it a frame to land. */
+async function measured() {
+  await act(async () => {
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  });
 }
 
 function unmount() {
@@ -130,7 +138,11 @@ describe("the frame", () => {
     const clip = host.querySelector<HTMLElement>('[data-slot="table-body-clip"]')!;
     const style = getComputedStyle(clip);
 
-    expect(style.overflow).toBe("clip");
+    // `auto`, not `clip`. It clips at the border box exactly as `clip` did —
+    // any non-visible overflow does — and it adds the thing clipping could
+    // not: a grid wider than the frame SCROLLS instead of losing its
+    // right-hand columns silently. See the scrolling block below.
+    expect(style.overflowX).toBe("auto");
     // radius-lg 16 − space-xs 4 = 12, the sheet's inner corner exactly. It is
     // written as the arithmetic because 12 is not a step on the radius scale.
     expect(style.borderRadius).toBe("12px");
@@ -741,5 +753,56 @@ describe("semantics and forwarding (§5)", () => {
   test("data-size is on the frame, so a consumer can target a density", () => {
     const { frame } = mount(<Table {...base} size="lg" />);
     expect(frame.getAttribute("data-size")).toBe("lg");
+  });
+});
+
+describe("the frame scrolls rather than swallowing its right-hand columns", () => {
+  test("fixed is still the default, and it fits the container", () => {
+    const { grid } = mount(<Table {...base} />);
+    expect(getComputedStyle(grid).tableLayout).toBe("fixed");
+  });
+
+  test("layout=auto hands the lanes back to the browser", () => {
+    const { grid } = mount(<Table {...base} layout="auto" />);
+    expect(getComputedStyle(grid).tableLayout).toBe("auto");
+  });
+
+  test("a grid wider than its frame scrolls; the old behaviour clipped it away", async () => {
+    const { clip, grid } = mount(<Table {...base} minWidth={1600} />);
+    // The point of the change: `overflow-clip` could not scroll, so the
+    // columns past the frame were simply gone with no affordance at all.
+    expect(getComputedStyle(clip).overflowX).toBe("auto");
+    expect(grid.getBoundingClientRect().width).toBeGreaterThan(clip.clientWidth);
+    await measured();
+    expect(clip.scrollWidth).toBeGreaterThan(clip.clientWidth);
+  });
+
+  test("the scroll region is reachable AND named — both, or neither is any use", async () => {
+    const { clip, container } = mount(<Table {...base} minWidth={1600} />);
+    await measured();
+    expect(clip.getAttribute("data-scrollable")).toBe("true");
+    // SC 2.1.1: content that can only be reached by scrolling has to be
+    // reachable from the keyboard.
+    expect(clip.tabIndex).toBe(0);
+    expect(clip.getAttribute("role")).toBe("region");
+    const named = container.querySelector(`#${CSS.escape(clip.getAttribute("aria-labelledby")!)}`)!;
+    expect(named.textContent).toBe("Designers");
+  });
+
+  test("a table that fits adds NO tab stop", async () => {
+    const { clip } = mount(<Table {...base} />);
+    await measured();
+    // The version most implementations ship is unconditionally focusable,
+    // which puts a silent nameless stop in front of every table on the page.
+    expect(clip.getAttribute("data-scrollable")).toBeNull();
+    expect(clip.tabIndex).toBe(-1);
+    expect(clip.getAttribute("role")).toBeNull();
+  });
+
+  test("scrolling did not cost the rounded corners", () => {
+    const { clip } = mount(<Table {...base} />);
+    // `overflow-x: auto` clips at the border box exactly as `overflow: clip`
+    // did, which is why the corner radius survives the change.
+    expect(getComputedStyle(clip).borderTopLeftRadius).not.toBe("0px");
   });
 });

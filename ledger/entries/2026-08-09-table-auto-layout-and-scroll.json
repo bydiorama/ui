@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-table-auto-layout-and-scroll",
+  "date": "2026-08-09",
+  "item": "table",
+  "kind": "a11y",
+  "summary": "Table gains `layout=\"auto\"` and a real scroll region. An adversarial review flagged the table as not responsive, and the investigation corrected the premise on the way: `width` was ALREADY optional on every column — the colgroup only emits one where it is declared — so a table with no widths has always rendered. What it did was split the space EQUALLY, because `table-fixed` was hard-coded, so an ID lane and a name lane got the same room. The sharper finding was underneath it: the frame was `overflow-clip`, so a grid wider than its container lost its right-hand columns SILENTLY, with no scrollbar and no affordance. That was in knownGaps (\"wrap it yourself if you need a scroll container\") and it is the worse half of the two — squeezing is ugly, clipping loses data. `overflow-x-auto` fixes it and keeps the concentric corner, because any non-visible overflow clips at the border box. `fixed` stays the DEFAULT against the ecosystem's grain (shadcn, Radix Themes, Carbon and Primer all default to auto) for a reason those libraries do not have: lane agreement across the header, the rows, the skeleton and the empty state is the whole point of the lane system, and under `auto` the lanes move when the data lands because the skeleton's placeholder text is not the data's. The scroll region is a tab stop ONLY while it actually scrolls — measured with a ResizeObserver rather than hard-coded — because SC 2.1.1 needs a scrollable region to be keyboard-reachable, and the unconditional version most implementations ship puts a silent, nameless stop in front of every table that fits. role, aria-labelledby and tabIndex are applied together or not at all: a named region nobody can reach is as useless as a reachable one with no name.",
+  "affects": [
+    "item:table",
+    "prop:layout",
+    "prop:minWidth",
+    "slot:table-body-clip"
+  ],
+  "migration": {
+    "manual": "No caller changes required; `fixed` remains the default and every existing column definition behaves as before. The one behavioural change is that a grid wider than its frame now scrolls instead of being clipped — if you wrapped a Table in your own scroll container to work around that, the wrapper is now redundant and will produce a nested scroll area."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/SWQ-0"
+  }
+}

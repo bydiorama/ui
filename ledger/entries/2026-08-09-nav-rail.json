@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-nav-rail",
+  "date": "2026-08-09",
+  "item": "nav-rail",
+  "kind": "addition",
+  "summary": "NavRail — the navigation rail at 48px, and a SIBLING of Sidebar rather than a mode of it (ADR 0015). The test is CONVENTIONS §7a's, the one that already splits Sheet from Drawer: when the CONTRACT differs rather than the appearance, it is a different component. Six of Sidebar's ten parts change what they MEAN at this width rather than what they measure — Search is a 40px field and has to become a control, Profile is an avatar with a name and an address and has to become an avatar, Heading and Slot have nowhere to put 'Select brand' or a Progress bar, and a Section's label-plus-chevron disclosure has room for neither. The one-line version: at full width a row is a slot, at rail width a row is a control, so a row is an <a> when it navigates and a <button> when it acts and never a container. Both `icon` and `label` are REQUIRED types, following Button's icon-only precedent: the label is invisible, so a row with no glyph is a blank square and there is no text to fall back to. Sidebar's first level survives as NavRail.Section — a named <ul> with a hairline — because a group can keep its accessible name at 48px even when its label cannot be drawn. The current row carries a 2px marker in --ui-nav-ink as well as aria-current, since --ui-nav-active-bg is the family's only fill and hover would otherwise paint the identical square; the marker is a painted box rather than an inset shadow because forced-colors forces box-shadow to none and it is the only thing distinguishing current from hover. The pairing with Sidebar is asserted as a RELATIONSHIP rather than as numbers: the browser suite compares the two components' body inset and rail fill to each other, so a change to either that breaks the swap fails rather than drifting. Two design values corrected on the way in: the drawn rail declares no width at all (fit-content around space-sm on the shared 32px chrome control), which settles a 48/50/56 disagreement between the artboard, TODO and sidebarDoc in favour of 48; and the sr-only landmark label moved OUT of the body, because sr-only is position:absolute but a structural pseudo-class still counts DOM position, so `first:border-t-0` matched nothing and every Section drew a divider it should not have.",
+  "affects": [
+    "item:nav-rail",
+    "token:--ui-nav-rail-width",
+    "pair:--ui-nav-ink|--ui-nav-active-bg"
+  ],
+  "migration": {
+    "manual": "New component; nothing to migrate. A layout renders NavRail or Sidebar, never both — neither has a responsive mode, by design."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/12HF-0"
+  }
+}

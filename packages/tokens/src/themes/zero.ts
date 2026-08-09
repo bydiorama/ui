@@ -106,6 +106,10 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     // Theme zero AUTHORS bg-elevated as neutral-95, while the derivation
     // shifts surface lighter — so the aliased nav fill has to be pinned too,
     // or it lands nearly white and the current item disappears.
+    // The rail's ramp, pinned for the same reason nav-active-bg is: theme zero
+    // authors bg-elevated as neutral-95, so an unpinned derivation lands
+    // nearly white and the steps stop separating.
+    "--ui-nav-hover-bg": NEUTRAL[98],
     "--ui-nav-active-bg": NEUTRAL[95],
     "--ui-gradient-brand": `linear-gradient(in oklab 270deg, ${BLUE[80]} 0%, ${LAVENDER[80]} 50%, ${RED[80]} 100%)`,
     // The slider ramp exactly as the sheet draws it. Pinned in BOTH schemes

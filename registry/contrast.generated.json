@@ -562,11 +562,27 @@
     },
     {
       "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "a nav item's label on the hover fill — the ramp's second step, which is also the chrome control's resting fill"
+    },
+    {
+      "fg": "--ui-text-primary",
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
       "dark": 10.38,
-      "role": "the menu button's glyph while hovered"
+      "role": "the menu button's glyph while hovered, and a nav item's label while it is the current page"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-active",
+      "floor": "text",
+      "light": 11.68,
+      "dark": 8.48,
+      "role": "the current nav item's label while it is also hovered — the ramp's fourth step"
     },
     {
       "fg": "--ui-text-disabled",
@@ -843,6 +859,40 @@
       "light": 16.76,
       "dark": 12.55,
       "role": "option ink on the panel"
+    }
+  ],
+  "NavRail": [
+    {
+      "fg": "--ui-nav-ink-muted",
+      "bg": "--ui-nav-bg",
+      "floor": "non-text",
+      "light": 10.66,
+      "dark": 6.97,
+      "role": "a resting row's glyph — non-text, because the row renders no text at all"
+    },
+    {
+      "fg": "--ui-nav-ink",
+      "bg": "--ui-nav-hover-bg",
+      "floor": "non-text",
+      "light": 16.76,
+      "dark": 8.46,
+      "role": "a hovered row's glyph on the hover fill"
+    },
+    {
+      "fg": "--ui-nav-active-ink",
+      "bg": "--ui-nav-active-bg",
+      "floor": "non-text",
+      "light": 15.53,
+      "dark": 7.46,
+      "role": "the current row's glyph"
+    },
+    {
+      "fg": "--ui-nav-ink-disabled",
+      "bg": "--ui-nav-bg",
+      "floor": "decorative",
+      "light": 2.63,
+      "dark": 2.63,
+      "role": "a disabled row's glyph"
     }
   ],
   "Popover": [

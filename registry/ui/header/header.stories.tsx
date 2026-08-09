@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ArrowLeft, ChevronDown, Grid } from "griddy-icons";
 
+
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
+import { Menu } from "@/ui/menu/menu.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 import { Header } from "./header.tsx";
@@ -26,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 const Desktop = ({ label = "Primary" }: { label?: string }) => (
   <Header>
     <Header.Start>
-      <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
+      <a href="#home" aria-label="Diorama home" className={chromeControl()}><Grid /></a>
       <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
     </Header.Start>
     <Header.Spacer />
@@ -40,7 +42,21 @@ const Desktop = ({ label = "Primary" }: { label?: string }) => (
     </Header.Nav>
     <Header.Spacer />
     <Header.End>
-      <Header.MenuButton label="Open primary navigation" />
+      {/*
+        A trigger with a panel behind it. The bare MenuButton that used to sit
+        here is the anti-pattern this component's own `dont` list names — and
+        it was in the story every other story renders.
+      */}
+      <Menu>
+        <Menu.Trigger render={<Header.MenuButton label="Open brand sections" />} />
+        <Menu.Panel side="bottom" align="end">
+          <Menu.Item render={<a href="#profile" />}>Brand profile</Menu.Item>
+          <Menu.Item render={<a href="#guidelines" />}>Brand guidelines</Menu.Item>
+          <Menu.Item render={<a href="#templates" />}>Brand templates</Menu.Item>
+          <Menu.Separator />
+          <Menu.Item render={<a href="#team" />}>Team</Menu.Item>
+        </Menu.Panel>
+      </Menu>
       <Avatar name="Mira Vance" size="sm" />
     </Header.End>
   </Header>
@@ -52,7 +68,7 @@ const Mobile = () => (
   <div className="w-80">
     <Header className="px-md">
       <Header.Start>
-        <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
+        <a href="#home" aria-label="Diorama home" className={chromeControl()}><Grid /></a>
         <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
       </Header.Start>
       <Header.Spacer />
@@ -88,7 +104,7 @@ export const States: Story = {
       <section>
       <Header>
         <Header.Start>
-          <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
+          <a href="#home" aria-label="Diorama home" className={chromeControl()}><Grid /></a>
         </Header.Start>
         <Header.Spacer />
         <Header.Nav label="Nothing current">
@@ -161,7 +177,7 @@ export const CollapsesToMenuButton: Story = {
         <section>
           <Header className="px-md">
             <Header.Start>
-              <button type="button" aria-label="Switch brand" className={chromeControl()}><Grid /></button>
+              <a href="#home" aria-label="Diorama home" className={chromeControl()}><Grid /></a>
               <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
             </Header.Start>
             <Header.Spacer />

@@ -61,12 +61,27 @@ const ICON_SIZE = {
  * Variants. Hover and active are the designed states, not tints of rest:
  * `secondary` gains presence from BOTH sides — its ink darkens
  * (muted → secondary) as its ring strengthens (subtle → default).
+ *
+ * PRESSED PAINTS NO NEW FILL on the three edge-on-nothing types. The sheet
+ * draws eleven button frames — five variants, their five hovers, and disabled —
+ * and no pressed row at all, so every active treatment here is derived. What
+ * the derivation reached for was `--ui-bg-active` (#DAD4CE), a value that
+ * appears ZERO times in the whole Button artboard: an edge-only control grew a
+ * neutral chip under the pointer, heavier than any fill the design draws for a
+ * button.
+ *
+ * Press instead firms the channels each type already uses — the ring, the ink —
+ * and keeps whatever hover painted. A pointer press is necessarily also a
+ * hover, so `:hover`'s fill is already applied and `:active` adding a second,
+ * darker one is what produced the chip. The ink step is not decoration: §8
+ * requires a static cue beside the press-scale, and without it press would be
+ * motion alone.
  */
 const VARIANT = {
   primary:
     "bg-accent ring-accent text-ink-on-accent enabled:hover:bg-accent-hover enabled:hover:ring-accent-hover enabled:active:bg-accent-active enabled:active:ring-accent-active",
   secondary:
-    "ring-edge-subtle text-ink-muted enabled:hover:ring-edge-default enabled:hover:text-ink-secondary enabled:active:bg-hover",
+    "ring-edge-subtle text-ink-muted enabled:hover:ring-edge-default enabled:hover:text-ink-secondary enabled:active:ring-edge-strong enabled:active:text-ink-primary",
   // A CONFORMANT edge, which is the whole reason this type exists next to
   // secondary. DERIVED — the sheet draws no Outline row — and the first
   // attempt used border-default, which measures 2.14:1 against the page and
@@ -74,8 +89,8 @@ const VARIANT = {
   // step ADR 0010 defines for exactly this: an edge something depends on
   // being able to identify. secondary keeps the quiet hairline.
   outline:
-    "ring-edge-control text-ink-secondary enabled:hover:ring-edge-strong enabled:hover:text-ink-primary enabled:active:bg-hover",
-  ghost: "ring-transparent text-ink-secondary enabled:hover:bg-hover enabled:active:bg-active",
+    "ring-edge-control text-ink-secondary enabled:hover:ring-edge-strong enabled:active:text-ink-primary",
+  ghost: "ring-transparent text-ink-secondary enabled:hover:bg-elevated enabled:active:text-ink-primary",
   danger:
     "bg-danger-subtle ring-danger-border text-ink-on-danger-subtle enabled:hover:bg-danger-subtle-hover",
 } as const satisfies Record<ButtonVariant, string>;
@@ -206,7 +221,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // tab order, so suppressing pointer events adds nothing except making
         // the button unhoverable — which kills the tooltip that would explain
         // WHY it is disabled. Hover states are gated with `enabled:` instead.
-        "disabled:bg-sunken disabled:text-ink-disabled disabled:ring-edge-subtle",
+        // The sheet's Disabled frame fills with --ui-neutral-95 and rings itself
+        // with that same value, so the control reads as flattened rather than
+        // as a filled chip. It shipped as `bg-sunken` (neutral-90) with a
+        // subtle edge — one step darker than drawn, and the same off-by-one
+        // ghost's hover had. This is the state seen most: a form disables its
+        // secondary actions while it submits, so a whole column of them goes
+        // grey at once.
+        "disabled:bg-elevated disabled:text-ink-disabled disabled:ring-elevated",
         className,
       )}
     >

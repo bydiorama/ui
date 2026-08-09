@@ -89,8 +89,10 @@ Button
     ],
     pointer:
       "cursor: pointer is set explicitly. A <button> has no pointer cursor by default — the UA default is the arrow and Tailwind's preflight adds nothing — so omitting it silently costs the only pre-click affordance. Disabled shows not-allowed.",
+    pressed:
+      "PAINTS NO NEW FILL on the edge-on-nothing types. secondary firms its ring (default -> strong) and takes its ink to primary; outline takes its ink to primary; ghost keeps the fill hover already painted and darkens its ink. A pointer press is necessarily also a hover, so :hover's treatment is already applied and :active adding a second, darker fill is what produced a neutral chip on a control the design draws with no fill in any state. primary and danger are FILLS by definition and keep theirs. The ink step is required, not decorative: §8 forbids motion being the only feedback channel, and the press-scale is the motion.",
     disabled:
-      "Uses the native disabled attribute only; pointer-events are deliberately left alone so a tooltip can still explain why the control is unavailable. Hover and press states are gated behind `enabled:` instead.",
+      "Fills and rings with --ui-bg-elevated, which is what the sheet's Disabled frame draws — the control flattens rather than becoming a filled chip. It shipped one step darker (bg-sunken). Uses the native disabled attribute only; pointer-events are deliberately left alone so a tooltip can still explain why the control is unavailable. Hover and press states are gated behind `enabled:` instead.",
     focus:
       "focus-visible only, drawn as a 2px outline offset 2px in --ui-focus-ring-color (5.6:1 against the page). Sits on the outline layer so no variant's resting ring can be mistaken for it, and forced-colors mode keeps it.",
     contrastPairs: [
@@ -101,6 +103,9 @@ Button
       { fg: "--ui-border-control", bg: "--ui-bg-base", floor: "non-text", role: "the outline edge" },
       { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "danger label" },
       { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the focus ring" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-elevated", floor: "text", role: "a hovered ghost label, on the fill the sheet's Ghost Hover frame actually draws" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "a PRESSED ghost label — the ink step that keeps press from being motion alone" },
+      { fg: "--ui-border-strong", bg: "--ui-bg-base", floor: "non-text", role: "a pressed secondary's edge, the firmest step in ADR 0010's stack" },
     ],
     hitArea:
       "sm is exactly 24px, the WCAG 2.5.8 floor. lg is 44px, the recommended touch target. md sits between at 32px — pair it with generous surrounding space on touch surfaces.",
@@ -109,7 +114,10 @@ Button
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
     "Every button COMPOSED in the file is fully rounded, while the stated model makes soft the default. The compositions and the model disagree, and one of them needs updating — the model is now explicit in the sheet's own legend, so the compositions are the side that is out of date.",
-    "Outline is not drawn — E3V-0 has no Outline row. Its edge is derived as border-control (3.11:1) because that is the step SC 1.4.11 needs from a boundary; confirm the intent.",
+    "TWO SHEETS NOW EXIST and they disagree. The handoff sheet (Handoff - Components, XK7-0) was rebuilt to match this implementation: all five types against rest, hover, pressed, focus-visible and disabled, plus busy, full width, a token map and a dark matrix. The older component sheet (Components, E3V-0) is what the earlier notes here described. Retire E3V-0 or reconcile it — a handoff with two spec sheets is a handoff with none.",
+    "E3V-0 draws NO pressed row at all: eleven frames, five variants, their five hovers, and disabled. Every active treatment was therefore derived, and what the derivation reached for was --ui-bg-active, a value appearing ZERO times in that artboard. The handoff sheet now draws pressed as shipped — no new fill, a firmer ring and darker ink. Confirm.",
+    "E3V-0's Outline and Outline Hover rows disagree with what ships in two ways. Its hover edge is border-default, which measures 2.14:1 and fails the 3:1 SC 1.4.11 asks of the boundary this variant exists to provide, so border-control ships instead. And its hover LIGHTENS the ink (text-primary at rest, text-muted on hover), the opposite direction from every other variant; ours keeps the ink and firms the ring. Both need a decision.",
+    "E3V-0's Secondary Hover fills with --ui-bg-sunken and rings itself with that same value. What ships has no hover fill at all: the ring firms and the ink darkens. Two different pictures of one state, and only one can be right. The handoff sheet draws the shipped version.",
     "The soft radius at lg is derived from md (8px). The sheet draws soft only at sm.",
     "No busy state is drawn; the spinner is ours.",
     "Ghost Large draws paddingInline xl where the other three large buttons draw lg. Corrected to lg in Paper — confirm.",
@@ -118,7 +126,7 @@ Button
   motion:
     "Press feedback is scale(--ui-press-scale) with a staticTap opt-out; colour and ring transitions use --ui-duration-fast with --ui-ease-out. Scale is excluded from the transition list so the press snaps. prefers-reduced-motion collapses durations at the token layer and cancels the scale here.",
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0 (Style Guide → Buttons)",
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/XK7-0",
 } as const;
 
 export type ButtonDoc = typeof buttonDoc;

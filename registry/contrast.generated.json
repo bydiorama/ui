@@ -246,6 +246,30 @@
       "light": 5.96,
       "dark": 4.85,
       "role": "the focus ring"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 8.3,
+      "role": "a hovered ghost label, on the fill the sheet's Ghost Hover frame actually draws"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 10.06,
+      "role": "a PRESSED ghost label — the ink step that keeps press from being motion alone"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.93,
+      "dark": 4.85,
+      "role": "a pressed secondary's edge, the firmest step in ADR 0010's stack"
     }
   ],
   "Calendar": [

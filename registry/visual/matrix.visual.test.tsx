@@ -234,6 +234,21 @@ const CASES: Array<{
           <Button shape="soft">Soft corners</Button>
           <Button shape="full">Rounded full</Button>
         </div>
+        {/*
+          DISABLED, which had no case at all. It is the state a form shows most
+          — every secondary action goes inert while it submits — and it shipped
+          one step darker than the sheet draws with nothing looking at it. Its
+          fill and its ring are the same value, so the control flattens; that is
+          precisely the kind of change a computed-style assertion confirms and
+          only a picture makes obvious.
+        */}
+        <div className="flex items-center gap-md">
+          {(["primary", "secondary", "outline", "ghost", "danger"] as const).map((variant) => (
+            <Button key={variant} variant={variant} isDisabled>
+              {variant}
+            </Button>
+          ))}
+        </div>
       </div>
     ),
   },

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-09-button-pressed-paints-no-fill",
+  "date": "2026-08-09",
+  "item": "button",
+  "kind": "visual",
+  "summary": "Pressing secondary, outline or ghost no longer paints a neutral fill. The Button sheet draws eleven frames — five variants, their five hovers, and disabled — and NO pressed row, so every active treatment was derived; what the derivation reached for was --ui-bg-active (#DAD4CE), a value that appears zero times in the whole Button artboard. An edge-on-nothing control therefore grew a grey chip under the pointer, heavier than any fill the design draws for a button. Press now firms the channels each type already uses and keeps whatever hover painted, because a pointer press is necessarily also a hover: secondary steps its ring default -> strong and its ink to primary, outline takes its ink to primary, ghost keeps hover's fill and darkens its ink. primary and danger are fills by definition and keep theirs. The ink step is required rather than cosmetic — CONVENTIONS §8 forbids motion being the only feedback channel, and the press-scale is the motion. Two RESTING fills were also a step darker than drawn and are corrected the same way: ghost's hover moves from bg-hover (neutral-90) to bg-elevated (neutral-95), and DISABLED moves from bg-sunken to bg-elevated with a matching ring, which is what the sheet's Disabled frame draws. Disabled is the state seen most — a form disables its secondary actions while it submits, so a whole column of them goes grey at once, and at neutral-90 they read as filled chips rather than as flattened controls. The handoff sheet was then rebuilt from this implementation rather than the other way round: anatomy, the three sizes with both shapes, all five types against rest/hover/pressed/focus-visible/disabled, busy, full width, a token map carrying both schemes, and the states matrix again in dark on bg-surface so the interaction ramp can be read as a sequence. Six roles Paper was missing were added to the file so every cell on it is a token rather than a literal: --ui-bg-accent-hover, --ui-bg-accent-active, --ui-bg-accent-subtle-hover, --ui-intent-danger-border, --ui-intent-danger-bg-hover and --ui-text-on-danger-subtle.",
+  "affects": [
+    "item:button"
+  ],
+  "migration": {
+    "manual": "Visual only — no API change. Pressed secondary and outline buttons lose their grey fill and gain a firmer edge and darker ink; pressed ghost keeps the hover fill it already had. Hovered ghost buttons and ALL disabled buttons are one step lighter, matching the sheet. If you relied on the pressed fill as a selected-looking state, that was never a designed state: use Badge's `selected` variant or a real toggle."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/XK7-0"
+  }
+}

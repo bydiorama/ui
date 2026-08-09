@@ -175,3 +175,124 @@ describe("Button motion and focus are real, not just declared", () => {
     expect(style.outlineColor).not.toBe("rgba(0, 0, 0, 0)");
   });
 });
+
+/**
+ * The PRESSED state, read out of the compiled stylesheet.
+ *
+ * `:active` is a user-agent state: no synthetic event produces it, and vitest's
+ * browser driver exposes no way to hold a pointer down. So this reads layer 3 —
+ * the actual compiled rules — rather than inventing a class at runtime, which
+ * proves nothing about a variant utility (Tailwind only compiles what it finds
+ * when scanning source).
+ */
+function everyStyleRule(): CSSStyleRule[] {
+  const out: CSSStyleRule[] = [];
+  const walk = (rules: CSSRuleList) => {
+    for (const rule of Array.from(rules)) {
+      if (rule instanceof CSSStyleRule) out.push(rule);
+      // Tailwind v4 wraps EVERYTHING in `@layer`, and a CSSLayerBlockRule is
+      // not a CSSStyleRule — so a walker that only reads `sheet.cssRules`
+      // finds zero utilities and every "it declares no fill" assertion passes
+      // vacuously. Probed: 0 active rules before recursing, 10 after.
+      const nested = (rule as unknown as { cssRules?: CSSRuleList }).cssRules;
+      if (nested) walk(nested);
+    }
+  };
+  for (const sheet of Array.from(document.styleSheets)) {
+    try {
+      walk(sheet.cssRules);
+    } catch {
+      // cross-origin
+    }
+  }
+  return out;
+}
+
+function declarationsFor(el: Element, state: ":active" | ":hover" | ":disabled"): Map<string, string> {
+  const found = new Map<string, string>();
+  for (const rule of everyStyleRule()) {
+    {
+      if (!rule.selectorText.includes(state)) continue;
+      // Strip the TRAILING pseudo-class chain only. A blanket replaceAll is
+      // wrong and silently so: the compiled class name is
+      // `.enabled\:active\:bg-accent-active:enabled:active`, which contains
+      // the literal ":active" INSIDE the escaped class — removing every
+      // occurrence mangles the selector, nothing matches, and every "declares
+      // no fill" assertion passes vacuously. Probed: primary's pressed fill
+      // read as absent.
+      let base = rule.selectorText;
+      while (
+        base.endsWith(":active") ||
+        base.endsWith(":enabled") ||
+        base.endsWith(":hover") ||
+        base.endsWith(":disabled")
+      ) {
+        base = base.slice(0, base.lastIndexOf(":"));
+      }
+      let matches = false;
+      try {
+        matches = el.matches(base);
+      } catch {
+        continue;
+      }
+      if (!matches) continue;
+      for (const property of Array.from(rule.style))
+        found.set(property, rule.style.getPropertyValue(property));
+    }
+  }
+  return found;
+}
+
+const activeDeclarations = (el: Element) => new Set(declarationsFor(el, ":active").keys());
+
+describe("pressing an edge-only Button paints no fill", () => {
+  // The sheet draws ELEVEN button frames — five variants, their five hovers,
+  // and disabled. There is no pressed row anywhere in it, so every active
+  // treatment here is DERIVED. What the derivation reached for was
+  // --ui-bg-active (#DAD4CE), a value that appears ZERO times in the whole
+  // Button artboard: an edge-on-nothing control grew a neutral chip under the
+  // pointer, heavier than any fill the design draws for a button.
+  test.each(["secondary", "outline"] as const)(
+    "%s declares no background-color while pressed",
+    (variant) => {
+      const button = mount(<Button variant={variant}>Create New</Button>);
+      const pressed = activeDeclarations(button);
+      expect([...pressed], `${variant} pressed declares: ${[...pressed].join(", ")}`).not.toContain(
+        "background-color",
+      );
+    },
+  );
+
+  test.each(["secondary", "outline", "ghost"] as const)(
+    "%s still carries a STATIC press cue, not motion alone (§8)",
+    (variant) => {
+      const button = mount(<Button variant={variant}>Create New</Button>);
+      // CONVENTIONS §8: motion is never the only feedback channel. The press
+      // scale is the motion; the ink step is what makes it conformant.
+      expect([...activeDeclarations(button)]).toContain("color");
+    },
+  );
+
+  test("a FILLED variant keeps its pressed fill — the rule is about edge-only types", () => {
+    const button = mount(<Button variant="primary">Create New</Button>);
+    expect([...activeDeclarations(button)]).toContain("background-color");
+  });
+
+  test("a DISABLED button fills with the sheet's bg-elevated, not a step darker", () => {
+    // The sheet's Disabled frame fills with --ui-neutral-95 and rings itself
+    // with the same value. It shipped as bg-sunken (neutral-90), which is the
+    // identical off-by-one as ghost's hover — and it is the state most often
+    // seen, because a form disables its secondary actions while it submits.
+    const button = mount(<Button variant="secondary">Create New</Button>);
+    expect(declarationsFor(button, ":disabled").get("background-color")).toBe(
+      "var(--ui-bg-elevated)",
+    );
+  });
+
+  test("ghost's hover fill is the sheet's bg-elevated, not a step darker", () => {
+    const button = mount(<Button variant="ghost">Create New</Button>);
+    // The sheet's Ghost Hover frame fills with --ui-neutral-95, whose role is
+    // --ui-bg-elevated. `bg-hover` is neutral-90 — one step darker than drawn.
+    expect(declarationsFor(button, ":hover").get("background-color")).toBe("var(--ui-bg-elevated)");
+  });
+});

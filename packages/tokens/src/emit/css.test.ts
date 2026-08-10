@@ -76,6 +76,11 @@ test("composite values carry light-dark() per layer, never around the list", () 
     assert.ok(!/light-dark\([^)]*px/.test(line.replace(/light-dark\((rgba?\([^)]*\)|#[0-9a-fA-F]+), (rgba?\([^)]*\)|#[0-9a-fA-F]+)\)/g, "PAIR")),
       `light-dark() must wrap colours only: ${line.trim()}`);
   }
-  // The merged form is real: geometry outside, pair inside.
-  assert.match(css, /--ui-shadow-sm: 0 0\.5px 1\.5px light-dark\(rgba\(29, 27, 25, 0\.16\), rgba\(246, 243, 240, 0\.16\)\);/);
+  // The merged form is real: geometry outside, pair inside. Both inks are
+  // DARK — this literal used to end `rgba(246, 243, 240, 0.16)`, a near-white,
+  // and passed for the whole life of the scale because the assertion is about
+  // the SHAPE of the pair and any two colours satisfy it (ADR 0016).
+  assert.match(css, /--ui-shadow-sm: 0 0\.5px 1\.5px light-dark\(rgba\(29, 27, 25, 0\.16\), rgba\(34, 31, 27, 0\.256\)\);/);
+  // And the upward cast merges the same way, negated only in its offsets.
+  assert.match(css, /--ui-shadow-sm-up: 0 -0\.5px 1\.5px light-dark\(/);
 });

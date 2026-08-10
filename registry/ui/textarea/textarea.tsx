@@ -4,6 +4,19 @@ import { cn } from "@/lib/cn";
 
 export type TextareaSize = "lg" | "md" | "sm";
 
+/** The ground the field is cut from — see the `surface` prop (ADR 0017). */
+export type TextareaSurface = "page" | "chrome";
+
+/**
+ * The enabled and disabled fills, PAIRED by ground — Input's table, for the
+ * same reason the geometry is Input's: the two fields have to sit in one form
+ * without a seam, and a fill that differs by ground is no exception.
+ */
+const SURFACE = {
+  page: { rest: "bg-field", disabled: "bg-field-disabled" },
+  chrome: { rest: "bg-field-chrome", disabled: "bg-field-chrome-disabled" },
+} as const satisfies Record<TextareaSurface, { rest: string; disabled: string }>;
+
 /**
  * Geometry per size, DERIVED from Input's table rather than drawn.
  *
@@ -61,6 +74,13 @@ interface TextareaBaseProps
    * the inset and the line — never `rows`, which stays the caller's count.
    */
   size?: TextareaSize;
+  /**
+   * WHICH GROUND the field is cut from (ADR 0017) — `page` for a field on the
+   * document, `chrome` for one inside an inspector, island or sheet. Selects
+   * the enabled and disabled fills together as a pair; see Input for why they
+   * cannot be picked independently.
+   */
+  surface?: TextareaSurface;
   isDisabled?: boolean;
   isRequired?: boolean;
   /**
@@ -89,6 +109,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
     label,
     isLabelHidden = false,
     size = "lg",
+    surface = "page",
     isDisabled = false,
     isRequired = false,
     isInvalid = false,
@@ -181,13 +202,15 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           // height and a resize drag grows the box instead of being clipped.
           "flex w-full shrink-0 items-start overflow-clip rounded-md border-[1.5px]",
           "transition-[border-color,box-shadow,background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-          "bg-field border-edge-subtle",
+          "border-edge-subtle",
+          // The fill comes from the GROUND-and-state pair, never from a surface
+          // role directly — see Input, and ADR 0017.
+          isDisabled ? SURFACE[surface].disabled : SURFACE[surface].rest,
           // Hover is DERIVED, not drawn in the sheet: it mirrors Input, which
           // mirrors Button's secondary variant, so every control on a form
           // behaves alike.
           !isDisabled && !invalid && "hover:border-edge-default",
           invalid && "border-danger",
-          isDisabled && "bg-sunken",
           // The visible focus indicator. Border colour alone would fail
           // SC 1.4.11 against the resting border, so the ring carries it.
           // The ring is a box-shadow, and forced-colors mode forces box-shadow

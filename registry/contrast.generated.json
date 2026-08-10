@@ -775,6 +775,30 @@
       "role": "the placeholder"
     },
     {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field-chrome",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 12.55,
+      "role": "the value, on a chrome ground (surface=\"chrome\")"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field-chrome",
+      "floor": "text",
+      "light": 4.87,
+      "dark": 6.1,
+      "role": "the placeholder, on a chrome ground"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-field-chrome-disabled",
+      "floor": "decorative",
+      "light": 1.46,
+      "dark": 2.51,
+      "role": "a disabled field's value on a chrome ground"
+    },
+    {
       "fg": "--ui-text-secondary",
       "bg": "--ui-bg-base",
       "floor": "text",
@@ -1286,6 +1310,30 @@
       "light": 5.93,
       "dark": 7.54,
       "role": "the placeholder"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field-chrome",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 12.55,
+      "role": "the value, on a chrome ground (surface=\"chrome\")"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field-chrome",
+      "floor": "text",
+      "light": 4.87,
+      "dark": 6.1,
+      "role": "the placeholder, on a chrome ground"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-field-chrome-disabled",
+      "floor": "decorative",
+      "light": 1.46,
+      "dark": 2.51,
+      "role": "a disabled field's value on a chrome ground"
     },
     {
       "fg": "--ui-text-secondary",

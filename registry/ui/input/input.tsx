@@ -4,6 +4,23 @@ import { cn } from "@/lib/cn";
 
 export type InputSize = "lg" | "md" | "sm";
 
+/** The ground the field is cut from — see the `surface` prop (ADR 0017). */
+export type InputSurface = "page" | "chrome";
+
+/**
+ * The enabled and disabled fills, PAIRED by ground.
+ *
+ * Paired rather than picked separately because the page's disabled fill and
+ * chrome's enabled fill are the same colour in theme zero: neutral-90 under a
+ * white page reads as unavailable, and the identical neutral-90 inside a
+ * neutral-95 inspector reads as a well. Choosing them independently is exactly
+ * how the editor's recessed field came to be drawn in the disabled fill.
+ */
+const SURFACE = {
+  page: { rest: "bg-field", disabled: "bg-field-disabled" },
+  chrome: { rest: "bg-field-chrome", disabled: "bg-field-chrome-disabled" },
+} as const satisfies Record<InputSurface, { rest: string; disabled: string }>;
+
 /**
  * Geometry per size, transcribed from the approved design.
  *
@@ -27,6 +44,22 @@ interface InputBaseProps
   /** Renders the label visually hidden rather than omitting it. */
   isLabelHidden?: boolean;
   size?: InputSize;
+  /**
+   * WHICH GROUND the field is cut from (ADR 0017). A field is a well, and a
+   * well means nothing on its own — it means something against its floor.
+   *
+   * `page` is a field on the document: flush with it, identified by its
+   * hairline. `chrome` is a field inside an inspector, an island or a sheet,
+   * where the floor is `bg-elevated` and the field is genuinely recessed.
+   *
+   * It selects the enabled AND disabled fills together, as a PAIR, which is
+   * the point: the page's disabled fill and chrome's enabled fill are the same
+   * colour, so picking them independently is how a recessed field ends up
+   * drawn as an unavailable one. The component cannot infer this — a panel
+   * knows it is a panel and an input does not — so it is a prop rather than
+   * something clever with inheritance, which a portalled surface would break.
+   */
+  surface?: InputSurface;
   isDisabled?: boolean;
   isRequired?: boolean;
   /**
@@ -51,6 +84,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     label,
     isLabelHidden = false,
     size = "lg",
+    surface = "page",
     isDisabled = false,
     isRequired = false,
     isInvalid = false,
@@ -132,12 +166,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // unsized slot rendered every leading and trailing glyph oversize.
           "[&_svg]:size-4 [&_svg]:shrink-0",
           "transition-[border-color,box-shadow,background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-          "bg-field border-edge-subtle",
+          "border-edge-subtle",
+          // The fill comes from the GROUND-and-state pair, never from a
+          // surface role directly: `bg-sunken` used to carry disabled, which
+          // made it impossible to draw a recessed field on a chrome panel
+          // without it reading as unavailable (ADR 0017).
+          isDisabled ? SURFACE[surface].disabled : SURFACE[surface].rest,
           // Hover is DERIVED, not drawn in the sheet: it mirrors Button's
           // secondary variant (subtle → default) so controls behave alike.
           !isDisabled && !invalid && "hover:border-edge-default",
           invalid && "border-danger",
-          isDisabled && "bg-sunken",
           // The visible focus indicator. Border colour alone would fail
           // SC 1.4.11 against the resting border, so the ring carries it.
           // The ring is a box-shadow, and forced-colors mode forces box-shadow

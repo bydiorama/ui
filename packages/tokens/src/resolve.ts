@@ -78,6 +78,14 @@ const SHADOW_SCALE = {
   strong: 1.6,
 } as const;
 
+/**
+ * The lightness ceiling for a shadow's ink (ADR 0016). Theme zero's own
+ * #1D1B19 sits just under it, which is where the number came from — the
+ * approved elevation language defines "dark enough", and every other brand is
+ * held to it rather than to its own type colour.
+ */
+const SHADOW_INK_MAX_L = 0.24;
+
 export type Scheme = "light" | "dark";
 
 export interface ResolveOptions {
@@ -323,6 +331,35 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     return shiftL(colors.surface, -0.03);
   })();
 
+  /**
+   * FIELDS ARE A GROUND-AND-STATE MATRIX, not one fill (ADR 0017).
+   *
+   * A field is a well cut from whatever contains it, and the derivation for
+   * `--ui-bg-field` reads the PAGE. Put the same control on a chrome surface —
+   * an inspector, an island, a bottom sheet — and the well has to be cut from
+   * that floor instead. Until these existed, an editor panel on `bg-elevated`
+   * reached for `bg-sunken`, which is the value a DISABLED field is filled
+   * with: a recessed field and an unavailable one, the same colour, on the one
+   * ground where both appear.
+   *
+   * Each value is floored by MEASUREMENT rather than authored as a step, so a
+   * brand whose surfaces sit close together cannot collapse a pair into one
+   * fill. Direction is toward the theme's ink because that is the axis with
+   * range in either scheme — the size of the move is what carries meaning
+   * here, not which way it went.
+   */
+  const separateFrom = (from: string, min: number) => {
+    for (const t of [0.06, 0.09, 0.13, 0.18, 0.25]) {
+      const candidate = towardL(from, colors.textPrimary, t);
+      if (contrastRatio(candidate, from) >= min) return candidate;
+    }
+    return towardL(from, colors.textPrimary, 0.32);
+  };
+  const field = dark ? shiftL(colors.surface, -0.06) : colors.bg;
+  const fieldDisabled = separateFrom(field, 1.12);
+  const fieldChrome = separateFrom(elevated, 1.08);
+  const fieldChromeDisabled = separateFrom(fieldChrome, 1.12);
+
   const shape = seed.shape ?? {};
   const px = (n: number) => (n === 0 ? "0" : `${Math.round(n)}px`);
   const radiusKnob = (key: keyof typeof SEED_BOUNDS.radiusPx) =>
@@ -332,22 +369,84 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     xl: radiusKnob("xl"), "2xl": radiusKnob("2xl"), pill: radiusKnob("pill"),
   };
 
-  // Layered translucent shadows in the theme's own ink (CONVENTIONS §6).
+  // Layered translucent shadows (CONVENTIONS §6, ADR 0016).
   // The xl geometry is the approved modal's shadow; sm is the raised-control
   // micro-lift from the handover components sheet.
   const intensity = SHADOW_SCALE[shape.shadow ?? "standard"];
-  const shadow = (layers: Array<[y: number, blur: number, spread: number, alpha: number]>) =>
+
+  /**
+   * A shadow is OCCLUSION — light that did not arrive — so its ink is dark in
+   * both schemes.
+   *
+   * This used to be `colors.textPrimary`, which inverts: in theme zero's dark
+   * scheme that resolves to #F6F3F0, so every elevated surface in the library
+   * cast a *white glow*, and because the offsets are positive the glow pooled
+   * BELOW the element — exactly where occlusion belongs. A light pool under a
+   * card reads as a reflection, not depth, and it was wrong on all four steps
+   * in every brand at once. Nothing caught it: `check:contrast` measures ink
+   * on grounds, and a shadow is neither.
+   *
+   * Nor is it the ink in LIGHT. The first run of the test below failed on the
+   * low-contrast stress seed, whose `textPrimary` is a mid grey (#8A8A8A): its
+   * shadows were grey smudges. A shadow does not get paler because a brand's
+   * type does — so the ink is a CEILING, not a copy. Start from the theme's
+   * own darkest colour (its ink in light, its page in dark) and floor it to
+   * near-black, keeping hue and chroma so a brand's shadow stays that brand's
+   * colour rather than reverting to neutral. Theme zero's #1D1B19 already sits
+   * under the ceiling, so its light values are unchanged to the byte.
+   */
+  const shadowInk = (() => {
+    const source = dark ? colors.bg : colors.textPrimary;
+    const c = toOklch(source);
+    if (!c) return "#000000";
+    return c.L <= SHADOW_INK_MAX_L ? source : formatColor(oklchToRgb({ ...c, L: SHADOW_INK_MAX_L }));
+  })();
+
+  /**
+   * Dark needs MORE opacity for the same read, not the same.
+   *
+   * The two surfaces a shadow separates sit far apart in light (#FFFFFF page,
+   * #1D1B19 ink — the whole range to spend) and close together in dark (page
+   * #423E3A, surface #2F2C29). At the light alphas the dark shadow measures as
+   * nothing against the page it falls on, which is how "elevation separates by
+   * tint, the shadow is a whisper" quietly became "in dark there is only tint".
+   */
+  const depth = intensity * (dark ? 1.6 : 1);
+
+  /**
+   * `cast` is which way the light comes from: 1 for a surface floating above
+   * the page (everything), -1 for one anchored to the BOTTOM edge of the
+   * viewport — a bottom sheet, a docked drawer. A downward shadow on a surface
+   * flush with the bottom of the screen falls off-screen and the surface has
+   * no edge at all, which is why every drawer in the editor sheets hand-wrote
+   * a negated copy of `--ui-shadow-lg`. It is the same elevation, lit from the
+   * other side, so it is derived here rather than authored twice.
+   */
+  const shadow = (
+    layers: Array<[y: number, blur: number, spread: number, alpha: number]>,
+    cast: 1 | -1 = 1,
+  ) =>
     intensity === 0
       ? "none"
       : layers
           .map(([y, blur, spread, alpha]) => {
             const grow = (n: number) => round(n * intensity, 2);
-            const ink = withAlpha(colors.textPrimary, round(alpha * intensity, 3));
+            const ink = withAlpha(shadowInk, round(alpha * depth, 3));
             return spread === 0
-              ? `0 ${grow(y)}px ${grow(blur)}px ${ink}`
-              : `0 ${grow(y)}px ${grow(blur)}px ${grow(spread)}px ${ink}`;
+              ? `0 ${grow(y * cast)}px ${grow(blur)}px ${ink}`
+              : `0 ${grow(y * cast)}px ${grow(blur)}px ${grow(spread)}px ${ink}`;
           })
           .join(", ");
+
+  /** The four elevation steps, as geometry. `shadow()` inks and casts them. */
+  const ELEVATION = {
+    sm: [[0.5, 1.5, 0, 0.16]],
+    md: [[1, 3, 0, 0.14], [0.5, 1.5, 0, 0.08]],
+    lg: [[8, 24, -4, 0.09], [2, 8, 0, 0.05]],
+    xl: [[20, 25, -5, 0.1], [10, 10, -5, 0.04]],
+  } as const satisfies Record<string, ReadonlyArray<readonly [number, number, number, number]>>;
+  const step = (k: keyof typeof ELEVATION, cast: 1 | -1 = 1) =>
+    shadow(ELEVATION[k].map((l) => [...l] as [number, number, number, number]), cast);
 
   const type = typeScale(seed);
 
@@ -486,7 +585,21 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // inverts between schemes: in light that means the page's lightest value,
     // in dark it means going further DOWN than any panel. Painting a field
     // with `bg-base` made it identical to its container in dark.
-    "--ui-bg-field": dark ? shiftL(colors.surface, -0.06) : colors.bg,
+    //
+    // "Whatever contains it" was the unexamined half. This pair is derived
+    // from the PAGE, so it only holds when the page is what contains the
+    // field. Put the same field on a chrome surface — an inspector, an island,
+    // a bottom sheet — and the well has to be cut from THAT floor instead; the
+    // `-chrome` pair below is that same relation measured against `elevated`.
+    // Until it existed, an editor panel reached for `bg-sunken`, which is what
+    // a DISABLED field is filled with, so a recessed field and an unavailable
+    // one were the same colour on the one ground where both appear (ADR 0017).
+    "--ui-bg-field": field,
+    // Named rather than reaching for `bg-sunken`: a state is not a surface,
+    // and pointing a state at a surface role is what let the two collide.
+    "--ui-bg-field-disabled": fieldDisabled,
+    "--ui-bg-field-chrome": fieldChrome,
+    "--ui-bg-field-chrome-disabled": fieldChromeDisabled,
     "--ui-bg-muted": colors.muted,
     "--ui-bg-overlay": withAlpha(dark ? "#000000" : colors.textPrimary, 0.55),
     "--ui-bg-hover": shiftL(colors.surface, up * 0.05),
@@ -603,14 +716,23 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-radius-2xl": px(radius["2xl"]),
     "--ui-radius-full": px(radius.pill),
     "--ui-border-width": px(clamp(shape.borderWidthPx ?? SEED_BOUNDS.borderWidthPx.default, SEED_BOUNDS.borderWidthPx.min, SEED_BOUNDS.borderWidthPx.max)),
-    // sm is the approved elevation language (Modal Example: 0 0.5px 1.5px
-    // ink@0.16 — surfaces separate by tint, the shadow is a whisper). The
-    // larger steps are engineering defaults extrapolated from it plus the
-    // draft modal's overlay geometry, pending an elevation sheet.
-    "--ui-shadow-sm": shadow([[0.5, 1.5, 0, 0.16]]),
-    "--ui-shadow-md": shadow([[1, 3, 0, 0.14], [0.5, 1.5, 0, 0.08]]),
-    "--ui-shadow-lg": shadow([[8, 24, -4, 0.09], [2, 8, 0, 0.05]]),
-    "--ui-shadow-xl": shadow([[20, 25, -5, 0.1], [10, 10, -5, 0.04]]),
+    // Four steps, each with a ROLE rather than a size (ADR 0016): sm is the
+    // raised control, md the attached panel, lg the surface floating free of
+    // the layout, xl the surface that has taken the whole screen. sm is the
+    // approved elevation language (Modal Example: 0 0.5px 1.5px ink@0.16 —
+    // surfaces separate by tint, the shadow is a whisper); the larger steps
+    // were engineering defaults until the editor sheets gave them consumers.
+    "--ui-shadow-sm": step("sm"),
+    "--ui-shadow-md": step("md"),
+    "--ui-shadow-lg": step("lg"),
+    "--ui-shadow-xl": step("xl"),
+    // The same four elevations lit from below, for a surface anchored to the
+    // BOTTOM edge of the viewport. Not a fifth step — the same step, cast the
+    // other way, so the pair can never drift apart.
+    "--ui-shadow-sm-up": step("sm", -1),
+    "--ui-shadow-md-up": step("md", -1),
+    "--ui-shadow-lg-up": step("lg", -1),
+    "--ui-shadow-xl-up": step("xl", -1),
 
     // Typography
     "--ui-font-body": seed.typography?.fontBody ?? "Aspekta, ui-sans-serif, system-ui, sans-serif",

@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-10-elevation-is-occlusion",
+  "date": "2026-08-10",
+  "item": "system",
+  "kind": "visual",
+  "summary": "Elevation becomes a specified domain (ADR 0016), and fixing it uncovered that every shadow in the library was WRONG IN DARK. `shadow()` inked its layers with `colors.textPrimary`, which inverts: in theme zero's dark scheme that resolves to #F6F3F0, so all four steps cast a white glow — and because every offset is positive the glow pooled BELOW the element, exactly where occlusion belongs. A light puddle under a card reads as a reflection, not depth. Card, Popover, Modal, Select, Multiselect, Menu, Context Menu, Drawer, Sheet, Calendar, Slider, Switch, Card Sorting and Image Edit all shipped it, in every brand, for the whole life of the scale. Nothing could have caught it: `check:contrast` measures ink on grounds and a shadow is neither, and the emit test asserted the SHAPE of the light-dark() pair — any two colours satisfy that, which is why a near-white passed. The fix is a CEILING rather than a copy, and the first run of the new assertion proved why: it failed in LIGHT on the low-contrast stress seed, whose textPrimary is a mid grey (#8A8A8A), so that brand's shadows were grey smudges. The resolver now takes the theme's darkest colour — its ink in light, its page in dark — and floors it to L 0.24 in OKLCH, keeping hue and chroma so a brand's shadow stays that brand's colour. Theme zero sits under the ceiling already, so EVERY LIGHT VALUE IS UNCHANGED TO THE BYTE and only the 12 dark baselines moved. Dark also gets 1.6x the alpha, because the surfaces it separates are close in lightness (#423E3A page, #2F2C29 surface) where light has the whole range to spend. Four new tokens: `--ui-shadow-{sm,md,lg,xl}-up`, the same elevations lit from below, for a surface anchored to the BOTTOM edge of the viewport — a downward shadow there falls off-screen and the surface reads as having no edge. Derived by negating the Y offsets, never authored twice, and a test flips one back and asserts it equals its step so a drifted blur or alpha cannot survive. Four assertions now cover the domain across every stress seed and both schemes: the ink is dark, dark is deeper than light, each -up mirrors its step exactly, and the scale is ORDERED by reach — the last had never been asserted, and four steps named sm/md/lg/xl are a claim about ordering that a transposed digit would have made silently false.",
+  "affects": [
+    "token:--ui-shadow-sm",
+    "token:--ui-shadow-md",
+    "token:--ui-shadow-lg",
+    "token:--ui-shadow-xl",
+    "token:--ui-shadow-sm-up",
+    "token:--ui-shadow-md-up",
+    "token:--ui-shadow-lg-up",
+    "token:--ui-shadow-xl-up"
+  ],
+  "migration": {
+    "manual": "Nothing to change at a call site — the four existing tokens keep their names and every LIGHT value is byte-identical. In DARK, shadows change from a near-white glow to a warm near-black at 1.6x the alpha; if you pinned a dark shadow value in a test, a snapshot or a consumer override, it moves. Twelve dark visual baselines were regenerated. The four `-up` tokens are new and have no component consumer yet: use them for any surface anchored to the bottom edge of the viewport instead of hand-negating a shadow's Y offsets."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/9-0"
+  }
+}

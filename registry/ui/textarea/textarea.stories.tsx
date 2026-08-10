@@ -202,3 +202,31 @@ export const BrandThemed: Story = {
     );
   },
 };
+
+/**
+ * The two GROUNDS a field can be cut from (ADR 0017), each with its disabled
+ * state beside it — which is the only way to see what the pair is for.
+ *
+ * The page's disabled fill and chrome's enabled fill are the SAME COLOUR in
+ * theme zero. Read down the columns and that stops being a coincidence: what
+ * makes one of them "unavailable" and the other "a well you can type into" is
+ * the floor underneath, not the fill. Picking the two independently is exactly
+ * how an editor panel came to draw its recessed field in the disabled fill.
+ */
+export const OnEachGround: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <div className="flex gap-xl">
+      <div className="flex w-72 flex-col gap-md rounded-lg bg-base p-lg">
+        <p className="text-caption font-body text-ink-muted">on the page — bg-base</p>
+        <Textarea label="Enabled" defaultValue="Josef Müller-Brockmann" />
+        <Textarea label="Disabled" defaultValue="Josef Müller-Brockmann" isDisabled />
+      </div>
+      <div className="flex w-72 flex-col gap-md rounded-lg bg-elevated p-lg">
+        <p className="text-caption font-body text-ink-muted">on chrome — bg-elevated</p>
+        <Textarea label="Enabled" surface="chrome" defaultValue="Josef Müller-Brockmann" />
+        <Textarea label="Disabled" surface="chrome" defaultValue="Josef Müller-Brockmann" isDisabled />
+      </div>
+    </div>
+  ),
+};

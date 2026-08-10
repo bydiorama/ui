@@ -581,3 +581,144 @@ test("the media ground and its inks follow neither the scheme nor the brand", ()
     );
   }
 });
+
+/**
+ * ELEVATION (ADR 0016).
+ *
+ * A shadow is occlusion, and the resolver used to ink it with
+ * `colors.textPrimary` — which INVERTS. In theme zero's dark scheme that
+ * resolved to #F6F3F0, so all four steps cast a white glow, and because every
+ * offset is positive the glow pooled BELOW the element: a light puddle under a
+ * card, in every brand, on every dark page, for the whole life of the scale.
+ *
+ * Nothing existing could have caught it. `check:contrast` measures ink on
+ * grounds and a shadow is neither; the emit test asserted the *shape* of the
+ * `light-dark()` pair and would have passed on any two colours.
+ */
+test("a shadow is occlusion — dark ink, in BOTH schemes and every brand", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      for (const step of ["sm", "md", "lg", "xl"] as const) {
+        const value = pair[scheme][`--ui-shadow-${step}`]!;
+        // Every layer's ink, opaque, must be nearly black — a shadow lighter
+        // than the page it falls on is a glow.
+        for (const [, r, g, b] of value.matchAll(/rgba?\((\d+), (\d+), (\d+)/g)) {
+          const opaque = `#${[r, g, b].map((n) => Number(n).toString(16).padStart(2, "0")).join("")}`;
+          assert.ok(
+            contrastRatio(opaque, "#ffffff") > 10,
+            `${name} ${scheme} shadow-${step}: ink ${opaque} is not dark (${value})`,
+          );
+        }
+      }
+    }
+  }
+});
+
+/**
+ * Dark needs MORE opacity for the same read: the surfaces a shadow separates
+ * are far apart in light (#FFFFFF page against a near-black ink) and close
+ * together in dark (#423E3A page, #2F2C29 surface). Equal alphas would make
+ * the dark shadow measure as nothing, which is how "elevation separates by
+ * tint, the shadow is a whisper" quietly becomes "in dark there is only tint".
+ */
+test("dark elevation is deeper than light, never equal", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    const alphas = (v: string) => [...v.matchAll(/rgba\([^)]*?,\s*([\d.]+)\)/g)].map((m) => Number(m[1]));
+    for (const step of ["sm", "md", "lg", "xl"] as const) {
+      const light = alphas(pair.light[`--ui-shadow-${step}`]!);
+      const dark = alphas(pair.dark[`--ui-shadow-${step}`]!);
+      assert.equal(light.length, dark.length, `${name}: shadow-${step} layer count differs`);
+      light.forEach((a, i) => {
+        assert.ok(
+          dark[i]! > a,
+          `${name}: shadow-${step} layer ${i} is not deeper in dark (${a} → ${dark[i]})`,
+        );
+      });
+    }
+  }
+});
+
+/**
+ * The `-up` variants are the SAME elevation lit from below, for a surface
+ * anchored to the bottom edge of the viewport. Derived, never authored twice —
+ * both editor sheets hand-wrote a negated copy of `--ui-shadow-lg` before this
+ * existed, which is exactly how a pair drifts.
+ */
+test("every upward cast is its own step with the Y offsets negated, nothing else", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      for (const step of ["sm", "md", "lg", "xl"] as const) {
+        const down = pair[scheme][`--ui-shadow-${step}`]!;
+        const up = pair[scheme][`--ui-shadow-${step}-up`]!;
+        assert.notEqual(up, down, `${name} ${scheme}: shadow-${step}-up did not move`);
+        // Negating Y twice returns the original, so the two differ in exactly
+        // that and in nothing else — no drifted blur, spread or alpha.
+        const flip = (v: string) => v.replace(/(^|, )0 (-?)([\d.]+)px/g, (_, sep, sign, n) => `${sep}0 ${sign ? "" : "-"}${n}px`);
+        assert.equal(flip(up), down, `${name} ${scheme}: shadow-${step}-up differs from its step beyond the cast`);
+      }
+    }
+  }
+});
+
+/**
+ * The scale must be a scale: a surface that sits further off the page casts a
+ * larger shadow than one nearer it. Four steps named sm/md/lg/xl are a claim
+ * about ordering, and nothing asserted it — the geometry is authored by hand,
+ * one row each, and a transposed digit would read as deliberate.
+ */
+test("the elevation scale is ordered by total cast, in both schemes", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      // Reach: how far the shadow extends below the element — the first
+      // layer's offset plus its blur, which is what a reader actually sees.
+      const reach = (v: string) => {
+        const m = v.match(/^0 (-?[\d.]+)px (-?[\d.]+)px/);
+        return m ? Math.abs(Number(m[1])) + Number(m[2]) : 0;
+      };
+      const steps = (["sm", "md", "lg", "xl"] as const).map((s) => ({
+        s, reach: reach(pair[scheme][`--ui-shadow-${s}`]!),
+      }));
+      steps.slice(1).forEach((cur, i) => {
+        assert.ok(
+          cur.reach > steps[i]!.reach,
+          `${name} ${scheme}: shadow-${cur.s} (${cur.reach}) does not reach past shadow-${steps[i]!.s} (${steps[i]!.reach})`,
+        );
+      });
+    }
+  }
+});
+
+/**
+ * FIELDS ARE A GROUND-AND-STATE MATRIX (ADR 0017).
+ *
+ * A fill means nothing on its own — it means something against the floor it is
+ * cut from. `--ui-bg-field-disabled` and `--ui-bg-field-chrome` are the SAME
+ * VALUE in theme zero, and that is the whole point: neutral-90 under a white
+ * page reads as unavailable, and the identical neutral-90 inside a neutral-95
+ * inspector reads as a well you can type into.
+ *
+ * So what has to hold is not that the four values differ, but that each PAIR
+ * separates on its own ground. Before these roles existed the editor's panel
+ * reached for `bg-sunken` — the page's disabled fill — and an enabled field on
+ * chrome was indistinguishable from a disabled one.
+ */
+test("each field pair separates on its OWN ground, in both schemes", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      const t = pair[scheme];
+      const page = contrastRatio(t["--ui-bg-field-disabled"]!, t["--ui-bg-field"]!);
+      const chrome = contrastRatio(t["--ui-bg-field-chrome-disabled"]!, t["--ui-bg-field-chrome"]!);
+      assert.ok(page >= 1.1, `${name} ${scheme}: field vs disabled on the PAGE is ${page.toFixed(3)}`);
+      assert.ok(chrome >= 1.1, `${name} ${scheme}: field vs disabled on CHROME is ${chrome.toFixed(3)}`);
+      // And the chrome field is a WELL — it has to read as cut into the panel,
+      // or the whole reason for a second pair disappears.
+      const well = contrastRatio(t["--ui-bg-field-chrome"]!, t["--ui-bg-elevated"]!);
+      assert.ok(well >= 1.06, `${name} ${scheme}: the chrome field is not a well (${well.toFixed(3)} against the panel)`);
+    }
+  }
+});

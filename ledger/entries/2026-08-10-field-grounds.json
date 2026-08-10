@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-10-field-grounds",
+  "date": "2026-08-10",
+  "item": "system",
+  "kind": "visual",
+  "summary": "Input and Textarea gain `surface: \"page\" | \"chrome\"`, and the field fill becomes a GROUND x STATE matrix (ADR 0017). A review flagged the editor inspector for drawing its fields on `bg-sunken` — the value a DISABLED field is filled with. The reading was half right: the drawing was correct and the library was incomplete. Those fields sit on a `bg-elevated` panel, not on the page, and a field is a well cut from whatever contains it, so the same fill means different things on different floors. `resolve.ts` already said so — the comment above `--ui-bg-field` reads 'a field is RECESSED from whatever contains it' — while the derivation reads the page, so the role only held when the page was the container and there was no name for the other case. Four roles now: `--ui-bg-field` / `--ui-bg-field-disabled` on the page, `--ui-bg-field-chrome` / `--ui-bg-field-chrome-disabled` on chrome. `--ui-bg-field-disabled` and `--ui-bg-field-chrome` resolve to the SAME VALUE in theme zero and that is the finding rather than a slip: neutral-90 under a white page reads as unavailable, the identical neutral-90 inside a neutral-95 inspector reads as a well you can type into. So the assertion is not that the four differ — it is that each PAIR separates on its own ground, in both schemes across every stress seed, plus the chrome field reading as a well against the panel. The mechanism of the original collision was a state pointing at a surface role (`isDisabled && \"bg-sunken\"`); both components now take the enabled and disabled fills TOGETHER from one map, so they cannot be picked apart. The ground is a prop rather than inference because a panel knows it is a panel and an input does not — and the tempting alternative, having chrome surfaces re-point `--ui-bg-field` for their subtree, breaks on exactly the components that need it most, since a Popover, Menu or Select panel is portalled to document.body and inherits nothing. Every value is floored by measurement rather than authored as a step, so a brand whose surfaces sit close together cannot collapse a pair. Light is unchanged; two dark baselines moved, and the dark disabled fill now separates from its field at 1.237 where it used to manage 1.127.",
+  "affects": [
+    "item:input",
+    "item:textarea",
+    "prop:surface",
+    "token:--ui-bg-field-disabled",
+    "token:--ui-bg-field-chrome",
+    "token:--ui-bg-field-chrome-disabled"
+  ],
+  "migration": {
+    "manual": "Nothing to change at a call site: `surface` defaults to \"page\" and every light value is byte-identical. Pass surface=\"chrome\" for a field inside an inspector, island, drawer or bottom sheet — anything floored with bg-elevated — and both its enabled and disabled fills move together. In dark, a DISABLED field's fill changes from #282522 to #2F2C29; if you pinned that value in a test or an override, it moves. Two dark visual baselines were regenerated. Select, Multiselect and Combobox still fill from bg-field directly and want the same prop."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/9-0"
+  }
+}

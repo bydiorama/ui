@@ -119,6 +119,20 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-elevated": NEUTRAL[95],
     "--ui-bg-sunken": NEUTRAL[90],
     "--ui-bg-field": NEUTRAL[100],
+    // Fields, per GROUND (ADR 0017). On the page the field is flush with it
+    // and the hairline does the identifying; on a chrome surface it is a real
+    // well, one step below the panel.
+    //
+    // `field-disabled` and `field-chrome` are the SAME VALUE, and that is the
+    // finding rather than a slip: neutral-90 under a white page reads as
+    // unavailable, and the identical neutral-90 inside a neutral-95 inspector
+    // reads as a well you can type into. A fill means nothing on its own — it
+    // means something against the floor it is cut from. Naming them separately
+    // is what stops the editor's recessed field being drawn in what the page
+    // uses for disabled, which is exactly what happened before this existed.
+    "--ui-bg-field-disabled": NEUTRAL[90],
+    "--ui-bg-field-chrome": NEUTRAL[90],
+    "--ui-bg-field-chrome-disabled": NEUTRAL[80],
     // Theme zero AUTHORS bg-elevated as neutral-95, while the derivation
     // shifts surface lighter — so the aliased nav fill has to be pinned too,
     // or it lands nearly white and the current item disappears.
@@ -205,6 +219,12 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     // Recessed from the card, matching the dark portal in the sheet: the
     // field reads as a well, not as another panel.
     "--ui-bg-field": NEUTRAL[0],
+    // Dark inverts the scale, so a well goes DOWN from a lighter panel here
+    // too — but the panel itself is dark, so the steps are the low end of the
+    // ramp rather than the high end (ADR 0017).
+    "--ui-bg-field-disabled": NEUTRAL[10],
+    "--ui-bg-field-chrome": NEUTRAL[10],
+    "--ui-bg-field-chrome-disabled": NEUTRAL[20],
     "--ui-gradient-brand": `linear-gradient(in oklab 270deg, ${BLUE[80]} 0%, ${LAVENDER[80]} 50%, ${RED[80]} 100%)`,
     // The slider ramp exactly as the sheet draws it. Pinned in BOTH schemes
     // because the design is the same sweep on either ground.

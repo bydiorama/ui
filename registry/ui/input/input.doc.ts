@@ -78,6 +78,9 @@ Input
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-field", floor: "text", role: "the value" },
       { fg: "--ui-text-placeholder", bg: "--ui-bg-field", floor: "text", role: "the placeholder" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-field-chrome", floor: "text", role: "the value, on a chrome ground (surface=\"chrome\")" },
+      { fg: "--ui-text-placeholder", bg: "--ui-bg-field-chrome", floor: "text", role: "the placeholder, on a chrome ground" },
+      { fg: "--ui-text-disabled", bg: "--ui-bg-field-chrome-disabled", floor: "decorative", role: "a disabled field's value on a chrome ground", why: "WCAG 1.4.3 exempts disabled controls, and a disabled field has to READ as unavailable — holding its ink to 4.5:1 would make it indistinguishable from an available one, which is the real failure. Declared rather than omitted because ADR 0017 added a second ground and an unlisted pair is an unchecked pair: this is the exact ink-on-fill combination the new pair exists to keep distinct." },
       { fg: "--ui-text-secondary", bg: "--ui-bg-base", floor: "text", role: "the label" },
       { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the focus ring" },
       {

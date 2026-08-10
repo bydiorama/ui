@@ -56,6 +56,15 @@ export const BRANDABLE_TOKENS = [
   // because the surface scale inverts between schemes: in dark `bg-base` is
   // the LIGHTEST surface, so a field painted with it vanished into its panel.
   "--ui-bg-field",
+  // Fields come in GROUND-AND-STATE pairs (ADR 0017). A field is a well cut
+  // from whatever contains it, so the same control needs a different fill on
+  // the page than on a chrome surface — an inspector, an island, a sheet — and
+  // its DISABLED fill has to be named per ground too. Without that, the
+  // recessed field on one ground was literally the disabled field on the
+  // other, which is what an editor panel drawn on `bg-elevated` surfaced.
+  "--ui-bg-field-disabled",
+  "--ui-bg-field-chrome",
+  "--ui-bg-field-chrome-disabled",
   "--ui-bg-muted",
   "--ui-bg-overlay",
   "--ui-bg-hover",
@@ -205,6 +214,13 @@ export const BRANDABLE_TOKENS = [
   "--ui-shadow-md",
   "--ui-shadow-lg",
   "--ui-shadow-xl",
+  // The same four elevations cast upward, for a surface anchored to the bottom
+  // edge of the viewport — a bottom sheet, a docked drawer. A downward shadow
+  // there falls off-screen, so the surface reads as having no edge (ADR 0016).
+  "--ui-shadow-sm-up",
+  "--ui-shadow-md-up",
+  "--ui-shadow-lg-up",
+  "--ui-shadow-xl-up",
 
   // Typography — faces plus the roles a theme's base size and ratio drive.
   // These are brandable so a themed surface stops needing its own parallel
@@ -327,6 +343,12 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // an unchecked role no matter how carefully it is derived.
   ["--ui-text-primary", "--ui-bg-field"],
   ["--ui-text-placeholder", "--ui-bg-field"],
+  // The same two, on the OTHER ground a field can be cut from (ADR 0017). A
+  // second ground is a second audit: the ink is the same role, the fill is
+  // not, and the whole reason the chrome pair exists is that the two grounds
+  // measure differently.
+  ["--ui-text-primary", "--ui-bg-field-chrome"],
+  ["--ui-text-placeholder", "--ui-bg-field-chrome"],
   // Surfaced by check:contrast: every one of these is rendered by a shipped
   // component and none was audited. A component may legitimately put ink on
   // any surface role, so the audit has to cover the cross-product it actually

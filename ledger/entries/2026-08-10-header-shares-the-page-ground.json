@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-10-header-shares-the-page-ground",
+  "date": "2026-08-10",
+  "item": "header",
+  "kind": "visual",
+  "summary": "The bar is --ui-bg-base, the PAGE ground, where it was --ui-bg-surface. It was the only piece of the shell answering a different role than the page it sits on — Sidebar already painted bg-base — and in light the difference was invisible (#FDFCFB against #FFFFFF, 0.4% apart), which is why it survived. In DARK the two are 20% apart and the surface scale inverts, so the bar sat BELOW the page ground it frames and the app chrome receded behind its own content. Nothing had drawn a bar and a page together until the index-page specimen did, which is the only reason it was ever visible. It fixes the hover ramp rather than costing one: --ui-bg-elevated against this bar is DARKER in both schemes (1.105 light, 1.168 dark) where against bg-surface it was darker in light and lighter in dark, so the hover fill now moves the same direction in both and the fill role is unchanged. Measured cost, and it is one pair: --ui-text-muted on the bar — the current item's receding label — goes from 6.47:1 to 4.94:1 in dark. Still over AA, and now the least headroom of any pair on this component; a step darker on --ui-bg-base in dark would spend it. Everything else gains: primary ink 12.55 to 9.59 dark and 16.76 to 17.17 light, both far over floor, and the chrome control's resting fill goes from 1.121 lighter to 1.168 darker in dark, matching its own light behaviour for the first time.",
+  "affects": [
+    "item:header",
+    "slot:header",
+    "token:--ui-bg-base",
+    "token:--ui-bg-surface"
+  ],
+  "migration": {
+    "manual": "Nothing to change at a call site. If you pinned the bar's backgroundColor in a test or a visual baseline it is now --ui-bg-base (#FFFFFF light, #423E3A dark). If your app shell paints its page ground as something other than --ui-bg-base, the bar will no longer match it — that is the thing this change assumes, and the fix is the page, not the bar."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0"
+  },
+  "supersedes": []
+}

@@ -13,6 +13,27 @@ editable source.** Token flow is repo → Paper, never the reverse.
 | Token snapshot at adoption | `tokens.snapshot.json` (Paper's token list the day the values were ported) |
 | Section exports | `exports/` (PNG, 1x) |
 
+## Pattern sheets
+
+Page-level contracts live on the **Patterns** page, one artboard per pattern.
+They do not redraw components — the component sheets win on anything they
+specify — they fix what falls *between* components: which region sits where,
+which control size belongs to which placement, and which states the page frame
+must keep.
+
+| Sheet | Where |
+|---|---|
+| Index page — the contract | [Patterns page](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0), artboard `Patterns --- Index Page` |
+| App header — the contract | same page, artboard `Patterns --- App Header` |
+| Index page — specimen | same page, artboard `Patterns --- Index Page Specimen` · `exports/pattern-index-page-specimen.pdf` |
+
+The specimen renders the index-page contract at shipping width (Contacts, 1152)
+in both schemes, adds the two regions the contract names but nothing had drawn
+— the toolbar under an active selection and an occupied feedback slot — and
+carries the measured spec, token map and Gaps. Where it departs from the
+contract sheet the difference is a **correction against `registry/ui`**, and
+every one is listed in its Gaps section rather than left to be noticed.
+
 ## Drawing into the file
 
 Sheets are built with the **`design-component`** skill, which carries the

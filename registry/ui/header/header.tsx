@@ -58,7 +58,20 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         // sheet draws the controls in, and it keeps a taller child from
         // sitting flush against the edge.
         "flex h-12 items-center gap-sm px-lg py-sm",
-        "bg-surface text-ink-primary",
+        // `bg-base`, the PAGE ground — not `bg-surface`. The bar was the only
+        // piece of the shell answering a different role than the page it sits
+        // on, and Sidebar already paints `bg-base`. In light that was invisible
+        // (#FDFCFB against #FFFFFF, 0.4% apart); in dark the two are 20% apart
+        // and the bar sat BELOW the page ground, so the chrome receded behind
+        // the content it frames. Nothing had drawn a bar and a page together,
+        // which is why it survived.
+        //
+        // It also fixes the hover ramp rather than costing one. `bg-elevated`
+        // against this bar is DARKER in both schemes — 1.105 light, 1.168 dark
+        // — where against `bg-surface` it was darker in light and lighter in
+        // dark. The direction is now the same in both, which is what the
+        // four-step ramp this replaced never managed.
+        "bg-base text-ink-primary",
         className,
       )}
       {...rest}

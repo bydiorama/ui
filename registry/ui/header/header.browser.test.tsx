@@ -188,7 +188,12 @@ describe("Header paints the sheet's bar", () => {
     // px-lg, NOT the sheet's raw 20px — 20 is off the spacing scale, and the
     // mobile drawing of the same bar uses 12. Recorded as a design defect.
     expect(style.paddingLeft).toBe("16px");
-    expect(style.backgroundColor).toBe("rgb(253, 252, 251)");
+    // `bg-base`, the page ground — the same fill the page under the bar uses,
+    // and the same one Sidebar already painted. It was `bg-surface`, which is
+    // 0.4% off bg-base in light and 20% off it in DARK, where it put the bar
+    // below the page ground it frames. Asserted as the resolved value in this
+    // scheme rather than as a token name, like every other value in this file.
+    expect(style.backgroundColor).toBe("rgb(255, 255, 255)");
   });
 
   /**

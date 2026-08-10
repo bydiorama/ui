@@ -7,7 +7,7 @@ export const headerDoc = {
     "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand mark that links home and an avatar that opens the account menu, and calling all of that navigation would make the landmark useless to skip to. The item row names itself.",
 
   anatomy: [
-    { part: "root", slot: "header", notes: "A <header>. 48px tall — PINNED (h-12), not emergent from py-sm around the tallest child: a bar whose tallest child is a 24px Header.Item used to render at 40px, silently. px-lg, bg-surface." },
+    { part: "root", slot: "header", notes: "A <header>. 48px tall — PINNED (h-12), not emergent from py-sm around the tallest child: a bar whose tallest child is a 24px Header.Item used to render at 40px, silently. px-lg, bg-base — the PAGE ground, so the bar and the page it frames are one surface. Sidebar already painted bg-base; the bar was the outlier and in dark it sat below the page." },
     { part: "start", slot: "header-start", notes: "Leading controls — the brand mark, which LINKS to the app home, and a back button, which is a button because popping history is an action. Slots: the caller supplies real elements with their own names." },
     { part: "nav", slot: "header-nav", notes: "A named <nav> wrapping a <ul> of items. gap-xs, p-xs." },
     { part: "item", slot: "header-item", notes: "A compact 24px control at 12px bold: px-sm, py-xs, radius-sm, with 16px icon slots. An <a> when given href, a <button> otherwise." },
@@ -86,8 +86,8 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
     ],
     target: "An item is a compact 24px control — SC 2.5.8's floor exactly rather than comfortably over it. See knownGaps.",
     contrastPairs: [
-      { fg: "--ui-text-primary", bg: "--ui-bg-surface", floor: "text", role: "item labels on the bar" },
-      { fg: "--ui-text-muted", bg: "--ui-bg-surface", floor: "text", role: "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "item labels on the bar — the bar is the page ground, so this pair is the page's own body contrast" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones. This is the pair the bar's move to bg-base costs the most: 6.47:1 against the old bg-surface bar in dark, 4.94:1 now. Still over AA, with the least headroom of any pair here — a step darker on --ui-bg-base in dark would spend it" },
       { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the menu button's glyph on its chrome fill, and a nav item's label on the hover fill" },
       { fg: "--ui-text-muted", bg: "--ui-bg-elevated", floor: "text", role: "the current item's label while it is hovered — the fill answers the pointer, the muted ink persists underneath it" },
       { fg: "--ui-text-primary", bg: "--ui-bg-hover", floor: "text", role: "the menu button's glyph while hovered" },

@@ -554,19 +554,19 @@
   "Header": [
     {
       "fg": "--ui-text-primary",
-      "bg": "--ui-bg-surface",
+      "bg": "--ui-bg-base",
       "floor": "text",
-      "light": 16.76,
-      "dark": 12.55,
-      "role": "item labels on the bar"
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "item labels on the bar — the bar is the page ground, so this pair is the page's own body contrast"
     },
     {
       "fg": "--ui-text-muted",
-      "bg": "--ui-bg-surface",
+      "bg": "--ui-bg-base",
       "floor": "text",
-      "light": 5.78,
-      "dark": 6.47,
-      "role": "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones"
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones. This is the pair the bar's move to bg-base costs the most: 6.47:1 against the old bg-surface bar in dark, 4.94:1 now. Still over AA, with the least headroom of any pair here — a step darker on --ui-bg-base in dark would spend it"
     },
     {
       "fg": "--ui-text-primary",

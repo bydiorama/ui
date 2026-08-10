@@ -193,8 +193,14 @@ function NavRailItem({
         // added to the family rather than a marker to the row.
         !isDisabled && [
           "cursor-pointer",
-          "not-data-[current]:hover:bg-nav-hover not-data-[current]:hover:text-ink-nav",
-          "data-[current]:bg-nav-active data-[current]:text-ink-nav-active",
+          // Fill only, in both states — the ink does not move. Sidebar took
+          // the same step on 2026-08-10 and the two have to stay
+          // interchangeable, which is the whole reason they share a token
+          // family. On a 48px rail there is no label to change weight, so the
+          // ink was the only other channel and it was spending itself to say
+          // something the fill already said.
+          "not-data-[current]:hover:bg-nav-hover",
+          "data-[current]:bg-nav-active",
         ],
         isDisabled && "cursor-not-allowed text-ink-nav-disabled",
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",

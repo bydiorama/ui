@@ -26,6 +26,7 @@ must keep.
 | Index page — the contract | [Patterns page](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0), artboard `Patterns --- Index Page` |
 | App header — the contract | same page, artboard `Patterns --- App Header` |
 | Index page — specimen | same page, artboard `Patterns --- Index Page Specimen` · `exports/pattern-index-page-specimen.pdf` |
+| Open decisions | [Open Decisions page](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/E-0), artboard `Decisions --- Open items, drawn as proposed` · `exports/decisions-open-items.pdf` |
 
 The specimen renders the index-page contract at shipping width (Contacts, 1152)
 in both schemes, adds the two regions the contract names but nothing had drawn
@@ -33,6 +34,14 @@ in both schemes, adds the two regions the contract names but nothing had drawn
 carries the measured spec, token map and Gaps. Where it departs from the
 contract sheet the difference is a **correction against `registry/ui`**, and
 every one is listed in its Gaps section rather than left to be noticed.
+
+**Open Decisions** collects what is still unsettled across all three sheets and
+**draws each answer** rather than describing it — where two readings are live,
+both are drawn at the same width so the choice is made by looking. It splits
+them: items an existing rule already answers (applied, needing confirmation
+rather than a decision) and items that need a person. Approve a row and it
+becomes canon on its own sheet and leaves this one, so the page should only
+ever shrink.
 
 ## Drawing into the file
 

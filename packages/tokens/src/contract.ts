@@ -429,6 +429,14 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-intent-info-fg", "--ui-intent-info-bg"],
   ["--ui-nav-ink", "--ui-nav-bg"],
   ["--ui-nav-active-ink", "--ui-nav-active-bg"],
+  // The CURRENT row's ink, since 2026-08-10 — muted rather than full strength,
+  // on the fill that marks it. Sidebar and NavRail both step the ink back
+  // there instead of lifting it, the same two-channel split Header settled:
+  // the fill says where you are, the ink says it is the one row not worth
+  // pointing at. `--ui-nav-active-ink` above stays listed because the token
+  // still exists and a re-skin can still reach for it; this is the pair the
+  // two components actually render.
+  ["--ui-nav-ink-muted", "--ui-nav-active-bg"],
   // A rail row under the pointer, and the marker on the current one. Both put
   // `nav-ink` on the ACTIVE fill rather than on the rail — the pair the family
   // never had, because Sidebar's hover lifts its ink onto that same fill and

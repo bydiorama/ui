@@ -457,9 +457,22 @@ function SidebarItem({
           // without a label to change weight; the family gained
           // `--ui-nav-hover-bg` rather than the row gaining a marker, and this
           // rail takes the same step so the two stay interchangeable.
-          "not-data-[current]:hover:bg-nav-hover not-data-[current]:hover:text-ink-nav",
-          // The fill is subtle, so weight and ink carry the state too.
-          "data-[current]:bg-nav-active data-[current]:text-ink-nav-active data-[current]:font-bold",
+          "not-data-[current]:hover:bg-nav-hover",
+          // TWO CHANNELS, the same split Header settled: the FILL answers the
+          // pointer, the INK says where you are. Hover paints and leaves the
+          // ink alone; current paints and steps the ink BACK to muted. Weight
+          // never moves in either — it used to go bold on the current row,
+          // which reflowed the label a fraction and made the one row you
+          // cannot navigate to the loudest thing in the rail.
+          //
+          // This is the narrow half of the Header divergence, decided
+          // 2026-08-10: a rail still marks position with a fill where a bar
+          // does not, because a rail is a persistent map and a bar is a short
+          // row you read across. Ink and weight now behave identically across
+          // the whole nav family. Muted on the current fill measures 9.64:1
+          // light and 5.42:1 dark, and the fill carries the state at 1.105 /
+          // 1.285 against the rail.
+          "data-[current]:bg-nav-active data-[current]:text-ink-nav-muted",
         ],
         // The sheet draws this row in --ui-text-disabled. That is the page's
         // disabled ink, not the rail's, and it does not follow a brand that

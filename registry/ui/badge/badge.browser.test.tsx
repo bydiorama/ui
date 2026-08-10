@@ -110,11 +110,15 @@ describe("Badge variants resolve to the designed roles", () => {
     expect(inks.size).toBe(3);
   });
 
-  test("neutral is a TINT, not an outline — it is data, not a choice", () => {
+  test("neutral carries an EDGE, and differs from unselected by its fill", () => {
     const neutral = mount(<Badge variant="neutral">Consulting</Badge>);
-    // The distinction the variant exists to make: `unselected` is a choice
-    // state wearing a border, `neutral` is categorical data wearing a fill.
-    expect(getComputedStyle(neutral.badge).borderTopColor).toBe("rgba(0, 0, 0, 0)");
+    // The hairline is not decoration: it is the only channel that separates a
+    // neutral chip from a dark table row. The fill manages 1.098:1 there
+    // against status tints at 1.629, and raising the fill to match would drop
+    // `--ui-text-muted` on it to 3.86:1 — under AA — so the boundary moved
+    // instead. Asserted as "not transparent" rather than as a hex, because the
+    // role is a light-dark() pair and the point is that an edge EXISTS.
+    expect(getComputedStyle(neutral.badge).borderTopColor).not.toBe("rgba(0, 0, 0, 0)");
     const neutralFill = getComputedStyle(neutral.badge).backgroundColor;
     act(() => root?.unmount());
     container?.remove();
@@ -123,14 +127,24 @@ describe("Badge variants resolve to the designed roles", () => {
     expect(getComputedStyle(unselected.badge).backgroundColor).not.toBe(neutralFill);
   });
 
-  test("status variants carry no visible border; choice variants do", () => {
+  test("INTENT is tinted and edgeless; category and choice are outlined", () => {
+    // The split the family reads by, and it is structural rather than tonal
+    // so it survives both schemes: a variant that carries MEANING gets a tint
+    // and no edge, a variant that is a label or a choice gets an edge.
     const success = mount(<Badge variant="success">Ready</Badge>);
     expect(getComputedStyle(success.badge).borderTopColor).toBe("rgba(0, 0, 0, 0)");
     act(() => root?.unmount());
     container?.remove();
 
-    const unselected = mount(<Badge variant="unselected">Unselected</Badge>);
-    expect(getComputedStyle(unselected.badge).borderTopColor).toBe("rgb(218, 212, 206)");
+    for (const variant of ["unselected", "neutral"] as const) {
+      const outlined = mount(<Badge variant={variant}>Consulting</Badge>);
+      expect(
+        getComputedStyle(outlined.badge).borderTopColor,
+        `${variant} lost its edge`,
+      ).toBe("rgb(218, 212, 206)");
+      act(() => root?.unmount());
+      container?.remove();
+    }
   });
 });
 

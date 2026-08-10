@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-10-nav-current-row-is-fill-only",
+  "date": "2026-08-10",
+  "item": "sidebar",
+  "kind": "visual",
+  "summary": "The current row in Sidebar and NavRail is marked by its FILL and nothing else. Sidebar drops `font-bold` and steps the current row's ink BACK to `--ui-nav-ink-muted` where it used to lift to `--ui-nav-active-ink`; hover no longer lifts ink either, on either component; NavRail's current glyph stays at its resting ink. This is the narrow half of the divergence Header opened when it decided the current page recedes, and it closes the half that was actually wrong rather than the half that was a real difference: a rail still marks position with a fill where a bar does not, because a rail is a persistent map and a bar is a short row you read across — but ink and weight now behave identically across the whole nav family. Weight was the worst of the three channels: bold on the current row reflowed its own label a fraction and made the one row you cannot navigate to the loudest thing in the rail, spending emphasis on the least actionable item exactly as Header's four-step ramp did. Measured: muted on the current fill is 9.64:1 light and 5.42:1 dark, and the fill carries the state at 1.105 / 1.285 against the rail. The pair `--ui-nav-ink-muted` on `--ui-nav-active-bg` is now declared in the token contract so the theme audit covers what these components actually render; `--ui-nav-active-ink` stays in the contract because a re-skin can still reach for it.",
+  "affects": [
+    "item:sidebar",
+    "item:nav-rail",
+    "slot:sidebar-item",
+    "slot:nav-rail-item",
+    "token:--ui-nav-active-ink",
+    "token:--ui-nav-ink-muted"
+  ],
+  "migration": {
+    "manual": "The current nav row loses its bold weight and its label goes from full-strength nav ink to muted; its background is unchanged. Hover no longer changes ink on either component. If you styled around the current row's weight or ink — an override, a screenshot baseline, a test asserting the current item is bolder or darker than a resting one — the difference now lives entirely in `background-color`. A top-level Sidebar row shows the ink step clearly (nav-ink to muted); a row inside a section was already muted, so there only the fill changes."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/E-0"
+  },
+  "supersedes": []
+}

@@ -263,16 +263,20 @@ describe("Sidebar paints the nav role family", () => {
     )!;
     await settled(current);
 
-    // Asserted as a DIFFERENCE: matching numbers would pass while the two
-    // silently converged into one indistinguishable state.
+    // ONE channel, since 2026-08-10: the FILL marks the current row and
+    // nothing else moves. Asserted as a difference rather than as a hex, so
+    // two roles silently converging still fails.
     const a = getComputedStyle(current);
     const b = getComputedStyle(resting);
     expect(a.backgroundColor).not.toBe(b.backgroundColor);
-    expect(a.color).not.toBe(b.color);
     expect(a.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
-    // The active fill measures barely over 1:1 against the rail, so weight
-    // carries the state too — colour alone would not survive a brand seed.
-    expect(Number(a.fontWeight)).toBeGreaterThan(Number(b.fontWeight));
+    // And the two that used to move must NOT. Weight going bold on the current
+    // row reflowed its label and made the one row you cannot navigate to the
+    // loudest thing in the rail; the ink lifting to full strength said the
+    // same thing twice. Both are asserted equal on purpose — this is the
+    // assertion that stops the old three-channel version creeping back.
+    expect(Number(a.fontWeight)).toBe(Number(b.fontWeight));
+    expect(a.color).toBe(b.color);
   });
 
   test("a row is the sheet's 46px, and clears the 24px target floor", () => {

@@ -53,7 +53,8 @@ Badge
     contrastPairs: [
       { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "text", role: "selected badge ink" },
       { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "unselected badge ink" },
-      { fg: "--ui-text-muted", bg: "--ui-bg-sunken", floor: "text", role: "neutral badge — the same pair Banner's neutral variant declares" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-sunken", floor: "text", role: "neutral badge — the same pair Banner's neutral variant declares. The ink is deliberately unchanged by the 2026-08-10 edge: raising the FILL to fix dark would have dropped this pair to 3.86:1, which is why the boundary moved instead" },
+      { fg: "--ui-border-subtle", bg: "--ui-bg-surface", floor: "decorative", why: "A chip's boundary against the table row it sits on, not a control edge something depends on identifying — the label inside carries the meaning and clears AA on its own. Declared because it is the channel that makes `neutral` legible in dark at all: 1.434 light, 1.391 dark, against a fill that manages 1.188 and 1.098.", role: "the neutral badge's hairline on a table row" },
       { fg: "--ui-intent-success-fg", bg: "--ui-intent-success-bg", floor: "text", role: "success badge" },
       { fg: "--ui-intent-warning-fg", bg: "--ui-intent-warning-bg", floor: "text", role: "warning badge" },
       { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "danger badge" },
@@ -62,7 +63,7 @@ Badge
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "`neutral`'s fill is `--ui-bg-sunken`, matching Banner. The sheet drew `--ui-bg-active`, which is an interaction role — a resting badge would be the exact colour of a pressed table row — so the role was corrected and the WEIGHT is the open question. Measured against a table row (`bg-surface`), sunken is 1.188:1 in light and 1.098:1 in DARK, where the tinted status variants sit at 1.201 and 1.629. A neutral chip in dark is therefore much quieter than a success one, and the badge reads mostly from its label. Three ways out, all a design call: keep it, deepen the dark `sunken` step, or mint the neutral member of the intent family (`--ui-intent-neutral-bg`/`-fg`) that Avatar's status dot also had to work around.",
+    "`neutral` and `unselected` now look close: a quiet fill plus a `border-edge-subtle` hairline, differing only in the fill (`sunken` against `base`). They are different jobs — `unselected` is one half of a choice pair and `neutral` is a static category label — and the fill still separates them, but a caller reading the two side by side has to know which is which. Worth checking whether the pair wants a sharper difference or whether `unselected` should simply be documented as the interactive one.",
   ],
 
   knownGaps: [

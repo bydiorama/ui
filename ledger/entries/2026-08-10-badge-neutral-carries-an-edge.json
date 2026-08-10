@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-10-badge-neutral-carries-an-edge",
+  "date": "2026-08-10",
+  "item": "badge",
+  "kind": "visual",
+  "summary": "`neutral` gains a `border-edge-subtle` hairline; its fill and ink are unchanged. The fill alone was level with the status tints in light — 1.188 against a table row where success and warning sit at 1.201 and 1.176 — and less than a third of their weight in DARK, 1.098 against their 1.629. Six category chips down a dark table read as faint holes beside status chips that read fine, which is what a full-width specimen in both schemes made visible; the numbers had been recorded for a while and nobody had seen them. Raising the FILL in dark was the obvious fix and the wrong one: the nearest role that lands near 1.63 drops `--ui-text-muted` on it to 3.86:1, under AA, so ground and ink would both have had to move and neither has a role for where they land. The edge does the same job in both schemes instead — 1.434 light, 1.391 dark — leaves the ink at 7.11:1, and introduces no new value: `unselected` already pairs a quiet fill with a hairline, so this is the family's existing vocabulary applied to the variant that needed it. It also makes the split structural rather than tonal, which is the better end state: a CATEGORY is outlined, an INTENT is tinted, and that reads the same way in both schemes.",
+  "affects": [
+    "item:badge",
+    "prop:variant",
+    "token:--ui-border-subtle"
+  ],
+  "migration": {
+    "manual": "`<Badge variant=\"neutral\">` now renders a 1.5px `--ui-border-subtle` edge where the border was transparent. The box does not change size — the border box already reserved 1.5px on every variant, which is why `min-h-5.5` still measures 22px. If you pinned the neutral border colour in a test or a visual baseline, it is now the subtle role rather than transparent. Nothing to change at a call site."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/E-0"
+  },
+  "supersedes": []
+}

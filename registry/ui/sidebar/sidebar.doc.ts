@@ -96,7 +96,7 @@ Sidebar                    label (required) / isLabelHidden?
     contrastPairs: [
       { fg: "--ui-nav-ink", bg: "--ui-nav-bg", floor: "text", role: "section headings and top-level rows on the rail" },
       { fg: "--ui-nav-ink-muted", bg: "--ui-nav-bg", floor: "text", role: "second-level item ink" },
-      { fg: "--ui-nav-active-ink", bg: "--ui-nav-active-bg", floor: "text", role: "the current item" },
+      { fg: "--ui-nav-ink-muted", bg: "--ui-nav-active-bg", floor: "text", role: "the current item — its ink steps BACK to muted rather than up to full, the same two-channel split Header uses: the fill says where you are, and you cannot navigate to it, so it is the one row not worth pointing at. 9.64:1 light, 5.42:1 dark" },
       { fg: "--ui-nav-ink-disabled", bg: "--ui-nav-bg", floor: "decorative", why: "WCAG 1.4.3 exempts disabled controls from the contrast minimum, and a disabled row has to read as unavailable — holding it to 4.5:1 would make it indistinguishable from an available one, which is the actual accessibility failure. It is still derived to sit clearly below --ui-nav-ink-muted rather than vanishing.", role: "a disabled row" },
     ],
   },

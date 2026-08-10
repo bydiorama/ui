@@ -70,7 +70,7 @@ it already was between Sidebar and Header.MenuButton. See ADR 0015.
     contrastPairs: [
       { fg: "--ui-nav-ink-muted", bg: "--ui-nav-bg", floor: "non-text", role: "a resting row's glyph — non-text, because the row renders no text at all" },
       { fg: "--ui-nav-ink", bg: "--ui-nav-hover-bg", floor: "non-text", role: "a hovered row's glyph on the hover fill" },
-      { fg: "--ui-nav-active-ink", bg: "--ui-nav-active-bg", floor: "non-text", role: "the current row's glyph" },
+      { fg: "--ui-nav-ink-muted", bg: "--ui-nav-active-bg", floor: "non-text", role: "the current row's glyph — the ink does not move between states on this rail, so this is the resting ink measured on the current fill" },
       { fg: "--ui-nav-ink-disabled", bg: "--ui-nav-bg", floor: "decorative", why: "WCAG 1.4.3 exempts disabled controls, and a disabled row has to read as unavailable — holding it to the non-text floor would make it indistinguishable from an available one, which is the actual failure. It is still derived to sit clearly below --ui-nav-ink-muted rather than vanishing.", role: "a disabled row's glyph" },
     ],
   },

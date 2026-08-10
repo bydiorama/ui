@@ -52,10 +52,26 @@ const VARIANT = {
    *
    * The sheet drew it as `--ui-bg-active`, which is an INTERACTION role: a
    * resting badge would then be the exact colour of a pressed table row, and
-   * a row of them would change meaning under the pointer. Recorded as a delta
-   * with the measurement, because sunken IS quieter in dark — see needsDesign.
+   * a row of them would change meaning under the pointer.
+   *
+   * The EDGE is what makes it work in dark, and it is the half that was open
+   * until 2026-08-10. The fill alone measures 1.188 against a table row in
+   * light — level with the status tints at 1.201 and 1.176, so the family
+   * reads as one thing — but only 1.098 in dark, where those same tints hold
+   * 1.629. Six categories down a dark table read as faint holes beside chips
+   * that read fine. Raising the FILL in dark was the obvious fix and the wrong
+   * one: the nearest role that lands at 1.63 drops `--ui-text-muted` on it to
+   * 3.86, under AA, so the ground and the ink would have had to move together
+   * and neither has a role for where they land.
+   *
+   * `border-edge-subtle` instead, which is not a new value and not a new idea:
+   * `unselected` above already pairs a quiet fill with a hairline. It reads
+   * 1.391 against a dark row and 1.434 against a light one — the same job in
+   * both schemes, where the fill only ever did it in one — and the ink is
+   * untouched at 7.11:1. It also makes the split structural rather than
+   * tonal: a CATEGORY is outlined, an INTENT is tinted.
    */
-  neutral: "bg-sunken border-transparent text-ink-muted",
+  neutral: "bg-sunken border-edge-subtle text-ink-muted",
   success: "bg-success-subtle border-transparent text-success",
   // The sheet's "Warning" row, added to all three sizes. It completes the
   // intent set the token layer already carried — success, warning and danger

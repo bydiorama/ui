@@ -129,7 +129,15 @@
       "floor": "text",
       "light": 4.87,
       "dark": 7.11,
-      "role": "neutral badge — the same pair Banner's neutral variant declares"
+      "role": "neutral badge — the same pair Banner's neutral variant declares. The ink is deliberately unchanged by the 2026-08-10 edge: raising the FILL to fix dark would have dropped this pair to 3.86:1, which is why the boundary moved instead"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 1.43,
+      "dark": 1.53,
+      "role": "the neutral badge's hairline on a table row"
     },
     {
       "fg": "--ui-intent-success-fg",
@@ -919,12 +927,12 @@
       "role": "a hovered row's glyph on the hover fill"
     },
     {
-      "fg": "--ui-nav-active-ink",
+      "fg": "--ui-nav-ink-muted",
       "bg": "--ui-nav-active-bg",
       "floor": "non-text",
-      "light": 15.53,
-      "dark": 7.46,
-      "role": "the current row's glyph"
+      "light": 9.64,
+      "dark": 5.42,
+      "role": "the current row's glyph — the ink does not move between states on this rail, so this is the resting ink measured on the current fill"
     },
     {
       "fg": "--ui-nav-ink-disabled",
@@ -1049,12 +1057,12 @@
       "role": "second-level item ink"
     },
     {
-      "fg": "--ui-nav-active-ink",
+      "fg": "--ui-nav-ink-muted",
       "bg": "--ui-nav-active-bg",
       "floor": "text",
-      "light": 15.53,
-      "dark": 7.46,
-      "role": "the current item"
+      "light": 9.64,
+      "dark": 5.42,
+      "role": "the current item — its ink steps BACK to muted rather than up to full, the same two-channel split Header uses: the fill says where you are, and you cannot navigate to it, so it is the one row not worth pointing at. 9.64:1 light, 5.42:1 dark"
     },
     {
       "fg": "--ui-nav-ink-disabled",

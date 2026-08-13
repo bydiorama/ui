@@ -1,6 +1,7 @@
 # `@bydiorama/ui` CLI
 
-The consumer-side half of the change ledger (plan.md §4.6, part 3): once an
+The consumer-side half of the change ledger ([`PLAN.md`](../../PLAN.md),
+"Change ledger", part 3): once an
 app has copied a registry item's source, nothing tells it the upstream
 changed. This CLI closes that gap with a lockfile (`ui.lock.json`) and a
 `sync` command that computes the drift, rather than a broadcast a consumer

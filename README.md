@@ -3,10 +3,13 @@
 The Diorama design system: design tokens, React components, and the tooling
 around them.
 
-> **Status: Phase 0.** The foundations — conventions, manifest, registry
-> pipeline, change ledger, CI — are in place. Tokens land in Phase 1 and
-> components in Phase 2. See the implementation plan in
-> `bydiorama/service-portal` → `docs/ui-design-system-plan.md`.
+> **Status: Phase 2 — core primitives, gate not yet met.** The foundations
+> (conventions, manifest, registry pipeline, change ledger, 16 CI gates) and
+> the token layer (`@bydiorama/tokens` — resolver, three emitters, measured
+> contrast) are done. **34 components** ship, consumed by one app through a
+> working lockfile-and-sync loop. Still open: Linux visual baselines, the
+> primitives the consumer renders most, and Phase 3's blocks and docs site.
+> See [`PLAN.md`](PLAN.md) — measured, with the command behind every number.
 
 ## How it is distributed
 
@@ -35,20 +38,33 @@ inherited as design. See
 ```
 ui.manifest.json     source of truth for everything distributed
 registry.json, r/    GENERATED — never hand-edited
-registry/            the distributed source itself (ui, lib, hooks, blocks, tokens)
+registry/            the distributed source itself
+  ui/                one directory per component, five files each
+  lib/ hooks/        utilities and hooks distributed the same way
+  fonts/ skills/     Aspekta (OFL); agent skills, per ADR 0013
+  visual/            the visual-regression matrix and its baselines
 packages/tokens/     @bydiorama/tokens — token contract, resolver, emitters
+packages/cli/        the consumer-side sync CLI — lockfile and drift report
+apps/storybook/      stories, contract tests, story a11y, visual runner
+design/paper/        exported design artifacts; Paper source stays in its cloud
 ledger/decisions/    architecture decision records
 ledger/entries/      change ledger — what moved, and what consumers must do
 schemas/             JSON Schemas for the manifest and ledger entries
 scripts/             dependency-free checks and generators
 ```
 
+`registry/blocks/` is Phase 3 and does not exist yet.
+
 ## Commands
 
 ```bash
-pnpm verify           # manifest + registry freshness + ledger + licensing
+pnpm verify           # all 16 gates: manifest, registry freshness, ledger,
+                      #   licensing, icons, boundaries, contrast, coverage, …
 pnpm registry:build   # regenerate registry.json and r/*.json
 pnpm ledger:new       # scaffold a change-ledger entry
+pnpm test             # Node's runner, no dependencies
+pnpm test:browser     # interaction contracts + every story through axe
+pnpm design:gaps      # what the library is waiting on from design
 pnpm type-check
 pnpm lint
 ```
@@ -68,5 +84,8 @@ MIT-distributable (licensed typefaces) is enforced out of the tree by
 
 - [`CONVENTIONS.md`](CONVENTIONS.md) — the component API rulebook. Binding.
 - [`AGENTS.md`](AGENTS.md) — instructions for AI coding agents.
+- [`PLAN.md`](PLAN.md) — where the library is and what closes each gate.
+- [`TODO.md`](TODO.md) — defects, undrawn components, and the questions design
+  still owes the code.
 - [`ledger/decisions/`](ledger/decisions/) — why things are the way they are.
   Read these before re-proposing a settled question.

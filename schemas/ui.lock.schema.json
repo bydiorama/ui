@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/bydiorama/ui/schemas/ui.lock.schema.json",
   "title": "Consumer lockfile",
-  "description": "Written into a consuming app (ui.lock.json, repo root) by `npx @bydiorama/ui sync`. One entry per installed registry item: the revision it came from, plus a content hash per installed file at that moment. The hash is what distinguishes STALE (upstream moved, consumer didn't touch it) from MODIFIED (consumer edited it on purpose) -- without it every drift report is noise (plan.md §4.6).",
+  "description": "Written into a consuming app (ui.lock.json, repo root) by `npx @bydiorama/ui sync`. One entry per installed registry item: the revision it came from, plus a content hash per installed file at that moment. The hash is what distinguishes STALE (upstream moved, consumer didn't touch it) from MODIFIED (consumer edited it on purpose) -- without it every drift report is noise (PLAN.md, 'Change ledger').",
   "type": "object",
   "required": ["registry", "items"],
   "additionalProperties": false,

@@ -1,5 +1,5 @@
 /**
- * The core of `npx @bydiorama/ui sync` (plan.md §4.6, part 3): for each item
+ * The core of `npx @bydiorama/ui sync` (PLAN.md, "Change ledger", part 3): for each item
  * in ui.lock.json, work out whether the CONSUMER changed it locally
  * ("modified"), the REGISTRY changed it since the lock was taken ("stale"),
  * both, or neither ("current") — and which ledger entries apply.

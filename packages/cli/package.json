@@ -1,7 +1,7 @@
 {
   "name": "@bydiorama/ui",
   "version": "0.0.0",
-  "description": "The sync CLI for apps consuming the bydiorama/ui registry (plan.md §4.6). Computes drift between an installed item and its current upstream, distinguishing a consumer's own edits from an unapplied upstream change, and reports which ledger entries apply. Not yet published — see README.",
+  "description": "The sync CLI for apps consuming the bydiorama/ui registry (PLAN.md, 'Change ledger'). Computes drift between an installed item and its current upstream, distinguishing a consumer's own edits from an unapplied upstream change, and reports which ledger entries apply. Not yet published — see README.",
   "license": "MIT",
   "private": true,
   "type": "module",

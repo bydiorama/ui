@@ -53,6 +53,26 @@ Not drawn yet. Roughly in the order they were written down, not in priority
 order — worth a triage pass, since several of these block nothing and two or
 three block quite a lot.
 
+**This list is currently setting the build order, and it should not be.**
+Measured against `service-portal/src` on 2026-08-13, the primitives the one real
+consumer renders most are the ones missing — and three of them are not on this
+list at all:
+
+| Unbuilt | Consumer call sites | On this list? |
+|---|---:|---|
+| **Skeleton** | **46** | **no** |
+| **InlineAlert** | **13** | as "Hint / Callout"? — confirm |
+| **Toast** | **12** | yes |
+| Tag | 6 | no |
+| Typography | 5 | no |
+| Radio | 4 | yes |
+| Tooltip | 2 | yes |
+| Divider | 0 | yes, as a "quick win" |
+
+Skeleton alone has more call sites than Modal, and nothing in the portal renders
+without it. Divider and Tooltip are the reverse — near-zero consumers, so build
+them last or not at all. See [`PLAN.md`](PLAN.md).
+
 Quick wins:
 - [x] Progress
 - [ ] Divider
@@ -61,13 +81,16 @@ Quick wins:
 Design:
 - [x] Accordion
 - [x] Aspect Ratio
+- [ ] Breadcrumb
 - [ ] Card Selected
 - [ ] Card Task
 - [ ] Media preview
 - [ ] Multiselect Multi-line item (super, description, state)
 - [x] Image Upload Dropzone
+- [ ] Empty-state
 - [ ] File Upload Dropzone
 - [ ] Folder
+- [ ] Pagination
 - [ ] Progress Indicator Circular
 - [ ] Radio
 - [x] Table
@@ -103,116 +126,59 @@ Use case specific:
 
 ## Open design questions
 
-23 across 21 component docs, from `pnpm design:gaps`. Every one is a place
-where the code currently carries a **derived** value — a hypothesis, not a
-decision. They are questions for design, not defects.
+**122 across 25 of 34 component docs** (2026-08-13). Every one is a place where
+the code currently carries a **derived** value — a hypothesis, not a decision.
+They are questions for design, not defects.
+
+Run `pnpm design:gaps` for the list. It is not reproduced here: it was, once,
+and the copy sat at 23 entries while the real number reached 122 — which is
+exactly the failure the "do not maintain by hand" rule at the top of this file
+exists to prevent. What stays below is the part no script can derive: the
+handful that are **blocked on a person choosing**, which is triage, not output.
 
 The signal worth watching: **two components asking for the same thing.**
 That was invisible while these lived as prose in separate `knownGaps` lists,
 which is why the gate exists.
 
+The count is now growing faster than it is cleared — roughly nine new gaps per
+component shipped, up from 22 across 21 docs on 2026-08-07. The gate is working
+as designed; the backlog it makes visible is real, and Phase 3 inherits it.
+Worth a triage pass before the block work starts. The heaviest declarers are
+Table (16), ImageUpload (10), ImageEdit (10), Thumbnail (9) and Button (8).
+
 ### Decisions blocked on a person
 
-These four cannot be resolved by looking harder at the file. Someone has to
-choose.
+These cannot be resolved by looking harder at the file. Someone has to choose.
 
-- [ ] **Button — the model and the file disagree.** Every button *composed* in
-      Paper is a pill, while the stated model makes soft the default. One of
-      the two needs updating, and it is not for the implementation to pick.
-- [ ] **Paper and the code now disagree on the menu inset by one value.**
-      Closed in code: the panels ship `radius-md` (8) over a **4px** inset
-      around `radius-sm` (4) rows, so §6 closes at 4 + 4 = 8. The sheets draw
-      an 8px inset, which closes on no radius the scale has. Bring Paper in
-      line, or say which of the other two numbers should move instead.
-- [ ] **A collapsed rail, or a menu button?** Sidebar and Header both raise it.
-      A rail is a second, different answer to the same problem the menu button
-      already solves; `--ui-nav-rail-width` exists for one but is 3.5rem/56px
-      against the 48px drawn in `HFP-0`. *(task #43)*
+- [ ] **Is the menu surface a Menu at all?** `menu.doc.ts` flags this as the one
+      question worth answering first. The sheet draws a second level expanded
+      *inline* beneath its parent, in the same panel — a disclosure, not a
+      submenu. It ships as a real submenu, because an inline disclosure inside
+      `role=menu` breaks the roving-focus model that makes a menu a menu. If the
+      drawing is the intent, **this surface is a Sidebar inside a Popover** and
+      the component is misnamed. Its rows are already copied Sidebar frames.
+- [ ] **Button — the model and the compositions disagree**, and there are now
+      **two sheets that also disagree with each other.** The handoff sheet
+      (`XK7-0`) was rebuilt to match the implementation; the older component
+      sheet (`E3V-0`) is what the earlier notes here described, and the two give
+      different pictures of Secondary Hover, Outline Hover and pressed. Retire
+      `E3V-0` or reconcile it — a handoff with two spec sheets is a handoff with
+      none. Everything else in `button.doc.ts` waits behind this.
+- [ ] **The panel inset, now asked by two components.** Menu and Select both
+      ship a 4px inset where the sheet draws 8, because 4 + 8 wants a 12px outer
+      radius and the scale has no 12px step. Two components asking for the same
+      thing is the signal this section exists to surface. Bring Paper in line,
+      or say which of the other two numbers should move.
 - [ ] **Select's trigger inset.** The sheet draws `px-lg` (16) where Input's
       control is `px-md` (12). Shipped as Input's, because the whole claim is
       that a field is a field — confirm which wins.
 
-### Button
+Closed since this list was last written:
 
-- [ ] Outline is not drawn — `E3V-0` has no Outline row. Its edge is derived as
-      `border-control` (3.11:1), the step SC 1.4.11 needs from a boundary.
-- [ ] The soft radius at `lg` is derived from `md` (8px); the sheet draws soft
-      only at `sm`.
-- [ ] No busy state is drawn; the spinner is ours.
-- [ ] Ghost Large draws `paddingInline` xl where the other three large buttons
-      draw lg. Corrected to lg in Paper — confirm.
-
-### Select / Multiselect
-
-- [ ] The highlighted row is drawn as the raw palette step `--ui-neutral-95`
-      rather than a role. Shipped as `bg-hover`, the interaction role — a
-      surface role used as an interaction state is the wrong-category signal
-      the token layer exists to catch. It is one step stronger than drawn.
-- [ ] Row `GVO-0` is drawn `py-lg px-md` where the sheet's other three rows,
-      and both of Multiselect's, are a uniform `p-md`. Shipped as `p-md`,
-      following the majority — the outlier is worth fixing in Paper.
-- [ ] No option **groups** are drawn, though the behaviour layer supports them.
-
-### Calendar
-
-- [ ] No today state is drawn. The outline is derived. *(Which day is today is
-      now a `today` prop — the component used to read the real clock, which
-      made its visual baseline rot overnight.)* It now carries to the month
-      and year lists too, so it needs answering for three cells, not one.
-- [ ] The month list fills **June** while its own header reads **August**, so
-      the sheet does not say whether the fill marks the visible month or the
-      selected date's month. Shipped as the visible one, mirroring the day
-      grid. Fix the sheet or say which it is.
-- [ ] The year grid's window (27 years, centred on the visible year) and the
-      arrows' paging step (a whole screenful) are both **derived** — the sheet
-      draws one static screenful.
-- [ ] The month/year triggers are **24px** tall, SC 2.5.8's floor exactly,
-      because the sheet's header row is 32px overall and a taller trigger
-      would push the arrows out of line.
-
-### Date Picker
-
-- [ ] The trigger is drawn at `px-lg` (16) where Input's control is `px-md`
-      (12) — the same divergence Select records. Shipped as Input's.
-- [ ] **One size only.** The sheet draws the 48px field and nothing else,
-      while Input, Select and Multiselect all have three.
-- [ ] The field draws "August 3rd, 2026", an English ordinal no `Intl` option
-      produces. Shipped as `dateStyle: "long"`, with `formatValue` as the
-      call-site escape hatch.
-- [ ] No disabled, error or busy state is drawn for the field; all three are
-      derived from Input's.
-- [ ] **No clear affordance is drawn.** Clearing is "click the selected day
-      again", which is discoverable only by accident.
-
-### Card Sorting
-
-- [ ] The 24px handle is SC 2.5.8's floor *exactly*, not a comfortable target.
-      A 48px invisible hit area would fix it without changing the drawing.
-- [ ] No lifted appearance is drawn for the dragged row beyond the active edge.
-
-### Drawer
-
-- [ ] The tall detent is still a demo height. The half-open state is now drawn
-      (`J88-0`) and `snapPoints` ships, but only the 0.5 detent comes from the
-      file — confirm the taller one. The 80% cap now applies only when
-      `snapPoints` is omitted.
-
-### Header
-
-- [ ] The bar's inline padding is a raw 20px, off the spacing scale, and the
-      design's own mobile bar uses 12. Shipped as 16.
-- [ ] No current state is drawn for a nav item; its fill is derived from
-      `--ui-bg-hover`.
-
-### Sheet
-
-- [ ] The width cap is derived from the rail's width; the sheet draws one 320px
-      viewport. A desktop width (30%?) is undrawn.
-
-### Sidebar
-
-- [ ] Row hover and focus are derived from `--ui-nav-active-bg`; the sheet
-      draws rest and current only.
+- [x] ~~A collapsed rail, or a menu button?~~ **Both** — ADR 0015 makes NavRail
+      a *sibling* of Sidebar rather than a mode of it, and it ships at 48px.
+      That also settles the 48/50/56 width disagreement between the artboard,
+      this file and `sidebarDoc`, in favour of 48. *(task #43)*
 
 ---
 
@@ -234,3 +200,10 @@ Not design questions — engineering debt with a decision already made.
       download the artifact, unzip it over `registry/visual/__screenshots__/`,
       **look at the PNGs**, then commit. Until then the job fails with that
       instruction. *(task #42)*
+
+      Worth stating plainly, because the green tick hides it: all 124 committed
+      baselines are `-chromium-darwin`, and `check:visual-coverage` asserts only
+      that each component has a *named case in the matrix source* — not that a
+      baseline exists. So `pnpm verify` passes while **nothing is compared**,
+      and all 34 components currently have no visual regression protection.
+      This is the oldest unclosed item in the plan and the cheapest to fix.

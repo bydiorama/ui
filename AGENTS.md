@@ -3,6 +3,11 @@
 Instructions for AI coding agents working in `bydiorama/ui`.
 Humans: start with `README.md`, then `CONVENTIONS.md`.
 
+Where the library currently stands, and what closes each open gate, is
+`PLAN.md` — measured, with the command behind every number. Read it before
+proposing what to build next; the build order there is not the order in
+`TODO.md`'s design list, and the difference is deliberate.
+
 ## What this is
 
 The Diorama design system: design tokens, React components, and the docs and

@@ -26,6 +26,8 @@ must keep.
 | Index page — the contract | [Patterns page](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/B-0), artboard `Patterns --- Index Page` |
 | App header — the contract | same page, artboard `Patterns --- App Header` |
 | Index page — specimen | same page, artboard `Patterns --- Index Page Specimen` · `exports/pattern-index-page-specimen.pdf` |
+| Index page — Gallery body (Brand Library) | [File Management drafts page](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/D-0), artboard `Brand Library --- Redesign` · `exports/pattern-index-page-gallery-brand-library.pdf` |
+| Index page in the sidebar shell (Brand Profile · Logos) | [Brand Profile drafts page](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/F-0), artboard `Brand Profile --- Handoff` · `exports/pattern-index-page-brand-profile-logos.pdf` |
 | Open decisions | [Open Decisions page](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/E-0), artboard `Decisions --- Open items, drawn as proposed` · `exports/decisions-open-items.pdf` |
 
 The specimen renders the index-page contract at shipping width (Contacts, 1152)

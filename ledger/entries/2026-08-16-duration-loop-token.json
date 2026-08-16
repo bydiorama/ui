@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-16-duration-loop-token",
+  "date": "2026-08-16",
+  "item": "system",
+  "kind": "token",
+  "summary": "--ui-duration-loop (2000ms) joins the contract — the only duration token describing a REPEAT rather than a journey, which is why it sits an order of magnitude above the rest, whose longest is 400ms for an entrance. It exists because Skeleton was pulsing at Tailwind's built-in 2s: a hard-coded duration hiding inside a utility NAME, where check:motion cannot see it and no brand can reach it. Skeleton keeps `animate-pulse` for its keyframes and takes the timing back with `[animation-duration:var(--ui-duration-loop)]` and `[animation-timing-function:var(--ui-ease-default)]`. The override is only worth anything if it wins the cascade — an arbitrary property losing to the `animation` shorthand would leave the token decorative and every gate still green — so motion.browser.test.tsx asserts the computed animation-duration EQUALS the resolved token. The reduced-motion override deliberately leaves this at 2000ms rather than collapsing it to 1ms like the others: 1ms would make a loop spin a thousand times a second rather than stop it, and a keyframe is stopped by the `motion-safe:` guard ADR 0018 requires, not by its duration. The VALUE is still a question for the sheet — 2000ms is Tailwind's number, kept because it is a reasonable loading rhythm and nothing had measured an alternative — but its home is no longer.",
+  "affects": ["token:--ui-duration-loop", "item:skeleton", "decision:0018-motion-runtime"],
+  "migration": {
+    "manual": "New token, additive. Re-emit your token CSS (`pnpm tokens`) before updating Skeleton, or its pulse resolves against an undefined variable and does not animate at all."
+  }
+}

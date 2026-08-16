@@ -20,9 +20,24 @@
       ]
     },
     {
+      "name": "motion",
+      "type": "registry:lib",
+      "description": "The three timings this library animates at, as class-name constants: motionMicro (interaction feedback), motionStandard (a surface arriving or leaving) and motionDeliberate (an unfolding). The property list stays at the call site because Tailwind compiles the class names it finds by scanning source text — a recipe that interpolated `transition-[${properties}]` would generate no rule and the element would silently not animate. Written after the same duration/easing pair was hand-assembled fifty times, which also revealed that the library uses --ui-ease-out in fifty cases out of fifty while the token layer offers four easings and four --ui-motion-* intents with no consumers at all.",
+      "files": [
+        {
+          "path": "registry/lib/motion/motion.ts",
+          "type": "registry:lib",
+          "target": "lib/motion.ts"
+        }
+      ]
+    },
+    {
       "name": "chrome-control",
       "type": "registry:lib",
       "description": "The 32px chrome control: a square, softly-rounded button filled with --ui-bg-elevated and carrying no edge. Not a Button variant — every button type is either a fill with a matching edge or an edge on nothing, and this is the one shape that is a fill with no edge at all. It belongs to page chrome (a menu toggle, a back arrow, a calendar's month arrows) rather than to the action vocabulary. Exported as one recipe because it was independently reinvented four times before it had a name.",
+      "registryDependencies": [
+        "@bydiorama/motion"
+      ],
       "files": [
         {
           "path": "registry/lib/chrome-control/chrome-control.ts",
@@ -35,6 +50,9 @@
       "name": "menu-surface",
       "type": "registry:lib",
       "description": "The menu surface: one panel recipe and one row recipe, shared by Menu and ContextMenu. Not two components that happen to look alike — Base UI's ContextMenu re-exports Menu's Item, Group, Separator and Submenu verbatim, so they are literally the same rows in the same popup, differing only in what opens them. A recipe rather than a component for the same reason chrome-control is: it styles, it does not wrap, so the behaviour layer keeps ownership of roles, roving focus, typeahead and dismissal.",
+      "registryDependencies": [
+        "@bydiorama/motion"
+      ],
       "files": [
         {
           "path": "registry/lib/menu-surface/menu-surface.ts",
@@ -89,7 +107,8 @@
       "type": "registry:ui",
       "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy is visual-only and keeps focus, unlike isDisabled.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -114,7 +133,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/chrome-control"
+        "@bydiorama/chrome-control",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -134,7 +154,8 @@
       "type": "registry:ui",
       "description": "Single-line text field with its label, helper text and error message as one accessible unit. Three sizes (48/40/32px), leading and trailing slots. The label prop is required by the type system — a placeholder is not a label. errorText wires aria-invalid and aria-describedby together so the two cannot drift apart.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -157,7 +178,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -180,7 +202,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -205,7 +228,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/badge"
+        "@bydiorama/badge",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -229,7 +253,8 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -292,7 +317,8 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -337,7 +363,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/chrome-control"
+        "@bydiorama/chrome-control",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -413,7 +440,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/calendar"
+        "@bydiorama/calendar",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -439,7 +467,8 @@
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
         "@bydiorama/button",
-        "@bydiorama/compose-event-handlers"
+        "@bydiorama/compose-event-handlers",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -464,7 +493,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/compose-event-handlers"
+        "@bydiorama/compose-event-handlers",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -486,7 +516,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/compose-event-handlers"
+        "@bydiorama/compose-event-handlers",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -506,7 +537,8 @@
       "type": "registry:ui",
       "description": "A determinate progress bar with an optional label and percentage, in two track heights (16/8px). A div with role=progressbar and the three ARIA value attributes, because unlike a checkbox or a button a progress bar has no native behaviour to inherit. The value is clamped and the clamped value is what is announced.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -532,7 +564,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/chrome-control"
+        "@bydiorama/chrome-control",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -556,7 +589,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/chrome-control"
+        "@bydiorama/chrome-control",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -580,7 +614,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -603,7 +638,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -628,7 +664,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/chrome-control"
+        "@bydiorama/chrome-control",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -651,7 +688,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -675,7 +713,8 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -695,7 +734,8 @@
       "type": "registry:ui",
       "description": "Multi-line text field with its label, helper text and error message as one accessible unit. The control surface is Input's, so the two stack in a form without a seam; height comes from the native rows attribute and grows with a vertical drag. The label prop is required by the type system — a placeholder is not a label. errorText wires aria-invalid and aria-describedby together so the two cannot drift apart.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -759,7 +799,8 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -783,7 +824,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/progress"
+        "@bydiorama/progress",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -808,7 +850,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/slider",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -820,6 +863,26 @@
           "path": "registry/ui/image-edit/image-edit.doc.ts",
           "type": "registry:ui",
           "target": "ui/image-edit.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "description": "A placeholder standing in for content that has not arrived. One element, no variants, sized entirely from the outside with className — the same shape as shadcn/ui's Skeleton, so a consumer's intuition transfers, and deliberately not a vocabulary: a `lines` or `variant` prop only re-describes the layout the skeleton is standing in for, and that layout is already written beside it. Defaults to a full-width bar at body height so a bare <Skeleton /> is visible rather than a 0px box, fills with the same recessed well Table's own loading bars use, and pulses under motion-safe. aria-hidden by default — the announcement belongs on the region that is loading, as aria-busy, which only the caller can place.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/skeleton/skeleton.tsx",
+          "type": "registry:ui",
+          "target": "ui/skeleton.tsx"
+        },
+        {
+          "path": "registry/ui/skeleton/skeleton.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/skeleton.doc.ts"
         }
       ]
     },
@@ -853,7 +916,9 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/checkbox",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/motion",
+        "@bydiorama/skeleton"
       ],
       "files": [
         {

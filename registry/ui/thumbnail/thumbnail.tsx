@@ -2,6 +2,7 @@ import { Children, forwardRef, type HTMLAttributes, type ReactNode } from "react
 import { Close } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 const childrenToArray = Children.toArray;
 
@@ -124,7 +125,7 @@ const ThumbnailRoot = forwardRef<HTMLSpanElement, ThumbnailProps>(function Thumb
             // (SC 2.1.1). Opacity rather than mounting, so it stays in the tab
             // order and focus is never lost.
             "opacity-0 group-hover/thumbnail:opacity-100 focus-visible:opacity-100",
-            "transition-opacity duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            "transition-opacity", motionMicro,
             // The ring is a box-shadow, which forced-colors mode forces to
             // `none` — the outline is what survives there.
             "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",

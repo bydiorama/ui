@@ -5,6 +5,7 @@ import { Check, ChevronDown, Close, Search } from "griddy-icons";
 import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { Badge } from "@/ui/badge";
 
 /** See the identical note in popover.tsx — one shim, one file. */
@@ -127,7 +128,7 @@ export function Multiselect({
               "flex w-full items-center justify-between gap-sm rounded-md",
               SIZE[size],
               "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
-              "transition-[border-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+              "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
               "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
@@ -218,7 +219,7 @@ export function Multiselect({
                   // the panel cannot run off a short window (§7c).
                   "max-h-(--available-height) max-w-(--available-width)",
                   "bg-surface border border-edge-subtle shadow-md",
-                  "transition-[opacity] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+                  "transition-[opacity]", motionMicro,
                   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
                 ),
               })}

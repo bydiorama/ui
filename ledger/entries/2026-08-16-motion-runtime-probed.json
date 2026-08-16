@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-16-motion-runtime-probed",
+  "date": "2026-08-16",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0018 clause 2 was wrong and is corrected by measurement. It said to reach a JS motion runtime through the imperative animate() rather than <motion.*> components, on the reasoning that the component API runs a main-thread loop while animate() is WAAPI-backed and therefore visible to Base UI's getAnimations() exit gate. Probed against a scratch install of motion@13.1.0 (MIT, as 0005 found for 12.43.0) in Playwright Chromium: the main package's animate() registers ZERO WAAPI animations for every property tried — opacity tween, transform tween, opacity spring, transform spring, width tween — while motion/mini's animate() registers one real Animation for both cases tested. So the distinction is not imperative-versus-component at all; it is WHICH ENTRY POINT, and nothing in the call site, the types or the rendered result distinguishes them. A consumer would have met it as a popup that vanishes instead of fading. The corrected clause also surfaces the finding underneath: motion/mini is WAAPI-only, so the one runtime Base UI can see cannot do layout/shared-element animation or follow a finger — three of the four things 0005 §3 wanted a runtime for. The usable rule is therefore about what is gating the element rather than about taste: inside a popup whose exit is awaited, motion/mini or CSS; for a gesture the user is driving, per-frame writes with no library, which is what Drawer already does. Layout/shared-element work is the only genuinely unserved case and nothing needs it yet. No dependency is added by this; the probe ran entirely outside the repo.",
+  "affects": [
+    "decision:0018-motion-runtime"
+  ]
+}

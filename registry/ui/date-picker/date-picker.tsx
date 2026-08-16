@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp } from "griddy-icons";
 import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { Calendar } from "@/ui/calendar";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
@@ -188,7 +189,7 @@ export function DatePicker({
               "flex w-full items-center justify-between rounded-md",
               CONTROL,
               "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
-              "transition-[border-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+              "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               "[&_svg]:size-4 [&_svg]:shrink-0",
               invalid && "border-danger",
@@ -244,7 +245,7 @@ export function DatePicker({
                   // IS the panel. Wrapping one surface in another would draw
                   // two boundaries where the sheet draws one.
                   "max-h-(--available-height) max-w-(--available-width) overflow-y-auto",
-                  "transition-[opacity,scale] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+                  "transition-[opacity,scale]", motionMicro,
                   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
                   "data-[starting-style]:scale-98 data-[ending-style]:scale-98",
                   "origin-(--transform-origin)",

@@ -1,6 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactElement, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 export type ButtonSize = "lg" | "md" | "sm";
@@ -199,7 +200,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // Custom properties use the PARENS syntax — `duration-(--x)` compiles
         // to var(--x); the bracket form emits the bare property name, which is
         // invalid CSS and silently zeroes the transition.
-        "transition-[background-color,box-shadow,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "transition-[background-color,box-shadow,color]", motionMicro,
         // Focus lives on the outline layer so it can never be confused with a
         // variant's resting ring, and no variant can suppress it. There is
         // deliberately NO `outline-none` base: it poisons `--tw-outline-style`

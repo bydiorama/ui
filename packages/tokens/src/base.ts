@@ -64,6 +64,12 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   "--ui-duration-base": "200ms",
   "--ui-duration-slow": "320ms",
   "--ui-duration-enter": "400ms",
+  // The only duration that describes a REPEAT rather than a journey, which is
+  // why it sits an order of magnitude above the rest: a skeleton's breath, a
+  // spinner's revolution. Added because Skeleton was otherwise pulsing at
+  // Tailwind's built-in 2s — a hard-coded duration hiding inside a utility
+  // NAME, where `check:motion` could not see it and no brand could reach it.
+  "--ui-duration-loop": "2000ms",
 
   "--ui-ease-default": "cubic-bezier(0.2, 0, 0, 1)",
   "--ui-ease-in": "cubic-bezier(0.4, 0, 1, 1)",
@@ -130,4 +136,9 @@ export const REDUCED_MOTION_OVERRIDES: Partial<Record<FixedToken, string>> = {
   "--ui-duration-base": "1ms",
   "--ui-duration-slow": "1ms",
   "--ui-duration-enter": "1ms",
+  // 1ms would make a LOOP spin a thousand times a second rather than stop it.
+  // Reduced motion is handled for keyframes by the `motion-safe:` variant that
+  // ADR 0018 requires on every one of them; this value only has to be
+  // harmless if a keyframe is ever driven by the token directly.
+  "--ui-duration-loop": "2000ms",
 };

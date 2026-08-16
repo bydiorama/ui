@@ -11,6 +11,7 @@ import {
 import { useRender } from "@base-ui/react/use-render";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 /** Rows inside a Section are list items; rows outside one are not. */
 const InSection = createContext(false);
@@ -184,7 +185,7 @@ function NavRailItem({
         "relative flex size-8 shrink-0 items-center justify-center rounded-md",
         "[&_svg]:size-4 [&_svg]:shrink-0",
         "text-ink-nav-muted",
-        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "transition-[background-color,color]", motionMicro,
         // Three fills, and they have to be three. This shipped with hover and
         // current painting the SAME square and a 2px bar down the leading edge
         // telling them apart — a rule inside a control, which reads as clutter

@@ -19,6 +19,9 @@
  *
  *   <button type="button" aria-label="Previous month" className={chromeControl()}>
  */
+
+import { motionMicro } from "@/lib/motion";
+
 export function chromeControl(className?: string): string {
   return [
     // 32px square. The sheet draws exactly one size, so there is no scale here
@@ -31,7 +34,7 @@ export function chromeControl(className?: string): string {
     "bg-elevated text-ink-primary",
     "[&_svg]:size-4 [&_svg]:shrink-0",
     "cursor-pointer disabled:cursor-not-allowed",
-    "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+    "transition-[background-color,color]", motionMicro,
     "enabled:hover:bg-hover enabled:active:bg-active",
     "disabled:bg-sunken disabled:text-ink-disabled",
     // The ring is a box-shadow, which forced-colors mode forces to `none` —

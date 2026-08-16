@@ -15,8 +15,10 @@ import {
 } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Search } from "griddy-icons";
 import { useRender } from "@base-ui/react/use-render";
+import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible";
 
 import { cn } from "@/lib/cn";
+import { motionMicro, motionStandard } from "@/lib/motion";
 import { chromeControl } from "@/lib/chrome-control";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
@@ -322,46 +324,96 @@ function SidebarSection({
     "flex min-h-9 w-full items-center justify-between gap-sm rounded-sm p-md " +
     "text-body-lg font-body font-bold leading-normal tracking-tight text-ink-nav";
 
-  return (
-    <div data-slot="sidebar-section" className={cn("flex flex-col", className)} {...rest}>
-      {isCollapsible ? (
-        <button
-          type="button"
-          data-slot="sidebar-section-label"
-          data-open={expanded || undefined}
-          aria-expanded={expanded}
-          aria-controls={listId}
-          onClick={() => setOpen(!open)}
-          className={cn(
-            headingClass,
-            "cursor-pointer transition-[background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
-            "hover:bg-nav-hover",
-            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
-          )}
-        >
-          {heading}
-          <Chevron isOpen={expanded} />
-        </button>
-      ) : (
-        // Not collapsible: a heading, not a button that does nothing.
+  const triggerClass = cn(
+    headingClass,
+    "cursor-pointer transition-[background-color]", motionMicro,
+    "hover:bg-nav-hover",
+    "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+  );
+
+  /**
+   * NOT indented, and no padding or gap of its own: the sheet puts both levels
+   * at the same 20px inset and stacks the rows flush, carrying the hierarchy
+   * in type and colour. An indent would be a second, redundant signal costing
+   * room on a narrow rail.
+   */
+  const listClass = "flex list-none flex-col";
+  const rows = <InSection.Provider value={true}>{children}</InSection.Provider>;
+
+  // A section that cannot collapse has nothing to collapse: a plain heading
+  // and a plain list, with none of the behaviour layer's machinery.
+  if (!isCollapsible) {
+    return (
+      <div data-slot="sidebar-section" className={cn("flex flex-col", className)} {...rest}>
         <span data-slot="sidebar-section-label" className={headingClass}>
           {heading}
         </span>
-      )}
+        <ul id={listId} data-slot="sidebar-sublist" className={listClass}>
+          {rows}
+        </ul>
+      </div>
+    );
+  }
 
-      <ul
-        id={listId}
-        data-slot="sidebar-sublist"
-        hidden={!expanded}
-        // NOT indented, and no padding or gap of its own: the sheet puts both
-        // levels at the same 20px inset and stacks the rows flush, carrying
-        // the hierarchy in type and colour. An indent would be a second,
-        // redundant signal costing room on a narrow rail.
-        className="flex list-none flex-col"
+  /*
+   * The behaviour layer, for the SAME reason Accordion uses it (ADR 0012).
+   *
+   * This section used to open and close with the `hidden` attribute, which
+   * snaps — while Accordion, which is the identical interaction one component
+   * over, animated its height against the measurement Base UI publishes. Two
+   * answers to one question is the divergence this library records rather
+   * than keeps, and the reason to take the library's answer rather than write
+   * a third is that the hard part is not the height: it is keeping `hidden`
+   * off until the closing animation has finished, so the rows do not vanish
+   * before the space does — and putting it back on afterwards, so a collapsed
+   * section is really gone from the tab order rather than merely flat.
+   *
+   * `keepMounted` because `aria-controls` must point at something that exists,
+   * which the previous implementation guaranteed with `hidden` and a test
+   * asserts. It is also what makes the panel mount carrying
+   * `data-starting-style` at all — the lesson `@/lib/menu-surface` records.
+   */
+  return (
+    <BaseCollapsible.Root
+      open={expanded}
+      onOpenChange={(next) => setOpen(next)}
+      render={
+        <div data-slot="sidebar-section" className={cn("flex flex-col", className)} {...rest} />
+      }
+    >
+      <BaseCollapsible.Trigger
+        data-slot="sidebar-section-label"
+        data-open={expanded || undefined}
+        className={triggerClass}
+        render={<button type="button" />}
       >
-        <InSection.Provider value={true}>{children}</InSection.Provider>
-      </ul>
-    </div>
+        {heading}
+        <Chevron isOpen={expanded} />
+      </BaseCollapsible.Trigger>
+      <BaseCollapsible.Panel
+        keepMounted
+        data-slot="sidebar-sublist"
+        className={cn(
+          listClass,
+          "overflow-hidden",
+          // The measurement the behaviour layer publishes, not a constant —
+          // `height: auto` cannot be transitioned and a fixed height would
+          // clip a section with more rows than the artboard drew. Identical
+          // to Accordion's panel, deliberately.
+          "h-(--collapsible-panel-height)",
+          "transition-[height]", motionStandard,
+          "data-[starting-style]:h-0 data-[ending-style]:h-0",
+        )}
+        // NO `id` here, deliberately. Passing one overrides the id Base UI
+        // generated and pointed `aria-controls` at, which leaves the trigger
+        // referencing an element that does not exist — a broken disclosure
+        // that looks completely normal. Caught by the test asserting that
+        // aria-controls RESOLVES, rather than that it is merely present.
+        render={<ul />}
+      >
+        {rows}
+      </BaseCollapsible.Panel>
+    </BaseCollapsible.Root>
   );
 }
 
@@ -446,7 +498,7 @@ function SidebarItem({
         "text-body-lg font-body font-medium leading-normal tracking-tight no-underline",
         inSection ? "text-ink-nav-muted" : "text-ink-nav",
         isLink && [
-          "cursor-pointer transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "cursor-pointer transition-[background-color,color]", motionMicro,
           "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
         ],
         // Hover and current are gated on `not-[[data-disabled]]` so an
@@ -556,7 +608,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
         }}
         className={cn(
           "flex w-full items-center gap-sm rounded-sm p-xs text-left",
-          "cursor-pointer transition-[background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "cursor-pointer transition-[background-color]", motionMicro,
           "hover:bg-nav-hover",
           "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
           className,
@@ -620,7 +672,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
           // An outline costs nothing, and the field's own px-sm then puts the
           // placeholder exactly on it.
           "bg-base outline outline-edge-subtle",
-          "transition-[outline-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-[outline-color,box-shadow]", motionMicro,
           // The WRAPPER draws the ring, so the input inside can safely carry
           // outline-none — the one place that is safe (§6).
           "focus-within:outline-edge-focus focus-within:shadow-(--ui-focus-ring)",
@@ -710,7 +762,7 @@ function Chevron({ isOpen }: { isOpen: boolean }) {
       aria-hidden="true"
       data-slot="sidebar-chevron"
       className={cn(
-        "size-4 shrink-0 transition-transform duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "size-4 shrink-0 transition-transform", motionMicro,
         isOpen ? "rotate-180" : "rotate-0",
       )}
     />

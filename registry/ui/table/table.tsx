@@ -5,7 +5,9 @@ import {
 import { ChevronDown } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { Checkbox } from "@/ui/checkbox";
+import { Skeleton } from "@/ui/skeleton";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
 export type TableSize = "lg" | "md" | "sm";
@@ -372,7 +374,7 @@ export function Table<Row>({
     isTrailing: boolean;
   }) =>
     cn(
-      "transition-[background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+      "transition-[background-color]", motionMicro,
       options.isSelected ? "bg-accent-subtle" : "bg-surface",
       options.isPressable &&
         (options.isSelected
@@ -531,7 +533,7 @@ export function Table<Row>({
                         isEnd && "justify-end",
                         padding(index),
                         sorted && "font-bold text-ink-primary",
-                        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+                        "transition-[background-color,color]", motionMicro,
                         "hover:bg-hover hover:text-ink-primary",
                         // No bare `outline` beside `outline-2`: tailwind-merge
                         // reads the two as one group and DELETES the first, so
@@ -547,7 +549,7 @@ export function Table<Row>({
                         data-slot="table-sort-indicator"
                         className={cn(
                           "size-4 shrink-0",
-                          "transition-[opacity,rotate] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+                          "transition-[opacity,rotate]", motionMicro,
                           // Latent until the column is asked about. The glyph
                           // is always in the layout, so revealing it moves
                           // nothing — which is why it is opacity rather than a
@@ -601,10 +603,13 @@ export function Table<Row>({
                       }),
                     )}
                   >
-                    <span
+                    <Skeleton
                       data-slot="table-skeleton"
                       className={cn(
-                        "block h-2.5 rounded-sm bg-sunken",
+                        // 10px, not Skeleton's 16px default: these sit inside
+                        // a dense row rather than standing in for a line of
+                        // body text.
+                        "h-2.5",
                         // A deterministic ripple rather than random widths: a
                         // visual baseline has to be reproducible.
                         SKELETON_WIDTHS[(rowIndex + index) % SKELETON_WIDTHS.length],

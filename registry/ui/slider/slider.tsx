@@ -6,6 +6,7 @@ import { Minus, Plus } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
@@ -292,7 +293,7 @@ export function Slider(props: SliderProps) {
                   // under SC 1.4.11, which is why the ring takes the legible
                   // role instead — 3.73:1 in light.
                   "border-2 border-accent-legible",
-                  "transition-[box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+                  "transition-[box-shadow]", motionMicro,
                   "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
                   "disabled:border-edge-subtle",
                 ),

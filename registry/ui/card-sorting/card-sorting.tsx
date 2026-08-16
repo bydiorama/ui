@@ -21,6 +21,7 @@ import { DragIndicator } from "griddy-icons";
 import { Button } from "@/ui/button";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
 /**
@@ -336,7 +337,7 @@ function CardSortingItem({ children, id, label, className, onClick, ...rest }: C
         // nudge every row's content as it lifts.
         "outline-offset-0 data-[lifted]:outline data-[lifted]:outline-edge-focus",
         "data-[dragging]:outline data-[dragging]:outline-edge-focus data-[dragging]:shadow-md",
-        "transition-[outline-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "transition-[outline-color,box-shadow]", motionMicro,
         className,
       )}
     >

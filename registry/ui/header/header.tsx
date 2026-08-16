@@ -15,6 +15,7 @@ import { useRender } from "@base-ui/react/use-render";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 /** Rows inside Header.Nav are list items; controls in Start/End are not. */
 const InNav = createContext(false);
@@ -235,7 +236,7 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         "[&_svg]:size-4 [&_svg]:shrink-0",
         "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap no-underline",
         "text-ink-primary",
-        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "transition-[background-color,color]", motionMicro,
         // TWO CHANNELS, not one, and they are separate on purpose: FILL answers
         // the pointer, INK says where you are.
         //

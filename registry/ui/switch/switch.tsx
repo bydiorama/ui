@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
@@ -93,7 +94,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
         aria-hidden="true"
         className={cn(
           "relative h-5 w-9 shrink-0 rounded-full border",
-          "transition-[background-color,border-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-[background-color,border-color,box-shadow]", motionMicro,
           // The sheet fills the OFF track with --ui-text-placeholder, a text
           // role used as a background. `edge-strong` is the same value on a
           // non-text role and clears the 3:1 a control boundary needs — see
@@ -111,7 +112,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
             "absolute top-px size-4 rounded-full bg-surface shadow-sm",
             // Travel, not a layout change: transform animates on the compositor
             // and leaves the track's geometry untouched.
-            "transition-transform duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            "transition-transform", motionMicro,
             checked ? "translate-x-4" : "translate-x-px",
           )}
         />

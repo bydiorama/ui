@@ -35,7 +35,7 @@ export const tableDoc = {
     { part: "select-row", slot: "table-select-row", notes: "A row's select lane. Holds the row's own Checkbox, which is the non-colour half of what a selected row communicates." },
     { part: "cell", slot: "table-cell", notes: "A <td>. Primary ink and medium weight on the primary column, secondary and regular elsewhere. Also carries the row's fill and hover/press states, the 1px bg-elevated divider, and — on the first row's outer two cells — the radius-md top corners." },
     { part: "loading row", slot: "table-loading-row", notes: "A placeholder row at the real row's height, in the real lanes." },
-    { part: "skeleton", slot: "table-skeleton", notes: "A 10px sunken bar. Widths ripple deterministically by row and column — a visual baseline has to be reproducible." },
+    { part: "skeleton", slot: "table-skeleton", notes: "A composed Skeleton at h-2.5, the denser row's height rather than the component's 16px default. Widths still ripple deterministically by row and column — a visual baseline has to be reproducible, which the harness now achieves by pausing the pulse at its first keyframe rather than by the bar being static. Requires the skeleton item." },
     { part: "empty", slot: "table-empty", notes: "One cell spanning every lane, marked aria-live=\"polite\". Renders whatever `empty` was given." },
   ],
 

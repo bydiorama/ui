@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-16-lib-motion-recipe",
+  "date": "2026-08-16",
+  "item": "motion",
+  "kind": "addition",
+  "summary": "lib/motion — the three timings this library animates at, as class-name constants: motionMicro (interaction feedback, --ui-duration-fast), motionStandard (a surface arriving or leaving, --ui-duration-base) and motionDeliberate (an unfolding, --ui-duration-slow). The duration/easing pair had been hand-assembled 49 times across 28 files, identically. The property list deliberately STAYS at the call site rather than becoming a parameter, and that is a constraint rather than a preference: Tailwind compiles the class names it finds by scanning source TEXT, so a recipe built as `transition-[${properties}]` produces a string the scanner never saw, generates no rule, and the element silently does not animate. The split chosen is the one that keeps every class name a literal in a file Tailwind reads. Writing it surfaced two things worth recording. The library uses --ui-ease-out in FIFTY cases out of fifty, while the token layer offers four easings and four --ui-motion-* intent tokens with zero consumers between them — including --ui-motion-standard, which pairs --ui-duration-base with --ui-ease-default, an easing nothing here has ever reached for. So the constants are named for the intents but do not read them, which records a disagreement between the token layer and the components rather than papering over it; which side is right is a design question and motion sign-off is still open. Banner's dismiss control is also corrected in the same pass, from Tailwind's `transition-colors` group to `transition-[background-color]`: the group covers colour, background, border, fill, stroke and text-decoration, and the comment directly above it explains that the glyph must hold full strength because dimming it measured under the 3:1 floor — a group naming `color` invites exactly the change the comment forbids.",
+  "affects": ["item:motion", "decision:0018-motion-runtime", "item:banner"],
+  "migration": {
+    "manual": "New lib item, and 28 items now list it in registryDependencies — `npx @bydiorama/ui add <component>` pulls it in automatically. No rendered motion changes: the constants expand to the exact strings they replaced, asserted by the browser suite and by 70 unchanged visual baselines. If you have forked a component, the import is `import { motionMicro } from \"@/lib/motion\"` and the alias needs registering wherever your build resolves `@/lib/*`."
+  }
+}

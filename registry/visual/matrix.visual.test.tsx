@@ -31,6 +31,7 @@ import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@byd
 
 import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { AspectRatio } from "@/ui/aspect-ratio/aspect-ratio.tsx";
+import { Skeleton } from "@/ui/skeleton/skeleton.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
@@ -140,19 +141,39 @@ function mount(
 }
 
 /**
- * Fonts and transitions both move pixels; wait for each before capturing.
+ * Fonts and transitions both move pixels; settle each before capturing.
  *
- * NEVER put an INFINITE animation in a case. `finished` on a looping animation
- * resolves never, so a single spinner anywhere in the frame hangs this suite
- * rather than failing it — and a hang reports as a timeout with no clue which
- * case caused it. Thumbnail's `isLoading` and ImageUpload's busy state are both
- * spinners, and both are deliberately absent below; they are covered in
- * Storybook and by computed-style assertions instead.
+ * An INFINITE animation is handled rather than banned, which it used to be.
+ * `finished` on a looping animation resolves never, so awaiting it hung the
+ * whole suite on any frame containing one — reported as a timeout naming no
+ * case. The old rule was "never put one in a case", and it held only while no
+ * component's RESTING state looped: Thumbnail's and ImageUpload's spinners are
+ * behind a busy prop, so leaving them out cost nothing. Skeleton pulses by
+ * definition, and `check:visual-coverage` requires every manifest item to have
+ * a case, so the ban and the coverage gate could not both be satisfied.
+ *
+ * Pausing at time zero rather than cancelling: it yields a deterministic frame
+ * that is also a MEANINGFUL one — the first keyframe, which for a pulse is
+ * full opacity and for a spinner is an unrotated ring — where cancelling would
+ * photograph the element as if the animation had never been declared, and a
+ * removed animation and a broken one look identical. The loop is still real;
+ * `skeleton.browser.test.tsx` asserts it runs and loops, which is the layer
+ * that can see it.
  */
 async function stable(el: Element) {
   await act(async () => {
     await document.fonts.ready;
-    await Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => undefined)));
+    const running = el.getAnimations({ subtree: true });
+    const finite: Animation[] = [];
+    for (const animation of running) {
+      if (animation.effect?.getTiming().iterations === Number.POSITIVE_INFINITY) {
+        animation.pause();
+        animation.currentTime = 0;
+      } else {
+        finite.push(animation);
+      }
+    }
+    await Promise.all(finite.map((a) => a.finished.catch(() => undefined)));
   });
 }
 
@@ -955,6 +976,28 @@ const CASES: Array<{
         <div className="rounded-lg border border-edge-subtle bg-surface">
           <EmptyState title="Nothing archived yet" description="Archived records stay 90 days." />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "skeleton",
+    // The default box FIRST, alone, because a 0px placeholder is the failure
+    // this component is shaped to prevent and it is invisible in any frame
+    // that also contains a sized one. The rest is the composed shape, which is
+    // the only thing there is to look at: the bar carries no variants, so what
+    // a baseline can catch here is the fill going flat against the page and
+    // the radius or the row rhythm moving.
+    ui: (
+      <div className="flex w-96 flex-col gap-lg">
+        <Skeleton />
+        <div className="flex items-center gap-md">
+          <Skeleton className="size-10 shrink-0 rounded-full" />
+          <div className="flex flex-1 flex-col gap-xs">
+            <Skeleton className="h-4 w-2/5" />
+            <Skeleton className="h-4 w-4/5" />
+          </div>
+        </div>
+        <Skeleton className="h-32 w-full rounded-md" />
       </div>
     ),
   },

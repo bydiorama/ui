@@ -152,13 +152,39 @@ describe("Sidebar is navigation, and the platform provides the behaviour", () =>
 
     await userEvent.click(header);
     expect(header.getAttribute("aria-expanded")).toBe("false");
-    // The ATTRIBUTE is not the behaviour: Tailwind's `flex` sets display and
-    // beats the UA's [hidden] rule, so a hidden attribute alone leaves the
-    // list on screen. Assert what a user would see.
+
+    // It COLLAPSES rather than snapping — the height animates against the
+    // measurement the behaviour layer publishes, exactly as Accordion's panel
+    // does. Asserted before the wait, because the whole point is that the
+    // element is still there and still tall at this instant.
+    expect(sublist.getAnimations().length).toBeGreaterThan(0);
+    expect(sublist.hidden).toBe(false);
+
+    await settled(sublist);
+
+    // And only THEN is it hidden. The ordering is the contract: `hidden`
+    // arriving early would blank the rows before the space closed, and never
+    // arriving would leave a flat section still in the tab order.
+    // The ATTRIBUTE is not the behaviour either: Tailwind's `flex` sets
+    // display and beats the UA's [hidden] rule, so assert what a user sees.
     expect(sublist.hidden).toBe(true);
     expect(getComputedStyle(sublist).display).toBe("none");
     // `hidden`, not unmounted: aria-controls must keep pointing at something.
     expect(c.contains(sublist)).toBe(true);
+  });
+
+  test("aria-controls RESOLVES — the disclosure actually points at its panel", () => {
+    const c = mount(<Basic />);
+    const header = c.querySelector<HTMLElement>('[data-slot="sidebar-section-label"]')!;
+    const controls = header.getAttribute("aria-controls")!;
+    // Regression: rendering the panel with our own `id` overrode the one Base
+    // UI generated and had already pointed aria-controls at, so the trigger
+    // referenced an element that did not exist. Nothing looked wrong — the
+    // attribute was present, the panel opened, and only resolving the id
+    // showed the link was dangling.
+    const panel = c.querySelector(`#${CSS.escape(controls)}`);
+    expect(panel).not.toBeNull();
+    expect(panel!.getAttribute("data-slot")).toBe("sidebar-sublist");
   });
 
   test("the current page is ANNOUNCED, not just filled", () => {

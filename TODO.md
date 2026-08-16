@@ -93,6 +93,7 @@ Design:
 - [ ] Pagination
 - [ ] Progress Indicator Circular
 - [ ] Radio
+- [ ] Skeleton
 - [x] Table
 - [ ] Table Line Items
 - [x] Tabs Underlined
@@ -105,8 +106,7 @@ Design:
 - [ ] Progress Long Operations
 - [ ] Progress Sectioned List
 - [ ] Progress Stream
-- [ ] Bubble
-- [ ] Message
+- [ ] Message Bubble
 
 Use case specific:
 - [ ] Hint / Callout

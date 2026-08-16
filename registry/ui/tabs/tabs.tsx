@@ -4,6 +4,7 @@ import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import { createContext, useContext, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
@@ -130,7 +131,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
       className={cn(
         "flex min-h-6 items-center gap-xs px-sm py-xs",
         "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap",
-        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "transition-[background-color,color]", motionMicro,
         "text-ink-muted",
         // Enclosed divides the track evenly and centres each label; ghost sizes
         // to its content and sits left, because there is no track to divide.

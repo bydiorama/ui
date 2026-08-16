@@ -1,6 +1,7 @@
 import { forwardRef, useId, type TextareaHTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 export type TextareaSize = "lg" | "md" | "sm";
 
@@ -201,7 +202,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           // stretched to a wrapper height, so the CHILD's height is the box's
           // height and a resize drag grows the box instead of being clipped.
           "flex w-full shrink-0 items-start overflow-clip rounded-md border-[1.5px]",
-          "transition-[border-color,box-shadow,background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-[border-color,box-shadow,background-color]", motionMicro,
           "border-edge-subtle",
           // The fill comes from the GROUND-and-state pair, never from a surface
           // role directly — see Input, and ADR 0017.

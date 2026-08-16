@@ -4,6 +4,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
@@ -142,7 +143,7 @@ function ModalSurface({ children, className, size = "md", container, ...rest }: 
         data-slot="modal-scrim"
         className={cn(
           "fixed inset-0 bg-scrim",
-          "transition-opacity duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-opacity", motionMicro,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
       />
@@ -174,7 +175,7 @@ function ModalSurface({ children, className, size = "md", container, ...rest }: 
           // `scale`, not `transform`: v4's scale-* sets the standalone `scale`
           // property, so a list naming transform transitioned nothing and the
           // dialog snapped in at full size while only opacity eased.
-          "transition-[opacity,scale] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-[opacity,scale]", motionMicro,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
           "data-[starting-style]:scale-98 data-[ending-style]:scale-98",
           className,

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-16-table-composes-skeleton",
+  "date": "2026-08-16",
+  "item": "table",
+  "kind": "addition",
+  "summary": "Table's loading body composes the Skeleton component instead of drawing its own bar. It drew a static `block h-2.5 rounded-sm bg-sunken` span, and the recorded reason for it being static rather than pulsing was that a visual baseline has to be reproducible. That reason no longer holds: the visual harness pauses infinite animations at their first keyframe rather than banning them, so a pulsing bar is now as reproducible as a still one — and the proof is that Table's baseline did not move by a single pixel, because frame zero of the pulse is full opacity, which is exactly what the static bar was. The library therefore stops having two placeholder treatments for one idea. The remaining difference is height, which is a real one and is passed at the call site: h-2.5 for a dense table row rather than Skeleton's 16px body-text default. Widths still ripple deterministically by row and column.",
+  "affects": ["item:table", "slot:table-skeleton", "item:skeleton"],
+  "migration": {
+    "manual": "Table now requires the `skeleton` item — `npx @bydiorama/ui add table` pulls it in. Nothing renders differently at rest; the bars breathe while loading where they previously sat still."
+  }
+}

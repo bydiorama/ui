@@ -4,6 +4,7 @@ import { Popover as BasePopover } from "@base-ui/react/popover";
 import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 /**
  * Absorbs one impedance mismatch, in one place.
@@ -154,7 +155,7 @@ function PopoverPanel({
             // so the hairline and the shadow carry the boundary, not the fill.
             "text-ink-primary",
             // `scale`, not `transform` — see the identical note in modal.tsx.
-            "transition-[opacity,scale] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            "transition-[opacity,scale]", motionMicro,
             // Base UI stamps these while the enter/exit transition runs.
             "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
             "data-[starting-style]:scale-98 data-[ending-style]:scale-98",

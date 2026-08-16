@@ -35,6 +35,28 @@ const CODE = /\.tsx?$/;
 
 const IMPORT = /(?:from|import)\s+["']([^"']+)["']/g;
 
+/**
+ * Comments are not code — the fourth gate here to learn it.
+ *
+ * `check:utilities`, `check:controls` and `check:overlays` each strip comments
+ * before matching, and this one did not, so ANY prose containing the word
+ * `from` beside a quoted string read as an import. Skeleton's comment — the
+ * pulse "separates `loading` from `empty`" — reported a missing dependency on
+ * a package called `empty`, and the fix the message asked for was to declare
+ * it in the manifest.
+ *
+ * The failure is worse than the noise suggests: it is unfixable from the
+ * manifest, the message names a package that does not exist, and the only way
+ * to make the build pass is to reword an accurate comment. A gate that cannot
+ * tell prose from code teaches people to write worse comments.
+ *
+ * The `[^:]` guard on the line form is what keeps a `https://` inside a
+ * comment from being read as the start of one.
+ */
+function stripComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+}
+
 /** `@base-ui-components/react/dialog` → `@base-ui-components/react` */
 function packageOf(specifier) {
   const parts = specifier.split("/");
@@ -77,7 +99,7 @@ for (const item of manifest.items) {
     if (!CODE.test(file.path)) continue;
     const full = join(ROOT, file.path);
     if (!existsSync(full)) continue;
-    const source = readFileSync(full, "utf8");
+    const source = stripComments(readFileSync(full, "utf8"));
     for (const [, specifier] of source.matchAll(IMPORT)) {
       // Relative imports are files inside the item itself.
       if (specifier.startsWith(".")) continue;

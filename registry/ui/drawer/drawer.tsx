@@ -14,6 +14,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionStandard } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
 /**
@@ -262,7 +263,7 @@ function DrawerPanel({
         data-slot="drawer-scrim"
         className={cn(
           "fixed inset-0 bg-scrim",
-          "transition-opacity duration-(--ui-duration-base) ease-(--ui-ease-out)",
+          "transition-opacity", motionStandard,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
       />
@@ -291,7 +292,7 @@ function DrawerPanel({
           // cap, and applying both would silently truncate a 0.9 snap point.
           !detents && "max-h-4/5",
           "bg-base text-ink-primary border border-edge-subtle shadow-md",
-          "transition-[translate,opacity] duration-(--ui-duration-base) ease-(--ui-ease-out)",
+          "transition-[translate,opacity]", motionStandard,
           "data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full",
           // While a finger is down the panel must track it exactly. A
           // transition here would lag the drag by a frame and feel like syrup.

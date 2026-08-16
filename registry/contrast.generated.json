@@ -1073,6 +1073,15 @@
       "role": "a disabled row"
     }
   ],
+  "Skeleton": [
+    {
+      "fg": "--ui-bg-sunken",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.22,
+      "dark": 1.44
+    }
+  ],
   "Slider": [
     {
       "fg": "--ui-bg-accent-legible",

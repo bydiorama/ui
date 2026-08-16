@@ -5,6 +5,7 @@ import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
 import { ChevronDown } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro, motionStandard } from "@/lib/motion";
 
 export type AccordionVariant = "plain" | "card";
 /** The heading level the trigger's <h*> renders at. No default is guessed. */
@@ -199,7 +200,7 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
             // trailing alike. griddy renders width/height="24" as ATTRIBUTES,
             // so an unsized slot ships 24px whatever the sheet says.
             "[&_svg]:size-4 [&_svg]:shrink-0",
-            "rounded-sm transition-[background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            "rounded-sm transition-[background-color]", motionMicro,
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
             // ARIA-disabled, not the native attribute. The behaviour layer
             // keeps a disabled trigger FOCUSABLE (tabindex 0, aria-disabled
@@ -226,7 +227,7 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
               // v4 writes the STANDALONE `rotate` property, so the transition
               // has to name `rotate` — `transform` would cover nothing and the
               // chevron would snap.
-              "transition-[rotate] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+              "transition-[rotate]", motionMicro,
               "group-data-[panel-open]:rotate-180",
             )}
           />
@@ -263,7 +264,7 @@ const AccordionPanel = forwardRef<HTMLDivElement, AccordionPanelProps>(function 
         // constant — `height: auto` cannot be transitioned and a fixed height
         // would clip whatever does not fit.
         "h-(--accordion-panel-height)",
-        "transition-[height] duration-(--ui-duration-base) ease-(--ui-ease-out)",
+        "transition-[height]", motionStandard,
         "data-[starting-style]:h-0 data-[ending-style]:h-0",
       )}
     >

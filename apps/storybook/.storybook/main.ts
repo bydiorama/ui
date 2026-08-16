@@ -66,11 +66,12 @@ const config: StorybookConfig = {
           "registry/lib/compose-event-handlers/compose-event-handlers.ts",
         ),
         "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
+        "@/lib/motion": join(root, "registry/lib/motion/motion.ts"),
         "@/hooks/use-controllable-state": join(
           root,
           "registry/hooks/use-controllable-state/use-controllable-state.ts",
         ),
-        ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "menu", "progress", "slider"),
+        ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "menu", "progress", "skeleton", "slider"),
         "@/ui": join(root, "registry/ui"),
         "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
       },

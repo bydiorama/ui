@@ -10,6 +10,7 @@ import {
 import { AlertCircle, Close, Plus, Upload } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { Progress } from "@/ui/progress";
 
 /**
@@ -203,7 +204,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           // The drag-over ring. `border-edge-focus` is the role whose whole job is
           // "something is happening here", and it is already audited at 3:1.
           isDragging && !isDisabled ? "border-edge-focus" : EDGE[state],
-          "transition-[border-color,background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-[border-color,background-color]", motionMicro,
         )}
       >
         {state === "attached" && preview ? (
@@ -218,7 +219,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
               "rounded-md p-sm",
               // The sheet washes the well to `accent-subtle` while dragging.
               isDragging && !isDisabled ? "bg-accent-subtle" : WELL[state],
-              "transition-[background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+              "transition-[background-color]", motionMicro,
               "[&_svg]:size-4 [&_svg]:shrink-0",
             )}
           >
@@ -446,7 +447,7 @@ function ImageUploadFile({
             "rounded-sm text-ink-muted",
             "[&_svg]:size-4 [&_svg]:shrink-0",
             "enabled:hover:bg-hover enabled:hover:text-ink-primary",
-            "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            "transition-[background-color,color]", motionMicro,
             "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
             "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
           )}
@@ -513,7 +514,7 @@ function ImageUploadAdd({ label, isDisabled = false, className, ...rest }: Image
         "[&_svg]:size-4 [&_svg]:shrink-0",
         "enabled:hover:bg-hover enabled:hover:text-ink-primary",
         "disabled:cursor-not-allowed disabled:text-ink-disabled",
-        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "transition-[background-color,color]", motionMicro,
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
         "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
         className,

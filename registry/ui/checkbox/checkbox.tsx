@@ -10,6 +10,7 @@ import {
 import { Check, Minus } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
@@ -149,7 +150,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
         className={cn(
           BOX,
           "mt-px flex shrink-0 items-center justify-center rounded-sm border",
-          "transition-[background-color,border-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-[background-color,border-color,box-shadow]", motionMicro,
 
           state === "unchecked" && "bg-surface border-edge-control",
           state === "checked" && "bg-accent border-accent text-ink-on-accent",

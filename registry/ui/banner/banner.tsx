@@ -2,6 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactElement, type ReactNode } fr
 import { Close } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 export type BannerVariant = "neutral" | "info" | "success" | "warning" | "danger";
 
@@ -100,7 +101,14 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
             // floor of SC 1.4.11 for a meaningful graphic. Hover is carried by
             // a tint of the ink instead, which never touches the glyph.
             "text-current",
-            "transition-colors duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            // `background-color` alone, not Tailwind's `transition-colors`
+            // group. The group covers colour, background, border, fill,
+            // stroke and text-decoration — and the note above is the reason
+            // only one of those may ever move here: the glyph holds full
+            // strength because dimming it measured under the 3:1 floor. A
+            // group that names `color` invites exactly the change the comment
+            // forbids, and the rest of the library enumerates (CONVENTIONS §6).
+            "transition-[background-color]", motionMicro,
             "hover:bg-current/10",
           )}
         >

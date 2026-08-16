@@ -15,6 +15,7 @@ import {
 import { RefreshCcw, RefreshCw } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { Slider } from "@/ui/slider";
 
@@ -399,7 +400,7 @@ export const ImageEdit = forwardRef<HTMLDivElement, ImageEditProps>(function Ima
             className={cn(
               "pointer-events-none absolute inset-0 opacity-0",
               "group-active/stage:opacity-45",
-              "transition-opacity duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+              "transition-opacity", motionMicro,
             )}
           >
             {["left-1/3", "left-2/3"].map((position) => (

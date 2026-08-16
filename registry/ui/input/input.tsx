@@ -1,6 +1,7 @@
 import { forwardRef, useId, type InputHTMLAttributes, type ReactElement } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 export type InputSize = "lg" | "md" | "sm";
 
@@ -165,7 +166,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // there. griddy's IconBase hard-codes width/height="24", so an
           // unsized slot rendered every leading and trailing glyph oversize.
           "[&_svg]:size-4 [&_svg]:shrink-0",
-          "transition-[border-color,box-shadow,background-color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+          "transition-[border-color,box-shadow,background-color]", motionMicro,
           "border-edge-subtle",
           // The fill comes from the GROUND-and-state pair, never from a
           // surface role directly: `bg-sunken` used to carry disabled, which

@@ -14,6 +14,7 @@ import {
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 import { chromeControl } from "@/lib/chrome-control";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
@@ -470,7 +471,7 @@ export function Calendar({
                       "flex aspect-square cursor-pointer items-center justify-center rounded-md",
                       "text-button-sm font-body font-medium leading-flat",
                       "bg-elevated text-ink-muted",
-                      "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+                      "transition-[background-color,color]", motionMicro,
                       "hover:bg-hover hover:text-ink-primary",
                       // The selected fill is --ui-bg-accent-subtle; the sheet
                       // drew a raw --ui-blue-90, corrected in Paper.
@@ -593,7 +594,7 @@ function OptionList({ id, slot, label, columns, options, onSelect, onDismiss }: 
             "flex min-h-8 cursor-pointer items-center justify-center rounded-md px-md py-sm",
             "text-button-sm font-body font-medium leading-flat",
             "bg-elevated text-ink-muted",
-            "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+            "transition-[background-color,color]", motionMicro,
             "hover:bg-hover hover:text-ink-primary",
             // Selected and current are drawn exactly as the day grid draws
             // them — fill for the choice, outline for today — rather than as
@@ -648,7 +649,7 @@ function ViewTrigger({ ref, slot, label, accessibleName, controls, isOpen, onCli
         // on a phone, worst exactly where the sheet draws 16.
         "text-button-lg font-body font-bold leading-flat tracking-tight",
         "text-ink-primary [&_svg]:size-4 [&_svg]:shrink-0",
-        "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+        "transition-[background-color,color]", motionMicro,
         "hover:bg-hover",
         // The open one is inked with the accent LINK role. The sheet drew a
         // raw --ui-blue-70, which is the DARK scheme's value for that role and

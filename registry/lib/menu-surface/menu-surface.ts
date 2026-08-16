@@ -19,6 +19,8 @@
  * each separately would pass while the two drifted apart.
  */
 
+import { motionMicro } from "@/lib/motion";
+
 /**
  * The popup.
  *
@@ -62,7 +64,7 @@ export function menuPanel(className?: string): string {
     // makes the panel mount with `data-starting-style` and actually run the
     // transition, where the uncontrolled path measured a constant box from
     // frame 0. A defect that hides in half its configurations.
-    "transition-[opacity] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+    "transition-[opacity]", motionMicro,
     "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
     className,
   ]
@@ -99,7 +101,7 @@ export function menuItem(className?: string): string {
     "text-body-lg font-body font-bold leading-normal tracking-tight",
     "text-ink-primary select-none",
     "[&_svg]:size-4 [&_svg]:shrink-0",
-    "transition-[background-color,color] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+    "transition-[background-color,color]", motionMicro,
     // `data-highlighted` is the behaviour layer's own pointer-and-keyboard
     // state; it is what moves with the arrow keys, and it is set on the row
     // whether it arrived by hover or by keyboard.

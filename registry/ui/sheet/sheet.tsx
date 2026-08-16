@@ -4,6 +4,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionStandard } from "@/lib/motion";
 
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
@@ -163,7 +164,7 @@ function SheetPanel({ children, className, label, side = "left", container, ...r
         data-slot="sheet-scrim"
         className={cn(
           "fixed inset-0 bg-scrim",
-          "transition-opacity duration-(--ui-duration-base) ease-(--ui-ease-out)",
+          "transition-opacity", motionStandard,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
       />
@@ -184,7 +185,7 @@ function SheetPanel({ children, className, label, side = "left", container, ...r
           "w-4/5 min-w-64 max-w-nav",
           SIDE[side].edge,
           "bg-base text-ink-primary shadow-sm",
-          "transition-[translate,opacity] duration-(--ui-duration-base) ease-(--ui-ease-out)",
+          "transition-[translate,opacity]", motionStandard,
           SIDE[side].offscreen,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
           className,

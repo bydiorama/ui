@@ -26,20 +26,20 @@ read for compliance. This file carries only what is not yet true.
 
 Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 
-## Status — 2026-08-14
+## Status — 2026-08-16
 
 | | |
 |---|---:|
-| Distributed items (`ui.manifest.json`) | 41 |
-| — components | 34 |
-| — lib / hook / font / skill | 4 / 1 / 1 / 1 |
-| Generated registry items (`r/*.json`) | 41 |
-| Ledger entries / ADRs | 158 / 18 |
+| Distributed items (`ui.manifest.json`) | 43 |
+| — components | 35 |
+| — lib / hook / font / skill | 5 / 1 / 1 / 1 |
+| Generated registry items (`r/*.json`) | 43 |
+| Ledger entries / ADRs | 165 / 18 |
 | `pnpm verify` gates | 17, green |
 | Node tests | 100, green |
-| Browser tests — contract + story a11y | 886 across 74 files, green |
-| Declared design gaps | 122, across 25 of 34 docs |
-| Committed visual baselines | 124, **all `-chromium-darwin`** |
+| Browser tests — contract + story a11y | 915 across 77 files, green |
+| Declared design gaps | 127, across 35 of 35 docs |
+| Visual baselines | 70 (35 cases x 2 schemes), **all `-chromium-darwin`**, all current |
 | Consumer drift (service-portal, 26 items) | 22 current, 4 stale, 0 modified |
 
 Reproduce with `pnpm verify`, `pnpm test`, `pnpm test:browser`,
@@ -62,7 +62,7 @@ the plan's open question 2 in the only way that matters, and makes
 
 `@bydiorama/tokens` ships the resolver, OKLCH ramp derivation, seed bounds and
 sanitisation, a completeness check (`missingTokens`, plus `check:utilities`),
-and programmatic contrast — `check:contrast` measures **168 pairs across 34
+and programmatic contrast — `check:contrast` measures **169 pairs across 35
 components in both schemes**, so no contrast figure in this repo is typed by
 hand.
 
@@ -76,7 +76,7 @@ Three of four emitters are built: `emit/css.ts`, `emit/tailwind.ts`,
 
 ## Phase 2 — core primitives · **in progress, exit gate not met**
 
-34 components, each with the same five files (`.tsx`, `.doc.ts`,
+35 components, each with the same five files (`.tsx`, `.doc.ts`,
 `.stories.tsx`, `.browser.test.tsx`, `.types.test.tsx`); Select carries a sixth.
 The discipline has held across every addition.
 
@@ -86,15 +86,29 @@ Two of the three exit-gate items the 2026-08-07 assessment added:
       top blocker — every overlay component sat on a dead release candidate
       under a retired package name, and the manifest handed that pin to every
       consumer. ADR 0012's wrapper rule is what made it cheap.
-- [ ] **Linux visual baselines.** All 124 committed baselines are
-      `-chromium-darwin`; the CI `visual` job requires `-chromium-linux` and
-      exits 1 with an instruction. Note what this means: `check:visual-coverage`
-      asserts each component has a *named case in the matrix source*, not that a
-      baseline exists — so `pnpm verify` stays green while nothing is being
-      compared. **34 components currently have no visual regression protection
-      at all.** One workflow run fixes it: run **Generate visual baselines**,
-      download the artifact, unzip over `registry/visual/__screenshots__/`,
-      *look at the PNGs*, commit. *(task #42)*
+- [ ] **Linux visual baselines.** All 70 baselines are `-chromium-darwin`;
+      the CI `visual` job requires `-chromium-linux` and exits 1 with an
+      instruction. Note what this means: `check:visual-coverage` asserts each
+      component has a *named case in the matrix source*, not that a baseline
+      exists — so `pnpm verify` stays green while nothing is being compared in
+      CI. **35 components have no visual regression protection there.** One
+      workflow run fixes it: run **Generate visual baselines**, download the
+      artifact, unzip over `registry/visual/__screenshots__/`, *look at the
+      PNGs*, commit. *(task #42)*
+
+      The count in this row was **124** until 2026-08-16 and had never been
+      true — there are 35 cases in two schemes, and `ls` says 70. It is the
+      exact failure this file's preamble describes, sitting in the file that
+      describes it.
+- [x] **Five stale darwin baselines regenerated** (2026-08-16) — `badge`,
+      `header`, `sidebar`, `nav-rail`, `sheet`, both schemes. Each had drifted
+      from the 2026-08-10 styling commits (`d9e8ab2`, `de3d367`, `4096ba8`) and
+      no one had re-run the gate since. Reviewed old against new before
+      committing: badge's neutral chip gains its edge, header's bar joins the
+      page ground and its nav items recede, sidebar and nav-rail drop the
+      current row's bold weight — all four are the committed changes, and every
+      image kept its exact pixel dimensions, so neither the crop nor the
+      downscale defect has returned.
 - [ ] **Ship the primitives the consumer actually renders** — see below.
 
 ### The build queue is not ordered by need
@@ -106,7 +120,6 @@ Re-measured against `service-portal/src` on 2026-08-13:
 
 | Unbuilt | Call sites (2026-08-07) | Call sites (2026-08-13) |
 |---|---:|---:|
-| **Skeleton** | 46 | **46** |
 | **InlineAlert** | 10 | **13** |
 | **Toast** | 10 | **12** |
 | Tag | 4 | 6 |
@@ -121,9 +134,15 @@ Thumbnail. Table and EmptyState were on the priority list and are real wins.
 The rest came from `TODO.md`'s design list, which is ordered by when something
 was drawn — so **that list, not the consumer, is currently setting the order.**
 
-Skeleton alone has more call sites than Modal, and nothing in the portal renders
-without it. `Divider` remains a "quick win" with zero consumers; build it, and
-Tooltip, last or not at all.
+**Skeleton shipped on 2026-08-16 — and NOT for the portal.** It was asked for
+as preparation for a different project, with the portal's 46 call sites
+explicitly out of scope. Worth recording, because those 46 sites were this
+file's headline argument for building it and they are still unserved: the
+portal has to adopt it deliberately, and until it does the queue below is
+shorter without being any closer to what the consumer renders.
+
+`Divider` remains a "quick win" with zero consumers; build it, and Tooltip,
+last or not at all.
 
 - [ ] Decide whether **Banner covers InlineAlert.** Banner is already "an inline
       message attached to the surface it belongs to — not a toast, not a dialog"
@@ -134,8 +153,8 @@ Tooltip, last or not at all.
 
 ### The declared-gap backlog is growing faster than it is cleared
 
-122 gaps across 25 of 34 docs, up from 22 across 21 on 2026-08-07 — roughly nine
-per component shipped. The gate is working exactly as designed: every value the
+127 gaps across all 35 docs, up from 22 across 21 on 2026-08-07 — roughly nine
+per component shipped, and no component is now without one. The gate is working exactly as designed: every value the
 code derived because a sheet did not answer it is attributed rather than
 silently invented, and `pnpm design:gaps` prints the current set.
 
@@ -143,51 +162,47 @@ But it is a queue only a person can clear, four of them are already blocked on a
 decision nobody has made (`TODO.md`), and Phase 3 inherits all of it. Worth a
 triage pass before the block work starts, not during it.
 
-### Motion · **tokens and CSS done; runtime deferred deliberately**
+### Motion · **tokens, CSS, gate and test done; runtime deferred deliberately**
 
-Measured 2026-08-14 with `pnpm check:motion`. The token tier from ADR 0005 has
-held without enforcement: **zero hard-coded durations and zero literal easings**
-across the 26 component files carrying transitions, and 28 of 34 components
-animate something.
+Measured 2026-08-16 with `pnpm check:motion` and
+`registry/ui/motion.browser.test.tsx`. The token tier from ADR 0005 held
+without enforcement — **zero hard-coded durations and zero literal easings** —
+and 29 of 35 components animate something.
 
-ADR 0018 settles the rest and amends two clauses of 0005 that described things
-which did not exist — its "optional peer dependency" mechanism (never built;
-optionality is item granularity) and its claim that the token-layer collapse
-covers all CSS motion (it does not reach keyframes, which carry their own
-timing).
+ADR 0018 settles the runtime and amends 0005 twice; its own clause 2 was then
+corrected by measurement, which is the part worth reading.
 
 - [x] `check:motion` — literals, `transition-all`, unguarded keyframes, and an
-      animating component with no `motion:` note. 17 gates now.
-- [x] 27 doc files gained a `motion:` note; Sheet's and ImageUpload's were
-      promoted out of `a11y` to the top level.
+      animating component with no `motion:` note. 17 gates.
+- [x] 28 doc files carry a `motion:` note; two were promoted out of `a11y`.
 - [x] `peerDependencies` removed from 35 items; `check:manifest` rejects any
       key the builders do not emit.
-- [ ] **Nothing tests that motion RUNS.** `check:motion` reads source, so it
-      proves a class is present, not that a property moves — and a visual
-      baseline is one static frame. The assertion that would close this
-      compares a resolved animation's duration against the token it names, in
-      a shared browser probe beside `icon-slot` and `overlay-viewport`. This is
-      the highest-leverage motion item left.
-- [ ] **Run the `getAnimations()` probe** before any runtime is adopted. Base
-      UI `flushSync`-unmounts once `element.getAnimations()` resolves, so a JS
-      animation it cannot see is one it will unmount underneath. ADR 0018
-      clause 2 is an assumption until this assertion exists.
-- [ ] **`lib/motion`.** The triple
-      `transition-[…] duration-(--ui-duration-fast) ease-(--ui-ease-out)`
-      appears in 20+ places, hand-assembled, naming an intent
-      (`--ui-motion-micro`) that already exists. A recipe in the shape of
-      `chrome-control`, which several components already take their motion
-      from.
-- [ ] **Sidebar's collapsible section snaps** — `hidden={!expanded}` — where
-      Accordion animates the identical interaction against Base UI's published
-      height. Recorded in Sidebar's `motion:` note. Cheapest visible fix on the
-      list.
+- [x] **The `getAnimations()` probe is run.** `motion@13.1.0` in Chromium: the
+      main package's `animate()` registers **zero** WAAPI animations for every
+      property tried, `motion/mini`'s registers one. ADR 0018 said the
+      imperative API was the safe half; it is the `mini` ENTRY POINT, and
+      nothing in the call site, the types or the rendered result distinguishes
+      them. A consumer would have met it as a popup that vanishes instead of
+      fading.
+- [x] **Motion is tested.** Ten assertions through `getAnimations()` — the only
+      thing that can tell a working transition from a declared one.
+- [x] `lib/motion` — 49 hand-assembled timings across 28 files, now three
+      constants.
+- [x] Sidebar's collapsible section animates against
+      `--collapsible-panel-height`, as Accordion does.
+- [x] `--ui-duration-loop`, so Skeleton's pulse stops being Tailwind's 2s.
 
-Where motion should go next, by consumer need rather than by drawing order:
-**Skeleton** (46 call sites, and it *is* a motion component), then Sidebar's
-section, then **Toast** (12 sites — the first component that will genuinely
-test whether the CSS tier is enough, and the honest forcing function for
-adopting a runtime).
+What is left is a question for a person, not a task:
+
+- [ ] **The curve vocabulary has almost no consumers.** `--ui-ease-default`,
+      `--ui-ease-in`, `--ui-ease-spring` and all four `--ui-motion-*` intents
+      have one consumer between them, while `--ui-ease-out` is used fifty
+      times out of fifty. Either the components under-use the vocabulary or
+      the vocabulary is bigger than the system needs. A token nothing consumes
+      is a guess — the lesson `--ui-nav-rail-width` already taught.
+- [ ] **No runtime is adopted, and none is needed.** Layout/shared-element
+      animation is the only case neither CSS nor `motion/mini` covers, and
+      nothing in the library asks for it.
 
 ## Phase 3 — molecules, blocks and patterns · **not started in code**
 
@@ -257,8 +272,9 @@ In the order that removes the most risk per unit of work:
 
 1. Commit the Linux visual baselines. One workflow run; turns a gate that
    currently measures nothing into protection for all 34 components.
-2. Ship **Skeleton** (46 call sites), then resolve **Banner vs InlineAlert**
-   (13), then **Toast** (12).
+2. Adopt **Skeleton** in the portal (46 call sites — the component shipped
+   2026-08-16 for another project; the portal has not taken it up), then
+   resolve **Banner vs InlineAlert** (13), then **Toast** (12).
 3. Triage the 122 declared gaps — starting with the four blocked on a person,
    which no amount of implementation effort can clear.
 4. Re-order `TODO.md`'s design queue by consumer call sites, so the next twelve

@@ -114,7 +114,7 @@ Sidebar                    label (required) / isLabelHidden?
   ],
 
   motion:
-    "Rows and the section trigger transition `background-color` and `color`, the section chevron rotates, and the search field transitions `outline-color` and `box-shadow` — all at --ui-duration-fast with --ui-ease-out. A collapsible SECTION does not animate: its list is shown and hidden with the `hidden` attribute, so the rows snap in and out while Accordion animates the identical interaction against Base UI's published height. That divergence is a gap, not a decision.",
+    "Rows and the section trigger transition `background-color` and `color`, the section chevron rotates, and the search field transitions `outline-color` and `box-shadow` — all `motionMicro` (--ui-duration-fast, --ui-ease-out). A collapsible SECTION animates its height at `motionStandard` against `--collapsible-panel-height`, the measurement Base UI publishes: `height: auto` cannot be transitioned and a constant would clip a section with more rows than the artboard drew. It used to snap, shown and hidden with the `hidden` attribute, while Accordion animated the identical interaction one component over — the divergence is closed by taking the behaviour layer's answer rather than writing a third. The hard part is not the height but the ORDERING: `hidden` must stay off until the closing animation finishes, or the rows blank before the space closes, and must go back on afterwards, or a collapsed section is flat but still in the tab order. Both halves are asserted. A non-collapsible section has none of this — it is a heading and a list.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/ZCP-0",
 } as const;

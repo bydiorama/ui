@@ -5,6 +5,7 @@ import { Check, ChevronDown } from "griddy-icons";
 import { useId, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
+import { motionMicro } from "@/lib/motion";
 
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
@@ -133,7 +134,7 @@ export function Select({
               "flex w-full items-center justify-between gap-sm rounded-md",
               SIZE[size],
               "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
-              "transition-[border-color,box-shadow] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+              "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               invalid && "border-danger",
               "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
@@ -206,7 +207,7 @@ export function Select({
                   // viewport, so on a short window the panel simply ran off it.
                   "max-h-(--available-height) max-w-(--available-width) overflow-y-auto",
                   "border bg-surface border-edge-subtle shadow-md",
-                  "transition-[opacity,scale] duration-(--ui-duration-fast) ease-(--ui-ease-out)",
+                  "transition-[opacity,scale]", motionMicro,
                   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
                   "data-[starting-style]:scale-98 data-[ending-style]:scale-98",
                 ),

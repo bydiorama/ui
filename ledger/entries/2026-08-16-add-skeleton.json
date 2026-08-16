@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-16-add-skeleton",
+  "date": "2026-08-16",
+  "item": "skeleton",
+  "kind": "addition",
+  "summary": "Skeleton — a placeholder standing in for content that has not arrived. The smallest component in the library on purpose: one div, no props of its own, sized entirely from the outside with className, which keeps it shape-compatible with shadcn/ui's Skeleton so a consumer's intuition transfers. A `lines` or `variant` vocabulary was considered and rejected: every version of it re-describes the layout the skeleton is standing in for, and that layout is already written beside it, so a shape is composed at the call site instead. Three things it does that shadcn's does not, each closing a real failure. It defaults to h-4 w-full, because a className-sized placeholder rendered without one is a 0px box and a component that draws nothing reads as broken rather than as loading. It fills with --ui-bg-sunken, the same recessed well Table's internal loading bars, AspectRatio, Thumbnail and Avatar already use, rather than inventing a placeholder role. And it is aria-hidden by default, because a screen reader announcing a dozen empty boxes says nothing anyone can act on — the announcement belongs on the region as aria-busy, which only the caller can place. That attribute is set BEFORE the prop spread rather than after, the one deliberate exception to the CONVENTIONS section 5 contract-props-win rule, so a caller standing one skeleton in for one named thing can label it; the browser test asserts the escape hatch so a tidy-up cannot silently remove it. The pulse is motion-safe:animate-pulse — required rather than stylistic, since a keyframe carries its own timing and the token layer's duration collapse cannot reach it (ADR 0018). BUILT WITHOUT A DESIGN SPEC: design/paper/README.md lists Skeleton among the sheets still to be drawn, so all five needsDesign entries are open questions rather than defects, including the one the library cannot answer for itself — Table's bars are 10px and static where this is 16px and pulsing, which is two placeholder treatments for one idea, recorded rather than hidden.",
+  "affects": [
+    "item:skeleton",
+    "slot:skeleton",
+    "token:--ui-bg-sunken"
+  ],
+  "migration": {
+    "manual": "New item; nothing to migrate. `npx @bydiorama/ui add skeleton` installs ui/skeleton.tsx and its doc. Note it does NOT replace Table's loading body, which draws its own bars on the lane widths its header defines."
+  }
+}

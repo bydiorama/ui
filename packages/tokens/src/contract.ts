@@ -296,6 +296,7 @@ export const FIXED_TOKENS = [
   // Motion. Durations collapse under prefers-reduced-motion at this layer, so
   // every CSS-driven animation in the system complies without per-component work.
   "--ui-duration-fast", "--ui-duration-base", "--ui-duration-slow", "--ui-duration-enter",
+  "--ui-duration-loop",
   "--ui-ease-default", "--ui-ease-in", "--ui-ease-out", "--ui-ease-spring",
   "--ui-motion-micro", "--ui-motion-standard", "--ui-motion-deliberate", "--ui-motion-choreographed",
 

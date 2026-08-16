@@ -20,6 +20,18 @@
       "status": "stable"
     },
     {
+      "name": "motion",
+      "type": "lib",
+      "description": "The three timings this library animates at, as class-name constants: motionMicro (interaction feedback), motionStandard (a surface arriving or leaving) and motionDeliberate (an unfolding). The property list stays at the call site because Tailwind compiles the class names it finds by scanning source text — a recipe that interpolated `transition-[${properties}]` would generate no rule and the element would silently not animate. Written after the same duration/easing pair was hand-assembled fifty times, which also revealed that the library uses --ui-ease-out in fifty cases out of fifty while the token layer offers four easings and four --ui-motion-* intents with no consumers at all.",
+      "files": [
+        {
+          "path": "registry/lib/motion/motion.ts",
+          "target": "lib/motion.ts"
+        }
+      ],
+      "status": "stable"
+    },
+    {
       "name": "chrome-control",
       "type": "lib",
       "description": "The 32px chrome control: a square, softly-rounded button filled with --ui-bg-elevated and carrying no edge. Not a Button variant — every button type is either a fill with a matching edge or an edge on nothing, and this is the one shape that is a fill with no edge at all. It belongs to page chrome (a menu toggle, a back arrow, a calendar's month arrows) rather than to the action vocabulary. Exported as one recipe because it was independently reinvented four times before it had a name.",
@@ -29,7 +41,10 @@
           "target": "lib/chrome-control.ts"
         }
       ],
-      "status": "stable"
+      "status": "stable",
+      "registryDependencies": [
+        "motion"
+      ]
     },
     {
       "name": "menu-surface",
@@ -41,7 +56,10 @@
           "target": "lib/menu-surface.ts"
         }
       ],
-      "status": "stable"
+      "status": "stable",
+      "registryDependencies": [
+        "motion"
+      ]
     },
     {
       "name": "compose-event-handlers",
@@ -98,7 +116,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -122,7 +141,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "chrome-control"
+        "chrome-control",
+        "motion"
       ],
       "status": "stable"
     },
@@ -141,7 +161,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -163,7 +184,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -185,7 +207,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -209,7 +232,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "badge"
+        "badge",
+        "motion"
       ],
       "status": "stable"
     },
@@ -232,7 +256,8 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -292,7 +317,8 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -335,7 +361,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "chrome-control"
+        "chrome-control",
+        "motion"
       ],
       "status": "stable"
     },
@@ -408,7 +435,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "calendar"
+        "calendar",
+        "motion"
       ],
       "status": "stable"
     },
@@ -433,7 +461,8 @@
         "cn",
         "use-controllable-state",
         "button",
-        "compose-event-handlers"
+        "compose-event-handlers",
+        "motion"
       ],
       "status": "stable"
     },
@@ -457,7 +486,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "compose-event-handlers"
+        "compose-event-handlers",
+        "motion"
       ],
       "status": "stable"
     },
@@ -478,7 +508,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "compose-event-handlers"
+        "compose-event-handlers",
+        "motion"
       ],
       "status": "stable"
     },
@@ -497,7 +528,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -522,7 +554,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "chrome-control"
+        "chrome-control",
+        "motion"
       ],
       "status": "stable"
     },
@@ -545,7 +578,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "chrome-control"
+        "chrome-control",
+        "motion"
       ],
       "status": "stable"
     },
@@ -568,7 +602,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "use-controllable-state"
+        "use-controllable-state",
+        "motion"
       ],
       "status": "stable"
     },
@@ -590,7 +625,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -614,7 +650,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "chrome-control"
+        "chrome-control",
+        "motion"
       ],
       "status": "stable"
     },
@@ -636,7 +673,8 @@
         "@base-ui/react@1.7.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -659,7 +697,8 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -678,7 +717,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
@@ -739,14 +779,15 @@
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "motion"
       ],
       "status": "stable"
     },
     {
       "name": "image-upload",
       "type": "ui",
-      "description": "A form field whose control is a drop target. Four states \u2014 empty, busy, attached, rejected \u2014 plus a drag-over state the component owns. Built on a real <input type=\"file\">, so the keyboard path is the native picker rather than a re-implementation, and `browse` is a real button rather than the sheet's styled text. ImageUpload.File is one row mid-upload, drawn with a real Progress so its fill stays on the legible accent; ImageUpload.Grid and .Add are the multiple-image layout. errorText is what puts the field in `rejected`, so the message and the state cannot disagree.",
+      "description": "A form field whose control is a drop target. Four states — empty, busy, attached, rejected — plus a drag-over state the component owns. Built on a real <input type=\"file\">, so the keyboard path is the native picker rather than a re-implementation, and `browse` is a real button rather than the sheet's styled text. ImageUpload.File is one row mid-upload, drawn with a real Progress so its fill stays on the legible accent; ImageUpload.Grid and .Add are the multiple-image layout. errorText is what puts the field in `rejected`, so the message and the state cannot disagree.",
       "files": [
         {
           "path": "registry/ui/image-upload/image-upload.tsx",
@@ -762,14 +803,15 @@
       ],
       "registryDependencies": [
         "cn",
-        "progress"
+        "progress",
+        "motion"
       ],
       "status": "stable"
     },
     {
       "name": "image-edit",
       "type": "ui",
-      "description": "A crop stage with zoom and optional rotation. The crop WINDOW is fixed and the image moves behind it \u2014 by drag, and by the arrow keys, which the sheet draws no path for at all. Rectangular or circular; the circle is the avatar case, where the mask matches the destination and corner marks are deliberately absent. The stage is painted with the media ground rather than --ui-bg-emphasis, which IS the accent and would turn an image editor's stage into the brand colour. It is the body of a dialog, not the dialog: the caller wraps it in Modal and supplies the title, the close and the footer.",
+      "description": "A crop stage with zoom and optional rotation. The crop WINDOW is fixed and the image moves behind it — by drag, and by the arrow keys, which the sheet draws no path for at all. Rectangular or circular; the circle is the avatar case, where the mask matches the destination and corner marks are deliberately absent. The stage is painted with the media ground rather than --ui-bg-emphasis, which IS the accent and would turn an image editor's stage into the brand colour. It is the body of a dialog, not the dialog: the caller wraps it in Modal and supplies the title, the close and the footer.",
       "files": [
         {
           "path": "registry/ui/image-edit/image-edit.tsx",
@@ -786,7 +828,27 @@
       "registryDependencies": [
         "cn",
         "slider",
-        "use-controllable-state"
+        "use-controllable-state",
+        "motion"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "skeleton",
+      "type": "ui",
+      "description": "A placeholder standing in for content that has not arrived. One element, no variants, sized entirely from the outside with className — the same shape as shadcn/ui's Skeleton, so a consumer's intuition transfers, and deliberately not a vocabulary: a `lines` or `variant` prop only re-describes the layout the skeleton is standing in for, and that layout is already written beside it. Defaults to a full-width bar at body height so a bare <Skeleton /> is visible rather than a 0px box, fills with the same recessed well Table's own loading bars use, and pulses under motion-safe. aria-hidden by default — the announcement belongs on the region that is loading, as aria-busy, which only the caller can place.",
+      "files": [
+        {
+          "path": "registry/ui/skeleton/skeleton.tsx",
+          "target": "ui/skeleton.tsx"
+        },
+        {
+          "path": "registry/ui/skeleton/skeleton.doc.ts",
+          "target": "ui/skeleton.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn"
       ],
       "status": "stable"
     },
@@ -829,7 +891,9 @@
       "registryDependencies": [
         "cn",
         "checkbox",
-        "use-controllable-state"
+        "use-controllable-state",
+        "motion",
+        "skeleton"
       ],
       "status": "stable"
     },

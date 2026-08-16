@@ -101,6 +101,9 @@ Menu                       isOpen? / defaultIsOpen? / onOpenChange? / isModal?
     "The panel has one width, driven by min-w-56 and its content. The sheet draws a panel that fills its column.",
   ],
 
+  motion:
+    "All of it comes from `@/lib/menu-surface`, so it is identical to ContextMenu by construction: the panel fades on `opacity` through `data-[starting-style]`/`data-[ending-style]`, and rows transition `background-color` and `color`, everything at --ui-duration-fast with --ui-ease-out. The fade only actually runs on a CONTROLLED menu — routing open state through React is what makes the panel mount carrying `data-starting-style`, where the uncontrolled path measured a constant box from frame 0.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/K09-0",
 } as const;
 

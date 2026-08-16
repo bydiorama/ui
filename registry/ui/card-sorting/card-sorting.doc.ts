@@ -80,6 +80,9 @@ CardSorting                label (required) / order? / defaultOrder? / onOrderCh
     "The sheet draws the second card in an active state with a --ui-border-focus edge; that is rendered here as an outline rather than a border, so lifting a row cannot shift the layout by a pixel.",
   ],
 
+  motion:
+    "Only the ring moves: `outline-color` and `box-shadow` at --ui-duration-fast with --ui-ease-out. A reordered card does NOT animate to its new position — the row appears where it landed. Under prefers-reduced-motion that is the correct behaviour anyway; for everyone else it is a declared refinement rather than a decision (see needsDesign).",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D5I-0",
 } as const;
 

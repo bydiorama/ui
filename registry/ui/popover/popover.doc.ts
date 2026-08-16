@@ -82,6 +82,9 @@ Popover                      isOpen? / defaultIsOpen? / onOpenChange? / isModal?
     "The actions row is composed at the call site rather than being a Popover.Actions part — the sheet sits it flush at the panel padding while title and description take the inset, so it is deliberately not wrapped.",
   ],
 
+  motion:
+    "The panel fades and scales from 98% at --ui-duration-fast with --ui-ease-out, through `data-[starting-style]`/`data-[ending-style]`. `scale` is named in the transition list for the same reason as Modal's — Tailwind v4 writes it standalone, and a list naming `transform` left this panel snapping open.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CXA-0",
 } as const;
 

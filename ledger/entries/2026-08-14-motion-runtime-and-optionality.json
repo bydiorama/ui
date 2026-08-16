@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-14-motion-runtime-and-optionality",
+  "date": "2026-08-14",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0018 settles the motion runtime and amends 0005. Motion (motion.dev) is the runtime WHEN one is earned, reached through the imperative animate()/useAnimate API and never through <motion.*> components — because Base UI gates every exit on element.getAnimations() and flushSync-unmounts once it resolves, so an animation the behaviour layer cannot see is one it will unmount underneath. No runtime is adopted by this decision: every high-need component left in the queue is reachable with CSS and the measurements Base UI already publishes, and a dependency with no call site is what the Paper emitter is already being deferred for. Two of 0005's clauses were describing things that did not exist. Its 'optional peer dependency' mechanism was never built, so optionality is restated as ITEM GRANULARITY — source distribution means a consumer who never adds an item never installs its dependencies, which is what the clause was reaching for and the distribution model already provides. And its claim that the token-layer duration collapse makes CSS motion compliant automatically holds for transitions but not for KEYFRAMES, which carry their own timing: animate-spin reads no duration token, so it needs its own motion-safe: or motion-reduce:animate-none guard.",
+  "affects": [
+    "decision:0018-motion-runtime",
+    "decision:0005-motion"
+  ]
+}

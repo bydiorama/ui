@@ -90,6 +90,9 @@ Slider
     "The steppers only work on a CONTROLLED slider. They read `value ?? defaultValue` and call onValueChange, so an uncontrolled slider with steppers steps once from its default and then stops — it has no way to read what the thumb has since been dragged to. Controlled is the only sensible pairing and the story shows it that way.",
   ],
 
+  motion:
+    "The thumb transitions `box-shadow` at --ui-duration-fast with --ui-ease-out, which is the focus ring settling. The thumb's POSITION is not transitioned — it tracks the pointer and the arrow keys directly, because interpolating there would put the control behind the input driving it.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D86-0",
 } as const;
 

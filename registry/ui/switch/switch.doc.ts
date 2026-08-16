@@ -66,6 +66,9 @@ Switch
     "The sheet's thumb shadow is a raw #9EDBF30D; this uses --ui-shadow-sm.",
   ],
 
+  motion:
+    "The track transitions `background-color`, `border-color` and `box-shadow`; the thumb travels on `transition-transform`. Both at --ui-duration-fast with --ui-ease-out, so the thumb moves rather than teleports, and the transform keeps the travel on the compositor and the track's geometry untouched. Note this is invisible to the visual gate: a Switch track is under 1% of its frame, which is below `allowedMismatchedPixelRatio` — the track could change colour entirely without tripping a diff.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GDR-0",
 } as const;
 

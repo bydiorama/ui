@@ -58,11 +58,6 @@
           "items": { "type": "string" },
           "description": "npm packages the consumer must install."
         },
-        "peerDependencies": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "Packages the consumer is expected to already have (react, griddy-icons, an optional motion runtime)."
-        },
         "registryDependencies": {
           "type": "array",
           "items": { "type": "string" },

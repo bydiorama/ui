@@ -8,7 +8,7 @@
 
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { readManifest, ROOT, ITEM_TYPES, BINARY_EXTENSIONS } from "./lib/manifest.mjs";
+import { readManifest, ROOT, ITEM_TYPES, ITEM_KEYS, BINARY_EXTENSIONS } from "./lib/manifest.mjs";
 
 const errors = [];
 const manifest = readManifest();
@@ -36,6 +36,20 @@ for (const [i, item] of (manifest.items ?? []).entries()) {
 
   if (!ITEM_TYPES.includes(item?.type)) {
     errors.push(`${where}: type must be one of ${ITEM_TYPES.join(", ")} (got ${JSON.stringify(item?.type)})`);
+  }
+
+  // A key nothing emits is documentation wearing configuration's clothes —
+  // see ITEM_KEYS. `peerDependencies` sat here for 35 items and reached no
+  // consumer; the schema even described it as the place an optional motion
+  // runtime would go (ADR 0018).
+  for (const key of Object.keys(item ?? {})) {
+    if (!ITEM_KEYS.has(key)) {
+      errors.push(
+        `${where}: unknown key "${key}". The manifest's vocabulary is ITEM_KEYS in ` +
+          `scripts/lib/manifest.mjs — add it there and teach buildIndex/buildItem to ` +
+          `emit it in the same edit, or it will not reach a consumer.`,
+      );
+    }
   }
 
   if (!item?.description?.trim()) {

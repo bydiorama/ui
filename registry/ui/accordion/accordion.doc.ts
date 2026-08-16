@@ -121,6 +121,9 @@ Accordion                       variant, headingLevel, value/defaultValue, isMul
     "Every panel is a role=region landmark, applied by the behaviour layer and not currently suppressible through this wrapper. The APG advises AGAINST the region role once panels are numerous, precisely because it proliferates landmarks — a 12-row FAQ adds 12 of them to the page's landmark list. Two consequences worth knowing before that becomes a problem: duplicate trigger text across a page fails axe's landmark-unique (see a11y.landmarks), and there is no opt-out here yet because none is drawn and removing a role the behaviour layer sets deliberately is not a change to make casually.",
   ],
 
+  motion:
+    "The chevron rotates 180 degrees and the panel's height animates between 0 and `--accordion-panel-height` — the measurement Base UI publishes, because `height: auto` cannot be transitioned and a constant would clip whatever does not fit. Trigger background and chevron at --ui-duration-fast, the panel at --ui-duration-base, both --ui-ease-out. `rotate` and `height` are named individually: Tailwind v4 writes `rotate-*` as the standalone `rotate` property, so a list naming `transform` would animate nothing.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EV6-0",
 } as const;
 

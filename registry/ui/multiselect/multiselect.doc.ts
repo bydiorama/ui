@@ -74,6 +74,9 @@ Multiselect
     "The panel is radius-md over a 4px inset around radius-sm children — the search field and every row — so §6 closes at 4 + 4 = 8. The sheet draws an 8px inset (J3M-0), which does not close on any radius the scale has; see the same note in select.doc.ts.",
   ],
 
+  motion:
+    "The trigger transitions `border-color` and `box-shadow` at --ui-duration-fast with --ui-ease-out; the list fades on `opacity` through `data-[starting-style]`/`data-[ending-style]` over the same timing. Chips have no enter or exit animation — a selection appears and disappears immediately, which keeps a fast multi-select from queueing motion behind itself.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/J2X-0",
 } as const;
 

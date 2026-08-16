@@ -26,7 +26,7 @@ read for compliance. This file carries only what is not yet true.
 
 Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 
-## Status — 2026-08-13, at `d9e8ab2`
+## Status — 2026-08-14
 
 | | |
 |---|---:|
@@ -34,8 +34,8 @@ Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 | — components | 34 |
 | — lib / hook / font / skill | 4 / 1 / 1 / 1 |
 | Generated registry items (`r/*.json`) | 41 |
-| Ledger entries / ADRs | 155 / 17 |
-| `pnpm verify` gates | 16, green |
+| Ledger entries / ADRs | 158 / 18 |
+| `pnpm verify` gates | 17, green |
 | Node tests | 100, green |
 | Browser tests — contract + story a11y | 886 across 74 files, green |
 | Declared design gaps | 122, across 25 of 34 docs |
@@ -142,6 +142,52 @@ silently invented, and `pnpm design:gaps` prints the current set.
 But it is a queue only a person can clear, four of them are already blocked on a
 decision nobody has made (`TODO.md`), and Phase 3 inherits all of it. Worth a
 triage pass before the block work starts, not during it.
+
+### Motion · **tokens and CSS done; runtime deferred deliberately**
+
+Measured 2026-08-14 with `pnpm check:motion`. The token tier from ADR 0005 has
+held without enforcement: **zero hard-coded durations and zero literal easings**
+across the 26 component files carrying transitions, and 28 of 34 components
+animate something.
+
+ADR 0018 settles the rest and amends two clauses of 0005 that described things
+which did not exist — its "optional peer dependency" mechanism (never built;
+optionality is item granularity) and its claim that the token-layer collapse
+covers all CSS motion (it does not reach keyframes, which carry their own
+timing).
+
+- [x] `check:motion` — literals, `transition-all`, unguarded keyframes, and an
+      animating component with no `motion:` note. 17 gates now.
+- [x] 27 doc files gained a `motion:` note; Sheet's and ImageUpload's were
+      promoted out of `a11y` to the top level.
+- [x] `peerDependencies` removed from 35 items; `check:manifest` rejects any
+      key the builders do not emit.
+- [ ] **Nothing tests that motion RUNS.** `check:motion` reads source, so it
+      proves a class is present, not that a property moves — and a visual
+      baseline is one static frame. The assertion that would close this
+      compares a resolved animation's duration against the token it names, in
+      a shared browser probe beside `icon-slot` and `overlay-viewport`. This is
+      the highest-leverage motion item left.
+- [ ] **Run the `getAnimations()` probe** before any runtime is adopted. Base
+      UI `flushSync`-unmounts once `element.getAnimations()` resolves, so a JS
+      animation it cannot see is one it will unmount underneath. ADR 0018
+      clause 2 is an assumption until this assertion exists.
+- [ ] **`lib/motion`.** The triple
+      `transition-[…] duration-(--ui-duration-fast) ease-(--ui-ease-out)`
+      appears in 20+ places, hand-assembled, naming an intent
+      (`--ui-motion-micro`) that already exists. A recipe in the shape of
+      `chrome-control`, which several components already take their motion
+      from.
+- [ ] **Sidebar's collapsible section snaps** — `hidden={!expanded}` — where
+      Accordion animates the identical interaction against Base UI's published
+      height. Recorded in Sidebar's `motion:` note. Cheapest visible fix on the
+      list.
+
+Where motion should go next, by consumer need rather than by drawing order:
+**Skeleton** (46 call sites, and it *is* a motion component), then Sidebar's
+section, then **Toast** (12 sites — the first component that will genuinely
+test whether the CSS tier is enough, and the honest forcing function for
+adopting a runtime).
 
 ## Phase 3 — molecules, blocks and patterns · **not started in code**
 

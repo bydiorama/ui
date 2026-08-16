@@ -113,6 +113,9 @@ Sidebar                    label (required) / isLabelHidden?
     "No section dividers. An Avatar and account menu are drawn in the mobile examples but belong to the composition around the rail, not to it.",
   ],
 
+  motion:
+    "Rows and the section trigger transition `background-color` and `color`, the section chevron rotates, and the search field transitions `outline-color` and `box-shadow` — all at --ui-duration-fast with --ui-ease-out. A collapsible SECTION does not animate: its list is shown and hidden with the `hidden` attribute, so the rows snap in and out while Accordion animates the identical interaction against Base UI's published height. That divergence is a gap, not a decision.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/ZCP-0",
 } as const;
 

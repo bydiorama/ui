@@ -75,6 +75,9 @@ Banner
     "No title/heading line, no action button inside the banner, no dark-scheme drawing — the resolver derives dark, unverified against a design.",
   ],
 
+  motion:
+    "Only the dismiss control moves — a colour transition at --ui-duration-fast with --ui-ease-out. The banner itself has no enter or exit animation: it is placed inline by the page rather than portalled, so its appearance is a layout change the consumer owns and can animate in context. This is the one component using Tailwind's `transition-colors` group where the rest of the library enumerates properties; the group is a fixed set rather than `all`, so it is legal, but it names more properties than actually change here.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/E2A-0",
 } as const;
 

@@ -113,6 +113,9 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
     "No visual-regression baseline — the matrix renders inline and a Drawer portals to document.body, the same exclusion Modal, Popover and Sheet have.",
   ],
 
+  motion:
+    "Two tiers, and this is the only component in the library with the second. CSS: the scrim fades and the panel translates from `translate-y-full` through `data-[starting-style]`/`data-[ending-style]`, both `transition-[translate,opacity]` at --ui-duration-base with --ui-ease-out. JavaScript: while a finger is down the transition is switched off (`transition-none`) and the panel's `translate` is written directly from pointer state, so it tracks the finger exactly instead of lagging a frame behind it. No motion runtime is involved. The drag deliberately does not consult prefers-reduced-motion — the panel is being moved BY the user, not animated at them; the token-layer collapse still governs the enter, exit and snap-back.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0",
   /** The half-open detent, drawn as its own frame inside the Drawer artboard. */
   designHalfOpen: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/J88-0",

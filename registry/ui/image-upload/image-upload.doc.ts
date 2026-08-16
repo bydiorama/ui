@@ -88,7 +88,6 @@ ImageUpload.Add    label (required)
     ],
     status: "The busy state is role=status, so an upload announces itself to a screen reader that is not watching the bar. The bar itself is a real Progress with aria-valuenow, named after the file.",
     error: "errorText sets aria-invalid on the input and is referenced by aria-describedby. The rejection is carried by the BORDER, the icon, the message and the reddened helper — never by colour alone (1.4.1).",
-    motion: "The spinner is CSS under motion-safe, so prefers-reduced-motion stops it at the token layer rather than per component.",
     contrastPairs: [
       { fg: "--ui-text-secondary", bg: "--ui-bg-base", floor: "text", role: "the field label" },
       { fg: "--ui-text-secondary", bg: "--ui-bg-elevated", floor: "text", role: "the prompt, and the busy status — NOT the sheet's --ui-text-disabled, which measures 1.94:1 here" },
@@ -138,6 +137,9 @@ ImageUpload.Add    label (required)
     "ImageUpload.File does not truncate the middle of a long name; it truncates the end, so two files differing only in their extension look alike.",
     "The busy state has no indeterminate form — ImageUpload.File without a `value` simply shows no bar.",
   ],
+
+  motion:
+    "The dropzone transitions `border-color` and `background-color` on drag-over; the browse and cancel controls transition `background-color` and `color`; all at --ui-duration-fast with --ui-ease-out. The busy spinner is a CSS keyframe under `motion-safe:`, and that variant — not the token layer — is what stops it under prefers-reduced-motion: `animate-spin` carries its own timing, so collapsing --ui-duration-* cannot reach it.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/OZD-0",
 } as const;

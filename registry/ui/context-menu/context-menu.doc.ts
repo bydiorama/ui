@@ -78,6 +78,9 @@ ContextMenu                  isOpen? / defaultIsOpen? / onOpenChange?
     "No checkbox or radio items, though Base UI provides both. The sheet draws neither.",
   ],
 
+  motion:
+    "All of it comes from `@/lib/menu-surface`, so it is identical to Menu by construction: the panel fades on `opacity` through `data-[starting-style]`/`data-[ending-style]`, and rows transition `background-color` and `color`, everything at --ui-duration-fast with --ui-ease-out. The panel deliberately does not scale — Base UI points `--transform-origin` at the anchor, which for a menu sits inside the panel, so scaling about it slid the panel's edge while it grew.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/KN4-0",
 } as const;
 

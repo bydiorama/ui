@@ -65,6 +65,9 @@ Progress
     "No intent colouring (a bar that turns danger near its limit) — not drawn.",
   ],
 
+  motion:
+    "The bar's `width` transitions at --ui-duration-base with --ui-ease-out. Width rather than a transform on purpose: scaling the fill would squash its rounded ends into ellipses. The transition names `width` alone, so a value arriving in steps reads as a fill advancing rather than as a series of jumps.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D8Q-0",
 } as const;
 

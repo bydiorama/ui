@@ -141,6 +141,9 @@ Modal
     "The two copies of the picture mean the image is fetched once but decoded twice; at these sizes that is cheaper than a canvas and it is what the sheet's own layer tree does.",
   ],
 
+  motion:
+    "One transition: the rule-of-thirds guide fades in on `opacity` at --ui-duration-fast with --ui-ease-out while the stage is being dragged. The image itself is direct manipulation — it follows the pointer with nothing interpolating between positions, because a transition there would lag the drag.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/P1P-0",
 } as const;
 

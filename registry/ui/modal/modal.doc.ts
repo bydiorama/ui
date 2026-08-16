@@ -82,6 +82,9 @@ Modal                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
     "No dark-scheme drawing of the surface or scrim; the resolver derives both.",
   ],
 
+  motion:
+    "The scrim fades and the panel fades and scales from 98%, both at --ui-duration-fast with --ui-ease-out, driven by `data-[starting-style]` and `data-[ending-style]`. `scale` is named explicitly in the transition list: Tailwind v4 writes `scale-*` as the standalone `scale` property, so the original list naming `transform` animated nothing and the modal snapped open at full size. Measured with getAnimations() in Chromium, which is how that became a fact rather than a theory.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GA9-0",
 } as const;
 

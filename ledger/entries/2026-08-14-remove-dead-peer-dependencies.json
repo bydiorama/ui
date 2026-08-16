@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-14-remove-dead-peer-dependencies",
+  "date": "2026-08-14",
+  "item": "system",
+  "kind": "fix",
+  "summary": "peerDependencies is removed from all 35 manifest items and from the schema, and check:manifest now rejects any item key the builders do not emit. The field never reached a consumer: buildIndex and buildItem never emitted it, so registry.json and r/*.json have never carried it — which is exactly why removing it leaves the generated registry byte-identical on the manifest change. It bought nothing that dependencies did not already buy either, since every one of the 35 declarations was react (which the registry deliberately never installs — see ASSUMED in check-dependencies.mjs), a package already in the item's own dependencies, or griddy-icons on button and input, neither of which imports it. check-dependencies.mjs already named this field in its header as the near miss that hid a real defect, because seven items on the behaviour layer looked like they had declared Base UI. The guard is deliberately the general form rather than a patch for this one field: ITEM_KEYS is declared in scripts/lib/manifest.mjs beside the builders that consume it, so adding a manifest key now means teaching the builders about it in the same edit. ADR 0018 restates what the field was for — an optional motion runtime, per its own schema description — as item granularity, which source distribution already provides.",
+  "affects": [
+    "decision:0018-motion-runtime",
+    "decision:0005-motion"
+  ],
+  "migration": {
+    "manual": "No consumer action. The field was never emitted into the registry, so nothing you installed ever contained it and no install behaviour changes. If you fork ui.manifest.json, drop peerDependencies from your items — check:manifest now fails on any key outside ITEM_KEYS."
+  }
+}

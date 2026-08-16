@@ -257,6 +257,9 @@ Table<Row>
     "The focus ring on a row is square; the sheet draws it at radius-sm. A <tr> cannot reliably take a border-radius in either border model, and the ring is drawn on the row rather than on its cells.",
   ],
 
+  motion:
+    "Rows transition `background-color` on hover; sortable header cells transition `background-color` and `color`; the sort indicator transitions `opacity` and `rotate`, so it fades in when a column is asked about and flips between ascending and descending. All at --ui-duration-fast with --ui-ease-out. `rotate` is named individually — Tailwind v4 writes it standalone. The glyph is always in the layout, so revealing it moves nothing.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/SWQ-0",
 } as const;
 

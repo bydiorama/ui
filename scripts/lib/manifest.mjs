@@ -17,6 +17,30 @@ export const ITEM_DIR = join(ROOT, "r");
 export const ITEM_TYPES = ["ui", "lib", "hook", "block", "theme", "file", "skill", "style"];
 
 /**
+ * Every key an item may carry — and, not by coincidence, every key that
+ * `buildIndex`/`buildItem` below know how to emit.
+ *
+ * This list exists because `peerDependencies` did not have to. Thirty-five
+ * items declared it, the schema documented it ("react, griddy-icons, an
+ * optional motion runtime"), and nothing in this file ever read it: it was
+ * never emitted into `registry.json` or `r/*.json`, so no consumer ever saw
+ * it and no CLI ever installed from it. `check-dependencies.mjs` names it in
+ * its own header as the near miss that made a real defect invisible — seven
+ * items on the behaviour layer looked like they had declared Base UI, because
+ * a field that reads exactly like configuration was sitting there being prose.
+ *
+ * A manifest key that nothing emits is worse than a missing one: it answers
+ * the question without doing the work. So the manifest's vocabulary is
+ * declared once, here, beside the code that turns it into output, and
+ * `validate-manifest` rejects anything else. Adding a key means teaching the
+ * builders about it in the same edit.
+ */
+export const ITEM_KEYS = new Set([
+  "name", "type", "description", "files", "status",
+  "dependencies", "registryDependencies", "docs",
+]);
+
+/**
  * Our vocabulary is not the transport's. `skill` says what the item IS, which
  * is what the manifest is for; the shadcn registry schema has no such type, so
  * it emits as `registry:file` — a plain file copied to a target, which is

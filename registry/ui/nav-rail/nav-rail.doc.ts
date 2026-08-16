@@ -87,6 +87,9 @@ it already was between Sidebar and Header.MenuButton. See ADR 0015.
     "check:controls does not see this component's <button>. The gate matches a literal `<button` in JSX and NavRail chooses its tag dynamically, exactly as Header and Sidebar do — the gate documents the limitation, and this is the third component to land in it.",
   ],
 
+  motion:
+    "Rows transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the current row is marked by its fill alone (ledger 2026-08-10-nav-current-row-is-fill-only), so nothing moves between rows and the rail never animates position.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/12HF-0",
 } as const;
 

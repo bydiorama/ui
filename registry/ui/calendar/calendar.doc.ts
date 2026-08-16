@@ -100,6 +100,9 @@ Calendar   label (required)
     "Day cells are square and fill the column, so their size follows the card's width rather than a token. At the sheet's 320px card they are 38px, comfortably over SC 2.5.8's floor, but a narrower container would shrink them.",
   ],
 
+  motion:
+    "Day cells and the weekday header transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out; the previous/next month arrows take theirs from `@/lib/chrome-control` rather than declaring their own. The month CHANGE is not animated — a new grid replaces the old one in place, so nothing slides between months.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CZN-0",
 } as const;
 

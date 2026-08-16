@@ -110,6 +110,9 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
     "No sticky or scrolled state, no elevation change on scroll — none is drawn.",
   ],
 
+  motion:
+    "Nav items transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out; the 32px menu toggle and avatar frame take theirs from `@/lib/chrome-control` rather than declaring their own, which is why this file carries only one transition for several moving parts.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/ZBB-0",
 } as const;
 

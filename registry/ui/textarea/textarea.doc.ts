@@ -157,6 +157,9 @@ Textarea
     "The resize grip is the browser's, so it is drawn in the UA's colours rather than the theme's. Styling it means ::-webkit-resizer, which is one engine only.",
   ],
 
+  motion:
+    "Transitions `border-color`, `box-shadow` and `background-color` at --ui-duration-fast with --ui-ease-out — the same list as Input, deliberately, because it is the same field wearing a different height.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D7G-0",
 } as const;
 

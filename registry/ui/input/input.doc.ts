@@ -106,6 +106,9 @@ Input
     "No read-only visual state; native readOnly renders as default today.",
   ],
 
+  motion:
+    "The field transitions `border-color`, `box-shadow` and `background-color` at --ui-duration-fast with --ui-ease-out, so focus and a validity change arrive as a settle rather than a flash. Nothing else moves; the label and helper text are static.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CLH-0",
 } as const;
 

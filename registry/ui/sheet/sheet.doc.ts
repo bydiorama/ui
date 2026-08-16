@@ -72,7 +72,6 @@ Sheet                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
       { key: "Tab", does: "Cycles within the panel only; focus cannot reach the page behind." },
     ],
     focus: "Focus moves into the panel on open and returns to the trigger on close. Both asserted in a real browser — focus falling to <body> is the classic hand-rolled-drawer failure.",
-    motion: "The panel translates in from its edge. `translate` is named explicitly in the transition: Tailwind v4's translate-* writes the standalone property, so a list naming `transform` animates nothing — the defect that had Modal and Popover snapping open. Durations come from --ui-duration-*, which collapse to 1ms under prefers-reduced-motion.",
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "content on the panel" },
     ],
@@ -91,6 +90,9 @@ Sheet                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
     "No visual-regression baseline. The matrix renders components inline and a Sheet portals to document.body, so it is excluded for the same reason Modal and Popover are — its states are covered by the browser contract suite instead.",
     "Brand re-skinning needs `container` — it is not automatic. Without it the panel portals to document.body and leaves the themed subtree; both halves are asserted in the browser suite, and the BrandThemed story passes it. Multiselect's panel still has no equivalent.",
   ],
+
+  motion:
+    "The panel translates in from its edge and the scrim fades, both at --ui-duration-base with --ui-ease-out. `translate` is named explicitly in the transition: Tailwind v4's translate-* writes the standalone property, so a list naming `transform` animates nothing — the defect that had Modal and Popover snapping open. Durations come from --ui-duration-*, which collapse to 1ms under prefers-reduced-motion.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/HE2-0",
 } as const;

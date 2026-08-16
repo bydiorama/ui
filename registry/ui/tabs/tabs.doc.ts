@@ -87,6 +87,9 @@ Tabs                     value? / defaultValue? / onValueChange?
     "No Base UI Indicator (the sliding highlight); the sheet fills the selected tab instead.",
   ],
 
+  motion:
+    "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D7G-0",
 } as const;
 

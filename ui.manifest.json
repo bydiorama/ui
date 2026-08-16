@@ -65,9 +65,6 @@
           "target": "hooks/use-controllable-state.ts"
         }
       ],
-      "peerDependencies": [
-        "react"
-      ],
       "status": "stable"
     },
     {
@@ -103,10 +100,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -131,11 +124,6 @@
         "cn",
         "chrome-control"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -154,10 +142,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
       ],
       "status": "stable"
     },
@@ -181,10 +165,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react"
-      ],
       "status": "stable"
     },
     {
@@ -206,10 +186,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -235,11 +211,6 @@
         "cn",
         "badge"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -263,11 +234,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -287,9 +253,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react"
-      ],
       "status": "stable"
     },
     {
@@ -308,9 +271,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react"
       ],
       "status": "stable"
     },
@@ -334,10 +294,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -356,9 +312,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react"
       ],
       "status": "stable"
     },
@@ -384,10 +337,6 @@
         "use-controllable-state",
         "chrome-control"
       ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -412,11 +361,6 @@
         "cn",
         "menu-surface"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -440,10 +384,6 @@
         "cn",
         "menu-surface",
         "menu"
-      ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -470,11 +410,6 @@
         "use-controllable-state",
         "calendar"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -500,10 +435,6 @@
         "button",
         "compose-event-handlers"
       ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -528,10 +459,6 @@
         "use-controllable-state",
         "compose-event-handlers"
       ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -553,9 +480,6 @@
         "use-controllable-state",
         "compose-event-handlers"
       ],
-      "peerDependencies": [
-        "react"
-      ],
       "status": "stable"
     },
     {
@@ -574,9 +498,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react"
       ],
       "status": "stable"
     },
@@ -603,11 +524,6 @@
         "use-controllable-state",
         "chrome-control"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -630,10 +546,6 @@
       "registryDependencies": [
         "cn",
         "chrome-control"
-      ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -658,10 +570,6 @@
         "cn",
         "use-controllable-state"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react"
-      ],
       "status": "stable"
     },
     {
@@ -683,10 +591,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -712,11 +616,6 @@
         "cn",
         "chrome-control"
       ],
-      "peerDependencies": [
-        "@base-ui/react",
-        "griddy-icons",
-        "react"
-      ],
       "status": "stable"
     },
     {
@@ -738,10 +637,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react"
       ],
       "status": "stable"
     },
@@ -766,11 +661,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react",
-        "@base-ui/react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -789,9 +679,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react"
       ],
       "status": "stable"
     },
@@ -812,9 +699,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react"
-      ],
       "status": "stable"
     },
     {
@@ -834,9 +718,6 @@
       "registryDependencies": [
         "cn",
         "aspect-ratio"
-      ],
-      "peerDependencies": [
-        "react"
       ],
       "status": "stable"
     },
@@ -860,10 +741,6 @@
       "registryDependencies": [
         "cn"
       ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -886,10 +763,6 @@
       "registryDependencies": [
         "cn",
         "progress"
-      ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
       ],
       "status": "stable"
     },
@@ -915,10 +788,6 @@
         "slider",
         "use-controllable-state"
       ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
-      ],
       "status": "stable"
     },
     {
@@ -937,9 +806,6 @@
       ],
       "registryDependencies": [
         "cn"
-      ],
-      "peerDependencies": [
-        "react"
       ],
       "status": "stable"
     },
@@ -964,10 +830,6 @@
         "cn",
         "checkbox",
         "use-controllable-state"
-      ],
-      "peerDependencies": [
-        "react",
-        "griddy-icons"
       ],
       "status": "stable"
     },

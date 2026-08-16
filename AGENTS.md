@@ -41,6 +41,7 @@ to be read, owned and modified downstream.
 | `pnpm skills:build` | Regenerate `.claude/skills/` from `registry/skills/` |
 | `pnpm check:skills` | Fail on a broken skill contract or a stale generated copy |
 | `pnpm check:boundaries` | Fail if the behaviour layer leaks into a public signature |
+| `pnpm check:motion` | Fail on a literal duration, an unguarded keyframe, or undocumented motion |
 | `pnpm ledger:new` | Scaffold a change-ledger entry |
 | `pnpm type-check` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |

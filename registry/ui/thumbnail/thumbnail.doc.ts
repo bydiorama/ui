@@ -139,6 +139,9 @@ Thumbnail.Group
     "outline-width AND outline-offset both snap to whole device pixels, so the 1.5px hairline computes to 1px inset 1px at dPR 1 and is exact at dPR 2. Pinned in border-hairline.browser.test.tsx rather than re-investigated.",
   ],
 
+  motion:
+    "Three, and they are unusually varied for one component. The image fades in on `opacity` at --ui-duration-fast. The busy spinner is a CSS keyframe under `motion-safe:`, and that variant — not the token layer — is what stops it under prefers-reduced-motion, because `animate-spin` carries its own timing. A stacked group animates `margin-inline-start` at --ui-duration-slow with --ui-ease-out as it unfolds: slow and easing out on purpose, since at --ui-duration-base on the standard curve a stack of four read as a snap rather than a settle.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/NT7-0",
 } as const;
 

@@ -95,6 +95,9 @@ Checkbox
     "The row centres its content (`items-center`), matching the sheet. A label wrapping to several lines therefore centres against the box rather than aligning to its first line; the sheet draws only single-line labels.",
   ],
 
+  motion:
+    "The box transitions `background-color`, `border-color` and `box-shadow` at --ui-duration-fast with --ui-ease-out. The tick is not separately animated — it is present or it is not, so the checked state is readable the instant it changes rather than a frame later.",
+
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D21-0",
 } as const;
 

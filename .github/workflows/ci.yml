@@ -79,6 +79,15 @@ jobs:
       - name: Pointer gestures have a keyboard path
         run: node scripts/check-gestures.mjs
 
+      # The token layer collapses durations under prefers-reduced-motion, which
+      # covers every CSS transition for free — and reaches no keyframe, because
+      # `animate-spin` carries its own timing. Motion is also the one thing no
+      # other gate can describe: contrast measures its colours, check:utilities
+      # resolves its classes, and a visual baseline is a single frame in which
+      # nothing is moving.
+      - name: Motion is tokenised, guarded and documented
+        run: node scripts/check-motion.mjs
+
       # Storybook's CSF indexer calls every named export in a story file as a
       # story, so a shared constant beside them crashes processCSFFile and the
       # file fails to load — invisible to tsc, ESLint and the stories vitest

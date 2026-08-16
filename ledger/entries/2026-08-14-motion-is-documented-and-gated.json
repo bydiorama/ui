@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-14-motion-is-documented-and-gated",
+  "date": "2026-08-14",
+  "item": "system",
+  "kind": "addition",
+  "summary": "check:motion joins the gate list, and every animating component now documents its motion. The gate rejects a literal duration or easing in registry/ (a discipline that was already perfect — zero hard-coded durations across 26 files — and had nothing keeping it that way), transition-all (CONVENTIONS section 6 has said this since the beginning and nothing enforced it), a keyframe with no reduced-motion guard, and an animating component with no top-level motion: note in its doc. It reads lib recipes alongside components as check:overlays does, so Header's motion is found in @/lib/chrome-control where it actually lives rather than reported as absent. 27 doc files gain a motion: note describing what moves, what drives it and what reduced motion does to it; Sheet's and ImageUpload's existing notes are PROMOTED out of a11y to the top level, where Button already had its, because motion is a description of what a component does rather than solely an accessibility concern and a field meaning one thing at two depths stops being findable. ImageUpload's note is corrected while being promoted: it credited the token layer with stopping its spinner, and what actually stops it is the motion-safe: variant. Two findings are recorded in the notes rather than fixed: Sidebar's collapsible section snaps via the hidden attribute where Accordion animates the identical interaction against Base UI's published height, and Banner reaches for transition-colors where the rest of the library enumerates properties. No component's rendered motion changes; no .tsx is touched.",
+  "affects": [
+    "item:accordion",
+    "item:banner",
+    "item:calendar",
+    "item:card-sorting",
+    "item:checkbox",
+    "item:context-menu",
+    "item:date-picker",
+    "item:drawer",
+    "item:header",
+    "item:image-edit",
+    "item:image-upload",
+    "item:input",
+    "item:menu",
+    "item:modal",
+    "item:multiselect",
+    "item:nav-rail",
+    "item:popover",
+    "item:progress",
+    "item:select",
+    "item:sheet",
+    "item:sidebar",
+    "item:slider",
+    "item:switch",
+    "item:table",
+    "item:tabs",
+    "item:textarea",
+    "item:thumbnail",
+    "decision:0018-motion-runtime"
+  ],
+  "migration": {
+    "manual": "Documentation only — every change is inside a *.doc.ts, and no component's classes or rendered motion moved. If you consume the doc files and read `a11y.motion`, it has moved to the top-level `motion` key on Sheet and ImageUpload; Button was already there and the other 27 are new."
+  }
+}

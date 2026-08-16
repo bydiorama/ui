@@ -271,11 +271,11 @@ item rather than five teams misbehaving. It needs consumer #2 to say anything.
 In the order that removes the most risk per unit of work:
 
 1. Commit the Linux visual baselines. One workflow run; turns a gate that
-   currently measures nothing into protection for all 34 components.
+   currently measures nothing into protection for all 35 components.
 2. Adopt **Skeleton** in the portal (46 call sites — the component shipped
    2026-08-16 for another project; the portal has not taken it up), then
    resolve **Banner vs InlineAlert** (13), then **Toast** (12).
-3. Triage the 122 declared gaps — starting with the four blocked on a person,
+3. Triage the 127 declared gaps — starting with the four blocked on a person,
    which no amount of implementation effort can clear.
 4. Re-order `TODO.md`'s design queue by consumer call sites, so the next twelve
    components are not chosen by drawing order either.

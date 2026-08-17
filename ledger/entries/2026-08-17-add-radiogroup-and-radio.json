@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-17-add-radiogroup-and-radio",
+  "date": "2026-08-17",
+  "item": "radio",
+  "kind": "addition",
+  "summary": "The GROUP is the component and the option is its item: RadioGroup owns the legend, the shared name, the selection and the error, and a <Radio> outside one throws rather than rendering something nobody can name. A real fieldset around real radio inputs, so arrow-key navigation, the single tab stop, form participation and the legend-as-part-of-every-name come from the platform and nothing is reached for. Checkbox's geometry with a circle and a dot — 18px control, 1px edge, 8px dot, 24px row — asserted as a RELATIONSHIP against Checkbox in the browser test rather than as numbers on each, so the pair cannot drift apart while both suites stay green. Carries a geometry spec: two cases, the options run and the control, which takes design-spec coverage from one item to two.",
+  "affects": [
+    "prop:label",
+    "prop:name",
+    "prop:value",
+    "prop:defaultValue",
+    "prop:onValueChange",
+    "prop:orientation",
+    "prop:isDisabled",
+    "prop:isInvalid",
+    "prop:errorText",
+    "prop:helperText",
+    "slot:radio-group",
+    "slot:radio-group-label",
+    "slot:radio-group-options",
+    "slot:radio",
+    "slot:input",
+    "slot:control",
+    "slot:dot",
+    "slot:label",
+    "slot:radio-description",
+    "slot:radio-group-error",
+    "slot:radio-group-helper"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2AIX-0"
+  }
+}

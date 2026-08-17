@@ -46,3 +46,51 @@ export const motionStandard = "duration-(--ui-duration-base) ease-(--ui-ease-out
  * real and the next component that unfolds should not re-derive it.
  */
 export const motionDeliberate = "duration-(--ui-duration-slow) ease-(--ui-ease-out)";
+
+/**
+ * Hover intent — the wait BEFORE anything happens.
+ *
+ * These are the first timings in the library that are not durations, and the
+ * distinction is the whole reason they are numbers here rather than
+ * `--ui-duration-*` tokens beside the rest.
+ *
+ * A duration answers "how long does this change take" and is consumed by CSS,
+ * which is why the token layer can carry it and collapse it under
+ * `prefers-reduced-motion`. A DELAY answers "how long does the interface wait
+ * before deciding the pointer meant it", nothing is animating while it runs,
+ * and it is consumed by a JavaScript prop — Base UI's tooltip takes a number
+ * of milliseconds. A CSS custom property cannot be read by one without a
+ * `getComputedStyle` round trip per trigger, so a `--ui-delay-*` token would
+ * have been a token nothing could consume, which is worse than a token nothing
+ * does.
+ *
+ * They are named for the BEHAVIOUR rather than for Tooltip: a hover-opened
+ * menu, a preview card and a link peek all want the same threshold, and each
+ * one that picks its own is a second answer to a question with one.
+ *
+ * Reduced motion deliberately does NOT collapse these. An open delay is intent,
+ * not movement — removing it would fire six tooltips at a reader crossing a
+ * toolbar, which is more motion for someone who asked for less.
+ *
+ * `check:motion` rejects a numeric literal passed to `delay`, `closeDelay` or
+ * `timeout` anywhere in `registry/ui`, so these are the only way to spell them.
+ */
+
+/** How long a pointer must rest before a hover-opened surface appears. */
+export const HOVER_INTENT_DELAY_MS = 600;
+
+/**
+ * How long one waits before closing. Zero: there is nothing inside a tooltip to
+ * travel to, so a close delay would only be the chip refusing to get out of the
+ * way. A Menu lingers because you have to reach it.
+ */
+export const HOVER_INTENT_CLOSE_MS = 0;
+
+/**
+ * After one closes, its neighbours open instantly for this long.
+ *
+ * The pair only works together: the threshold without the skip window turns a
+ * toolbar into eight separate 600ms waits. Base UI's own default is 400; 300 is
+ * the sheet's, and tighter suits a row of icon buttons read left to right.
+ */
+export const HOVER_INTENT_SKIP_MS = 300;

@@ -41,6 +41,8 @@ import { Card } from "@/ui/card/card.tsx";
 import { ContextMenu } from "@/ui/context-menu/context-menu.tsx";
 import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
+import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
+import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
 import { Drawer } from "@/ui/drawer/drawer.tsx";
 import { Header } from "@/ui/header/header.tsx";
 import { ImageEdit } from "@/ui/image-edit/image-edit.tsx";
@@ -316,6 +318,54 @@ const CASES: Array<{
           <Checkbox>Brief B</Checkbox>
           <Checkbox isDisabled>Brief C</Checkbox>
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "tooltip",
+    // `defaultIsOpen`, because a baseline cannot hover — and the chip is the
+    // only thing here worth diffing. `container` is what puts the portalled
+    // chip INSIDE the frame being photographed; without it the shot is two
+    // buttons and an empty gap, which is a baseline that would stay green
+    // through any change to the tooltip at all.
+    // ONE tooltip, not two: the behaviour layer keeps a single tooltip open at
+    // a time, so a second `defaultIsOpen` renders nothing and the frame would
+    // photograph a button with an empty gap under it. Asserted in
+    // tooltip.browser.test.tsx so the reason survives outside this comment.
+    ui: (portalContainer) => (
+      <div className="flex min-h-32 flex-col items-center justify-end">
+        <Tooltip defaultIsOpen>
+          <Tooltip.Trigger render={<Button variant="secondary">Delete this file</Button>} />
+          <Tooltip.Content container={portalContainer}>
+            Removes the file from every brand this workspace owns.
+          </Tooltip.Content>
+        </Tooltip>
+      </div>
+    ),
+  },
+  {
+    name: "radio",
+    ui: (
+      <div className="flex flex-col gap-2xl">
+        <RadioGroup label="Reviewer" defaultValue="tschichold">
+          <Radio value="brockmann">Josef Müller-Brockmann</Radio>
+          <Radio value="tschichold">Jan Tschichold</Radio>
+          <Radio value="crouwel" isDisabled>
+            Wim Crouwel
+          </Radio>
+        </RadioGroup>
+        <RadioGroup label="Delivery" defaultValue="grid">
+          <Radio value="grid" description="Typeset to the twelve-column module.">
+            Grid systems, 1961
+          </Radio>
+          <Radio value="alphabet" description="Fixed to the cathode-ray grid.">
+            New Alphabet, 1967
+          </Radio>
+        </RadioGroup>
+        <RadioGroup label="Licence" errorText="Choose a licence before bundling.">
+          <Radio value="ofl">Open Font Licence</Radio>
+          <Radio value="proprietary">Proprietary</Radio>
+        </RadioGroup>
       </div>
     ),
   },

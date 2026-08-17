@@ -64,6 +64,42 @@ rather than a decision) and items that need a person. Approve a row and it
 becomes canon on its own sheet and leaves this one, so the page should only
 ever shrink.
 
+## Component handoff sheets
+
+`Components - Handoff` (page `8-0`) carries the sheets drawn with
+`design-component`. Each is 1280 wide, both schemes, with a token map and a
+Gaps section that mirrors the component's `needsDesign` / `knownGaps`. The
+`Draft --- *` artboards beside them are the designer's originals, kept as
+provenance and never edited.
+
+| Sheet | Where | Export |
+|---|---|---|
+| Radio — the draft, finalised | [artboard `2AIX-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2AIX-0) | `exports/component-radio.pdf` |
+| Tooltip — drawn from scratch | [artboard `2AV2-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2AV2-0) | `exports/component-tooltip.pdf` |
+| Empty State — validated against the shipped component | [artboard `2B7F-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2B7F-0) | `exports/component-empty-state.pdf` |
+
+**All three are now implemented**, and each sheet carries what building it
+corrected. That order — draw, build, then amend the sheet — is the only one in
+which a sheet ends up true, and the amendments are the interesting part:
+
+- **Tooltip's two proposed tokens are not tokens.** `--ui-delay-hover-intent`
+  and its skip window ship as `HOVER_INTENT_DELAY_MS` and
+  `HOVER_INTENT_SKIP_MS` in `registry/lib/motion`, because a delay is read by a
+  JavaScript prop and a CSS custom property cannot be read by one. A
+  `--ui-delay-*` would have been a token nothing could consume. `check:motion`
+  now rejects a bare number handed to `delay`, `closeDelay` or `timeout`.
+- **Tooltip's disabled-trigger state cannot happen.** A disabled form control
+  receives no mouse events in Chromium and is out of the tab order, so both
+  paths to the tooltip are closed. The row is corrected and the recipe — a
+  focusable wrapper the caller owns — is in the doc and a story.
+- **Base UI supplies no ARIA for a tooltip**, measured at 1.7.0: no
+  `role="tooltip"`, no `aria-describedby`. The component sets both itself.
+- **The emphasis chip's case is an argument about light.** It is 1.62:1
+  against the page in dark and about 1.2:1 against the Menu panel it exists to
+  be told apart from. Recorded as a Conflict rather than quietly restyled.
+- **Radio's 2px label-to-description gap** is off the 4px scale; corrected to
+  `--ui-space-xs`.
+
 ## Drawing into the file
 
 Sheets are built with the **`design-component`** skill, which carries the
@@ -85,13 +121,18 @@ records which icon it means.
 ## Still undesigned (blocks Phase 2 states work, not tokens)
 
 Focus/hover/active/disabled/busy/error states; open floating elements
-(Select-open, Menu, Tooltip, Popover, Toast); Textarea, Radio, Tabs, Tag,
-Divider, Skeleton, Avatar, Progress, Table, Calendar, Drawer, EmptyState,
+(Select-open, Menu, Popover, Toast); Textarea, Tabs, Tag,
+Divider, Skeleton, Avatar, Progress, Table, Calendar, Drawer,
 Banner; motion sign-off; dark-scheme modal/scrim; elevation steps above the
 micro shadow (lg/xl are engineering defaults).
 
 Closed since: behaviour layer and state designs are in progress; the mono-face
-question is settled — there is no mono face (ADR 0011).
+question is settled — there is no mono face (ADR 0011); **Radio, Tooltip and
+EmptyState are drawn** — see § Component handoff sheets. Other items above are
+stale too (Tabs, Table and Avatar all have artboards; Skeleton shipped with
+`design: null` and genuinely has none). The list is not maintained
+per-component — read it as the 2026-08-03 snapshot it is, and trust each
+component's own `design` field.
 
 ## Fields use `--ui-bg-field`, not `--ui-bg-base`
 

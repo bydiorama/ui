@@ -995,6 +995,63 @@
       "role": "the label"
     }
   ],
+  "RadioGroup": [
+    {
+      "fg": "--ui-border-control",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 3.04,
+      "dark": 4.05,
+      "role": "the unselected circle's edge — the only thing drawing the control, so it is held to the graphical floor"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 5.78,
+      "dark": 6.36,
+      "role": "the hovered edge, one step further from the ground"
+    },
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "non-text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "the 8px dot on the selected fill"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the option label and the legend"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the per-option description and the helper text"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 7.33,
+      "role": "the group's error message, and the invalid edge"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.76,
+      "dark": 3.6
+    }
+  ],
   "Select": [
     {
       "fg": "--ui-text-primary",
@@ -1407,6 +1464,23 @@
       "floor": "decorative",
       "light": 1.22,
       "dark": 1.44
+    }
+  ],
+  "Tooltip": [
+    {
+      "fg": "--ui-text-on-emphasis",
+      "bg": "--ui-bg-emphasis",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 7.34,
+      "role": "the label on its chip. 17.17:1 light and 7.34:1 dark against a fill that does not move between the schemes — see needsDesign"
+    },
+    {
+      "fg": "--ui-bg-emphasis",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 17.17,
+      "dark": 1.62
     }
   ]
 }

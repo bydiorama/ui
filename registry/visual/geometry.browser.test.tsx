@@ -28,12 +28,17 @@ import { act } from "react";
 import type { ReactElement } from "react";
 
 import { Tabs } from "@/ui/tabs/tabs.tsx";
+import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
+import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
+import { Button } from "@/ui/button/button.tsx";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
 // Importing them rather than restating them is the whole point — a second copy
 // of the numbers is a second thing to drift.
 import { evaluate, sides, formatFailures } from "../../scripts/lib/geometry-laws.mjs";
 import tabsSpec from "../../design/paper/specs/tabs.geometry.json";
+import radioSpec from "../../design/paper/specs/radio.geometry.json";
+import tooltipSpec from "../../design/paper/specs/tooltip.geometry.json";
 
 /** A spec case, as far as this file needs to read one. */
 type Spec = {
@@ -45,7 +50,16 @@ type Spec = {
     slots: { container: string; child: string };
     laws: string[];
     sheet: {
-      container: { width: number; height: number; padding: number; border: number; radius?: number | null };
+      // `3` and `{ top: 3, … }` mean the same thing to `sides()`, and a spec
+      // uses whichever is honest: Tabs' inset is uniform, Tooltip's is 8 inline
+      // and 4 block on purpose.
+      container: {
+        width: number;
+        height: number;
+        padding: number | { top: number; right: number; bottom: number; left: number };
+        border: number | { top: number; right: number; bottom: number; left: number };
+        radius?: number | null;
+      };
       gap?: number;
       children: Array<{ width: number; height: number; radius?: number | null }>;
       gaps: { top: number; right: number; bottom: number; left: number };
@@ -53,7 +67,7 @@ type Spec = {
   }>;
 };
 
-const SPECS: Spec[] = [tabsSpec as Spec];
+const SPECS: Spec[] = [tabsSpec as Spec, radioSpec as Spec, tooltipSpec as Spec];
 
 /**
  * How each spec case is put on screen.
@@ -97,6 +111,28 @@ const CASES: Record<string, () => ReactElement> = {
       <Tabs.Panel value="advanced">Advanced panel</Tabs.Panel>
     </Tabs>
   ),
+  "group-vertical": () => (
+    <RadioGroup label="Reviewer" defaultValue="brockmann">
+      <Radio value="brockmann">Josef Müller-Brockmann</Radio>
+      <Radio value="tschichold">Jan Tschichold</Radio>
+      <Radio value="crouwel">Wim Crouwel</Radio>
+    </RadioGroup>
+  ),
+  // One option, and it is the SELECTED one — the dot only exists there, and it
+  // is the child this case measures.
+  "control-dot": () => (
+    <RadioGroup label="Reviewer" defaultValue="brockmann">
+      <Radio value="brockmann">Josef Müller-Brockmann</Radio>
+    </RadioGroup>
+  ),
+  // `defaultIsOpen`, so the chip is on screen without driving the pointer — and
+  // the string is the sheet's own, because the chip's width is its content's.
+  "chip": () => (
+    <Tooltip defaultIsOpen>
+      <Tooltip.Trigger render={<Button variant="secondary">Trigger</Button>} />
+      <Tooltip.Content>Licensing and bundling rules</Tooltip.Content>
+    </Tooltip>
+  ),
 };
 
 let container: HTMLDivElement | null = null;
@@ -117,6 +153,17 @@ afterEach(() => {
   container?.remove();
   root = null; container = null;
 });
+
+/**
+ * A surface that animates in is measured MID-TRANSITION otherwise, and
+ * `getBoundingClientRect` reports the scaled box: a tooltip entering from
+ * `scale-98` reads 23.70 where it settles at 24.19, and the inset assertions
+ * then fail by a fraction with nothing wrong. Tabs never needed this because
+ * nothing about it moves.
+ */
+async function settled(element: Element) {
+  await Promise.all(element.getAnimations().map((a) => a.finished.catch(() => undefined)));
+}
 
 /** `getComputedStyle` returns the USED width — which is the one the laws want. */
 const px = (value: string) => Number.parseFloat(value) || 0;
@@ -168,15 +215,19 @@ for (const spec of SPECS) {
     for (const c of spec.cases) {
       const tolerance = spec.tolerance ?? 0.5;
 
-      test(`${c.name}: obeys its declared laws`, () => {
+      test(`${c.name}: obeys its declared laws`, async () => {
         mount(CASES[c.name]!());
+        const el = document.querySelector(`[data-slot="${c.slots.container}"]`);
+        if (el) await settled(el);
         const figure = measure(c.slots.container, c.slots.child, c.axis);
         const failures = evaluate(figure, c.laws, tolerance);
         expect(failures.length ? formatFailures(`${spec.item} › ${c.name}`, failures) : "").toBe("");
       });
 
-      test(`${c.name}: insets match the sheet's own`, () => {
+      test(`${c.name}: insets match the sheet's own`, async () => {
         mount(CASES[c.name]!());
+        const el = document.querySelector(`[data-slot="${c.slots.container}"]`);
+        if (el) await settled(el);
         const figure = measure(c.slots.container, c.slots.child, c.axis);
         // The laws prove the render is SELF-consistent. This proves it is the
         // same figure the designer drew — a track could be uniformly inset by

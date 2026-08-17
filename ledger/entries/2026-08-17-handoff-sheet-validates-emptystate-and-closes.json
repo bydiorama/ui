@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-17-handoff-sheet-validates-emptystate-and-closes",
+  "date": "2026-08-17",
+  "item": "empty-state",
+  "kind": "decision",
+  "summary": "The handoff sheet was drawn AFTER the component and validates it. All four needsDesign entries close the code's way: the description is caption/leading-normal rather than button-sm/leading-flat, there is no min-height (the draft's 133px is off-scale and was inert — the drafted block lays out at 160), a page-level size exists and steps type and space but not the 32px well, and dark is now drawn. Three defects in the draft the code had already avoided are recorded on the sheet rather than fixed here: the action was a pill with an outline and primary ink where Button is soft, inset-ringed and muted; two of the draft's three cases were ImageUpload's dropzone; and that dropzone's drag well was filled --ui-blue-80, a palette step rather than a role. No component code changed — only the doc, its design URL, and two comments that referred to the draft as 'the sheet'.",
+  "affects": ["doc:needsDesign", "doc:knownGaps", "doc:design"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2B7F-0"
+  }
+}

@@ -228,13 +228,56 @@ describe("The surface paints the designed dialog", () => {
   });
 });
 
+
+/**
+ * The transitions an interaction STARTS on an element that does not exist yet.
+ *
+ * Two traps, one after the other. Reading `getAnimations()` on the line after an
+ * awaited click is a race with a deadline of the transition's own duration, and
+ * it loses roughly one run in three once the suite is big enough that files
+ * share workers — reported as a dead transition on code that works.
+ * `transitionrun` fires when the browser CREATES the transition, so listening
+ * there cannot race.
+ *
+ * The second trap is what listening COSTS here: the surface is portalled and
+ * does not exist when the listener has to be attached, so the listener goes on
+ * the document — and `document.documentElement.getAnimations()` returns the
+ * ROOT's own animations, not its descendants'. Collecting there yields an empty
+ * set on every run, which is a test that fails identically whether the
+ * transition works or not. `document.getAnimations()` is the one that walks the
+ * document; the result is then filtered to the element actually under test.
+ */
+async function transitionsStartedBy(target: () => Element | null, interaction: () => Promise<void>) {
+  const captured = new Set<Animation>();
+  const capture = () => {
+    for (const animation of document.getAnimations()) captured.add(animation);
+  };
+  document.addEventListener("transitionrun", capture, true);
+  await interaction();
+  // Up to five frames, not one. Base UI writes `style="transition: none"` on a
+  // surface for the frame it opens in — so it cannot animate from a stale
+  // position — which means the transition does not exist yet when the first
+  // callback runs. One frame passed in isolation and lost roughly one full-suite
+  // run in three, which is the same race one level down from the one this helper
+  // was written to remove.
+  const on = () => [...captured].some((a) => (a.effect as KeyframeEffect | null)?.target === target());
+  for (let i = 0; i < 5 && !on(); i++) {
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    capture();
+  }
+  document.removeEventListener("transitionrun", capture, true);
+  const el = target();
+  return [...captured].filter((a) => (a.effect as KeyframeEffect | null)?.target === el);
+}
+
 describe("Modal's motion and sizes are real, not declared", () => {
   test("the enter transition ACTUALLY runs on scale, not just opacity", async () => {
     mount(<Basic />);
-    await userEvent.click(trigger());
-    const running = surface()!
-      .getAnimations()
-      .map((a) => (a as CSSTransition).transitionProperty);
+    // The surface is not in the DOM until the trigger is pressed, so the
+    // capture listens on the document — `transitionrun` bubbles.
+    const running = (await transitionsStartedBy(surface, () => userEvent.click(trigger()))).map(
+      (a) => (a as CSSTransition).transitionProperty,
+    );
     // Tailwind v4's scale-* sets the standalone `scale` property, so the
     // original `transition-[opacity,transform]` covered nothing: the dialog
     // snapped to full size while only opacity eased. Asserted through

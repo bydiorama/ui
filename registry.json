@@ -195,6 +195,30 @@
       ]
     },
     {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "description": "A short label that appears on hover or focus and names a control that cannot name itself. Compound: Provider, Trigger, Content. The smallest surface in the library and the only one that is never interactive — a pointer leaving the trigger dismisses it, so nothing inside could be reached. An opaque --ui-bg-emphasis chip rather than an elevated panel, because a tooltip and a Popover are told apart by their fill before anything else. Anchoring, the hover and focus wiring, the delay group and aria-describedby come from Base UI (ADR 0012).",
+      "dependencies": [
+        "@base-ui/react@1.7.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/motion"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/tooltip/tooltip.tsx",
+          "type": "registry:ui",
+          "target": "ui/tooltip.tsx"
+        },
+        {
+          "path": "registry/ui/tooltip/tooltip.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/tooltip.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "modal",
       "type": "registry:ui",
       "description": "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Compound: Trigger, Surface, Title, Description, Footer, Close. Always modal — a non-modal dialog with a scrim is a Popover. Dismissal by Escape and scrim-click is on by default and can be turned off for unsaved work. Built on the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
@@ -506,6 +530,29 @@
           "path": "registry/ui/checkbox/checkbox.doc.ts",
           "type": "registry:ui",
           "target": "ui/checkbox.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "radio",
+      "type": "registry:ui",
+      "description": "One choice from a set that stays visible. Compound: RadioGroup owns the legend, the shared name, the selection and the error; Radio is one option. A real fieldset around real radio inputs, so arrow-key navigation, the single tab stop, form participation and the legend-as-part-of-the-name all come from the platform rather than from ARIA. Checkbox's geometry with a circle and a dot: an 18px control on a 1px edge, a 24px row.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/compose-event-handlers",
+        "@bydiorama/motion"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/radio/radio.tsx",
+          "type": "registry:ui",
+          "target": "ui/radio.tsx"
+        },
+        {
+          "path": "registry/ui/radio/radio.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/radio.doc.ts"
         }
       ]
     },

@@ -88,11 +88,12 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function E
           <p
             data-slot="empty-state-description"
             className={cn(
-              // The sheet reaches for `--ui-text-button-sm` here — a BUTTON
+              // The DRAFT reached for `--ui-text-button-sm` here — a BUTTON
               // role on a line of prose — at `leading-flat`. Same 12px, but a
               // description wraps and a control label does not, so 100% leading
               // collides the moment the sentence is two lines long. `caption`
-              // is the role for this, at the leading prose is set in.
+              // is the role for this, at the leading prose is set in. The
+              // handoff sheet adopted this reading; see its Gaps section.
               "font-body text-caption leading-normal font-medium tracking-tight text-ink-muted",
             )}
           >

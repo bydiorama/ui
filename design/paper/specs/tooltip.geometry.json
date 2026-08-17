@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "tooltip",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2AV2-0",
+    "artboard": "Component --- Tooltip",
+    "extracted": "2026-08-17",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "One figure, and it is the whole component: a chip around a line of text. The interesting law is `inset-is-declared`, because the chip carries BOTH a padding and a `min-height: 24px` — the exact pair that produced Tabs' asymmetric track, where a typed height paid its difference out of the vertical gaps. Here the content is 24.2 tall on its own, so the minimum never binds and the four gaps are the padding. If a future type change makes the content shorter than 24, this case is what will say so.",
+  "cases": [
+    {
+      "name": "chip",
+      "axis": "horizontal",
+      "nodes": { "container": "2AVI-0", "children": ["2AVJ-0"] },
+      "slots": { "container": "tooltip", "child": "tooltip-text" },
+      "laws": ["inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "uniform-inset": "The inset is deliberately asymmetric — 8 inline, 4 block. A chip padded equally on all four sides around a single line reads as a badge rather than a label, and the whole point of this surface is that it is not a chip you can press.",
+        "concentric-radius": "The text has no shape of its own, so there is nothing for the 8px corner to be concentric with. Declaring it would compare the chip's radius against a zero, which is arithmetic about an absence."
+      },
+      "sheet": {
+        "container": {
+          "width": 169,
+          "height": 25,
+          "padding": { "top": 4, "right": 8, "bottom": 4, "left": 8 },
+          "border": 0,
+          "radius": 8,
+          "tokens": {
+            "radius": "--ui-radius-md",
+            "paddingInline": "--ui-space-sm",
+            "paddingBlock": "--ui-space-xs",
+            "fill": "--ui-bg-emphasis",
+            "shadow": "--ui-shadow-sm"
+          }
+        },
+        "gap": 0,
+        "children": [{ "width": 153, "height": 17, "radius": null }],
+        "gaps": { "top": 4, "right": 8, "bottom": 4, "left": 8 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "chip",
+      "what": "The sheet's chip is 169 x 25 around a 153 x 17 text box; the render's is 24.2 tall around a 16.2 line box.",
+      "why": "Paper rounds a text node's height to whole pixels and Chromium does not — 12px at leading-normal is 16.2 either way, reported as 17 there. Neither number is asserted: the laws read the four gaps and the horizontal arithmetic, and both agree at 8 and 4. The widths differ with the string and carry no information."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "radio",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2AIX-0",
+    "artboard": "Component --- Radio",
+    "extracted": "2026-08-17",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "Two figures, because a radio has two that matter and they answer different questions. The options run is the one the Tabs defect would hide in — a typed height paying its difference out of the gaps. The control is the one a person actually reads: an 8px dot centred in an 18px circle, which is the component's whole visual identity and is authored by flex rather than by padding.",
+  "cases": [
+    {
+      "name": "group-vertical",
+      "axis": "vertical",
+      "nodes": { "container": "2AJF-0", "children": ["2AJG-0", "2AJK-0", "2AJN-0"] },
+      "slots": { "container": "radio-group-options", "child": "radio" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "The options run has no fill, no border and no radius — there is no outer shape for a row to be concentric with, and a row has no radius of its own either. An unpainted radius is not a fact about the design."
+      },
+      "sheet": {
+        "container": {
+          "width": 360,
+          "height": 88,
+          "padding": 0,
+          "border": 0,
+          "radius": null,
+          "tokens": { "gap": "--ui-space-sm" }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 360, "height": 24, "radius": null },
+          { "width": 360, "height": 24, "radius": null },
+          { "width": 360, "height": 24, "radius": null }
+        ],
+        "gaps": { "top": 0, "right": 0, "bottom": 0, "left": 0 }
+      }
+    },
+    {
+      "name": "control-dot",
+      "axis": "horizontal",
+      "nodes": { "container": "2AJH-0", "children": ["2AJI-0"] },
+      "slots": { "container": "control", "child": "dot" },
+      "laws": ["uniform-inset"],
+      "lawsNotDeclared": {
+        "inset-is-declared": "The dot is centred by flex, not by padding. Border plus padding declares 1px; the observed inset is 5, because the 16px padding box centres an 8px dot. Declaring this law would demand a 4px padding that would then have to agree with the 18px width — two authors of one number, which is the arrangement the law exists to forbid elsewhere.",
+        "track-is-the-sum-of-its-parts": "An 18px circle around an 8px dot is not a track. Its extent is the control's identity — the number every other component aligns to — rather than a total derived from what it contains.",
+        "concentric-radius": "Both radii are --ui-radius-full, and the law's arithmetic does not describe circles: 999 − 1 border against 999 + 0 padding is 1px apart and visually exact. A full radius is a shape, not a step on the radius scale."
+      },
+      "sheet": {
+        "container": {
+          "width": 18,
+          "height": 18,
+          "padding": 0,
+          "border": 1,
+          "radius": 999,
+          "tokens": { "radius": "--ui-radius-full", "fill": "--ui-bg-accent", "edge": "--ui-bg-accent" }
+        },
+        "gap": 0,
+        "children": [{ "width": 8, "height": 8, "radius": 999 }],
+        "gaps": { "top": 5, "right": 5, "bottom": 5, "left": 5 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "group-vertical",
+      "what": "The sheet's rows are 360px wide because the specimen column is; the render's are whatever the container gives them.",
+      "why": "A radio row is `align-self: stretch` in both, so its width is its parent's and carries no information. Only the four gaps and the vertical arithmetic are asserted, and neither reads width."
+    }
+  ]
+}

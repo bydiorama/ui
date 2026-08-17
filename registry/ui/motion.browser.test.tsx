@@ -61,6 +61,39 @@ afterEach(() => {
 
 const slot = (name: string) => container!.querySelector<HTMLElement>(`[data-slot="${name}"]`)!;
 
+/**
+ * The transitions an interaction STARTS, rather than the ones still running by
+ * the time the assertion happens to execute.
+ *
+ * Every test below used to read `getAnimations()` on the line after an awaited
+ * click. That is a race with a deadline of `--ui-duration-fast`, which is
+ * 120ms: the browser finishes the transition, drops the CSSTransition, and the
+ * assertion sees an empty array on code that works perfectly. It passed for as
+ * long as the suite was small enough to give each file a whole core, and
+ * started failing roughly one run in two — a different test each time, never
+ * the same one twice — once the file count grew past the worker pool.
+ *
+ * A flake in a gate is worse than no gate: it trains everyone to re-run.
+ * `transitionrun` fires when the browser CREATES the transition, before any
+ * delay and long before it can finish, so capturing there cannot race. The one
+ * frame afterwards covers a transition created between the action resolving
+ * and the listener being removed.
+ */
+async function transitionsStartedBy(element: Element, interaction: () => Promise<void>) {
+  const captured = new Set<Animation>();
+  const capture = () => {
+    for (const animation of element.getAnimations()) captured.add(animation);
+  };
+  element.addEventListener("transitionrun", capture);
+  await interaction();
+  await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  element.removeEventListener("transitionrun", capture);
+  // Anything still in flight counts too — this is a superset of the old read,
+  // never a subset, so it cannot hide a genuinely dead transition.
+  capture();
+  return [...captured];
+}
+
 /** A token's resolved value in ms, read from the cascade rather than pinned. */
 function durationMs(token: string) {
   const raw = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -98,9 +131,8 @@ describe("interaction motion runs at --ui-duration-fast", () => {
     // A real click on the painted track — Playwright refuses a visually
     // hidden input, and a synthetic `.click()` returns before the browser has
     // recalculated style, so `getAnimations()` is empty on WORKING code.
-    await userEvent.click(slot("track"));
+    const running = await transitionsStartedBy(thumb, () => userEvent.click(slot("track")));
 
-    const running = thumb.getAnimations();
     expect(running.length).toBeGreaterThan(0);
     for (const animation of running) {
       expect(animation.effect?.getTiming().duration).toBe(durationMs("--ui-duration-fast"));
@@ -121,9 +153,8 @@ describe("interaction motion runs at --ui-duration-fast", () => {
     const tabs = container!.querySelectorAll<HTMLElement>('[data-slot="tabs-tab"]');
     const second = tabs[1]!;
 
-    await userEvent.click(second);
+    const running = await transitionsStartedBy(second, () => userEvent.click(second));
 
-    const running = second.getAnimations();
     expect(running.length).toBeGreaterThan(0);
     for (const animation of running) {
       expect(animation.effect?.getTiming().duration).toBe(durationMs("--ui-duration-fast"));
@@ -143,7 +174,9 @@ describe("surface motion runs at --ui-duration-base", () => {
     );
     const trigger = slot("accordion-trigger");
 
-    await userEvent.click(trigger);
+    // The panel is not in the DOM until the trigger is pressed, so the capture
+    // listens on the container — `transitionrun` bubbles.
+    await transitionsStartedBy(container!, () => userEvent.click(trigger));
 
     const panel = slot("accordion-panel");
     const running = panel.getAnimations();
@@ -176,18 +209,19 @@ describe("surface motion runs at --ui-duration-base", () => {
     // below are already spent by the time the width actually moves — and
     // `getAnimations()` comes back empty on a transition that demonstrably
     // runs. Measured both ways before settling on this one.
-    act(() => {
-      root!.render(<Progress label="Upload" value={80} />);
+    const running = await transitionsStartedBy(fill, async () => {
+      act(() => {
+        root!.render(<Progress label="Upload" value={80} />);
+      });
+      // No user event to wait behind, so wait for a real style recalculation.
+      // ONE frame is not enough: rAF runs BEFORE style/layout for that frame,
+      // so the transition has not been created yet when the first callback
+      // fires. Two frames is the first point at which it reliably exists.
+      await new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve(null))),
+      );
     });
-    // No user event to wait behind, so wait for a real style recalculation.
-    // ONE frame is not enough: rAF runs BEFORE style/layout for that frame,
-    // so the transition has not been created yet when the first callback
-    // fires. Two frames is the first point at which it reliably exists.
-    await new Promise((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve(null))),
-    );
 
-    const running = fill.getAnimations();
     expect(running.length).toBeGreaterThan(0);
     expect(running.map((a) => (a as CSSTransition).transitionProperty)).toContain("width");
     for (const animation of running) {

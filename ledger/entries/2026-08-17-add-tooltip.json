@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-17-add-tooltip",
+  "date": "2026-08-17",
+  "item": "tooltip",
+  "kind": "addition",
+  "summary": "Compound: Provider, Trigger, Content. An opaque --ui-bg-emphasis chip rather than an elevated panel, drawn side by side against a Menu on the sheet before it was chosen. Three things came out of building it. (1) MEASURED against @base-ui/react@1.7.0, the primitive supplies neither role=\"tooltip\" nor aria-describedby — a tooltip built on it alone is decoration, visible to a pointer and absent to a screen reader — so this component wires both from one useId. (2) The hover-intent delays are numbers in @/lib/motion rather than --ui-duration-* tokens, because a delay is read by a JavaScript prop and a custom property cannot be, and check:motion grew a rule that rejects a bare number passed to delay/closeDelay/timeout in registry/ui. (3) The sheet draws a tooltip opening over a DISABLED trigger and it cannot: `disabled` suppresses pointer events and removes the element from the tab order, so both paths are closed and the explanation needs a wrapper the caller owns. All three are in the doc; the last two are also rows on the Paper sheet.",
+  "affects": [
+    "prop:isOpen",
+    "prop:defaultIsOpen",
+    "prop:onOpenChange",
+    "prop:isDisabled",
+    "prop:render",
+    "prop:side",
+    "prop:align",
+    "prop:sideOffset",
+    "prop:alignOffset",
+    "prop:container",
+    "slot:tooltip-trigger",
+    "slot:tooltip",
+    "slot:tooltip-text",
+    "lib:motion HOVER_INTENT_DELAY_MS",
+    "lib:motion HOVER_INTENT_CLOSE_MS",
+    "lib:motion HOVER_INTENT_SKIP_MS"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2AV2-0"
+  }
+}

@@ -16,7 +16,7 @@ export const emptyStateDoc = {
       part: "empty-state",
       slot: "empty-state",
       notes:
-        "The outermost node. Owns className, the ref, the centred column and the 16px inset. No min-height: the sheet's 133px is off the spacing scale and was its auto-layout's, not a designed value — the container decides how tall an empty region is.",
+        "The outermost node. Owns className, the ref, the centred column and the 16px inset. No min-height: the draft's 133px is off the spacing scale and was its auto-layout's, not a designed value — and it never even applied, since the drafted block lays out at 160px. The container decides how tall an empty region is.",
     },
     {
       part: "prompt",
@@ -127,21 +127,29 @@ EmptyState
     rest: "Native div props go to the outermost node — including `role` and `aria-live`, if the container wants them here rather than on itself.",
   },
 
-  /** Open questions for design. Collected by `pnpm design:gaps`. */
+  /**
+   * Open questions for design. Collected by `pnpm design:gaps`.
+   *
+   * The four entries this list carried until 2026-08-17 are all CLOSED, by the
+   * handoff sheet at `design` below — which was drawn after the component
+   * rather than before it, and settled every one of them the code's way. Their
+   * resolutions are rows in that sheet's Gaps section (badge: Closed) rather
+   * than lines here, because a resolved question with its reasoning attached
+   * is what stops the next person re-deriving it, and this array is by
+   * definition the OPEN set.
+   */
   needsDesign: [
-    "The description is drawn with `--ui-text-button-sm` — a BUTTON type role on a line of prose — at `leading-flat` (100%). Shipped as `text-caption` at `leading-normal`: the same 12px, but a description wraps and a control label does not, so 100% leading collides the moment the sentence runs to two lines. Confirm the role and the leading.",
-    "The container is drawn with `min-height: 133px`, which is off the spacing scale and reads as an auto-layout artefact rather than a decision. Shipped content-sized. Confirm, or give the empty region a designed height.",
-    "Only one size is drawn, at a 13px title and a 12px description. Those are small for a full-page empty state — the sheet's context is a table body. Confirm whether a page-level size exists.",
-    "No dark-scheme drawing exists for this block; the roles carry it, and both inks were measured in both schemes.",
+    "The page-level size is drawn (sheet § Size: title `title-sm`, description `body-sm`, prompt gap 12, block gap 24, inset 32, text max-width 384, and the 32px well and 16px glyph deliberately unchanged) and is not implemented. What the sheet does NOT settle is whether it should be a `size` prop at all: every other size axis in this library is a prop, so the sheet assumes one, but this is the first whose two sizes differ only in type and space and could equally be a `className` at the call site.",
   ],
 
   knownGaps: [
-    "The title renders as a <p>. In a page-level empty state it is very likely the region's heading, and there is no `headingLevel` prop — pass one in via `aria-labelledby` on your own container, or wrap.",
-    "No loading variant. An empty state and a not-yet-arrived state are different claims and this only makes the first.",
+    "One size ships. The sheet draws two — see `needsDesign`.",
+    "The title renders as a <p>. In a page-level empty state it is very likely the region's heading, and there is no `headingLevel` prop — pass one in via `aria-labelledby` on your own container, or wrap. Drawing the page size makes this more pressing, not less.",
+    "No loading variant, and none is wanted. An empty state and a not-yet-arrived state are different claims and this only makes the first; Skeleton makes the second.",
     "The action is a single slot. A primary/secondary pair goes in as one element containing both buttons, which means the caller owns the gap between them.",
   ],
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/TSI-0",
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2B7F-0",
 } as const;
 
 export type EmptyStateDoc = typeof emptyStateDoc;

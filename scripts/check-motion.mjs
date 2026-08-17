@@ -61,6 +61,36 @@ const LITERALS = [
 ];
 
 /**
+ * A DELAY, handed to a behaviour-layer prop as a bare number.
+ *
+ * The three rules above all look for CSS. Tooltip was the first component whose
+ * timing is not CSS at all: Base UI's tooltip takes `delay`, `closeDelay` and
+ * `timeout` as numbers of milliseconds, and a custom property cannot be read by
+ * a JavaScript prop without a `getComputedStyle` round trip per trigger. So the
+ * values live in `@/lib/motion` as named constants — and `delay={600}` would
+ * slip past every pattern here, because `600` is just a number.
+ *
+ * This is the ratchet for that. It is narrow on purpose: only these three prop
+ * names, and only when the value is a numeric literal, so it cannot fire on an
+ * unrelated `timeout` variable. Anything else in `registry/ui` that starts
+ * waiting before it acts will want the same constants rather than its own
+ * answer, which is the whole reason the first one is worth a gate.
+ *
+ * Zero is allowed: `closeDelay={0}` is the absence of a delay rather than a
+ * choice about one, and forcing a named constant for "immediately" would be
+ * ceremony. `HOVER_INTENT_CLOSE_MS` exists anyway, and Tooltip uses it.
+ *
+ * BOTH SPELLINGS, and the second one is why this was probed. The first version
+ * matched only `delay={600}` — the JSX attribute — and Tooltip hands its
+ * trigger props as an OBJECT (`delay: 600`) through the `forBaseUI` shim that
+ * every Base UI wrapper here uses. So the gate fired on the Provider, reported
+ * the file, and was blind to the exact form the component it was written for
+ * actually writes. Found by breaking it deliberately, which is the only way
+ * that class of hole is ever found.
+ */
+const NUMERIC_DELAY = /\b(delay|closeDelay|timeout)\s*(?:=\s*\{\s*|:\s*)[1-9]\d*/;
+
+/**
  * CONVENTIONS §6: never `transition: all` — enumerate the animated properties.
  *
  * `all` animates whatever happens to change, which on a component that gains a
@@ -171,6 +201,17 @@ for (const dir of ["registry/ui", "registry/lib", "registry/hooks"]) {
             `(ADR 0005) — use the custom-property form, e.g. duration-(--ui-duration-base).`,
         );
       }
+    }
+
+    const delay = source.match(NUMERIC_DELAY);
+    if (delay) {
+      errors.push(
+        `${rel}: \`${delay[0]}\` hands a behaviour-layer prop a bare number. ` +
+          `A delay is not a duration — nothing is animating while it runs, and it is read by ` +
+          `JavaScript rather than CSS, so it cannot be a --ui-duration-* token. Import the named ` +
+          `constant from @/lib/motion instead: HOVER_INTENT_DELAY_MS, HOVER_INTENT_CLOSE_MS, ` +
+          `HOVER_INTENT_SKIP_MS.`,
+      );
     }
 
     if (TRANSITION_ALL.test(source)) {

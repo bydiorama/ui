@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-17-track-inset-matches-the-sheet-on",
+  "date": "2026-08-17",
+  "item": "tabs",
+  "kind": "visual",
+  "summary": "The enclosed track was inset 3px at the sides and 4px at the top and bottom; the sheet lays out 4px on all four. The source read symmetric — `p-[2px]`, one padding, four sides — and was not on screen: 24px rows plus 2 + 2 plus a 1.5px border the browser USES as 1px is 31, `h-8` demanded 32, and `items-center` paid the spare pixel out of the vertical gaps. A fixed height is a second author of an inset and the two agree only by arithmetic accident, so the height is gone: it is now 24 + 3 + 3 + 1 + 1 = the same 32px, derived. `items-center` is gone too, so every tab stretches to the content box and all four gaps are the padding whatever a tab contains. The inset is 3px, the sheet's own, which also closes CONVENTIONS §6 against the PADDING box (8 − 1 border = 7 = radius-sm 4 + 3) — the previous 2px never did, and the component's comment said so and shipped anyway. Second fix in the same component: the ghost strip stretched full-width and `justify-center` centred it, against both the sheet (a 280px box at x=0) and Tab's own docstring (\"ghost sizes to its content and sits left\"); it hugs now. Third: `doc.design` pointed at D7G-0, the Text Area artboard. The browser test that asserted `padding === \"2px\"` and called it \"the sheet's own inset\" had been written from the component rather than the design, so it pinned the drift rather than catching it — corrected, and the four-sided inset is now asserted against Paper's own world coordinates.",
+  "affects": ["item:tabs", "slot:tabs-list", "prop:variant"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0"
+  }
+}

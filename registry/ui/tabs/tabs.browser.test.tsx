@@ -159,10 +159,17 @@ describe("Tabs paint the designed strip", () => {
     expect(style.backgroundColor).toBe("rgb(253, 252, 251)");
     expect(style.borderTopColor).toBe("rgb(218, 212, 206)");
     expect(style.borderRadius).toBe("8px");
-    // 2px, the sheet's own inset — with 24px rows and the 1.5px edge it is
-    // what makes the 32px height it draws. It does NOT close §6's concentric
-    // arithmetic; recorded in needsDesign rather than quietly rounded to 4.
-    expect(style.padding).toBe("2px");
+    // 3px, the sheet's own inset. This assertion said 2px and called it "the
+    // sheet's own" for as long as Tabs existed, which is how the drift stayed
+    // put: the component was wrong, and the test had been written from the
+    // component rather than from the sheet. The sheet lays out a 4px gap on
+    // all four sides — 3px padding inside a 1.5px border the browser uses as
+    // 1px — and 3px is also what closes §6's concentric arithmetic against the
+    // PADDING box (8 − 1 = 7 = 4 + 3).
+    expect(style.padding).toBe("3px");
+    // Still 32px, but now as a CONSEQUENCE (24 + 3 + 3 + 1 + 1) rather than as
+    // an `h-8` that forced it. The four-sided inset is asserted against the
+    // sheet's own coordinates in registry/visual/geometry.browser.test.tsx.
     expect(document.querySelector('[data-slot="tabs-list"]')!.getBoundingClientRect().height).toBe(32);
   });
 

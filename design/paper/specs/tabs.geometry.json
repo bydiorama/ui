@@ -1,0 +1,109 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "tabs",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0",
+    "artboard": "Component --- Tabs",
+    "extracted": "2026-08-17",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "`border` is the USED width — Paper's canvas and Chromium both snap the sheet's declared 1.5px hairline to 1px at DPR 1, and every number below only adds up because of it. See scripts/lib/geometry-laws.mjs.",
+  "cases": [
+    {
+      "name": "enclosed-horizontal",
+      "axis": "horizontal",
+      "nodes": { "container": "LHF-0", "children": ["LHG-0", "LHL-0"] },
+      "slots": { "container": "tabs-list", "child": "tabs-tab" },
+      "laws": [
+        "uniform-inset",
+        "inset-is-declared",
+        "concentric-radius",
+        "track-is-the-sum-of-its-parts"
+      ],
+      "sheet": {
+        "container": {
+          "width": 416,
+          "height": 32,
+          "padding": 3,
+          "border": 1,
+          "borderDeclared": 1.5,
+          "radius": 8,
+          "tokens": { "radius": "--ui-radius-md", "gap": "--ui-space-xs" }
+        },
+        "gap": 4,
+        "children": [
+          { "width": 202, "height": 24, "radius": 4 },
+          { "width": 202, "height": 24, "radius": 4 }
+        ],
+        "gaps": { "top": 4, "right": 4, "bottom": 4, "left": 4 }
+      }
+    },
+    {
+      "name": "enclosed-vertical",
+      "axis": "vertical",
+      "nodes": { "container": "LI4-0", "children": ["LI5-0", "LIA-0", "LID-0"] },
+      "slots": { "container": "tabs-list", "child": "tabs-tab" },
+      "laws": [
+        "uniform-inset",
+        "inset-is-declared",
+        "concentric-radius",
+        "track-is-the-sum-of-its-parts"
+      ],
+      "sheet": {
+        "container": {
+          "width": 416,
+          "height": 88,
+          "padding": 3,
+          "border": 1,
+          "borderDeclared": 1.5,
+          "radius": 8,
+          "tokens": { "radius": "--ui-radius-md", "gap": "--ui-space-xs" }
+        },
+        "gap": 4,
+        "children": [
+          { "width": 408, "height": 24, "radius": 4 },
+          { "width": 408, "height": 24, "radius": 4 },
+          { "width": 408, "height": 24, "radius": 4 }
+        ],
+        "gaps": { "top": 4, "right": 4, "bottom": 4, "left": 4 }
+      }
+    },
+    {
+      "name": "ghost-horizontal",
+      "axis": "horizontal",
+      "nodes": { "container": "LIJ-0", "children": ["LIK-0", "LIP-0", "LIS-0"] },
+      "slots": { "container": "tabs-list", "child": "tabs-tab" },
+      "laws": ["uniform-inset", "inset-is-declared"],
+      "lawsNotDeclared": {
+        "concentric-radius": "Ghost has no fill and no border — there is no outer shape for the tab to be concentric with. Only the selected tab's own radius is observable, and the sheet draws it `--ui-radius-md` (LIK-0) while its unpainted siblings carry `--ui-radius-sm`; an unpainted radius is not a fact about the design.",
+        "track-is-the-sum-of-its-parts": "The sheet's ghost rows are 26px, not the 24px the other two cases draw, because a 32px height was typed onto the frame and stretched them. The row wins — see deviations."
+      },
+      "sheet": {
+        "container": {
+          "width": 280,
+          "height": 32,
+          "padding": 3,
+          "border": 0,
+          "radius": 8,
+          "tokens": { "radius": "--ui-radius-md", "gap": "--ui-space-xs" }
+        },
+        "gap": 4,
+        "children": [
+          { "width": 64, "height": 26, "radius": 8 },
+          { "width": 83, "height": 26, "radius": 4 },
+          { "width": 119, "height": 26, "radius": 4 }
+        ],
+        "gaps": { "top": 3, "right": 3, "bottom": 3, "left": 3 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "ghost-horizontal",
+      "what": "The sheet's ghost track is 32px tall with 26px rows; the implementation is 30px tall with 24px rows.",
+      "why": "A Tab row is `min-h-6` in every variant — `pnpm design:primitives` reports it, and the two enclosed cases on this same sheet draw 24. The ghost frame's 26px rows are the consequence of a 32px height typed onto a frame whose parts add to 30, not a decision that ghost rows are taller than enclosed ones. The visible fact — the 3px inset around the selected fill — is identical either way, because ghost has no track to see."
+    }
+  ]
+}

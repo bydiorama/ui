@@ -73,8 +73,7 @@ Tabs                     value? / defaultValue? / onValueChange?
   },
 
   needsDesign: [
-    "The enclosed track's 2px inset does not close \u00a76's concentric arithmetic: radius-sm (4) rows plus 2px want a 6px outer radius and the scale has no 6px step. Shipped as drawn, because the inset is what produces the 32px height the sheet also specifies \u2014 24 + 2 + 2 + 1.5 + 1.5. One of the three numbers needs to move; say which.",
-    "The 2px inset is off the spacing scale entirely (the scale starts at 4).",
+    "The 3px inset is off the spacing scale entirely (the scale starts at 4). It is what the sheet lays out and what closes \u00a76's concentric arithmetic, so it ships \u2014 but a control-scale inset the scale cannot express is a gap in the scale, not in this component.",
     "The ghost strip draws its SELECTED tab at radius-md and its unselected ones at radius-sm. Only the selected one has a fill, so the difference is invisible \u2014 shipped as radius-md for all of them. Confirm.",
     "No hover state is drawn for an unselected tab; the ink shift to secondary is derived.",
     "The vertical strip has no fixed height and no fixed width in the sheet, so it stretches to its container.",
@@ -90,7 +89,11 @@ Tabs                     value? / defaultValue? / onValueChange?
   motion:
     "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade.",
 
-  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D7G-0",
+  // LHB-0, not D7G-0 — that is the Text Area artboard, and this link had been
+  // pointing at it. Its geometry is extracted node-by-node into
+  // design/paper/specs/tabs.geometry.json and asserted, so a wrong link here
+  // now fails rather than merely misleads.
+  design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0",
 } as const;
 
 export type TabsDoc = typeof tabsDoc;

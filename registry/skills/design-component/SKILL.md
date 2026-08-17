@@ -228,6 +228,24 @@ Then `find_nodes` for `box-shadow: *` and check every hit against a resolved
 `--ui-shadow-*` value. Report the counts — "verified 0" is evidence; "looks
 right" is not.
 
+### 8 · Extract the geometry into a spec (ADR 0019)
+
+An exported PNG is evidence of approval, not a value. The numbers the sheet
+lays out belong in `design/paper/specs/<item>.geometry.json`, where
+`check:design-spec` and the geometry browser test both read them.
+
+```js
+get_computed_styles({ nodeIds: [container, ...children] })  // declared: padding, radius, gap
+get_node_info({ nodeId: container })                        // laid-out rect + worldX/worldY
+get_children({ nodeId: container })                         // each child's worldX/worldY
+```
+
+| Trap | Rule |
+| --- | --- |
+| Transcribing `padding` as the gap | `gaps` come from **world coordinates** — container border box to the union of the children. A gap copied from the styles panel checks the author's arithmetic against itself and can never fail. |
+| Recording the declared border | Record the **used** width. Paper's canvas snaps `1.5px` to 1px at DPR 1, exactly as Chromium does, and it is the difference between a sheet that adds up and one that appears to be 1px out. |
+| A frame with a typed height | Paper stretches children to fill it. If `track-is-the-sum-of-its-parts` fails on the sheet, the typed height is the suspect — say which number wins, in `deviations`. |
+
 ## Placeholder data
 
 **Use famous graphic designers and inventors of European descent.** Not

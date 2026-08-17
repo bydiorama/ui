@@ -37,6 +37,11 @@ evidence:
    banned here; it fabricates answers for exactly these questions.
 5. **Behaviour in a real browser** — keyboard activation, focus order,
    `document.fonts.check()` for the face actually loading.
+6. **Laid-out geometry against the design's own numbers** — `getBoundingClientRect`
+   versus `design/paper/specs/<item>.geometry.json`. Padding that reads
+   symmetric in the source is not symmetric on screen once a fixed height
+   fights it (ADR 0019). Run `pnpm check:design-spec` and the geometry case in
+   `registry/visual/geometry.browser.test.tsx`.
 
 **Every accepted finding ships with a failing-first regression test at the
 layer that caught it**, then graduates up the ratchet (type → gate → lint →
@@ -58,6 +63,8 @@ Each of these passed type-check, lint, unit tests and `verify`:
 | Two contract tokens collapsed to one utility name (`--color-edge-focus`); the second silently overwrote the first | Emitted theme | Assert the theme has no duplicate variable names |
 | Dark-mode placeholder at 3.2:1 — the role was simply absent from `CONTRAST_PAIRS`, so the audit never looked | Resolved theme | Measure BOTH schemes; an unlisted pair is an unchecked pair |
 | a11y "enforced at error severity" while axe never ran — addon-vitest installed but unwired, and an absolute stories glob matched zero files | The gate itself | Probe with a deliberately unlabelled control |
+| Tabs' track inset 3px at the sides and 4px top and bottom. `p-[2px]` reads symmetric; `h-8` demanded a height the parts did not reach and `items-center` spent the spare pixel vertically | Laid-out geometry | Measure all four gaps from the container's border box; assert against the sheet's world coordinates |
+| The same test asserted `padding === "2px"` and called it "the sheet's own inset". It was 3px. The test had been written from the component, so it pinned the drift instead of catching it | The test itself | Every geometry assertion cites a design node id, or it is circular |
 | Computed style read immediately after a state change returns the pre-transition value — a working focus ring reads as broken | Test | `await` `element.getAnimations()` before asserting |
 | `--ui-border-strong` composited to 1.78:1 in dark — **weaker** than `--ui-border-control` at 3.09:1, inverting ADR 0010's own ordering, so a mixed Checkbox had no visible box | Resolved theme | Assert the stack's ORDERING, both schemes; the pair was simply absent from `NONTEXT_CONTRAST_PAIRS` |
 | The rem emitter rounded to 3 places, rendering the designed 13px label at 13.008px | Computed style | Only visible against a px-exact expectation — assert the design's number, not the emitter's |
@@ -161,10 +168,20 @@ comment compiles a dead rule. Harmless, but don't let it fool a grep-count.
   explicitly and lets dark derive, so a role missing from `ZERO_AUTHORED.dark`
   falls to derivation — which is where the placeholder failure lived.
 
-**Visual** *(current known gap)*
-- Matrix story vs the Paper export, side by side, both schemes. Screenshot
-  diffing is not yet automated — until it is, this step is manual and
-  mandatory, and "I looked at it" means both schemes at two sizes.
+**Visual** *(geometry is gated; the rest is still eyes)*
+- **Geometry is arithmetic now, not judgement** (ADR 0019). If the item has a
+  spec, `check:design-spec` proves the sheet obeys its own laws and the
+  geometry test proves the render reproduces its four insets. If it has no
+  spec, say so in the report — an ungated component is not a passing one.
+- Matrix story vs the Paper export, both schemes, at two sizes. Still manual:
+  the visual baselines let a small element change ENTIRELY under
+  `allowedMismatchedPixelRatio`, so green is evidence about large surfaces only.
+- **Looking is how findings enter; arithmetic is how they stay.** A perceptual
+  finding ("the fill sits closer to the left than the top") is a hypothesis.
+  Discharge it exactly one of two ways: promote it to a law in
+  `scripts/lib/geometry-laws.mjs`, or record it as a spec `deviation` with the
+  reason written out. Never leave it as a comment — that is what "recorded in
+  needsDesign" did for the 2px inset, for as long as Tabs existed.
 
 ## Report format
 

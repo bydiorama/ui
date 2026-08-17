@@ -42,6 +42,7 @@ to be read, owned and modified downstream.
 | `pnpm check:skills` | Fail on a broken skill contract or a stale generated copy |
 | `pnpm check:boundaries` | Fail if the behaviour layer leaks into a public signature |
 | `pnpm check:motion` | Fail on a literal duration, an unguarded keyframe, or undocumented motion |
+| `pnpm check:design-spec` | Fail if a design geometry spec breaks its own laws, or nothing renders it |
 | `pnpm ledger:new` | Scaffold a change-ledger entry |
 | `pnpm type-check` | `tsc --noEmit` |
 | `pnpm lint` | ESLint |
@@ -120,6 +121,33 @@ uncommitted work alongside it.
   hooks exist for that.
 - Do not skip the ledger entry because a change "is small". Small silent changes
   are exactly what strands downstream copies.
+
+## Does it match the design?
+
+That question used to be unanswerable here: `design/paper/` holds PNG and PDF
+exports, which its own README calls *evidence of what was approved*, not
+values. So it was settled by a person comparing two pictures — and a person
+cannot see one pixel. Tabs' track was inset 3px at the sides and 4px top and
+bottom for its whole life, past every gate.
+
+**The numbers now live in the repo.** `design/paper/specs/<item>.geometry.json`
+records what Paper *lays out* — gaps derived from world coordinates, not from
+its declared padding, and the **used** border width, because both Paper's
+canvas and Chromium snap a 1.5px hairline to 1px at DPR 1. Four laws in
+`scripts/lib/geometry-laws.mjs` run over both sides:
+
+- `pnpm check:design-spec` — the sheet obeys the laws it declares.
+- `registry/visual/geometry.browser.test.tsx` — the render obeys them *and*
+  reproduces the sheet's four insets, measured in Chromium.
+
+Neither is optional and neither is sufficient; a sheet can be internally wrong,
+and a component's geometry does not exist until something lays it out. Each
+half fails if the other has no case for a spec, so they cannot drift apart.
+
+**Coverage is one item.** Tabs. The gate prints the count rather than implying
+more — an ungated component is not a passing one, it is an unmeasured one.
+ADR 0019 has the reasoning, including what the perceptual half is allowed to
+decide (nothing: it proposes, arithmetic disposes).
 
 ## Visual regression
 

@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-17-neuro-symbolic-design-geometry-validation",
+  "date": "2026-08-17",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0019. The design's numbers were never in this repository — `design/paper/` holds PNGs and its own README calls them evidence, not values — so \"does this match the design?\" could only be answered by a person comparing two pictures, and a person cannot see one pixel. Tabs' track was inset 3px at the sides and 4px top and bottom for its whole life and every gate passed it: the class list reads symmetric, the asymmetry does not exist until layout, and the visual baselines admit in their own header that a small element can change ENTIRELY under `allowedMismatchedPixelRatio`. Now: `design/paper/specs/<item>.geometry.json` carries what Paper LAYS OUT (gaps computed from world coordinates, not from its declared padding, and the USED border width — both Paper's canvas and Chromium snap 1.5px to 1px at DPR 1, which is the difference between the Tabs sheet reading as self-contradictory and reading as exact). `scripts/lib/geometry-laws.mjs` holds four pure laws — uniform-inset, inset-is-declared, concentric-radius, track-is-the-sum-of-its-parts — and both sides run the SAME functions: `pnpm check:design-spec` (in verify) proves the sheet obeys the laws it declares, `registry/visual/geometry.browser.test.tsx` proves the render obeys them AND reproduces the sheet's four insets. Each half fails if the other is missing a case. A case must declare every law or excuse it by name, so an unenforced law is distinguishable from one nobody thought of. The neural half is bounded on purpose: looking at a render beside a sheet produces a HYPOTHESIS, discharged either as a new law (arithmetic, permanent) or a spec `deviation` (reason required, 40-char floor) — never as a comment. Coverage is Tabs and its three cases; the other 34 components have no spec and the gate reports the count rather than implying coverage.",
+  "affects": ["item:system", "item:tabs"],
+  "provenance": {
+    "decision": "ledger/decisions/0019-neuro-symbolic-design-validation.md",
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0"
+  }
+}

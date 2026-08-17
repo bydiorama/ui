@@ -104,7 +104,18 @@ export default defineConfig({
           name: "contract",
           include: [join(root, "registry/**/*.browser.test.tsx")],
           setupFiles: [join(here, "vitest.setup.ts")],
-          browser: browser(),
+          browser: {
+            ...browser(),
+            // Off for the same reason as the visual project below, and for a
+            // sharper one: a failing contract test writes its capture relative
+            // to the TEST FILE, so a failure in `registry/visual/` lands
+            // unreviewed PNGs inside `__screenshots__/` — the one directory in
+            // this repo whose contents are a committed, reviewed artefact.
+            // Six of them appeared there the first time the geometry gate was
+            // made to fail on purpose. Nothing in that folder should ever
+            // arrive by accident.
+            screenshotFailures: false,
+          },
         },
       },
       {

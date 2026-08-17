@@ -51,6 +51,12 @@ gates to be wrong before the code is.**
   sheet fixed, because the next reader will guess differently.
 - Token flow is repo → Paper. If the design invents a value the contract
   lacks, the contract grows (step 2); Paper never becomes the source of truth.
+- **Write the geometry down** — `design/paper/specs/<item>.geometry.json`, one
+  case per composition, plus its entry in `registry/visual/geometry.browser.test.tsx`
+  (ADR 0019, extraction calls in `design-component` §8). Values held only in
+  your context become an assertion written *from the component*, which pins
+  drift instead of catching it — Tabs shipped `padding === "2px"` asserted as
+  "the sheet's own inset" when the sheet laid out 3px.
 
 ### 2 · Tokens and tooling before component
 
@@ -275,8 +281,9 @@ the verification method for everything this pipeline builds.
 
 Component · typed doc · stories incl. `BrandThemed` · type tests · browser
 tests · manifest entry · regenerated registry · ledger entry · **contrast
-measured in both schemes** · **any gate you touched probed failing-first** ·
-every gate green · every design bug pushed back into Paper.
+measured in both schemes** · **geometry spec + its case in the geometry test**
+· **any gate you touched probed failing-first** · every gate green · every
+design bug pushed back into Paper.
 
 A component missing any of these is work in progress, whatever the demo looks
 like.

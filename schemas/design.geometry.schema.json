@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bydiorama/ui/schemas/design.geometry.schema.json",
+  "title": "Design geometry spec",
+  "description": "The numbers a Paper sheet actually lays out for one item, extracted node by node, plus the laws its implementation is bound by. Read by scripts/check-design-spec.mjs (sheet side) and registry/visual/geometry.browser.test.tsx (render side); both run the same laws from scripts/lib/geometry-laws.mjs.",
+  "type": "object",
+  "required": ["item", "source", "cases"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "item": { "type": "string", "description": "Manifest item name." },
+    "source": {
+      "type": "object",
+      "required": ["tool", "url", "artboard", "extracted"],
+      "additionalProperties": false,
+      "properties": {
+        "tool": { "enum": ["paper"] },
+        "url": { "type": "string", "description": "Deep link to the artboard, so the numbers can be re-derived rather than trusted." },
+        "artboard": { "type": "string" },
+        "extracted": { "type": "string", "format": "date" },
+        "how": { "type": "string", "description": "Which tool calls produced these numbers." }
+      }
+    },
+    "tolerance": {
+      "type": "number",
+      "description": "Pixels of slack every law is allowed. 0.5 is the floor a snapped 1.5px border forces; anything larger needs a sentence in `note`.",
+      "default": 0.5
+    },
+    "note": { "type": "string" },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "axis", "nodes", "slots", "laws", "sheet"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "Must match a case rendered by the geometry browser test; check:design-spec fails if nothing renders it."
+          },
+          "axis": { "enum": ["horizontal", "vertical"] },
+          "nodes": {
+            "type": "object",
+            "required": ["container", "children"],
+            "additionalProperties": false,
+            "properties": {
+              "container": { "type": "string", "description": "Paper node id — provenance for every number in `sheet`." },
+              "children": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+            }
+          },
+          "slots": {
+            "type": "object",
+            "required": ["container", "child"],
+            "additionalProperties": false,
+            "properties": {
+              "container": { "type": "string", "description": "data-slot the render side measures as the container." },
+              "child": { "type": "string" }
+            }
+          },
+          "laws": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Law names from scripts/lib/geometry-laws.mjs. Both sides evaluate exactly these."
+          },
+          "lawsNotDeclared": {
+            "type": "object",
+            "description": "Law name → why this case is not bound by it. An undeclared law with no reason is indistinguishable from one nobody thought of.",
+            "additionalProperties": { "type": "string", "minLength": 1 }
+          },
+          "sheet": {
+            "type": "object",
+            "required": ["container", "children", "gaps"],
+            "additionalProperties": false,
+            "properties": {
+              "container": {
+                "type": "object",
+                "required": ["width", "height", "padding", "border"],
+                "additionalProperties": false,
+                "properties": {
+                  "width": { "type": "number" },
+                  "height": { "type": "number" },
+                  "padding": { "$ref": "#/$defs/sides" },
+                  "border": { "$ref": "#/$defs/sides", "description": "USED width, after the browser snaps it to whole device pixels." },
+                  "borderDeclared": { "type": "number", "description": "What the sheet types, when it differs from the used width." },
+                  "radius": { "type": ["number", "null"] },
+                  "tokens": { "type": "object", "additionalProperties": { "type": "string" } }
+                }
+              },
+              "gap": { "type": "number" },
+              "children": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["width", "height"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "width": { "type": "number" },
+                    "height": { "type": "number" },
+                    "radius": { "type": ["number", "null"] }
+                  }
+                }
+              },
+              "gaps": {
+                "type": "object",
+                "required": ["top", "right", "bottom", "left"],
+                "additionalProperties": false,
+                "description": "Container border box to the union of the children, from Paper's laid-out world coordinates — not from its declared padding.",
+                "properties": {
+                  "top": { "type": "number" },
+                  "right": { "type": "number" },
+                  "bottom": { "type": "number" },
+                  "left": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "deviations": {
+      "type": "array",
+      "description": "Where the implementation deliberately does not reproduce the sheet. Each needs the reason; 'it looked better' is not one.",
+      "items": {
+        "type": "object",
+        "required": ["case", "what", "why"],
+        "additionalProperties": false,
+        "properties": {
+          "case": { "type": "string" },
+          "what": { "type": "string" },
+          "why": { "type": "string", "minLength": 40 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sides": {
+      "description": "A number for all four sides, or the sides that differ.",
+      "anyOf": [
+        { "type": "number" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "top": { "type": "number" },
+            "right": { "type": "number" },
+            "bottom": { "type": "number" },
+            "left": { "type": "number" }
+          }
+        }
+      ]
+    }
+  }
+}

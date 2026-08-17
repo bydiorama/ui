@@ -12,6 +12,25 @@ editable source.** Token flow is repo → Paper, never the reverse.
 | Adopted into code | ledger `2026-08-03-adopt-approved-handover-tokens`, ADRs 0008–0010 |
 | Token snapshot at adoption | `tokens.snapshot.json` (Paper's token list the day the values were ported) |
 | Section exports | `exports/` (PNG, 1x) |
+| Geometry, as numbers | `specs/<item>.geometry.json` — see below |
+
+## `specs/` — the one part of this folder that is not evidence
+
+Everything else here is a picture. `specs/` is what the sheet **lays out**,
+node by node: padding, border, radius, each child's rect, and the four gaps
+computed from Paper's world coordinates. Two gates read it — `pnpm
+check:design-spec` and `registry/visual/geometry.browser.test.tsx` — so a drift
+between the sheet and the component fails rather than waiting to be noticed.
+
+It does not contradict the rule above. `packages/tokens` still owns *values*;
+a spec records the **arrangement** of already-token-bound values in one
+artboard, and every number carries the Paper node id it came from. ADR 0019.
+
+Two traps, both paid for once: gaps must come from world coordinates rather
+than the styles panel (a transcribed gap checks the author's arithmetic against
+itself), and the border must be the **used** width — Paper's canvas snaps
+`1.5px` to 1px at DPR 1 exactly as Chromium does, and reading the declared
+value makes a correct sheet look 1px out.
 
 ## Pattern sheets
 

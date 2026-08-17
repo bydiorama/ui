@@ -95,16 +95,34 @@ function TabsList({ className, ...rest }: TabsListProps) {
       data-orientation={orientation}
       data-variant={variant}
       className={cn(
-        "flex items-center gap-xs rounded-md",
-        // A 2px inset, which is off the spacing scale and does NOT close §6's
-        // arithmetic — radius-sm rows plus 2px want a 6px outer radius and the
-        // scale has no 6px step. It is here because the sheet's three numbers
-        // together produce the drawn control: 24px rows + 2 + 2 + 1.5 + 1.5 is
-        // the 32px height it specifies, and of the three the inset is the one
-        // the height depends on. Recorded in needsDesign.
-        "p-[2px]",
-        orientation === "vertical" ? "flex-col" : "h-8 justify-center",
+        "flex gap-xs rounded-md",
+        // The inset is 3px, and it is the ONLY thing between the track's edge
+        // and a tab's fill — which is why there is no height here.
+        //
+        // What shipped instead was `p-[2px] h-8`, and it read as symmetric in
+        // the source and was not on screen. 24px rows + 2 + 2 + a 1.5px border
+        // that Chromium uses as 1px is 31, `h-8` demands 32, and `items-center`
+        // hands the spare pixel to the top and bottom gaps. Measured: 3px left
+        // and right, 4px top and bottom. A fixed height is a SECOND author of
+        // the inset, and the two only agree by arithmetic accident.
+        //
+        // So: no fixed height, and no `items-center`. Height is now the sum of
+        // its parts (24 + 3 + 3 + border = the 32px the sheet specifies), and
+        // stretch makes every tab fill the content box, so all four gaps are
+        // the padding for every tab whatever it contains. 3px is also what
+        // closes §6's concentric arithmetic, which 2px never did: the radius
+        // scale rounds the border box, so the PADDING box is 8 − 1.5 ≈ 7, and
+        // radius-sm rows plus a 3px inset want exactly 7.
+        "p-[3px]",
+        orientation === "vertical" ? "flex-col" : "justify-center",
         variant === "enclosed" && "bg-surface border-[1.5px] border-edge-subtle",
+        // Ghost hugs. It is a flex child of the root column, so the default
+        // `stretch` had been making it full-width and `justify-center` then
+        // centred the strip inside it — which is neither what the sheet draws
+        // (a 280px box at x=0) nor what the Tab below already says it does
+        // ("ghost sizes to its content and sits left"). The docstring was
+        // right and the class was not.
+        variant === "ghost" && "w-fit",
         className,
       )}
     />

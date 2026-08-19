@@ -66,6 +66,30 @@ insets its track `p-[2px]` and says in a comment why the scale cannot express
 it. "Correcting" that on a sheet is drift wearing compliance; match it and
 leave the gap recorded where it already is.
 
+### 1c · Drawing a SCREEN? The chrome has sheets too — read them
+
+`design:primitives` covers controls. It does not cover Header, Sidebar,
+Nav Rail or the way they connect, and a screen is mostly those. Before
+drawing an app frame, read **their component sheets** and **`Patterns ---
+Navigation`**, which is the contract between them — the component sheets
+specify the parts, the pattern sheet specifies what pressing something does.
+
+Four screens shipped here built from a paraphrase of that chrome instead, and
+every one of them was wrong in the same quiet way: a wordmark where the sheet
+draws a 32px brand mark, a bare hamburger where `chromeControl` puts a
+`bg-elevated` 32px square, nav items at `label-md`/500 where Header.Item is
+`button-sm`/600 with the CURRENT item **receding** to `ink-muted`, a Sidebar
+with gaps between rows where the real one stacks them flush and lets each
+row's own 12px padding make the rhythm. Every value was a legal token. None
+was the component. The reviewer's note was one line: *look at the sidebar or
+navigational menu header.*
+
+The pattern sheet also settles things a component sheet cannot: a control that
+GOES somewhere is a link and one that OPENS something is a button; a layout
+renders the rail **or** the bar's menu button, never both; exactly one item per
+nav carries `aria-current`. Drawing two collapsed states, or a menu button with
+no surface behind it, is a layout bug the components will not catch for you.
+
 ## The handoff sheet format
 
 Measured off the Button sheet with `get_computed_styles`, not eyeballed —
@@ -123,6 +147,7 @@ vocabulary:
 | **Not built** / **Missing** | `intent-warning-bg` | Drawn here, absent in code |
 | **Conflict** | `intent-warning-bg` | The sheet and the code disagree; someone must choose |
 | **Built** / **Closed** / **Decided** | `intent-success-bg` | Was open, now resolved — say which way |
+| **Measured** | `intent-warning-bg` | A number was taken and it is not comfortable — the row carries the ratio and names the fix, but the choice is the reader's. Distinct from **Derived**: derived is a hypothesis nobody checked, measured is a fact nobody has acted on |
 | **Derived** / **Corrected** / **Absent** | `bg-elevated` | The library's own reading, a design defect fixed, or simply not drawn |
 
 **Update the badge when the gap closes; do not delete the row.** A resolved
@@ -240,9 +265,25 @@ get_node_info({ nodeId: container })                        // laid-out rect + w
 get_children({ nodeId: container })                         // each child's worldX/worldY
 ```
 
+**First check the coordinates are real.** `get_node_info` does not always have
+them: on a hug-content auto-layout frame it returns the ARTBOARD origin for the
+container and for every child alike, with `height: 0` — the layout has not been
+resolved at the point the API answers. Three children reporting identical
+`worldX`/`worldY` is that failure, not three children stacked at a point. A
+child with an explicit `width`/`height` reports its real box, which is why the
+same call can be trustworthy for a media frame and useless for the row above it.
+
+When the coordinates are absent, say so and derive nothing. An arithmetic claim
+built on a fabricated position is worse than "not measured": the geometry gate
+will happily encode it, and the browser test will then fail against the render
+for a reason nobody can find. Screenshot at `scale: 2` to reason about the
+layout, verify what you CAN verify with `get_computed_styles`, and write the
+spec only for the nodes whose boxes the API actually returned.
+
 | Trap | Rule |
 | --- | --- |
 | Transcribing `padding` as the gap | `gaps` come from **world coordinates** — container border box to the union of the children. A gap copied from the styles panel checks the author's arithmetic against itself and can never fail. |
+| Trusting `worldX` on a hug-content frame | It is the artboard origin, not a position. Check that siblings differ before subtracting them. |
 | Recording the declared border | Record the **used** width. Paper's canvas snaps `1.5px` to 1px at DPR 1, exactly as Chromium does, and it is the difference between a sheet that adds up and one that appears to be 1px out. |
 | A frame with a typed height | Paper stretches children to fill it. If `track-is-the-sum-of-its-parts` fails on the sheet, the typed height is the suspect — say which number wins, in `deviations`. |
 
@@ -301,6 +342,8 @@ Conventions that come with it:
 | Reading dark values off the Paper token list | It is light-only. Resolve from `packages/tokens` (§ 2) |
 | Hover and selected drawn from `--ui-bg-hover` and `--ui-bg-selected` | Identical in light (`#EDE8E3`). Two states that must differ and don't = a missing token, not a design choice |
 | A 2px accent edge on its own subtle tint | `--ui-bg-accent` is a *light* blue; on `--ui-bg-accent-subtle` it vanishes. `--ui-bg-accent-legible` exists for this |
+| A role reused on a ground it was never chosen against | A token is legible against the surface its own component sits on, and nowhere by default. `--ui-border-subtle` measures 1.21:1 on `bg-sunken` — a Dot Pattern drawn with it is invisible, and the sheet still passes every sweep because the value is a legal role. Compute the ratio against the ACTUAL ground before deciding it works, then put the number in the annotation |
+| "It looks invisible" left in an annotation | A perceptual claim in a contract is the thing the next person cannot check. Replace it with the ratio and the ground — *"1.21:1 on bg-sunken, so this sheet draws it at border-default (1.76:1)"* — and, when the fix belongs to the other component, say whose doc it is |
 | The dark card put on `--ui-bg-base` | It is the page ground in dark. On `bg-surface` the hover/pressed ramp is monotonic; on `bg-base` it straddles (§ 6) |
 | A cloned full-width block dropped into a padded frame | `flexShrink: 0` children overflow the padding silently. Recompute the width against the container's **content** box |
 | A gutter of labels beside a table | Row pitch is the declared height (border-box); the spacer must be container border + header + its border. Screenshot and trace the lanes |
@@ -310,7 +353,9 @@ Conventions that come with it:
 | Judging a hairline or a 2px edge from a 1x screenshot | `scale: 2`, or you will "fix" something that was already right |
 | A value on the sheet that is not a token | It is a design bug by the time it reaches `add-component`. Either it is a role, or it is a **new** role you name and flag |
 | A screenshot of a section that comes back on BLACK | Nothing is wrong. A frame with no fill is transparent, and `get_screenshot` backs transparency with black — so `text-primary` labels look like they have vanished. Screenshot the ARTBOARD to judge colour; sections are for layout |
-| `get_screenshot` returning nothing at all, repeatedly | The artboard is too tall to render (roughly 3–4k px and up). Not a transient failure and not worth retrying — capture the sections instead, and say in the handoff that the whole board was never seen in one frame |
+| `get_screenshot` returning nothing at all, repeatedly | **Check the active page first.** Paper renders only the page that is open, so every screenshot of a node on any other page comes back empty — including a page YOU were working on a moment ago, because the user (or your own `open_file`) can move the cursor. `get_basic_info` names the active page; `open_file({ pageId })` fixes it in one call. Only once the page is right is the other cause in play: an artboard too tall to render (roughly 3–4k px and up), which is not transient and not worth retrying — capture the sections instead, and say in the handoff that the whole board was never seen in one frame |
+| A node that reads as 0×0, or children all reporting the artboard origin | Same root cause as the blank screenshot when it is page-related: an inactive page measures as nothing. If the page IS active, it is the hug-content limitation in § 8 — not a broken layout. Never "fix" a layout on this evidence |
+| A gradient that does not appear | Paper takes `background-image: linear-gradient(…)` and ignores `radial-gradient` silently. A fade under a header, or over a clipped block, works and is worth drawing; a dot grid or any repeating pattern does NOT — draw that as an SVG (`<path>` of circles) or clone the real `DotPattern`. Both failures report success |
 | A cloned overlay landing as a thin strip | The source was `position: absolute` inside a phone frame; cloned into a flex column it leaves the flow and the column collapses under it. Set `position: relative` and an explicit width/height on the clone |
 | Cloning a specimen by the layer name that sounds right | Open it first. "Nav Rail Level 2" was an agent-history rail in one place and a collapsed rail in another, and both captions were written before either was looked at |
 | A specimen painted `bg-surface` on a `bg-base` artboard | Invisible. Give it a `radius-md` frame with a `border-subtle` hairline — the sheet is documentation, so a boundary that does not exist in the product is allowed here |

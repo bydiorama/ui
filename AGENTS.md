@@ -144,10 +144,15 @@ Neither is optional and neither is sufficient; a sheet can be internally wrong,
 and a component's geometry does not exist until something lays it out. Each
 half fails if the other has no case for a spec, so they cannot drift apart.
 
-**Coverage is one item.** Tabs. The gate prints the count rather than implying
-more — an ungated component is not a passing one, it is an unmeasured one.
-ADR 0019 has the reasoning, including what the perceptual half is allowed to
-decide (nothing: it proposes, arithmetic disposes).
+**Coverage is partial, and the gate prints how partial** — an ungated
+component is not a passing one, it is an unmeasured one. Run
+`pnpm check:design-spec` for the count; it is deliberately not written down
+here. It was once ("one item, Tabs") and was still saying that after the
+count had quadrupled, which is the same failure `TODO.md` records for the
+open-questions list: a number maintained by hand is a number that goes stale
+while reading as authoritative. ADR 0019 has the reasoning, including what the
+perceptual half is allowed to decide (nothing: it proposes, arithmetic
+disposes).
 
 ## Visual regression
 

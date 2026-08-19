@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-19-add-dotpattern-decorative-dot-grid-canvas",
+  "date": "2026-08-19",
+  "item": "dot-pattern",
+  "kind": "addition",
+  "summary": "DotPattern: a decorative dot-grid layer for canvas grounds — the texture behind the Creative Editor stage and the Library's business-card previews, both drawn in Paper with the @paper-design/shaders DotGrid shader (size 1, gapX = gapY = 16, circle, colorFill #DAD4CE, colorBack transparent, over bg-sunken). One aria-hidden SVG, absolute inset-0, pointer-events none: a <pattern> tile of one centred circle per gap×gap cell and a full-size rect. Geometry is two plain-number props (gap 16, dotSize 2 — the shader's size is a RADIUS in its GLSL, so the shipped look is a 2px diameter; recorded on the sheet's Gaps section) and colour is className through currentColor, defaulting to text-edge-subtle — the first non-ink text-colour utility in the library; the browser test pins the tailwind-merge override actually winning. The library renders SVG rather than the WebGL shader deliberately: identical geometry, no runtime dependency, crisp at any DPR, printable — also recorded on the sheet, along with the observation that Paper's exports do not rasterise shader nodes, so the sheet's provenance is the shader's parameter record (get_jsx), not pixels. No geometry spec (specs/) exists for this item on purpose: the ADR 0019 laws measure container/child insets and a tile pitch has neither, so the pattern numbers are asserted in dot-pattern.browser.test.tsx instead. Both dot inks are declared decorative contrast pairs (border-subtle on bg-sunken is 1.21:1 light / 1.53:1 dark by design, measured by check:contrast — the grid is grain, not information; the doc's dont list forbids making it load-bearing). aria-hidden sits AFTER the prop spread — contract, not Skeleton's overridable default — because a texture never names anything.",
+  "affects": [
+    "prop:gap",
+    "prop:dotSize",
+    "slot:dot-pattern",
+    "token:--ui-border-subtle",
+    "token:--ui-border-default",
+    "token:--ui-bg-sunken"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2EKF-0"
+  }
+}

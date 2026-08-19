@@ -508,6 +508,22 @@
       "role": "the field's resting edge"
     }
   ],
+  "DotPattern": [
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.21,
+      "dark": 1.53
+    },
+    {
+      "fg": "--ui-border-default",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.76,
+      "dark": 2.92
+    }
+  ],
   "Drawer": [
     {
       "fg": "--ui-text-primary",

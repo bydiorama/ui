@@ -960,6 +960,26 @@
       ]
     },
     {
+      "name": "dot-pattern",
+      "type": "registry:ui",
+      "description": "A decorative dot-grid layer for canvas grounds — the texture behind the Creative Editor stage and the Library's business-card previews. One aria-hidden SVG that fills its container absolutely and paints evenly spaced circular dots, nothing else: no ground of its own, no edge, no pointer target. Geometry defaults transcribe the shipped Paper shader recipe (2px dots on a 16px pitch) and are plain-number props (gap, dotSize); the dot ink is border-subtle carried as currentColor, so className retints it with any ink utility, and the caller's container keeps its own background showing through between the dots. Paper draws this with a WebGL shader; the tiled-SVG rendering is the same geometry with no runtime dependency, crisp at any DPR and printable.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/dot-pattern/dot-pattern.tsx",
+          "type": "registry:ui",
+          "target": "ui/dot-pattern.tsx"
+        },
+        {
+          "path": "registry/ui/dot-pattern/dot-pattern.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/dot-pattern.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "empty-state",
       "type": "registry:ui",
       "description": "The absence of content, explained: a mark on a 32px well, a sentence saying what is missing, a second saying why, and the control that fixes it. Every part but the title is optional and the action is a real Button, rendered exactly as passed. It announces nothing on its own — a container that swaps it in for content the reader was looking at owns that decision, which is why Table marks the cell it renders this into aria-live.",

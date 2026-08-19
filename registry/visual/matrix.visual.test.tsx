@@ -32,6 +32,7 @@ import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@byd
 import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { AspectRatio } from "@/ui/aspect-ratio/aspect-ratio.tsx";
 import { Skeleton } from "@/ui/skeleton/skeleton.tsx";
+import { DotPattern } from "@/ui/dot-pattern/dot-pattern.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
@@ -1086,6 +1087,34 @@ const CASES: Array<{
           </div>
         </div>
         <Skeleton className="h-32 w-full rounded-md" />
+      </div>
+    ),
+  },
+  {
+    name: "dot-pattern",
+    // The default recipe with content above it, then the two densities and
+    // the strong ink beside it. What a baseline can catch here that no
+    // computed-style assertion can: the grain dissolving entirely against the
+    // well (both are derived roles and move together under a brand), or the
+    // dots rasterising as squares at some DPR. Each canvas is the caller's
+    // half of the contract — relative, bg-sunken, clipped.
+    ui: (
+      <div className="flex w-96 flex-col gap-lg">
+        <div className="relative h-24 overflow-clip rounded-md bg-sunken">
+          <DotPattern />
+          <div className="absolute top-1/2 left-1/2 h-14 w-32 -translate-x-1/2 -translate-y-1/2 rounded-sm bg-base shadow-xl" />
+        </div>
+        <div className="flex gap-lg">
+          <div className="relative h-16 flex-1 overflow-clip rounded-md bg-sunken">
+            <DotPattern gap={8} />
+          </div>
+          <div className="relative h-16 flex-1 overflow-clip rounded-md bg-sunken">
+            <DotPattern gap={24} dotSize={4} />
+          </div>
+        </div>
+        <div className="relative h-16 overflow-clip rounded-md bg-sunken">
+          <DotPattern className="text-edge-default" />
+        </div>
       </div>
     ),
   },

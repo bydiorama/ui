@@ -16,9 +16,11 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { createRoot, type Root } from "react-dom/client";
-import { act } from "react";
+import { act, useEffect, useRef } from "react";
 import type { ReactElement } from "react";
 import { InfoCircle, Search } from "griddy-icons";
+
+import { Toast, useToast } from "@/ui/toast/toast.tsx";
 
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
@@ -182,5 +184,36 @@ describe("every icon slot is sized by the component, not by the icon library", (
     // The component decides the default; the consumer decides. If tailwind-merge
     // ever stopped resolving the arbitrary variant, this would silently pin at 16.
     expect(Math.round(svg.getBoundingClientRect().width)).toBe(24);
+  });
+
+  test("Toast sizes its own glyphs at 16px — intent icon and close, portalled", async () => {
+    // Not in CASES: the toast is PORTALLED, so its svgs are never inside the
+    // mount container the generic loop queries. Same rule, measured where the
+    // toast actually renders.
+    function Fire() {
+      const manager = useToast();
+      const fired = useRef(false);
+      useEffect(() => {
+        if (fired.current) return;
+        fired.current = true;
+        manager.add({ type: "success", title: "Brand kit exported" });
+      }, [manager]);
+      return null;
+    }
+    mount(
+      <Toast.Provider timeout={0}>
+        <Fire />
+        <Toast.Viewport label="Notifications" dismissLabel="Dismiss" />
+      </Toast.Provider>,
+    );
+    const toast = document.querySelector<HTMLElement>('[data-slot="toast"]')!;
+    const svgs = Array.from(toast.querySelectorAll<SVGElement>("svg"));
+    // The CheckCircle in the icon slot plus the Close glyph.
+    expect(svgs.length).toBe(2);
+    for (const svg of svgs) {
+      const box = svg.getBoundingClientRect();
+      expect(Math.round(box.width), `${box.width}px wide`).toBe(ICON);
+      expect(Math.round(box.height), `${box.height}px tall`).toBe(ICON);
+    }
   });
 });

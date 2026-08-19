@@ -73,6 +73,7 @@ export default defineConfig({
       "@base-ui/react/select",
       "@base-ui/react/slider",
       "@base-ui/react/tabs",
+      "@base-ui/react/toast",
       "griddy-icons",
       "clsx", "tailwind-merge",
     ],

@@ -1,0 +1,115 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "toast",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2D9X-0",
+    "artboard": "Component --- Toast",
+    "extracted": "2026-08-18",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "Three figures, one inside the next. Paper draws the toast as ONE padded, bordered node; the render splits it — a bordered shell around a padded content row — because Base UI's stack clamps the shell's height to the frontmost toast and the row is what overflow-hides. The union arithmetic is identical: the sheet's 17px inset is the shell's 1px used border plus the row's 16px padding, asserted here as 1 and 16 on their own containers. The content row is the load-bearing case: four fixed slots and one flexing text column, where the vertical gaps are read off the UNION of center-aligned children of four different heights — the text column (62) is the tallest, so it alone touches the padding box.",
+  "cases": [
+    {
+      "name": "toast-shell",
+      "axis": "horizontal",
+      "nodes": { "container": "2DDG-0", "children": ["2DDG-0"] },
+      "slots": { "container": "toast", "child": "toast-content" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "The content row carries no radius of its own — it is clipped by the shell's radius-lg via overflow-hidden, which is the stack's height clamp doing its job. An unpainted radius is not a fact about the design."
+      },
+      "sheet": {
+        "container": {
+          "width": 416,
+          "height": 96,
+          "padding": 0,
+          "border": 1,
+          "radius": 16,
+          "tokens": {
+            "width": "--ui-dialog-width-md",
+            "radius": "--ui-radius-lg",
+            "fill": "--ui-bg-elevated",
+            "edge": "--ui-border-subtle",
+            "shadow": "--ui-shadow-lg"
+          }
+        },
+        "gap": 0,
+        "children": [{ "width": 414, "height": 94, "radius": null }],
+        "gaps": { "top": 1, "right": 1, "bottom": 1, "left": 1 }
+      }
+    },
+    {
+      "name": "toast-content-row",
+      "axis": "horizontal",
+      "nodes": { "container": "2DDG-0", "children": ["2DDH-0", "2DDK-0", "2DDN-0", "2DDP-0"] },
+      "slots": { "container": "toast-content", "child": "toast-icon|toast-text|toast-action|toast-close" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "The trailing controls' radii belong to their own primitives — the Action is Button md (radius-md, 8) and the Close hit area is radius-sm (4) — and both sit a full 16px padding inside the shell's corner, where concentricity would demand radius 0."
+      },
+      "sheet": {
+        "container": {
+          "width": 414,
+          "height": 94,
+          "padding": 16,
+          "border": 0,
+          "radius": null,
+          "tokens": { "padding": "--ui-space-lg", "gap": "--ui-space-md" }
+        },
+        "gap": 12,
+        "children": [
+          { "width": 16, "height": 22, "radius": null },
+          { "width": 253, "height": 62, "radius": null },
+          { "width": 53, "height": 32, "radius": 8 },
+          { "width": 24, "height": 24, "radius": 4 }
+        ],
+        "gaps": { "top": 16, "right": 16, "bottom": 16, "left": 16 }
+      }
+    },
+    {
+      "name": "toast-text-column",
+      "axis": "vertical",
+      "nodes": { "container": "2DDK-0", "children": ["2DDL-0", "2DDM-0"] },
+      "slots": { "container": "toast-text", "child": "toast-title|toast-description" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "Neither the column nor its text lines paints a fill, a border or a corner — an unpainted radius is not a fact about the design."
+      },
+      "sheet": {
+        "container": {
+          "width": 253,
+          "height": 62,
+          "padding": 0,
+          "border": 0,
+          "radius": null,
+          "tokens": { "gap": "--ui-space-xs" }
+        },
+        "gap": 4,
+        "children": [
+          { "width": 253, "height": 22, "radius": null },
+          { "width": 253, "height": 36, "radius": null }
+        ],
+        "gaps": { "top": 0, "right": 0, "bottom": 0, "left": 0 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "toast-shell",
+      "what": "Paper draws padding and border on one node (its toast root is a single 416×96 padded frame); the render splits them across the shell and the content row.",
+      "why": "Base UI clamps the shell's height to the frontmost toast while the stack is collapsed and the content row is what overflow-hides — sizing the row to the shell would cancel the height transition (Base UI's own varying-heights note). The sheet's 17px inset is asserted as the sum of the two cases: the shell's 1px used border plus the row's 16px padding."
+    },
+    {
+      "case": "toast-content-row",
+      "what": "The sheet's children are center-aligned in a row set by the tallest child, so per-child vertical offsets differ (icon at 16, action at 31, close at 35); only the union of the four rects is asserted against the padding box. The icon slot renders one title line tall (1lh ≈ 21.6) where Paper rounds it to 22, and the text/action widths are what this specimen's strings produced.",
+      "why": "align-items: center is the design: fixed-height controls float on the cross axis while the text column defines it — any child taller than the text column would surface as a broken vertical gap. The text column is the single flexing slot (flex: 1, min-width: 0), so its width, and therefore the action's neighbourly position, moves with the copy and the window; the law's horizontal arithmetic binds whatever they measure."
+    },
+    {
+      "case": "toast-text-column",
+      "what": "The sheet reports the title line as 22 tall and the two wrapped description lines as 36; Chromium's line boxes are 21.6 and 35.1 at the same tokens.",
+      "why": "Paper rounds text node heights to whole pixels. Nothing asserts the absolute line heights — the case exists for the 4px gap between them, which both sides agree on."
+    }
+  ]
+}

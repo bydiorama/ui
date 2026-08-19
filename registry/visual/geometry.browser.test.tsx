@@ -27,10 +27,13 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
 
+import { useEffect, useRef } from "react";
+
 import { Tabs } from "@/ui/tabs/tabs.tsx";
 import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
 import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
 import { Button } from "@/ui/button/button.tsx";
+import { Toast, useToast } from "@/ui/toast/toast.tsx";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
 // Importing them rather than restating them is the whole point — a second copy
@@ -39,6 +42,7 @@ import { evaluate, sides, formatFailures } from "../../scripts/lib/geometry-laws
 import tabsSpec from "../../design/paper/specs/tabs.geometry.json";
 import radioSpec from "../../design/paper/specs/radio.geometry.json";
 import tooltipSpec from "../../design/paper/specs/tooltip.geometry.json";
+import toastSpec from "../../design/paper/specs/toast.geometry.json";
 
 /** A spec case, as far as this file needs to read one. */
 type Spec = {
@@ -67,7 +71,7 @@ type Spec = {
   }>;
 };
 
-const SPECS: Spec[] = [tabsSpec as Spec, radioSpec as Spec, tooltipSpec as Spec];
+const SPECS: Spec[] = [tabsSpec as Spec, radioSpec as Spec, tooltipSpec as Spec, toastSpec as Spec];
 
 /**
  * How each spec case is put on screen.
@@ -125,6 +129,14 @@ const CASES: Record<string, () => ReactElement> = {
       <Radio value="brockmann">Josef Müller-Brockmann</Radio>
     </RadioGroup>
   ),
+  // The sheet's anatomy toast, in its fullest form. All three toast cases
+  // measure this one composition at different depths: shell → content row →
+  // text column. The widths land wherever the test window puts them (the
+  // viewport caps at 100vw − 32); the laws and the gap assertions are
+  // width-independent by construction.
+  "toast-shell": () => <ToastGeometryCase />,
+  "toast-content-row": () => <ToastGeometryCase />,
+  "toast-text-column": () => <ToastGeometryCase />,
   // `defaultIsOpen`, so the chip is on screen without driving the pointer — and
   // the string is the sheet's own, because the chip's width is its content's.
   "chip": () => (
@@ -134,6 +146,32 @@ const CASES: Record<string, () => ReactElement> = {
     </Tooltip>
   ),
 };
+
+function AddSheetToast() {
+  const manager = useToast();
+  const added = useRef(false);
+  useEffect(() => {
+    if (added.current) return;
+    added.current = true;
+    manager.add({
+      type: "success",
+      title: "Brand kit exported",
+      description: "Grid systems — Josef Müller-Brockmann, 1961",
+      action: { label: "Undo", onClick: () => {} },
+    });
+  }, [manager]);
+  return null;
+}
+
+function ToastGeometryCase() {
+  return (
+    // timeout 0: a specimen that dismisses itself mid-measurement is flake.
+    <Toast.Provider timeout={0}>
+      <AddSheetToast />
+      <Toast.Viewport label="Notifications" dismissLabel="Dismiss" />
+    </Toast.Provider>
+  );
+}
 
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;
@@ -171,7 +209,15 @@ const px = (value: string) => Number.parseFloat(value) || 0;
 function measure(containerSlot: string, childSlot: string, axis: "horizontal" | "vertical") {
   const el = document.querySelector<HTMLElement>(`[data-slot="${containerSlot}"]`);
   if (!el) throw new Error(`no [data-slot="${containerSlot}"] on screen`);
-  const kids = Array.from(document.querySelectorAll<HTMLElement>(`[data-slot="${childSlot}"]`));
+  // `child` may name SEVERAL slots, "|"-separated — Toast's content row is
+  // four different parts in one track, and the union-gap laws want all of
+  // them. Selected in document order so the track arithmetic reads the lane
+  // sequence the sheet lays out.
+  const childSelector = childSlot
+    .split("|")
+    .map((slot) => `[data-slot="${slot}"]`)
+    .join(", ");
+  const kids = Array.from(document.querySelectorAll<HTMLElement>(childSelector));
   if (!kids.length) throw new Error(`no [data-slot="${childSlot}"] on screen`);
 
   const cs = getComputedStyle(el);

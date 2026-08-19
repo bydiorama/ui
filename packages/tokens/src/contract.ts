@@ -536,4 +536,16 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // against `bg-base`, and a row is `bg-surface` — one step off the page, and
   // the step is in the direction that costs contrast in light.
   ["--ui-focus-ring-color", "--ui-bg-surface"],
+  // Toast's intent glyph, on the toast surface. The glyph is the ONLY channel
+  // carrying the toast's type — the fill never tints (the sheet's rule: a
+  // tinted stack reads as a traffic light) — so each intent ink is a
+  // meaningful graphic against `bg-elevated` (SC 1.4.11) rather than text on
+  // an intent-tinted well the way Banner's pairs measure it. `danger-fg` on
+  // this ground also covers Toast's Close glyph hover-tint arithmetic, but it
+  // is the four glyph inks that were unaudited: elevated is one step off the
+  // grounds every intent pair had ever been measured against.
+  ["--ui-intent-info-fg", "--ui-bg-elevated"],
+  ["--ui-intent-success-fg", "--ui-bg-elevated"],
+  ["--ui-intent-warning-fg", "--ui-bg-elevated"],
+  ["--ui-intent-danger-fg", "--ui-bg-elevated"],
 ] as const;

@@ -195,6 +195,32 @@
       ]
     },
     {
+      "name": "toast",
+      "type": "registry:ui",
+      "description": "A transient notification stacked bottom-right of the viewport, built on Base UI Toast. One Provider + Viewport around the app; everything fires through useToast() (add, close, update, promise). Five types carried by a leading intent glyph — the surface never tints. Toasts collapse into a stack of three, clamped to the frontmost height, and expand on viewport hover or focus. The viewport landmark label and the close button's accessible name are required at the type level.",
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/motion",
+        "@bydiorama/button"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/toast/toast.tsx",
+          "type": "registry:ui",
+          "target": "ui/toast.tsx"
+        },
+        {
+          "path": "registry/ui/toast/toast.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/toast.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "tooltip",
       "type": "registry:ui",
       "description": "A short label that appears on hover or focus and names a control that cannot name itself. Compound: Provider, Trigger, Content. The smallest surface in the library and the only one that is never interactive — a pointer leaving the trigger dismisses it, so nothing inside could be reached. An opaque --ui-bg-emphasis chip rather than an elevated panel, because a tooltip and a Popover are told apart by their fill before anything else. Anchoring, the hover and focus wiring, the delay group and aria-describedby come from Base UI (ADR 0012).",

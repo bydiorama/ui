@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-18-add-toast",
+  "date": "2026-08-18",
+  "item": "toast",
+  "kind": "addition",
+  "summary": "Toast: Provider + Viewport, everything else through useToast() — the per-toast anatomy is deliberately not public API, because all twelve measured call sites hand data to a manager. Built on Base UI Toast: queue, timers, stack measurement, swipe and announcement come from there; the surface is the Popover panel's recipe on radius-lg with shadow-lg, one size, at --ui-dialog-width-md. Five types (info/success/warning/danger/loading) carried ONLY by a leading intent glyph — the fill never tints, so a stack does not read as a traffic light; Base UI's promise() stamps `error` and the renderer treats it as danger, keeping the library's vocabulary (CONVENTIONS §2). Four things came out of building it. (1) The title is text-body-lg, not text-title-sm: the title roles are fluid and a toast is a fixed-width surface, so title-sm would compute below the sheet's 16px — the browser test asserts the computed 16. (2) The split transition (transforms on the spring pair, opacity on duration-slow, height on duration-fast) cannot be one Tailwind shorthand, so it ships as longhand arbitrary properties — and check:utilities' transition rules could not see those, demanding a shorthand the component avoids: the gate now parses [transition-property:…] and its class extractor admits arbitrary-property classes at all (they were filtered before any rule ran). Probed failing-first through the new path, both rules. (3) Four contrast pairs joined NONTEXT_CONTRAST_PAIRS — each intent fg on bg-elevated, a ground no intent ink had ever been measured against (5.38–5.62:1 light, 7.23–8.56:1 dark). (4) The geometry harness accepts \"|\"-separated child slots, because the content row is four different parts in one track and the union-gap laws want all of them; toast contributes three geometry cases (shell → content row → text column) split across Root and Content where Paper draws one padded node — the deviation is recorded in the spec. The viewport's landmark label and the close button's accessible name are REQUIRED props; axe caught duplicate landmarks in the stories the first time two viewports shared a name.",
+  "affects": [
+    "prop:label",
+    "prop:dismissLabel",
+    "prop:container",
+    "prop:limit",
+    "prop:timeout",
+    "prop:type",
+    "prop:action",
+    "prop:priority",
+    "hook:useToast",
+    "slot:toast-viewport",
+    "slot:toast",
+    "slot:toast-content",
+    "slot:toast-icon",
+    "slot:toast-text",
+    "slot:toast-title",
+    "slot:toast-description",
+    "slot:toast-action",
+    "slot:toast-close",
+    "slot:toast-spinner",
+    "token:--ui-intent-info-fg",
+    "token:--ui-intent-success-fg",
+    "token:--ui-intent-warning-fg",
+    "token:--ui-intent-danger-fg"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2D9X-0"
+  }
+}

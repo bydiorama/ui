@@ -24,7 +24,7 @@ import { ChevronDown, Colors, ExpandSidebar, Home, Image, Inbox, InfoCircle, Sea
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
-import { act } from "react";
+import { act, useEffect, useRef } from "react";
 import type { ReactElement } from "react";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@bydiorama/tokens";
@@ -43,6 +43,7 @@ import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
 import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
+import { Toast, useToast } from "@/ui/toast/toast.tsx";
 import { Drawer } from "@/ui/drawer/drawer.tsx";
 import { Header } from "@/ui/header/header.tsx";
 import { ImageEdit } from "@/ui/image-edit/image-edit.tsx";
@@ -224,6 +225,25 @@ const MULTISELECT_ITEMS: MultiselectItem[] = [
   { value: "guidelines", label: "Brand Guidelines" },
   { value: "stationery", label: "Stationery" },
 ];
+
+/** Fires the toast case's stack once, on mount — newest (fullest) in front. */
+function VisualToasts() {
+  const manager = useToast();
+  const added = useRef(false);
+  useEffect(() => {
+    if (added.current) return;
+    added.current = true;
+    manager.add({ title: "Draft saved", description: "New Alphabet — Wim Crouwel, 1967" });
+    manager.add({ type: "danger", title: "Export failed", description: "Movable type — Johannes Gutenberg, 1440" });
+    manager.add({
+      type: "success",
+      title: "Brand kit exported",
+      description: "Grid systems — Josef Müller-Brockmann, 1961",
+      action: { label: "Undo", onClick: () => {} },
+    });
+  }, [manager]);
+  return null;
+}
 
 const CASES: Array<{
   name: string;
@@ -974,6 +994,24 @@ const CASES: Array<{
           </Popover.Panel>
         </Popover>
       </div>
+    ),
+  },
+  {
+    name: "toast",
+    isOverlay: true,
+    // The collapsed stack, which is the resting truth of this component: the
+    // frontmost toast's full anatomy (glyph, title, description, action,
+    // close) with two older toasts peeking above it, scaled and clamped.
+    // The expanded state is hover-driven and lives in the browser test.
+    ui: (portalContainer) => (
+      <Toast.Provider timeout={0}>
+        <VisualToasts />
+        <Toast.Viewport
+          label="Notifications"
+          dismissLabel="Dismiss"
+          container={portalContainer}
+        />
+      </Toast.Provider>
     ),
   },
   {

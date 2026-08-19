@@ -173,7 +173,13 @@ const SPACING_STEPS = new Set(["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"
 const FOCUS_RING = "shadow-(--ui-focus-ring)";
 const FORCED_FALLBACK = /forced-colors:outline/;
 
-const TRANSITION_LIST = /^transition-\[([^\]]+)\]$/;
+// Both spellings of "these properties transition": the shorthand utility and
+// the longhand arbitrary property. Toast is why the longhand exists here — it
+// splits durations PER PROPERTY (`[transition-duration:…,…]`), which the
+// shorthand cannot express and which fights the shorthand's own default
+// duration/easing declarations if the two are mixed. The single capture group
+// is normalised in `transitionListsIn` below.
+const TRANSITION_LIST = /^(?:transition-\[([^\]]+)\]|\[transition-property:([^\]]+)\])$/;
 const COVERS_TRANSFORM = new Set(["transition-transform", "transition-all"]);
 const ENTER_EXIT = /data-\[(?:starting|ending)-style\]:-?(scale|translate|rotate)-/g;
 
@@ -231,7 +237,13 @@ function classesIn(source) {
       // emitted no CSS with the gate green. Avatar.Group is the first component
       // to need one, which is the first-of-its-kind rule landing on a SIGN
       // rather than on a namespace or a file extension.
-      .filter((c) => /^-?[a-z][\w:[\]().,%/#-]*$/.test(c))
+      // A leading `[` must also be allowed through: an ARBITRARY PROPERTY
+      // (`[transition-property:translate,scale]`) is a class too, and the
+      // transition rules above read it. The anchored `^-?[a-z]` filter dropped
+      // every one of them, so Toast's longhand transition — the first in the
+      // library — was invisible to rule B and the gate demanded a shorthand
+      // the component deliberately avoids.
+      .filter((c) => /^-?[a-z][\w:[\]().,%/#-]*$/.test(c) || /^\[[a-z-]+:[^\s\]]+\]$/.test(c))
       .map((c) => {
         let out = c;
         while (VARIANT.test(out)) out = out.replace(VARIANT, "");
@@ -279,7 +291,10 @@ for (const file of walk(join(ROOT, "registry"))) {
   }
 
   // Rule A: `transform` in a transition list transitions nothing here.
-  const lists = [...classes].map((c) => c.match(TRANSITION_LIST)).filter(Boolean);
+  const lists = [...classes]
+    .map((c) => c.match(TRANSITION_LIST))
+    .filter(Boolean)
+    .map((m) => [m[0], m[1] ?? m[2]]);
   for (const list of lists) {
     if (/\btransform\b/.test(list[1])) {
       errors.push(

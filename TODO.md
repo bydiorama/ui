@@ -98,7 +98,7 @@ Design:
 - [ ] Table Line Items
 - [x] Tabs Underlined
 - [x] Text Area
-- [ ] Toast
+- [x] Toast
 - [ ] Tooltip
 - [ ] Weight Allocator
 - [ ] Wizard Layouts/Steps

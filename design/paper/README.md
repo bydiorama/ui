@@ -11,8 +11,64 @@ editable source.** Token flow is repo → Paper, never the reverse.
 | Approved | 2026-08-03 (colour, type, spacing, radius, borders, intents, light/dark portal stress tests, first components, modal + micro-elevation + warm scrim, brand-panel layouts) |
 | Adopted into code | ledger `2026-08-03-adopt-approved-handover-tokens`, ADRs 0008–0010 |
 | Token snapshot at adoption | `tokens.snapshot.json` (Paper's token list the day the values were ported) |
-| Section exports | `exports/` (PNG, 1x) |
+| Section exports | `exports/` (PDF) — the whole Style Guide is `exports/style-guide.pdf` |
 | Geometry, as numbers | `specs/<item>.geometry.json` — see below |
+
+## The Style Guide sheet
+
+`Components - Design` (page `4-0`), artboard
+[`Style Guide`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/7VK-0)
+· `exports/style-guide.pdf`.
+
+It fixes the **semantic layer** — which role means what, in both schemes — and
+nothing below it. Where a component sheet specifies geometry it wins, and where
+a primitive's source specifies a size or a radius that wins over both
+(`pnpm design:primitives`).
+
+Rebuilt 2026-08-18 onto the 1280 handoff canvas the component sheets use, and
+extended to the parts of the system that had grown past it:
+
+| Section | Why it was added |
+|---|---|
+| Colour → **Both schemes** | The swatch grids are light-only. This is the colour token map — role, light, dark — and it is the section that gets implemented from. It is also the only place the **surface scale inversion** is drawn: in dark `bg-base` is the lightest *surface*, so a card put there straddles its own hover/pressed ramp. |
+| Colour → **Roles a swatch grid cannot show** | The media family, both gradients, scrim and selection. None of them is a flat colour, so none had ever appeared. |
+| **Borders & focus** | Four weights plus the two-stop focus ring, with the measured contrast that decides which edge takes which. Replaces the Colour section's old Borders block — borders were specified in two places. |
+| **Elevation** | Eight shadow roles. Paper has no shadow token type, so the values are pasted and the **layer name carries the role**. |
+| **Motion** | Durations, easing curves, intents and the interaction constants. The library had no drawn motion at all. |
+| Spacing → **intents and layout constants** | `stack` / `inline` / `inset`, the width and hit-area constants, and the z-scale. |
+| **Gaps** | Twelve rows, badged, mirroring the same vocabulary the component sheets use. |
+
+### Token flow, and what Paper still cannot hold
+
+Values flow **repo → Paper**. Syncing the sheet added **31 tokens** that
+existed in `packages/tokens` and not in the file — the spacing intents,
+`space-3xl`/`4xl`, the media family, selection, `border-width`, the hit areas,
+`logo-height`, `section-gap` and the three width containers — and corrected
+`--ui-radius-full` from Paper's `9999px` to the repo's `999px` (identical in
+render; corrected so the two sides read the same).
+
+Three things still cannot be tokens there, and each is annotated on the sheet
+rather than approximated:
+
+- **Motion and elevation.** Paper's token types are colour, spacing, radius,
+  type and containers — there is no duration, easing or shadow type.
+- **The fluid type scale.** Five display and title roles ship as `clamp()`; a
+  flat file can only draw the ceiling, so every type specimen on the sheet is
+  the wide end and nothing shows the narrow one.
+- **`light-dark()` pairs**, as recorded throughout this file.
+
+### What the sweep found in the sheet itself
+
+The style guide was breaking the rule it exists to state, and none of it was
+visible in a screenshot: 18 text nodes carried a raw `#1C1A1A` — which is *not*
+`--ui-text-primary` (`#1D1B19`) — four section heads carried raw
+`24px` / `-0.02em` / `135%` instead of the type roles, two labels sat at 10px
+under the 12px floor `--ui-text-caption` already is, two buttons wore a
+0.24-alpha shadow where `--ui-shadow-sm` is 0.16 on a 0.25px sub-pixel border,
+and eleven radii were 2px off a scale that starts at 4. All corrected. A value
+on a sheet that is not a token is a design bug by the time it reaches
+`add-component`, so the sweep in the `design-component` skill is not optional.
+
 
 ## `specs/` — the one part of this folder that is not evidence
 

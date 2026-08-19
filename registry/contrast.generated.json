@@ -1466,6 +1466,64 @@
       "dark": 1.44
     }
   ],
+  "Toast": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 11.2,
+      "role": "the title — 15.53:1 light / 11.20:1 dark"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.78,
+      "role": "the description, the Close glyph and the loading spinner — 5.36:1 light / 5.78:1 dark"
+    },
+    {
+      "fg": "--ui-intent-info-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.39,
+      "dark": 8.18,
+      "role": "the info glyph — 5.39:1 light / 8.18:1 dark; the glyph is the only channel carrying the type (SC 1.4.11)"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.62,
+      "dark": 8.26,
+      "role": "the success glyph — 5.62:1 light / 8.26:1 dark"
+    },
+    {
+      "fg": "--ui-intent-warning-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.48,
+      "dark": 7.23,
+      "role": "the warning glyph — 5.48:1 light / 7.23:1 dark"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.38,
+      "dark": 8.56,
+      "role": "the danger glyph — 5.38:1 light / 8.56:1 dark"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.17,
+      "role": "the toast against the page"
+    }
+  ],
   "Tooltip": [
     {
       "fg": "--ui-text-on-emphasis",

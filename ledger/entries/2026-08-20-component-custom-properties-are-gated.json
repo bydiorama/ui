@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-20-component-custom-properties-are-gated",
+  "date": "2026-08-20",
+  "item": "system",
+  "kind": "addition",
+  "summary": "check:utilities gains rule C — component-level CSS custom properties (CONVENTIONS §6), the one styling surface every gate here was blind to. Both of their spellings are ARBITRARY values, which this gate skips by design: `[--ui-chat-message-bubble-max-width:75%]` declares one and `max-w-(--ui-chat-message-bubble-max-width)` reads it. Skipping is right for the VALUE — the whole point is that a component names its own — and wrong for the NAME, because a misspelling on either side emits nothing, looks identical to the working version in review, and falls back to whatever the property's absence leaves behind. Three directions, because it fails three ways: a READ that is neither a contract token nor declared anywhere in the registry; a DECLARATION in a component that nothing in that component reads; and a DECLARATION in a story overriding a property no component has, which is how a story comes to demonstrate a customisation surface that does not exist. All three probed failing-first, and the read case usefully reports both halves of a typo. THE RULE'S FIRST RUN FOUND A FALSE POSITIVE AND NO BUGS: Table, which had already solved the problem properly by declaring its property through a `style` object, because the value is a `calc()` an arbitrary class cannot hold. Two spellings; the rule knew one. Recorded in the gate rather than quietly widened — it is the first-of-its-kind rule landing on a gate instead of a component. Separately, `matrix.visual.test.tsx` now asserts `scrollWidth <= clientWidth` before every capture: `elementLocator().toMatchScreenshot()` shoots the element's BOX, so a case wider than the 560px frame's 512px content box is cropped out of the baseline and every future run compares the crop against itself. That is the THIRD cause of a cropped baseline in this file, after the browser viewport and the iframe downscale, and the first two were both found by a person noticing a clipped control. Probed with the real defect — a `w-[560px]` case overflowing by 24px.",
+  "affects": [
+    "gate:check:utilities",
+    "gate:test:visual"
+  ]
+}

@@ -1446,6 +1446,38 @@ describe("visual baselines", () => {
       test(`${name} — ${scheme}`, async () => {
         const el = mount(ui, scheme, isOverlay);
         await stable(el);
+
+        /*
+          NOTHING MAY OVERFLOW THE FRAME.
+
+          `elementLocator().toMatchScreenshot()` captures the element's BOX, so
+          anything wider than it is cropped out of the baseline silently — and
+          a cropped baseline compares cleanly against a cropped capture forever
+          after. This file has already been bitten twice by that shape: once by
+          the browser viewport (450px PNGs of a 608px frame) and once by the
+          iframe downscale (448px of 560). Both were found by a person noticing
+          a clipped control and checking the PNG's dimensions.
+
+          This is the same check made automatic, and it catches the third
+          cause, which is inside the case rather than around it: the frame is
+          560px wide with 24px of padding, so a case sized `w-[560px]` overflows
+          it by 48 and loses its trailing edge. That is exactly how the first
+          chat-composer baseline lost its send button. Size a case to the
+          frame's CONTENT width, or let it fill.
+
+          Not asserted for an overlay: those mount a fixed surface inside a
+          clipped 640px stage on purpose, and the stage's own overflow is the
+          mechanism rather than a mistake.
+        */
+        if (!isOverlay) {
+          expect(
+            el.scrollWidth,
+            `${name}: content is ${el.scrollWidth}px wide in a ${el.clientWidth}px frame — ` +
+              `the ${el.scrollWidth - el.clientWidth}px past the edge will be CROPPED out of the ` +
+              `baseline, and every future run will compare the crop against itself`,
+          ).toBeLessThanOrEqual(el.clientWidth);
+        }
+
         await expect(page.elementLocator(el)).toMatchScreenshot(`${name}-${scheme}`, {
           // ZERO tolerance, absolute — not a ratio.
           //

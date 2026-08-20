@@ -21,6 +21,21 @@ const declared = new Set(
   [...toTailwindTheme().matchAll(/^\s*(--[\w-]+):/gm)].map((m) => m[1]),
 );
 
+/**
+ * Every `--ui-*` the token layer emits, from the contract rather than from the
+ * Tailwind theme.
+ *
+ * The theme above is the UTILITY namespace (`--color-*`, `--spacing-*`); its
+ * values are `var(--ui-*)`, and several contract tokens deliberately mint no
+ * utility at all (`--ui-focus-ring`, the durations, the easings). Rule C below
+ * needs the other list — what a component may legally reach for with the
+ * parens syntax.
+ */
+const { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS } = await import(
+  join(ROOT, "packages/tokens/src/contract.ts")
+);
+const contractTokens = new Set([...BRANDABLE_TOKENS, ...FIXED_TOKENS, ...SCHEME_ONLY_TOKENS]);
+
 /** Utility prefix → the theme namespace it resolves against. */
 const NAMESPACES = [
   // `bg-linear-to-b` is a GRADIENT DIRECTION, not a colour, and the bare
@@ -183,6 +198,50 @@ const TRANSITION_LIST = /^(?:transition-\[([^\]]+)\]|\[transition-property:([^\]
 const COVERS_TRANSFORM = new Set(["transition-transform", "transition-all"]);
 const ENTER_EXIT = /data-\[(?:starting|ending)-style\]:-?(scale|translate|rotate)-/g;
 
+/**
+ * Component-level custom properties (CONVENTIONS §6) — the ONE styling surface
+ * every gate here was blind to.
+ *
+ * `--ui-{component}-{part}-{property}` is sanctioned as the override surface
+ * below the token layer, and both of its spellings are ARBITRARY values, which
+ * this gate skips by design: `[--ui-chat-message-bubble-max-width:75%]` declares
+ * one and `max-w-(--ui-chat-message-bubble-max-width)` reads it. Skipping is
+ * right for the VALUE — the whole point is that a component names its own — and
+ * wrong for the NAME, because a misspelling on either side emits nothing, looks
+ * exactly like the working version in review, and falls back to whatever the
+ * property's absence leaves behind. That is the same failure this file's header
+ * describes, one layer down.
+ *
+ * Three rules, because it fails three ways:
+ *
+ *   C1  a READ of a property that is neither a contract token nor declared
+ *       anywhere in the registry — a typo, resolving to nothing.
+ *   C2  a DECLARATION in a component that nothing in that component reads —
+ *       dead, and usually the other half of a C1 typo.
+ *   C3  a DECLARATION in a story that overrides a property no component
+ *       declares — an override of nothing, which is exactly how a
+ *       story comes to demonstrate a customisation surface that is not there.
+ */
+const COMPONENT_PROP_READ = /\((?:image:)?(--ui-[\w-]+)\)/g;
+
+/**
+ * A declaration has TWO spellings, and the first version of this rule knew one.
+ *
+ * The arbitrary-property class `[--x:12px]` is the common one. The other is a
+ * `style` object — `{ "--ui-table-body-radius": "calc(…)" }` — which is what a
+ * component reaches for when the VALUE has to be computed, since an arbitrary
+ * class cannot hold a `calc()` with spaces in it. Table has done exactly that
+ * since it shipped, and the first run of this rule reported it as a read of a
+ * property nobody declares: a false positive, on the one file that had already
+ * solved the problem properly.
+ *
+ * Recorded rather than quietly fixed, because it is the first-of-its-kind rule
+ * landing on a gate instead of a component — the second spelling existed
+ * before the check did.
+ */
+const COMPONENT_PROP_DECLARED =
+  /\[(--ui-[\w-]+):[^\]]*\]|["'](--ui-[\w-]+)["']\s*:/g;
+
 const VARIANT =
   /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-[a-z-]+|aria-\[[^\]]+\]|data-\[[^\]]+\]|has-\[[^\]]+\]|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
 
@@ -270,17 +329,37 @@ function walk(dir, out = []) {
 const errors = [];
 let checkedFiles = 0;
 let checkedClasses = 0;
+let checkedProps = 0;
 
-for (const file of walk(join(ROOT, "registry"))) {
-  const rel = file.slice(ROOT.length + 1);
+// Read once, in one pass: rule C is CROSS-FILE — a property is declared in a
+// component and overridden from a story — so it cannot be answered while
+// walking.
+const sources = walk(join(ROOT, "registry"))
+  .map((file) => file.slice(ROOT.length + 1))
   // cn.ts is merge CONFIGURATION: its strings are tailwind-merge group
   // identifiers — "text-color", "font-size", "leading" — not classes. Reading
   // them as utilities reported `--color-color` as missing, which is true and
   // meaningless. The rest of registry/lib is real styling and is scanned.
-  if (rel === "registry/lib/cn/cn.ts") continue;
+  .filter((rel) => rel !== "registry/lib/cn/cn.ts")
+  .map((rel) => {
+    const source = stripComments(readFileSync(join(ROOT, rel), "utf8"));
+    return {
+      rel,
+      source,
+      classes: classesIn(source),
+      isStory: /\.stories\.tsx$/.test(rel),
+      declares: new Set([...source.matchAll(COMPONENT_PROP_DECLARED)].map((m) => m[1] ?? m[2])),
+      reads: new Set([...source.matchAll(COMPONENT_PROP_READ)].map((m) => m[1])),
+    };
+  });
+
+/** Every component property the LIBRARY declares — stories cannot mint one. */
+const componentProps = new Set(
+  sources.filter((f) => !f.isStory).flatMap((f) => [...f.declares]),
+);
+
+for (const { rel, source, classes } of sources) {
   checkedFiles++;
-  const source = stripComments(readFileSync(file, "utf8"));
-  const classes = classesIn(source);
 
   // A box-shadow focus ring needs an outline fallback for forced colours.
   if (source.includes(FOCUS_RING) && !FORCED_FALLBACK.test(source)) {
@@ -351,6 +430,39 @@ for (const file of walk(join(ROOT, "registry"))) {
   }
 }
 
+// Rule C: component-level custom properties, in all three directions.
+for (const { rel, isStory, declares, reads } of sources) {
+  for (const name of reads) {
+    checkedProps++;
+    if (contractTokens.has(name) || componentProps.has(name)) continue;
+    errors.push(
+      `${rel}: reads "${name}", which is neither a token the theme emits nor a property any ` +
+        `component declares — it resolves to nothing, and the utility silently falls back.`,
+    );
+  }
+  for (const name of declares) {
+    checkedProps++;
+    if (isStory) {
+      // A story may only OVERRIDE. Minting one here demonstrates a
+      // customisation surface the component does not have.
+      if (!componentProps.has(name)) {
+        errors.push(
+          `${rel}: sets "${name}", which no component declares — a story cannot mint a ` +
+            `custom property, so this override reaches nothing.`,
+        );
+      }
+      continue;
+    }
+    if (!reads.has(name) && !contractTokens.has(name)) {
+      errors.push(
+        `${rel}: declares "${name}" and never reads it. Either the read is spelled ` +
+          `differently, or the property is dead — CONVENTIONS §6 properties exist to be ` +
+          `consumed by the component that owns them.`,
+      );
+    }
+  }
+}
+
 if (errors.length) {
   console.error("Utilities that do not do what they say:\n");
   for (const e of errors) console.error(`  - ${e}`);
@@ -359,5 +471,5 @@ if (errors.length) {
 }
 
 console.log(
-  `utilities ok — ${checkedClasses} themed utilities across ${checkedFiles} component file(s) all resolve`,
+  `utilities ok — ${checkedClasses} themed utilities and ${checkedProps} component custom property use(s) across ${checkedFiles} component file(s) all resolve`,
 );

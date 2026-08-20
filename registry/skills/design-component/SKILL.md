@@ -282,10 +282,11 @@ spec only for the nodes whose boxes the API actually returned.
 
 | Trap | Rule |
 | --- | --- |
+| Reading `x`/`y` as the offset from the frame | They are relative to the **padding box**; `worldX`/`worldY` are relative to the **border box**. On a 1.5px border the two disagree by exactly that, and the DISAGREEMENT is the most useful number on the sheet: a child reporting `x: 12` at a world delta of 13.5 is telling you the border is 1.5 and the padding is 12. Always subtract world coordinates; use `x`/`y` only to cross-check what the border is. |
 | Transcribing `padding` as the gap | `gaps` come from **world coordinates** — container border box to the union of the children. A gap copied from the styles panel checks the author's arithmetic against itself and can never fail. |
 | Trusting `worldX` on a hug-content frame | It is the artboard origin, not a position. Check that siblings differ before subtracting them. |
 | Recording the declared border | Record the **used** width. Paper's canvas snaps `1.5px` to 1px at DPR 1, exactly as Chromium does, and it is the difference between a sheet that adds up and one that appears to be 1px out. |
-| A frame with a typed height | Paper stretches children to fill it. If `track-is-the-sum-of-its-parts` fails on the sheet, the typed height is the suspect — say which number wins, in `deviations`. |
+| A frame with a typed height | Paper stretches children to fill it, so the height becomes a SECOND author of the inset and the two agree only by accident. Try removing it first — `height: fit-content` and see whether the parts add up — before reaching for a `deviation`. Chat Composer's frame was typed 56px over a padding that declares 58: the horizontal gap, which nothing else authored, was 13.5, and the vertical was 12. A deviation records a disagreement that is INTENDED; this was Tabs' defect with a different number. |
 
 ## Placeholder data
 

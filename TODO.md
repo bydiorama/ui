@@ -102,11 +102,11 @@ Design:
 - [ ] Tooltip
 - [ ] Weight Allocator
 - [ ] Wizard Layouts/Steps
-- [ ] Widget
-- [ ] Progress Long Operations
-- [ ] Progress Sectioned List
-- [ ] Progress Stream
-- [ ] Message Bubble
+- [x] Widget — shipped as `chat-widget` (text + media) and `chat-questionnaire`; the sheets disagreed about whether the questionnaire is a payload or its own item, and the drawings settled it
+- [x] Progress Long Operations — `chat-progress`, form="measured"
+- [x] Progress Sectioned List — `chat-progress`, form="steps"
+- [x] Progress Stream — `chat-progress`, form="activity"; the three above ship as ONE component with a form axis, per the sheet's own Not built row — the receipt, the motion and the collapse are shared and three siblings would drift apart on exactly those
+- [x] Message Bubble — `chat-message`, as `ChatMessage.Sender` / `.Receiver`; there is no bare `<ChatMessage>` because the receiver has no bubble
 
 Use case specific:
 - [ ] Hint / Callout

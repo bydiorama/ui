@@ -44,7 +44,7 @@ to be read, owned and modified downstream.
 | `pnpm check:motion` | Fail on a literal duration, an unguarded keyframe, or undocumented motion |
 | `pnpm check:design-spec` | Fail if a design geometry spec breaks its own laws, or nothing renders it |
 | `pnpm ledger:new` | Scaffold a change-ledger entry |
-| `pnpm type-check` | `tsc --noEmit` |
+| `pnpm type-check` | `tsc --noEmit` **and** the storybook project's own. Run the script, never bare `tsc`: `apps/storybook` has a separate tsconfig, and every `*.stories.tsx` error appears only there |
 | `pnpm lint` | ESLint |
 
 Run `pnpm verify` before considering any change done. It needs no `node_modules`

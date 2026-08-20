@@ -26,21 +26,21 @@ read for compliance. This file carries only what is not yet true.
 
 Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 
-## Status — 2026-08-16
+## Status — 2026-08-20
 
 | | |
 |---|---:|
-| Distributed items (`ui.manifest.json`) | 43 |
-| — components | 35 |
+| Distributed items (`ui.manifest.json`) | 52 |
+| — components | 44 |
 | — lib / hook / font / skill | 5 / 1 / 1 / 1 |
-| Generated registry items (`r/*.json`) | 43 |
-| Ledger entries / ADRs | 165 / 18 |
+| Generated registry items (`r/*.json`) | 52 |
+| Ledger entries / ADRs | 178 / 19 |
 | `pnpm verify` gates | 17, green |
 | Node tests | 100, green |
-| Browser tests — contract + story a11y | 915 across 77 files, green |
-| Declared design gaps | 127, across 35 of 35 docs |
-| Visual baselines | 70 (35 cases x 2 schemes), **all `-chromium-darwin`**, all current |
-| Consumer drift (service-portal, 26 items) | 22 current, 4 stale, 0 modified |
+| Browser tests — contract + story a11y | 1179 across 96 files, green |
+| Declared design gaps | 164, across 44 of 44 docs |
+| Visual baselines | 88 (44 cases x 2 schemes), **all `-chromium-darwin`**, all current |
+| Consumer drift (service-portal, 26 items) | not re-measured since 2026-08-16 — needs a consumer checkout |
 
 Reproduce with `pnpm verify`, `pnpm test`, `pnpm test:browser`,
 `pnpm design:gaps`, and — from a checkout of this repo — `node

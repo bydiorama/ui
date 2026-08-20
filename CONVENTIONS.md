@@ -76,7 +76,12 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 - **Semantic tokens only.** `bg-surface`, never `bg-[#fff]`, never `bg-gray-100`.
   Enforced by lint — the Tailwind theme only exposes token-mapped utilities.
 - Component-level CSS variables are named `--ui-{component}-{part}-{property}`
-  and are the *only* sanctioned override surface below the token layer.
+  and are the *only* sanctioned override surface below the token layer. Both
+  of their spellings are ARBITRARY values — `[--ui-x:75%]` declares one and
+  `max-w-(--ui-x)` reads it — so a misspelling on either side emits nothing and
+  falls back silently. `check:utilities` rule C checks the NAME in all three
+  directions: a read that resolves to nothing, a declaration nothing reads, and
+  a story overriding a property no component declares.
 - Never `transition: all` — enumerate the animated properties.
 - Every part gets a stable `data-slot` attribute so consumers and tests can
   target internals without depending on class names.

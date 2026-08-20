@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-19-add-chatmessage-the-two-voices-of-a-thread",
+  "date": "2026-08-19",
+  "item": "chat-message",
+  "kind": "addition",
+  "summary": "ChatMessage: the two voices of an agent thread, as ONE item with TWO components and deliberately no bare <ChatMessage>. The sheet's own Gaps row asked for that and §7a's Sheet-and-Drawer test agrees — the receiver has no bubble by design, so a `role` prop would carry a bubble, an attachment slot and a status caption that mean nothing in half its uses, and an actions row, a caret and a failure block that mean nothing in the other half. Sender: right-aligned bg-elevated bubble, radius-lg, no tail, no border, no avatar, no timestamp inside; attachments above the text INSIDE the bubble; delivery state carried entirely by a caption, because the bubble's fill never moves — asserted as a sameness, which is the assertion that fails if anyone tints it. Receiver: no container at all, leading-relaxed against the sender's leading-normal (asserted as an ORDERING, not two numbers), a static caret while streaming, and the actions row WITHHELD rather than hidden while it streams — a hidden row is six tab stops in front of an unfinished answer. The row is revealed by hover AND focus-within AND forced visible under `@media (hover:none)`: three channels, because dropping any one strands a keyboard or a touch user. THE WIDTH CAP IS A CUSTOM PROPERTY, NOT A PROP. The sheet's rule (75% at 640, 85% once the column narrows) is about the COLUMN, and no viewport breakpoint describes a 308px sidebar inside a 1440px window — so `--ui-chat-message-bubble-max-width` is declared on the root at 75% and the app that chose the column moves it. It is also not the same axis as `size`: the sheet draws a 343px mobile column at `md` with the narrow cap. TWO DEVIATIONS FROM THE DRAWING, both pushed back into Paper. The failed caption reads \"Not sent — retry\" in the sheet; a word inside a caption cannot be tabbed to and announces as prose, so retry ships as a real Button and the sheet has been redrawn (both schemes). The failure block is a tighter Banner with an action — Banner is p-lg, has no action slot, and uses --ui-intent-danger-fg where this uses the deeper --ui-text-on-danger-subtle — so it ships as a local recipe with the third-inline-alert observation recorded in needsDesign. Geometry spec covers both voices, and the receiver case is the one worth having: a track with no inset, no fill and no corner, held together by 12px.",
+  "affects": [
+    "prop:size",
+    "prop:attachments",
+    "prop:status",
+    "prop:statusText",
+    "prop:isStreaming",
+    "prop:actions",
+    "prop:meta",
+    "prop:isActionsVisible",
+    "prop:errorText",
+    "prop:onRetryAction",
+    "prop:retryLabel",
+    "slot:chat-message",
+    "slot:chat-message-bubble",
+    "slot:chat-message-attachments",
+    "slot:chat-message-text",
+    "slot:chat-message-status",
+    "slot:chat-message-body",
+    "slot:chat-message-caret",
+    "slot:chat-message-error",
+    "slot:chat-message-actions",
+    "slot:chat-message-meta",
+    "slot:chat-message-retry",
+    "token:--ui-bg-elevated",
+    "token:--ui-text-primary",
+    "token:--ui-text-muted",
+    "token:--ui-intent-danger-fg",
+    "token:--ui-intent-danger-bg",
+    "token:--ui-text-on-danger-subtle",
+    "token:--ui-leading-relaxed",
+    "token:--ui-radius-lg"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2H88-0"
+  }
+}

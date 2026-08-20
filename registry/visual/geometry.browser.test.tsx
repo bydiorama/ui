@@ -34,6 +34,12 @@ import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
 import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Toast, useToast } from "@/ui/toast/toast.tsx";
+import { ChatComposer } from "@/ui/chat-composer/chat-composer.tsx";
+import { ChatMessage } from "@/ui/chat-message/chat-message.tsx";
+import { ChatProgress } from "@/ui/chat-progress/chat-progress.tsx";
+import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
+import { ChatQuestionnaire } from "@/ui/chat-questionnaire/chat-questionnaire.tsx";
+import { Plus, Microphone } from "griddy-icons";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
 // Importing them rather than restating them is the whole point — a second copy
@@ -43,6 +49,11 @@ import tabsSpec from "../../design/paper/specs/tabs.geometry.json";
 import radioSpec from "../../design/paper/specs/radio.geometry.json";
 import tooltipSpec from "../../design/paper/specs/tooltip.geometry.json";
 import toastSpec from "../../design/paper/specs/toast.geometry.json";
+import chatComposerSpec from "../../design/paper/specs/chat-composer.geometry.json";
+import chatMessageSpec from "../../design/paper/specs/chat-message.geometry.json";
+import chatProgressSpec from "../../design/paper/specs/chat-progress.geometry.json";
+import chatWidgetSpec from "../../design/paper/specs/chat-widget.geometry.json";
+import chatQuestionnaireSpec from "../../design/paper/specs/chat-questionnaire.geometry.json";
 
 /** A spec case, as far as this file needs to read one. */
 type Spec = {
@@ -71,7 +82,17 @@ type Spec = {
   }>;
 };
 
-const SPECS: Spec[] = [tabsSpec as Spec, radioSpec as Spec, tooltipSpec as Spec, toastSpec as Spec];
+const SPECS: Spec[] = [
+  tabsSpec as Spec,
+  radioSpec as Spec,
+  tooltipSpec as Spec,
+  toastSpec as Spec,
+  chatComposerSpec as Spec,
+  chatMessageSpec as Spec,
+  chatProgressSpec as Spec,
+  chatWidgetSpec as Spec,
+  chatQuestionnaireSpec as Spec,
+];
 
 /**
  * How each spec case is put on screen.
@@ -134,6 +155,108 @@ const CASES: Record<string, () => ReactElement> = {
   // text column. The widths land wherever the test window puts them (the
   // viewport caps at 100vw − 32); the laws and the gap assertions are
   // width-independent by construction.
+  // The sheet's own two arrangements, at its 640px column and with the slots
+  // it draws filled: Add leading, Dictate trailing, Send. `layout` is pinned
+  // rather than measured — this file is about the figure, and letting the
+  // wrap decide it would make the case depend on a font metric.
+  // The sheet's anatomy bubble: a 48px tile above two wrapped lines, at the
+  // 480px the 75% cap gives on its 640 column.
+  // ONE pill: the measurement selects every matching child in the document,
+  // so a second activity would put four items in a two-item track.
+  "chat-widget-media-container": () => (
+    <div className="w-[640px]">
+      <ChatWidget>
+        <ChatWidget.Media ratio="landscape">
+          <img src="data:," alt="A generated title slide" className="size-full object-cover" />
+        </ChatWidget.Media>
+        <ChatWidget.Actions>
+          <Button variant="secondary" size="md">Edit</Button>
+        </ChatWidget.Actions>
+      </ChatWidget>
+    </div>
+  ),
+  "chat-questionnaire-options": () => (
+    <div className="w-[640px]">
+      <ChatQuestionnaire
+        question="Which tone should the campaign lead with?"
+        options={[
+          { id: "confident", label: "Confident and direct" },
+          { id: "warm", label: "Warm and personal" },
+          { id: "playful", label: "Playful — a wink in every line" },
+          { id: "other", label: "Other — tell me in your own words…", isHandoff: true },
+        ]}
+      />
+    </div>
+  ),
+  "chat-progress-activity-pill": () => (
+    <div className="w-[640px]">
+      <ChatProgress
+        form="activity"
+        activities={[{ verb: "Reading…", detail: "Grid Systems in Graphic Design — Josef Müller-Brockmann, 1961" }]}
+      />
+    </div>
+  ),
+  "chat-progress-steps": () => (
+    <div className="w-[640px]">
+      <ChatProgress
+        form="steps"
+        label="Gathering brand resources"
+        duration="12 s"
+        steps={[
+          { id: "tone", label: "Tone of voice — 2 documents", status: "done" },
+          { id: "styles", label: "Brand styles — palette and type ramp", status: "done" },
+          { id: "images", label: "Collecting images — 8 of 12", status: "current" },
+          { id: "moodboard", label: "Compose moodboard", status: "pending" },
+        ]}
+      />
+    </div>
+  ),
+  "chat-message-bubble": () => (
+    <div className="w-[640px]">
+      <ChatMessage.Sender attachments={<span className="size-12 shrink-0 rounded-md bg-sunken" />}>
+        Create a title slide for a talk on Josef Müller-Brockmann&apos;s grid systems — use this poster scan as the
+        reference.
+      </ChatMessage.Sender>
+    </div>
+  ),
+  // The receiver alone: both voices share the root slot, and the measurement
+  // takes the first match.
+  "chat-message-receiver": () => (
+    <div className="w-[640px]">
+      <ChatMessage.Receiver
+        isActionsVisible
+        actions={<Button variant="ghost" size="sm" isIconOnly aria-label="Copy" icon={<Plus />} />}
+        meta="Diorama Agent · 2 min ago"
+      >
+        Here&apos;s your title slide — Aspekta headline on the brand&apos;s deep blue, with the 1961 poster grid
+        recreated as a background system.
+      </ChatMessage.Receiver>
+    </div>
+  ),
+  "chat-composer-inline": () => (
+    <ChatComposer
+      className="w-[640px]"
+      label="Message"
+      placeholder="Message Diorama…"
+      sendLabel="Send message"
+      stopLabel="Stop generating"
+      layout="inline"
+      startAction={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add" icon={<Plus />} />}
+      endActions={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Dictate" icon={<Microphone />} />}
+    />
+  ),
+  "chat-composer-stacked": () => (
+    <ChatComposer
+      className="w-[640px]"
+      label="Message"
+      defaultValue="Create a LinkedIn carousel about Josef Müller-Brockmann's grid systems — use the attached scan as the visual reference and keep the type strictly on the grid."
+      sendLabel="Send message"
+      stopLabel="Stop generating"
+      layout="stacked"
+      startAction={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add" icon={<Plus />} />}
+      endActions={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Dictate" icon={<Microphone />} />}
+    />
+  ),
   "toast-shell": () => <ToastGeometryCase />,
   "toast-content-row": () => <ToastGeometryCase />,
   "toast-text-column": () => <ToastGeometryCase />,

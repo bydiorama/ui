@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "chat-widget",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2HU0-0",
+    "artboard": "Component --- Chat Widget --- Media",
+    "extracted": "2026-08-19",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from. The text family's container is measured on its own sheet (2I41-0) and lays out identically — same 8px inset, same 8px gap, same radius — which is the claim this component makes and the reason there is one case rather than two."
+  },
+  "tolerance": 0.5,
+  "note": "The container, with the one rule the sheet says breaks visibly: the media's radius-md and the container's radius-lg are concentric ACROSS the 8px inset, and if the inset moves without the radius following, the two curves stop being parallel. This is the only case in this repo that declares `concentric-radius`, because it is the only figure whose inner child paints a corner at all.",
+  "cases": [
+    {
+      "name": "chat-widget-media-container",
+      "axis": "vertical",
+      "nodes": { "container": "2HUD-0", "children": ["2HUE-0", "2HUF-0"] },
+      "slots": { "container": "chat-widget", "child": "chat-widget-media|chat-widget-actions" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts", "concentric-radius"],
+      "sheet": {
+        "container": {
+          "width": 640,
+          "height": 407,
+          "padding": 8,
+          "border": 0,
+          "radius": 16,
+          "tokens": {
+            "padding": "--ui-space-sm",
+            "gap": "--ui-space-sm",
+            "radius": "--ui-radius-lg",
+            "fill": "--ui-bg-elevated"
+          }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 624, "height": 351, "radius": 8 },
+          { "width": 624, "height": 32, "radius": null }
+        ],
+        "gaps": { "top": 8, "right": 8, "bottom": 8, "left": 8 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "chat-widget-media-container",
+      "what": "The sheet's stage is 351px tall — the height its 624px width and the specimen's ratio produced; the render's is whatever the mounted ratio and column give.",
+      "why": "The case exists for the uniform 8px inset, the 8px gap and the concentric pair. The stage's height is a consequence of the ratio, which is a prop, so pinning it would pin a photograph rather than a design."
+    },
+    {
+      "case": "chat-widget-media-container",
+      "what": "The render carries the media's radius on the `chat-widget-media` node AND on the aspect-ratio sizer inside it.",
+      "why": "`concentric-radius` is arithmetic between the container's corner and its CHILD's, and the child a measurement reaches is the slot node. A radius living only on an inner sizer is a radius the laws cannot see — which would have made this the one case in the repo that declares the rule and silently measures nothing."
+    }
+  ]
+}

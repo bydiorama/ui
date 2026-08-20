@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-19-add-chatwidget-one-container-two-payloads",
+  "date": "2026-08-19",
+  "item": "chat-widget",
+  "kind": "addition",
+  "summary": "ChatWidget: the artifact container, as one shell with two payload families. The Text sheet's Not built row asked for one item covering three families; it ships covering TWO, and the third — questionnaire — is `chat-questionnaire`, because the questionnaire sheet draws no container at all: no fill, no header, no action bar, so six of this component's parts mean nothing to it (§7a's Sheet-and-Drawer test). The disagreement is between the two sheets, is recorded in both docs, and the drawings settle it. Compound parts: Root, Header, Body, Media, Rail, Caption, Actions. THREE THINGS WORTH READING. (1) The concentric rule the media sheet says breaks visibly — radius-lg outer, an 8px inset, radius-md inner — is asserted as ARITHMETIC (outer === inner + padding) in the browser test and declared as the repo's only `concentric-radius` geometry case; the media's radius sits on the slot node as well as on its sizer, because a radius living only on an inner sizer is one the laws cannot reach. (2) The body's 320px cap makes it a SCROLLABLE REGION, and the role, the name and the tab stop are applied together and only WHILE it actually overflows — measured with a ResizeObserver over the box and its children, since the content is streamed in. `scrollLabel` is required by the type: an unconditional tab stop in front of every short draft and a nameless reachable region are the same defect wearing different clothes. (3) The sheet raised the bottom fade as a Conflict — a gradient from bg-elevated to its own transparent, which no colour token can express, so either a gradient token pair is minted or the implementation derives it. It is derived: `from-elevated to-transparent`, two stops the theme already has, which resolves the Conflict without a token. Also found by the story-a11y run and recorded rather than papered over: the sheet's generating media state puts a Progress on the dark media ground, where Progress's --ui-text-muted label measures under AA.",
+  "affects": [
+    "prop:Header.name",
+    "prop:Header.icon",
+    "prop:Header.chip",
+    "prop:Body.scrollLabel",
+    "prop:Media.ratio",
+    "prop:Media.overlay",
+    "prop:Rail.label",
+    "prop:Actions.end",
+    "slot:chat-widget",
+    "slot:chat-widget-header",
+    "slot:chat-widget-name",
+    "slot:chat-widget-body-frame",
+    "slot:chat-widget-body",
+    "slot:chat-widget-fade",
+    "slot:chat-widget-media",
+    "slot:chat-widget-media-overlay",
+    "slot:chat-widget-rail",
+    "slot:chat-widget-caption",
+    "slot:chat-widget-actions",
+    "token:--ui-bg-elevated",
+    "token:--ui-bg-media-floor",
+    "token:--ui-text-primary",
+    "token:--ui-text-muted",
+    "token:--ui-radius-lg",
+    "token:--ui-radius-md",
+    "token:--ui-space-sm"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2I41-0"
+  }
+}

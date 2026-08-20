@@ -57,6 +57,10 @@ const ALLOWED = new Map([
     "The sort control IS the column header. It fills a `<th>` — the sheet's hover fill is the whole lane, at the header row's height and the table's own inline padding — and the `aria-sort` state it drives lives on its parent cell. A Button inside a th would put a control-shaped box, with its own height, radius and padding, in the middle of a lane whose whole job is to line up with the cells beneath it.",
   ],
   [
+    "registry/ui/chat-questionnaire/chat-questionnaire.tsx",
+    "Two, and both are SELECTION rather than action. An option row is a card in the library's selection language \u2014 Card Sorting's active card, where the fill does not move and a 1.5px border-focus edge plus a check carries the state \u2014 and every Button variant either fills or rings on its own terms, which would put a second edge inside the one that means \"chosen\". A tile is a 1:1 picture with a caption under it, sized by its column in a four-across grid, with the selection outline OUTSIDE the media so the photograph keeps its own edge. The controls that ARE actions here \u2014 Confirm and Skip \u2014 are real Buttons.",
+  ],
+  [
     "registry/ui/calendar/calendar.tsx",
     "A day is a gridcell in an ARIA grid with a roving tabindex, sized by its column rather than by a size prop. The month arrows DO use the shared chrome control.",
   ],

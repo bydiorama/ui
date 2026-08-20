@@ -34,6 +34,8 @@ import { ImageUpload } from "@/ui/image-upload/image-upload.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 import { NavRail } from "@/ui/nav-rail/nav-rail.tsx";
 import { Table } from "@/ui/table/table.tsx";
+import { ChatProgress } from "@/ui/chat-progress/chat-progress.tsx";
+import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
 
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;
@@ -102,6 +104,19 @@ const CASES: Array<[name: string, ui: ReactElement]> = [
       rows={[{ id: "a" }]}
       getRowId={(row) => row.id}
     />,
+  ],
+  [
+    // The thinking indicator's slot. The concepts animate the PRODUCT's logo
+    // mark here, so the slot exists precisely to be filled by a caller — which
+    // is exactly the case that arrives at griddy's 24px default beside a 13px
+    // line, and the default ring it replaces is 16.
+    "ChatProgress thinking icon",
+    <ChatProgress label="Thinking…" icon={<Search />} />,
+  ],
+  [
+    // The artifact's kind glyph, beside a 13px name.
+    "ChatWidget header icon",
+    <ChatWidget><ChatWidget.Header name="A draft" icon={<Search />} /></ChatWidget>,
   ],
   [
     "Sidebar item",

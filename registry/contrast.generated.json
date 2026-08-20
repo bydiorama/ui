@@ -390,6 +390,304 @@
       "role": "the outline on a lifted or dragging row"
     }
   ],
+  "ChatComposer": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 15.53,
+      "role": "the entered message"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.54,
+      "role": "the placeholder, and the drop label that replaces it"
+    },
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "the ArrowUp glyph on the send control"
+    },
+    {
+      "fg": "--ui-bg-inverse",
+      "bg": "--ui-bg-field",
+      "floor": "non-text",
+      "light": 17.17,
+      "dark": 15.53,
+      "role": "the Stop control's fill against the frame — the only channel telling it from Send, and the pair --ui-bg-emphasis failed at 1:1 in dark"
+    },
+    {
+      "fg": "--ui-text-inverse",
+      "bg": "--ui-bg-inverse",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 17.17,
+      "role": "the Stop glyph"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-field",
+      "floor": "non-text",
+      "light": 5.94,
+      "dark": 11.88,
+      "role": "the invalid frame edge (SC 1.4.11 — state carried by a boundary)"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 7.33,
+      "role": "the error caption, which sits on the page rather than in the frame"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the disclaimer caption"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the focus ring — the resting hairline is decorative by design, so the ring is what carries SC 1.4.11 here"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.76,
+      "dark": 3.6,
+      "role": "the ArrowUp glyph while the composer is empty"
+    },
+    {
+      "fg": "--ui-bg-accent-subtle",
+      "bg": "--ui-bg-field",
+      "floor": "decorative",
+      "light": 1.24,
+      "dark": 1.48,
+      "role": "the drag-over fill"
+    }
+  ],
+  "ChatMessage": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 11.2,
+      "role": "the sender's message inside the bubble"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the receiver's answer, which sits on the page with no container"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the meta line and the \"Sending…\" caption"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 7.33,
+      "role": "the sender's failure caption"
+    },
+    {
+      "fg": "--ui-text-on-danger-subtle",
+      "bg": "--ui-intent-danger-bg",
+      "floor": "text",
+      "light": 8.52,
+      "dark": 5.93,
+      "role": "the receiver's failure block and its Retry label"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.17,
+      "role": "the bubble against the page"
+    }
+  ],
+  "ChatProgress": [
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the thinking line, the receipt, and every step that is not the current one"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 7.91,
+      "role": "the step-list header and the current step"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 9.24,
+      "role": "the activity verb, on its pill"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.78,
+      "role": "the activity detail, on its pill"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 6.21,
+      "dark": 7.07,
+      "role": "the done glyph and the receipt glyph — the only channel saying a step finished (SC 1.4.11)"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 7.33,
+      "role": "the failure glyph and its line"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 3.07,
+      "dark": 10.07,
+      "role": "the spinner's arc against its track, and the measured fill against its own — the pair the legible accent role exists for"
+    },
+    {
+      "fg": "--ui-border-default",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 2.14,
+      "dark": 2.03,
+      "role": "a pending step's empty ring"
+    }
+  ],
+  "ChatQuestionnaire": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the question, and a chosen option's label"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 7.91,
+      "role": "a resting option's label"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the handoff option, the unchosen options once something is picked, and the answered question"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the chosen option's edge and its check — the only channel saying which answer was given (SC 1.4.11)"
+    },
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "the answered Badge and the tile's check badge"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 11.4,
+      "dark": 8.56,
+      "role": "an option under the pointer"
+    },
+    {
+      "fg": "--ui-bg-hover",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.22,
+      "dark": 1.08,
+      "role": "the hover fill"
+    }
+  ],
+  "ChatWidget": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 11.2,
+      "role": "the artifact's name and its body copy"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.78,
+      "role": "the header glyph, the caption, and every action-bar label"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.17,
+      "role": "the container against the page"
+    },
+    {
+      "fg": "--ui-bg-media-floor",
+      "bg": "--ui-bg-elevated",
+      "floor": "decorative",
+      "light": 6.14,
+      "dark": 1.82,
+      "role": "the media stage before a picture lands"
+    }
+  ],
   "Checkbox": [
     {
       "fg": "--ui-text-on-accent",

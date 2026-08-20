@@ -68,6 +68,11 @@ import { Table, type TableColumn } from "@/ui/table/table.tsx";
 import { Tabs } from "@/ui/tabs/tabs.tsx";
 import { Textarea } from "@/ui/textarea/textarea.tsx";
 import { Thumbnail } from "@/ui/thumbnail/thumbnail.tsx";
+import { ChatComposer } from "@/ui/chat-composer/chat-composer.tsx";
+import { ChatMessage } from "@/ui/chat-message/chat-message.tsx";
+import { ChatProgress, type ChatProgressStep } from "@/ui/chat-progress/chat-progress.tsx";
+import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
+import { ChatQuestionnaire, type ChatQuestionnaireOption } from "@/ui/chat-questionnaire/chat-questionnaire.tsx";
 
 /**
  * A gradient and a flat white, both as data URIs.
@@ -245,6 +250,22 @@ function VisualToasts() {
   }, [manager]);
   return null;
 }
+
+/** The sheet's own step list: one done, one running, one waiting. */
+const PROGRESS_STEPS: ChatProgressStep[] = [
+  { id: "tone", label: "Tone of voice — 2 documents", status: "done" },
+  { id: "styles", label: "Brand styles — palette and type ramp", status: "done" },
+  { id: "images", label: "Collecting images — 8 of 12", status: "current" },
+  { id: "moodboard", label: "Compose moodboard", status: "pending" },
+];
+
+/** The sheet's four tone options, one of them a handoff. */
+const QUESTIONNAIRE_OPTIONS: ChatQuestionnaireOption[] = [
+  { id: "confident", label: "Confident and direct" },
+  { id: "warm", label: "Warm and personal" },
+  { id: "playful", label: "Playful — a wink in every line" },
+  { id: "other", label: "Other — tell me in your own words…", isHandoff: true },
+];
 
 const CASES: Array<{
   name: string;
@@ -1115,6 +1136,196 @@ const CASES: Array<{
         <div className="relative h-16 overflow-clip rounded-md bg-sunken">
           <DotPattern className="text-edge-default" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "chat-composer",
+    // Both arrangements — the pill and the wrapped, squared frame — plus the
+    // three states the fill carries: empty (bg-sunken), sendable (bg-accent)
+    // and generating (bg-inverse). `layout` is pinned rather than measured so
+    // the baseline cannot move with a font metric.
+    //
+    // No fixed width on the column: the mount frame is 560 with 24px of
+    // padding, so a 560px child overflows it and the element screenshot CROPS
+    // the send control clean off — invisible in the image, obvious in its
+    // pixel dimensions, which is why that check is the rule for a new baseline.
+    ui: (
+      <div className="flex w-full flex-col gap-lg">
+        <ChatComposer
+          label="Message"
+          placeholder="Message Diorama…"
+          sendLabel="Send message"
+          stopLabel="Stop generating"
+          layout="inline"
+          startAction={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add" icon={<Image />} />}
+        />
+        <ChatComposer
+          label="Message"
+          defaultValue="Create a carousel about Wim Crouwel's New Alphabet"
+          sendLabel="Send message"
+          stopLabel="Stop generating"
+          layout="inline"
+          startAction={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add" icon={<Image />} />}
+        />
+        <ChatComposer
+          label="Message"
+          placeholder="Reply to interrupt…"
+          sendLabel="Send message"
+          stopLabel="Stop generating"
+          isGenerating
+          layout="inline"
+          startAction={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add" icon={<Image />} />}
+        />
+        <ChatComposer
+          label="Message"
+          defaultValue="Create a LinkedIn carousel about Josef Müller-Brockmann's grid systems — use the attached scan as the visual reference."
+          sendLabel="Send message"
+          stopLabel="Stop generating"
+          layout="stacked"
+          errorText="mueller-brockmann.tif is 68 MB — the attachment limit is 50 MB."
+          startAction={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add" icon={<Image />} />}
+        />
+      </div>
+    ),
+  },
+  {
+    name: "chat-message",
+    // Both voices in one frame, which is the only way the asymmetry is
+    // visible: a bubble, right-aligned and capped, against an answer that owns
+    // the column and has no container at all. Plus the two states that carry
+    // colour — the sender's failure caption and the receiver's failure block.
+    // The actions row is pinned visible; hover is not a state a baseline has.
+    ui: (
+      <div className="flex w-full flex-col gap-lg">
+        <ChatMessage.Sender>What&apos;s our primary colour in CMYK?</ChatMessage.Sender>
+        <ChatMessage.Receiver
+          actions={
+            <>
+              <Button variant="ghost" size="sm" isIconOnly aria-label="Copy" icon={<Colors />} />
+              <Button variant="ghost" size="sm" isIconOnly aria-label="Regenerate" icon={<Search />} />
+            </>
+          }
+          meta="Diorama Agent · just now"
+          isActionsVisible
+        >
+          Four-colour process: 82 / 46 / 0 / 12. The deep blue is the only brand colour with a CMYK build.
+        </ChatMessage.Receiver>
+        <ChatMessage.Sender status="failed" statusText="Not sent" retryLabel="Retry" onRetryAction={() => {}}>
+          Now redraw it with Wim Crouwel&apos;s New Alphabet.
+        </ChatMessage.Sender>
+        <ChatMessage.Receiver
+          errorText="Generation stopped — connection lost. The partial answer above is kept."
+          retryLabel="Retry"
+          onRetryAction={() => {}}
+        >
+          Here&apos;s your title slide — Aspekta headline on the brand&apos;s deep
+        </ChatMessage.Receiver>
+      </div>
+    ),
+  },
+  {
+    name: "chat-progress",
+    // All four forms plus both terminal rows, which is the only way the
+    // escalation is visible as one axis. The spinner is the exception this
+    // frame has to tolerate: it loops, so `stable()` skips it and the arc is
+    // captured wherever it happens to be — the baseline is about the other
+    // five rows.
+    ui: (
+      <div className="flex w-full flex-col gap-lg">
+        <ChatProgress label="Thinking…" />
+        <ChatProgress
+          form="activity"
+          activities={[
+            { verb: "Reading…", detail: "Grid Systems in Graphic Design — Josef Müller-Brockmann, 1961" },
+            { verb: "Searching…", detail: "5 files included across 3 spaces" },
+          ]}
+        />
+        <ChatProgress form="steps" label="Gathering brand resources" duration="12 s" steps={PROGRESS_STEPS} />
+        <ChatProgress form="measured" label="Generating slide 3 of 6" value={48} />
+        <ChatProgress
+          form="steps"
+          label="Gathering brand resources"
+          steps={PROGRESS_STEPS}
+          isComplete
+          receiptText="Worked for 26 s · 4 steps"
+          expandLabel="Show what the agent did"
+        />
+        <ChatProgress
+          label="Thinking…"
+          errorText="Stopped after 12 s — connection lost"
+          retryLabel="Retry"
+          onRetryAction={() => {}}
+        />
+      </div>
+    ),
+  },
+  {
+    name: "chat-widget",
+    // Both families in one frame — a text artifact and a media artifact — which
+    // is the only way "one container, two payloads" is visible at all.
+    ui: (
+      <div className="flex w-full flex-col gap-lg">
+        <ChatWidget>
+          <ChatWidget.Header
+            name="LinkedIn post — grid systems series"
+            icon={<Image />}
+            chip={<Badge>Draft</Badge>}
+          />
+          <ChatWidget.Body scrollLabel="LinkedIn post draft">
+            <p>
+              Josef Müller-Brockmann did not design posters. He designed the system a poster has to obey — and then
+              let the system do the arguing.
+            </p>
+          </ChatWidget.Body>
+          <ChatWidget.Actions
+            end={<Button variant="ghost" size="md" isIconOnly aria-label="Save" icon={<Colors />} />}
+          >
+            <Button variant="secondary" size="md" icon={<Image />}>
+              Copy
+            </Button>
+            <Button variant="secondary" size="md" icon={<Search />}>
+              Edit
+            </Button>
+          </ChatWidget.Actions>
+        </ChatWidget>
+        <ChatWidget>
+          <ChatWidget.Media ratio="landscape">
+            <img src={MEDIA} alt="Title slide" className="size-full object-cover" />
+          </ChatWidget.Media>
+          <ChatWidget.Caption>Grounded in brand palette · 2 sources</ChatWidget.Caption>
+          <ChatWidget.Actions
+            end={<Button variant="ghost" size="md" isIconOnly aria-label="Save" icon={<Colors />} />}
+          >
+            <Button variant="secondary" size="md" icon={<Search />}>
+              Edit
+            </Button>
+          </ChatWidget.Actions>
+        </ChatWidget>
+      </div>
+    ),
+  },
+  {
+    name: "chat-questionnaire",
+    // Unanswered, chosen, and the receipt — the three the selection language
+    // has to hold together: the fill never moves, the edge and the check do.
+    ui: (
+      <div className="flex w-full flex-col gap-lg">
+        <ChatQuestionnaire question="Which tone should the campaign lead with?" options={QUESTIONNAIRE_OPTIONS} />
+        <ChatQuestionnaire
+          question="Which formats should the campaign cover? Pick any."
+          mode="multiple"
+          options={QUESTIONNAIRE_OPTIONS.slice(0, 3)}
+          defaultValue={["confident", "warm"]}
+          confirmLabel="Confirm — 2 picked"
+          skipLabel="Skip"
+          onSkipAction={() => {}}
+        />
+        <ChatQuestionnaire
+          question="Which tone should the campaign lead with?"
+          options={QUESTIONNAIRE_OPTIONS}
+          answer="Warm and personal"
+        />
       </div>
     ),
   },

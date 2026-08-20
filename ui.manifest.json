@@ -987,6 +987,126 @@
       "status": "stable"
     },
     {
+      "name": "chat-composer",
+      "type": "ui",
+      "description": "The message box of the agent chat: one frame holding an attachment tray, an auto-growing text region and a control row. A compact pill at rest, squaring to radius-xl the moment the text wraps \u2014 the layout switch is measured from the rendered line boxes, not declared, because a composer cannot know in advance whether a sentence will wrap. Send carries the state of the conversation: disabled while the field is blank, accent when sendable, and an inverse-filled Stop while the agent answers. Enter submits, Shift+Enter opens a line, and an Enter committing an IME candidate does neither.",
+      "files": [
+        {
+          "path": "registry/ui/chat-composer/chat-composer.tsx",
+          "target": "ui/chat-composer.tsx"
+        },
+        {
+          "path": "registry/ui/chat-composer/chat-composer.doc.ts",
+          "target": "ui/chat-composer.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "motion",
+        "compose-event-handlers",
+        "use-controllable-state",
+        "button"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "chat-message",
+      "type": "ui",
+      "description": "The two voices of an agent thread, deliberately asymmetric. The sender sits in a right-aligned bg-elevated bubble capped at a share of the column, with attachments inside it and delivery state carried by a caption \u2014 the bubble's fill never moves. The receiver owns the full width with no bubble at all and a looser leading, a static caret while streaming, a ghost actions row revealed on hover AND on focus, and a failure block that stays attached to the turn instead of floating off as a toast. One item, two components: there is no bare <ChatMessage>, because the receiver has no bubble and a role prop would give it one.",
+      "files": [
+        {
+          "path": "registry/ui/chat-message/chat-message.tsx",
+          "target": "ui/chat-message.tsx"
+        },
+        {
+          "path": "registry/ui/chat-message/chat-message.doc.ts",
+          "target": "ui/chat-message.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "motion",
+        "button"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "chat-progress",
+      "type": "ui",
+      "description": "What the agent shows between the question and the answer. Four escalating forms on ONE axis \u2014 thinking, activity, steps, measured \u2014 discriminated by `form`, so a step list with no steps and a bar with no value are compile errors rather than empty boxes. Every form folds to the same receipt row when the work finishes and re-expands from it, because the log is history rather than chrome; a stopped run replaces the form with a failure line and keeps the log above it. role=\"status\", polite. The measured form is the Progress primitive, and the spinner is CSS \u2014 griddy has no spinner glyph and a private SVG is not the answer.",
+      "files": [
+        {
+          "path": "registry/ui/chat-progress/chat-progress.tsx",
+          "target": "ui/chat-progress.tsx"
+        },
+        {
+          "path": "registry/ui/chat-progress/chat-progress.doc.ts",
+          "target": "ui/chat-progress.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "motion",
+        "button",
+        "progress"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "chat-widget",
+      "type": "ui",
+      "description": "The artifact container \u2014 the thing the agent hands you to take away. One shell with two payload families: TEXT (a header naming the artifact, prose capped at 320px behind a fade, a Copy/Edit bar) and MEDIA (a stage at a fixed ratio, an optional frame rail and caption, an Edit/Download bar). One component because the container, the action bar and the dark treatment are identical across both. bg-elevated, radius-lg, an 8px inset and NO border \u2014 the fill alone is the boundary, and the media's radius-md is concentric with it by construction. The body becomes a named, focusable region only WHILE it scrolls, so a short draft puts no tab stop in front of the reader.",
+      "files": [
+        {
+          "path": "registry/ui/chat-widget/chat-widget.tsx",
+          "target": "ui/chat-widget.tsx"
+        },
+        {
+          "path": "registry/ui/chat-widget/chat-widget.doc.ts",
+          "target": "ui/chat-widget.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "motion",
+        "aspect-ratio"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "chat-questionnaire",
+      "type": "ui",
+      "description": "The agent asking, inside the thread: a question followed by tappable options \u2014 text rows or image tiles. Single-select commits on tap; multi-select collects and confirms; answering collapses it to a receipt where the question stays and the answer becomes a selected Badge. It has NO container, no fill and no action bar, which is why it is not a ChatWidget payload. Selection follows Card Sorting: the fill does NOT move, a 1.5px border-focus edge and a check in the same blue carry the state \u2014 which also keeps selection (an edge) and hover (a fill) on different channels by construction.",
+      "files": [
+        {
+          "path": "registry/ui/chat-questionnaire/chat-questionnaire.tsx",
+          "target": "ui/chat-questionnaire.tsx"
+        },
+        {
+          "path": "registry/ui/chat-questionnaire/chat-questionnaire.doc.ts",
+          "target": "ui/chat-questionnaire.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "motion",
+        "use-controllable-state",
+        "badge",
+        "button"
+      ],
+      "status": "stable"
+    },
+    {
       "name": "ui-craft",
       "type": "skill",
       "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",

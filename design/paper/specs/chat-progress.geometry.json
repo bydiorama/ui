@@ -1,0 +1,96 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "chat-progress",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2HGF-0",
+    "artboard": "Component --- Chat Progress",
+    "extracted": "2026-08-19",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "The two forms that have a figure at all. Thinking is one row of two items with no container, and measured is the Progress primitive, whose own geometry belongs to Progress — so the cases here are the activity pill (a padded box with an asymmetric inset) and the step list (an indented track with no inset on three of its four sides). Both are places where a number could drift with nothing failing: the pill's 8/12 and the list's single 24px indent are what make the two read as one object and as one group.",
+  "cases": [
+    {
+      "name": "chat-progress-activity-pill",
+      "axis": "horizontal",
+      "nodes": { "container": "2HH2-0", "children": ["2HH3-0", "2HH4-0"] },
+      "slots": {
+        "container": "chat-progress-activity",
+        "child": "chat-progress-activity-verb|chat-progress-activity-detail"
+      },
+      "laws": ["inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "uniform-inset": "12 inline and 8 block, deliberately — the pill is one line tall and a uniform 12 would make it a box. Tooltip's chip declares the same asymmetry for the same reason.",
+        "concentric-radius": "Neither the verb nor the detail paints a fill, a border or a corner. The pill's radius-md is the only shape in the figure."
+      },
+      "sheet": {
+        "container": {
+          "width": 640,
+          "height": 32,
+          "padding": { "top": 8, "right": 12, "bottom": 8, "left": 12 },
+          "border": 0,
+          "radius": 8,
+          "tokens": {
+            "padding": "--ui-space-sm / --ui-space-md",
+            "gap": "--ui-space-sm",
+            "radius": "--ui-radius-md",
+            "fill": "--ui-bg-elevated"
+          }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 60, "height": 16, "radius": null },
+          { "width": 548, "height": 16, "radius": null }
+        ],
+        "gaps": { "top": 8, "right": 12, "bottom": 8, "left": 12 }
+      }
+    },
+    {
+      "name": "chat-progress-steps",
+      "axis": "vertical",
+      "nodes": { "container": "2HHG-0", "children": ["2HHH-0", "2HHL-0", "2HHP-0", "2HHU-0"] },
+      "slots": { "container": "chat-progress-steps", "child": "chat-progress-step" },
+      "laws": ["inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "uniform-inset": "24 on the leading side and nothing anywhere else, which IS the design: the list is indented to its group header's text and hangs off nothing. Menu.Separator's rule — grouping is the difference between two gaps, never a rule — is the same decision one level up.",
+        "concentric-radius": "The list paints no fill, no border and no corner; the glyphs inside carry their own and belong to no box."
+      },
+      "sheet": {
+        "container": {
+          "width": 640,
+          "height": 88,
+          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 24 },
+          "border": 0,
+          "radius": null,
+          "tokens": { "padding": "--ui-space-xl", "gap": "--ui-space-sm" }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 616, "height": 16, "radius": null },
+          { "width": 616, "height": 16, "radius": null },
+          { "width": 616, "height": 16, "radius": null },
+          { "width": 616, "height": 16, "radius": null }
+        ],
+        "gaps": { "top": 0, "right": 0, "bottom": 0, "left": 24 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "chat-progress-activity-pill",
+      "what": "The sheet's verb and detail are 60 and 548 wide — this specimen's own two strings; the render's are whatever the mounted strings measure.",
+      "why": "The case exists for the 8px between them and the 8/12 inset. The detail is the flexing slot (flex-1, min-w-0, truncate), so its width moves with the copy and the column by design, and the law's arithmetic binds whatever it measures."
+    },
+    {
+      "case": "chat-progress-steps",
+      "what": "The render's indent is `ps-xl` — a LOGICAL padding — where the sheet lays out a physical 24 on the left.",
+      "why": "The list hangs off its header's text, and in RTL that header starts on the right. Paper draws LTR only; the logical property is what makes the drawing true in both directions, and it resolves to the sheet's 24px left in the direction the sheet drew."
+    },
+    {
+      "case": "chat-progress-steps",
+      "what": "Paper reports the third and fourth children at 24.001 and 71.999 rather than 24 and 72.",
+      "why": "Canvas rounding on a stack of four 16px rows with three 8px gaps. Every difference is under a thousandth of a pixel and far inside this spec's tolerance; the numbers here are the exact ones the laws consume, not tidied versions of them."
+    }
+  ]
+}

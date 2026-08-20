@@ -174,6 +174,13 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-emphasis": NEUTRAL[0],
     "--ui-bg-emphasis-hover": NEUTRAL[10],
     "--ui-bg-emphasis-active": NEUTRAL[20],
+    // The inverse SURFACE, which in light happens to be the same three values
+    // emphasis is pinned to — and is a different role all the same: these
+    // three invert in dark and emphasis' do not. That is the whole difference,
+    // and it is the reason the Stop control could not reuse emphasis.
+    "--ui-bg-inverse": NEUTRAL[0],
+    "--ui-bg-inverse-hover": NEUTRAL[10],
+    "--ui-bg-inverse-active": NEUTRAL[20],
     "--ui-bg-danger-solid": RED[40],
 
     // Borders (ADR 0010)
@@ -243,6 +250,11 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-emphasis": NEUTRAL[0],
     "--ui-bg-emphasis-hover": NEUTRAL[10],
     "--ui-bg-emphasis-active": NEUTRAL[20],
+    // Inverted, which emphasis above is not. On the dark scheme the field is
+    // neutral-0, so a neutral-0 control is not there at all.
+    "--ui-bg-inverse": NEUTRAL[95],
+    "--ui-bg-inverse-hover": NEUTRAL[90],
+    "--ui-bg-inverse-active": NEUTRAL[80],
     "--ui-bg-accent": BLUE[80],
     "--ui-bg-accent-hover": BLUE[70],
     "--ui-bg-accent-active": BLUE[60],

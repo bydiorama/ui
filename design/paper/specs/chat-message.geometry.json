@@ -1,0 +1,96 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "chat-message",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2H88-0",
+    "artboard": "Component --- Chat Message",
+    "extracted": "2026-08-19",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "The two voices, one case each — which is the point of measuring this component at all. The sender is a padded, rounded box; the receiver is a track with NO inset, no fill and no corner, and the only thing holding it together is the 12px between the answer and its actions row. A spec that covered only the bubble would be measuring the half of this design that looks like a component.",
+  "cases": [
+    {
+      "name": "chat-message-bubble",
+      "axis": "vertical",
+      "nodes": { "container": "2H8N-0", "children": ["2H8O-0", "2H8P-0"] },
+      "slots": {
+        "container": "chat-message-bubble",
+        "child": "chat-message-attachments|chat-message-text"
+      },
+      "laws": ["inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "uniform-inset": "The inset is 16 inline and 12 block ON PURPOSE — space-lg against space-md, the same asymmetry Tooltip's chip declares. A bubble padded uniformly at 16 reads as a card; at 12 the text touches the corner's curve. Declaring uniformity here would fail a drawing that is right.",
+        "concentric-radius": "The attachment tile carries Thumbnail's own radius-md and sits a full inset inside the bubble's radius-lg. Concentricity is arithmetic on ONE padding, and this box has two — 8 + 12 block against 8 + 16 inline cannot both equal 16, so the law has no single answer to check here."
+      },
+      "sheet": {
+        "container": {
+          "width": 480,
+          "height": 118,
+          "padding": { "top": 12, "right": 16, "bottom": 12, "left": 16 },
+          "border": 0,
+          "radius": 16,
+          "tokens": {
+            "padding": "--ui-space-md / --ui-space-lg",
+            "gap": "--ui-space-sm",
+            "radius": "--ui-radius-lg",
+            "fill": "--ui-bg-elevated"
+          }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 48, "height": 48, "radius": 8 },
+          { "width": 448, "height": 38, "radius": null }
+        ],
+        "gaps": { "top": 12, "right": 16, "bottom": 12, "left": 16 }
+      }
+    },
+    {
+      "name": "chat-message-receiver",
+      "axis": "vertical",
+      "nodes": { "container": "2H8Q-0", "children": ["2H8R-0", "2H8S-0"] },
+      "slots": {
+        "container": "chat-message",
+        "child": "chat-message-body|chat-message-actions"
+      },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "Nothing in the receiver paints a fill, a border or a corner — that absence IS the design, and an unpainted radius is not a fact about it."
+      },
+      "sheet": {
+        "container": {
+          "width": 640,
+          "height": 80,
+          "padding": 0,
+          "border": 0,
+          "radius": null,
+          "tokens": { "gap": "--ui-space-md" }
+        },
+        "gap": 12,
+        "children": [
+          { "width": 640, "height": 44, "radius": null },
+          { "width": 640, "height": 24, "radius": null }
+        ],
+        "gaps": { "top": 0, "right": 0, "bottom": 0, "left": 0 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "chat-message-bubble",
+      "what": "The sheet's text node is 38px (two wrapped lines of the anatomy specimen's own string) and its tile is a flat 48px rectangle; the render's are whatever the mounted string and the mounted tile produce.",
+      "why": "The case exists for the 8px between the two rows and the 12/16 inset, both of which hold at any line count. Pinning 38 would pin a sentence rather than a design."
+    },
+    {
+      "case": "chat-message-receiver",
+      "what": "The measured container is the receiver ROOT (data-slot chat-message, data-role receiver), which the sender also matches by slot name — so the render case mounts the receiver alone.",
+      "why": "Both voices are one item and share the root slot deliberately: a consumer styling `[data-slot=\"chat-message\"]` means both, and the role is on the same node as a data attribute. The geometry test selects the first match, so the case is written with one message on screen."
+    },
+    {
+      "case": "chat-message-receiver",
+      "what": "The actions row is pinned visible in the render case.",
+      "why": "It is opacity-0 until hover or focus, and opacity does not move a rect — but a case that depends on a hover the test never performs is a case whose second child might silently be the wrong element. Pinning it makes the figure the one the sheet drew."
+    }
+  ]
+}

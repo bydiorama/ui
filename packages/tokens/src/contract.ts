@@ -132,6 +132,24 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-emphasis",
   "--ui-bg-emphasis-hover",
   "--ui-bg-emphasis-active",
+  // THE INVERSE SURFACE: the page's own ink, used as a fill.
+  //
+  // It exists because `--ui-bg-emphasis` cannot do this job and looks as
+  // though it can. Emphasis DERIVES FROM THE ACCENT (see the media note
+  // above) and theme zero pins it to neutral-0 in BOTH schemes — so a control
+  // filled with it disappears against `--ui-bg-field`, which is also
+  // neutral-0 in dark. The Chat Composer's Stop button is where that became
+  // load-bearing; the sheet flagged it as a Conflict and named this role.
+  //
+  // Derived as `colors.textPrimary`, so it inverts with the scheme by
+  // construction and its ink is the one that already exists for exactly this
+  // ground — `--ui-text-inverse` is `readableInkOn(textPrimary)`. Three
+  // states rather than one, for the reason the accent triple gives: a filled
+  // control needs all three as roles or components reach past the contract
+  // for two of them.
+  "--ui-bg-inverse",
+  "--ui-bg-inverse-hover",
+  "--ui-bg-inverse-active",
   "--ui-bg-danger-solid",
 
   // A three-stop brand spectrum, as a full `linear-gradient(...)` value. It is
@@ -399,6 +417,9 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-text-on-emphasis", "--ui-bg-emphasis"],
   ["--ui-text-on-emphasis", "--ui-bg-emphasis-hover"],
   ["--ui-text-on-emphasis", "--ui-bg-emphasis-active"],
+  ["--ui-text-inverse", "--ui-bg-inverse"],
+  ["--ui-text-inverse", "--ui-bg-inverse-hover"],
+  ["--ui-text-inverse", "--ui-bg-inverse-active"],
   ["--ui-text-on-accent", "--ui-bg-accent"],
   ["--ui-text-link", "--ui-bg-base"],
   // The open month/year trigger in a Calendar header. `text-link` was audited
@@ -502,6 +523,12 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // edge of a control in an error state. Names are not guarantees; this pair
   // is in the list so the next person reads a number instead of a name.
   ["--ui-intent-danger-fg", "--ui-bg-field"],
+  // The Chat Composer's Stop control against the field it sits inside. The
+  // fill is the ONLY thing distinguishing it from the Send button beside it,
+  // which makes it the SC 1.4.11 case; and it is the pair `--ui-bg-emphasis`
+  // failed at 1:1 in dark, which is why `--ui-bg-inverse` exists. Listing it
+  // is what stops that from happening again quietly.
+  ["--ui-bg-inverse", "--ui-bg-field"],
   // Avatar's status dot, against the ring it is drawn with. The dot is a
   // graphical object carrying meaning (SC 1.4.11) and its ONLY visual channel
   // is colour, so what it must clear is the surface immediately around it.
@@ -518,6 +545,11 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // because the window sits over a photograph and the floor is the guarantee.
   ["--ui-text-on-media", "--ui-bg-media-floor"],
   ["--ui-intent-success-fg", "--ui-bg-surface"],
+  // The done-step glyph in Chat Progress, which sits on the PAGE rather than
+  // on a panel — the receiver block has no container, so the one surface every
+  // other success glyph in the library is measured against is the one this
+  // component never draws on. An unlisted pair is an unchecked pair.
+  ["--ui-intent-success-fg", "--ui-bg-base"],
   ["--ui-intent-danger-fg", "--ui-bg-surface"],
   // The mark on an EmptyState's well. It is `aria-hidden` — the sentence
   // beneath carries the meaning — but a mark nobody can see is a 32px grey

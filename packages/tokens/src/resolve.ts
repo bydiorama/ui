@@ -629,6 +629,20 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),
+    // The page's OWN INK, used as a fill — see the contract for why this is
+    // not `--ui-bg-emphasis`. It inverts with the scheme for free because
+    // `colors.textPrimary` does, and its ink is `--ui-text-inverse`, which is
+    // already derived as `readableInkOn(colors.textPrimary)`.
+    //
+    // Hover and active step TOWARD THE PAGE rather than away from their own
+    // ink. Emphasis' rule cannot apply here: this fill is the extreme of the
+    // scale by construction, so "away from the ink" has nowhere left to go —
+    // in light it is already the darkest neutral. Theme zero authors exactly
+    // this direction (neutral-0 → 10 → 20), and stepping toward the ground is
+    // what makes the two states visible in both schemes.
+    "--ui-bg-inverse": colors.textPrimary,
+    "--ui-bg-inverse-hover": towardL(colors.textPrimary, colors.bg, 0.08),
+    "--ui-bg-inverse-active": towardL(colors.textPrimary, colors.bg, 0.16),
     "--ui-bg-danger-solid": dangerSolid,
     "--ui-gradient-brand": brandGradient,
     "--ui-gradient-accent": accentGradient,

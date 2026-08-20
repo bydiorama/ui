@@ -1,0 +1,109 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "chat-composer",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2GWZ-0",
+    "artboard": "Component --- Chat Composer",
+    "extracted": "2026-08-19",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from. Note that Paper's reported `x`/`y` are relative to the PADDING box and its world coordinates to the BORDER box — the 1.5px difference between the two is what exposed the fixed-height defect below."
+  },
+  "tolerance": 0.5,
+  "note": "The frame in both of its arrangements. The border is recorded at its DECLARED 1.5px rather than at the 1px Chromium uses, because Paper's canvas lays this sheet out at 1.5 — the world coordinates put every child 13.5px inside the border box, not 13. The half-pixel is inside the tolerance on the render side, where the used border is 1 and the inset is 13. THE SHEET WAS WRONG HERE UNTIL 2026-08-19: the compact frame declared `height: 56px` on top of its padding, which is a second author of the inset — the vertical gap came out at 12 against the 13.5 the padding declares, while the horizontal gap, which nothing else authored, was 13.5. Tabs' defect exactly. Fixed in Paper by setting all 24 composer frames to fit-content; the frame is now 59 there and 58 in Chromium.",
+  "cases": [
+    {
+      "name": "chat-composer-inline",
+      "axis": "horizontal",
+      "nodes": { "container": "2GZ1-0", "children": ["2GZ2-0", "2GZ5-0", "2GZ6-0", "2GZ9-0"] },
+      "slots": {
+        "container": "chat-composer-frame",
+        "child": "chat-composer-start|chat-composer-text|chat-composer-actions"
+      },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "Both the frame and its controls are CAPSULES — radius-full, a 999px value clamped by the box to half its height. Concentricity is arithmetic on radii, and neither of these radii is a length anything used: 999 − 1.5 border against 999 + 12 padding is a comparison of two clamps. The corner that has to look right here is the pill's, and a pill has no inner corner to be concentric with."
+      },
+      "sheet": {
+        "container": {
+          "width": 640,
+          "height": 59,
+          "padding": 12,
+          "border": 1.5,
+          "radius": 999,
+          "tokens": {
+            "padding": "--ui-space-md",
+            "gap": "--ui-space-sm",
+            "radius": "--ui-radius-full",
+            "fill": "--ui-bg-field",
+            "edge": "--ui-border-subtle"
+          }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 32, "height": 32, "radius": 999 },
+          { "width": 493, "height": 18, "radius": null },
+          { "width": 32, "height": 32, "radius": 999 },
+          { "width": 32, "height": 32, "radius": 999 }
+        ],
+        "gaps": { "top": 13.5, "right": 13.5, "bottom": 13.5, "left": 13.5 }
+      }
+    },
+    {
+      "name": "chat-composer-stacked",
+      "axis": "vertical",
+      "nodes": { "container": "2GXD-0", "children": ["2GXT-0", "2GXV-0"] },
+      "slots": {
+        "container": "chat-composer-frame",
+        "child": "chat-composer-text|chat-composer-actions"
+      },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "Neither row paints a fill, a border or a corner — the frame's radius-xl is the only shape in the figure, and an unpainted radius is not a fact about the design."
+      },
+      "sheet": {
+        "container": {
+          "width": 640,
+          "height": 113,
+          "padding": 12,
+          "border": 1.5,
+          "radius": 24,
+          "tokens": {
+            "padding": "--ui-space-md",
+            "gap": "--ui-space-sm",
+            "radius": "--ui-radius-xl",
+            "fill": "--ui-bg-field",
+            "edge": "--ui-border-subtle"
+          }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 613, "height": 46, "radius": null },
+          { "width": 613, "height": 32, "radius": null }
+        ],
+        "gaps": { "top": 13.5, "right": 13.5, "bottom": 13.5, "left": 13.5 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "chat-composer-inline",
+      "what": "Paper lays the row out as FOUR children (Add, Text, Dictate, Send); the render groups the trailing two into one `chat-composer-actions` element, so the measured figure has three.",
+      "why": "The two arrangements are one DOM — the stacked form moves the text to its own line with `order-first` rather than re-mounting it, which is what keeps focus and the caret through a wrap. That needs the trailing controls to travel together as a group. Both figures satisfy the track arithmetic on their own children (32 + 493 + 32 + 32 + 3x8 + 27 = 640 in Paper; 32 + 494 + 72 + 2x8 + 26 = 640 in Chromium), and the union inset — the thing a person sees — is identical."
+    },
+    {
+      "case": "chat-composer-inline",
+      "what": "The sheet's text node is 18px tall (one line box of body-md); the render's text region is the flexing slot and takes the row's full height.",
+      "why": "align-items: center is the design — the 32px controls set the row and the text floats on the cross axis. Only widths enter the horizontal arithmetic, and the union gap is set by the 32px controls in both."
+    },
+    {
+      "case": "chat-composer-stacked",
+      "what": "The sheet's text region is 46px (two wrapped lines of the anatomy specimen's own string); the render's is whatever the mounted string wraps to.",
+      "why": "The case exists for the two 8px-separated rows and the uniform 13.5 inset, both of which hold at any line count. Pinning the sheet's 46 would pin a sentence, not a design."
+    },
+    {
+      "case": "chat-composer-inline",
+      "what": "Recorded with a 1.5px border where Toast's spec records 1.",
+      "why": "The laws consume the USED width, and Paper's canvas uses 1.5 here — its own world coordinates put the children 13.5px in. Chromium snaps the same declaration to one device pixel at DPR 1 and lands at 13. The 0.5 difference is inside this spec's tolerance, and recording Paper's 1 would make the sheet's own arithmetic fail by 1px in width."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "chat-questionnaire",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2HN7-0",
+    "artboard": "Component --- Chat Widget --- Questionnaire",
+    "extracted": "2026-08-19",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "The option column, which is the whole figure: this component has no container, no fill and no inset, so the only geometry it owns is four rows and the 8px between them. That is also what makes it worth measuring — a track with nothing around it has nothing else to blame when a gap drifts.",
+  "cases": [
+    {
+      "name": "chat-questionnaire-options",
+      "axis": "vertical",
+      "nodes": { "container": "2HNO-0", "children": ["2HNP-0", "2HNR-0", "2HNT-0", "2HNV-0"] },
+      "slots": { "container": "chat-questionnaire-options", "child": "chat-questionnaire-option" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "The column paints no fill, no border and no corner — the rows carry their own radius-md and sit against the thread's ground, not inside a box. There is no outer curve for them to be concentric with, which is the design."
+      },
+      "sheet": {
+        "container": {
+          "width": 400,
+          "height": 164,
+          "padding": 0,
+          "border": 0,
+          "radius": null,
+          "tokens": { "gap": "--ui-space-sm", "width": "the sheet's 400px option cap" }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 400, "height": 35, "radius": 8 },
+          { "width": 400, "height": 35, "radius": 8 },
+          { "width": 400, "height": 35, "radius": 8 },
+          { "width": 400, "height": 35, "radius": 8 }
+        ],
+        "gaps": { "top": 0, "right": 0, "bottom": 0, "left": 0 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "chat-questionnaire-options",
+      "what": "A row is 35px tall in Paper: 1.5 + 8 + 16 + 8 + 1.5, where 16 is the label's line box. Chromium uses a 1px border at DPR 1 and a body-sm line box of 17.55, so the same declaration lands near 36.",
+      "why": "The rows' heights are a consequence of their own padding and type, not of this track — the law's arithmetic consumes whatever each side measures, and both are internally exact. The 8px gap and the zero inset, which are what the case is for, agree to a thousandth of a pixel."
+    },
+    {
+      "case": "chat-questionnaire-options",
+      "what": "The sheet's column is exactly 400 wide; the render's is `max-w-[400px]` inside whatever column the thread gives it.",
+      "why": "400 is a CAP, not a width — the sheet's own note says options read as controls rather than paragraphs, which is a maximum. In a 308px sidebar the column is 308."
+    }
+  ]
+}

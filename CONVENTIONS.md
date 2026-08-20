@@ -138,6 +138,15 @@ trademark as rendering: a design system should not redistribute someone else's
 logo inside a component. A consumer who genuinely wants a brand mark imports it
 in their own code, deliberately.
 
+**`Stop` and `Pause` are fixed-fill too, and they are not brand marks.** The 73
+glyphs `check:licensing` rejects are mostly logos, which makes the gate read as
+a trademark rule — and then a media control fails it. `Stop`, `Pause`,
+`StartRecord`, `Scan`/`QrCode*`, `Import`/`Export`, `FileScan` and every
+`ChatCircle*` hard-code `fill="black"` for no reason a caller can see, so they
+render a black mark on a dark control and the gate stops the build. Substitutes
+that DO take the ink: `SquareRounded` (filled) for stop, `Square` for a bare
+one. Chat Composer's Stop button is the case that found it.
+
 If another griddy name turns out to be similarly misleading, add it here — the
 list is a record of names that mean something other than they appear to.
 

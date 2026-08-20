@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-20-accordion-card-hover-is-the-tile",
+  "date": "2026-08-20",
+  "item": "accordion",
+  "kind": "visual",
+  "summary": "Two design-review findings against the card variant, both of them arithmetic nobody could see in the source. FIRST: the hover fill belonged to the TRIGGER, which is inset 8px horizontally by the header's px-sm and 8px vertically by the item's py-xs -- so hovering a card painted a smaller rounded rectangle floating inside it rather than lighting the card. The fill moves to the ITEM, where the tile's own rounded-md bounds it. It hangs off `:has([data-slot=accordion-trigger]:hover)` rather than the item's own :hover, deliberately: an open card can hold a form, and tinting the tile because the pointer is in a text field claims that pixel toggles the panel. The guard is `not-data-disabled:`, the item's own attribute -- the behaviour layer sets it alongside the trigger's aria-disabled, so no attribute-value match is needed. The trigger keeps the fill ONLY in the plain variant, where there is no tile to light, and its transition-[background-color] goes with it: a transition on a property nothing changes reads in review as a decision and animates nothing. SECOND: the card's content sat 20px from the left and right edges and 16px from the top and bottom, because three components author that lane and only two of them are vertical -- header/panel px-sm (8) plus trigger/inner p-md (12) horizontally, against item py-xs (4) plus p-md (12) vertically. py-xs becomes py-sm and every side reads 20. RATCHET: the item had no geometry spec, so the asymmetry could only ever be found by eye. design/paper/specs/accordion.geometry.json now carries the closed and open card as measured cases (uniform-inset, track-is-the-sum-of-its-parts), with inset-is-declared and concentric-radius recorded as NOT declared and why -- the horizontal inset has a second, intended author, and an unpainted radius is not a fact about the design. Seven of the eight new assertions fail against the previous component, checked by reverting it.",
+  "affects": [
+    "component:accordion",
+    "item:accordion",
+    "slot:accordion-item",
+    "slot:accordion-trigger",
+    "prop:variant",
+    "visual:accordion",
+    "contrast-pairs:accordion",
+    "registry:accordion",
+    "design-spec:accordion"
+  ],
+  "migration": {
+    "manual": "A card row is 8px taller than before (py-xs to py-sm), so a list of them is taller by 8px per item; nothing about the API changes. If you were overriding the trigger's hover through className on variant=\"card\", it no longer paints there -- style the Item instead, or the fill will sit under the tile's own. The plain variant is untouched."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EV6-0"
+  }
+}

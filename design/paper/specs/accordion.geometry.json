@@ -1,0 +1,66 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "accordion",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EV6-0",
+    "artboard": "Component --- Accordion",
+    "extracted": "2026-08-20",
+    "how": "get_computed_styles for the declared padding and radius; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from. Sibling world coordinates DIFFER (trigger -2301, panel inner -2259), which is the check that the layout was actually resolved rather than the artboard origin being returned for every child."
+  },
+  "tolerance": 0.5,
+  "note": "The card's 8px inset has TWO authors and that is deliberate, so `inset-is-declared` is not declared here — see lawsNotDeclared. Vertically it is the item's own `py-sm`; horizontally it is the header's and the panel's `px-sm`, which the PLAIN variant shares. Moving the horizontal padding onto the item would satisfy the law and would silently take the plain variant's 20px label lane away with it.",
+  "cases": [
+    {
+      "name": "accordion-card-closed",
+      "axis": "vertical",
+      "nodes": { "container": "MT8-0", "children": ["MTA-0"] },
+      "slots": { "container": "accordion-item", "child": "accordion-trigger" },
+      "laws": ["uniform-inset", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "inset-is-declared": "The item declares `py-sm` and no inline padding; the 8px left and right come from the header's own `px-sm`. That split is what gives BOTH variants the same 20px label lane (8 + the trigger's `p-md`), so the second author is the design, not drift.",
+        "concentric-radius": "The trigger carries `--ui-radius-sm` for its focus ring only — in the card variant it has no fill, so there is no inner shape to be concentric with. The sheet draws the trigger with no radius at all for the same reason. An unpainted radius is not a fact about the design."
+      },
+      "sheet": {
+        "container": {
+          "width": 416,
+          "height": 58,
+          "padding": { "top": 8, "right": 0, "bottom": 8, "left": 0 },
+          "border": 0,
+          "radius": 8,
+          "tokens": { "radius": "--ui-radius-md", "padding": "--ui-space-sm" }
+        },
+        "gap": 0,
+        "children": [{ "width": 400, "height": 42 }],
+        "gaps": { "top": 8, "right": 8, "bottom": 8, "left": 8 }
+      }
+    },
+    {
+      "name": "accordion-card-open",
+      "axis": "vertical",
+      "nodes": { "container": "MSU-0", "children": ["MSW-0", "MT6-0"] },
+      "slots": { "container": "accordion-item", "child": "accordion-trigger|accordion-panel-inner" },
+      "laws": ["uniform-inset", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "inset-is-declared": "As above, and on this case the panel is the horizontal author rather than the header: `accordion-panel` carries `px-sm` so that the element which CLIPS the height animation is not also the element carrying the content's padding.",
+        "concentric-radius": "Neither child is painted in the card variant, so neither has an observable radius."
+      },
+      "sheet": {
+        "container": {
+          "width": 416,
+          "height": 154,
+          "padding": { "top": 8, "right": 0, "bottom": 8, "left": 0 },
+          "border": 0,
+          "radius": 8,
+          "tokens": { "radius": "--ui-radius-md", "padding": "--ui-space-sm" }
+        },
+        "gap": 0,
+        "children": [
+          { "width": 400, "height": 42 },
+          { "width": 400, "height": 96 }
+        ],
+        "gaps": { "top": 8, "right": 8, "bottom": 8, "left": 8 }
+      }
+    }
+  ]
+}

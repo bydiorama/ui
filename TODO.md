@@ -94,6 +94,7 @@ Design:
 - [ ] Progress Indicator Circular
 - [ ] Radio
 - [ ] Skeleton
+- [ ] Shimmer
 - [x] Table
 - [ ] Table Line Items
 - [x] Tabs Underlined

@@ -41,6 +41,30 @@
       "role": "the chevron on a card"
     },
     {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "a trigger label on a HOVERED card — the fill is the item's, so the whole tile's ink sits on this ground, panel copy included"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 11.4,
+      "dark": 8.56,
+      "role": "panel copy inside an open card while its trigger is hovered"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-hover",
+      "floor": "non-text",
+      "light": 4.87,
+      "dark": 5.35,
+      "role": "the chevron on a hovered card"
+    },
+    {
       "fg": "--ui-border-focus",
       "bg": "--ui-bg-base",
       "floor": "non-text",

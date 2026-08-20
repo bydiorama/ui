@@ -29,6 +29,7 @@ import type { ReactElement } from "react";
 
 import { useEffect, useRef } from "react";
 
+import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { Tabs } from "@/ui/tabs/tabs.tsx";
 import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
 import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
@@ -39,12 +40,13 @@ import { ChatMessage } from "@/ui/chat-message/chat-message.tsx";
 import { ChatProgress } from "@/ui/chat-progress/chat-progress.tsx";
 import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
 import { ChatQuestionnaire } from "@/ui/chat-questionnaire/chat-questionnaire.tsx";
-import { Plus, Microphone } from "griddy-icons";
+import { Plus, Microphone, InfoCircle } from "griddy-icons";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
 // Importing them rather than restating them is the whole point — a second copy
 // of the numbers is a second thing to drift.
 import { evaluate, sides, formatFailures } from "../../scripts/lib/geometry-laws.mjs";
+import accordionSpec from "../../design/paper/specs/accordion.geometry.json";
 import tabsSpec from "../../design/paper/specs/tabs.geometry.json";
 import radioSpec from "../../design/paper/specs/radio.geometry.json";
 import tooltipSpec from "../../design/paper/specs/tooltip.geometry.json";
@@ -83,6 +85,7 @@ type Spec = {
 };
 
 const SPECS: Spec[] = [
+  accordionSpec as Spec,
   tabsSpec as Spec,
   radioSpec as Spec,
   tooltipSpec as Spec,
@@ -102,6 +105,29 @@ const SPECS: Spec[] = [
  * the sheet's own composition, and nothing else.
  */
 const CASES: Record<string, () => ReactElement> = {
+  // ONE item, because `measure` takes every [data-slot="accordion-trigger"] on
+  // screen — a second row would put its trigger into the union the gap
+  // arithmetic runs over and the bottom inset would read as the whole list.
+  "accordion-card-closed": () => (
+    <Accordion variant="card">
+      <Accordion.Item value="process">
+        <Accordion.Trigger icon={<InfoCircle />}>What does your process look like?</Accordion.Trigger>
+        <Accordion.Panel>
+          Our process starts with discovery, where we understand your goals and vision.
+        </Accordion.Panel>
+      </Accordion.Item>
+    </Accordion>
+  ),
+  "accordion-card-open": () => (
+    <Accordion variant="card" defaultValue={["process"]}>
+      <Accordion.Item value="process">
+        <Accordion.Trigger icon={<InfoCircle />}>What does your process look like?</Accordion.Trigger>
+        <Accordion.Panel>
+          Our process starts with discovery, where we understand your goals and vision.
+        </Accordion.Panel>
+      </Accordion.Item>
+    </Accordion>
+  ),
   "enclosed-horizontal": () => (
     <Tabs defaultValue="links">
       <Tabs.List>

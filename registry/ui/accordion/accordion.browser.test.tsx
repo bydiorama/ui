@@ -271,7 +271,7 @@ describe("Accordion paints the designed surface", () => {
    * in this file would have noticed — the classes compiled, the tokens
    * resolved, and no test ever hovered anything.
    */
-  test("hover paints on an available row and NOT on a disabled one", async () => {
+  test("hover paints on an available PLAIN row and NOT on a disabled one", async () => {
     const c = mount(
       <Accordion>
         <Accordion.Item value="a">
@@ -297,6 +297,92 @@ describe("Accordion paints the designed surface", () => {
     await settled(unavailable!);
     expect(getComputedStyle(unavailable!).backgroundColor).toBe(resting);
     expect(c.querySelectorAll('[data-slot="accordion-trigger"]')).toHaveLength(2);
+  });
+
+  /**
+   * The card's hover, which is a DIFFERENT element from the plain one's.
+   *
+   * The review's finding, in one sentence: a fill on the trigger is inset 8px
+   * horizontally by the header's `px-sm` and 8px vertically by the item's own
+   * padding, so hovering a card painted a smaller rounded rectangle floating
+   * inside it. Asserting the item CHANGES is not enough — the defect changed a
+   * background too, just the wrong element's. Both halves are checked.
+   */
+  test("the card variant lights the whole TILE, and not the trigger", async () => {
+    mount(
+      <Accordion variant="card">
+        <Accordion.Item value="a">
+          <Accordion.Trigger>Available</Accordion.Trigger>
+          <Accordion.Panel>A</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>,
+    );
+    const item = document.querySelector<HTMLElement>('[data-slot="accordion-item"]')!;
+    const trigger = triggers()[0]!;
+    const itemResting = getComputedStyle(item).backgroundColor;
+    const triggerResting = getComputedStyle(trigger).backgroundColor;
+
+    await userEvent.hover(trigger);
+    await settled(item);
+
+    expect(getComputedStyle(item).backgroundColor).not.toBe(itemResting);
+    // The half that was wrong before: the trigger must stay transparent, or
+    // there are two fills and the smaller one is visible on top of the larger.
+    expect(getComputedStyle(trigger).backgroundColor).toBe(triggerResting);
+  });
+
+  test("a disabled card does not light, and the guard is the ITEM's own attribute", async () => {
+    mount(
+      <Accordion variant="card">
+        <Accordion.Item value="a" isDisabled>
+          <Accordion.Trigger>Unavailable</Accordion.Trigger>
+          <Accordion.Panel>A</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>,
+    );
+    const item = document.querySelector<HTMLElement>('[data-slot="accordion-item"]')!;
+    // `not-data-disabled:` only guards anything if the attribute is there —
+    // the behaviour layer sets it on the item alongside the trigger's
+    // aria-disabled, and a variant keyed to an attribute nobody writes is the
+    // `enabled:`/`disabled:` failure again with a different spelling.
+    expect(item.hasAttribute("data-disabled")).toBe(true);
+
+    const resting = getComputedStyle(item).backgroundColor;
+    await userEvent.hover(triggers()[0]!);
+    await settled(item);
+    expect(getComputedStyle(item).backgroundColor).toBe(resting);
+  });
+
+  /**
+   * Why the fill hangs off `:has([data-slot=accordion-trigger]:hover)` and not
+   * the item's own `:hover`. An open card can hold a form; tinting the tile
+   * because the pointer is inside a text field says "clicking here toggles the
+   * panel", which is not true of that pixel.
+   */
+  test("hovering an OPEN panel's content does not light the tile", async () => {
+    mount(
+      <Accordion variant="card" defaultValue={["a"]}>
+        <Accordion.Item value="a">
+          <Accordion.Trigger>Available</Accordion.Trigger>
+          <Accordion.Panel>
+            <button type="button">Something inside the panel</button>
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>,
+    );
+    const item = document.querySelector<HTMLElement>('[data-slot="accordion-item"]')!;
+    await settled(item);
+    const resting = getComputedStyle(item).backgroundColor;
+
+    await userEvent.hover(document.querySelector('[data-slot="accordion-panel-inner"] button')!);
+    await settled(item);
+    expect(getComputedStyle(item).backgroundColor).toBe(resting);
+
+    // …and the trigger still does light it, so the assertion above is about
+    // WHERE the pointer is and not about the rule being dead.
+    await userEvent.hover(triggers()[0]!);
+    await settled(item);
+    expect(getComputedStyle(item).backgroundColor).not.toBe(resting);
   });
 
   test("closing animates too — the exit is not a disappearance", async () => {
@@ -350,6 +436,46 @@ describe("Accordion paints the designed surface", () => {
     expect(card.borderRadius).not.toBe(plainRadius);
     expect(card.backgroundColor).toBe("rgb(246, 243, 240)");
     expect(card.borderRadius).toBe("8px");
+  });
+
+  /**
+   * The card is inset 20px on all four sides — the review's second finding.
+   *
+   * It had been 20 horizontally and 16 vertically, because the item's padding
+   * was `py-xs` against a horizontal lane that two other elements author
+   * (`px-sm` on the header and the panel, plus `p-md` on the trigger and the
+   * panel inner). Nothing in the source shows that: the three paddings live in
+   * three components and only add up after layout. Measured from the CARD's
+   * border box, which is the edge a reader sees.
+   */
+  test("the card insets its content 20px on every side", async () => {
+    mount(
+      <Accordion variant="card" defaultValue={["one"]}>
+        <Accordion.Item value="one">
+          <Accordion.Trigger icon={<InfoCircle />}>Question</Accordion.Trigger>
+          <Accordion.Panel>Answer</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>,
+    );
+    const item = document.querySelector<HTMLElement>('[data-slot="accordion-item"]')!;
+    await settled(item);
+    const trigger = document.querySelector<HTMLElement>('[data-slot="accordion-trigger"]')!;
+    const inner = document.querySelector<HTMLElement>('[data-slot="accordion-panel-inner"]')!;
+
+    const card = item.getBoundingClientRect();
+    const t = trigger.getBoundingClientRect();
+    const i = inner.getBoundingClientRect();
+    const pad = (el: HTMLElement, side: "Top" | "Right" | "Bottom" | "Left") =>
+      Number.parseFloat(getComputedStyle(el)[`padding${side}` as "paddingTop"]);
+
+    // Content edge = the child's border box plus the child's OWN padding, so
+    // this is where ink starts rather than where a box does.
+    expect(t.top - card.top + pad(trigger, "Top")).toBeCloseTo(20, 1);
+    expect(t.left - card.left + pad(trigger, "Left")).toBeCloseTo(20, 1);
+    expect(card.right - t.right + pad(trigger, "Right")).toBeCloseTo(20, 1);
+    expect(i.left - card.left + pad(inner, "Left")).toBeCloseTo(20, 1);
+    expect(card.right - i.right + pad(inner, "Right")).toBeCloseTo(20, 1);
+    expect(card.bottom - i.bottom + pad(inner, "Bottom")).toBeCloseTo(20, 1);
   });
 
   test("the trigger's label is the sheet's 13px bold, clamped to one line", () => {

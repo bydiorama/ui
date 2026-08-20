@@ -18,10 +18,29 @@ export type AccordionHeadingLevel = 2 | 3 | 4 | 5 | 6;
  * tile. Only the ITEM differs between them — header, trigger and panel are
  * identical in both, which is why the variant travels by context rather than
  * being threaded through every part.
+ *
+ * `py-sm` rather than `py-xs`: with 8px here the card's inset reads **20px on
+ * all four sides** — 8 + the trigger's `p-md` at the top, 8 + the panel
+ * inner's `p-md` at the bottom, and the same 8 + 12 horizontally from the
+ * header's and the panel's own `px-sm`. At `py-xs` the vertical inset was 16
+ * against a horizontal 20, which is the asymmetry the review found.
+ *
+ * The HOVER fill lives here, on the tile, and not on the trigger — the card
+ * is one object and a fill inset inside it reads as a second, smaller card.
+ * It is driven by `:has()` off the TRIGGER's hover rather than the item's own,
+ * so an open panel holding form controls does not tint the tile when the
+ * pointer is in a text field. `data-disabled` is the item's own attribute
+ * (the behaviour layer sets it alongside the trigger's `aria-disabled`), so
+ * the guard needs no attribute-value match.
  */
 const ITEM_VARIANT = {
   plain: "",
-  card: "rounded-md bg-elevated py-xs",
+  card: cn(
+    "rounded-md bg-elevated py-sm",
+    "transition-[background-color]",
+    motionMicro,
+    "not-data-disabled:has-[[data-slot=accordion-trigger]:hover]:bg-hover",
+  ),
 } as const satisfies Record<AccordionVariant, string>;
 
 interface AccordionContextValue {
@@ -174,7 +193,7 @@ export interface AccordionTriggerProps {
  */
 const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
   function AccordionTrigger({ children, className, icon }, ref) {
-    const { headingLevel } = useContext(AccordionContext);
+    const { headingLevel, variant } = useContext(AccordionContext);
     const Heading = `h${headingLevel}` as const;
 
     return (
@@ -200,15 +219,22 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
             // trailing alike. griddy renders width/height="24" as ATTRIBUTES,
             // so an unsized slot ships 24px whatever the sheet says.
             "[&_svg]:size-4 [&_svg]:shrink-0",
-            "rounded-sm transition-[background-color]", motionMicro,
+            "rounded-sm",
             "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+            // The hover fill is the ITEM's in the card variant, so the whole
+            // tile lights rather than a smaller rectangle inset inside it. The
+            // trigger keeps it only where there is no tile to light — and the
+            // transition goes with it, because a `transition-[background-color]`
+            // on an element whose background never changes animates nothing and
+            // reads in review as a decision.
+            //
             // ARIA-disabled, not the native attribute. The behaviour layer
             // keeps a disabled trigger FOCUSABLE (tabindex 0, aria-disabled
             // true) so assistive tech can still find it — which means
             // `disabled:` and `enabled:` match nothing here. Both were
             // written that way first and were dead classes: the cursor never
             // changed and the hover fill painted on a disabled row.
-            "not-aria-disabled:hover:bg-hover",
+            variant === "plain" && cn("transition-[background-color]", motionMicro, "not-aria-disabled:hover:bg-hover"),
             "aria-disabled:cursor-not-allowed aria-disabled:text-ink-disabled",
             className,
           )}

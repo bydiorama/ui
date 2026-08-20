@@ -13,7 +13,7 @@ export const accordionDoc = {
 
   anatomy: [
     { part: "root", slot: "accordion", notes: "The list. Owns the variant and heading level, and passes both by context so every part cannot be told twice." },
-    { part: "item", slot: "accordion-item", notes: "One disclosure. The ONLY part the variant changes: card gives it a raised tile, plain gives it nothing." },
+    { part: "item", slot: "accordion-item", notes: "One disclosure. The ONLY part the variant changes: card gives it a raised tile, its 8px vertical padding and — in the card variant only — the HOVER fill, so the whole tile lights rather than a rectangle inset inside it. Plain gives it nothing." },
     { part: "header", slot: "accordion-header", notes: "The heading element the trigger sits inside, at headingLevel. Rendered by Trigger — it carries nothing of its own." },
     { part: "trigger", slot: "accordion-trigger", notes: "The button. Holds the icon slot, the label lane and the chevron." },
     { part: "label", slot: "accordion-label", notes: "The title lane. Clamped to one line so a long title cannot push the chevron out of the row." },
@@ -34,7 +34,7 @@ Accordion                       variant, headingLevel, value/defaultValue, isMul
       type: '"plain" | "card"',
       default: '"plain"',
       notes:
-        "Only the ITEM differs: card adds rounded-md, bg-elevated and py-xs. Header, trigger and panel are identical in both, which is why this travels by context rather than being threaded through every part.",
+        "Only the ITEM differs: card adds rounded-md, bg-elevated, py-sm and the hover fill. Header, trigger and panel are identical in both, which is why this travels by context rather than being threaded through every part. The hover fill is the one place the variant reaches the trigger too — plain paints it on the trigger's own rounded-sm box, card paints the tile and the trigger paints nothing.",
     },
     headingLevel: {
       type: "2 | 3 | 4 | 5 | 6",
@@ -57,6 +57,7 @@ Accordion                       variant, headingLevel, value/defaultValue, isMul
     "Put real content in the panel, including form controls; the panel is a normal container and its height follows what is inside it.",
     "Give each Item a stable value when you control the open set; the index fallback shifts if the list reorders.",
     "Use variant=\"card\" when items need to read as separate objects, plain when they are one list.",
+    "Expect a card to inset its content 20px on all four sides — pinned by design/paper/specs/accordion.geometry.json and measured in the geometry browser test, not asserted from the class list.",
   ],
 
   dont: [
@@ -64,6 +65,7 @@ Accordion                       variant, headingLevel, value/defaultValue, isMul
     "Do not use disabled: or enabled: variants on the trigger — the behaviour layer marks it aria-disabled and keeps it focusable, so those match nothing.",
     "Do not put padding on the panel itself; it belongs on the inner container, or every intermediate height gains it and the content jumps.",
     "Do not rely on arrow keys to move between headers — they are not implemented. See knownGaps.",
+    "Do not restyle a card Item's padding to close the gap between rows; the item's py-sm is one of the three paddings that add up to the 20px lane, and the geometry test measures the sum.",
   ],
 
   a11y: {
@@ -88,6 +90,9 @@ Accordion                       variant, headingLevel, value/defaultValue, isMul
       { fg: "--ui-text-secondary", bg: "--ui-bg-base", floor: "text", role: "panel copy on the plain variant" },
       { fg: "--ui-text-secondary", bg: "--ui-bg-elevated", floor: "text", role: "panel copy on a card" },
       { fg: "--ui-text-muted", bg: "--ui-bg-elevated", floor: "non-text", role: "the chevron on a card" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-hover", floor: "text", role: "a trigger label on a HOVERED card — the fill is the item's, so the whole tile's ink sits on this ground, panel copy included" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-hover", floor: "text", role: "panel copy inside an open card while its trigger is hovered" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-hover", floor: "non-text", role: "the chevron on a hovered card" },
       { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the keyboard focus ring" },
       {
         fg: "--ui-text-disabled",
@@ -106,10 +111,12 @@ Accordion                       variant, headingLevel, value/defaultValue, isMul
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "No hover, focus or disabled state is drawn for the trigger. Hover is derived as --ui-bg-hover on the trigger's own rounded-sm box, focus as the standard ring, disabled as --ui-text-disabled. Confirm.",
+    "CLOSED. Resting, hover, focus and disabled are now drawn on the sheet's `Accordion Card States` section. Hover is --ui-bg-hover on the ITEM, which is the review's finding: a fill on the trigger is inset 8px by the header's px-sm and 8px by the item's own padding, so a hovered card showed a smaller rounded rectangle floating inside it.",
+    "The card's hover fills the tile while its FOCUS ring still hugs the trigger — an inset rounded-sm box, 2px offset, drawn on the sheet. That is correct in ARIA terms (the button is what receives focus) but the two indicators now have different shapes on the same control. Decide whether the card variant's ring should hug the tile instead; if it should, it needs a radius and an offset chosen against --ui-radius-md rather than reusing the trigger's.",
     "The sheet's leading icon frame carries a raw 8px gap and an 8px radius, both off the token layer and both inert (it holds one 16px glyph and nothing to round). Harmless as drawn, but it means the frame is not the icon lane it appears to be.",
     "The numbered step badge in the Rich Content row is drawn as a 20px --ui-bg-sunken circle and exists nowhere else in the system. It is passed through the icon slot here, so it is the caller's element — if numbered steps recur it wants a name of its own rather than being rebuilt per call site.",
     "No divider between items in the plain variant, and no drawn state for the last item's bottom edge. At gap-xs the rows read as one block; confirm that is intended rather than a missing rule.",
+    "The sheet is light only. Paper cannot hold a light-dark() pair, so the hover ramp was checked against the resolver instead: elevated #F6F3F0 → hover #EDE8E3 in light and #373430 → #3c3936 in dark, which moves one direction in each scheme. A dark half of this sheet would make that legible to a reader rather than to a script.",
   ],
 
   knownGaps: [

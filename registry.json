@@ -1135,6 +1135,7 @@
         "@bydiorama/cn",
         "@bydiorama/motion",
         "@bydiorama/use-controllable-state",
+        "@bydiorama/aspect-ratio",
         "@bydiorama/badge",
         "@bydiorama/button"
       ],

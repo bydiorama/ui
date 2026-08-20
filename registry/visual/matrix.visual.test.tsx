@@ -93,6 +93,37 @@ const MEDIA =
       <rect width="64" height="64" fill="url(#g)"/>
     </svg>`,
   );
+/** Two more grounds, so a four-tile picker does not read as one image x4. */
+const MEDIA_WARM =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">
+      <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#e0a473"/><stop offset="1" stop-color="#8f5426"/>
+      </linearGradient></defs>
+      <rect width="64" height="64" fill="url(#g)"/>
+    </svg>`,
+  );
+const MEDIA_ROSE =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">
+      <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#ef9e80"/><stop offset="1" stop-color="#6a2c18"/>
+      </linearGradient></defs>
+      <rect width="64" height="64" fill="url(#g)"/>
+    </svg>`,
+  );
+const MEDIA_COOL =
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">
+      <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#6fbf8d"/><stop offset="1" stop-color="#19462d"/>
+      </linearGradient></defs>
+      <rect width="64" height="64" fill="url(#g)"/>
+    </svg>`,
+  );
 const WHITE_MEDIA =
   "data:image/svg+xml," +
   encodeURIComponent(
@@ -1325,6 +1356,26 @@ const CASES: Array<{
           question="Which tone should the campaign lead with?"
           options={QUESTIONNAIRE_OPTIONS}
           answer="Warm and personal"
+        />
+        {/*
+          The IMAGE picker, which had no baseline at all until now — a whole
+          section of the sheet, and the one place the selection language has to
+          hold on a photograph rather than on a fill: a 2px outline OUTSIDE the
+          media plus an accent check badge over it.
+        */}
+        <ChatQuestionnaire
+          question="Which image direction fits the spring launch?"
+          variant="tiles"
+          defaultValue={["botanical"]}
+          options={[
+            { id: "botanical", label: "Botanical macro", src: MEDIA_COOL, alt: "A leaf against a dark ground" },
+            { id: "studio", label: "Studio still life", src: MEDIA, alt: "Objects on a seamless backdrop" },
+            { id: "street", label: "Street documentary", src: MEDIA_WARM, alt: "A street scene in daylight" },
+            // NOT WHITE_MEDIA, which is white on a white page: a tile that cannot be
+            // seen tests nothing, and the fourth frame is the one furthest from the
+            // selected first — the pair a reader compares.
+            { id: "archival", label: "Archival scan", src: MEDIA_ROSE, alt: "A scanned 1960s poster page" },
+          ]}
         />
       </div>
     ),

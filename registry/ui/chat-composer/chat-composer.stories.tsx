@@ -15,12 +15,23 @@ import { Thumbnail } from "@/ui/thumbnail/thumbnail.tsx";
 import { ChatComposer } from "./chat-composer.tsx";
 
 /**
- * A 1x1 PNG per tile, as a data URI. No network: a story that fetches is a
- * story whose visual baseline differs between the run that recorded it and
- * the run that compares it.
+ * A gradient tile, as an inline SVG data URI.
+ *
+ * No network — a story that fetches is a story whose visual baseline differs
+ * between the run that recorded it and the run that compares it. A GRADIENT
+ * rather than a flat swatch, because a placeholder's job here is to stand in
+ * for a photograph: a solid fill hides cropping, `object-cover` behaviour and
+ * the ink of anything laid over it, all of which is what these frames are for.
+ * The stops are palette values, so the tile reads as this system's own.
  */
-const TILE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+const media = (from: string, to: string) =>
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">` +
+      `<defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">` +
+      `<stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>` +
+      `</linearGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>`,
+  );
 
 const meta = {
   title: "UI/ChatComposer",
@@ -193,9 +204,9 @@ export const Attachments: Story = {
           onSubmitAction={fn()}
           attachments={
             <Thumbnail.Group>
-              <Thumbnail src={TILE} alt="Poster scan" onRemove={fn()} removeLabel="Remove Poster scan" />
-              <Thumbnail src={TILE} alt="Cover study" onRemove={fn()} removeLabel="Remove Cover study" />
-              <Thumbnail src={TILE} alt="Type specimen" onRemove={fn()} removeLabel="Remove Type specimen" />
+              <Thumbnail src={media("#a5aaf6", "#5b5ca8")} alt="Poster scan" onRemove={fn()} removeLabel="Remove Poster scan" />
+              <Thumbnail src={media("#e0a473", "#8f5426")} alt="Cover study" onRemove={fn()} removeLabel="Remove Cover study" />
+              <Thumbnail src={media("#79b8d3", "#134553")} alt="Type specimen" onRemove={fn()} removeLabel="Remove Type specimen" />
             </Thumbnail.Group>
           }
         />
@@ -209,11 +220,11 @@ export const Attachments: Story = {
           startAction={<AddAction />}
           attachments={
             <Thumbnail.Group isStacked max={3} overflowLabel="2 more attachments">
-              <Thumbnail src={TILE} alt="Poster scan" />
-              <Thumbnail src={TILE} alt="Cover study" />
-              <Thumbnail src={TILE} alt="Type specimen" />
-              <Thumbnail src={TILE} alt="Archival scan" />
-              <Thumbnail src={TILE} alt="Grid study" />
+              <Thumbnail src={media("#a5aaf6", "#5b5ca8")} alt="Poster scan" />
+              <Thumbnail src={media("#e0a473", "#8f5426")} alt="Cover study" />
+              <Thumbnail src={media("#79b8d3", "#134553")} alt="Type specimen" />
+              <Thumbnail src={media("#6fbf8d", "#19462d")} alt="Archival scan" />
+              <Thumbnail src={media("#ef9e80", "#6a2c18")} alt="Grid study" />
             </Thumbnail.Group>
           }
         />
@@ -227,8 +238,8 @@ export const Attachments: Story = {
           startAction={<AddAction />}
           attachments={
             <Thumbnail.Group>
-              <Thumbnail src={TILE} alt="Poster scan" onRemove={fn()} removeLabel="Remove Poster scan" />
-              <Thumbnail src={TILE} alt="poster-scan.tif" isLoading />
+              <Thumbnail src={media("#a5aaf6", "#5b5ca8")} alt="Poster scan" onRemove={fn()} removeLabel="Remove Poster scan" />
+              <Thumbnail src={media("#e0a473", "#8f5426")} alt="poster-scan.tif" isLoading />
             </Thumbnail.Group>
           }
         />

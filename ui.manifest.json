@@ -1101,6 +1101,7 @@
         "cn",
         "motion",
         "use-controllable-state",
+        "aspect-ratio",
         "badge",
         "button"
       ],

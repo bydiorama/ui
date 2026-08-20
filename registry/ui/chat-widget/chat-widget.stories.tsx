@@ -17,9 +17,31 @@ import { Progress } from "@/ui/progress/progress.tsx";
 import { Thumbnail } from "@/ui/thumbnail/thumbnail.tsx";
 import { ChatWidget } from "./chat-widget.tsx";
 
-/** A 1x1 PNG. No network — a story that fetches is a baseline that drifts. */
-const TILE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+/**
+ * A gradient tile, as an inline SVG data URI.
+ *
+ * No network — a story that fetches is a story whose visual baseline differs
+ * between the run that recorded it and the run that compares it. A GRADIENT
+ * rather than a flat swatch, because a placeholder's job here is to stand in
+ * for a photograph: a solid fill hides cropping, `object-cover` behaviour and
+ * the ink of anything laid over it, all of which is what these frames are for.
+ * The stops are palette values, so the tile reads as this system's own.
+ */
+const media = (from: string, to: string) =>
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">` +
+      `<defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">` +
+      `<stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>` +
+      `</linearGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>`,
+  );
+
+/** Three frames of one carousel — a shared ratio, three different pictures. */
+const RAIL = [
+  { label: "Frame 1", src: media("#79b8d3", "#134553") },
+  { label: "Frame 2", src: media("#e0a473", "#8f5426") },
+  { label: "Frame 3", src: media("#a5aaf6", "#5b5ca8") },
+];
 
 const meta: Meta<typeof ChatWidget> = {
   title: "UI/ChatWidget",
@@ -116,7 +138,7 @@ export const Matrix: Story = {
 
       <ChatWidget>
         <ChatWidget.Media ratio="landscape">
-          <img src={TILE} alt="Title slide on the brand's deep blue" className="size-full object-cover" />
+          <img src={media("#a5aaf6", "#e0a473")} alt="Title slide on the brand's deep blue" />
         </ChatWidget.Media>
         <ChatWidget.Caption>Grounded in brand palette · 2 sources</ChatWidget.Caption>
         <MediaActions />
@@ -214,12 +236,12 @@ export const Carousel: Story = {
             </>
           }
         >
-          <img src={TILE} alt="Frame 1 of 3" className="size-full object-cover" />
+          <img src={RAIL[0]!.src} alt="Frame 1 of 3" />
         </ChatWidget.Media>
         <ChatWidget.Rail label="Frames">
-          {["Frame 1", "Frame 2", "Frame 3"].map((frame) => (
-            <li key={frame}>
-              <Thumbnail src={TILE} alt={frame} />
+          {RAIL.map((frame) => (
+            <li key={frame.label}>
+              <Thumbnail src={frame.src} alt={frame.label} />
             </li>
           ))}
         </ChatWidget.Rail>
@@ -251,7 +273,7 @@ export const States: Story = {
       </ChatWidget>
       <ChatWidget>
         <ChatWidget.Media ratio="square">
-          <img src={TILE} alt="A square frame" className="size-full object-cover" />
+          <img src={media("#6fbf8d", "#19462d")} alt="A square frame" />
         </ChatWidget.Media>
       </ChatWidget>
     </div>
@@ -294,7 +316,7 @@ export const BrandThemed: Story = {
           </ChatWidget>
           <ChatWidget>
             <ChatWidget.Media ratio="landscape">
-              <img src={TILE} alt="Title slide" className="size-full object-cover" />
+              <img src={media("#a5aaf6", "#e0a473")} alt="Title slide" />
             </ChatWidget.Media>
             <ChatWidget.Caption>Grounded in brand palette · 2 sources</ChatWidget.Caption>
             <MediaActions />

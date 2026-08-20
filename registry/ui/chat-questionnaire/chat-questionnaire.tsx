@@ -6,6 +6,7 @@ import { Check } from "griddy-icons";
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
+import { AspectRatio } from "@/ui/aspect-ratio";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 
@@ -205,15 +206,29 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                 <span
                   data-slot="chat-questionnaire-tile"
                   className={cn(
-                    "relative block aspect-[1/1] w-full overflow-clip rounded-md bg-media-floor",
-                    // OUTSIDE the media, so the picture keeps its own edge —
-                    // the same 2px offset Image Thumbnail uses for a selection.
+                    "relative block rounded-md",
+                    // The outline is on the TILE, outside the frame — so the
+                    // picture keeps its own edge and the selection reads as a
+                    // ring around the thing rather than a border on it. Image
+                    // Thumbnail uses the same 2px offset.
                     "outline-2 outline-offset-2 outline-transparent",
                     "transition-[outline-color]", motionMicro,
                     isSelected && "outline-edge-focus",
                   )}
                 >
-                  <img src={option.src} alt={option.alt} className="size-full object-cover" />
+                  {/*
+                    The library's own frame, not a hand-rolled `aspect-[1/1]`.
+                    AspectRatio already clips to radius-md, sizes the image
+                    from the outside (`[&>img]:size-full object-cover`) and
+                    keeps a well behind it — three things every call site that
+                    reinvents the frame has to remember, and the one that
+                    forgets ships an intrinsically-sized image in a box that
+                    crops it. The fill is the media ground rather than its
+                    default sunken, because what sits here is a photograph.
+                  */}
+                  <AspectRatio ratio="square" className="bg-media-floor">
+                    <img src={option.src} alt={option.alt} />
+                  </AspectRatio>
                   {isSelected ? (
                     <span
                       aria-hidden="true"

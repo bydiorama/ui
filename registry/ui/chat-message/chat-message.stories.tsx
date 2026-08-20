@@ -14,9 +14,24 @@ import { Button } from "@/ui/button/button.tsx";
 import { Thumbnail } from "@/ui/thumbnail/thumbnail.tsx";
 import { ChatMessage } from "./chat-message.tsx";
 
-/** A 1x1 PNG per tile. No network — see the composer's stories for why. */
-const TILE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+/**
+ * A gradient tile, as an inline SVG data URI.
+ *
+ * No network — a story that fetches is a story whose visual baseline differs
+ * between the run that recorded it and the run that compares it. A GRADIENT
+ * rather than a flat swatch, because a placeholder's job here is to stand in
+ * for a photograph: a solid fill hides cropping, `object-cover` behaviour and
+ * the ink of anything laid over it, all of which is what these frames are for.
+ * The stops are palette values, so the tile reads as this system's own.
+ */
+const media = (from: string, to: string) =>
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">` +
+      `<defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">` +
+      `<stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>` +
+      `</linearGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>`,
+  );
 
 const meta = {
   title: "UI/ChatMessage",
@@ -64,7 +79,7 @@ export const Matrix: Story = {
       <ChatMessage.Sender
         attachments={
           <Thumbnail.Group>
-            <Thumbnail src={TILE} alt="Poster scan" />
+            <Thumbnail src={media("#a5aaf6", "#5b5ca8")} alt="Poster scan" />
           </Thumbnail.Group>
         }
       >
@@ -105,8 +120,8 @@ export const SenderStates: Story = {
         <ChatMessage.Sender
           attachments={
             <Thumbnail.Group>
-              <Thumbnail src={TILE} alt="Poster scan one" />
-              <Thumbnail src={TILE} alt="Poster scan two" />
+              <Thumbnail src={media("#a5aaf6", "#5b5ca8")} alt="Poster scan one" />
+              <Thumbnail src={media("#e0a473", "#8f5426")} alt="Poster scan two" />
             </Thumbnail.Group>
           }
         >

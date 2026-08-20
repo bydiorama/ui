@@ -11,9 +11,24 @@ import {
 
 import { ChatQuestionnaire, type ChatQuestionnaireOption, type ChatQuestionnaireTile } from "./chat-questionnaire.tsx";
 
-/** A 1x1 PNG. No network — a story that fetches is a baseline that drifts. */
-const TILE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
+/**
+ * A gradient tile, as an inline SVG data URI.
+ *
+ * No network — a story that fetches is a story whose visual baseline differs
+ * between the run that recorded it and the run that compares it. A GRADIENT
+ * rather than a flat swatch, because a placeholder's job here is to stand in
+ * for a photograph: a solid fill hides cropping, `object-cover` behaviour and
+ * the ink of anything laid over it, all of which is what these frames are for.
+ * The stops are palette values, so the tile reads as this system's own.
+ */
+const media = (from: string, to: string) =>
+  "data:image/svg+xml," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">` +
+      `<defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0">` +
+      `<stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/>` +
+      `</linearGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>`,
+  );
 
 const TONE: ChatQuestionnaireOption[] = [
   { id: "confident", label: "Confident and direct" },
@@ -29,10 +44,10 @@ const FORMATS: ChatQuestionnaireOption[] = [
 ];
 
 const DIRECTIONS: ChatQuestionnaireTile[] = [
-  { id: "botanical", label: "Botanical macro", src: TILE, alt: "A close-up of a leaf against a dark ground" },
-  { id: "studio", label: "Studio still life", src: TILE, alt: "Objects arranged on a seamless backdrop" },
-  { id: "street", label: "Street documentary", src: TILE, alt: "A candid street scene in daylight" },
-  { id: "archival", label: "Archival scan", src: TILE, alt: "A scanned page from a 1960s poster book" },
+  { id: "botanical", label: "Botanical macro", src: media("#6fbf8d", "#19462d"), alt: "A close-up of a leaf against a dark ground" },
+  { id: "studio", label: "Studio still life", src: media("#98918a", "#1d1b19"), alt: "Objects arranged on a seamless backdrop" },
+  { id: "street", label: "Street documentary", src: media("#79b8d3", "#134553"), alt: "A candid street scene in daylight" },
+  { id: "archival", label: "Archival scan", src: media("#e0a473", "#8f5426"), alt: "A scanned page from a 1960s poster book" },
 ];
 
 const meta: Meta<typeof ChatQuestionnaire> = {

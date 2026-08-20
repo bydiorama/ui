@@ -11,7 +11,7 @@ export const chatQuestionnaireDoc = {
     { part: "question", slot: "chat-questionnaire-question", notes: "body-md 500 in text-ink-primary while open; body-sm in text-ink-muted once answered, because by then it is context rather than a question." },
     { part: "options", slot: "chat-questionnaire-options", notes: "role=\"group\", named by the question. A 400px-capped column of rows, or a four-across grid of tiles — options read as controls, and a 640-wide row of one sentence reads as prose." },
     { part: "option", slot: "chat-questionnaire-option", notes: "A row: bg-base, radius-md, a 1.5px edge, px-md py-sm, body-sm 500. Chosen means border-edge-focus plus a check in the same blue and the fill UNCHANGED — Card Sorting's active card, verbatim." },
-    { part: "tile", slot: "chat-questionnaire-tile", notes: "A 1:1 picture at radius-md over bg-media-floor, with its caption beneath. Selection is a 2px outline OUTSIDE the media so the photograph keeps its own edge, plus a 20px accent check badge in the corner." },
+    { part: "tile", slot: "chat-questionnaire-tile", notes: "The library's AspectRatio at ratio=square over bg-media-floor, with its caption beneath — not a hand-rolled aspect box, so the frame clips, sizes its image from the outside and keeps a well behind it without the call site remembering to. Selection is a 2px outline on the TILE, outside the frame, so the photograph keeps its own edge; a 20px accent check badge sits in the corner." },
     { part: "check", slot: "chat-questionnaire-check", notes: "The chosen mark: 14px in border-focus on a row, a filled accent badge on a tile. The second channel beside the edge (SC 1.4.1)." },
     { part: "confirm", slot: "chat-questionnaire-confirm", notes: "Multi-select only: Button primary·md carrying the count, and an optional ghost·md Skip. Disabled while nothing is picked." },
     { part: "answer", slot: "chat-questionnaire-answer", notes: "The receipt's Badge, selected. The filled accent is reserved for exactly three things — Send, Confirm and this." },
@@ -88,6 +88,7 @@ options (tiles):   [{ id, label, src, alt }]
     "One transition per option: background-color, border-color and color together at duration-fast / ease-out, and outline-color on a tile. Enumerated rather than `transition-colors`, because the group also covers fill, stroke and text-decoration and none of those may move here. Collapses under prefers-reduced-motion at the token layer.",
 
   needsDesign: [
+    "The tile is square and the sheet draws four across a 640 thread at 154px each. AspectRatio supplies the shape and the column supplies the width, so a narrower thread makes smaller tiles rather than fewer — five or more still do not wrap (see below).",
     "The options are buttons in a role=\"group\", not a radiogroup. Single-select tap-to-commit makes each option an ACTION rather than a selection to move around, so arrow-key roving would be a promise the widget does not keep — but if the design ever adds a separate Confirm to single-select, a radiogroup becomes the right shape and this should change with it.",
     "The 400px option cap, tap-to-commit on single select, and the collapse-to-receipt behaviour are the sheet's readings of the references — confirm with product.",
     "Five or more tiles wrap to a second row and are not drawn. The grid is four across at any count today.",

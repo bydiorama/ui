@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-20-header-affixes",
+  "date": "2026-08-20",
+  "item": "header",
+  "kind": "addition",
+  "summary": "Header gains `affix` — one prop that pins the bar AND lets it change into its affix state once the page has moved under it. Not two props, because a bar that changes appearance without being pinned describes something that did not happen; not a controlled `isAffixed`, because that puts a scroll listener in every consumer. THE STATE IS OBSERVED, NEVER LISTENED FOR: an IntersectionObserver at threshold 1 with a -1px top root margin, which answers \"am I stuck?\" off the main thread and only when the answer changes, where a scroll listener fires every frame and needs a getBoundingClientRect — a forced synchronous layout — to answer the same question. No sentinel element. THE ROOT IS THE NEAREST SCROLLING ANCESTOR, not the viewport, and that was a bug that hid: a bar pinned inside a scrolling panel sits at a FIXED viewport position, so a viewport-rooted observer watches it never move and the state never flips, while the identical code works perfectly on a page that scrolls as a whole. It was caught by writing the test, not by reading the code. Painted: `--ui-bg-affix` ground, an 8px backdrop blur (`supports-` guarded — without the guard, a browser lacking backdrop-filter renders a translucent bar over sharp content, strictly worse than the opaque bar it replaced), `--ui-shadow-lg`, and the bottom hairline in `--ui-border-subtle`. THE HAIRLINE IS PRESENT AND TRANSPARENT AT REST so only its colour changes: declaring `border-b` in the affix state alone moves the content lane a pixel at the flip — border-box keeps h-12 at 48, so the padding box is what shrinks — and makes border-color a discrete swap instead of an animatable one. The bar transitions background-color, border-color and box-shadow at --ui-duration-base (`motionStandard`, whose own comment names \"a bar's fill\"), and that transition immediately caught its own test asserting rgba(255,255,255,0.95) — the halfway frame — as if it were the state. THE CURRENT ITEM STEPS FROM MUTED TO SECONDARY WHILE AFFIXED, and that is conformance rather than taste: muted measures 3.66:1 on --ui-bg-affix-floor in dark, under AA, and no alpha closes it. Secondary still reads as receding at 11.12:1 / 5.86:1. On the resting bar the current item is still muted, which is measured and unchanged. `data-affixed` is a public hook and the item reads it through a named group rather than a context, so a consumer restyling the current item has the same handle the component uses. Four browser tests measure the painted result after a real scroll in a real `overflow-y: auto` container — the case that caught the root bug.",
+  "affects": [
+    "prop:affix",
+    "slot:header",
+    "token:--ui-bg-affix",
+    "token:--ui-shadow-lg"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/26ZM-0"
+  }
+}

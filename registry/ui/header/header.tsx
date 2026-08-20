@@ -3,8 +3,11 @@ import {
   forwardRef,
   type AnchorHTMLAttributes,
   type ButtonHTMLAttributes,
+  useCallback,
   useContext,
+  useEffect,
   useId,
+  useState,
   type HTMLAttributes,
   type ReactElement,
   type ReactNode,
@@ -15,13 +18,43 @@ import { useRender } from "@base-ui/react/use-render";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
-import { motionMicro } from "@/lib/motion";
+import { motionMicro, motionStandard } from "@/lib/motion";
 
 /** Rows inside Header.Nav are list items; controls in Start/End are not. */
 const InNav = createContext(false);
 
+/**
+ * The nearest ancestor that actually scrolls, or `null` for the viewport —
+ * which is what an IntersectionObserver wants as its `root`.
+ *
+ * `document.scrollingElement` returns `null` rather than itself, because an
+ * observer rooted at the document element is NOT the same as one rooted at the
+ * viewport and the difference shows up as a state that never flips.
+ */
+function scrollParent(el: HTMLElement): Element | null {
+  for (let node = el.parentElement; node; node = node.parentElement) {
+    if (node === document.body || node === document.documentElement) break;
+    const { overflowY } = getComputedStyle(node);
+    if (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") return node;
+  }
+  return null;
+}
+
 export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   children: ReactNode;
+  /**
+   * Pins the bar to the top of its scroll container and lets it change into
+   * its AFFIX state once the page has moved under it.
+   *
+   * One prop, not two, and not a controlled `isAffixed`. The pinning and the
+   * appearance are the same decision — a bar that changes without being
+   * pinned is describing something that did not happen — and a controlled
+   * flag would put a scroll listener in every consumer, which is the
+   * duplication this library exists to avoid.
+   *
+   * The state itself is observed, never listened for: see the effect below.
+   */
+  affix?: boolean;
 }
 
 /**
@@ -39,14 +72,80 @@ export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> 
  * Avatar.
  */
 const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
-  { children, className, ...rest },
+  { children, className, affix = false, ...rest },
   ref,
 ) {
+  // The node in STATE rather than a ref, because the effect below has to run
+  // when the element attaches and a ref mutation does not re-run an effect.
+  const [node, setNode] = useState<HTMLElement | null>(null);
+  const [isAffixed, setIsAffixed] = useState(false);
+
+  const attachRef = useCallback(
+    (el: HTMLElement | null) => {
+      setNode(el);
+      if (typeof ref === "function") ref(el);
+      else if (ref) ref.current = el;
+    },
+    [ref],
+  );
+
+  /**
+   * OBSERVED, not listened for.
+   *
+   * A scroll listener is the obvious implementation and it is the wrong one:
+   * it fires on every frame of every scroll, on a thread that is already the
+   * busiest one during a scroll, and answering "am I stuck?" from it means
+   * reading `getBoundingClientRect` — a forced synchronous layout, per frame.
+   * An IntersectionObserver answers the same question off the main thread and
+   * only when the answer CHANGES.
+   *
+   * The geometry is the standard stuck-detection trick and it needs both
+   * halves to work: `threshold: [1]` fires when the bar stops being fully
+   * visible, and the -1px top root margin shrinks the viewport by exactly the
+   * one pixel that makes "flush against the top" count as clipped. Without
+   * the margin a bar pinned at `top: 0` is still 100% visible and the
+   * observer never fires; without the threshold it fires when the bar leaves
+   * the screen entirely, which for a pinned bar is never.
+   *
+   * It needs no sentinel element. The earlier draft of this put a zero-height
+   * span before the bar, which works and adds a node to the banner landmark's
+   * neighbourhood for no reason.
+   *
+   * THE ROOT IS THE SCROLL CONTAINER, NOT THE VIEWPORT, and leaving it at the
+   * default is a bug that hides: a bar pinned inside a scrolling panel sits at
+   * a FIXED position in the viewport, so a viewport-rooted observer watches it
+   * never move and the state never flips — while the identical code works
+   * perfectly on a page that scrolls as a whole. `scrollParent` walks up to
+   * the first ancestor that actually scrolls and falls back to the viewport,
+   * so both layouts behave the same.
+   *
+   * The `affix === false` branch RESETS rather than merely skipping: a bar
+   * toggled out of affix while stuck would otherwise keep its floating
+   * ground with nothing underneath it to float over.
+   */
+  useEffect(() => {
+    if (!affix) {
+      setIsAffixed(false);
+      return;
+    }
+    if (!node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsAffixed(entry !== undefined && entry.intersectionRatio < 1),
+      { root: scrollParent(node), threshold: [1], rootMargin: "-1px 0px 0px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [affix, node]);
+
   return (
     <header
-      ref={ref}
+      ref={attachRef}
       data-slot="header"
+      data-affixed={isAffixed || undefined}
       className={cn(
+        // Named group, so Header.Item can answer the bar's state in CSS
+        // rather than through a context only this file could read.
+        "group/header",
         // 48px, PINNED rather than emergent. It used to be py-sm around
         // whatever the tallest child happened to be, which silently assumed a
         // 32px control was present: a bar whose tallest child is a 24px
@@ -73,6 +172,39 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         // dark. The direction is now the same in both, which is what the
         // four-step ramp this replaced never managed.
         "bg-base text-ink-primary",
+        // THE HAIRLINE IS ALWAYS THERE, and only its colour changes.
+        //
+        // Declaring `border-b` only in the affix state would move the content
+        // lane by a pixel at the moment the state flips — border-box keeps
+        // h-12 at 48, so the padding box is what shrinks — and a bar whose
+        // contents jog as you scroll is a worse defect than the one the
+        // hairline fixes. Transparent at rest costs nothing (it is
+        // `bg-base` over a `bg-base` page either way) and it is what makes
+        // `border-color` an animatable property rather than a discrete swap.
+        "border-b border-transparent",
+        affix && "sticky top-0 z-30",
+        // A surface arriving, not interaction feedback — `motionStandard` is
+        // documented for exactly this ("a bar's fill").
+        "transition-[background-color,border-color,box-shadow]", motionStandard,
+        // THE AFFIX STATE. Four channels, and each says a different thing:
+        //
+        //   ground   `bg-affix` — the page's own fill at AFFIX_BG_ALPHA, so
+        //            the bar stays the page's colour while the page shows
+        //            through it. 0.90 is a conformance floor, not taste; the
+        //            token's own comment carries the measurement.
+        //   backdrop an 8px blur, so what shows through reads as texture
+        //            rather than as competing text. `supports-` guarded:
+        //            without it, a browser with no backdrop-filter renders a
+        //            translucent bar over sharp content, which is strictly
+        //            worse than the opaque bar it replaced.
+        //   depth    `shadow-lg` — a surface floating free of the layout with
+        //            no anchor (ADR 0016). Not `md`: md is a panel attached to
+        //            the thing that opened it, and nothing opens this bar.
+        //   edge     the hairline above, coloured. A border is not elevation
+        //            (ADR 0016 §6) — the hairline says where the surface ends,
+        //            the shadow says how far off the page it is.
+        "data-[affixed]:bg-affix data-[affixed]:shadow-lg data-[affixed]:border-edge-subtle",
+        "supports-[backdrop-filter:blur(0px)]:data-[affixed]:backdrop-blur-sm",
         className,
       )}
       {...rest}
@@ -268,6 +400,30 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         // differ.
         "hover:bg-elevated",
         "data-[current]:text-ink-muted",
+        // ON THE AFFIX BAR THE CURRENT ITEM STEPS UP, and this is a
+        // CONFORMANCE step rather than a stylistic one.
+        //
+        // `text-ink-muted` is body text with the least headroom in the whole
+        // bar, and the affix bar's worst ground is not the page — it is
+        // `--ui-bg-affix-floor`, the fill over whatever has scrolled under it.
+        // Muted measures 4.75:1 there in light and 3.66:1 in DARK, under AA,
+        // and NO alpha closes it: 0.96 still measures 4.43:1 and an opaque bar
+        // is 4.94:1, the ceiling this component already had the least headroom
+        // on. Dark's two surfaces sit close together — ADR 0016 point 4,
+        // arriving somewhere new. So the fix is the ink, and it is the ink
+        // ONLY while affixed: on the resting bar muted is measured, approved
+        // and unchanged.
+        //
+        // `secondary` rather than `primary` because RECEDING is the whole
+        // point of the state (you cannot navigate to the page you are on). It
+        // is still a step back from the items around it, and it measures
+        // 11.12:1 light / 5.86:1 dark on the same floor.
+        //
+        // Read off the bar's own `data-affixed` through the named group, not
+        // through a context: a context would make this file the only thing
+        // that could ever answer the question, and a consumer restyling the
+        // current item needs the same hook the component uses.
+        "group-data-[affixed]/header:data-[current]:text-ink-secondary",
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
         className,
       ),

@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-20-affix-bar-ground-is-a-measured-pair",
+  "date": "2026-08-20",
+  "item": "system",
+  "kind": "token",
+  "summary": "The contract gains --ui-bg-affix and --ui-bg-affix-floor: the ground of a bar pinned over scrolling content, and the worst ground that fill can produce. The fill is --ui-bg-base at AFFIX_BG_ALPHA (0.90), DERIVED rather than authored so a themed portal's bar carries that portal's page colour — it is the bar's own resting fill with alpha, not a new colour, and it is not --ui-scrim or --ui-bg-overlay, both of which dim something so you stop reading it. The FLOOR is the second half and the reason this is a token change rather than a component one: contrast against a ground you can see through is not a defined quantity, so nobody measures it, so nobody notices — the design drew 0.72 and the CURRENT item's receding --ui-text-muted label measured 3.23:1 against what can scroll under the bar while measuring 5.93:1 against the page everyone was judging it on. 0.90 is a CONFORMANCE FLOOR, not taste: 0.85 is still short at 4.36:1. THE FLOOR IS COMPOSITED OVER AN ABSOLUTE — black in light, white in dark — not over --ui-text-primary. The obvious construction is circular: the ink is audited AGAINST this floor, so auditContrast moves the ink afterwards and leaves the floor describing a colour the theme no longer ships. The new assertion in resolve.test.ts found exactly that on the low-contrast stress seed (#e6e6e6 built, #e0e0e0 recomputed) before it could ship, and the extreme is the more conservative number anyway since a page can contain a photograph and not merely type. WHAT IS DELIBERATELY NOT DECLARED: the muted pair. It fails in DARK at every alpha — 0.96 measures 4.43:1 and 1.0, an opaque bar, is 4.94:1, the ceiling header.doc.ts already flags as its least headroom — because dark's two surfaces sit close together, which is ADR 0016 point 4 arriving somewhere new. Declaring it would make auditContrast lighten --ui-text-muted for every dark surface in the system to pay for one bar state; the auditor moves the INK, and the ink is not what is wrong. The answer is an ink CHOICE scoped to the state: a receding item on an affix bar takes --ui-text-secondary, 11.12:1 light / 5.86:1 dark on the same floor, and THAT pair is declared. Header consumes all of this — see 2026-08-20-header-affixes.",
+  "affects": [
+    "token:--ui-bg-affix",
+    "token:--ui-bg-affix-floor",
+    "contrast:--ui-text-primary/--ui-bg-affix-floor",
+    "contrast:--ui-text-secondary/--ui-bg-affix-floor",
+    "doc:header"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/26ZM-0"
+  }
+}

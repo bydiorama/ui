@@ -65,6 +65,31 @@ export const BRANDABLE_TOKENS = [
   "--ui-bg-field-disabled",
   "--ui-bg-field-chrome",
   "--ui-bg-field-chrome-disabled",
+  // THE AFFIX PAIR: the ground of a bar pinned over scrolling content.
+  //
+  // `--ui-bg-affix` is `--ui-bg-base` at `AFFIX_BG_ALPHA` — the bar's OWN
+  // resting fill with alpha, not a new colour. A bar affixed to the top of the
+  // viewport is still the page ground; it is one you can see through, and the
+  // 8px backdrop blur behind it is what makes that legible rather than busy.
+  // Derived rather than authored so a themed portal's bar carries that
+  // portal's page colour, which a fixed rgba() could not.
+  //
+  // It is NOT `--ui-scrim` or `--ui-bg-overlay`: both DIM something so you
+  // stop reading it. This one is a surface you read ON.
+  "--ui-bg-affix",
+  // The WORST GROUND the affix fill can produce: the page's own ink showing
+  // through it, made opaque so `check:contrast` can do arithmetic on it.
+  //
+  // Same construction and the same reason as `--ui-bg-media-floor` — an
+  // unmeasurable pair is one nobody measures. Declaring the bar's ink against
+  // `--ui-bg-base` overstates it: what the reader sees is the bar over
+  // whatever has scrolled under it. The extreme of "whatever" is BLACK in
+  // light and WHITE in dark, an absolute rather than a role, because a page
+  // can contain a photograph and not merely type. It is the number that caught
+  // the bar at 0.72 — the CURRENT item's muted label measured 3.23:1 there,
+  // under AA, against 5.93:1 on the page it was being judged on.
+  // `resolve.test.ts` pins it to the composite so the two cannot drift apart.
+  "--ui-bg-affix-floor",
   "--ui-bg-muted",
   "--ui-bg-overlay",
   "--ui-bg-hover",
@@ -408,6 +433,27 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-text-secondary", "--ui-bg-base"],
   ["--ui-text-muted", "--ui-bg-base"],
   ["--ui-text-muted", "--ui-bg-sunken"],
+  // The affix bar's ink, measured against what can scroll UNDER it rather
+  // than against the page it is over. Audited on the FLOOR, never on
+  // `--ui-bg-affix` itself — `auditContrast` composites a translucent ground
+  // over `bg-base`, which reconstructs the best case and would pass a bar
+  // that fails.
+  //
+  // The SECOND ink is here because the first measurement said it had to be.
+  // A Header's current item recedes, and `--ui-text-muted` on this ground
+  // measures 4.75:1 in light but 3.73:1 in dark — under AA, with no alpha able
+  // to close it (0.96 still measures 4.43:1 and an opaque bar is 4.94:1, the
+  // ceiling `header.doc.ts` records as its least headroom). Dark's two
+  // surfaces sit close together: ADR 0016 point 4, arriving somewhere new.
+  //
+  // Declaring the MUTED pair would have made `auditContrast` lighten
+  // `--ui-text-muted` for every dark surface in the system to pay for one bar
+  // state — the auditor fixes by moving the ink, and a role used everywhere is
+  // the wrong thing to move. A receding item on an affix bar takes `secondary`
+  // instead, which still reads as a step back and measures 11.12:1 / 5.86:1
+  // here. That is the pair, and this is where it is held.
+  ["--ui-text-primary", "--ui-bg-affix-floor"],
+  ["--ui-text-secondary", "--ui-bg-affix-floor"],
   // Second-level nav items. nav-ink and nav-active-ink were already audited;
   // the muted step was not, and Sidebar is the first thing to render it.
   ["--ui-nav-ink-muted", "--ui-nav-bg"],

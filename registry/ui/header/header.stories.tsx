@@ -207,3 +207,59 @@ export const CollapsesToMenuButton: Story = {
     </div>
   ),
 };
+
+/**
+ * The affix state, with something to scroll.
+ *
+ * A scroll container is not set dressing here — it is the story. `affix`
+ * pins the bar and the bar decides for itself when it has been scrolled
+ * under, so a demo on a page shorter than its own viewport shows a prop that
+ * appears to do nothing. The rows below give it a page to float over, and the
+ * dark ink in them is deliberately the extreme the affix ground is measured
+ * against: `--ui-bg-affix-floor` is the fill over exactly this.
+ *
+ * Watch the CURRENT item ("Library"). It steps from muted to secondary as the
+ * bar affixes, and that is a conformance step, not a flourish — muted
+ * measures 3.66:1 on the affix ground in dark, and no alpha closes it.
+ */
+export const Affix: Story = {
+  render: () => (
+    <section className="h-96 overflow-y-auto">
+      <Header affix>
+        <Header.Start>
+          <a href="#home" aria-label="Diorama home" className={chromeControl()}><Grid /></a>
+        </Header.Start>
+        <Header.Spacer />
+        <Header.Nav label="Primary">
+          <Header.Item href="#agent">Agent</Header.Item>
+          <Header.Item href="#intelligence">Intelligence</Header.Item>
+          <Header.Item href="#library" isCurrent>Library</Header.Item>
+          <Header.Item href="#brand">Brand</Header.Item>
+        </Header.Nav>
+        <Header.Spacer />
+        <Header.End>
+          <Avatar name="Mira Vance" size="sm" />
+        </Header.End>
+      </Header>
+      <div className="flex flex-col gap-md p-lg">
+        <p className="text-body-sm text-ink-muted">Scroll — the bar takes its ground, its shadow and its hairline.</p>
+        {[
+          ["Josef Müller-Brockmann", "Grid systems", "1961"],
+          ["Ottmar Mergenthaler", "Linotype", "1886"],
+          ["Adrian Frutiger", "Univers", "1957"],
+          ["Muriel Cooper", "Visible Language Workshop", "1975"],
+          ["Wim Crouwel", "New Alphabet", "1967"],
+          ["Massimo Vignelli", "Subway signage", "1972"],
+          ["Cipe Pineles", "Editorial art direction", "1942"],
+          ["Herbert Bayer", "Universal typeface", "1925"],
+        ].map(([name, work, year]) => (
+          <div key={name} className="flex items-center gap-md rounded-md bg-inverse p-md text-ink-inverse">
+            <span className="w-64 shrink-0 text-body-md">{name}</span>
+            <span className="flex-1 text-body-sm">{work}</span>
+            <span className="text-body-sm tabular-nums">{year}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  ),
+};

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS } from "./contract.ts";
-import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA } from "./resolve.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
 import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
@@ -544,6 +544,44 @@ test("the media floor equals the media ground composited over white, in every th
         theme["--ui-bg-media-floor"],
         flatten(withAlpha(theme["--ui-bg-media"]!, MEDIA_SCRIM_ALPHA), "#ffffff"),
         `${name}/${scheme}: the media floor is not the media ground at ${MEDIA_SCRIM_ALPHA} over white`,
+      );
+    }
+  }
+});
+
+/**
+ * The affix floor IS the affix fill, composited over the page's own ink.
+ *
+ * Same hazard as the media floor above, and the same reason it is pinned: the
+ * floor is arithmetic on two other roles, it is NEVER painted, and the only
+ * things that read it are gates. `--ui-bg-affix` is the fill a bar actually
+ * wears; `--ui-bg-affix-floor` is the worst ground that fill can produce, and
+ * the whole point of declaring the bar's ink against the second rather than
+ * the first is that the first reconstructs the best case. If `AFFIX_BG_ALPHA`
+ * moved and the floor did not, the contrast audit would go on clearing a bar
+ * at an alpha nobody ships.
+ *
+ * The composite is over an ABSOLUTE extreme — black in light, white in dark —
+ * rather than over `--ui-text-primary`, and that is the second thing this
+ * test pins. The ink is audited AGAINST this floor, so building the floor
+ * from the ink is circular: the audit moves the ink afterwards and the floor
+ * is left describing a colour the theme no longer ships. This assertion is
+ * what found it, on the low-contrast stress seed in light.
+ */
+test("the affix floor equals the affix fill composited over the scheme's extreme, in every theme", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      assert.equal(
+        theme["--ui-bg-affix"],
+        withAlpha(theme["--ui-bg-base"]!, AFFIX_BG_ALPHA),
+        `${name}/${scheme}: the affix fill is not the page ground at ${AFFIX_BG_ALPHA}`,
+      );
+      assert.equal(
+        theme["--ui-bg-affix-floor"],
+        flatten(theme["--ui-bg-affix"]!, scheme === "dark" ? "#ffffff" : "#000000"),
+        `${name}/${scheme}: the affix floor is not the affix fill over the scheme's extreme`,
       );
     }
   }

@@ -71,6 +71,27 @@ const DATA_HUES = {
  */
 export const MEDIA_SCRIM_ALPHA = 0.72;
 
+/**
+ * How opaque a bar affixed over scrolling content stays.
+ *
+ * 0.90, and like `MEDIA_SCRIM_ALPHA` it is a CONFORMANCE FLOOR rather than a
+ * taste decision — the design drew 0.72 and that is where it was caught. A
+ * Header's CURRENT item RECEDES to `--ui-text-muted` (see `header.doc.ts`),
+ * which is body text with the least headroom in the whole bar, and the worst
+ * ground it can be read on is the page's own ink scrolled under it. At 0.72
+ * that pair measures 3.23:1 — under AA, while measuring 5.93:1 on the page
+ * everyone was judging it against. 0.85 is still short at 4.36:1. 0.90 clears
+ * it at 4.84:1, and the bar's primary ink is over 14:1 there.
+ *
+ * The blur behind the bar does not enter this arithmetic. A backdrop blur
+ * smears what is underneath; it does not lighten it, so the composite this
+ * number governs is the same blurred or not.
+ *
+ * Exported for the same reason as `MEDIA_SCRIM_ALPHA`: a literal in two
+ * places is a literal that drifts.
+ */
+export const AFFIX_BG_ALPHA = 0.9;
+
 const SHADOW_SCALE = {
   none: 0,
   subtle: 0.6,
@@ -550,6 +571,28 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   const scrimFloor = flatten(withAlpha(scrimInk, MEDIA_SCRIM_ALPHA), "#ffffff");
   const onScrim = readableInkOn(scrimFloor, INKS);
 
+  /**
+   * The affix pair — a bar pinned over scrolling content, and the worst ground
+   * that bar can produce. Same construction as the media pair above, for the
+   * same reason (see the contract), and composited over the same kind of
+   * thing: an ABSOLUTE extreme rather than a role.
+   *
+   * Media's floor is its veil over white because the worst photograph is a
+   * white one. This floor is the bar over BLACK in light and over WHITE in
+   * dark, because the worst thing that can scroll under a bar is the darkest
+   * — or, in dark, lightest — mark a page can contain, and a page can contain
+   * a photograph.
+   *
+   * `colors.textPrimary` was the obvious choice and it is CIRCULAR: the ink is
+   * audited against this very floor, so `auditContrast` can move it afterwards
+   * and leave the floor describing a colour the theme no longer ships. The
+   * assertion in `resolve.test.ts` caught exactly that on the low-contrast
+   * stress seed — #e6e6e6 built, #e0e0e0 recomputed. An extreme cannot drift,
+   * and it is the more conservative number anyway.
+   */
+  const affixBg = withAlpha(colors.bg, AFFIX_BG_ALPHA);
+  const affixFloor = flatten(affixBg, dark ? "#ffffff" : "#000000");
+
   const theme: ResolvedTheme = {
     // Text
     "--ui-text-primary": colors.textPrimary,
@@ -626,6 +669,8 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-accent-legible": accentLegible,
     "--ui-bg-media": scrimInk,
     "--ui-bg-media-floor": scrimFloor,
+    "--ui-bg-affix": affixBg,
+    "--ui-bg-affix-floor": affixFloor,
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),

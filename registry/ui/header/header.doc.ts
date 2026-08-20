@@ -7,7 +7,8 @@ export const headerDoc = {
     "The page's top bar: leading controls, an optional row of navigation items, trailing controls. A <header> so it is the banner landmark, but deliberately NOT a nav — the bar also holds a brand mark that links home and an avatar that opens the account menu, and calling all of that navigation would make the landmark useless to skip to. The item row names itself.",
 
   anatomy: [
-    { part: "root", slot: "header", notes: "A <header>. 48px tall — PINNED (h-12), not emergent from py-sm around the tallest child: a bar whose tallest child is a 24px Header.Item used to render at 40px, silently. px-lg, bg-base — the PAGE ground, so the bar and the page it frames are one surface. Sidebar already painted bg-base; the bar was the outlier and in dark it sat below the page." },
+    { part: "root", slot: "header", notes: "A <header>. 48px tall — PINNED (h-12), not emergent from py-sm around the tallest child: a bar whose tallest child is a 24px Header.Item used to render at 40px, silently. px-lg, bg-base — the PAGE ground, so the bar and the page it frames are one surface. Sidebar already painted bg-base; the bar was the outlier and in dark it sat below the page. Carries a transparent 1px bottom border at rest — see `affix` for why the hairline exists before it is visible." },
+    { part: "root (affixed)", slot: "header[data-affixed]", notes: "The one state the bar changes into, set by the component itself once `affix` is on and the page has moved under it. Ground steps to --ui-bg-affix, the page's own fill at AFFIX_BG_ALPHA; an 8px backdrop blur turns what shows through into texture rather than competing text; --ui-shadow-lg lifts it; the resting hairline takes --ui-border-subtle. Nothing about the bar's geometry or contents moves. `data-affixed` is a public hook — style against it rather than re-deriving the scroll position." },
     { part: "start", slot: "header-start", notes: "Leading controls — the brand mark, which LINKS to the app home, and a back button, which is a button because popping history is an action. Slots: the caller supplies real elements with their own names." },
     { part: "nav", slot: "header-nav", notes: "A named <nav> wrapping a <ul> of items. gap-xs, p-xs." },
     { part: "item", slot: "header-item", notes: "A compact 24px control at 12px bold: px-sm, py-xs, radius-sm, with 16px icon slots. An <a> when given href, a <button> otherwise." },
@@ -37,6 +38,12 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
   `.trim(),
 
   props: {
+    affix: {
+      type: "boolean",
+      default: "false",
+      notes:
+        "Pins the bar (sticky top-0 z-30) AND lets it change into its affix state once the page has moved under it. ONE prop, not two: a bar that changes appearance without being pinned describes something that did not happen. Not a controlled `isAffixed` either — that would put a scroll listener in every consumer, which is the duplication this library exists to avoid. The state is OBSERVED, never listened for: an IntersectionObserver at threshold 1 with a -1px top root margin, which answers \"am I stuck?\" off the main thread and only when the answer changes. A scroll listener would fire every frame and need a getBoundingClientRect — a forced synchronous layout — to answer the same question. No sentinel element is involved. Turning `affix` off resets the state, so a bar toggled out while stuck does not keep a floating ground with nothing to float over.",
+    },
     "Nav.label": { type: "string", required: true, notes: "Required — a page carries several navigations and <nav> landmarks are indistinguishable without names. Sidebar's rule, for the same reason." },
     "Item.href": { type: "string", notes: "OPTIONAL. With it the item is a real <a>; without it, a <button>. The sheet draws two items carrying a chevron that open menus rather than navigate, and a link that does not navigate is the commonest lie in a bar." },
     "Item.target / Item.rel / Item.download / Item.referrerPolicy": {
@@ -67,6 +74,7 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
     "Make the brand mark a LINK to the app home, named for the destination — \"Diorama home\", never \"Logo\". The brand SWITCHER is a different control and lives in the account menu, and in the rail's profile layer on mobile.",
     "Give Header.MenuButton a panel. A trigger with nothing behind it is the commonest way this pattern ships broken, which is why the desktop bar story composes the Menu rather than rendering the button alone.",
     "Hide the nav row below your breakpoint; the sheet's mobile bar draws Start, a spacer and a menu toggle only.",
+    "Give `affix` a page that actually scrolls, and put the bar at the top of that scroll flow. Pinned to a page shorter than the viewport it is a prop that does nothing, which reads as broken rather than as unused.",
   ],
 
   dont: [
@@ -75,6 +83,8 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
     "Do not render two Headers as siblings on one page. <header> is the BANNER landmark, a document may have exactly one, and axe fails on the second (landmark-no-duplicate-banner). A Header used as chrome inside a section is fine — the role only applies outside article/aside/main/nav/section.",
     "Do not treat NavRail as Sidebar collapsed. They are sibling components (ADR 0015) and a layout renders one or the other; below the breakpoint this bar's menu button carries the navigation instead.",
     "Do not put the mobile menu's panel here; that is a Sheet, and this bar only holds its trigger.",
+    "Do not hand-roll the affix state with your own scroll listener and a className. The ground is a token whose alpha is a measured conformance floor, the ink of the current item changes with it, and a bar assembled from `sticky` plus a shadow gets the first right and the second wrong — silently, and only in dark.",
+    "Do not add `sticky` yourself alongside `affix`; the prop already applies it, and a second `top` in `className` wins by merge order rather than by intent.",
   ],
 
   a11y: {
@@ -91,6 +101,8 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
       { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the menu button's glyph on its chrome fill, and a nav item's label on the hover fill" },
       { fg: "--ui-text-muted", bg: "--ui-bg-elevated", floor: "text", role: "the current item's label while it is hovered — the fill answers the pointer, the muted ink persists underneath it" },
       { fg: "--ui-text-primary", bg: "--ui-bg-hover", floor: "text", role: "the menu button's glyph while hovered" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-affix-floor", floor: "text", role: "item labels while the bar is AFFIXED — measured against what can scroll under it (the fill at AFFIX_BG_ALPHA over black in light, white in dark) rather than against the page it floats over, which reconstructs the best case and would clear a bar that fails. 13.76:1 light, 7.11:1 dark" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-affix-floor", floor: "text", role: "the CURRENT item's label while the bar is affixed. It steps up from muted, and the step is CONFORMANCE rather than taste: muted measures 3.66:1 on this ground in dark and no alpha closes it. Secondary still reads as receding and measures 11.12:1 light / 5.86:1 dark. On the RESTING bar the current item is still muted, which is the pair above this one" },
       { fg: "--ui-text-disabled", bg: "--ui-bg-sunken", floor: "decorative", why: "WCAG 1.4.3 exempts disabled controls, and a disabled chrome control has to read as unavailable — holding it to 4.5:1 would make it indistinguishable from an available one, which is the real failure. The chrome control has no doc of its own (it is a lib recipe), so its states are declared by the component that ships it.", role: "a disabled chrome control" },
     ],
   },
@@ -99,6 +111,8 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
   needsDesign: [
     "The bar's inline padding is a raw 20px, off the spacing scale, and the design's own mobile bar uses 12. Shipped as 16.",
     "`--ui-bg-selected` and `--ui-bg-hover` are the SAME value in theme zero's authored light map (neutral-90), which is why the item ramp cannot be built out of interaction roles alone. The contract's own note on bg-selected says \"not hover\"; the authored value makes it hover. Confirm whether a selected fill should sit past `bg-active` in light, as the derivation puts it.",
+    "THE CURRENT ITEM'S INK ON THE AFFIX BAR IS MINE, NOT THE SHEET'S — confirm it. Muted measures 3.66:1 on `--ui-bg-affix-floor` in dark, under AA, and no alpha closes it (0.96 is 4.43:1; an opaque bar is 4.94:1, this doc's own least-headroom pair). So while affixed the current item steps to `--ui-text-secondary`: 11.12:1 light, 5.86:1 dark, still visibly receding. Two alternatives were available and neither is drawn — drop the receding treatment in the affix state entirely, or give the affix bar a rule under the current item. Whichever design settles on, `isCurrent` keeps conveying state by more than colour (aria-current), and the resting bar keeps muted.",
+    "The affix state is drawn LIGHT-ONLY on the Contacts page and in both schemes on the component sheet, but nothing draws the TRANSITION. The bar animates background-color, border-color and box-shadow at --ui-duration-base; whether the state should arrive that gently, or instantly, is a motion decision nobody has made.",
   ],
 
   knownGaps: [
@@ -107,11 +121,14 @@ at 48px, not a mode of Sidebar — and a layout picks one (ADR 0015).
     "The hover fill is `bg-elevated`, a SURFACE role — which is also what the chrome control resting beside it in the same bar is filled with, so a hovered nav item and a resting menu button are the same colour. It was a fill RAMP's second step when that mattered; now that the current item carries no fill, hover is the only one and moving it to `bg-hover` — the role named for the job — costs nothing. Left as the sheet draws it; one line to change.",
     "Current is conveyed by ink alone, plus aria-current. `--ui-text-muted` on the bar measures 5.78:1 light / 6.47:1 dark, so it is legible, but a reader with reduced colour discrimination has only the weight-free ink difference to go on visually. The bar has no weight left to spend (12px bold already), which is what ruled out the Sidebar's approach. If that proves too quiet, the channels available are a rule under the item or an opacity step — both drawn decisions, neither taken.",
     "No responsive behaviour of its own. The sheet draws a desktop bar and a mobile bar; which one shows is the caller's layout decision, not a prop.",
-    "No sticky or scrolled state, no elevation change on scroll — none is drawn.",
+    "The affix state is BUILT and its trigger is deliberately coarse: one boundary, one change. There is no scroll-linked ramp — no shadow that deepens with distance, no fill that fades in — because none is drawn and a continuous mapping from scroll position to appearance is a much larger promise than a state flip. If a ramp is ever wanted it needs its own drawing, not a tuning pass on this.",
+    "`affix` pins with `top-0` and `z-30`, both fixed. A bar under another fixed element (a system banner, an editing toolbar) needs a different offset, and a page with its own stacking order may need a different layer — neither is a prop yet, and `className` is the escape hatch until a second caller needs one.",
+    "The observer roots itself at the nearest ancestor whose `overflow-y` scrolls, falling back to the viewport. Leaving it at the viewport default was a bug that HID: a bar pinned inside a scrolling panel sits at a fixed viewport position, so a viewport-rooted observer watches it never move and the state never flips — while the identical code works on a page that scrolls as a whole. It was caught by writing the test, not by looking at it. The walk-up reads `getComputedStyle` once per ancestor at mount; a container that becomes scrollable later is not re-detected.",
+    "A `position: fixed` bar is not supported — only `sticky`, which is what `affix` applies. Fixed removes the bar from flow, so nothing scrolls under it in the observer's terms and the state cannot be derived from geometry at all.",
   ],
 
   motion:
-    "Nav items transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out; the 32px menu toggle and avatar frame take theirs from `@/lib/chrome-control` rather than declaring their own, which is why this file carries only one transition for several moving parts.",
+    "Nav items transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out; the 32px menu toggle and avatar frame take theirs from `@/lib/chrome-control` rather than declaring their own, which is why this file carries only one transition for several moving parts. The BAR itself transitions `background-color`, `border-color` and `box-shadow` at --ui-duration-base (`motionStandard`, whose own comment names 'a bar's fill' as its case) — a surface arriving is not interaction feedback and should not move at interaction speed. `border-color` is animatable only because the hairline is present-but-transparent at rest; declaring the border in the affix state alone would make it a discrete swap AND jog the content lane by a pixel.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/ZBB-0",
 } as const;

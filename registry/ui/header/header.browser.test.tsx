@@ -426,3 +426,128 @@ function contrast(a: string, b: string): number {
   const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
   return (x + 0.05) / (y + 0.05);
 }
+
+/**
+ * The affix state, measured rather than inspected.
+ *
+ * Everything here is a computed value after a REAL scroll in a REAL scroll
+ * container, because every part of this state is invisible to a snapshot of
+ * the markup: the class names are present either way and only the
+ * `data-affixed` attribute the observer sets makes them apply.
+ *
+ * The container is `overflow-y: auto`, which is the case that caught the
+ * implementation bug: a viewport-rooted observer watches a bar pinned inside
+ * a scrolling panel never move, so the state never flips — while the same
+ * code works on a page that scrolls as a whole. If these tests are ever
+ * "fixed" by scrolling the window instead, that bug comes back invisible.
+ */
+describe("the bar takes a ground it can be seen against once the page runs under it", () => {
+  function Affixed() {
+    return (
+      <div data-testid="scroller" style={{ height: "160px", overflowY: "auto" }}>
+        <Header affix>
+          <Header.Nav label="Primary">
+            <Header.Item href="#agent">Agent</Header.Item>
+            <Header.Item href="#library" isCurrent>Library</Header.Item>
+          </Header.Nav>
+        </Header>
+        <div style={{ height: "900px" }} />
+      </div>
+    );
+  }
+
+  const bar = (c: HTMLElement) => c.querySelector<HTMLElement>('[data-slot="header"]')!;
+  const current = (c: HTMLElement) => c.querySelector<HTMLElement>('[data-slot="header-item"][data-current]')!;
+
+  test("at rest it is the page ground, with no shadow and an invisible hairline", () => {
+    const c = mount(<Affixed />);
+    const style = getComputedStyle(bar(c));
+    expect(bar(c).hasAttribute("data-affixed")).toBe(false);
+    expect(style.position).toBe("sticky");
+    expect(style.backgroundColor).toBe("rgb(255, 255, 255)");
+    expect(style.boxShadow).toBe("none");
+    // The hairline is PRESENT and transparent, which is what keeps the content
+    // lane from jogging a pixel when the state flips — and what makes
+    // border-color an animatable property rather than a discrete swap.
+    expect(style.borderBottomWidth).toBe("1px");
+    expect(style.borderBottomColor).toBe("rgba(0, 0, 0, 0)");
+    expect(bar(c).getBoundingClientRect().height).toBe(48);
+  });
+
+  test("scrolled under, it takes --ui-bg-affix, --ui-shadow-lg and the hairline", async () => {
+    const c = mount(<Affixed />);
+    const scroller = c.querySelector<HTMLElement>('[data-testid="scroller"]')!;
+
+    act(() => { scroller.scrollTop = 300; });
+    await vi.waitFor(() => expect(bar(c).hasAttribute("data-affixed")).toBe(true));
+    // The bar TRANSITIONS into this state, so a value read the moment the
+    // attribute lands is a frame of the animation rather than the state: the
+    // first run of this test measured rgba(255, 255, 255, 0.95), the halfway
+    // point between the opaque resting fill and the 0.9 it is going to. That
+    // is the transition working, and it is exactly how a wrong value gets
+    // asserted as a right one.
+    await settled(bar(c));
+
+    const style = getComputedStyle(bar(c));
+    // --ui-bg-affix: --ui-bg-base at AFFIX_BG_ALPHA. 0.9 is a conformance
+    // floor, not taste — the design drew 0.72, where the current item's label
+    // measured 3.23:1 against what can scroll under the bar.
+    expect(style.backgroundColor).toBe("rgba(255, 255, 255, 0.9)");
+    // --ui-shadow-lg, both layers. `lg` is the role for a surface floating
+    // free of the layout with no anchor (ADR 0016) — asserting it is what
+    // stops the value drifting back to the `md` a panel uses.
+    // `toContain`, not `toBe`: Tailwind v4 composes box-shadow from a stack of
+    // custom properties (inset, ring, ring-offset…), so the computed value
+    // carries four `rgba(0, 0, 0, 0) 0px 0px 0px 0px` slots ahead of the real
+    // layers. Matching the whole string would be asserting Tailwind's
+    // internals; matching the pair asserts ours, and a drift to `md` — a
+    // different geometry AND different alphas — still fails it.
+    expect(style.boxShadow).toContain(
+      "rgba(29, 27, 25, 0.09) 0px 8px 24px -4px, rgba(29, 27, 25, 0.05) 0px 2px 8px 0px",
+    );
+    // --ui-border-subtle. A border is not elevation (ADR 0016 §6): both are
+    // here because they say different things.
+    expect(style.borderBottomColor).toBe("rgb(218, 212, 206)");
+    // The bar did not change size when it changed appearance.
+    expect(bar(c).getBoundingClientRect().height).toBe(48);
+  });
+
+  test("the current item steps from muted to secondary, because muted does not clear AA there", async () => {
+    const c = mount(<Affixed />);
+    const scroller = c.querySelector<HTMLElement>('[data-testid="scroller"]')!;
+
+    // --ui-text-muted at rest, which is measured and approved on bg-base.
+    expect(getComputedStyle(current(c)).color).toBe("rgb(105, 99, 93)");
+
+    act(() => { scroller.scrollTop = 300; });
+    await vi.waitFor(() => expect(bar(c).hasAttribute("data-affixed")).toBe(true));
+    await settled(current(c));
+
+    // --ui-text-secondary. Muted measures 3.66:1 on --ui-bg-affix-floor in
+    // dark and no alpha closes it, so the ink is what moves — and only while
+    // affixed. aria-current still carries the state for a screen reader.
+    expect(getComputedStyle(current(c)).color).toBe("rgb(47, 44, 41)");
+    expect(current(c).getAttribute("aria-current")).toBe("page");
+  });
+
+  test("without `affix` nothing is pinned and nothing flips", async () => {
+    const c = mount(
+      <div data-testid="scroller" style={{ height: "160px", overflowY: "auto" }}>
+        <Header>
+          <Header.Nav label="Primary">
+            <Header.Item href="#library" isCurrent>Library</Header.Item>
+          </Header.Nav>
+        </Header>
+        <div style={{ height: "900px" }} />
+      </div>,
+    );
+    const scroller = c.querySelector<HTMLElement>('[data-testid="scroller"]')!;
+    expect(getComputedStyle(bar(c)).position).toBe("static");
+
+    act(() => { scroller.scrollTop = 300; });
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    expect(bar(c).hasAttribute("data-affixed")).toBe(false);
+    expect(getComputedStyle(bar(c)).boxShadow).toBe("none");
+  });
+});

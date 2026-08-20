@@ -915,6 +915,22 @@
       "role": "the menu button's glyph while hovered"
     },
     {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-affix-floor",
+      "floor": "text",
+      "light": 13.76,
+      "dark": 7.11,
+      "role": "item labels while the bar is AFFIXED — measured against what can scroll under it (the fill at AFFIX_BG_ALPHA over black in light, white in dark) rather than against the page it floats over, which reconstructs the best case and would clear a bar that fails. 13.76:1 light, 7.11:1 dark"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-affix-floor",
+      "floor": "text",
+      "light": 11.12,
+      "dark": 5.86,
+      "role": "the CURRENT item's label while the bar is affixed. It steps up from muted, and the step is CONFORMANCE rather than taste: muted measures 3.66:1 on this ground in dark and no alpha closes it. Secondary still reads as receding and measures 11.12:1 light / 5.86:1 dark. On the RESTING bar the current item is still muted, which is the pair above this one"
+    },
+    {
       "fg": "--ui-text-disabled",
       "bg": "--ui-bg-sunken",
       "floor": "decorative",

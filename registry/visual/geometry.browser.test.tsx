@@ -40,7 +40,8 @@ import { ChatMessage } from "@/ui/chat-message/chat-message.tsx";
 import { ChatProgress } from "@/ui/chat-progress/chat-progress.tsx";
 import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
 import { ChatQuestionnaire } from "@/ui/chat-questionnaire/chat-questionnaire.tsx";
-import { Plus, Microphone, InfoCircle } from "griddy-icons";
+import { Sheet } from "@/ui/sheet/sheet.tsx";
+import { Plus, Microphone, InfoCircle, Close } from "griddy-icons";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
 // Importing them rather than restating them is the whole point — a second copy
@@ -56,6 +57,7 @@ import chatMessageSpec from "../../design/paper/specs/chat-message.geometry.json
 import chatProgressSpec from "../../design/paper/specs/chat-progress.geometry.json";
 import chatWidgetSpec from "../../design/paper/specs/chat-widget.geometry.json";
 import chatQuestionnaireSpec from "../../design/paper/specs/chat-questionnaire.geometry.json";
+import sheetSpec from "../../design/paper/specs/sheet.geometry.json";
 
 /** A spec case, as far as this file needs to read one. */
 type Spec = {
@@ -95,6 +97,7 @@ const SPECS: Spec[] = [
   chatProgressSpec as Spec,
   chatWidgetSpec as Spec,
   chatQuestionnaireSpec as Spec,
+  sheetSpec as Spec,
 ];
 
 /**
@@ -108,6 +111,31 @@ const CASES: Record<string, () => ReactElement> = {
   // ONE item, because `measure` takes every [data-slot="accordion-trigger"] on
   // screen — a second row would put its trigger into the union the gap
   // arithmetic runs over and the bottom inset would read as the whole list.
+  /**
+   * The panel is `fixed inset-y-0`, so its RENDERED height is the viewport's
+   * and Sheet.Body is what takes the slack. `track-is-the-sum-of-its-parts`
+   * therefore holds at any size and fails the moment Body stops being
+   * `flex-1` or the panel grows an inset of its own — which is the regression
+   * worth catching, and the one a height assertion could not express.
+   */
+  "sheet-panel-md": () => (
+    <Sheet defaultIsOpen>
+      <Sheet.Panel label="Filters" side="right" size="md">
+        <Sheet.Header className="justify-end">
+          <Sheet.Close render={<Button variant="ghost" size="sm" isIconOnly aria-label="Close filters" icon={<Close />} />} />
+        </Sheet.Header>
+        <Sheet.Body>
+          <Sheet.Title>Filters</Sheet.Title>
+          <div>Asymmetric typography</div>
+          <div>Grid systems</div>
+        </Sheet.Body>
+        <Sheet.Footer>
+          <Button>Show 24 results</Button>
+          <Button variant="secondary">Clear all</Button>
+        </Sheet.Footer>
+      </Sheet.Panel>
+    </Sheet>
+  ),
   "accordion-card-closed": () => (
     <Accordion variant="card">
       <Accordion.Item value="process">

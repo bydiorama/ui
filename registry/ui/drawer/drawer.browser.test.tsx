@@ -448,3 +448,59 @@ describe("Detents: a drawer can rest at more than one height", () => {
     expect(panel()!.getBoundingClientRect().height).toBeGreaterThan(0);
   });
 });
+
+describe("Drawer.Header is the sheet's chrome band", () => {
+  test("48px, with a TRUE uniform 8px inset around a 32px control", async () => {
+    mount(
+      <Drawer defaultIsOpen>
+        <Drawer.Panel label="Complete profile">
+          <Drawer.Header>
+            <button type="button" aria-label="Back" className="size-8 shrink-0" />
+            <Drawer.Close render={<button type="button" aria-label="Close" className="size-8 shrink-0" />} />
+          </Drawer.Header>
+          <Drawer.Body>Content</Drawer.Body>
+        </Drawer.Panel>
+      </Drawer>,
+    );
+    const band = document.querySelector<HTMLElement>('[data-slot="drawer-header"]')!;
+    await settled(band);
+    const b = band.getBoundingClientRect();
+    expect(b.height).toBe(48);
+
+    /*
+      `p-sm` uniform is what makes the height and the padding AGREE — 8 + 32 + 8
+      — rather than one of them being a second author of the inset. Header's
+      bar carried a `border-b` here until 2026-08-25 and paid the missing pixel
+      out as 7.50 above and 8.50 below; the same arithmetic applies to any
+      48px band with a 32px child, so it is asserted rather than assumed.
+    */
+    const kids = [...band.children].map((k) => k.getBoundingClientRect());
+    expect(Math.min(...kids.map((k) => k.top)) - b.top).toBe(8);
+    expect(b.bottom - Math.max(...kids.map((k) => k.bottom))).toBe(8);
+    expect(Math.min(...kids.map((k) => k.left)) - b.left).toBe(8);
+    expect(b.right - Math.max(...kids.map((k) => k.right))).toBe(8);
+  });
+
+  test("it ADDS to the handle rather than replacing it", async () => {
+    mount(
+      <Drawer defaultIsOpen>
+        <Drawer.Panel label="Complete profile">
+          <Drawer.Header>
+            <Drawer.Close render={<button type="button" aria-label="Close" className="size-8 shrink-0" />} />
+          </Drawer.Header>
+          <Drawer.Body>Content</Drawer.Body>
+        </Drawer.Panel>
+      </Drawer>,
+    );
+    // The handle is the drag affordance AND the single-pointer alternative SC
+    // 2.5.7 requires of every dragging movement, so composing a band cannot
+    // silently take it away. Whether the DESKTOP form drops it is a design
+    // question, recorded in the doc rather than answered by this component.
+    const handle = document.querySelector<HTMLElement>('[data-slot="drawer-handle"]');
+    expect(handle).not.toBeNull();
+    const band = document.querySelector<HTMLElement>('[data-slot="drawer-header"]')!;
+    expect(handle!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      band.getBoundingClientRect().top,
+    );
+  });
+});

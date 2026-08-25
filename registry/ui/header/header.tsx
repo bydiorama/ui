@@ -174,18 +174,29 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         "bg-base text-ink-primary",
         // THE HAIRLINE IS ALWAYS THERE, and only its colour changes.
         //
-        // Declaring `border-b` only in the affix state would move the content
-        // lane by a pixel at the moment the state flips — border-box keeps
-        // h-12 at 48, so the padding box is what shrinks — and a bar whose
-        // contents jog as you scroll is a worse defect than the one the
-        // hairline fixes. Transparent at rest costs nothing (it is
-        // `bg-base` over a `bg-base` page either way) and it is what makes
-        // `border-color` an animatable property rather than a discrete swap.
-        "border-b border-transparent",
+        // Declaring it only in the affix state would move the content lane at
+        // the moment the state flips, and a bar whose contents jog as you
+        // scroll is a worse defect than the one the hairline fixes.
+        //
+        // An INSET SHADOW, not a border — corrected 2026-08-25. `border-b` was
+        // costing a pixel of the content lane permanently: border-box keeps
+        // h-12 at 48, so 1px of border + 8px of py-sm left 31 for a 32px chrome
+        // control, and `items-center` paid the difference out as **7.50 above
+        // and 8.50 below**, measured. That is Tabs' defect with a different
+        // number, and it was invisible because the bar's own height never
+        // changed. A shadow costs no layout, so the lane is a true 32 and the
+        // inset is a true 8/8.
+        //
+        // `inset-shadow-*` rather than `shadow-[inset_…]`: v4 gives the inset a
+        // slot of its own, so this composes with the `shadow-lg` the affix
+        // state adds instead of one of them winning.
+        "inset-shadow-[0_-1px_0_transparent]",
         affix && "sticky top-0 z-30",
         // A surface arriving, not interaction feedback — `motionStandard` is
         // documented for exactly this ("a bar's fill").
-        "transition-[background-color,border-color,box-shadow]", motionStandard,
+        // `border-color` is gone from this list with the border: a transition on
+        // a property nothing changes animates no state that exists.
+        "transition-[background-color,box-shadow]", motionStandard,
         // THE AFFIX STATE. Four channels, and each says a different thing:
         //
         //   ground   `bg-affix` — the page's own fill at AFFIX_BG_ALPHA, so
@@ -200,10 +211,11 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         //   depth    `shadow-lg` — a surface floating free of the layout with
         //            no anchor (ADR 0016). Not `md`: md is a panel attached to
         //            the thing that opened it, and nothing opens this bar.
-        //   edge     the hairline above, coloured. A border is not elevation
+        //   edge     the hairline above, coloured. An edge is not elevation
         //            (ADR 0016 §6) — the hairline says where the surface ends,
         //            the shadow says how far off the page it is.
-        "data-[affixed]:bg-affix data-[affixed]:shadow-lg data-[affixed]:border-edge-subtle",
+        "data-[affixed]:bg-affix data-[affixed]:shadow-lg",
+        "data-[affixed]:inset-shadow-[0_-1px_0_var(--ui-border-subtle)]",
         "supports-[backdrop-filter:blur(0px)]:data-[affixed]:backdrop-blur-sm",
         className,
       )}

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-25-drawer-header-ships-and-two-stale",
+  "date": "2026-08-25",
+  "item": "drawer",
+  "kind": "addition",
+  "summary": "Drawer.Header ships, and two stale gaps close. The 48px chrome band is the row this component's own sheet draws on \"Drawer Desktop\" — back and forward chrome controls at the leading edge, a close at the trailing one — and it had never been built; Drawer had Title, Body and Footer and no Header, so a caller composing that panel built the row by hand. p-sm uniform, so 8 + 32 + 8 = 48 makes the padding and the pinned height agree rather than one of them being a second author of the inset. Sheet.Header's values exactly, both having been drawn on this artboard. It carries no scrolled hairline, unlike Sheet.Header: this sheet draws no scrolled state and inventing one is how a drawing stops being a contract. It is an ADDITION to the drag handle rather than a replacement — the handle is the drag affordance and the single-pointer alternative SC 2.5.7 requires, so whether the desktop form drops it is a question for design and is now in needsDesign rather than answered here. Separately: the story's two SELECT fields are real Selects now. They stood in as Inputs while Select did not exist, and the stand-in outlived its reason — the knownGap and a duplicate needsDesign row both said \"there is no Select component in this system yet\" while Select shipped.",
+  "affects": [
+    "item:drawer",
+    "part:drawer-header",
+    "design:paper-drawer"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0"
+  }
+}

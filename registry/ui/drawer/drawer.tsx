@@ -342,6 +342,39 @@ function DrawerPanel({
   );
 }
 
+export type DrawerHeaderProps = HTMLAttributes<HTMLDivElement>;
+
+/**
+ * The 48px chrome band, drawn on this component's own sheet and missing from
+ * it until 2026-08-25.
+ *
+ * "Drawer Desktop" opens with this row — back and forward chrome controls at
+ * the leading edge, a close at the trailing one — sitting above the title,
+ * where the two mobile panels put the drag handle instead. Same values as
+ * `Sheet.Header`, which is not a coincidence: both were drawn on this
+ * artboard, and `p-sm` uniform is what makes 8 + 32 + 8 = 48 agree with the
+ * pinned height rather than one of them being a second author of the inset.
+ *
+ * It holds chrome controls — a fill with no edge is page chrome, not one of
+ * the five button types (§7b). It does NOT replace the handle: the handle is
+ * the drag affordance and the single-pointer alternative SC 2.5.7 requires,
+ * so it stays. Whether the desktop form drops the handle along with the drag
+ * is a question for design, and it is in `needsDesign` rather than answered
+ * here.
+ *
+ * No scrolled hairline, unlike Sheet.Header — this component's sheet draws no
+ * scrolled state, and inventing one is how a drawing stops being a contract.
+ */
+function DrawerHeader({ className, ...rest }: DrawerHeaderProps) {
+  return (
+    <div
+      data-slot="drawer-header"
+      className={cn("flex h-12 shrink-0 items-center justify-between gap-sm p-sm", className)}
+      {...rest}
+    />
+  );
+}
+
 export type DrawerTitleProps = HTMLAttributes<HTMLHeadingElement>;
 
 function DrawerTitle({ className, ...rest }: DrawerTitleProps) {
@@ -414,6 +447,7 @@ function DrawerCloseControl({ children, render, className }: DrawerCloseProps) {
 export const Drawer = Object.assign(DrawerRoot, {
   Trigger: DrawerTrigger,
   Panel: DrawerPanel,
+  Header: DrawerHeader,
   Title: DrawerTitle,
   Body: DrawerBody,
   Footer: DrawerFooter,

@@ -12,6 +12,7 @@ export const drawerDoc = {
     { part: "panel", slot: "drawer-panel", notes: "The drawer. Inset 4px on three sides, radius-lg on all four corners, bg-base with a 1px edge and shadow-md. Capped at 80% of the viewport." },
     { part: "handle", slot: "drawer-handle", notes: "A real <button> covering the full 32px header band. Drag it to dismiss; tap it to dismiss without dragging." },
     { part: "handleBar", slot: "drawer-handle-bar", notes: "The 8px pill at 30% width, bg-sunken. Decorative — the button around it is the control." },
+    { part: "header", slot: "drawer-header", notes: "The 48px chrome band the sheet draws on the desktop panel: `p-sm` uniform, justify-between, holding chromeControls — a fill with no edge is page chrome, not a Button (§7b). Sheet.Header's values exactly; both were drawn on this artboard. Optional, and an ADDITION to the handle rather than a replacement for it — see needsDesign." },
     { part: "title", slot: "drawer-title", notes: "body-lg at bold weight, clamped to one line. Becomes nothing automatically — the panel's `label` is the accessible name." },
     { part: "body", slot: "drawer-body", notes: "p-lg, gap-sm. Scrolls when the drawer hits its cap." },
     { part: "footer", slot: "drawer-footer", notes: "p-lg, gap-sm, and a COLUMN — buttons stack full width, unlike Modal's row." },
@@ -22,6 +23,8 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
 ├─ Drawer.Trigger          render={<Button>…</Button>}
 └─ Drawer.Panel            label (required) / handleLabel? / container?
    ├─ (drag handle)        drawn by Panel, not composed
+   ├─ Drawer.Header?        the 48px chrome band — chromeControls, never a Title
+   │  └─ Drawer.Close       render={<button className={chromeControl()} …/>}
    ├─ Drawer.Title?
    ├─ Drawer.Body
    │  └─ <your content>    Inputs, a form, anything
@@ -100,8 +103,8 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-        "The 80% height cap applies only WITHOUT snapPoints; with them the tallest detent is the cap. The half-open sheet draws 0.5, and the tall detent is still derived.",
-    "Two SELECT fields are drawn in the content and there is no Select component.",
+    "Does the DESKTOP form drop the drag handle? \"Drawer Desktop\" draws the chrome band and no handle, where both mobile panels draw a handle and no band — but the handle is the drag affordance AND the single-pointer alternative SC 2.5.7 requires of every dragging movement, so it cannot simply be conditioned on width. Drawer.Header ships as an ADDITION rather than a replacement until this is answered: compose both today, and the panel has a 32px handle above a 48px band.",
+    "The 80% height cap applies only WITHOUT snapPoints; with them the tallest detent is the cap. The half-open sheet draws 0.5, and the tall detent is still derived.",
   ],
 
   knownGaps: [
@@ -109,7 +112,8 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
     "Drag works from the HANDLE only, not the whole panel. Dragging from anywhere means arbitrating with scroll position inside the body on every pointer move; the handle is unambiguous, and it is the affordance the sheet draws.",
     "The 80% height cap is DERIVED and applies only without snapPoints; with them the tallest detent is the cap, or a 0.9 snap point would be silently truncated to 0.8. The half-open sheet (J88-0) draws the 0.5 detent; the taller one is still a demo height.",
     "The scrim does not fade with the drag. It fades on open and close only; tying its opacity to the offset is a refinement, not a contract.",
-    "The sheet's own content draws two SELECT fields (Occupation, Visibility). There is no Select component in this system yet and Multiselect is the wrong shape for a single value, so the story uses Inputs in their place.",
+    "CLOSED 2026-08-25: the sheet's two SELECT fields (Occupation, Visibility) are real Selects in the story now. They were Inputs while Select did not exist — Multiselect being the wrong shape for a single value — and the stand-in outlived the reason for it by longer than it should have.",
+    "Drawer.Header SHIPPED 2026-08-25 — the 48px chrome band this component's own sheet draws and had never had. \"Drawer Desktop\" opens with it: back and forward chrome controls at the leading edge, a close at the trailing one, `p-sm` uniform so 8 + 32 + 8 = 48 agrees with the pinned height. Sheet.Header's values exactly, which is unsurprising — both were drawn on this artboard. It does NOT carry Sheet.Header's scrolled hairline: this sheet draws no scrolled state, and inventing one is how a drawing stops being a contract.",
     "No visual-regression baseline — the matrix renders inline and a Drawer portals to document.body, the same exclusion Modal, Popover and Sheet have.",
   ],
 

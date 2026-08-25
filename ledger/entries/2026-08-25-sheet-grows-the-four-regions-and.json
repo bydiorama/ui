@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-25-sheet-grows-the-four-regions-and",
+  "date": "2026-08-25",
+  "item": "sheet",
+  "kind": "addition",
+  "summary": "Sheet grows the four regions and the width axis its own design sheet specifies. Header, Title, Body and Footer land, and Sheet stops being the only overlay in the taxonomy with no structural parts — Body and Footer are Drawer's values verbatim, because both came from the same drawing. Only the Body scrolls: with the scroll on the panel, as it shipped, a header scrolled away with the content it labelled. size is a CAP on three width tokens that already existed — sm --ui-nav-width 272, md --ui-dialog-width-md 416, lg --ui-dialog-width-lg 640 — defaulting to sm, which IS the geometry Sheet already shipped, so nothing that renders moved; all three are asserted as computed max-widths that DIFFER, because max-w-md-shaped utilities resolve against this system's spacing scale and that defect had every Modal rendering at one width. Two things the drawing gave up on contact with the browser. The pinned hairlines are an inset box-shadow rather than the border the sheet named: h-12 is border-box, so a border-b takes its pixel out of the 32px content lane and items-center pays it back as 7.5 above and 8.5 below — the Tabs defect, which Header's own bar carries today and has no geometry spec to catch. A box-shadow costs no layout, so the band keeps a uniform 8px inset and the new geometry spec proves it. And Sheet.Body needed a keyboard path nothing had drawn: a named tab stop with a visible inset ring ONLY while it scrolls, Table's rule in the other axis, named from the panel's own label. design/paper/specs/sheet.geometry.json plus its case in the geometry browser test close ADR 0019 for the panel; probed by removing flex-1 from Body, which fails all three declared laws with the arithmetic printed. Two design questions closed the same day. The panel takes --ui-shadow-md rather than Modal's shadow-sm — the value the sheet draws and the one Drawer ships from the same drawing — because the panel and the page are BOTH --ui-bg-base and in light the scrim leaves only a 1.16:1 step between them; the browser suite asserts both layers, having first had to learn that Tailwind emits four fully transparent placeholder layers ahead of the real shadow, so a layer count reads 6 and an equality assertion compares against four things the component never set. And the claim that \"Drawer Desktop\" is a Sheet is WITHDRAWN: all three panels on the Drawer artboard carry one treatment — radius-lg on all four corners, a 1px border, shadow-md, inset 4px — which is drawer.tsx exactly and which a Sheet never is, being flush to three viewport edges with two corners and no border. Reading identity from an ABSENT feature (no handle) produced the error; the desktop panel has no handle because a pointer has no drag gesture. That gives the pair a GEOMETRIC test to sit beside §7a's gesture test, for settling a static drawing where no gesture is visible to read, and it is recorded in sheetDoc.knownGaps and CONVENTIONS §7a.",
+  "affects": [
+    "component:sheet",
+    "design:paper-sheet",
+    "doc:conventions",
+    "gate:check-design-spec",
+    "part:sheet-body",
+    "part:sheet-footer",
+    "part:sheet-header",
+    "part:sheet-title",
+    "prop:size",
+    "token:ui-shadow-md"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2UF0-0"
+  }
+}

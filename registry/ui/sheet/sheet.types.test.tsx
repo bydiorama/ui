@@ -14,6 +14,23 @@ export function Valid() {
           <Sheet.Close render={<button type="button">Done</button>} />
         </Sheet.Panel>
       </Sheet>
+      <Sheet>
+        <Sheet.Trigger>Open</Sheet.Trigger>
+        <Sheet.Panel label="Filters" size="md">
+          <Sheet.Header>
+            <Sheet.Close render={<button type="button">Close</button>} />
+          </Sheet.Header>
+          <Sheet.Body>
+            <Sheet.Title>Discipline</Sheet.Title>
+          </Sheet.Body>
+          <Sheet.Footer>
+            <button type="button">Show results</button>
+          </Sheet.Footer>
+        </Sheet.Panel>
+      </Sheet>
+      <Sheet>
+        <Sheet.Panel label="Record" size="lg">Content</Sheet.Panel>
+      </Sheet>
     </>
   );
 }
@@ -39,5 +56,13 @@ export function Invalid() {
   /* @ts-expect-error aria-label is not accepted; label is the name */
   const e = <Sheet><Sheet.Panel label="N" aria-label="Other">Content</Sheet.Panel></Sheet>;
 
-  return [a, b, c, d, e];
+  {/* Three caps, all of them existing width tokens — not an open scale. */}
+  /* @ts-expect-error size is a closed union */
+  const f = <Sheet><Sheet.Panel label="N" size="xl">Content</Sheet.Panel></Sheet>;
+
+  {/* The width cap is a token, not a number the caller invents. */}
+  /* @ts-expect-error size does not take a length */
+  const g = <Sheet><Sheet.Panel label="N" size={416}>Content</Sheet.Panel></Sheet>;
+
+  return [a, b, c, d, e, f, g];
 }

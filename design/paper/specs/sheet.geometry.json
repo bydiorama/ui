@@ -1,0 +1,73 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "sheet",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2UF0-0",
+    "artboard": "Component --- Sheet",
+    "extracted": "2026-08-25",
+    "how": "get_computed_styles for the declared padding and radius; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from. Sibling world Y values DIFFER (header -2330, body -2282, footer -1974), which is the check that the layout was resolved rather than the artboard origin being returned for every child."
+  },
+  "tolerance": 0.5,
+  "note": "The rendered panel is NOT 460 tall — it is `inset-y-0`, so its height is the viewport's and Sheet.Body is `flex-1`. That is why the laws are the right gate here and a height assertion would not be: `track-is-the-sum-of-its-parts` holds at every viewport by construction, and fails the moment Body stops taking the slack or the panel grows an inset. The sheet's 460 is one instance of it. Sheet.Header's own uniform 8px inset is NOT a case here: its two children are a caller-supplied chrome control and a Sheet.Close, which share no single data-slot for `measure` to union, so it is asserted directly in sheet.browser.test.tsx (\"the Header's inset is uniform 8 on all four sides\") instead.",
+  "cases": [
+    {
+      "name": "sheet-panel-md",
+      "axis": "vertical",
+      "nodes": {
+        "container": "2UFZ-0",
+        "children": [
+          "2UG0-0",
+          "2UG8-0",
+          "2UGP-0"
+        ]
+      },
+      "slots": {
+        "container": "sheet-panel",
+        "child": "sheet-header|sheet-body|sheet-footer"
+      },
+      "laws": [
+        "uniform-inset",
+        "inset-is-declared",
+        "track-is-the-sum-of-its-parts"
+      ],
+      "lawsNotDeclared": {
+        "concentric-radius": "The panel rounds only its two INNER corners, and none of the three regions is painted or rounded — there is no inner shape to be concentric with. The law returns early on a null child radius, so declaring it would assert nothing while reading as though it did."
+      },
+      "sheet": {
+        "container": {
+          "width": 416,
+          "height": 460,
+          "padding": 0,
+          "border": 0,
+          "radius": 16,
+          "tokens": {
+            "radius": "--ui-radius-lg",
+            "width": "--ui-dialog-width-md"
+          }
+        },
+        "gap": 0,
+        "children": [
+          {
+            "width": 416,
+            "height": 48
+          },
+          {
+            "width": 416,
+            "height": 308
+          },
+          {
+            "width": 416,
+            "height": 104
+          }
+        ],
+        "gaps": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      }
+    }
+  ]
+}

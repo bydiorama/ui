@@ -134,6 +134,40 @@ provenance and never edited.
 | Tooltip — drawn from scratch | [artboard `2AV2-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2AV2-0) | `exports/component-tooltip.pdf` |
 | Empty State — validated against the shipped component | [artboard `2B7F-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/2B7F-0) | `exports/component-empty-state.pdf` |
 
+**Later sheets live on `Components - Design` (page `4-0`)**, beside the
+component's own draft artboard rather than on a separate page — Sidebar,
+Header, Table, Toast, Tooltip and the Chat family are all there, in the same
+1280 format. New sheets go there.
+
+| Sheet | Where | Export |
+|---|---|---|
+| Sheet — drawn from scratch, and **built from it the same day** | [artboard `2UF0-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2UF0-0) | `exports/component-sheet.pdf` |
+
+Sheet is the case for drawing before building rather than after. It shipped on
+2026-08-05 with **no artboard of its own**: the geometry was taken from the
+Sidebar sheet's mobile section, and what that left out is exactly what the
+component turned out to lack — a header, a footer, a body that scrolls on its
+own, and any width above the navigation rail's 272px. The sheet specifies all
+of them, and
+`sheetDoc.knownGaps` carries what building them corrected — chiefly that the
+pinned hairlines are an inset box-shadow rather than the border the sheet
+named, because `h-12` is border-box and a `border-b` pays its pixel back as
+7.5 above and 8.5 below. That is the Tabs defect, and Header's own bar
+carries it today with no geometry spec to catch it.
+
+**Sheet and Drawer are told apart by geometry as well as by gesture**, and this
+sheet is where that got written down. A Sheet is edge-**flush**: two rounded
+corners, no border. A Drawer **floats** — inset 4px on its free sides, all four
+corners at `--ui-radius-lg`, and a 1px border. That is what makes the Drawer
+artboard's three panels one component at three sizes, the desktop one included,
+and it is the test that settles a *static* drawing where no gesture is visible
+to read. §7a's gesture test still holds; this one supplements it.
+
+It was arrived at the hard way: this sheet first claimed "Drawer Desktop" was a
+Sheet because it has no handle, which is reading identity from an **absent**
+feature. Corrected on the sheet rather than deleted, with the measurements that
+settle it.
+
 **All three are now implemented**, and each sheet carries what building it
 corrected. That order — draw, build, then amend the sheet — is the only one in
 which a sheet ends up true, and the amendments are the interesting part:

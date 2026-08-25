@@ -203,6 +203,32 @@ describe("Header paints the sheet's bar", () => {
    * shorter app bar than every other and nothing said so; it was only found by
    * measuring. The fixture below is that bar: nothing 32px tall in it.
    */
+  test("the 32px control sits on a TRUE 8/8 lane, not 7.5/8.5", () => {
+    const c = mount(
+      <Header>
+        <Header.Start><Header.MenuButton label="Open menu" /></Header.Start>
+      </Header>,
+    );
+    const bar = c.querySelector<HTMLElement>('[data-slot="header"]')!;
+    const ctl = c.querySelector<HTMLElement>('[data-slot="header-menu-button"]')!;
+    const b = bar.getBoundingClientRect();
+    const k = ctl.getBoundingClientRect();
+
+    /*
+      The hairline used to be a `border-b`, and border-box arithmetic made this
+      asymmetric for the whole life of the component: 48 − 1 border − 16 py-sm
+      leaves 31 for a 32px control, and `items-center` paid the missing pixel
+      out as 7.50 above and 8.50 below. Measured, not derived — and invisible
+      to every other gate, because the BAR's height was always exactly 48.
+
+      Tabs' defect with a different number. The fix is an inset shadow, which
+      costs no layout at all.
+    */
+    expect(k.height).toBe(32);
+    expect(k.top - b.top).toBe(8);
+    expect(b.bottom - k.bottom).toBe(8);
+  });
+
   test("a bar with no 32px control in it is still 48px", () => {
     const c = mount(
       <Header>
@@ -465,12 +491,15 @@ describe("the bar takes a ground it can be seen against once the page runs under
     expect(bar(c).hasAttribute("data-affixed")).toBe(false);
     expect(style.position).toBe("sticky");
     expect(style.backgroundColor).toBe("rgb(255, 255, 255)");
-    expect(style.boxShadow).toBe("none");
     // The hairline is PRESENT and transparent, which is what keeps the content
-    // lane from jogging a pixel when the state flips — and what makes
-    // border-color an animatable property rather than a discrete swap.
-    expect(style.borderBottomWidth).toBe("1px");
-    expect(style.borderBottomColor).toBe("rgba(0, 0, 0, 0)");
+    // lane from jogging when the state flips — and what makes the shadow an
+    // animatable property rather than a discrete swap. It is an INSET shadow,
+    // so the bar carries no border at all and the 32px lane stays true.
+    expect(style.borderBottomWidth).toBe("0px");
+    expect(style.boxShadow).toContain("rgba(0, 0, 0, 0) 0px -1px 0px 0px inset");
+    // No DROP shadow at rest — the inset hairline is the only layer with any
+    // geometry, and it is transparent.
+    expect(style.boxShadow).not.toContain("8px 24px");
     expect(bar(c).getBoundingClientRect().height).toBe(48);
   });
 
@@ -505,9 +534,11 @@ describe("the bar takes a ground it can be seen against once the page runs under
     expect(style.boxShadow).toContain(
       "rgba(29, 27, 25, 0.09) 0px 8px 24px -4px, rgba(29, 27, 25, 0.05) 0px 2px 8px 0px",
     );
-    // --ui-border-subtle. A border is not elevation (ADR 0016 §6): both are
-    // here because they say different things.
-    expect(style.borderBottomColor).toBe("rgb(218, 212, 206)");
+    // --ui-border-subtle, as the INSET layer — and the drop layers above are
+    // still there, which is the point of `inset-shadow-*` having a slot of its
+    // own: an edge is not elevation (ADR 0016 §6), so both are present and say
+    // different things. A single `shadow-[inset_…]` would have evicted one.
+    expect(style.boxShadow).toContain("rgb(218, 212, 206) 0px -1px 0px 0px inset");
     // The bar did not change size when it changed appearance.
     expect(bar(c).getBoundingClientRect().height).toBe(48);
   });
@@ -548,6 +579,11 @@ describe("the bar takes a ground it can be seen against once the page runs under
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     expect(bar(c).hasAttribute("data-affixed")).toBe(false);
-    expect(getComputedStyle(bar(c)).boxShadow).toBe("none");
+    // Not `toBe("none")`: the hairline is ALWAYS declared — transparent here —
+    // so the bar's box-shadow is never the empty string once it exists. What
+    // must be absent is the DROP shadow, which is the affix state's own layer.
+    const shadow = getComputedStyle(bar(c)).boxShadow;
+    expect(shadow).not.toContain("8px 24px");
+    expect(shadow).toContain("rgba(0, 0, 0, 0) 0px -1px 0px 0px inset");
   });
 });

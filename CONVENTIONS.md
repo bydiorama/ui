@@ -174,6 +174,21 @@ velocity threshold and a body that follows the finger. A Sheet has none of
 that, and adding `side="bottom"` to one would produce a Drawer that cannot be
 dragged — the worst of both.
 
+**In a static drawing, tell them apart by geometry.** A gesture is invisible on
+a canvas, so the gesture test cannot settle a sheet — and a Drawer drawn for a
+pointer has no handle at all, because there is nothing to drag with.
+
+| | Sheet | Drawer |
+| --- | --- | --- |
+| Position | **flush** to a viewport edge | **floats**, inset `space-xs` on its free sides |
+| Corners | the two INNER ones | all four, `radius-lg` |
+| Border | none — an edge on the inner side alone is a rule, not a boundary | 1px `border-subtle` |
+
+That is what makes the three panels on `Component --- Drawer` one component at
+three sizes rather than two components on one artboard. It was arrived at by
+getting it wrong: "Drawer Desktop" was read as a Sheet because it has no
+handle, which is inferring identity from an *absent* feature.
+
 ## 7b. What is and is not a Button
 
 The five button types are each either **a fill with a matching edge**

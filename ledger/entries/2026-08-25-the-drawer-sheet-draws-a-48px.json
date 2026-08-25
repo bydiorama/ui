@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-25-the-drawer-sheet-draws-a-48px",
+  "date": "2026-08-25",
+  "item": "drawer",
+  "kind": "fix",
+  "summary": "The Drawer sheet draws a 48px chrome band this component does not have, recorded as a known gap. \"Drawer Desktop\" opens with a row of back and forward chrome controls at the leading edge and a close at the trailing one, p-sm, sitting above the title — where the two mobile panels put the drag handle instead, because a pointer has no drag gesture. It is the same band Sheet.Header shipped as on 2026-08-25 and to the same values, which is unsurprising: both were drawn on this artboard. Drawer has Title, Body and Footer and no Header part, so a caller composing that desktop panel built the row by hand. BUILT the same day as Drawer.Header — see 2026-08-25-drawer-header-ships-and-two-stale. Found while establishing that \"Drawer Desktop\" is a Drawer rather than a Sheet — all three panels here carry radius-lg on all four corners, a 1px border, shadow-md and a 4px inset, which is this component exactly and which a Sheet never is, being flush to three viewport edges with two corners and no border. That geometric test now sits beside the gesture test in CONVENTIONS §7a, for settling a static drawing where no gesture is visible to read. No code change.",
+  "affects": [
+    "item:drawer",
+    "doc:conventions",
+    "design:paper-drawer"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0"
+  }
+}

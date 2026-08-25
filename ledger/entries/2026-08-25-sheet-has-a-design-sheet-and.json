@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-25-sheet-has-a-design-sheet-and",
+  "date": "2026-08-25",
+  "item": "sheet",
+  "kind": "fix",
+  "summary": "Sheet has a design sheet, and it names four parts and a width axis the component does not have. Sheet shipped with no artboard of its own: its geometry came from the Sidebar sheet's mobile section, and what that left out is what the component turned out to lack: Header, Title, Body and Footer, a body that scrolls on its own, and any width above the rail's 272px, which is narrower than Modal's SMALLEST dialog. Component --- Sheet now draws all of it in both schemes, with sizes sm/md/lg on --ui-nav-width, --ui-dialog-width-md and --ui-dialog-width-lg — three width tokens that already existed, no new ones — defaulting to sm so nothing that renders today moves. This entry is the DOC half only: sheetDoc.design pointed at 4-0/HE2-0, a node that no longer exists, and now points at the artboard; needsDesign carries four rows a person must settle — the panel's depth (shadow-md drawn against shadow-sm shipped, with the panel-to-page separation measured at 1.16:1 in light and 1.61:1 in dark), and TWO the ramp turned up that are not Sheet's at all: in dark the band control's interaction ramp CROSSES the panel it sits on (rest #373430 and hover #3c3936 darker, pressed --ui-bg-active #494643 lighter), so a resting control reads recessed and a pressed one raised; and SIX --ui-bg-* roles resolve to #EDE8E3 in light (sunken, muted, hover, selected, field-disabled, field-chrome), so hover and disabled paint one fill separated only by ink at 15.53:1 and 1.76:1 — and the hover-against-selected collision already recorded in the design-component skill is one case of six rather than a pair. Both belong to --ui-bg-active/--ui-bg-hover and registry/lib/chrome-control, which has no doc of its own — this is the only surface that reports them, and Header's own note measured REST against the bar in both schemes and stopped there; knownGaps carries the rest as DRAWN, NOT BUILT, and drops the \"1px --ui-neutral-90 border\" row as a misreading — that edge is --ui-nav-border, and this panel is flush with three viewport edges so it carries none. The implementation plan is design/paper/sheet-implementation-plan.md.",
+  "affects": [
+    "item:sheet",
+    "design:paper-sheet",
+    "design:paper-drawer",
+    "lib:chrome-control"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2UF0-0"
+  }
+}

@@ -1,11 +1,14 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { ArrowLeft, ArrowRight, Close } from "griddy-icons";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
 import { Button } from "@/ui/button/button.tsx";
 import { Switch } from "@/ui/switch/switch.tsx";
 import { Input } from "@/ui/input/input.tsx";
+import { Select, type SelectItem } from "@/ui/select/select.tsx";
+import { chromeControl } from "@/lib/chrome-control";
 import { Drawer } from "./drawer.tsx";
 
 const meta = {
@@ -18,6 +21,21 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** The two select fields the sheet draws, using the placeholder set's own
+ *  disciplines rather than inventing a vocabulary for a demo. */
+const OCCUPATIONS: SelectItem[] = [
+  { value: "illustrator", label: "Illustrator" },
+  { value: "typography", label: "Asymmetric typography" },
+  { value: "grids", label: "Grid systems" },
+  { value: "pictograms", label: "Munich pictograms" },
+];
+
+const VISIBILITY: SelectItem[] = [
+  { value: "public", label: "Public" },
+  { value: "team", label: "Team only" },
+  { value: "private", label: "Private" },
+];
+
 /** The sheet's own content: a heading, four fields, a consent row, two stacked
  *  actions. Buttons are pill and full width, as drawn. */
 const CompleteProfile = () => (
@@ -26,12 +44,10 @@ const CompleteProfile = () => (
       <Drawer.Title>Complete profile</Drawer.Title>
       <Input label="Full name" placeholder="Steve Ditko" />
       <Input label="Description" placeholder="steve@bydiorama.com" />
-      {/* The sheet draws Occupation and Visibility as selects. There is no
-          Select in this system yet — Multiselect is the nearest thing and it
-          is the wrong shape for one value — so they are Inputs here, and the
-          gap is recorded in the doc. */}
-      <Input label="Occupation" defaultValue="Illustrator" />
-      <Input label="Visibility" defaultValue="Public" />
+      {/* Real Selects, as the sheet draws them. They stood in as Inputs while
+          Select did not exist; it does, so they no longer do. */}
+      <Select label="Occupation" defaultValue="illustrator" items={OCCUPATIONS} />
+      <Select label="Visibility" defaultValue="public" items={VISIBILITY} />
       <Switch defaultIsChecked>Show email</Switch>
     </Drawer.Body>
     <Drawer.Footer>
@@ -174,6 +190,34 @@ export const Detents: Story = {
           <Input label="Occupation" placeholder="Illustrator" />
           <Input label="Location" placeholder="New York" />
         </div>
+      </Drawer.Panel>
+    </Drawer>
+  ),
+};
+
+/**
+ * The composition "Drawer Desktop" draws: the 48px chrome band above the
+ * title, back and forward at the leading edge and a close at the trailing one.
+ *
+ * The band holds chromeControls, not Buttons — a 32px fill with no edge is
+ * page chrome and fits none of the five button types (§7b). The drag handle is
+ * still above it: it is the affordance for the gesture AND the single-pointer
+ * alternative SC 2.5.7 requires, so the band adds to it rather than replacing
+ * it. Whether the desktop form drops the handle is in `needsDesign`.
+ */
+export const WithChromeBand: Story = {
+  render: () => (
+    <Drawer>
+      <Drawer.Trigger render={<Button variant="secondary">Complete profile</Button>} />
+      <Drawer.Panel label="Complete profile">
+        <Drawer.Header>
+          <span className="flex items-center gap-sm">
+            <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
+            <button type="button" aria-label="Forward" className={chromeControl()}><ArrowRight /></button>
+          </span>
+          <Drawer.Close render={<button type="button" aria-label="Close" className={chromeControl()}><Close /></button>} />
+        </Drawer.Header>
+        <CompleteProfile />
       </Drawer.Panel>
     </Drawer>
   ),

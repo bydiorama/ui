@@ -5,6 +5,8 @@ import { ArrowLeft, Close, Menu } from "griddy-icons";
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
 import { Button } from "@/ui/button/button.tsx";
+import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
+import { Input } from "@/ui/input/input.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 import { Sheet } from "./sheet.tsx";
 
@@ -17,6 +19,13 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+/** Disciplines, from the placeholder set — longest first, so a lane breaks where it shows. */
+const DISCIPLINES = ["Asymmetric typography", "Grid systems", "New Alphabet", "Univers"];
+const MORE_DISCIPLINES = [
+  "Munich pictograms", "Subway signage", "Programme design", "Visible Language Workshop",
+  "Editorial art direction", "Universal typeface", "Movable type", "Frequency hopping",
+];
 
 /**
  * The drawer as the design composes it: a Sidebar filling the panel, its own
@@ -75,6 +84,91 @@ export const Matrix: Story = {
         </Sheet.Panel>
       </Sheet>
     </div>
+  ),
+};
+
+/**
+ * The three width caps, drawn with the composition each exists for — the
+ * sheet's own axis. `sm` is the default and is the geometry Sheet has always
+ * shipped, so nothing that already renders moved when the axis was added.
+ */
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex gap-lg">
+      <Sheet>
+        <Sheet.Trigger render={<Button variant="secondary">sm · 272 · navigation</Button>} />
+        <Sheet.Panel label="Primary navigation">
+          <Nav />
+        </Sheet.Panel>
+      </Sheet>
+      <Sheet>
+        <Sheet.Trigger render={<Button variant="secondary">md · 416 · filters</Button>} />
+        <Sheet.Panel label="Filters" side="right" size="md">
+          <Sheet.Header className="justify-end">
+            <Sheet.Close render={<Button variant="ghost" size="sm" isIconOnly aria-label="Close filters" icon={<Close />} />} />
+          </Sheet.Header>
+          <Sheet.Body>
+            <Sheet.Title>Filters</Sheet.Title>
+            {DISCIPLINES.map((d) => (
+              <Checkbox key={d} defaultIsChecked={d === "Grid systems"}>{d}</Checkbox>
+            ))}
+          </Sheet.Body>
+          <Sheet.Footer>
+            <Button>Show 24 results</Button>
+            <Button variant="secondary">Clear all</Button>
+          </Sheet.Footer>
+        </Sheet.Panel>
+      </Sheet>
+      <Sheet>
+        <Sheet.Trigger render={<Button variant="secondary">lg · 640 · a record</Button>} />
+        <Sheet.Panel label="Josef Müller-Brockmann" side="right" size="lg">
+          <Sheet.Header>
+            <Button variant="ghost" size="sm" isIconOnly aria-label="Back" icon={<ArrowLeft />} />
+            <Sheet.Close render={<Button variant="ghost" size="sm" isIconOnly aria-label="Close" icon={<Close />} />} />
+          </Sheet.Header>
+          <Sheet.Body>
+            <Sheet.Title>Josef Müller-Brockmann</Sheet.Title>
+            <div className="flex gap-md">
+              <Input label="Discipline" defaultValue="Grid systems" className="flex-1" />
+              <Input label="Year" defaultValue="1961" className="w-40" />
+            </div>
+            <Input label="Email" placeholder="josef@diorama.example" />
+          </Sheet.Body>
+          <Sheet.Footer>
+            <Button>Save changes</Button>
+            <Button variant="secondary">Discard</Button>
+          </Sheet.Footer>
+        </Sheet.Panel>
+      </Sheet>
+    </div>
+  ),
+};
+
+/**
+ * The state a static specimen usually skips. The body is the only region that
+ * scrolls; the band and the action row hold their positions and each gains a
+ * hairline once there is content behind it. Scroll the panel to see both.
+ */
+export const Scrolled: Story = {
+  render: () => (
+    <Sheet>
+      <Sheet.Trigger render={<Button variant="secondary">Open a long panel</Button>} />
+      <Sheet.Panel label="Filters" side="right" size="md">
+        <Sheet.Header className="justify-end">
+          <Sheet.Close render={<Button variant="ghost" size="sm" isIconOnly aria-label="Close filters" icon={<Close />} />} />
+        </Sheet.Header>
+        <Sheet.Body>
+          <Sheet.Title>Filters</Sheet.Title>
+          {[...DISCIPLINES, ...MORE_DISCIPLINES].map((d) => (
+            <Checkbox key={d}>{d}</Checkbox>
+          ))}
+        </Sheet.Body>
+        <Sheet.Footer>
+          <Button>Show 24 results</Button>
+          <Button variant="secondary">Clear all</Button>
+        </Sheet.Footer>
+      </Sheet.Panel>
+    </Sheet>
   ),
 };
 

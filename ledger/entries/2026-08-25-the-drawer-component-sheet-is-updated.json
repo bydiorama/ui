@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-25-the-drawer-component-sheet-is-updated",
+  "date": "2026-08-25",
+  "item": "drawer",
+  "kind": "visual",
+  "summary": "The Drawer component sheet is updated in Paper, and one code correction falls out of it. Its layers now carry this component's own names: the band was called \"Nav Group\" and the body and footer were both \"Primary Level Item\", which is Sidebar's vocabulary on a Drawer — a sheet that cannot name its own parts cannot hand them off, and that is how Drawer.Header stayed unbuilt while being drawn. The desktop window frame is now named a DEVICE BEZEL: it is filled --ui-bg-emphasis-active where both mobile frames are filled --ui-scrim, so it shows the panel in isolation and says nothing about which edge the panel is anchored to, and reading it as a viewport is half of how this panel got mistaken for a Sheet. The band's three glyphs were HAND-DRAWN — a 16 viewBox, paths that exist in no icon set, on layers spelled \"Checron Left\" and \"Checron Right\" — and are now the real griddy exports with their layers named for the import. Which chevron was MEASURED rather than guessed: the drawn glyph is 5x9 in a 16 box (0.31 x 0.56), which matches ChevronLeftSmall (0.29 x 0.565) and not ChevronLeft (0.34 x 0.67), so drawer.stories.tsx is corrected from ArrowLeft/ArrowRight to the small chevrons. Their ink moves from --ui-text-secondary to --ui-text-primary, which is what chromeControl actually paints. The sheet also gains a Parts section and a Gaps section it never had, carrying the six rows this work produced — including the one that still needs a person, whether the desktop form drops the drag handle. Exported to design/paper/exports/component-drawer.pdf.",
+  "affects": [
+    "item:drawer",
+    "design:paper-drawer"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0"
+  }
+}

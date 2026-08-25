@@ -168,6 +168,27 @@ Sheet because it has no handle, which is reading identity from an **absent**
 feature. Corrected on the sheet rather than deleted, with the measurements that
 settle it.
 
+**`Component --- Drawer` was updated on the back of it** ([artboard
+`D9O-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0) ·
+`exports/component-drawer.pdf`). It is a 480-wide designer draft rather than a
+1280 handoff sheet, and it stays one — what it gained is the part of the format
+that was doing the damage by being absent:
+
+- **Its layers now carry the component's own names.** The band was called
+  `Nav Group`, the body and the footer were both `Primary Level Item` — Sidebar's
+  vocabulary on a Drawer, so the sheet could not hand off its own parts.
+- **The desktop frame is named a device bezel.** It is filled
+  `--ui-bg-emphasis-active` where both mobile frames are `--ui-scrim`, so it
+  shows the panel in isolation and says nothing about edge anchoring. Reading it
+  as a viewport is half of how the Sheet mistake happened.
+- **The three glyphs were hand-drawn** — a 16 viewBox, paths in no icon set, on
+  layers spelled `Checron Left`. They are the real exports now, and *which*
+  chevron was measured rather than guessed: the drawn glyph is 5×9 in a 16 box
+  (0.31 × 0.56), which is `ChevronLeftSmall` (0.29 × 0.565), not `ChevronLeft`
+  (0.34 × 0.67). The code was corrected to match — the story had been built with
+  `ArrowLeft`/`ArrowRight`.
+- **A Parts section and a Gaps section**, which it had never had.
+
 **All three are now implemented**, and each sheet carries what building it
 corrected. That order — draw, build, then amend the sheet — is the only one in
 which a sheet ends up true, and the amendments are the interesting part:

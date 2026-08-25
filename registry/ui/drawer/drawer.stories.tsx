@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ArrowLeft, ArrowRight, Close } from "griddy-icons";
+import { ChevronLeftSmall, ChevronRightSmall, Close } from "griddy-icons";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
@@ -211,9 +211,12 @@ export const WithChromeBand: Story = {
       <Drawer.Trigger render={<Button variant="secondary">Complete profile</Button>} />
       <Drawer.Panel label="Complete profile">
         <Drawer.Header>
+          {/* Chevrons, not arrows: the sheet draws the SMALL pair, measured —
+              its glyph is 5x9 in a 16 box (0.31 x 0.56), which is
+              ChevronLeftSmall (0.29 x 0.565) and not ChevronLeft (0.34 x 0.67). */}
           <span className="flex items-center gap-sm">
-            <button type="button" aria-label="Back" className={chromeControl()}><ArrowLeft /></button>
-            <button type="button" aria-label="Forward" className={chromeControl()}><ArrowRight /></button>
+            <button type="button" aria-label="Back" className={chromeControl()}><ChevronLeftSmall /></button>
+            <button type="button" aria-label="Forward" className={chromeControl()}><ChevronRightSmall /></button>
           </span>
           <Drawer.Close render={<button type="button" aria-label="Close" className={chromeControl()}><Close /></button>} />
         </Drawer.Header>

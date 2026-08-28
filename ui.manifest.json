@@ -88,7 +88,7 @@
     {
       "name": "font-aspekta",
       "type": "file",
-      "description": "Aspekta Variable — the design system's single typeface (SIL OFL 1.1, by Ivo Dolenc). Installs the @font-face CSS and the OFL license text; the ~30KB variable woff2 (weight 100-900) is binary and is fetched from the repo with the one-line curl documented at the top of aspekta.css, into the same directory. Keep OFL.txt with the font wherever it is deployed.",
+      "description": "Aspekta Variable — the design system's single typeface (SIL OFL 1.1, by Ivo Dolenc). Installs the @font-face CSS and the OFL license text; the ~30KB variable woff2 (weight 100-900) is binary and is fetched from the repo with the one-line curl documented at the top of aspekta.css, into the same directory. Keep OFL.txt with the font wherever it is deployed. Preload the woff2 (<link rel=\"preload\" as=\"font\" type=\"font/woff2\" crossorigin> — snippet at the top of aspekta.css) so font-display: swap does not flash the fallback face on first paint.",
       "files": [
         {
           "path": "registry/fonts/aspekta/aspekta.css",

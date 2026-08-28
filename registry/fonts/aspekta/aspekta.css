@@ -16,6 +16,16 @@
  *
  * Keep OFL.txt with the font wherever it is deployed — the license requires
  * the notice to travel with the Font Software.
+ *
+ * PRELOAD — `font-display: swap` means the first paint uses the fallback
+ * face until the woff2 arrives. Preload it from any document that renders
+ * text so the swap window closes before paint:
+ *
+ *   <link rel="preload" href="/fonts/aspekta/AspektaVF.woff2"
+ *         as="font" type="font/woff2" crossorigin>
+ *
+ * `crossorigin` is required even same-origin: font fetches are CORS-mode
+ * requests, and a mode mismatch makes the browser download the file twice.
  */
 
 @font-face {

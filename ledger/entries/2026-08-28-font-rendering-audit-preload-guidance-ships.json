@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-28-font-rendering-audit-preload-guidance-ships",
+  "date": "2026-08-28",
+  "item": "system",
+  "kind": "addition",
+  "summary": "An audit against vgpu's font-rendering stack confirmed the system already carries the load-bearing decisions (grayscale antialiasing + font-synthesis: none at app roots per CONVENTIONS §6, a self-hosted variable Aspekta with real quarter-weight cuts per ADR 0007/0009) and closed the two real gaps. First: aspekta.css and the font-aspekta manifest description now document preloading the woff2 (<link rel=\"preload\" as=\"font\" type=\"font/woff2\" crossorigin>) — with font-display: swap and no preload, every consumer's first paint flashed the fallback face; the crossorigin attribute is spelled out because font fetches are CORS-mode even same-origin and a mode mismatch double-downloads the binary. Second: ui-craft gains rule 23 (Type rendering): a persistent transform, will-change, filter or backdrop-filter on a text-bearing element promotes it to a compositor layer where glyphs are rasterised once and resampled — permanently soft text; transient press scale and cross-fades stay sanctioned because they end and repaint. The rule lives in ui-craft rather than review-ui's shipped-bug catalogue deliberately — that table's contract is bugs that actually shipped here, and this one has not. Non-changes recorded for the next auditor: font-optical-sizing is a no-op (the binary's only fvar axis is wght, verified with fonttools), and the −0.045em display tracking seen elsewhere stays out — the authored scale (ADR 0009) caps at −0.02em and retuning it is a Paper design pass, not a rendering fix.",
+  "affects": [
+    "registry:font-aspekta",
+    "registry:ui-craft"
+  ]
+}

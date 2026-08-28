@@ -134,6 +134,7 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/chrome-control",
+        "@bydiorama/fade",
         "@bydiorama/motion"
       ],
       "files": [
@@ -976,6 +977,26 @@
           "path": "registry/ui/dot-pattern/dot-pattern.doc.ts",
           "type": "registry:ui",
           "target": "ui/dot-pattern.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "fade",
+      "type": "registry:ui",
+      "description": "An edge fade — the gradient that dissolves overflowing content into the ground it sits on, signalling continuation: under a pinned header, above a composer bar, at the cut of a truncated preview. One aria-hidden span, absolutely pinned to one edge of the caller's clipping container, painting a two-stop ramp from the container's own bg role at 0% alpha to that role solid, so both stops move together when the ground changes. side (top/bottom/left/right), size (16/32/64 on the spacing scale, md matching ImageOverlay's shipped ramp) and ground (base/surface/elevated/sunken) are the parameters; isVisible is the caller-owned overflow state, toggled by opacity on the motion tokens so nothing reflows. It is paint, never a participant: pointer-events none, no children, no interactive targets in the band, and every faded region pairs with a caller-composed route to the full content. Elsewhere this pattern is a scroll scrim or ScrollShadow; here --ui-scrim already names the modal veil, so the fade keeps its own name.",
+      "registryDependencies": [
+        "@bydiorama/cn"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/fade/fade.tsx",
+          "type": "registry:ui",
+          "target": "ui/fade.tsx"
+        },
+        {
+          "path": "registry/ui/fade/fade.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/fade.doc.ts"
         }
       ]
     },

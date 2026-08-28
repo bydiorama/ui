@@ -51,6 +51,7 @@
       // every `@/` import against the manifest's targets, so a missing entry
       // here is a build error rather than a consumer's problem.
       "@/ui/aspect-ratio": ["./registry/ui/aspect-ratio/aspect-ratio.tsx"],
+      "@/ui/fade": ["./registry/ui/fade/fade.tsx"],
       "@/ui/badge": ["./registry/ui/badge/badge.tsx"],
       "@/ui/button": ["./registry/ui/button/button.tsx"],
       "@/ui/calendar": ["./registry/ui/calendar/calendar.tsx"],

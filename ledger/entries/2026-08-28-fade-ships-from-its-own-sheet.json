@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-28-fade-ships-from-its-own-sheet",
+  "date": "2026-08-28",
+  "item": "fade",
+  "kind": "addition",
+  "summary": "Fade ships — the edge fade / overflow gradient (a 'scroll scrim' elsewhere; here --ui-scrim already names the modal veil, so the fade keeps its own name), built the same day its sheet was drawn (Component --- Fade, artboard 2WCF-0). One aria-hidden span pinned to one edge of the caller's clipping container: side (top/bottom/left/right, physical like Sheet's — the band tracks the box, not the writing direction), size (sm/md/lg = 16/32/64 on the spacing scale, md deliberately matching ImageOverlay's shipped ramp), ground (base/surface/elevated/sunken restating the container's role so both gradient stops move together), and caller-owned isVisible toggling opacity on --ui-duration-fast. Zero new tokens. Findings the build sent back into the sheet: (1) the Ramp rule's 'transparent keyword greys the mid-band' claim was wrong — Tailwind's /0 modifier itself computes to transparent black through color-mix, and it cannot matter because gradient interpolation is premultiplied, so the browser test pins the transparent stop's ALPHA and the solid stop's ROLE, not the hue; the sheet's Behaviour and Grounds rows were corrected. (2) check:utilities refuses bare spacing steps on widths (the Modal max-w-md trap), so horizontal depths spell the token in parens (w-(--ui-space-2xl)) — same token, explicit name. (3) A wrong-element ref cannot be made to fail against a span host — HTMLSpanElement is structurally bare HTMLElement, so the covariant ref check accepts every element ref; the types test records the finding and the browser test asserts the runtime half. No geometry spec, deliberately (DotPattern's precedent): the laws cannot express an edge-pinned band, so fade.browser.test.tsx pins the sheet's numbers — depths 16/32/64 that all DIFFER, full cross-axis span, flush edge, four distinct ramp directions and four distinct grounds. Scroll binding stays caller-owned by design; the States story demonstrates the wiring with the scrollable region carrying role+name+tabIndex (axe's scrollable-region-focusable found the story shipping without them — the scroll is the fade's own disclosure route, so SC 2.1.1 applies to the composition).",
+  "affects": [
+    "registry:fade",
+    "design:component-fade"
+  ]
+}

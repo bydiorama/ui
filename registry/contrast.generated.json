@@ -897,6 +897,15 @@
       "dark": 1.1
     }
   ],
+  "Fade": [
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 13.54,
+      "dark": 10.36
+    }
+  ],
   "Header": [
     {
       "fg": "--ui-text-primary",

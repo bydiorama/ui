@@ -18,6 +18,7 @@ import { useRender } from "@base-ui/react/use-render";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
+import { Fade } from "@/ui/fade";
 import { motionMicro, motionStandard } from "@/lib/motion";
 
 /** Rows inside Header.Nav are list items; controls in Start/End are not. */
@@ -53,8 +54,16 @@ export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> 
    * duplication this library exists to avoid.
    *
    * The state itself is observed, never listened for: see the effect below.
+   *
+   * `{ fade: true }` is the VARIANT (CONVENTIONS §3: a boolean prop that
+   * sometimes needs configuration takes `boolean | {…}`): the affix state
+   * swaps its edge-and-elevation treatment for a Fade hung below the bar —
+   * the page dissolves under the bar instead of sliding beneath a hairline.
+   * The Header sheet (05 Affix · Fade variant) and the Fade sheet's
+   * Pinned-header pattern both draw it: the ramp REPLACES the hairline and
+   * the shadow, and the bar keeps `bg-affix` and the backdrop blur.
    */
-  affix?: boolean;
+  affix?: boolean | { fade?: boolean };
 }
 
 /**
@@ -79,6 +88,11 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
   // when the element attaches and a ref mutation does not re-run an effect.
   const [node, setNode] = useState<HTMLElement | null>(null);
   const [isAffixed, setIsAffixed] = useState(false);
+
+  // `affix={{}}` means "pinned, classic treatment" — the object form exists
+  // for its keys, but an empty one still opts into pinning, same as `true`.
+  const isAffixEnabled = Boolean(affix);
+  const isAffixFade = typeof affix === "object" && affix.fade === true;
 
   const attachRef = useCallback(
     (el: HTMLElement | null) => {
@@ -124,7 +138,7 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
    * ground with nothing underneath it to float over.
    */
   useEffect(() => {
-    if (!affix) {
+    if (!isAffixEnabled) {
       setIsAffixed(false);
       return;
     }
@@ -135,7 +149,7 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [affix, node]);
+  }, [isAffixEnabled, node]);
 
   return (
     <header
@@ -191,7 +205,7 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         // slot of its own, so this composes with the `shadow-lg` the affix
         // state adds instead of one of them winning.
         "inset-shadow-[0_-1px_0_transparent]",
-        affix && "sticky top-0 z-30",
+        isAffixEnabled && "sticky top-0 z-30",
         // A surface arriving, not interaction feedback — `motionStandard` is
         // documented for exactly this ("a bar's fill").
         // `border-color` is gone from this list with the border: a transition on
@@ -214,14 +228,30 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         //   edge     the hairline above, coloured. An edge is not elevation
         //            (ADR 0016 §6) — the hairline says where the surface ends,
         //            the shadow says how far off the page it is.
-        "data-[affixed]:bg-affix data-[affixed]:shadow-lg",
-        "data-[affixed]:inset-shadow-[0_-1px_0_var(--ui-border-subtle)]",
+        // In the FADE variant the ramp is the separation, so the depth and
+        // edge channels stay off: no shadow-lg, and the hairline keeps its
+        // resting transparent colour. Ground and backdrop apply in both
+        // modes — the fade replaces the edge, not the bar's own fill.
+        "data-[affixed]:bg-affix",
+        !isAffixFade && "data-[affixed]:shadow-lg",
+        !isAffixFade && "data-[affixed]:inset-shadow-[0_-1px_0_var(--ui-border-subtle)]",
         "supports-[backdrop-filter:blur(0px)]:data-[affixed]:backdrop-blur-sm",
         className,
       )}
       {...rest}
     >
       {children}
+      {isAffixFade && (
+        // The variant's whole treatment: the page dissolves under the bar.
+        // `top-full` hangs the band below whatever the bar's height is
+        // (className merges over side="top"'s own top-0); ground=base because
+        // what scrolls under the bar is the PAGE, never the bar's translucent
+        // fill; md depth per the sheet's Fade-variant row. Visible only while
+        // affixed — Fade's own opacity transition carries the flip, and the
+        // band is aria-hidden, pointer-events-none paint either way, so it
+        // adds nothing to the banner landmark and steals no clicks.
+        <Fade side="top" ground="base" className="top-full" isVisible={isAffixed} />
+      )}
     </header>
   );
 });

@@ -33,6 +33,7 @@ import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { AspectRatio } from "@/ui/aspect-ratio/aspect-ratio.tsx";
 import { Skeleton } from "@/ui/skeleton/skeleton.tsx";
 import { DotPattern } from "@/ui/dot-pattern/dot-pattern.tsx";
+import { Fade } from "@/ui/fade/fade.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
@@ -1169,6 +1170,55 @@ const CASES: Array<{
         </div>
       </div>
     ),
+  },
+  {
+    name: "fade",
+    // What a baseline catches that no computed-style assertion can: the ramp
+    // actually DISSOLVING (a broken gradient paints a hard edge that still
+    // passes every backgroundImage assertion), each ground blending into its
+    // own card rather than smudging a neighbour's, and the hidden state
+    // leaving no ghost band. Text runs under every ramp on purpose — a fade
+    // over empty ground photographs as working while veiling nothing.
+    ui: (() => {
+      const copy =
+        "Müller-Brockmann treated the grid as an ethical position: order as a service to the reader. The 1961 programme reduces every poster to counted columns, and the counting is the argument — nothing placed, everything derived, every line justified.";
+      return (
+        <div className="flex w-full flex-col gap-lg">
+          <div className="relative h-28 overflow-clip rounded-md border border-edge-subtle bg-base">
+            <p className="p-lg text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
+            <Fade ground="base" size="lg" />
+          </div>
+          <div className="flex gap-lg">
+            <div className="relative h-24 flex-1 overflow-clip rounded-md border border-edge-subtle bg-surface">
+              <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
+              <Fade />
+            </div>
+            <div className="relative h-24 flex-1 overflow-clip rounded-md border border-edge-subtle bg-elevated">
+              <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
+              <Fade ground="elevated" />
+            </div>
+            <div className="relative h-24 flex-1 overflow-clip rounded-md border border-edge-subtle bg-sunken">
+              <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
+              <Fade ground="sunken" />
+            </div>
+          </div>
+          <div className="flex gap-lg">
+            <div className="relative h-24 flex-1 overflow-clip rounded-md border border-edge-subtle bg-base">
+              <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
+              <Fade side="top" ground="base" />
+            </div>
+            <div className="relative h-24 flex-1 overflow-clip rounded-md border border-edge-subtle bg-base">
+              <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
+              <Fade side="right" ground="base" size="sm" />
+            </div>
+            <div className="relative h-24 flex-1 overflow-clip rounded-md border border-edge-subtle bg-base">
+              <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
+              <Fade ground="base" isVisible={false} />
+            </div>
+          </div>
+        </div>
+      );
+    })(),
   },
   {
     name: "chat-composer",

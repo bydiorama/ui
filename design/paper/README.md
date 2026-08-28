@@ -142,6 +142,7 @@ Header, Table, Toast, Tooltip and the Chat family are all there, in the same
 | Sheet | Where | Export |
 |---|---|---|
 | Sheet — drawn from scratch, and **built from it the same day** | [artboard `2UF0-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2UF0-0) | `exports/component-sheet.pdf` |
+| Fade — the edge-fade / overflow-gradient primitive, drawn before the code ("scrim" was rejected as a name: `--ui-scrim` is the modal veil). No geometry spec, deliberately — same decision as DotPattern: the geometry laws cannot express an edge-pinned band, so fade.browser.test.tsx pins the sheet's numbers (depth 16/32/64, full span, flush edge) instead | [artboard `2WCF-0`](https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2WCF-0) | `exports/component-fade.pdf` |
 
 Sheet is the case for drawing before building rather than after. It shipped on
 2026-08-05 with **no artboard of its own**: the geometry was taken from the

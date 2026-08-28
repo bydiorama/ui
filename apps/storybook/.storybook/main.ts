@@ -71,7 +71,7 @@ const config: StorybookConfig = {
           root,
           "registry/hooks/use-controllable-state/use-controllable-state.ts",
         ),
-        ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "menu", "progress", "skeleton", "slider"),
+        ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "fade", "menu", "progress", "skeleton", "slider"),
         "@/ui": join(root, "registry/ui"),
         "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
       },

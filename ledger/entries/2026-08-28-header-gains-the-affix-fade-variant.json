@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-28-header-gains-the-affix-fade-variant",
+  "date": "2026-08-28",
+  "item": "header",
+  "kind": "addition",
+  "summary": "Header's affix prop widens to boolean | { fade?: boolean } (CONVENTIONS §3's boolean-or-config shape): affix={{ fade: true }} swaps the stuck state's edge-and-elevation treatment for a Fade — side=top, md depth, ground=base — hung at top-full below the bar and visible only while data-affixed. The ramp REPLACES the hairline colour and shadow-lg (the sheet's rule: the ramp is the separation); bg-affix and the backdrop blur stay in both modes, and {} behaves as true. Designed before building: the Header sheet's 05 Affix section gains 'Affix + fade' specimens in both schemes plus a Fade-variant annotation row, and the artboard moved to fit-content to hold them. First cross-item consumer of Fade, so @/ui/fade joined all four resolvers (root tsconfig, storybook tsconfig, vitest config, storybook main.ts) and header's registryDependencies. The browser suite compares the two affix treatments TO EACH OTHER while stuck (one bar carries the drop shadow, one the band — the Badge lesson) and asserts the band is Fade's own DOM (data-side/size/ground), not a re-implementation. Same session, on the Fade side: the BrandThemed story's fade read as missing because its copy could FIT the clip at wide panel widths — a fade over empty ground is invisible by definition — fixed with a fixed text measure (w-96) inside a 96px clip so the specimen truncates at every width; and the Fade sheet's Floating-bar pattern now clones the real Chat Composer from its own sheet (bg-field pill, radius-full, 1.5px border-subtle, 32px controls) in both schemes, replacing an invented bg-affix bar that complied with no component.",
+  "affects": [
+    "registry:header",
+    "registry:fade",
+    "design:component-header",
+    "design:component-fade"
+  ]
+}

@@ -587,3 +587,109 @@ describe("the bar takes a ground it can be seen against once the page runs under
     expect(shadow).toContain("rgba(0, 0, 0, 0) 0px -1px 0px 0px inset");
   });
 });
+
+/**
+ * The affix FADE variant — affix={{ fade: true }}.
+ *
+ * The same harness as the classic affix block, because the variant differs
+ * only in the stuck-state treatment: the ramp replaces the shadow and the
+ * hairline colour, and everything else about the bar must measure identical.
+ * Asserted as computed values after a real scroll, same as above — the class
+ * names are present either way and only `data-affixed` makes them apply.
+ */
+describe("the affix fade variant separates with a ramp instead of an edge", () => {
+  function AffixedFade() {
+    return (
+      <div data-testid="scroller" style={{ height: "160px", overflowY: "auto" }}>
+        <Header affix={{ fade: true }}>
+          <Header.Nav label="Primary">
+            <Header.Item href="#agent">Agent</Header.Item>
+            <Header.Item href="#library" isCurrent>Library</Header.Item>
+          </Header.Nav>
+        </Header>
+        <div style={{ height: "900px" }} />
+      </div>
+    );
+  }
+
+  const bar = (c: HTMLElement) => c.querySelector<HTMLElement>('[data-slot="header"]')!;
+  const band = (c: HTMLElement) => c.querySelector<HTMLElement>('[data-slot="fade"]')!;
+
+  test("at rest the band exists, hidden, hung below the bar — and it is Fade's", () => {
+    const c = mount(<AffixedFade />);
+    const fade = band(c);
+    // The band is the Fade component, not a re-implementation: its own slot,
+    // side and depth attributes are the evidence (the composition rule the
+    // chrome-control lesson exists for, one primitive over).
+    expect(fade.getAttribute("data-side")).toBe("top");
+    expect(fade.getAttribute("data-size")).toBe("md");
+    expect(fade.getAttribute("data-ground")).toBe("base");
+    expect(fade.getAttribute("aria-hidden")).toBe("true");
+    expect(getComputedStyle(fade).pointerEvents).toBe("none");
+    // Hidden while nothing is scrolled under.
+    expect(getComputedStyle(fade).opacity).toBe("0");
+    // Hung at top-full: the band's top is the bar's bottom, spanning it.
+    const b = fade.getBoundingClientRect();
+    const h = bar(c).getBoundingClientRect();
+    expect(b.top).toBe(h.bottom);
+    expect(b.width).toBe(h.width);
+    expect(b.height).toBe(32);
+  });
+
+  test("scrolled under: the ramp appears, and the shadow and hairline stay off", async () => {
+    const c = mount(<AffixedFade />);
+    const scroller = c.querySelector<HTMLElement>('[data-testid="scroller"]')!;
+
+    act(() => { scroller.scrollTop = 300; });
+    await vi.waitFor(() => expect(bar(c).hasAttribute("data-affixed")).toBe(true));
+    await settled(bar(c));
+    await settled(band(c));
+
+    // The band is the treatment now.
+    expect(getComputedStyle(band(c)).opacity).toBe("1");
+    expect(getComputedStyle(band(c)).backgroundImage).toContain("linear-gradient");
+
+    const style = getComputedStyle(bar(c));
+    // The bar's own fill and pin are the classic affix state…
+    expect(style.backgroundColor).toBe("rgba(255, 255, 255, 0.9)");
+    expect(style.position).toBe("sticky");
+    // …and the edge-and-elevation channels are OFF: no drop shadow, and the
+    // hairline keeps its resting transparent colour. Same reading as the
+    // no-affix test above — the hairline slot is always declared, so what
+    // must be absent is the drop shadow's layer and the hairline's colour.
+    expect(style.boxShadow).not.toContain("8px 24px");
+    expect(style.boxShadow).toContain("rgba(0, 0, 0, 0) 0px -1px 0px 0px inset");
+  });
+
+  test("the two affix treatments DIFFER while stuck — one bar has a shadow, one a ramp", async () => {
+    // Comparing the variants to each other, not each to itself — the Badge
+    // lesson. If a merge regression ever let shadow-lg back into the fade
+    // variant, both would pass their own assertions rendered alone.
+    const c = mount(
+      <div data-testid="scroller" style={{ height: "160px", overflowY: "auto" }}>
+        <Header affix>
+          <Header.Nav label="Classic"><Header.Item href="#a">A</Header.Item></Header.Nav>
+        </Header>
+        <Header affix={{ fade: true }}>
+          <Header.Nav label="Fade"><Header.Item href="#b">B</Header.Item></Header.Nav>
+        </Header>
+        <div style={{ height: "900px" }} />
+      </div>,
+    );
+    const scroller = c.querySelector<HTMLElement>('[data-testid="scroller"]')!;
+    const bars = c.querySelectorAll<HTMLElement>('[data-slot="header"]');
+
+    act(() => { scroller.scrollTop = 300; });
+    await vi.waitFor(() => expect(bars[0]!.hasAttribute("data-affixed")).toBe(true));
+    await vi.waitFor(() => expect(bars[1]!.hasAttribute("data-affixed")).toBe(true));
+    await settled(bars[0]!);
+    await settled(bars[1]!);
+
+    const classic = getComputedStyle(bars[0]!).boxShadow;
+    const fade = getComputedStyle(bars[1]!).boxShadow;
+    expect(classic).toContain("8px 24px");
+    expect(fade).not.toContain("8px 24px");
+    expect(bars[0]!.querySelector('[data-slot="fade"]')).toBeNull();
+    expect(bars[1]!.querySelector('[data-slot="fade"]')).not.toBeNull();
+  });
+});

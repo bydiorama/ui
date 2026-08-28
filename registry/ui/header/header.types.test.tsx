@@ -34,5 +34,24 @@ export function Invalid() {
   /* @ts-expect-error Header takes no label */
   const c = <Header label="Primary">x</Header>;
 
-  return [a, b, c];
+  {/* The variant is the boolean-or-config shape (CONVENTIONS §3), not an
+      enum — a string here is the spelling that LOOKS right and does not
+      exist. */}
+  /* @ts-expect-error affix takes boolean | { fade?: boolean }, not a string */
+  const d = <Header affix="fade">x</Header>;
+
+  /* @ts-expect-error the config's only key is fade */
+  const e = <Header affix={{ shadow: false }}>x</Header>;
+
+  return [a, b, c, d, e];
+}
+
+export function ValidAffix() {
+  return [
+    <Header key="on" affix>x</Header>,
+    <Header key="cfg" affix={{ fade: true }}>x</Header>,
+    // The object form exists for its keys, but an empty one still pins —
+    // same as `true`; the component treats them identically.
+    <Header key="empty" affix={{}}>x</Header>,
+  ];
 }

@@ -263,3 +263,61 @@ export const Affix: Story = {
     </section>
   ),
 };
+
+/**
+ * The affix FADE variant, beside the same page.
+ *
+ * `affix={{ fade: true }}` swaps the edge-and-elevation treatment for a Fade
+ * hung below the bar: no shadow, no hairline colour — the page dissolves
+ * under the bar instead of sliding beneath an edge. The bar keeps `bg-affix`
+ * and the backdrop blur, so what shows through the fill still reads as
+ * texture. At scroll-top the two variants are indistinguishable; the
+ * difference exists only while something is scrolled under.
+ *
+ * The content here is light-grounded prose rather than the Affix story's
+ * dark rows, deliberately: a ramp to `bg-base` is at its most visible over
+ * text on the page ground, which is the composition the sheet draws.
+ */
+export const AffixFade: Story = {
+  render: () => (
+    <section className="h-96 overflow-y-auto">
+      <Header affix={{ fade: true }}>
+        <Header.Start>
+          <a href="#home" aria-label="Diorama home" className={chromeControl()}><Grid /></a>
+        </Header.Start>
+        <Header.Spacer />
+        <Header.Nav label="Primary">
+          <Header.Item href="#agent">Agent</Header.Item>
+          <Header.Item href="#intelligence">Intelligence</Header.Item>
+          <Header.Item href="#library" isCurrent>Library</Header.Item>
+          <Header.Item href="#brand">Brand</Header.Item>
+        </Header.Nav>
+        <Header.Spacer />
+        <Header.End>
+          <Avatar name="Mira Vance" size="sm" />
+        </Header.End>
+      </Header>
+      <div className="flex flex-col gap-md p-lg">
+        <p className="text-body-sm text-ink-muted">
+          Scroll — the ramp replaces the hairline and the shadow; the page dissolves under the bar.
+        </p>
+        {[
+          ["Josef Müller-Brockmann", "Grid systems", "1961"],
+          ["Ottmar Mergenthaler", "Linotype", "1886"],
+          ["Adrian Frutiger", "Univers", "1957"],
+          ["Muriel Cooper", "Visible Language Workshop", "1975"],
+          ["Wim Crouwel", "New Alphabet", "1967"],
+          ["Massimo Vignelli", "Subway signage", "1972"],
+          ["Cipe Pineles", "Editorial art direction", "1942"],
+          ["Herbert Bayer", "Universal typeface", "1925"],
+        ].map(([name, work, year]) => (
+          <div key={name} className="flex items-baseline gap-md py-sm">
+            <span className="w-64 shrink-0 text-body-md text-ink-primary">{name}</span>
+            <span className="flex-1 text-body-sm text-ink-muted">{work}</span>
+            <span className="text-body-sm text-ink-muted tabular-nums">{year}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  ),
+};

@@ -186,14 +186,97 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
     // actually produced, which only layout knows.
     const [measuredLines, setMeasuredLines] = useState(1);
 
+    const frameRef = useRef<HTMLDivElement>(null);
+
+    // The FIRST half of the flip animation: the geometry the frame and its
+    // control slots had before an `auto` re-arrangement, captured by `resize`
+    // in the same breath as the decision to flip. `null` means the next
+    // commit is not a flip and must not animate.
+    const flipFromRef = useRef<{
+      frameHeight: number;
+      frameRadius: number;
+      parts: ReadonlyArray<readonly [HTMLElement, DOMRect]>;
+    } | null>(null);
+    // The running height animation, so a flip reversed mid-flight retargets
+    // instead of stacking two height tracks — and so its cleanup can tell
+    // whether it is still the current one before un-clipping the frame.
+    const heightAnimationRef = useRef<Animation | null>(null);
+    const hasPaintedRef = useRef(false);
+    // What the current commit resolved to, readable from inside `resize`
+    // without threading state through its dependency list.
+    const isStackedRef = useRef(false);
+
     const resize = useCallback(() => {
       const el = textareaRef.current;
       if (!el) return;
+      const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 0;
+
+      // The arrangement is decided FIRST, and always against the width the
+      // text column has INLINE — never against whichever width the field
+      // happens to hold right now. The two arrangements give the textarea
+      // different widths (inline shares its row with the controls, stacked
+      // spans the frame), so a measurement taken at the current width feeds
+      // back into the thing it decides: a draft that wraps inline but fits on
+      // one stacked line would flip the frame on alternate keystrokes, with
+      // the height set from whichever width was about to lose. Probing at the
+      // inline width makes the rule a fixed point — the frame stacks exactly
+      // when the text no longer fits the inline row.
+      const frame = frameRef.current;
+      if (layout === "auto" && frame && lineHeight > 0) {
+        const frameStyle = getComputedStyle(frame);
+        const gap = parseFloat(frameStyle.columnGap) || 0;
+        const start = frame.querySelector<HTMLElement>(':scope > [data-slot="chat-composer-start"]');
+        const actions = frame.querySelector<HTMLElement>(':scope > [data-slot="chat-composer-actions"]');
+        // Captured BEFORE the probe touches a single style: these rects are
+        // the "first" half of the flip animation, and the probe's transient
+        // width would corrupt them. Cheap unless kept — they are only stashed
+        // when the measurement below actually crosses arrangements.
+        const firstHeight = frame.getBoundingClientRect().height;
+        // The radius the frame is PAINTING, not the declared one: rounded-full
+        // computes to 999px, the box clamps it to half its height, and a
+        // running flip animation shows partway between. Clamping the computed
+        // value covers all three.
+        const firstRadius = Math.min(
+          parseFloat(frameStyle.borderTopLeftRadius) || 0,
+          firstHeight / 2,
+        );
+        const parts = [start, actions].filter((p): p is HTMLElement => p !== null);
+        const firstRects = parts.map((p) => [p, p.getBoundingClientRect()] as const);
+
+        const inlineWidth = Math.max(
+          1,
+          frame.clientWidth -
+            parseFloat(frameStyle.paddingLeft) -
+            parseFloat(frameStyle.paddingRight) -
+            (start ? start.offsetWidth + gap : 0) -
+            (actions ? actions.offsetWidth + gap : 0),
+        );
+        // The probe is the element itself, transiently at the inline width.
+        // Restored before this effect returns, so no intermediate ever paints.
+        const prevWidth = el.style.width;
+        el.style.height = "auto";
+        el.style.width = `${inlineWidth}px`;
+        const lines = Math.max(1, Math.round(el.scrollHeight / lineHeight));
+        el.style.width = prevWidth;
+
+        // Crossing arrangements: hand the pre-flip geometry to the flip
+        // effect. Never on the first pass — a composer MOUNTED with a long
+        // draft renders stacked, it does not arrive there (craft: no
+        // entrance animation on first render).
+        if (hasPaintedRef.current && (lines > 1) !== isStackedRef.current) {
+          flipFromRef.current = {
+            frameHeight: firstHeight,
+            frameRadius: firstRadius,
+            parts: firstRects,
+          };
+        }
+        setMeasuredLines(lines);
+      }
+
       // Collapse first: `scrollHeight` never shrinks below the element's own
       // height, so measuring without this makes the field one-way — it grows
       // with the text and never comes back when the text is deleted.
       el.style.height = "auto";
-      const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 0;
       const cap = lineHeight * maxRows;
       const content = el.scrollHeight;
       const next = cap > 0 ? Math.min(content, cap) : content;
@@ -201,16 +284,118 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
       // Only past the cap: an `auto` overflow at rest puts a scrollbar gutter
       // in a one-line pill on the platforms that reserve one.
       el.style.overflowY = cap > 0 && content > cap + 1 ? "auto" : "hidden";
-      setMeasuredLines(lineHeight > 0 ? Math.max(1, Math.round(next / lineHeight)) : 1);
-    }, [maxRows]);
-
-    // Layout effect, not effect: the first paint has to be the right height,
-    // or a composer restored with a long draft flashes at one line.
-    useLayoutEffect(resize, [resize, text]);
+    }, [layout, maxRows]);
 
     const resolvedLayout: Exclude<ChatComposerLayout, "auto"> =
       layout === "auto" ? (measuredLines > 1 ? "stacked" : "inline") : layout;
     const isStacked = resolvedLayout === "stacked";
+    isStackedRef.current = isStacked;
+
+    // Layout effect, not effect: the first paint has to be the right height,
+    // or a composer restored with a long draft flashes at one line.
+    // `resolvedLayout` is a dependency because the height half of `resize`
+    // reads the field's REAL width — when the probe above flips the
+    // arrangement, this has to run once more so the height is taken at the
+    // width the field ends up with, not the one it just left.
+    useLayoutEffect(resize, [resize, text, resolvedLayout]);
+
+    // The flip animation — a FLIP, in both senses. When measured `auto`
+    // layout crosses arrangements, `resize` has stashed the pre-flip
+    // geometry; here, after the DOM has re-arranged and BEFORE it paints, the
+    // frame's height and the two control slots animate from where they were
+    // to where they now are. One-shots via the Web Animations API rather than
+    // a CSS transition, because the values are measured per flip — and they
+    // run ONLY on this crossing: not on mount, not for an explicit `layout`
+    // prop (visual baselines stay static), and never on ordinary line growth,
+    // where an easing height would trail the caret (see the doc's motion
+    // note). The text row deliberately snaps: its width change re-wraps the
+    // draft instantly either way, and gliding glyphs under a still-moving
+    // Send button reads as a glitch, not as motion.
+    useLayoutEffect(() => {
+      const from = flipFromRef.current;
+      if (!from) return;
+      flipFromRef.current = null;
+      const frame = frameRef.current;
+      if (!frame || typeof frame.animate !== "function") return;
+      // Explicit, per the craft rule for JS-driven motion — although the
+      // duration read below collapses to 1ms at the token layer anyway.
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const frameStyle = getComputedStyle(frame);
+      // The tokens, read at their computed values: WAAPI cannot consume a
+      // custom property by name, and a literal here would be a second motion
+      // system. duration-base with ease-out is motionStandard — a surface
+      // growing, not interaction feedback.
+      const duration = parseFloat(frameStyle.getPropertyValue("--ui-duration-base"));
+      const easing = frameStyle.getPropertyValue("--ui-ease-out").trim() || "ease";
+      if (!(duration > 1)) return;
+
+      // Retarget, don't stack: a flip reversed mid-flight starts from the
+      // height the frame VISUALLY holds (the captured rect includes the
+      // running animation's value) — but the DESTINATION is the settled
+      // layout, so the old track has to be cancelled before it is measured.
+      heightAnimationRef.current?.cancel();
+      const toHeight = frame.getBoundingClientRect().height;
+      if (Math.round(from.frameHeight) !== Math.round(toHeight)) {
+        // The radius travels INSIDE this track, visual value to visual value
+        // (the same clamp as the capture), because its class-declared 999px
+        // pill cannot be transitioned — see the frame's class list. On
+        // finish the underlying paint is already at the destination value,
+        // so releasing the animation is seamless.
+        const toRadius = Math.min(
+          parseFloat(frameStyle.borderTopLeftRadius) || 0,
+          toHeight / 2,
+        );
+        // Clipped while in flight — the children already sit in their final
+        // arrangement, so without this the second row pokes past the frame's
+        // still-growing bottom edge.
+        frame.style.overflow = "clip";
+        const grow = frame.animate(
+          [
+            { height: `${from.frameHeight}px`, borderRadius: `${from.frameRadius}px` },
+            { height: `${toHeight}px`, borderRadius: `${toRadius}px` },
+          ],
+          { duration, easing },
+        );
+        heightAnimationRef.current = grow;
+        const settle = () => {
+          // Only the CURRENT animation may un-clip — the cancelled one's
+          // cleanup arrives as a microtask while its replacement is mid-air.
+          if (heightAnimationRef.current !== grow) return;
+          heightAnimationRef.current = null;
+          frame.style.overflow = "";
+        };
+        grow.finished.then(settle, settle);
+      }
+
+      for (const [part, was] of from.parts) {
+        // Same retarget rule: the slot's only animations are earlier flips of
+        // itself (the buttons' own transitions live on the buttons), and its
+        // destination is only measurable once they are gone.
+        for (const running of part.getAnimations()) running.cancel();
+        const now = part.getBoundingClientRect();
+        const dx = was.left - now.left;
+        const dy = was.top - now.top;
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) continue;
+        part.animate(
+          [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0px, 0px)" }],
+          { duration, easing },
+        );
+      }
+    }, [resolvedLayout]);
+
+    // The probe is only as fresh as the widths it read — a resized container
+    // moves the wrap point, and no keystroke arrives to remeasure it.
+    useLayoutEffect(() => {
+      const frame = frameRef.current;
+      if (!frame) return;
+      const observer = new ResizeObserver(() => resize());
+      observer.observe(frame);
+      return () => observer.disconnect();
+    }, [resize]);
+
+    useLayoutEffect(() => {
+      hasPaintedRef.current = true;
+    }, []);
 
     const invalid = Boolean(errorText);
     const canSend = text.trim().length > 0 && !isDisabled;
@@ -270,6 +455,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
           SECOND author of the inset — the failure the geometry laws exist for.
         */}
         <div
+          ref={frameRef}
           data-slot="chat-composer-frame"
           data-invalid={invalid || undefined}
           data-disabled={isDisabled || undefined}
@@ -280,7 +466,13 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
             // pixel at DPR 1, which is what `border-hairline.browser.test.tsx`
             // pins so it is not re-investigated.
             "border-[1.5px] border-edge-subtle",
-            "transition-[border-color,box-shadow,background-color,border-radius]", motionMicro,
+            // border-radius is deliberately NOT in this list. rounded-full
+            // computes to 999px and only the PAINTED radius is clamped to the
+            // box, so a transition from it spends ~99% of its duration above
+            // the clamp and snaps in the last frames — it was never motion.
+            // The flip effect below animates the radius from its measured
+            // visual value instead, on the same clock as the growth.
+            "transition-[border-color,box-shadow,background-color]", motionMicro,
             isStacked ? "rounded-xl" : "rounded-full",
             isDisabled ? "bg-field-disabled" : "bg-field",
             // Focus is drawn on the FRAME via focus-within: for a text field,

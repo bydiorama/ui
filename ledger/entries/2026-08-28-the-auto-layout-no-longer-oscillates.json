@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-28-the-auto-layout-no-longer-oscillates",
+  "date": "2026-08-28",
+  "item": "chat-composer",
+  "kind": "fix",
+  "summary": "The auto layout no longer oscillates on drafts in the width band between the two arrangements. The line-box measurement that decides inline vs stacked was taken at whatever width the textarea currently held, and the two arrangements give the text column different widths — inline shares its row with the controls, stacked spans the frame. A draft that wrapped at the inline width but fit on one stacked line flipped the frame on alternate keystrokes, and the field height was set from whichever width was about to lose, so overflow-y hidden could swallow the second line — reported from the agent launch screen. The arrangement is now decided by probing the textarea transiently at the INLINE width, which the current arrangement cannot influence: the frame stacks exactly when the text no longer fits the inline row. The height is then re-measured once more after the arrangement settles, at the width the field actually ends up with, and a ResizeObserver on the frame re-runs the measurement when the container resizes, since a moved wrap point gets no keystroke to announce it. A browser test walks a growing draft through the band one character at a time and pins both halves: once stacked, more text never unstacks it, and below the maxRows cap the field is always tall enough for its own text.",
+  "affects": []
+}

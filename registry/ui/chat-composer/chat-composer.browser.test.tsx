@@ -311,6 +311,124 @@ describe("ChatComposer frame geometry", () => {
     expect(getComputedStyle(frame).borderTopLeftRadius).toBe("24px");
   });
 
+  test("a draft in the band between the two widths cannot flip the frame back", async () => {
+    // The trap: inline gives the text column less width than stacked, so a
+    // draft can wrap in one arrangement and fit in the other. Measuring in
+    // the arrangement about to be left made the frame oscillate on alternate
+    // keystrokes — and set the height from the losing width, hiding the
+    // second line behind the cap's `overflow-y: hidden`. Growing the draft
+    // one narrow character at a time walks straight through that band; once
+    // the frame stacks, MORE text must never unstack it.
+    const { textarea, container: c } = mount(<ChatComposer {...BASE} className="w-[360px]" />);
+    const root = c.querySelector<HTMLElement>('[data-slot="chat-composer"]')!;
+    focusAtEnd(textarea);
+
+    let stackedAt = -1;
+    for (let i = 1; i <= 200; i++) {
+      await userEvent.type(textarea, "i");
+      const layout = root.dataset.layout;
+      if (stackedAt >= 0) {
+        expect(layout, `flipped back to inline at ${i} after stacking at ${stackedAt}`).toBe(
+          "stacked",
+        );
+      } else if (layout === "stacked") {
+        stackedAt = i;
+      }
+      // And in either arrangement the field is tall enough for its own text —
+      // below the maxRows cap, nothing hides behind the overflow.
+      if (getComputedStyle(textarea).overflowY === "hidden") {
+        expect(textarea.scrollHeight).toBeLessThanOrEqual(textarea.clientHeight + 1);
+      }
+      // A dozen steps past the flip is well clear of the band; the cap above
+      // only exists so a walk that never wraps still terminates.
+      if (stackedAt >= 0 && i - stackedAt >= 12) break;
+    }
+    // The walk has to have actually crossed the wrap point, or the loop
+    // above asserted nothing.
+    expect(stackedAt).toBeGreaterThan(0);
+  });
+});
+
+describe("ChatComposer flip motion", () => {
+  /** The WAAPI tracks the flip creates, told apart by what they animate. */
+  const tracksAnimating = (el: Element, property: string) =>
+    el
+      .getAnimations()
+      .filter(
+        (a) =>
+          a.effect instanceof KeyframeEffect &&
+          a.effect.getKeyframes().some((k) => property in k),
+      );
+
+  test("the auto flip ACTUALLY animates — height and radius on the frame, a slide on the controls", () => {
+    const { textarea, frame, q } = mount(
+      <ChatComposer {...BASE} className="w-[400px]" defaultValue="One line" />,
+    );
+    // Driven through the native setter, SYNCHRONOUSLY: the animation lives
+    // for one duration-base, and a real keyboard round-trip on a loaded
+    // runner can spend that before the assertion reads an empty list. The
+    // prototype setter bypasses React's value tracker so the input event is
+    // seen as a change — the standard trick, used here for determinism.
+    const setValue = Object.getOwnPropertyDescriptor(
+      HTMLTextAreaElement.prototype,
+      "value",
+    )!.set!;
+    act(() => {
+      setValue.call(textarea, "One line\nsecond");
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    const grow = tracksAnimating(frame, "height");
+    expect(grow, "the frame's height FLIP is not running").toHaveLength(1);
+    const track = grow[0]!;
+    // The same track carries the radius — the class-declared 999px pill
+    // cannot be transitioned (it spends its duration above the paint clamp),
+    // which is why asserting the ANIMATION is the only honest check here.
+    expect(
+      (track.effect as KeyframeEffect).getKeyframes().every((k) => "borderRadius" in k),
+    ).toBe(true);
+    // Timing comes from the token, which is also how reduced motion
+    // collapses it — a literal would sit outside that contract.
+    const base = parseFloat(getComputedStyle(frame).getPropertyValue("--ui-duration-base"));
+    expect(base).toBeGreaterThan(1);
+    expect(track.effect!.getTiming().duration).toBe(base);
+
+    const actions = q<HTMLElement>("chat-composer-actions")!;
+    expect(
+      tracksAnimating(actions, "transform"),
+      "the actions slot does not slide to its new row",
+    ).toHaveLength(1);
+  });
+
+  test("no entrance animation: a composer mounted with a wrapped draft is simply stacked", () => {
+    const { frame, container: c } = mount(
+      <ChatComposer {...BASE} className="w-[400px]" defaultValue={"One line\nand another"} />,
+    );
+    const root = c.querySelector<HTMLElement>('[data-slot="chat-composer"]')!;
+    expect(root.dataset.layout).toBe("stacked");
+    expect(frame.getAnimations({ subtree: true })).toHaveLength(0);
+  });
+
+  test("a keystroke that keeps the arrangement moves nothing", async () => {
+    const { textarea, frame } = mount(
+      <ChatComposer {...BASE} className="w-[400px]" defaultValue="One" />,
+    );
+    focusAtEnd(textarea);
+    await userEvent.type(textarea, "x");
+    // Line growth inside one arrangement is deliberately instant (the doc's
+    // motion note) — the flip choreography must not leak onto keystrokes.
+    const moving = frame
+      .getAnimations({ subtree: true })
+      .filter(
+        (a) =>
+          a.effect instanceof KeyframeEffect &&
+          a.effect.getKeyframes().some((k) => "height" in k || "transform" in k),
+      );
+    expect(moving).toHaveLength(0);
+  });
+});
+
+describe("ChatComposer field sizing", () => {
   test("the field grows with the content and stops at maxRows", async () => {
     const { textarea } = mount(<ChatComposer {...BASE} maxRows={3} />);
 

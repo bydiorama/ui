@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-28-the-inline-stacked-flip-is-animated",
+  "date": "2026-08-28",
+  "item": "chat-composer",
+  "kind": "visual",
+  "summary": "The inline↔stacked flip is animated — a measured FLIP at duration-base / ease-out via the Web Animations API. When the auto measurement crosses arrangements, the pre-flip geometry (frame height, painted border-radius, the start and actions slot rects) is captured in the same pass as the decision, and after the re-arrangement the frame's height and radius animate to their settled values in one track while the control slots translate from their old row to the new one, the frame clipped in flight; a flip reversed mid-flight retargets from the visually held values rather than stacking tracks. border-radius left the frame's transition list in the same change, deliberately: rounded-full computes to 999px and only the painted radius is clamped to the box, so the transition spent ~99% of its duration above the clamp and snapped at the end — it was declared motion that never ran, and the FLIP now animates measured visual radius instead. The choreography fires only on a measured auto crossing: never on mount, never for an explicit layout prop (stories and visual baselines stay static), and never on ordinary line growth, which stays deliberately instant per the doc's caret rationale. Reduced motion is honoured twice — durations are read from the computed --ui-duration-base the token layer collapses to 1ms, plus an explicit prefers-reduced-motion check. Browser tests pin the choreography at the animation layer with getAnimations(): the flip actually runs (height and radius keyframes at the token's duration, a transform slide on the actions slot), a composer mounted with a wrapped draft renders stacked with zero animations, and a keystroke that keeps the arrangement animates nothing.",
+  "affects": []
+}

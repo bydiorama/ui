@@ -186,7 +186,7 @@ export function Select({
               // cannot do is make a panel SMALLER than the space it lands in,
               // which is what `--available-height` below is for (§7c).
               collisionPadding: 8,
-              className: "z-50",
+              className: "z-(--ui-z-dropdown)",
             })}
           >
             <BaseSelect.Popup

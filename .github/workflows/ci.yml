@@ -45,10 +45,12 @@ jobs:
       - name: Iconography
         run: node scripts/check-icons.mjs
 
-      # Tests run on Node's built-in runner with type-stripping — also
-      # dependency-free, so they belong in the pre-install block.
+      # Tests run on Node's built-in runner with type-stripping. Only the
+      # package tests are dependency-free; registry tests exercise source that
+      # legitimately declares npm imports (cn pulls clsx and tailwind-merge),
+      # so those run after install below.
       - name: Tests
-        run: node --experimental-strip-types --test "packages/*/src/**/*.test.ts" "registry/**/*.test.ts"
+        run: node --experimental-strip-types --test "packages/*/src/**/*.test.ts"
 
       # Also dependency-free: it imports only the tokens package's own source.
       - name: Utilities resolve against the token theme
@@ -136,6 +138,13 @@ jobs:
 
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      # The registry ships source with declared npm imports, so its tests can
+      # only resolve once those dependencies exist. cn.test.ts pins the
+      # tailwind-merge configuration — the least visible load-bearing thing in
+      # the library — and imports clsx transitively.
+      - name: Registry tests
+        run: node --experimental-strip-types --test "registry/**/*.test.ts"
 
       - name: Type-check
         run: pnpm run type-check

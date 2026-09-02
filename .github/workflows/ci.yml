@@ -155,7 +155,7 @@ jobs:
       # Interaction contracts run in a real browser (CONVENTIONS §10): implicit
       # activation and computed cursor are UA behaviours jsdom cannot answer.
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        run: pnpm --filter @bydiorama/storybook exec playwright install --with-deps chromium
 
       # Two projects: `contract` (computed-style + keyboard assertions) and
       # `stories` (every story run through axe at error severity).

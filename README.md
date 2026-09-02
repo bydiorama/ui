@@ -10,9 +10,11 @@ tooling that keeps consumers in sync — distributed as source you own.**
 
 > **Status: Phase 2 — core primitives, gate not yet met.** Foundations, the
 > token layer, and 45 components ship today, consumed by a real app through a
-> working lockfile-and-sync loop. Still open: Linux visual baselines and
-> Phase 3's blocks and docs site. [`PLAN.md`](PLAN.md) tracks it — measured,
-> with the command behind every number.
+> working lockfile-and-sync loop. Visual baselines cover every component in
+> both colour schemes on both platforms — macOS locally, Linux in CI. Still
+> open: the primitives the consumer renders most, and Phase 3's blocks and
+> docs site. [`PLAN.md`](PLAN.md) tracks it — measured, with the command
+> behind every number.
 
 ## Why this exists
 
@@ -38,15 +40,25 @@ tooling that keeps consumers in sync — distributed as source you own.**
 
 ### Install a component
 
-The registry is served as shadcn-compatible items, so existing CLIs and
-coding agents already understand it:
+Every item is served as a plain JSON file with its source embedded —
+`r/<item>.json`, generated from `ui.manifest.json`. The format is the open
+shadcn registry schema, so any client that reads it works; none of them is a
+dependency of this library, and nothing shadcn ships is in the code you
+receive.
+
+With the shadcn CLI (the most common client today):
 
 ```bash
 npx shadcn@latest add https://raw.githubusercontent.com/bydiorama/ui/main/r/button.json
 ```
 
-The item's source, its registry dependencies (`cn`, motion utilities, …), and
-its token requirements land in your app. From here the code is yours.
+Or without any third-party tooling — the registry item names everything you
+need: copy the `files` it lists (or the same files straight from
+[`registry/ui`](registry/ui)) into your app, then repeat for the
+`registryDependencies` it declares (`cn`, motion utilities, …).
+
+Either way the item's source, its registry dependencies, and its token
+requirements land in your app. From here the code is yours.
 
 ### Use it
 
@@ -91,7 +103,7 @@ pnpm --filter @bydiorama/storybook dev   # Storybook on :6006
 ## Development
 
 ```bash
-pnpm verify           # all 16 CI gates — dependency-free, runs on a cold clone
+pnpm verify           # all 18 CI gates — dependency-free, runs on a cold clone
 pnpm test             # unit tests (Node's runner)
 pnpm test:browser     # interaction contracts + every story through axe
 pnpm test:visual      # visual regression against committed baselines

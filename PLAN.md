@@ -26,20 +26,20 @@ read for compliance. This file carries only what is not yet true.
 
 Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 
-## Status — 2026-08-20
+## Status — 2026-09-02
 
 | | |
 |---|---:|
-| Distributed items (`ui.manifest.json`) | 52 |
-| — components | 44 |
+| Distributed items (`ui.manifest.json`) | 53 |
+| — components | 45 |
 | — lib / hook / font / skill | 5 / 1 / 1 / 1 |
-| Generated registry items (`r/*.json`) | 52 |
-| Ledger entries / ADRs | 178 / 19 |
-| `pnpm verify` gates | 17, green |
-| Node tests | 100, green |
-| Browser tests — contract + story a11y | 1179 across 96 files, green |
-| Declared design gaps | 164, across 44 of 44 docs |
-| Visual baselines | 88 (44 cases x 2 schemes), **all `-chromium-darwin`**, all current |
+| Generated registry items (`r/*.json`) | 53 |
+| Ledger entries / ADRs | 192 / 19 |
+| `pnpm verify` gates | 18, green |
+| Node tests | 103, green |
+| Browser tests — contract + story a11y | 1240 across 99 files, green |
+| Declared design gaps | 171, across 45 of 45 docs |
+| Visual baselines | 180 (45 cases x 2 schemes, darwin + linux), all current |
 | Consumer drift (service-portal, 26 items) | not re-measured since 2026-08-16 — needs a consumer checkout |
 
 Reproduce with `pnpm verify`, `pnpm test`, `pnpm test:browser`,
@@ -86,15 +86,14 @@ Two of the three exit-gate items the 2026-08-07 assessment added:
       top blocker — every overlay component sat on a dead release candidate
       under a retired package name, and the manifest handed that pin to every
       consumer. ADR 0012's wrapper rule is what made it cheap.
-- [ ] **Linux visual baselines.** All 70 baselines are `-chromium-darwin`;
-      the CI `visual` job requires `-chromium-linux` and exits 1 with an
-      instruction. Note what this means: `check:visual-coverage` asserts each
-      component has a *named case in the matrix source*, not that a baseline
-      exists — so `pnpm verify` stays green while nothing is being compared in
-      CI. **35 components have no visual regression protection there.** One
-      workflow run fixes it: run **Generate visual baselines**, download the
-      artifact, unzip over `registry/visual/__screenshots__/`, *look at the
-      PNGs*, commit. *(task #42)*
+- [x] **Linux visual baselines** (2026-09-02). All 90 `-chromium-linux`
+      PNGs recorded by the **Generate visual baselines** workflow (run
+      33672099176, pinned `playwright:v1.62.1-noble` container), spot-checked
+      against the darwin set, and committed — one per darwin baseline, so the
+      CI `visual` job compares every component in both schemes. The same PR
+      fixed the two `verify` steps that had masked this (registry tests ran
+      before install; Playwright installed from the wrong workspace).
+      *(task #42)*
 
       The count in this row was **124** until 2026-08-16 and had never been
       true — there are 35 cases in two schemes, and `ls` says 70. It is the

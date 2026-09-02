@@ -219,7 +219,7 @@ export function DatePicker({
               // than the space it lands in, which is what the two caps below
               // are for (§7c).
               collisionPadding: 8,
-              className: "z-50",
+              className: "z-(--ui-z-dropdown)",
             })}
           >
             <BasePopover.Popup

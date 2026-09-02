@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-08-31-the-z-scale-gets-consumers-and-cn-learns-chrome-widths",
+  "date": "2026-08-31",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Two upstream gaps surfaced by the Fade review, both the same disease: a declared surface nothing exercised. FIRST, the z scale. --ui-z-* shipped with zero consumers while every component hard-coded Tailwind steps (z-50 on the five anchored panels and Toast, z-30 on the affix Header) — and the unconsumed scale's guess was wrong where it mattered: sticky sat at 1100, ABOVE dropdown, while the shipped, working order was the reverse. Anchored panels portal to <body>, so a Menu opened from the affix bar is a sibling of the page root; sticky-above-dropdown would slide that panel under the translucent bar it was opened from. --ui-z-sticky moves to 100 (chrome: above the page, below every floating surface), all seven call sites now read the scale through z-(--ui-z-sticky|dropdown|toast), and the finding graduated up the ratchet three ways: a token test asserts the ladder's ORDERING (names are not guarantees — the border-stack lesson), registry/ui/z-scale.browser.test.tsx asserts each consumer's COMPUTED z-index equals its resolved token (the number's source, not its effect at a comfortable stacking), and check:utilities gains a rule refusing bare z-<n> steps in distributed source (stories stay free). All three were probed failing-first; the browser suite's first run also re-proved the stale-stylesheet trap — it read sticky 1100 out of yesterday's generated CSS until pnpm tokens ran. The Style Guide sheet's drawn z block was corrected to match (sticky 100). SECOND, the merge config. The emitter mints four purpose-named chrome dimensions into --spacing-* (nav, nav-rail, dialog-md, dialog-lg — the widths check:utilities points bare steps at), but cn.ts registered only the base steps, so cn(\"w-dialog-md\", \"w-full\") kept BOTH classes and a consumer could not displace Toast's width — the px-md forwarding failure one namespace over, probed broken and then fixed by registering the four names on the shared spacing scale. The cn unit tests now pin every minted name in both the w-* and max-w-* groups so the emitter and the merge config cannot drift apart silently.",
+  "affects": [
+    "token:--ui-z-sticky",
+    "registry:cn",
+    "registry:header",
+    "registry:menu",
+    "registry:context-menu",
+    "registry:select",
+    "registry:multiselect",
+    "registry:date-picker",
+    "registry:toast",
+    "gate:check-utilities"
+  ]
+}

@@ -96,7 +96,7 @@ function ContextMenuPanel({ children, className, container, ...rest }: ContextMe
           // `collisionPadding` still applies, and matters more here — a
           // right-click near the window edge is the common case (§7c).
           collisionPadding: 8,
-          className: "z-50",
+          className: "z-(--ui-z-dropdown)",
         })}
       >
         <BaseContextMenu.Popup

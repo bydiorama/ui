@@ -48,8 +48,19 @@ const twMerge = extendTailwindMerge({
     // merges: without this, a consumer's `px-6` failed to displace a
     // component's `px-md` — both survived and the winner fell to stylesheet
     // order, which is exactly what cn() exists to prevent.
+    //
+    // The PURPOSE-NAMED chrome dimensions ride the same scale, because the
+    // emitter mints them into `--spacing-*` (nav, nav-rail, dialog-md,
+    // dialog-lg — the widths check:utilities points bare steps at). They were
+    // omitted here at first, so `cn("w-dialog-md", "w-full")` kept both and
+    // a consumer could not displace Toast's width — the exact px-md failure,
+    // one namespace over. The emitter and this list must move together; the
+    // cn unit tests pin every name.
     theme: {
-      spacing: ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"],
+      spacing: [
+        "xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl",
+        "nav", "nav-rail", "dialog-md", "dialog-lg",
+      ],
     },
     classGroups: {
       // The type roles (--text-* namespace in the emitted theme). They must

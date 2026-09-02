@@ -205,7 +205,7 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         // slot of its own, so this composes with the `shadow-lg` the affix
         // state adds instead of one of them winning.
         "inset-shadow-[0_-1px_0_transparent]",
-        isAffixEnabled && "sticky top-0 z-30",
+        isAffixEnabled && "sticky top-0 z-(--ui-z-sticky)",
         // A surface arriving, not interaction feedback — `motionStandard` is
         // documented for exactly this ("a bar's fill").
         // `border-color` is gone from this list with the border: a transition on

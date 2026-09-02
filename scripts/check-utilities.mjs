@@ -358,7 +358,7 @@ const componentProps = new Set(
   sources.filter((f) => !f.isStory).flatMap((f) => [...f.declares]),
 );
 
-for (const { rel, source, classes } of sources) {
+for (const { rel, source, classes, isStory } of sources) {
   checkedFiles++;
 
   // A box-shadow focus ring needs an outline fallback for forced colours.
@@ -409,6 +409,24 @@ for (const { rel, source, classes } of sources) {
       errors.push(
         `${rel}: "${rawCls}" resolves to the SPACING step --ui-space-${sizing[1]}, not a width. ` +
           `Use a purpose-named chrome token (max-w-nav, max-w-dialog-md) or an explicit value.`,
+      );
+      continue;
+    }
+    // A bare z step in a component is a stacking decision made OUTSIDE the
+    // scale. The library shipped --ui-z-* with no consumer while every
+    // component hard-coded z-50/z-30 — and the unconsumed scale's guess
+    // (sticky above dropdown) contradicted the shipped, working order. The
+    // scale is the single place stacking is decided; components read it as
+    // z-(--ui-z-sticky|dropdown|overlay|modal|toast|tooltip), which the
+    // parens skip above already admits. Stories stay free to stack demo
+    // scaffolding; distributed source does not. Known escape: `z-[60]` is an
+    // arbitrary value and skips this rule like every bracket form — the
+    // browser suite's computed-value assertions are the second net there.
+    if (!isStory && /(?:^|:)z-\d+$/.test(cls)) {
+      errors.push(
+        `${rel}: "${rawCls}" hard-codes a z-index step. Components layer on the scale — ` +
+          `z-(--ui-z-*) — so the stacking order is decided once, in tokens ` +
+          `(registry/ui/z-scale.browser.test.tsx asserts each consumer's computed value).`,
       );
       continue;
     }

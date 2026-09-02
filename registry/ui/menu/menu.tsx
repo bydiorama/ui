@@ -116,7 +116,7 @@ function MenuPanel({
           alignOffset,
           // Keeps the panel off the window edge once it flips or shifts (§7c).
           collisionPadding: 8,
-          className: "z-50",
+          className: "z-(--ui-z-dropdown)",
         })}
       >
         <BaseMenu.Popup

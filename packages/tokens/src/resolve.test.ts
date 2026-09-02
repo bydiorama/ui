@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS } from "./contract.ts";
+import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type FixedToken } from "./contract.ts";
+import { FIXED_TOKEN_VALUES } from "./base.ts";
 import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
@@ -758,5 +759,23 @@ test("each field pair separates on its OWN ground, in both schemes", () => {
       const well = contrastRatio(t["--ui-bg-field-chrome"]!, t["--ui-bg-elevated"]!);
       assert.ok(well >= 1.06, `${name} ${scheme}: the chrome field is not a well (${well.toFixed(3)} against the panel)`);
     }
+  }
+});
+
+test("the z scale orders chrome under every floating surface", () => {
+  // The scale shipped unconsumed for months, and an unconsumed token is a
+  // guess: sticky sat at 1100, above dropdown, while every shipped component
+  // ordered them the other way (the affix Header under the portalled
+  // panels — which are BODY siblings, so a menu opened from the bar itself
+  // would have slid under it). This asserts the ORDERING, not the numbers,
+  // in the same spirit as the border-stack test: names are not guarantees.
+  const z = (name: string) => Number(FIXED_TOKEN_VALUES[`--ui-z-${name}` as FixedToken]);
+  const ladder = ["below", "base", "sticky", "dropdown", "overlay", "modal", "toast", "tooltip"];
+  for (const name of ladder) assert.ok(Number.isFinite(z(name)), `--ui-z-${name} is numeric`);
+  for (let i = 1; i < ladder.length; i++) {
+    assert.ok(
+      z(ladder[i - 1]!) < z(ladder[i]!),
+      `--ui-z-${ladder[i - 1]} (${z(ladder[i - 1]!)}) must sit under --ui-z-${ladder[i]} (${z(ladder[i]!)})`,
+    );
   }
 });

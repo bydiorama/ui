@@ -203,7 +203,7 @@ export function Multiselect({
             sideOffset={8}
             // Off the viewport edge when Base UI flips or shifts (§7c).
             collisionPadding={8}
-            className="z-50"
+            className="z-(--ui-z-dropdown)"
           >
             <BaseCombobox.Popup
               {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Popup>>({

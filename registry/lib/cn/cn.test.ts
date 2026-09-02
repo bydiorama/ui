@@ -59,6 +59,29 @@ test("a consumer's spacing displaces the component's own — §5 forwarding", ()
   assert.ok(has(named, "gap-xl"));
 });
 
+test("the purpose-named chrome dimensions merge like any spacing step", () => {
+  // The emitter mints nav / nav-rail / dialog-md / dialog-lg into
+  // `--spacing-*` (emit/tailwind.ts, Chrome dimensions), so `w-dialog-md` is
+  // a real utility — Toast ships it. They were omitted from the merge config
+  // at first, so a consumer's `w-full` could not displace it: both classes
+  // survived and the winner fell to stylesheet order, the px-md failure one
+  // namespace over. Every minted name is pinned here so the emitter and the
+  // merge config cannot drift apart silently.
+  for (const name of ["nav", "nav-rail", "dialog-md", "dialog-lg"]) {
+    const width = cn(`w-${name}`, "w-full");
+    assert.ok(!has(width, `w-${name}`), `component default survived: ${width}`);
+    assert.ok(has(width, "w-full"));
+
+    const cap = cn("max-w-full", `max-w-${name}`);
+    assert.ok(!has(cap, "max-w-full"));
+    assert.ok(has(cap, `max-w-${name}`));
+  }
+
+  // Different properties still coexist — registration must not overreach.
+  const kept = cn("w-nav", "h-12");
+  assert.ok(has(kept, "w-nav") && has(kept, "h-12"));
+});
+
 test("custom font weights merge against stock ones", () => {
   const result = cn("font-book", "font-bold");
   assert.ok(!has(result, "font-book"), `both weights survived: ${result}`);

@@ -211,7 +211,7 @@ function ToastViewport({ label, dismissLabel, container, className, ...rest }: T
           // Bottom-right, inset space-xl; the sheet's 416 column is
           // dialog-width-md, shrinking on narrow viewports to 100vw minus
           // space-lg each side.
-          "fixed right-xl bottom-xl z-50 w-dialog-md max-w-[calc(100vw-(2*var(--ui-space-lg)))]",
+          "fixed right-xl bottom-xl z-(--ui-z-toast) w-dialog-md max-w-[calc(100vw-(2*var(--ui-space-lg)))]",
           className,
         )}
       >

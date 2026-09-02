@@ -175,9 +175,11 @@ top of its row, a panel with no visible boundary. All three of those shipped.
   `__screenshots__` rule matched. They were committed. The artifact NAMES are
   ignored globally now; still run `git ls-files '*.png'` before committing and
   confirm every tracked image is a baseline you reviewed.
-- **Not in CI.** Baselines are platform-specific (`-chromium-darwin`): font
-  rasterisation differs between macOS and Linux, so a committed macOS PNG
-  cannot pass on a Linux runner. Running it needs a containerised runner that
-  matches whoever generated the baselines. Until then this gate is local and
-  manual-to-invoke, which is weaker than every other gate here — say so rather
-  than assuming it ran.
+- **In CI, in a container.** Baselines are platform-specific: font
+  rasterisation differs between macOS and Linux, so the repo commits BOTH
+  sets — `-chromium-darwin` for local runs, `-chromium-linux` for the CI
+  `visual` job, which runs in the pinned Playwright container that recorded
+  them. A visual change therefore touches two PNGs per case; regenerate the
+  Linux half with the **Generate visual baselines** workflow (see
+  `.github/workflows/visual-baselines.yml` — download, LOOK at the PNGs,
+  commit), never by hand-editing or copying darwin output.

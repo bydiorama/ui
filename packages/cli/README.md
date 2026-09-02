@@ -1,25 +1,70 @@
 # `@bydiorama/ui` CLI
 
-The consumer-side half of the change ledger ([`PLAN.md`](../../PLAN.md),
-"Change ledger", part 3): once an
-app has copied a registry item's source, nothing tells it the upstream
-changed. This CLI closes that gap with a lockfile (`ui.lock.json`) and a
-`sync` command that computes the drift, rather than a broadcast a consumer
-has to remember to read.
+The owned install-and-sync channel for this registry. `add` installs items
+(and their registry dependencies) directly — no third-party CLI in the path —
+and locks them as it goes. Then, because an app that has copied a registry
+item's source is never told the upstream changed, the lockfile
+(`ui.lock.json`) and `sync` close that gap by computing the drift
+([`PLAN.md`](../../PLAN.md), "Change ledger", part 3), rather than a
+broadcast a consumer has to remember to read.
 
-**Not yet published to npm** — `package.json` is `"private": true` on
-purpose. Run it locally from a `bydiorama/ui` checkout against a consumer
-app's directory:
+Published to npm as `@bydiorama/ui` (zero runtime dependencies, Node ≥ 22).
+From inside a consumer app:
+
+```sh
+npx @bydiorama/ui <command> [...flags]
+```
+
+`--cwd` defaults to the directory you run it in. The published `bin` is
+compiled JS (`dist/`, built by `prepublishOnly` from `tsconfig.build.json`)
+because Node's type stripping deliberately refuses to run `.ts` files inside
+`node_modules` — a checkout still runs the TypeScript directly:
 
 ```sh
 node --experimental-strip-types bin/ui.ts <command> --cwd <path-to-consumer-app> [...flags]
 ```
 
-Publishing is a separate, deliberate decision (a public npm package name is
-a real external commitment) — this package is ready for that step whenever
-someone makes it; nothing here requires npm to be useful today.
+That checkout form (with `--registry-path <checkout>`) is also how you test
+against a branch that hasn't merged to `main` yet.
 
 ## Commands
+
+### `add <item...> [--force]`
+
+Installs items from the registry into the consumer app: resolves each name
+plus its transitive `registryDependencies` (dependencies first, each item
+once), writes the files through the consumer's own `components.json` aliases
+and `tsconfig.json` `@/*` mapping, locks what the run newly installed, and
+prints the npm dependencies the consumer still has to install — reported,
+never run, because this CLI shells out to nothing.
+
+What it will not do is the reason it exists alongside the shadcn CLI (which
+the registry still serves as an alternative — same items, same URLs):
+
+- **A local edit is kept, not overwritten.** An existing file whose content
+  differs from the registry's is reported as `kept`; overwriting it takes an
+  explicit `--force`.
+- **A locked fork is never overwritten — `--force` included.** The `forked`
+  record in `ui.lock.json` exists precisely so anything that overwrites
+  files has one boolean to refuse on. Resolve the fork (re-`lock` without
+  the divergence) first; a flag must not be able to destroy work you
+  explicitly declared. A generic registry client reads no lockfile and
+  re-installs over forks with every check green — that incident is why
+  `lock` records them.
+- **An already-locked item's entry is left untouched.** Re-locking would
+  advance `lockedAt`, and that timestamp is `sync`'s cutoff for "which
+  ledger entries haven't you seen" — `add` tells you to run `sync` instead
+  of silently resetting history.
+
+The lock is taken at the registry revision being installed: pass
+`--revision <sha>`, or omit it for a remote install and `add` resolves
+main's current sha from the GitHub API (with `--registry-path` the flag is
+required — the checkout has git right there).
+
+```sh
+node --experimental-strip-types bin/ui.ts add button select \
+  --cwd ../service-portal
+```
 
 ### `lock <item...> --revision <sha>`
 

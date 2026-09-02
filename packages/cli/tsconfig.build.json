@@ -1,0 +1,21 @@
+{
+  // The publish build. Sources import with explicit `.ts` extensions so a
+  // checkout can run them directly under Node's type stripping — but Node
+  // REFUSES to strip types for files inside node_modules, so the published
+  // package must ship JS. `rewriteRelativeImportExtensions` turns the `.ts`
+  // specifiers into `.js` on emit; nothing about the source changes.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": ".",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true,
+    "lib": ["ES2022"],
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["bin/**/*.ts", "src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

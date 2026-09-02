@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-02-owned-install-channel-add-command-in",
+  "date": "2026-09-02",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Added `add <item...>` to packages/cli (@bydiorama/ui) — the owned install channel, so installing from this registry no longer requires routing through the shadcn CLI (which remains a working alternative: the registry still speaks its schema on purpose). `add` resolves an item plus its transitive registryDependencies (dependencies installed first, each item once), writes their files through the consumer's own components.json aliases and tsconfig @/* mapping, locks what the run newly installed into ui.lock.json at the registry revision (--revision, or main's sha from the GitHub API for remote installs), and reports the aggregated npm dependencies for the consumer to install themselves — this CLI still shells out to nothing. Overwrite semantics are the point: an existing file with a local edit is KEPT unless --force is passed, and a target ui.lock.json records as a deliberate fork is never overwritten at all, --force included — the fork record exists precisely so anything that overwrites files has one boolean to refuse on (the shadcn CLI reads no lockfile and re-installs over forks with every check green, which is the incident that taught `lock` to record them). Items already present in the lockfile are left untouched rather than re-locked: lockedAt is sync's cutoff for unseen ledger entries, and silently advancing it hides history. Package remains private pending the deliberate npm-publish decision; run from a checkout as before.",
+  "affects": [
+    "package:cli"
+  ],
+  "migration": {
+    "manual": "New capability, nothing breaks. From a bydiorama/ui checkout: `node --experimental-strip-types packages/cli/bin/ui.ts add <item...> --cwd <consumer-app>` — remote registry by default (reads the consumer's components.json registries entry), --registry-path <checkout> to install from the checkout itself. See packages/cli/README.md."
+  }
+}

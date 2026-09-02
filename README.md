@@ -36,25 +36,61 @@ tooling that keeps consumers in sync — distributed as source you own.**
   a dependency-free `pnpm verify` a fresh clone (or a fresh agent) can run
   before installing anything.
 
+## Where it stands
+
+Maturity is tracked in phases. [`PLAN.md`](PLAN.md) carries the measured
+detail — every number there names the command that produced it, so this table
+stays coarse on purpose:
+
+| Phase | Scope | State |
+| --- | --- | --- |
+| 0 — repo and rules | manifest → generated registry, change ledger, ADRs, CI | **done** — delivered past its gate: the planned five checks became 18 enumerated gates |
+| 1 — tokens | `@bydiorama/tokens`: OKLCH resolver, CSS/Tailwind/TS emitters, measured contrast | **done bar one emitter** — the Paper payload emitter waits until something needs a live push |
+| 2 — core primitives | the components, five files each, visual baselines on both platforms | **in progress, exit gate not met** — 45 components ship; the queue that remains is ordered by real consumer call sites |
+| 3 — blocks and docs site | `registry/blocks/`, a public docs site | **not started** |
+
+### What CI enforces
+
+The badge at the top is live — a red badge means a gate below is failing
+right now, not that the library is broken for consumers (installed source
+never moves under you; that is what the lockfile is for). Every push runs
+two jobs:
+
+- **verify** — the 18 dependency-free gates first (manifest integrity,
+  registry freshness, declared imports, change ledger, licensing,
+  iconography, token utilities, behaviour-layer boundaries, controls,
+  keyboard paths for gestures, motion rules, story hygiene, overlay
+  viewport behaviour, visual coverage, runner/browser version match,
+  skills, measured contrast, design-geometry laws) and the package unit
+  tests — all runnable on a cold clone with no `node_modules`. Then, after
+  install: registry unit tests, type-check, lint, the browser suite
+  (interaction contracts plus every story through axe at error severity)
+  and a full Storybook build.
+- **visual** — every component rendered in both colour schemes and compared
+  against committed Linux baselines at **zero tolerated pixels**
+  (`allowedMismatchedPixels: 0`), inside a pinned Playwright container so
+  neither the browser build nor the font set can drift under the
+  comparison. macOS baselines serve the same role locally.
+
 ## Quick start
 
 ### Install a component
 
-The primary channel is this repo's own CLI. `add` resolves an item and its
-registry dependencies, writes their source into your app through your own
-`components.json` aliases and `tsconfig.json` `@/*` mapping, locks what it
-installed into `ui.lock.json` (so drift tracking starts at install, not as an
-afterthought), and prints the npm dependencies left for you to install:
+The primary channel is this registry's own CLI, published as
+[`@bydiorama/ui`](https://www.npmjs.com/package/@bydiorama/ui). From inside
+your app, `add` resolves an item and its registry dependencies, writes their
+source through your own `components.json` aliases and `tsconfig.json` `@/*`
+mapping, locks what it installed into `ui.lock.json` (so drift tracking
+starts at install, not as an afterthought), and prints the npm dependencies
+left for you to install:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts add button --cwd ../your-app
+npx @bydiorama/ui add button
 ```
 
 It never overwrites a local edit without `--force`, and never overwrites a
 declared fork at all — the two things a generic registry client cannot
-promise, because it reads no lockfile. Run it from a checkout of this repo
-for now; the package is ready for npm (`npx @bydiorama/ui add button`) the
-day publishing is decided.
+promise, because it reads no lockfile.
 
 **Alternative — any shadcn-compatible client.** Every item is also served as
 a plain JSON file with its source embedded (`r/<item>.json`, the open shadcn
@@ -86,7 +122,7 @@ import { Button } from "@/ui/button";
 and their combinations — instead of overwriting your edits:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts sync --cwd ../your-app
+npx @bydiorama/ui sync
 ```
 
 See the [CLI README](packages/cli/README.md) for the full drift model.

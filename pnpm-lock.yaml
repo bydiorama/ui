@@ -111,7 +111,11 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.10)
 
-  packages/cli: {}
+  packages/cli:
+    devDependencies:
+      typescript:
+        specifier: ^6
+        version: 6.0.3
 
   packages/tokens: {}
 

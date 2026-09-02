@@ -8,17 +8,24 @@ item's source is never told the upstream changed, the lockfile
 ([`PLAN.md`](../../PLAN.md), "Change ledger", part 3), rather than a
 broadcast a consumer has to remember to read.
 
-**Not yet published to npm** — `package.json` is `"private": true` on
-purpose. Run it locally from a `bydiorama/ui` checkout against a consumer
-app's directory:
+Published to npm as `@bydiorama/ui` (zero runtime dependencies, Node ≥ 22).
+From inside a consumer app:
+
+```sh
+npx @bydiorama/ui <command> [...flags]
+```
+
+`--cwd` defaults to the directory you run it in. The published `bin` is
+compiled JS (`dist/`, built by `prepublishOnly` from `tsconfig.build.json`)
+because Node's type stripping deliberately refuses to run `.ts` files inside
+`node_modules` — a checkout still runs the TypeScript directly:
 
 ```sh
 node --experimental-strip-types bin/ui.ts <command> --cwd <path-to-consumer-app> [...flags]
 ```
 
-Publishing is a separate, deliberate decision (a public npm package name is
-a real external commitment) — this package is ready for that step whenever
-someone makes it; nothing here requires npm to be useful today.
+That checkout form (with `--registry-path <checkout>`) is also how you test
+against a branch that hasn't merged to `main` yet.
 
 ## Commands
 

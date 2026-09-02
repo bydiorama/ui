@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-02-publish-the-consumer-cli-to-npm",
+  "date": "2026-09-02",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Decided (repo now public; name settled) and prepared: packages/cli ships to npm as @bydiorama/ui, making the owned install channel `npx @bydiorama/ui add <item...>` — no checkout, no third-party CLI. The package flips off `private`, gains v0.1.0, engines node>=22, publishConfig access public, and a `dist/` build (tsconfig.build.json, run by prepublishOnly): sources import with explicit `.ts` extensions for Node's type stripping, but Node refuses to strip types inside node_modules, so the published bin must be compiled JS — `rewriteRelativeImportExtensions` rewrites the specifiers on emit, the source itself is unchanged and still runs directly from a checkout. Zero runtime dependencies. Verified end-to-end before publishing: `npm pack`, tarball installed into a scratch app, `add button` run against the LIVE raw.githubusercontent registry — transitive deps installed, lockfile written at main's actual sha resolved from the GitHub API. The actual `npm publish` is the maintainer's authenticated act; READMEs now document the npx form as the primary channel.",
+  "affects": [
+    "package:cli"
+  ]
+}

@@ -1,19 +1,45 @@
 {
   "name": "@bydiorama/ui",
-  "version": "0.0.0",
-  "description": "The consumer CLI for the bydiorama/ui registry: `add` installs items and their registry dependencies directly (the owned channel — no third-party CLI in the path) and locks them as it goes; `lock`/`sync` compute drift between an installed item and its current upstream, distinguishing a consumer's own edits from an unapplied upstream change, and report which ledger entries apply. Not yet published — see README.",
+  "version": "0.1.0",
+  "description": "The consumer CLI for the bydiorama/ui registry: `add` installs items and their registry dependencies directly (the owned channel — no third-party CLI in the path) and locks them as it goes; `lock`/`sync` compute drift between an installed item and its current upstream, distinguishing a consumer's own edits from an unapplied upstream change, and report which ledger entries apply.",
   "license": "MIT",
-  "private": true,
   "type": "module",
   "bin": {
-    "bydiorama-ui": "./bin/ui.ts"
+    "bydiorama-ui": "./dist/bin/ui.js"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "tsc -p tsconfig.build.json",
     "lock": "node --experimental-strip-types bin/ui.ts lock",
     "sync": "node --experimental-strip-types bin/ui.ts sync"
   },
   "files": [
+    "dist",
     "src",
-    "bin"
-  ]
+    "bin",
+    "tsconfig.build.json"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bydiorama/ui.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/bydiorama/ui/tree/main/packages/cli#readme",
+  "bugs": "https://github.com/bydiorama/ui/issues",
+  "keywords": [
+    "design-system",
+    "registry",
+    "shadcn-compatible",
+    "lockfile",
+    "drift"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "typescript": "^6"
+  }
 }

@@ -6,13 +6,19 @@
  * directory.
  *
  * Commands:
+ *   add <item...>    Install items (and their registry dependencies) from
+ *                     the registry into the consumer app, lock what was
+ *                     newly installed, and report the npm dependencies the
+ *                     consumer still has to install. Never overwrites a
+ *                     local edit without --force, and never overwrites a
+ *                     locked fork at all.
  *   lock <item...>   Record installed items' current file hashes into the
  *                     consumer's ui.lock.json (first-time setup, or adding a
  *                     newly-installed item).
  *   sync [--json]     Diff every locked item against the registry's current
  *                     content and report status + applicable ledger entries.
  *
- * Flags (both commands):
+ * Flags (all commands):
  *   --cwd <path>              Consumer app root. Default: process.cwd().
  *   --registry-path <path>    Read the registry from a local bydiorama/ui
  *                              checkout instead of the published URL.
@@ -20,8 +26,8 @@
  *                              the consumer's own components.json).
  */
 
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 import { findAtAliasBase, resolveTargetPath } from "../src/target-path.ts";
 import { localRegistrySource, remoteRegistrySource, type RegistrySource } from "../src/registry-source.ts";
@@ -29,6 +35,7 @@ import { localLedgerSource, remoteLedgerSource, type LedgerSource } from "../src
 import { readLockfile, writeLockfile } from "../src/lockfile.ts";
 import { lockItem } from "../src/lock.ts";
 import { syncAll, type FileReader } from "../src/sync.ts";
+import { addItems, type FileWriter } from "../src/add.ts";
 
 const GITHUB_OWNER = "bydiorama";
 const GITHUB_REPO = "ui";
@@ -104,6 +111,93 @@ async function resolveSources(
     ledgerSource: remoteLedgerSource(GITHUB_OWNER, GITHUB_REPO, "main"),
     registryLabel: urlTemplate,
   };
+}
+
+function makeFileWriter(cwd: string): FileWriter {
+  return async (resolvedPath, content) => {
+    const full = join(cwd, resolvedPath);
+    await mkdir(dirname(full), { recursive: true });
+    await writeFile(full, content, "utf8");
+  };
+}
+
+/**
+ * The registry revision `add` locks at. `--revision` wins; otherwise, for a
+ * remote registry, ask GitHub for main's current sha — raw.githubusercontent
+ * serves main, so that IS the revision being installed (within the raw CDN's
+ * few minutes of cache). A local checkout has git right there, so requiring
+ * an explicit sha costs one flag and keeps this CLI's no-shelling-out rule.
+ */
+async function resolveAddRevision(flags: Record<string, string | boolean>): Promise<string> {
+  if (typeof flags.revision === "string") return flags.revision;
+  if (typeof flags["registry-path"] === "string") {
+    throw new Error("--revision <git-sha> is required with --registry-path (run `git rev-parse HEAD` in the checkout).");
+  }
+  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/main`, {
+    headers: { accept: "application/vnd.github.sha" },
+  });
+  if (!res.ok) {
+    throw new Error(`Could not resolve the registry's current revision from the GitHub API (${res.status}) — pass --revision <git-sha>.`);
+  }
+  return (await res.text()).trim();
+}
+
+async function cmdAdd(itemNames: string[], flags: Record<string, string | boolean>) {
+  const cwd = typeof flags.cwd === "string" ? flags.cwd : process.cwd();
+  const { registrySource, registryLabel } = await resolveSources(cwd, flags);
+  const componentsJson = await readComponentsJson(cwd);
+  const atAliasBase = await readTsconfigAtAliasBase(cwd);
+  const resolveTargetToPath = (target: string) => resolveTargetPath(target, componentsJson.aliases, atAliasBase);
+  const readInstalledFile = makeFileReader(cwd);
+  const revision = await resolveAddRevision(flags);
+
+  const lock = await readLockfile(join(cwd, "ui.lock.json"));
+  const result = await addItems(
+    itemNames,
+    registrySource,
+    lock,
+    readInstalledFile,
+    makeFileWriter(cwd),
+    resolveTargetToPath,
+    { force: flags.force === true },
+  );
+
+  for (const name of result.notFound) console.error(`✗ ${name}: not found in the registry.`);
+
+  const alreadyLocked: string[] = [];
+  for (const added of result.items) {
+    const line = added.files.map((f) => `${f.target} (${f.status})`).join(", ");
+    console.log(`${added.requested ? "✓" : "+"} ${added.item}: ${line}`);
+    for (const f of added.files) {
+      if (f.status === "kept") console.log(`    kept your local edit — re-run with --force to overwrite it`);
+      if (f.status === "forked") console.log(`    locked fork — never overwritten; resolve it via \`sync\` and re-\`lock\` first`);
+    }
+
+    // Lock what THIS run introduced. An item already in the lockfile keeps
+    // its entry untouched: re-locking would advance its lockedAt, and that
+    // timestamp is sync's cutoff for "which ledger entries haven't you
+    // seen" — silently resetting it hides history.
+    if (lock.items[added.item]) {
+      alreadyLocked.push(added.item);
+      continue;
+    }
+    const registryItem = await registrySource(added.item);
+    if (!registryItem) continue;
+    const { locked } = await lockItem(registryItem, revision, new Date().toISOString(), readInstalledFile, resolveTargetToPath);
+    if (Object.keys(locked.files).length > 0) lock.items[added.item] = locked;
+  }
+
+  lock.registry = registryLabel;
+  await writeLockfile(join(cwd, "ui.lock.json"), lock);
+
+  if (alreadyLocked.length) {
+    console.log(`Already locked, left as-is (run \`sync\` for their drift): ${alreadyLocked.join(", ")}`);
+  }
+  if (result.npmDependencies.length) {
+    console.log(`
+npm dependencies to install:
+    ${result.npmDependencies.join(" ")}`);
+  }
 }
 
 async function cmdLock(itemNames: string[], flags: Record<string, string | boolean>) {
@@ -184,13 +278,16 @@ async function main() {
   const { positional, flags } = parseArgs(process.argv.slice(2));
   const [command, ...rest] = positional;
 
-  if (command === "lock") {
+  if (command === "add") {
+    if (rest.length === 0) throw new Error("Usage: bydiorama-ui add <item...> [--force] [--revision <sha>]");
+    await cmdAdd(rest, flags);
+  } else if (command === "lock") {
     if (rest.length === 0) throw new Error("Usage: bydiorama-ui lock <item...> --revision <sha>");
     await cmdLock(rest, flags);
   } else if (command === "sync") {
     await cmdSync(flags);
   } else {
-    console.error("Usage: bydiorama-ui <lock|sync> [...flags]");
+    console.error("Usage: bydiorama-ui <add|lock|sync> [...flags]");
     process.exitCode = 1;
   }
 }

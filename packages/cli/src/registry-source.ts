@@ -18,6 +18,11 @@ export interface RegistryFile {
 export interface RegistryItem {
   name: string;
   files: RegistryFile[];
+  /** npm packages the item's source imports (name@range strings, from the
+   *  manifest via `r/*.json`). `add` reports these; `sync` never needs them. */
+  dependencies?: string[];
+  /** Other registry items this one imports, as `@bydiorama/<name>` refs. */
+  registryDependencies?: string[];
 }
 
 export type RegistrySource = (itemName: string) => Promise<RegistryItem | null>;
@@ -30,8 +35,18 @@ export function remoteRegistrySource(urlTemplate: string): RegistrySource {
     const res = await fetch(url);
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`Fetching ${url} failed: ${res.status} ${res.statusText}`);
-    const json = (await res.json()) as { name: string; files: RegistryFile[] };
-    return { name: json.name, files: json.files.map((f) => ({ target: f.target, content: f.content })) };
+    const json = (await res.json()) as RegistryItem;
+    return parseRegistryItem(json);
+  };
+}
+
+/** Both sources parse the same `r/*.json` shape; keep only what the CLI uses. */
+function parseRegistryItem(json: RegistryItem): RegistryItem {
+  return {
+    name: json.name,
+    files: json.files.map((f) => ({ target: f.target, content: f.content })),
+    ...(json.dependencies ? { dependencies: json.dependencies } : {}),
+    ...(json.registryDependencies ? { registryDependencies: json.registryDependencies } : {}),
   };
 }
 
@@ -47,7 +62,7 @@ export function localRegistrySource(checkoutPath: string): RegistrySource {
       if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
       throw err;
     }
-    const json = JSON.parse(raw) as { name: string; files: RegistryFile[] };
-    return { name: json.name, files: json.files.map((f) => ({ target: f.target, content: f.content })) };
+    const json = JSON.parse(raw) as RegistryItem;
+    return parseRegistryItem(json);
   };
 }

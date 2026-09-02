@@ -34,9 +34,9 @@ Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 | — components | 45 |
 | — lib / hook / font / skill | 5 / 1 / 1 / 1 |
 | Generated registry items (`r/*.json`) | 53 |
-| Ledger entries / ADRs | 192 / 19 |
+| Ledger entries / ADRs | 194 / 19 |
 | `pnpm verify` gates | 18, green |
-| Node tests | 103, green |
+| Node tests | 112, green |
 | Browser tests — contract + story a11y | 1240 across 99 files, green |
 | Declared design gaps | 171, across 45 of 45 docs |
 | Visual baselines | 180 (45 cases x 2 schemes, darwin + linux), all current |

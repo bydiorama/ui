@@ -40,25 +40,34 @@ tooling that keeps consumers in sync — distributed as source you own.**
 
 ### Install a component
 
-Every item is served as a plain JSON file with its source embedded —
-`r/<item>.json`, generated from `ui.manifest.json`. The format is the open
-shadcn registry schema, so any client that reads it works; none of them is a
-dependency of this library, and nothing shadcn ships is in the code you
-receive.
+The primary channel is this repo's own CLI. `add` resolves an item and its
+registry dependencies, writes their source into your app through your own
+`components.json` aliases and `tsconfig.json` `@/*` mapping, locks what it
+installed into `ui.lock.json` (so drift tracking starts at install, not as an
+afterthought), and prints the npm dependencies left for you to install:
 
-With the shadcn CLI (the most common client today):
+```bash
+node --experimental-strip-types packages/cli/bin/ui.ts add button --cwd ../your-app
+```
+
+It never overwrites a local edit without `--force`, and never overwrites a
+declared fork at all — the two things a generic registry client cannot
+promise, because it reads no lockfile. Run it from a checkout of this repo
+for now; the package is ready for npm (`npx @bydiorama/ui add button`) the
+day publishing is decided.
+
+**Alternative — any shadcn-compatible client.** Every item is also served as
+a plain JSON file with its source embedded (`r/<item>.json`, the open shadcn
+registry schema), so the shadcn CLI works unchanged; nothing shadcn ships
+ends up in the code you receive:
 
 ```bash
 npx shadcn@latest add https://raw.githubusercontent.com/bydiorama/ui/main/r/button.json
 ```
 
-Or without any third-party tooling — the registry item names everything you
-need: copy the `files` it lists (or the same files straight from
-[`registry/ui`](registry/ui)) into your app, then repeat for the
-`registryDependencies` it declares (`cn`, motion utilities, …).
-
-Either way the item's source, its registry dependencies, and its token
-requirements land in your app. From here the code is yours.
+Either way the item's source, its registry dependencies (`cn`, motion
+utilities, …), and its token requirements land in your app. From here the
+code is yours.
 
 ### Use it
 
@@ -72,12 +81,11 @@ import { Button } from "@/ui/button";
 
 ### Stay in sync
 
-Lock what you installed, then let `sync` report drift per item — `stale`,
-`modified`, `forked`, and their combinations — instead of overwriting your
-edits:
+`add` already locked what it installed (items installed another way get
+`lock`), so `sync` can report drift per item — `stale`, `modified`, `forked`,
+and their combinations — instead of overwriting your edits:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts lock button --cwd ../your-app --revision $(git rev-parse HEAD)
 node --experimental-strip-types packages/cli/bin/ui.ts sync --cwd ../your-app
 ```
 
@@ -90,7 +98,7 @@ See the [CLI README](packages/cli/README.md) for the full drift model.
 | [`registry/ui`](registry/ui) | 45 components — controls, overlays, navigation, chat, data display — each with source, docs, stories, browser tests, and type tests |
 | [`registry/lib`](registry/lib), [`registry/hooks`](registry/hooks) | Utilities and hooks, distributed the same source-first way |
 | [`packages/tokens`](packages/tokens) | `@bydiorama/tokens` — token contract, OKLCH theme resolver, CSS/Tailwind/TS emitters, programmatic contrast |
-| [`packages/cli`](packages/cli) | The consumer-side sync CLI — lockfile and drift report |
+| [`packages/cli`](packages/cli) | The consumer-side CLI — owned install channel (`add`), lockfile, drift report |
 | [`apps/storybook`](apps/storybook) | Stories, interaction contracts, story a11y, visual-regression runner |
 
 Browse the components locally:
@@ -130,7 +138,7 @@ registry/            the distributed source itself
   fonts/ skills/     Aspekta (OFL); agent skills, per ADR 0013
   visual/            the visual-regression matrix and its baselines
 packages/tokens/     @bydiorama/tokens — token contract, resolver, emitters
-packages/cli/        the consumer-side sync CLI
+packages/cli/        the consumer-side CLI — add, lock, sync
 apps/storybook/      stories, contract tests, story a11y, visual runner
 design/paper/        exported design artifacts; Paper source stays in its cloud
 ledger/decisions/    architecture decision records

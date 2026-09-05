@@ -42,6 +42,8 @@
       "@/hooks/use-controllable-state": [
         "./registry/hooks/use-controllable-state/use-controllable-state.ts"
       ],
+      "@/hooks/use-is-stuck": ["./registry/hooks/use-is-stuck/use-is-stuck.ts"],
+      "@/hooks/use-scroll-edges": ["./registry/hooks/use-scroll-edges/use-scroll-edges.ts"],
       // A UI item imported BY another UI item must resolve to the path the
       // consumer will have — `ui/calendar.tsx`, the manifest's install target
       // — not to this repo's `ui/calendar/calendar.tsx` folder layout. The

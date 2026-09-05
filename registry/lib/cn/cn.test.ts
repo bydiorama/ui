@@ -75,6 +75,19 @@ test("the purpose-named chrome dimensions merge like any spacing step", () => {
     const cap = cn("max-w-full", `max-w-${name}`);
     assert.ok(!has(cap, "max-w-full"));
     assert.ok(has(cap, `max-w-${name}`));
+
+    // The ARBITRARY form too, which is what a consumer reaches for when the
+    // named steps do not fit and what Sheet's and Modal's comments now
+    // promise. Both directions, because "the last one wins" is only true if
+    // the merger classifies BOTH — and the bug was that it classified
+    // neither, kept both classes, and let stylesheet order decide.
+    const overridden = cn(`max-w-${name}`, "max-w-[40rem]");
+    assert.ok(!has(overridden, `max-w-${name}`), `size survived an override: ${overridden}`);
+    assert.ok(has(overridden, "max-w-[40rem]"));
+
+    const capped = cn("max-w-[calc(100vw-3rem)]", `max-w-${name}`);
+    assert.ok(!has(capped, "max-w-[calc(100vw-3rem)]"), `cap survived the size: ${capped}`);
+    assert.ok(has(capped, `max-w-${name}`));
   }
 
   // Different properties still coexist — registration must not overreach.

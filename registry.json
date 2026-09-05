@@ -86,6 +86,30 @@
       ]
     },
     {
+      "name": "use-is-stuck",
+      "type": "registry:hook",
+      "description": "Is a position: sticky element currently parked at its offset? The state a pinned bar changes appearance on, and the one CSS cannot answer — there is no :stuck. OBSERVED rather than listened for: an IntersectionObserver at threshold 1, with a root margin pulled in by the caller's own sticky offset plus a pixel, rooted at the nearest SCROLLING ancestor rather than the viewport — a bar pinned inside a scrolling panel sits at a fixed viewport position, so a viewport-rooted observer watches it never move and the state never flips. No sentinel node, no scroll listener, and no per-frame getBoundingClientRect, which is a forced synchronous layout on the busiest thread there is. Header's own affix state is the first consumer; Fade's visibility on a pinned bar is the second.",
+      "files": [
+        {
+          "path": "registry/hooks/use-is-stuck/use-is-stuck.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-is-stuck.ts"
+        }
+      ]
+    },
+    {
+      "name": "use-scroll-edges",
+      "type": "registry:hook",
+      "description": "Where a scroll container currently sits between its ends, on both axes — the state a Fade binds its isVisible to, since a ramp at an edge means there is more content that way. A passive scroll listener rather than an observer, deliberately: the question is the offset itself rather than a boolean, and the IntersectionObserver equivalent needs a sentinel node pinned at every edge. Paired with a ResizeObserver for the container AND a commit-time re-measure, because content appended to an already-full list resizes nothing and a ResizeObserver alone never fires. Takes the absolute value of the inline offset, since an RTL container scrolls to a negative scrollLeft.",
+      "files": [
+        {
+          "path": "registry/hooks/use-scroll-edges/use-scroll-edges.ts",
+          "type": "registry:hook",
+          "target": "hooks/use-scroll-edges.ts"
+        }
+      ]
+    },
+    {
       "name": "font-aspekta",
       "type": "registry:file",
       "description": "Aspekta Variable — the design system's single typeface (SIL OFL 1.1, by Ivo Dolenc). Installs the @font-face CSS and the OFL license text; the ~30KB variable woff2 (weight 100-900) is binary and is fetched from the repo with the one-line curl documented at the top of aspekta.css, into the same directory. Keep OFL.txt with the font wherever it is deployed. Preload the woff2 (<link rel=\"preload\" as=\"font\" type=\"font/woff2\" crossorigin> — snippet at the top of aspekta.css) so font-display: swap does not flash the fallback face on first paint.",
@@ -135,6 +159,7 @@
         "@bydiorama/cn",
         "@bydiorama/chrome-control",
         "@bydiorama/fade",
+        "@bydiorama/use-is-stuck",
         "@bydiorama/motion"
       ],
       "files": [

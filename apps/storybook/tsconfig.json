@@ -18,6 +18,8 @@
       "@/hooks/use-controllable-state": [
         "../../registry/hooks/use-controllable-state/use-controllable-state.ts"
       ],
+      "@/hooks/use-is-stuck": ["../../registry/hooks/use-is-stuck/use-is-stuck.ts"],
+      "@/hooks/use-scroll-edges": ["../../registry/hooks/use-scroll-edges/use-scroll-edges.ts"],
       // See the note in the root tsconfig: a distributed file imports the
       // consumer's path, so the specific entries sit above the wildcard.
       "@/ui/aspect-ratio": ["../../registry/ui/aspect-ratio/aspect-ratio.tsx"],

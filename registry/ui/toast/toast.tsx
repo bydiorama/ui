@@ -287,7 +287,19 @@ function ToastRoot({
         "[--offset-y:calc((var(--toast-offset-y)*-1)-(var(--toast-index)*var(--gap))+var(--toast-swipe-movement-y))]",
         // Newest at the bottom; index 0 is frontmost.
         "absolute right-0 bottom-0 w-full origin-bottom select-none",
-        "z-[calc(1000-var(--toast-index))]",
+        // STACK-LOCAL, not a scale value. The viewport above sets
+        // z-(--ui-z-toast) and so opens a stacking context; these row indices
+        // only order rows against each other INSIDE it and are invisible to
+        // the ladder. It read `calc(1000 - …)` — the exact number
+        // --ui-z-dropdown carried at the time — which invited precisely the
+        // wrong reading, so it is rebased onto a number that matches no rung.
+        //
+        // 50 rather than something smaller because `limit` is the CALLER's
+        // and this component sets no cap: at a base of 10 an eleventh row
+        // computes a negative z, which stops meaning "further back" and
+        // starts meaning "behind the viewport's own box". 50 is more rows
+        // than anyone will stack and still nowhere near a role.
+        "z-[calc(50-var(--toast-index))]",
         // The surface: the Popover panel's recipe on radius-lg. bg-elevated
         // sits BELOW the dark page ground, so the hairline and shadow-lg
         // carry the boundary there (ADR 0010; the sheet's Dark section).

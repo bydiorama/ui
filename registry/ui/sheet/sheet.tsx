@@ -254,7 +254,8 @@ function SheetPanel({
       <BaseDialog.Backdrop
         data-slot="sheet-scrim"
         className={cn(
-          "fixed inset-0 bg-scrim",
+          // Scrim and panel take the SAME role, so the pair moves as one.
+          "fixed inset-0 z-(--ui-z-overlay) bg-scrim",
           "transition-opacity", motionStandard,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
@@ -270,7 +271,13 @@ function SheetPanel({
         className={cn(
           // Full height, flush to one edge. `inset-y-0` rather than a height:
           // a drawer is as tall as the screen, and 100vh lies on mobile.
-          "fixed inset-y-0 flex flex-col",
+          //
+          // --ui-z-overlay. Carrying no z at all was the bug: the affix
+          // Header at z-100 is a positive z in the ROOT stacking context, and
+          // that paints above a z-auto positioned element whatever the DOM
+          // order — so a portalled panel with no z sat under the bar. The nav
+          // composition's Menus stay in front from --ui-z-dropdown.
+          "fixed inset-y-0 z-(--ui-z-overlay) flex flex-col",
           // NAMED, because Header and Footer key their hairlines off the
           // panel's overflow state and an unnamed `group` would also match a
           // group in whatever the caller puts inside.
@@ -280,9 +287,18 @@ function SheetPanel({
           // TRANSFORMED ancestor — Storybook's docs blocks transform their
           // preview, so a percentage silently scopes to a docs cell.
           //
-          // SIZE[size] is the ONLY max-width in this list. tailwind-merge keeps
-          // the last one and silently drops the rest, which is how Modal's
-          // viewport cap sat above its size class and never once applied.
+          // SIZE[size] is the ONLY max-width in this list, and the reason is
+          // not the one recorded here until 2026-09-04. That comment said
+          // tailwind-merge "silently drops the rest". It did not: `dialog-md`
+          // and `dialog-lg` were not registered in cn.ts, so the merger could
+          // not CLASSIFY them, kept every competing max-width, and stylesheet
+          // order picked the winner. Nothing was dropped — the cascade
+          // decided, which is the failure cn() exists to prevent.
+          //
+          // Now that they are registered, the merge is real and this list is
+          // genuinely last-wins. So a second max-width here would drop the
+          // size for real. A viewport cap has to be ONE class — `min()` in a
+          // single arbitrary value — not two racing declarations.
           "w-4/5 min-w-64",
           SIZE[size],
           SIDE[side].edge,

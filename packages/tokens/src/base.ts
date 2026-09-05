@@ -103,34 +103,51 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   "--ui-measure-narrative": "60ch",
   "--ui-measure-dense": "90ch",
 
-  // The stacking scale. Shipped for months with no consumer — a token nothing
-  // consumes is a guess — and the guess was wrong in one place: sticky sat at
-  // 1100, ABOVE dropdown, while every shipped component ordered them the
-  // other way (the affix Header at z-30 under z-50 panels). Anchored panels
-  // portal to <body>, so a Menu opened from the affix bar itself is a SIBLING
-  // of the page root: sticky above dropdown would slide that panel under the
-  // translucent bar it was opened from. Sticky is chrome — above the page,
-  // below every floating surface — so it lives at 100, well under the
-  // floating band that starts at dropdown. The ordering is asserted in
-  // resolve.test.ts; the consumers read the scale through `z-(--ui-z-*)`.
+  // The stacking scale. EVERY role below has a consumer; the ordering is
+  // asserted in resolve.test.ts and each consumer's computed value in
+  // z-scale.browser.test.tsx. Components read it through `z-(--ui-z-*)`.
   //
-  // Two consequences the adoption accepted, recorded here because this is
-  // where the next stacking question gets answered. Toast (1400) now sits
-  // above every anchored panel (1000) by SCALE rather than by DOM order — a
-  // panel opened from a toast action would layer under the viewport; no
-  // shipped composition does that, and the day one does, this comment is the
-  // decision point. And Modal, Sheet, Drawer, Popover and Tooltip still
-  // carry NO z-index at all: they layer by portal order, which works and is
-  // a different strategy — sweeping them onto the scale is a behaviour
-  // change deserving its own review, not a silent side effect of this one.
+  // THE ONE RULE: a surface outranks anything it can be OPENED FROM.
+  //
+  // That is not a preference, it is forced by the DOM. Every floating surface
+  // portals to <body>, so a Menu opened from inside a Sheet is that Sheet's
+  // SIBLING, not its child — nothing but z-index separates them. Measured: a
+  // Select opened inside an open Modal reports panel.contains(listbox) ===
+  // false. So the opener must sit UNDER what it opens, all the way up.
+  //
+  // Reading the ladder against the compositions that produced it:
+  //   sticky   the affix Header. Chrome: above the page, under every floating
+  //            surface, because a Menu opened from the bar is a body sibling
+  //            and would otherwise slide under the translucent bar.
+  //   overlay  Sheet and Drawer, scrim and panel together.
+  //   modal    Modal, scrim and panel. Above overlay: a confirmation is
+  //            raised FROM a panel.
+  //   toast    above every panel, because a notification has to be seen over
+  //            a dialog.
+  //   dropdown every anchored popup. Above modal and toast because a dialog
+  //            form holds Selects and a toast action can open a Menu — the
+  //            consequence the previous revision of this comment flagged as
+  //            undecided. The name reads low and the value is high; that is
+  //            the rule above, not an accident. CONVENTIONS §7a tabulates it.
+  //   tooltip  attaches to controls on every other surface, so it tops.
+  //
+  // THE TRAP, paid for once: the previous revision said Modal, Sheet, Drawer,
+  // Popover and Tooltip "layer by portal order, which works". It does not.
+  // They carried NO z-index, and a positive z in the root stacking context
+  // paints above a z-auto positioned element WHATEVER the DOM order — so the
+  // affix Header at 100 covered all five, exactly as it had at z-30. Raising
+  // the bar changed the number and not the category. Binding the five is what
+  // fixed it, and sticky never moved.
+  //
+  // Gaps of 100 leave room to insert a role without renumbering the rest.
   "--ui-z-below": "-1",
   "--ui-z-base": "0",
   "--ui-z-sticky": "100",
-  "--ui-z-dropdown": "1000",
-  "--ui-z-overlay": "1200",
-  "--ui-z-modal": "1300",
-  "--ui-z-toast": "1400",
-  "--ui-z-tooltip": "1500",
+  "--ui-z-overlay": "1000",
+  "--ui-z-modal": "1100",
+  "--ui-z-toast": "1200",
+  "--ui-z-dropdown": "1300",
+  "--ui-z-tooltip": "1400",
 };
 
 /** Varies with light/dark, never with the brand. */

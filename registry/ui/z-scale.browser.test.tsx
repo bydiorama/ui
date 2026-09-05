@@ -1,20 +1,30 @@
 /**
  * The stacking scale, measured across the components that consume it.
  *
- * `--ui-z-*` shipped for months with NO consumer — and a token nothing
- * consumes is a guess. The guess was wrong in exactly one place: sticky sat
- * at 1100, above dropdown, while every shipped component ordered them the
- * other way (the affix Header at z-30 under the panels' z-50). Anchored
- * panels portal to <body>, so a Menu opened from the affix bar itself is a
- * SIBLING of the page root: sticky-above-dropdown would slide that panel
- * under the translucent bar it was opened from.
+ * `--ui-z-*` shipped for months with NO consumer, and a token nothing
+ * consumes is a guess. Both guesses it made were wrong, in the same way:
  *
- * This suite is the cross-component half of the fix (the token test asserts
- * the ladder's ordering): each consumer's computed z-index must EQUAL the
- * resolved token — the number's SOURCE is what is asserted, not its effect
- * at a comfortable stacking, which is the same rule as the overlay
- * max-height tests. A component that drifts back to a bare Tailwind step
- * keeps working at every zoom level and fails only here.
+ *   1. sticky sat ABOVE dropdown, so a Menu opened from the affix bar would
+ *      have slid under the translucent bar it was opened from.
+ *   2. with that corrected, dropdown sat UNDER modal — which reads natural
+ *      and breaks every Select inside a Modal the moment Modal takes its own
+ *      role, because the two portal to <body> and are SIBLINGS.
+ *
+ * Both are the same fact: a portalled surface has left DOM order behind, so
+ * only the scale separates it from anything else portalled. The ordering is
+ * therefore forced, not chosen — a surface outranks anything it can be
+ * OPENED FROM.
+ *
+ * Two halves here, and each catches what the other cannot:
+ *
+ *   "each consumer's z-index IS its token" asserts the number's SOURCE, not
+ *   its effect at a comfortable stacking — the same rule as the overlay
+ *   max-height tests. A component that drifts to a bare Tailwind step keeps
+ *   working at every zoom level and fails only there.
+ *
+ *   "paint order" asserts the EFFECT, in the one composition the whole scale
+ *   exists for. Sources can each be correct while the ladder that orders
+ *   them is wrong, which is exactly how the second guess above survived.
  */
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { userEvent } from "@vitest/browser/context";
@@ -23,10 +33,15 @@ import { act, useEffect } from "react";
 import type { ReactElement } from "react";
 
 import { Button } from "@/ui/button/button.tsx";
+import { Drawer } from "@/ui/drawer/drawer.tsx";
 import { Header } from "@/ui/header/header.tsx";
 import { Menu } from "@/ui/menu/menu.tsx";
+import { Modal } from "@/ui/modal/modal.tsx";
+import { Popover } from "@/ui/popover/popover.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
+import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Toast, useToast, type ToastManager } from "@/ui/toast/toast.tsx";
+import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
 
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;
@@ -57,11 +72,18 @@ function zToken(name: string): string {
   return value;
 }
 
-test("the ladder is in the stylesheet and orders chrome under every floating surface", () => {
+test("the ladder is in the stylesheet and orders every surface under what it opens", () => {
   // The browser-side twin of the token test: proves the CSS emit actually
   // carries the scale (a var missing from the stylesheet computes z-index
   // 'auto' — silently — in every consumer below).
-  const ladder = ["below", "base", "sticky", "dropdown", "overlay", "modal", "toast", "tooltip"];
+  //
+  // It is also the tripwire for a STALE emit, which is a real failure mode
+  // of this suite rather than a hypothetical one: the source assertions
+  // below read the token from the same stylesheet they check the component
+  // against, so an un-regenerated `pnpm tokens` leaves them comparing stale
+  // to stale and passing. This test and the paint-order block are the two
+  // that notice. Keep the array in step with resolve.test.ts.
+  const ladder = ["below", "base", "sticky", "overlay", "modal", "toast", "dropdown", "tooltip"];
   const values = ladder.map((name) => Number(zToken(name)));
   for (let i = 1; i < values.length; i++) {
     expect(values[i - 1]!, `${ladder[i - 1]} under ${ladder[i]}`).toBeLessThan(values[i]!);
@@ -141,5 +163,199 @@ describe("each consumer's z-index IS its token", () => {
     );
     const viewport = document.querySelector<HTMLElement>('[data-slot="toast-viewport"]')!;
     expect(getComputedStyle(viewport).zIndex).toBe(zToken("toast"));
+  });
+
+  // The five that carried NO z-index at all and layered by portal order.
+  // Each is asserted on BOTH of its roots where it has two: a scrim that
+  // moves independently of its panel is a veil with the page showing over it.
+
+  test("Modal's scrim and panel both layer at --ui-z-modal", async () => {
+    mount(
+      <Modal isOpen onOpenChange={vi.fn()}>
+        <Modal.Surface>
+          <Modal.Title>New task</Modal.Title>
+        </Modal.Surface>
+      </Modal>,
+    );
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="modal-surface"]')).not.toBeNull(),
+    );
+    for (const slot of ["modal-scrim", "modal-surface"]) {
+      const el = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+      expect(getComputedStyle(el).zIndex, slot).toBe(zToken("modal"));
+    }
+  });
+
+  test("Sheet's scrim and panel both layer at --ui-z-overlay", async () => {
+    mount(
+      <Sheet isOpen onOpenChange={vi.fn()}>
+        <Sheet.Panel label="Filters">
+          <Sheet.Title>Filters</Sheet.Title>
+        </Sheet.Panel>
+      </Sheet>,
+    );
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="sheet-panel"]')).not.toBeNull(),
+    );
+    for (const slot of ["sheet-scrim", "sheet-panel"]) {
+      const el = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+      expect(getComputedStyle(el).zIndex, slot).toBe(zToken("overlay"));
+    }
+  });
+
+  test("Drawer takes the same role as Sheet — one layer, two geometries", async () => {
+    mount(
+      <Drawer isOpen onOpenChange={vi.fn()}>
+        <Drawer.Panel label="Details">
+          <Drawer.Title>Details</Drawer.Title>
+        </Drawer.Panel>
+      </Drawer>,
+    );
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="drawer-panel"]')).not.toBeNull(),
+    );
+    for (const slot of ["drawer-scrim", "drawer-panel"]) {
+      const el = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+      expect(getComputedStyle(el).zIndex, slot).toBe(zToken("overlay"));
+    }
+  });
+
+  test("Popover's positioner layers at --ui-z-dropdown", async () => {
+    mount(
+      <Popover>
+        <Popover.Trigger render={<Button>Details</Button>} />
+        <Popover.Panel>
+          <Popover.Title>Details</Popover.Title>
+        </Popover.Panel>
+      </Popover>,
+    );
+    await userEvent.click(document.querySelector<HTMLElement>("button")!);
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="popover-panel"]')).not.toBeNull(),
+    );
+    const positioner = document.querySelector<HTMLElement>('[data-slot="popover-panel"]')!
+      .parentElement!;
+    expect(getComputedStyle(positioner).zIndex).toBe(zToken("dropdown"));
+  });
+
+  test("Tooltip's positioner tops the ladder at --ui-z-tooltip", async () => {
+    mount(
+      <Tooltip.Provider>
+        <Tooltip isOpen>
+          <Tooltip.Trigger render={<Button>Copy</Button>} />
+          <Tooltip.Content>Duplicate to a brand</Tooltip.Content>
+        </Tooltip>
+      </Tooltip.Provider>,
+    );
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="tooltip"]')).not.toBeNull(),
+    );
+    const positioner = document.querySelector<HTMLElement>('[data-slot="tooltip"]')!
+      .parentElement!;
+    expect(getComputedStyle(positioner).zIndex).toBe(zToken("tooltip"));
+  });
+});
+
+/**
+ * The effect, in the composition the scale exists for.
+ *
+ * Every assertion above can pass while the ladder ORDERING them is wrong —
+ * that is not hypothetical, it is how `dropdown` under `modal` survived a
+ * review. So this block asserts what a person would see.
+ *
+ * Hit-testing is the right instrument HERE and only here: every surface
+ * below is opaque and takes pointer events, so `elementFromPoint` returns
+ * the painted top. It would be the wrong instrument for the Header's Fade,
+ * which is `pointer-events: none` — a probe written that way reports the
+ * element UNDER the fade and passes in both the broken and the fixed state.
+ * A Fade overlap has to compare rendered pixels.
+ */
+describe("paint order", () => {
+  /** What a click at the centre of the region where two boxes overlap hits. */
+  function topmostInOverlap(a: HTMLElement, b: HTMLElement) {
+    const ra = a.getBoundingClientRect();
+    const rb = b.getBoundingClientRect();
+    const x = Math.round((Math.max(ra.left, rb.left) + Math.min(ra.right, rb.right)) / 2);
+    const y = Math.round((Math.max(ra.top, rb.top) + Math.min(ra.bottom, rb.bottom)) / 2);
+    expect(
+      x > Math.max(ra.left, rb.left) - 1 && y < Math.min(ra.bottom, rb.bottom),
+      "the two elements must actually overlap for this to mean anything",
+    ).toBe(true);
+    return document.elementFromPoint(x, y) as HTMLElement | null;
+  }
+
+  test("an affixed Header does not cover a Sheet, and a Menu in the Sheet covers both", async () => {
+    // THE REGRESSION THIS FILE EXISTS FOR. Measured before the fix: the
+    // header won this overlap. It is a positive z in the ROOT stacking
+    // context, and that paints over a z-auto positioned element whatever
+    // the DOM order — so the bar covered every portalled surface carrying
+    // no z. Moving it from z-30 to --ui-z-sticky changed the number and not
+    // the category; binding the Sheet is what fixed it.
+    mount(
+      <>
+        <Header affix>
+          <Header.Nav label="Primary">
+            <Header.Item href="#a">Agent</Header.Item>
+          </Header.Nav>
+        </Header>
+        <Sheet isOpen onOpenChange={vi.fn()}>
+          <Sheet.Panel label="Filters">
+            <Sheet.Title>Filters</Sheet.Title>
+            <Menu>
+              <Menu.Trigger render={<Button>Sort</Button>} />
+              <Menu.Panel>
+                <Menu.Item onSelect={vi.fn()}>Newest</Menu.Item>
+              </Menu.Panel>
+            </Menu>
+          </Sheet.Panel>
+        </Sheet>
+      </>,
+    );
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="sheet-panel"]')).not.toBeNull(),
+    );
+
+    const bar = document.querySelector<HTMLElement>('[data-slot="header"]')!;
+    const panel = document.querySelector<HTMLElement>('[data-slot="sheet-panel"]')!;
+
+    expect(panel.contains(topmostInOverlap(bar, panel))).toBe(true);
+
+    // And the popup opened from INSIDE that sheet clears the sheet. The two
+    // are body siblings — Base UI portals the positioner out — so this is
+    // the scale's doing and nothing else's.
+    await userEvent.click(document.querySelector<HTMLElement>('[data-slot="menu-trigger"]')!);
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="menu-panel"]')).not.toBeNull(),
+    );
+    const menu = document.querySelector<HTMLElement>('[data-slot="menu-panel"]')!;
+    expect(panel.contains(menu), "the menu portals OUT of the sheet").toBe(false);
+    expect(menu.contains(topmostInOverlap(menu, panel))).toBe(true);
+  });
+
+  test("a Select opened inside a Modal is not swallowed by it", async () => {
+    // The trap that blocked this adoption for a commit: give Modal its role
+    // while `dropdown` sits below it and every popup inside a dialog goes
+    // behind the dialog. The two are siblings, so nothing but the ladder
+    // decides. This is the assertion that pins the ordering.
+    const items: SelectItem[] = [{ value: "design", label: "Design" }];
+    mount(
+      <Modal isOpen onOpenChange={vi.fn()}>
+        <Modal.Surface>
+          <Modal.Title>New task</Modal.Title>
+          <Select label="Services" items={items} />
+        </Modal.Surface>
+      </Modal>,
+    );
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="modal-surface"]')).not.toBeNull(),
+    );
+    await userEvent.click(document.querySelector<HTMLElement>('[data-slot="select-trigger"]')!);
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="select-panel"]')).not.toBeNull(),
+    );
+    const surface = document.querySelector<HTMLElement>('[data-slot="modal-surface"]')!;
+    const list = document.querySelector<HTMLElement>('[data-slot="select-panel"]')!;
+    expect(surface.contains(list), "the select portals OUT of the dialog").toBe(false);
+    expect(list.contains(topmostInOverlap(list, surface))).toBe(true);
   });
 });

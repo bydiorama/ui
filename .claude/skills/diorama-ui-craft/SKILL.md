@@ -143,16 +143,34 @@ What feels off at 10% speed is what is subtly wrong at full speed.
 ### Type rendering
 
 23. **Text stays off the GPU at rest.** A persistent `transform`,
-    `will-change`, `filter` or `backdrop-filter` on a text-bearing element
-    promotes it to a compositor layer, where the glyphs are rasterised once
-    and resampled — permanently soft text. Transient motion is fine: press
-    scale (rule 7) and icon cross-fades (rule 10) end, and the text repaints
-    sharp. The trap is promotion that outlives the animation — a
-    `will-change` left in place "for performance", a `translateZ(0)` hack, a
-    decorative `filter` on a container that holds copy. Clear `will-change`
-    when the animation ends and keep filters on sibling layers, not on the
-    text's ancestor. Leave `text-rendering` at `auto`; smoothing itself is
-    the app root's job (CONVENTIONS §6), never a component's.
+    `will-change` or `filter` on a text-bearing element promotes it to a
+    compositor layer, where the glyphs are rasterised once and resampled —
+    permanently soft text. Transient motion is fine: press scale (rule 7) and
+    icon cross-fades (rule 10) end, and the text repaints sharp. The trap is
+    promotion that outlives the animation — a `will-change` left in place
+    "for performance", a `translateZ(0)` hack, a decorative `filter` on a
+    container that holds copy. Clear `will-change` when the animation ends
+    and keep filters on sibling layers, not on the text's ancestor. Leave
+    `text-rendering` at `auto`; smoothing itself is the app root's job
+    (CONVENTIONS §6), never a component's.
+
+    **`backdrop-filter` is NOT in that list, and it used to be.** The two
+    read alike and do opposite things to type: `filter` filters the element,
+    its own text included, while `backdrop-filter` filters only what is
+    BEHIND it and composites the element's content on top untouched.
+    Measured in Chromium on the affixed `Header`, whose `backdrop-blur-sm`
+    sits on the `<header>` carrying the nav labels:
+
+    | on a text-bearing element | glyph pixels changed |
+    | --- | --- |
+    | `backdrop-filter: blur(4px)` | **0** — pixel-identical |
+    | `filter: blur(0.4px)` | 9.31%, peak delta 139/255 |
+
+    So a translucent bar can have its blur and sharp labels both. Rule 23
+    banned a real technique on the strength of a plausible mechanism nobody
+    had measured — which is the failure the rule itself is about, one layer
+    up. Reach for `backdrop-filter` freely over a translucent ground; the
+    thing to still avoid over text is `filter`.
 
 ## Common mistakes
 

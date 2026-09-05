@@ -132,14 +132,93 @@ for (const [rel] of ALLOWED) {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * RULE 2 — every portalled root declares a layer role.
+ *
+ * check:utilities already refuses a bare `z-50`. That rule is NEGATIVE,
+ * and the five surfaces it most needed to catch declared NOTHING at all,
+ * so they sailed through it: Modal, Sheet, Drawer, Popover and Tooltip
+ * portalled to <body> with no z-index and layered by DOM order.
+ *
+ * Which does not work, and the library shipped the counter-example. A
+ * positive z-index in the root stacking context paints above a z-auto
+ * positioned element WHATEVER the DOM order, so the affix Header — the
+ * one thing here that takes a positive z in the page — covered all five.
+ * Raising it from z-30 to --ui-z-sticky changed the number, not the
+ * category. Only binding the surfaces fixed it.
+ *
+ * So the missing half is a POSITIVE requirement: if you portal out of the
+ * tree, you have left DOM order behind and you must name your layer.
+ * ------------------------------------------------------------------ */
+
+const PORTAL = /\.Portal\b/;
+const ROLE = /z-\(--ui-z-[a-z-]+\)/;
+/** The Base UI parts that can be a portal's own root element. */
+const ROOT_PART = /<\w+\.(Backdrop|Positioner|Popup)\b/g;
+
+/**
+ * The opening tag starting at `from`, brace-aware.
+ *
+ * Naive "slice to the next `>`" is wrong here: these tags carry
+ * `{...forBaseUI<ComponentPropsWithoutRef<typeof X>>({ … })}`, whose type
+ * arguments and arrow functions are full of `>`. Counting braces keeps the
+ * scan inside the tag, which is where Menu and Select put their role.
+ */
+function openingTag(source, from) {
+  let depth = 0;
+  for (let i = from; i < source.length; i++) {
+    const ch = source[i];
+    if (ch === "{") depth++;
+    else if (ch === "}") depth--;
+    else if (ch === ">" && depth === 0) return source.slice(from, i + 1);
+  }
+  return source.slice(from);
+}
+
+let portalled = 0;
+
+for (const file of walk(join(ROOT, "registry/ui"))) {
+  if (!file.endsWith(".tsx")) continue;
+  if (/\.(test|stories)\.tsx$/.test(file)) continue;
+  const rel = relative(ROOT, file);
+  const source = stripComments(readFileSync(file, "utf8"));
+  if (!PORTAL.test(source)) continue;
+
+  // Two shipped shapes, and the root differs:
+  //   Portal > Positioner > Popup   the positioner IS the root (anchored)
+  //   Portal > Backdrop + Popup     both are roots (dialog family)
+  // So a Popup only needs its own role when the file has no positioner to
+  // carry it — otherwise every anchored panel would be asked for it twice.
+  const anchoredHere = POSITIONER.test(source);
+
+  for (const match of source.matchAll(ROOT_PART)) {
+    const part = match[1];
+    if (part === "Popup" && anchoredHere) continue;
+    portalled++;
+    const tag = openingTag(source, match.index);
+    if (!ROLE.test(tag)) {
+      errors.push(
+        `${rel}: <…${part}> portals out of the tree but declares no layer role. ` +
+          `Add z-(--ui-z-*) — a portalled root has left DOM order behind, and a ` +
+          `z-auto surface paints under anything in the page holding a positive z.`,
+      );
+    }
+  }
+}
+
 if (errors.length) {
-  console.error("Anchored panels that can render outside the viewport:\n");
+  console.error("Overlay surfaces that do not hold their contract:\n");
   for (const e of errors) console.error(`  - ${e}`);
   console.error(
-    "\nBase UI flips and shifts by default, so this looks handled at a comfortable\n" +
-      "window size. Repositioning cannot shrink a panel that is bigger than its space.",
+    "\nBase UI flips and shifts by default, so a fitting problem looks handled at a\n" +
+      "comfortable window size — repositioning cannot shrink a panel bigger than its\n" +
+      "space. And a portalled surface with no layer role looks correct until something\n" +
+      "in the page takes a positive z-index, which the affix Header does.",
   );
   process.exit(1);
 }
 
-console.log(`overlays ok — ${anchored} anchored panel(s), ${ALLOWED.size} declared exemption(s)`);
+console.log(
+  `overlays ok — ${anchored} anchored panel(s), ${portalled} portalled root(s) on the ` +
+    `z scale, ${ALLOWED.size} declared exemption(s)`,
+);

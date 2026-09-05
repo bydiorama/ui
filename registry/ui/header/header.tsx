@@ -5,7 +5,6 @@ import {
   type ButtonHTMLAttributes,
   useCallback,
   useContext,
-  useEffect,
   useId,
   useState,
   type HTMLAttributes,
@@ -19,27 +18,11 @@ import { useRender } from "@base-ui/react/use-render";
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
 import { Fade } from "@/ui/fade";
+import { useIsStuck } from "@/hooks/use-is-stuck";
 import { motionMicro, motionStandard } from "@/lib/motion";
 
 /** Rows inside Header.Nav are list items; controls in Start/End are not. */
 const InNav = createContext(false);
-
-/**
- * The nearest ancestor that actually scrolls, or `null` for the viewport —
- * which is what an IntersectionObserver wants as its `root`.
- *
- * `document.scrollingElement` returns `null` rather than itself, because an
- * observer rooted at the document element is NOT the same as one rooted at the
- * viewport and the difference shows up as a state that never flips.
- */
-function scrollParent(el: HTMLElement): Element | null {
-  for (let node = el.parentElement; node; node = node.parentElement) {
-    if (node === document.body || node === document.documentElement) break;
-    const { overflowY } = getComputedStyle(node);
-    if (overflowY === "auto" || overflowY === "scroll" || overflowY === "overlay") return node;
-  }
-  return null;
-}
 
 export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
   children: ReactNode;
@@ -87,7 +70,6 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
   // The node in STATE rather than a ref, because the effect below has to run
   // when the element attaches and a ref mutation does not re-run an effect.
   const [node, setNode] = useState<HTMLElement | null>(null);
-  const [isAffixed, setIsAffixed] = useState(false);
 
   // `affix={{}}` means "pinned, classic treatment" — the object form exists
   // for its keys, but an empty one still opts into pinning, same as `true`.
@@ -104,52 +86,23 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
   );
 
   /**
-   * OBSERVED, not listened for.
+   * OBSERVED, not listened for — and the observation now lives in
+   * `useIsStuck`, which is this bar's own technique lifted out whole.
    *
-   * A scroll listener is the obvious implementation and it is the wrong one:
-   * it fires on every frame of every scroll, on a thread that is already the
-   * busiest one during a scroll, and answering "am I stuck?" from it means
-   * reading `getBoundingClientRect` — a forced synchronous layout, per frame.
-   * An IntersectionObserver answers the same question off the main thread and
-   * only when the answer CHANGES.
+   * It was inlined here while the bar was the only thing asking the question.
+   * A consumer then wrote the same IntersectionObserver six times, on both
+   * axes, which is the second-consumer condition `fade.doc.ts` set for
+   * sharing it. The hook is the same geometry — `threshold: [1]`, a root
+   * margin pulled in by the sticky offset plus a pixel, rooted at the nearest
+   * scrolling ancestor rather than the viewport — plus one guard this copy
+   * never had: a `display: none` bar reports as stuck, because an empty rect
+   * has an intersection ratio of 0.
    *
-   * The geometry is the standard stuck-detection trick and it needs both
-   * halves to work: `threshold: [1]` fires when the bar stops being fully
-   * visible, and the -1px top root margin shrinks the viewport by exactly the
-   * one pixel that makes "flush against the top" count as clipped. Without
-   * the margin a bar pinned at `top: 0` is still 100% visible and the
-   * observer never fires; without the threshold it fires when the bar leaves
-   * the screen entirely, which for a pinned bar is never.
-   *
-   * It needs no sentinel element. The earlier draft of this put a zero-height
-   * span before the bar, which works and adds a node to the banner landmark's
-   * neighbourhood for no reason.
-   *
-   * THE ROOT IS THE SCROLL CONTAINER, NOT THE VIEWPORT, and leaving it at the
-   * default is a bug that hides: a bar pinned inside a scrolling panel sits at
-   * a FIXED position in the viewport, so a viewport-rooted observer watches it
-   * never move and the state never flips — while the identical code works
-   * perfectly on a page that scrolls as a whole. `scrollParent` walks up to
-   * the first ancestor that actually scrolls and falls back to the viewport,
-   * so both layouts behave the same.
-   *
-   * The `affix === false` branch RESETS rather than merely skipping: a bar
-   * toggled out of affix while stuck would otherwise keep its floating
+   * Passing `null` when affix is off RESETS rather than merely skipping: a
+   * bar toggled out of affix while stuck would otherwise keep its floating
    * ground with nothing underneath it to float over.
    */
-  useEffect(() => {
-    if (!isAffixEnabled) {
-      setIsAffixed(false);
-      return;
-    }
-    if (!node || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsAffixed(entry !== undefined && entry.intersectionRatio < 1),
-      { root: scrollParent(node), threshold: [1], rootMargin: "-1px 0px 0px 0px" },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [isAffixEnabled, node]);
+  const isAffixed = useIsStuck(isAffixEnabled ? node : null);
 
   return (
     <header
@@ -235,6 +188,20 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
         "data-[affixed]:bg-affix",
         !isAffixFade && "data-[affixed]:shadow-lg",
         !isAffixFade && "data-[affixed]:inset-shadow-[0_-1px_0_var(--ui-border-subtle)]",
+        // THE BLUR IS ON THE TEXT-BEARING ELEMENT ON PURPOSE, and it costs
+        // the labels nothing — measured 2026-09-04, because ui-craft rule 23
+        // said it should and the rule was wrong.
+        //
+        //   backdrop-filter: blur(4px)   0 glyph pixels changed
+        //   filter: blur(0.4px)          9.31% changed, peak delta 139/255
+        //
+        // `filter` filters the element, its own text included; this filters
+        // only what is BEHIND it and composites the bar's content on top
+        // untouched. And it is doing real work rather than decorating:
+        // --ui-bg-affix is the page fill at AFFIX_BG_ALPHA = 0.9, so a tenth
+        // of whatever scrolls under the bar shows through, and blurring it
+        // moves ~9.7/255 on average over hard-edged content. Rule 23 now
+        // carries the measurement.
         "supports-[backdrop-filter:blur(0px)]:data-[affixed]:backdrop-blur-sm",
         className,
       )}

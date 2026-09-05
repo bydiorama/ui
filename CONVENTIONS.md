@@ -189,6 +189,47 @@ three sizes rather than two components on one artboard. It was arrived at by
 getting it wrong: "Drawer Desktop" was read as a Sheet because it has no
 handle, which is inferring identity from an *absent* feature.
 
+### Stacking
+
+**Every surface that portals out of the tree declares a layer role, and the
+order between roles is fixed.** `check:overlays` refuses a portalled root with
+no `z-(--ui-z-*)`, and `check:utilities` refuses a bare `z-50`.
+
+| Role | Surfaces |
+| --- | --- |
+| `--ui-z-sticky` | the affixed `Header` |
+| `--ui-z-overlay` | `Sheet`, `Drawer` — scrim and panel together |
+| `--ui-z-modal` | `Modal` — scrim and panel together |
+| `--ui-z-toast` | the `Toast` viewport |
+| `--ui-z-dropdown` | `Popover`, `Menu`, `Select`, `MultiSelect`, `DatePicker`, `ContextMenu` |
+| `--ui-z-tooltip` | `Tooltip` |
+
+**The rule that generates that order: a surface outranks anything it can be
+opened from.** So popups sit above the dialogs and panels that contain their
+triggers, toasts sit above dialogs, and tooltips sit above everything.
+
+That reads backwards — `dropdown` above `modal` — until you see why it is
+forced rather than chosen. **Every one of these portals to `<body>`, so a
+`Select` opened inside a `Modal` is the modal's SIBLING, not its child.**
+Nothing but z-index separates them. Nest them instead and the popup is clipped
+by the dialog's own `overflow-y-auto`, which is why the flat order exists.
+
+Two things this was got wrong on the way, both worth not repeating:
+
+- **A surface with no z-index does not "layer by DOM order".** Five of them
+  shipped that way for months and it looked correct. A positive z-index in the
+  root stacking context paints above a z-auto positioned element *whatever* the
+  DOM order — so the affixed `Header`, the one thing here that takes a positive
+  z in the page, covered every one of them. Moving the bar from `z-30` to
+  `--ui-z-sticky` changed the number and not the category.
+- **The layers move as a set or not at all.** Binding the dialogs while
+  `dropdown` sat below `modal` would have put every `Select` inside a dialog
+  *behind* it — trading a visible defect for a subtler one.
+
+A consumer who cannot change the library still has the escape hatch that made
+this survivable: `isolation: isolate` on the shell that holds the bar confines
+its z-index, so portalled surfaces are compared against the shell as a whole.
+
 ## 7b. What is and is not a Button
 
 The five button types are each either **a fill with a matching edge**

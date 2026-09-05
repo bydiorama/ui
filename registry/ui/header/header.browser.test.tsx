@@ -693,3 +693,42 @@ describe("the affix fade variant separates with a ramp instead of an edge", () =
     expect(bars[1]!.querySelector('[data-slot="fade"]')).not.toBeNull();
   });
 });
+
+/**
+ * Turning `affix` OFF while the bar is stuck.
+ *
+ * The original inlined observer reset explicitly on this path. The move to
+ * `useIsStuck` re-derived it as "pass null", which SKIPPED instead of
+ * resetting until a test asked — so the bar kept `data-affixed`, and its
+ * floating ground, with nothing underneath it to float over.
+ */
+describe("affix turned off while the bar is stuck", () => {
+  function Bar({ isAffix }: { isAffix: boolean }) {
+    return (
+      <div data-testid="scroller" style={{ height: "160px", overflowY: "auto" }}>
+        <Header affix={isAffix}>
+          <Header.Nav label="Primary">
+            <Header.Item href="#agent">Agent</Header.Item>
+          </Header.Nav>
+        </Header>
+        <div style={{ height: "900px" }} />
+      </div>
+    );
+  }
+
+  test("the bar drops its affixed state instead of keeping it", async () => {
+    const c = mount(<Bar isAffix />);
+    const bar = () => c.querySelector<HTMLElement>('[data-slot="header"]')!;
+    const scroller = c.querySelector<HTMLElement>('[data-testid="scroller"]')!;
+
+    act(() => {
+      scroller.scrollTop = 300;
+    });
+    await vi.waitFor(() => expect(bar().hasAttribute("data-affixed")).toBe(true));
+
+    // Same scroll position; only the prop changes.
+    act(() => { root!.render(<Bar isAffix={false} />); });
+    await vi.waitFor(() => expect(bar().hasAttribute("data-affixed")).toBe(false));
+    expect(getComputedStyle(bar()).position, "and it is no longer pinned").not.toBe("sticky");
+  });
+});

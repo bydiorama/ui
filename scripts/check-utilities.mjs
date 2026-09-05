@@ -481,6 +481,68 @@ for (const { rel, isStory, declares, reads } of sources) {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * RULE D — cn() knows every spacing name the emitter mints.
+ *
+ * tailwind-merge only removes a conflicting utility it can CLASSIFY. A
+ * spacing name it has not been told about is not in the width group, so
+ * `cn("w-dialog-md", "w-full")` keeps BOTH classes, stylesheet order
+ * decides, and the §5 forwarding rule — a consumer's className wins — is
+ * quietly false for that one dimension. No build error, no missing CSS.
+ *
+ * That shipped twice. First for the base scale (`px-6` could not displace
+ * `px-md`), then again for the four purpose-named chrome widths when the
+ * emitter minted them and this list was not updated. Both times the fix was
+ * one line and the diagnosis was hours, because nothing points at it.
+ *
+ * cn.ts cannot derive the list at runtime: it SHIPS to consumers as
+ * `lib/cn.ts`, and `@bydiorama/tokens` is a workspace package that appears
+ * in registry/ only in stories and tests. So the list stays literal and the
+ * drift becomes a build failure here instead — the ground rule about typed
+ * sources over prose, applied to a comment that was already asking for it.
+ * ------------------------------------------------------------------ */
+
+const CN_PATH = join(ROOT, "registry/lib/cn/cn.ts");
+const cnSource = readFileSync(CN_PATH, "utf8");
+
+// The `spacing: [ … ]` array inside cn.ts's `extend.theme`.
+const spacingList = cnSource.match(/spacing:\s*\[([^\]]*)\]/);
+if (!spacingList) {
+  errors.push(
+    `registry/lib/cn/cn.ts: no theme.spacing list found. tailwind-merge cannot ` +
+      `classify this system's spacing names without it, so every consumer override ` +
+      `of a component's padding, width or gap silently keeps both classes.`,
+  );
+} else {
+  const registered = new Set(
+    [...spacingList[1].matchAll(/["']([^"']+)["']/g)].map((m) => m[1]),
+  );
+  const minted = [...declared]
+    .filter((name) => name.startsWith("--spacing-"))
+    .map((name) => name.slice("--spacing-".length));
+
+  for (const name of minted) {
+    if (!registered.has(name)) {
+      errors.push(
+        `registry/lib/cn/cn.ts: the theme mints --spacing-${name} but cn() does not ` +
+          `register "${name}". tailwind-merge cannot classify it, so ` +
+          `cn("w-${name}", "w-full") keeps BOTH and the cascade decides — a consumer ` +
+          `cannot override it through className. Add it to extend.theme.spacing.`,
+      );
+    }
+  }
+  // The other direction: a name registered here that the emitter stopped
+  // minting is a claim about a token that no longer exists.
+  for (const name of registered) {
+    if (!declared.has(`--spacing-${name}`)) {
+      errors.push(
+        `registry/lib/cn/cn.ts: registers "${name}" but the theme mints no ` +
+          `--spacing-${name}. Remove it, or the list is describing a token that is gone.`,
+      );
+    }
+  }
+}
+
 if (errors.length) {
   console.error("Utilities that do not do what they say:\n");
   for (const e of errors) console.error(`  - ${e}`);

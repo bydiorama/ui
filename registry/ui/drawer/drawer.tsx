@@ -262,7 +262,8 @@ function DrawerPanel({
       <BaseDialog.Backdrop
         data-slot="drawer-scrim"
         className={cn(
-          "fixed inset-0 bg-scrim",
+          // Scrim and panel take the SAME role, so the pair moves as one.
+          "fixed inset-0 z-(--ui-z-overlay) bg-scrim",
           "transition-opacity", motionStandard,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
@@ -285,7 +286,11 @@ function DrawerPanel({
           // panel inside its window, which is why all four corners are rounded
           // and why it keeps a border. A Sheet is edge-flush, so a border there
           // would be a seam against the viewport.
-          "fixed inset-x-xs bottom-xs flex flex-col overflow-clip rounded-lg",
+          //
+          // --ui-z-overlay, the same role as Sheet: the two are the same layer
+          // wearing different geometry. Carrying no z put both under the affix
+          // Header, which is a positive z in the root stacking context.
+          "fixed inset-x-xs bottom-xs z-(--ui-z-overlay) flex flex-col overflow-clip rounded-lg",
           // 80% is DERIVED — the sheet draws one drawer nearly filling its
           // window. A cap matters: the strip of scrim above the drawer is what
           // says it can be pushed away. With detents the tallest one IS the

@@ -1,4 +1,4 @@
-import { forwardRef, type HTMLAttributes } from "react";
+import { forwardRef, type CSSProperties, type HTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -134,3 +134,101 @@ export const Fade = forwardRef<HTMLSpanElement, FadeProps>(function Fade(
     />
   );
 });
+
+/* ------------------------------------------------------------------ *
+ * MASK MODE
+ * ------------------------------------------------------------------ */
+
+/**
+ * The ramp depth as a length, for the mask mode — the same three steps the
+ * painted band uses, spelled as tokens rather than utilities because these
+ * land in a `style` object.
+ */
+const DEPTH = {
+  sm: "var(--ui-space-lg)",
+  md: "var(--ui-space-2xl)",
+  lg: "var(--ui-space-4xl)",
+} as const satisfies Record<FadeSize, string>;
+
+/** Which way each side's ramp runs, from transparent AT the edge inward. */
+const MASK_DIRECTION = {
+  top: "to bottom",
+  bottom: "to top",
+  left: "to right",
+  right: "to left",
+} as const satisfies Record<FadeSide, string>;
+
+export interface FadeMaskOptions {
+  /**
+   * Which edges currently ramp. Shaped to take `useScrollEdges`' return
+   * directly, because "where is this container between its ends" is the
+   * question this answers: `style={fadeMask({ sides: edges })}`.
+   */
+  sides: Partial<Record<FadeSide, boolean>>;
+  /** Ramp depth, matching the painted band's scale. */
+  size?: FadeSize;
+}
+
+/**
+ * The GROUND-AGNOSTIC fade: mask declarations for a scrolling container.
+ *
+ * `Fade` paints a ramp from a known `--ui-bg-*` role, which is exact and
+ * cheap and requires knowing the ground. Two cases have no correct value for
+ * it — a brand-scoped surface whose fill is a project token rather than one
+ * of the four roles, and a canvas whose ground is document-defined — and for
+ * those a painted ramp is wrong at every setting. Masking cuts the content's
+ * own alpha instead, so it works over any ground, over media, and over mixed
+ * content.
+ *
+ * NOT A PROP ON `Fade`, and that is the constraint rather than an omission.
+ * `mask-image` applies to the element being masked; the thing that must fade
+ * is the CALLER'S SCROLLING CONTAINER, not a span layered above it. There is
+ * no drop-in span form, which is what the component's `knownGaps` has said
+ * since it shipped. So this is a style helper the container spreads.
+ *
+ * The trade, stated because it is the reason `Fade` is still the default:
+ * a mask cuts EVERYTHING in the container including any child that overlaps
+ * the band, it forces a compositing layer, and it cannot be transitioned as
+ * cheaply as the painted band's opacity. Reach for the painted `Fade` when
+ * the ground is a known role, and for this when it is not.
+ *
+ * @example
+ * const edges = useScrollEdges(node);
+ * <div ref={attach} style={fadeMask({ sides: edges })} className="overflow-auto">
+ */
+export function fadeMask({ sides, size = "md" }: FadeMaskOptions): CSSProperties {
+  const depth = DEPTH[size];
+
+  const layers = (Object.keys(MASK_DIRECTION) as FadeSide[])
+    .filter((side) => sides[side])
+    .map(
+      (side) =>
+        `linear-gradient(${MASK_DIRECTION[side]}, transparent 0, black ${depth})`,
+    );
+
+  // No active edge means NO mask at all rather than an empty list: an empty
+  // `mask-image` is `none` in some engines and a fully-transparent layer in
+  // others, and the second one hides the container's entire content.
+  if (layers.length === 0) return {};
+
+  const image = layers.join(", ");
+
+  // PREFIXED FIRST, STANDARD LAST — this order is load-bearing, not style.
+  // React writes these in insertion order, and in Chromium the prefixed and
+  // unprefixed composites are the same underlying property with different
+  // keyword sets, so whichever is written last wins. With the standard one
+  // first the computed value came back `source-in, source-in`: the legacy
+  // spelling had silently taken over in a browser that supports the modern
+  // one. It happens to mean the same thing here, and relying on that is how
+  // a fallback quietly becomes the implementation.
+  return {
+    WebkitMaskImage: image,
+    // INTERSECT, not the default `add`. Two ramps composited additively
+    // produce an opaque UNION — each layer is opaque exactly where the other
+    // fades — so a container ramping at both top and bottom shows no fade at
+    // all. `source-in` is the legacy spelling of the same operation.
+    WebkitMaskComposite: "source-in",
+    maskImage: image,
+    maskComposite: "intersect",
+  } as CSSProperties;
+}

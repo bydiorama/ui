@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-04-the-overlays-join-the-z-scale-and-the-ladder-is-reordered",
+  "date": "2026-09-04",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The z scale finishes the job 2026-08-31 started, and corrects it. That entry bound seven consumers, moved sticky to 100 and recorded the remaining five surfaces — Modal, Sheet, Drawer, Popover, Tooltip — as layering by portal order, 'which works'. It does not, and the library shipped the counter-example. A positive z-index in the ROOT stacking context paints above a z-auto positioned element whatever the DOM order, so the affix Header covered all five; moving the bar from z-30 to --ui-z-sticky changed the number and not the category. Measured with real components in Chromium: Header sticky/100, Sheet panel fixed/auto with no positive-z ancestor to body, and the topmost element in their overlap was the header. The consumer had been carrying `isolation: isolate` on four shell columns for this. FIRST, the ladder is reordered, because binding the five to it as it stood would have traded a visible defect for a subtler one: every anchored panel portals to <body>, so a Select opened inside a Modal is the modal's SIBLING (measured: panel.contains(listbox) === false), and dropdown sitting under modal would have put every popup inside a dialog behind it. The order is forced by that sibling relationship rather than chosen — a surface outranks anything it can be OPENED FROM — giving sticky 100, overlay 1000, modal 1100, toast 1200, dropdown 1300, tooltip 1400, with gaps of 100 to insert into. Toast above modal and below dropdown also settles the toast-above-dropdown consequence the previous entry flagged as undecided: a Menu opened from a toast action now clears the viewport. SECOND, the five surfaces bind: scrim and panel take the SAME role in all three dialog components so a veil can never separate from what it veils, and Popover and Tooltip take theirs on the Positioner, which is the portalled root, matching Menu and Select. Toast's row z-[calc(1000-…)] rebases to 10 — it is stack-local inside the viewport's own context and only read as a scale value because it carried dropdown's number. THIRD, the gate gains its missing half. check:utilities refuses a bare z-<n>, which is NEGATIVE: the five surfaces declared nothing at all and sailed through it. check:overlays now requires every portalled root to declare a z-(--ui-z-*) role, brace-aware so it reads the role out of Menu's and Select's spread props; probed failing-first by stripping Popover's. 13 portalled roots pass. The ordering is asserted twice (resolve.test.ts and its browser twin) and now names the composition each pair protects, so a reordering fails with the thing it breaks rather than with two numbers. Two new paint-order tests assert the EFFECT — the affix Header no longer covering a Sheet, a Menu opened inside that Sheet covering both, a Select inside a Modal clearing it — because every source-equality assertion can pass while the ladder ordering them is wrong, which is exactly how the previous ordering survived review. That was not hypothetical: this suite's source assertions passed against a stale stylesheet reading the OLD values, since they compare token and component from the same emit; only the paint-order block and the ladder test noticed. CONVENTIONS §7a gains the role table, the generating rule, and both traps.",
+  "affects": [
+    "token:--ui-z-sticky",
+    "token:--ui-z-overlay",
+    "token:--ui-z-modal",
+    "token:--ui-z-toast",
+    "token:--ui-z-dropdown",
+    "token:--ui-z-tooltip",
+    "registry:modal",
+    "registry:sheet",
+    "registry:drawer",
+    "registry:popover",
+    "registry:tooltip",
+    "registry:toast",
+    "gate:check-overlays"
+  ]
+}

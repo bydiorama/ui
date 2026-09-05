@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-04-the-fade-hooks-mask-mode-and-two-corrected-rules",
+  "date": "2026-09-04",
+  "item": "system",
+  "kind": "addition",
+  "summary": "The remaining four consumer-reported gaps, and two rules this repo was getting wrong. FIRST, cn's spacing list cannot drift any more. It is hand-maintained and its own comment said the emitter and the list must move together with nothing enforcing that; it cannot be derived at runtime because cn.ts SHIPS to consumers as lib/cn.ts while @bydiorama/tokens appears in registry/ only in stories and tests. So check:utilities gains rule D, which already imports toTailwindTheme() and now diffs every minted --spacing-* against the list in both directions — a minted name missing from cn() and a registered name the emitter no longer mints are both build failures. Probed failing-first each way. The misdiagnosis comments in sheet.tsx and modal.tsx are corrected: nothing was ever dropped, both classes survived unclassified and the cascade decided, and the cn tests now pin the arbitrary-value forms those comments promise. SECOND, Fade's two knownGaps close. useIsStuck and useScrollEdges ship as hooks, and Header drops its inlined IntersectionObserver onto the first — which is what caught the bug in the guard: with threshold [1] Chromium reports a PARKED bar as isIntersecting FALSE, because that flag tracks whether the ratio reached the lowest threshold rather than whether the boxes overlap, so the obvious display:none guard is never true and the hook silently never fires. The rect is what separates hidden from parked. useScrollEdges found the second: Math.abs on scrollLeft is necessary for RTL and wrong on its own, since the magnitude is the distance from the INLINE start and in RTL that is the physical right — an abs-only version reports an RTL list at rest as flush left when it is flush right, swapping both fades. Fade sides are physical, so the mapping happens in the hook. The content-change trap is pinned too: rows appended to an already-full list resize nothing, so a ResizeObserver alone never fires. THIRD, mask mode ships as fadeMask, a style helper rather than a prop, because a mask applies to the element being masked and that is the caller's scrolling container. Measured trap: prefixed and standard mask-composite are one property with two keyword sets, so writing the standard one first lets -webkit-mask-composite win in Chromium and the computed value comes back 'source-in' — a fallback silently in charge of a browser that supports the modern property. FOURTH, Header's page-ground invariant is stated rather than made configurable: the ramp's ground is only correct if the bar's own fill moves with it. FIFTH, ui-craft rule 23 is CORRECTED rather than excepted. It banned backdrop-filter on text-bearing elements alongside filter; measured on the affixed Header, backdrop-filter: blur(4px) changes ZERO glyph pixels while filter: blur(0.4px) changes 9.31% with a peak delta of 139/255. filter filters the element including its text, backdrop-filter filters only what is behind it. The rule banned a real technique on a plausible mechanism nobody had measured, which is the failure the rule itself is about.",
+  "affects": [
+    "registry:cn",
+    "registry:sheet",
+    "registry:modal",
+    "registry:fade",
+    "registry:header",
+    "registry:use-is-stuck",
+    "registry:use-scroll-edges",
+    "registry:ui-craft",
+    "gate:check-utilities"
+  ]
+}

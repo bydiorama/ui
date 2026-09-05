@@ -200,6 +200,11 @@ function TooltipContent({
         alignOffset={alignOffset}
         // Keeps the chip off the viewport edge when it flips or shifts.
         collisionPadding={8}
+        // The POSITIONER carries the layer — it is the portalled root.
+        // --ui-z-tooltip tops the ladder because a tooltip attaches to
+        // controls on every other surface, including items inside an open
+        // Menu, and it is never the thing being covered.
+        className="z-(--ui-z-tooltip)"
       >
         <BaseTooltip.Popup
           {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTooltip.Popup>>(rest)}

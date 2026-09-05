@@ -26,18 +26,18 @@ read for compliance. This file carries only what is not yet true.
 
 Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 
-## Status — 2026-09-02
+## Status — 2026-09-04
 
 | | |
 |---|---:|
-| Distributed items (`ui.manifest.json`) | 53 |
+| Distributed items (`ui.manifest.json`) | 55 |
 | — components | 45 |
-| — lib / hook / font / skill | 5 / 1 / 1 / 1 |
-| Generated registry items (`r/*.json`) | 53 |
-| Ledger entries / ADRs | 195 / 19 |
+| — lib / hook / font / skill | 5 / 3 / 1 / 1 |
+| Generated registry items (`r/*.json`) | 55 |
+| Ledger entries / ADRs | 197 / 19 |
 | `pnpm verify` gates | 18, green |
 | Node tests | 112, green |
-| Browser tests — contract + story a11y | 1240 across 99 files, green |
+| Browser tests — contract + story a11y | 1263 across 102 files, green |
 | Declared design gaps | 171, across 45 of 45 docs |
 | Visual baselines | 180 (45 cases x 2 schemes, darwin + linux), all current |
 | Consumer drift (service-portal, 26 items) | not re-measured since 2026-08-16 — needs a consumer checkout |
@@ -224,6 +224,78 @@ Its exit gate is untouched:
 - [x] **MCP.** Reachable now via the public registry, which is what §4.5 item 2
       actually asked for. Per-component doc data (`*.doc.ts`, item 3) exists and
       feeds `design:gaps` and the contrast gate; it has no site consuming it yet.
+
+### Consumer-reported gaps · **all five closed**
+
+The service portal filed five upstream gaps out of its Fade adoption, written
+against `8ea7fec`. Two were answered on 2026-08-31; re-measured against
+`a99099b` on 2026-09-04, one of those two had not actually closed. All five
+are closed now, and the work turned up two rules this repo was getting wrong
+in its own source — both corrected by measurement rather than by argument.
+
+- [x] **The z scale has consumers, and the ladder is right** (2026-09-04).
+      `d3308bf` bound seven of them and recorded the remaining five — Modal,
+      Sheet, Drawer, Popover, Tooltip — as layering by portal order, "which
+      works". It does not: a positive z-index in the root stacking context
+      paints above a z-auto positioned element whatever the DOM order, so the
+      affix `Header` covered all five, exactly as it had at `z-30`. Measured
+      before the fix with real components — header `sticky/100`, sheet panel
+      `fixed/auto`, header topmost in their overlap. The ladder had to be
+      reordered first, because binding the five while `dropdown` sat under
+      `modal` would have put every `Select` inside a dialog behind it. Now
+      `sticky 100 < overlay 1000 < modal 1100 < toast 1200 < dropdown 1300 <
+      tooltip 1400`, forced by one rule: a surface outranks anything it can be
+      opened from. `check:overlays` gained the positive half of the gate, and
+      two paint-order tests assert the effect rather than the source.
+- [x] **`cn` merges the purpose-named chrome widths** (`d3308bf`).
+- [x] **The `cn` spacing list cannot drift** (2026-09-04). It was hand-maintained, and
+      its own comment says the emitter and the list must move together with
+      nothing enforcing that — the failure mode is silent. It cannot be derived
+      at runtime: `cn.ts` ships to consumers as `lib/cn.ts`, and
+      `@bydiorama/tokens` appears in `registry/` only in stories and tests. So
+      the drift becomes a build failure instead. `check:utilities` already
+      imports `toTailwindTheme()` and extracts every emitted property, so it is
+      three lines from knowing the answer, so rule D now diffs the minted
+      names against the list in BOTH directions and was probed failing-first
+      each way. The misdiagnosis comments at `sheet.tsx` and `modal.tsx` are
+      corrected: nothing was ever "dropped", both classes survived
+      unclassified and the cascade decided.
+- [x] **Fade's two recorded `knownGaps`** (2026-09-04). Scroll binding was deferred "until a
+      second consumer exists"; the portal has six across both axes and wrote
+      two hooks (`useIsStuck`, `useScrollEdges`) offered upstream as-is. Adopt
+      them under `registry/hooks/` and refactor `Header` onto `useIsStuck` —
+      the bar already implements that exact technique inline, so the refactor
+      proves the hook against a shipped consumer. Carry the two traps found in
+      use, and both are pinned by tests. Two more surfaced only when
+      measured. With `threshold: [1]` Chromium reports a PARKED bar as
+      `isIntersecting: false` — that flag tracks whether the ratio reached the
+      lowest threshold, not whether the boxes overlap — so the obvious
+      `display: none` guard is never true and the hook silently never fires;
+      the empty rect is what separates hidden from parked. And `Math.abs` on
+      an RTL `scrollLeft` is necessary and not sufficient: the magnitude is
+      the distance from the INLINE start, which in RTL is the physical right,
+      so an abs-only version swaps both horizontal fades. Mask mode shipped as
+      `fadeMask`, a style helper rather than a prop, because a mask applies to
+      the element being masked.
+- [x] **The `Header` ground invariant is stated** (2026-09-04). The bar hardcodes
+      `ground="base"` and that is right, but nothing tells a consumer their
+      page must be `--ui-bg-base`. Two portal shells disagreed and nothing
+      said so; in dark the two grounds are 20% apart and the ramp is a visible
+      smudge. Documented rather than made configurable — moving the fade's
+      ground without the bar's own fill is worse than the hardcoding.
+- [x] **The affix blur is kept and RULE 23 IS CORRECTED** (2026-09-04). The
+      bar puts a persistent `backdrop-blur-sm` on the `<header>` carrying the
+      nav labels, which `ui-craft` rule 23 forbade. Measured in Chromium
+      rather than argued, and the rule was wrong: `backdrop-filter: blur(4px)`
+      on a text-bearing element changes **zero** glyph pixels, while
+      `filter: blur(0.4px)` on the same element changes 9.31% of them with a
+      peak delta of 139/255. `filter` filters the element including its text;
+      `backdrop-filter` filters only what is behind it and composites the
+      element's content on top untouched. The blur also earns its place —
+      `--ui-bg-affix` is the page fill at 0.9, and blurring what shows through
+      moves ~9.7/255 over hard-edged content. Rule 23 now carries both
+      numbers. It had banned a real technique on a plausible mechanism nobody
+      had measured, which is the failure the rule itself is about.
 
 ## Phase 5 — governance and agent ops · **partial**
 

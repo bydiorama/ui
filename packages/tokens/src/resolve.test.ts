@@ -762,15 +762,21 @@ test("each field pair separates on its OWN ground, in both schemes", () => {
   }
 });
 
-test("the z scale orders chrome under every floating surface", () => {
-  // The scale shipped unconsumed for months, and an unconsumed token is a
-  // guess: sticky sat at 1100, above dropdown, while every shipped component
-  // ordered them the other way (the affix Header under the portalled
-  // panels — which are BODY siblings, so a menu opened from the bar itself
-  // would have slid under it). This asserts the ORDERING, not the numbers,
-  // in the same spirit as the border-stack test: names are not guarantees.
+test("the z scale orders every surface under the surfaces it can open", () => {
+  // THIS ARRAY IS THE SPECIFICATION. The scale shipped unconsumed for months
+  // and an unconsumed token is a guess; both guesses it made were wrong.
+  // First sticky sat above dropdown, so a Menu opened from the affix bar
+  // would have slid under the bar. Then, with sticky corrected, dropdown sat
+  // under modal — which reads natural and breaks every Select inside a
+  // Modal the moment Modal takes its own role, because the two are BODY
+  // SIBLINGS and only z-index separates them.
+  //
+  // The order below is forced by that sibling relationship: a surface
+  // outranks anything it can be OPENED FROM. Ordering is asserted, not the
+  // numbers, in the same spirit as the border-stack test: names are not
+  // guarantees. base.ts reads each rung against the composition behind it.
   const z = (name: string) => Number(FIXED_TOKEN_VALUES[`--ui-z-${name}` as FixedToken]);
-  const ladder = ["below", "base", "sticky", "dropdown", "overlay", "modal", "toast", "tooltip"];
+  const ladder = ["below", "base", "sticky", "overlay", "modal", "toast", "dropdown", "tooltip"];
   for (const name of ladder) assert.ok(Number.isFinite(z(name)), `--ui-z-${name} is numeric`);
   for (let i = 1; i < ladder.length; i++) {
     assert.ok(
@@ -778,4 +784,17 @@ test("the z scale orders chrome under every floating surface", () => {
       `--ui-z-${ladder[i - 1]} (${z(ladder[i - 1]!)}) must sit under --ui-z-${ladder[i]} (${z(ladder[i]!)})`,
     );
   }
+
+  // The pairs the ordering exists for, named so a reordering fails with the
+  // COMPOSITION it breaks rather than with two numbers.
+  const above = (top: string, bottom: string, why: string) =>
+    assert.ok(z(top) > z(bottom), `--ui-z-${top} must sit above --ui-z-${bottom}: ${why}`);
+  above("dropdown", "sticky", "a Menu opened from the affix Header is a body sibling of it");
+  above("dropdown", "overlay", "the Sheet navigation composition opens Menus");
+  above("dropdown", "modal", "a dialog form holds Selects");
+  above("dropdown", "toast", "a toast action can open a Menu");
+  above("toast", "modal", "a notification has to be seen over a dialog");
+  above("modal", "overlay", "a confirmation is raised from a panel");
+  above("tooltip", "dropdown", "a tooltip attaches to controls on every other surface");
+  above("overlay", "sticky", "the affix Header must not cover a Sheet — the defect this fixed");
 });

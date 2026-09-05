@@ -142,7 +142,9 @@ function ModalSurface({ children, className, size = "md", container, ...rest }: 
       <BaseDialog.Backdrop
         data-slot="modal-scrim"
         className={cn(
-          "fixed inset-0 bg-scrim",
+          // Scrim and panel take the SAME role, so the pair moves as one and
+          // nothing can ever paint between the veil and the thing it veils.
+          "fixed inset-0 z-(--ui-z-modal) bg-scrim",
           "transition-opacity", motionMicro,
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
@@ -152,7 +154,12 @@ function ModalSurface({ children, className, size = "md", container, ...rest }: 
         data-slot="modal-surface"
         data-size={size}
         className={cn(
-          "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+          // --ui-z-modal, above overlay because a confirmation is raised FROM
+          // a Sheet, and below dropdown because this dialog's own form holds
+          // Selects — which portal to <body> and are this panel's SIBLINGS,
+          // so only the scale keeps them in front. Carrying no z at all was
+          // the bug: it put the whole dialog under the affix Header.
+          "fixed top-1/2 left-1/2 z-(--ui-z-modal) -translate-x-1/2 -translate-y-1/2",
           // `w-full` against the containing block, floored so it cannot collapse.
           // 100vw was wrong: a `fixed` element resolves against the nearest
           // TRANSFORMED ancestor, not the viewport, and Storybook's docs blocks
@@ -160,9 +167,18 @@ function ModalSurface({ children, className, size = "md", container, ...rest }: 
           // cell instead of the screen.
           //
           // There is no second max-width here. A `max-w-[calc(100vw-2rem)]`
-          // sat in this list and never once applied: tailwind-merge keeps the
-          // LAST max-width, which is always the size below it. `w-full` is
-          // what actually holds the dialog inside its containing block.
+          // sat in this list and never once applied — but not for the reason
+          // recorded here until 2026-09-04, which blamed tailwind-merge for
+          // keeping the LAST max-width. It was keeping BOTH: `dialog-md` and
+          // `dialog-lg` were unregistered in cn.ts, so the merger could not
+          // classify them and stylesheet order decided. The symptom was real
+          // and the mechanism was wrong, which is the worse half to get wrong
+          // — it pointed the fix at ordering instead of at the merge config.
+          //
+          // With them registered the merge works, so a second max-width now
+          // really would displace the size. `w-full` is what holds the dialog
+          // inside its containing block; a viewport cap would have to be one
+          // class using `min()`, not two.
           "flex w-full min-w-80 flex-col gap-2xl rounded-lg p-lg",
           SIZE[size],
           // bg-surface, not bg-elevated: the scrim already separates the

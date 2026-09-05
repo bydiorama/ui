@@ -135,6 +135,13 @@ function PopoverPanel({
         alignOffset={alignOffset}
         // Keeps the panel off the viewport edge when it flips or shifts.
         collisionPadding={8}
+        // The POSITIONER carries the layer, not the popup — it is the
+        // portalled root, and the popup inside it is positioned against it.
+        // Same placement Menu, Select, MultiSelect, DatePicker and
+        // ContextMenu use. --ui-z-dropdown sits above modal and overlay
+        // because a Popover opened from inside a Sheet or a dialog is that
+        // surface's BODY SIBLING, so only the scale keeps it in front.
+        className="z-(--ui-z-dropdown)"
       >
         <BasePopover.Popup
           {...forBaseUI<ComponentPropsWithoutRef<typeof BasePopover.Popup>>(rest)}

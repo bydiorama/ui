@@ -12,9 +12,13 @@
 // stroke equivalent of check:motion's "no literal durations".
 //
 // Zero is allowed. "No stroke" is not a weight a brand could want to change.
-// Offsets are lengths, not widths, and are not checked here; the FOCUS offset
-// has its own named utility (`outline-offset-focus`) because it is part of
-// the focus indicator's geometry.
+// Offsets are lengths, not widths, and are not checked here (`outline-offset`
+// is out of scope: ADR 0020 tokenised no general offset scale); the one
+// exception is `ring-offset`, whose CSS property is `--tw-ring-offset-WIDTH`
+// despite the name — it draws a solid layer inside the ring's box-shadow
+// stack, the same geometry a border width does. The FOCUS offset has its own
+// named utility (`outline-offset-focus`) because it is part of the focus
+// indicator's geometry.
 
 import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -24,12 +28,23 @@ import { classesIn, walk } from "./lib/classes.mjs";
 /** File → reason. Same contract as check:controls: one line, one sentence. */
 const ALLOWED = new Map([]);
 
-/** A width utility with a literal value: `border-2`, `ring-[1.5px]`,
- *  `outline-(length:--x)`, `divide-x-4`. Colours never match — they are
- *  words or arbitrary colours, and a literal width starts with a digit or is
- *  an arbitrary LENGTH. */
+/**
+ * A width utility with a literal value: `border-2`, `ring-[1.5px]`,
+ * `outline-(length:--x)`, `divide-x-4`, `ring-offset-2`. Colours never
+ * match — they are words or arbitrary colours, and a literal width starts
+ * with a digit, a decimal point, a CSS width keyword, or is an arbitrary
+ * LENGTH.
+ *
+ * Probed against three bypasses a review found: `border-[.5px]` (the
+ * bracket branch required a LEADING digit, so a bare decimal point slipped
+ * through), `border-[thin]` (a CSS border-width keyword, not a number, so
+ * the digit-only bracket branch never matched a keyword at all), and
+ * `ring-offset-2` (its own prefix was simply absent from the alternation —
+ * `ring-` matched, then failed on `offset-2`, and no other alternative
+ * overlapped the text, so the whole anchored match failed silently).
+ */
 const LITERAL_WIDTH =
-  /^-?(?:border(?:-[xytrbles])?|divide-[xy]|ring|inset-ring|outline)-(?:(\d+(?:\.\d+)?)|\[(?:length:)?(\d[^\]]*)\]|\(length:[^)]+\))$/;
+  /^-?(?:border(?:-[xytrbles])?|divide-[xy]|ring-offset|ring|inset-ring|outline)-(?:(\d+(?:\.\d+)?)|\[(?:length:)?([\d.][^\]]*|thin|medium|thick)\]|\(length:[^)]+\))$/;
 
 const errors = [];
 const files = walk(join(ROOT, "registry")).filter((f) => !/\.stories\.tsx$/.test(f));

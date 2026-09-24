@@ -124,6 +124,25 @@ export const SEED_BOUNDS = {
 export const clamp = (n: number, min: number, max: number) => (n < min ? min : n > max ? max : n);
 
 /**
+ * Every numeric knob's real gate, run before `clamp` ever sees the value.
+ *
+ * A seed is untyped JSON at the boundary — an author-supplied theme, not a
+ * TypeScript literal — so `"2"`, `null` or `NaN` arrive as legitimate input.
+ * `clamp` assumed a finite `number` and either threw (`"2".toFixed is not a
+ * function`, one call site up the chain) or propagated `NaN` into a composite
+ * CSS value with no signal — a `NaN`-wide focus ring is emitted, not a build
+ * failure, and it guards nothing.
+ *
+ * Deliberately NOT a coercing parse: `Number("2")` is tempting, but a knob
+ * typed `number` that arrives as a string is a seed built by hand or by a
+ * broken editor, and guessing at "2px" or a locale-formatted "2,5" invites
+ * more failure modes than it fixes. Anything short of a genuine finite
+ * `number` falls back; `validateSeed` is what tells the author it happened.
+ */
+export const seedNumber = (value: unknown, fallback: number): number =>
+  typeof value === "number" && Number.isFinite(value) ? value : fallback;
+
+/**
  * Characters a seed value may contain.
  *
  * A hard security boundary inherited from the previous generation, moved to
@@ -153,6 +172,16 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
     }
   };
 
+  /** `seedNumber` recovers silently, by design (a build must never throw on
+   *  a bad brand seed); this is what tells the author it happened, so
+   *  "borderWidthPx: '2'" reads as their bug rather than a mystery default. */
+  const checkNumber = (path: string, value: unknown) => {
+    if (value === undefined) return;
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      issues.push({ path, message: `must be a finite number — the resolver fell back to its default` });
+    }
+  };
+
   const requiredColors: ReadonlyArray<keyof SeedColors> = [
     "bg", "surface", "muted", "textPrimary", "textMuted", "border", "accent",
   ];
@@ -174,6 +203,18 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
   checkValue("typography.fontDisplay", seed.typography?.fontDisplay);
   checkValue("chrome.sectionGap", seed.chrome?.sectionGap);
   checkValue("chrome.logoHeight", seed.chrome?.logoHeight);
+
+  checkNumber("typography.baseSize", seed.typography?.baseSize);
+  checkNumber("typography.ratio", seed.typography?.ratio);
+  checkNumber("chrome.contentWidthPx", seed.chrome?.contentWidthPx);
+  checkNumber("shape.borderWidthPx", seed.shape?.borderWidthPx);
+  checkNumber("shape.focusRingWidthPx", seed.shape?.focusRingWidthPx);
+  for (const key of ["sm", "md", "lg", "xl", "2xl", "pill"] as const) {
+    checkNumber(`shape.radiusPx.${key}`, seed.shape?.radiusPx?.[key]);
+  }
+  for (const name of ["regular", "book", "medium", "semibold", "bold"] as const) {
+    checkNumber(`typography.weights.${name}`, seed.typography?.weights?.[name]);
+  }
 
   return issues;
 }

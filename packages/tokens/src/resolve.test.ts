@@ -860,6 +860,22 @@ test("theme zero's focus ring is unchanged by being composed", () => {
   assert.equal(dark["--ui-focus-ring"], "0 0 0 2px #423E3A, 0 0 0 4px #79B8D3");
 });
 
+test("an authored --ui-focus-ring is discarded but never silently (review finding I1)", () => {
+  // It is derived-only: always recomposed from -color/-width/-offset, so it
+  // can never disagree with the tokens that state its geometry. This is what
+  // stops that recomposition from being a SILENT overwrite of an author's
+  // intent — theme zero itself used to author this exact string twice.
+  const { theme, issues } = resolveTheme(THEME_ZERO, {
+    scheme: "light",
+    authored: { ...ZERO_AUTHORED.light, "--ui-focus-ring": "0 0 0 99px red" },
+  });
+  assert.notEqual(theme["--ui-focus-ring"], "0 0 0 99px red", "the composite always wins");
+  assert.ok(
+    issues.some((i) => i.path === "authored.--ui-focus-ring"),
+    "discarding an authored value must be reported, not silent",
+  );
+});
+
 // ── Type roles (ADR 0020 §3) ────────────────────────────────────────────────
 
 
@@ -891,6 +907,39 @@ test("weights clamp to the named range", () => {
   const { theme } = resolveTheme({ ...THEME_ZERO, typography: { weights: { regular: 20, bold: 2000 } } }, { scheme: "light" });
   assert.equal(theme["--ui-weight-regular"], String(SEED_BOUNDS.weight.min));
   assert.equal(theme["--ui-weight-bold"], String(SEED_BOUNDS.weight.max));
+});
+
+// ── Malformed numeric knobs (ADR 0020, review finding C1) ───────────────────
+//
+// A seed is untyped JSON at the boundary, not a TypeScript literal, so a
+// non-numeric value is a real input, not a type error someone can catch
+// upstream. Before this, `borderWidthPx: "2"` threw ("2".toFixed is not a
+// function — clamp assumed a finite number), and `focusRingWidthPx: NaN`
+// silently produced a NaN-wide focus ring: a control with no visible
+// indicator at all, and no build error to find it by.
+
+test("a non-numeric borderWidthPx falls back to the default instead of throwing", () => {
+  assert.doesNotThrow(() => resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: "2" as unknown as number } }, { scheme: "light" }));
+  const { theme, issues } = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: "2" as unknown as number } }, { scheme: "light" });
+  assert.equal(theme["--ui-stroke-default"], `${SEED_BOUNDS.borderWidthPx.default}px`);
+  assert.ok(issues.some((i) => i.path === "shape.borderWidthPx"), "validateSeed must report the bad value");
+});
+
+test("a NaN focusRingWidthPx falls back to the default instead of poisoning the focus ring", () => {
+  const { theme, issues } = resolveTheme({ ...THEME_ZERO, shape: { focusRingWidthPx: Number.NaN } }, { scheme: "light" });
+  assert.equal(theme["--ui-focus-ring-width"], `${SEED_BOUNDS.focusRingWidthPx.default}px`);
+  assert.doesNotMatch(theme["--ui-focus-ring"], /NaN/);
+  assert.ok(issues.some((i) => i.path === "shape.focusRingWidthPx"));
+});
+
+test("a non-numeric weight falls back to that step's ladder default", () => {
+  const { theme, issues } = resolveTheme(
+    { ...THEME_ZERO, typography: { weights: { bold: "heavy" as unknown as number } } },
+    { scheme: "light" },
+  );
+  assert.equal(theme["--ui-weight-bold"], String(WEIGHT_LADDER.bold));
+  assert.doesNotMatch(theme["--ui-text-title-sm-weight"], /NaN/);
+  assert.ok(issues.some((i) => i.path === "typography.weights.bold"));
 });
 
 test("tracking: 'font' zeroes every tracking, role and ladder alike", () => {

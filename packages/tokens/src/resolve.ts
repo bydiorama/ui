@@ -22,7 +22,7 @@ import {
   readableInkOn, shiftL, toOklch, towardL, withAlpha,
 } from "./color.ts";
 import {
-  SEED_BOUNDS, clamp, validateSeed,
+  SEED_BOUNDS, clamp, seedNumber, validateSeed,
   type SeedColors, type SeedValidationIssue, type ThemeSeed, type WeightName,
 } from "./seed.ts";
 
@@ -256,7 +256,7 @@ function fluid(minRem: number, maxRem: number): string {
 
 function typeScale(seed: ThemeSeed): Record<keyof typeof TYPE_ROLES, string> {
   const baseSize = clamp(
-    seed.typography?.baseSize ?? SEED_BOUNDS.baseSize.default,
+    seedNumber(seed.typography?.baseSize, SEED_BOUNDS.baseSize.default),
     SEED_BOUNDS.baseSize.min,
     SEED_BOUNDS.baseSize.max,
   );
@@ -320,7 +320,7 @@ function typeAttributes(seed: ThemeSeed): Record<TypeAttributeToken, string> {
   const weights = Object.fromEntries(
     (Object.keys(WEIGHT_LADDER) as WeightName[]).map((name) => [
       name,
-      Math.round(clamp(knobs[name] ?? WEIGHT_LADDER[name], SEED_BOUNDS.weight.min, SEED_BOUNDS.weight.max)),
+      Math.round(clamp(seedNumber(knobs[name], WEIGHT_LADDER[name]), SEED_BOUNDS.weight.min, SEED_BOUNDS.weight.max)),
     ]),
   ) as Record<WeightName, number>;
   const ownSpacing = seed.typography?.tracking === "font";
@@ -448,7 +448,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   const shape = seed.shape ?? {};
   const px = (n: number) => (n === 0 ? "0" : `${Math.round(n)}px`);
   const radiusKnob = (key: keyof typeof SEED_BOUNDS.radiusPx) =>
-    clamp(shape.radiusPx?.[key] ?? SEED_BOUNDS.radiusPx[key].default, SEED_BOUNDS.radiusPx[key].min, SEED_BOUNDS.radiusPx[key].max);
+    clamp(seedNumber(shape.radiusPx?.[key], SEED_BOUNDS.radiusPx[key].default), SEED_BOUNDS.radiusPx[key].min, SEED_BOUNDS.radiusPx[key].max);
   const radius = {
     sm: radiusKnob("sm"), md: radiusKnob("md"), lg: radiusKnob("lg"),
     xl: radiusKnob("xl"), "2xl": radiusKnob("2xl"), pill: radiusKnob("pill"),
@@ -457,8 +457,8 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   // Strokes (ADR 0020 §2). NOT through `px()`, which rounds — it would turn
   // the 1.5px hairline into 2px. A width is emitted to two decimals.
   const strokePx = (n: number) => `${Number(n.toFixed(2))}px`;
-  const strokeBase = clamp(shape.borderWidthPx ?? SEED_BOUNDS.borderWidthPx.default, SEED_BOUNDS.borderWidthPx.min, SEED_BOUNDS.borderWidthPx.max);
-  const focusWidth = clamp(shape.focusRingWidthPx ?? SEED_BOUNDS.focusRingWidthPx.default, SEED_BOUNDS.focusRingWidthPx.min, SEED_BOUNDS.focusRingWidthPx.max);
+  const strokeBase = clamp(seedNumber(shape.borderWidthPx, SEED_BOUNDS.borderWidthPx.default), SEED_BOUNDS.borderWidthPx.min, SEED_BOUNDS.borderWidthPx.max);
+  const focusWidth = clamp(seedNumber(shape.focusRingWidthPx, SEED_BOUNDS.focusRingWidthPx.default), SEED_BOUNDS.focusRingWidthPx.min, SEED_BOUNDS.focusRingWidthPx.max);
 
   // Layered translucent shadows (CONVENTIONS §6, ADR 0016).
   // The xl geometry is the approved modal's shadow; sm is the raised-control
@@ -922,7 +922,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // content-heavy dialogs; no second width is drawn.
     "--ui-dialog-width-md": "26rem",
     "--ui-dialog-width-lg": "40rem",
-    "--ui-content-width": `${clamp(seed.chrome?.contentWidthPx ?? SEED_BOUNDS.contentWidthPx.default, SEED_BOUNDS.contentWidthPx.min, SEED_BOUNDS.contentWidthPx.max)}px`,
+    "--ui-content-width": `${clamp(seedNumber(seed.chrome?.contentWidthPx, SEED_BOUNDS.contentWidthPx.default), SEED_BOUNDS.contentWidthPx.min, SEED_BOUNDS.contentWidthPx.max)}px`,
     "--ui-section-gap": seed.chrome?.sectionGap ?? "4rem",
     "--ui-logo-height": seed.chrome?.logoHeight ?? "2rem",
   };
@@ -998,11 +998,25 @@ export function resolveTheme(seed: ThemeSeed, options: ResolveOptions = {}): Res
     : derive(seed, colors);
   const adjustments = auditContrast(theme);
 
+  // `--ui-focus-ring` is DERIVED-ONLY (ADR 0020 §2): it always gets
+  // recomposed below, from its own colour/width/offset, so it can never
+  // disagree with the tokens that state its geometry. An authored value here
+  // would be silently discarded by that recomposition — which is exactly how
+  // theme zero used to author this string by hand, twice, beside the two
+  // tokens it duplicated. Flagged rather than silent, so the next edit to an
+  // authored map does not reintroduce that trap unnoticed.
+  if (options.authored && "--ui-focus-ring" in options.authored) {
+    issues.push({
+      path: "authored.--ui-focus-ring",
+      message:
+        "is derived from --ui-focus-ring-color, -width and -offset and is always recomposed — " +
+        "author --ui-focus-ring-color instead, this value is discarded",
+    });
+  }
+
   // The composite ring LAST: after an authored ring colour or page colour
   // has landed and after the audit may have nudged the colour, so the
   // box-shadow draws exactly the colour and width the other tokens state.
-  // Theme zero used to author this string by hand, twice, beside the two
-  // tokens it duplicated.
   theme["--ui-focus-ring"] = focusRing(
     theme["--ui-bg-base"],
     theme["--ui-focus-ring-color"],

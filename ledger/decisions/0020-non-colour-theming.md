@@ -199,3 +199,43 @@ guess, and now it is a failing one.
 - Consumers must pick up the regenerated token CSS **before** syncing
   components that read the new tokens. An undefined `--ui-stroke-*` makes a
   ring width invalid, and the edge disappears. Each ledger entry says so.
+
+## Amendment — hardening after independent validation (2026-09-24)
+
+An anti-skill pass on the implementation found six gaps, all closed in the
+same-day ledger entry `non-colour-theming-hardening-after-independent`:
+
+1. A malformed brand seed (a numeric knob arriving as a string or `NaN` —
+   real input at the JSON boundary, not a type error) crashed the resolver
+   or produced a `NaN`-wide focus ring with no signal. `seedNumber()` now
+   gates every numeric knob before `clamp()`, falling back to the knob's
+   default on anything short of a genuine finite number; `validateSeed`
+   reports it.
+2. An authored `--ui-focus-ring` — the exact string theme zero used to
+   hand-author twice, which point 2 above retired — was silently discarded
+   by the unconditional recomposition. Discarding it is still correct (the
+   composite must never disagree with its own parts); it is now reported as
+   an issue instead of silent, so the trap cannot return unnoticed.
+3. `toCss()` baked the density defaults into the block every scope
+   re-declares, so a brand scope emitted the documented way
+   (`includeBase: true`, for `[data-ui-theme="acme"]`) silently reset
+   density back to default for anything under it — an element's own custom
+   property always beats an inherited one. Fixed by excluding
+   density-sensitive keys from every scope but `:root`.
+4. `check:strokes` missed `border-[.5px]`, `border-[thin]` and
+   `ring-offset-2`; all three now caught.
+5. Density coverage extended from Button/Input/chrome-control to the whole
+   field family (Select, Multiselect, DatePicker, Sidebar search,
+   Textarea), and the portal-forwarding proof from Modal alone to Sheet,
+   Drawer, Popover and Menu.
+6. A new `type-attributes.browser.test.tsx` proves `typography.weights` and
+   `typography.tracking` reach real computed styles, mirroring
+   `stroke-scale.browser.test.tsx`.
+
+**Deliberately not fixed:** `check:strokes` still does not flag a literal
+numeric `outline-offset-<n>`. It shares `ring-offset`'s bug shape exactly,
+but two components (`chat-questionnaire`'s selection ring,
+`card-sorting`'s lift/drag ring) already use one for a non-focus purpose
+with no token to reach for — closing the gap needs a design decision (a
+general offset scale, or a declared exception), not a rule change bundled
+into a hardening pass.

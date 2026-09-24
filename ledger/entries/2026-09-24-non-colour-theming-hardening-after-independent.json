@@ -1,0 +1,31 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-24-non-colour-theming-hardening-after-independent",
+  "date": "2026-09-24",
+  "item": "system",
+  "kind": "fix",
+  "summary": "An anti-skill validation pass on the ADR 0020 branch (PR #15) found six real gaps in the three implementation commits; all six are fixed here, each proven failing-first. (1) A malformed brand seed crashed the resolver or poisoned a composite token with NaN: `borderWidthPx: \"2\"` threw ('2'.toFixed is not a function) and `focusRingWidthPx: NaN` produced `--ui-focus-ring-width: NaNpx` with no signal. `seedNumber()` now gates every numeric knob before clamp() sees it — a non-finite value falls back to the knob's default, deliberately WITHOUT coercing numeric strings ('2' is not silently parsed to 2, since that invites '2px'/locale-format ambiguity — it falls back to the default instead, loudly, via (2). `validateSeed` reports every non-numeric borderWidthPx, focusRingWidthPx, baseSize, contentWidthPx, radiusPx.* and typography.weights.*, so a bad seed is diagnosable instead of silently degraded. (3) `resolveTheme` recomposes `--ui-focus-ring` from its own parts unconditionally — correct, since it must never disagree with its own width/offset/colour tokens — but an authored map that set `--ui-focus-ring` directly had its value silently discarded. Now reported as an issue naming the discarded path, so a future edit to an authored map (the exact mistake theme zero itself made twice, which this PR's Phase 1 fixed) cannot reintroduce the trap unnoticed. (4) `toCss()` baked `CONTROL_SIZES.default` into `FIXED_TOKEN_VALUES`, so a nested brand scope emitted with `includeBase: true` — the documented usage for `[data-ui-theme=\"acme\"]`, and the default value of that option — re-declared every control/field height on its own selector. Since an element's own custom-property declaration always wins over an inherited one regardless of selector specificity, this silently reset density back to default for the whole brand scope whenever it sat inside a compact or comfortable ancestor. Density-sensitive keys are now excluded from every scope but `:root`, where the ONE document-wide default still has to live for a page that sets no density anywhere. Proven with a real `<style>` tag and a real DOM tree, not string assertions alone. (5) `check:strokes`' width regex required a leading digit inside brackets and had no `ring-offset` branch, so `border-[.5px]`, `border-[thin]` (a real CSS border-width keyword) and `ring-offset-2` (its CSS property is `--tw-ring-offset-WIDTH` despite the name) all passed unflagged. All three are now caught; `outline-offset-<n>` was deliberately left out of this pass; see note below. (6) Test coverage gaps the review named directly: density was measured only on Button, Input and the chrome control — extended to Select, Multiselect, DatePicker, the Sidebar search and Textarea's inset, each at default AND under a compact ancestor. The portal-forwarding proof (`data-ui-density` reaching a portalled popup with no new API) existed only for Modal — extended to Sheet, Drawer, Popover and Menu via `test.each`. `typography.weights` and `typography.tracking` had resolver-level tests only — a new `type-attributes.browser.test.tsx` proves both reach real computed styles through the two-level Tailwind v4 companion chain, mirroring the existing `stroke-scale.browser.test.tsx`. NOT fixed here, by choice: `outline-offset-<n>` numeric literals were found to be just as unflagged as `ring-offset-<n>`, but adding that branch immediately surfaces two pre-existing, legitimate uses — `chat-questionnaire`'s selection ring and `card-sorting`'s lift/drag ring — that are not the focus indicator and have no token to reach for. That needs a design decision (a new offset scale, or an ALLOWED entry), not a silent absorption into a validation-fix commit.",
+  "affects": [
+    "seed:shape.borderWidthPx",
+    "seed:shape.focusRingWidthPx",
+    "seed:typography.weights",
+    "seed:typography.baseSize",
+    "seed:chrome.contentWidthPx",
+    "seed:shape.radiusPx",
+    "token:--ui-focus-ring",
+    "gate:check-strokes",
+    "registry:select",
+    "registry:multiselect",
+    "registry:date-picker",
+    "registry:textarea",
+    "registry:sidebar",
+    "registry:sheet",
+    "registry:drawer",
+    "registry:popover",
+    "registry:menu",
+    "registry:modal"
+  ],
+  "provenance": {
+    "pr": 15
+  }
+}

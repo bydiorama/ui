@@ -29,9 +29,9 @@ const SURFACE = {
  * is the 44px+ touch target for primary forms.
  */
 const SIZE = {
-  lg: "h-12 gap-sm px-md py-sm text-body-md",
-  md: "h-10 gap-xs p-sm text-caption",
-  sm: "h-8 gap-xs px-sm py-xs text-caption",
+  lg: "h-field-lg gap-sm px-field-inset-lg py-sm text-body-md",
+  md: "h-field-md gap-xs px-field-inset-md py-sm text-caption",
+  sm: "h-field-sm gap-xs px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<InputSize, string>;
 
 interface InputBaseProps

@@ -9,6 +9,52 @@
 
 import type { FixedToken, SchemeOnlyToken } from "./contract.ts";
 
+// ── Density (ADR 0020 §4) ────────────────────────────────────────────────
+
+export type Density = "compact" | "default" | "comfortable";
+
+/** The WCAG 2.5.8 AA target floor. No density may size a control under it. */
+export const CONTROL_FLOOR_PX = 24;
+
+/** Every height moves by this per density step: the 4px grid, which a
+ *  percentage cannot keep (at 90%, 12px is 10.8px). Ant's compact algorithm
+ *  and Material's density scale both step this way. */
+export const DENSITY_STEP_PX = 4;
+
+const SPACE_STEPS = ["xs", "sm", "md", "lg", "xl"] as const;
+type SpaceStep = (typeof SPACE_STEPS)[number];
+
+/** The default ladders, as drawn. */
+const LADDER = {
+  control: { sm: { height: 24, inset: "sm" }, md: { height: 32, inset: "md" }, lg: { height: 44, inset: "lg" } },
+  field: { sm: { height: 32, inset: "sm" }, md: { height: 40, inset: "sm" }, lg: { height: 48, inset: "md" } },
+} as const satisfies Record<"control" | "field", Record<"sm" | "md" | "lg", { height: number; inset: SpaceStep }>>;
+
+type SizeToken = Extract<FixedToken, `--ui-${"control" | "field"}-${string}`>;
+
+/** One density's control and field tokens. A step moves every height by
+ *  DENSITY_STEP_PX, floored at CONTROL_FLOOR_PX, and every inset one step
+ *  along the spacing scale; type, icons, radii and layout do not move. */
+function controlSizes(step: -1 | 0 | 1): Record<SizeToken, string> {
+  const out = {} as Record<SizeToken, string>;
+  for (const family of ["control", "field"] as const) {
+    for (const size of ["sm", "md", "lg"] as const) {
+      const { height, inset } = LADDER[family][size];
+      const px = Math.max(CONTROL_FLOOR_PX, height + step * DENSITY_STEP_PX);
+      const insetStep = SPACE_STEPS[Math.min(SPACE_STEPS.length - 1, Math.max(0, SPACE_STEPS.indexOf(inset) + step))]!;
+      out[`--ui-${family}-${size}-height` as SizeToken] = `${px / 16}rem`;
+      out[`--ui-${family}-${size}-inset` as SizeToken] = `var(--ui-space-${insetStep})`;
+    }
+  }
+  return out;
+}
+
+export const CONTROL_SIZES: Record<Density, Record<SizeToken, string>> = {
+  compact: controlSizes(-1),
+  default: controlSizes(0),
+  comfortable: controlSizes(1),
+};
+
 /** Typed as a total record, so a token added to the contract without a value
  *  here fails to compile — the same guarantee the resolver gives. */
 export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
@@ -85,6 +131,11 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   // for infrequent moments (first load, success, empty states) — never for
   // routine, high-frequency interactions.
   "--ui-stagger-step": "100ms",
+
+  // Control sizing (ADR 0020 §4) — the DEFAULT density. Heights are the
+  // drawn ladders, now named: actions 24/32/44, fields 32/40/48. An inset is
+  // the inline padding at that size, on the spacing scale.
+  ...CONTROL_SIZES.default,
 
   // WCAG 2.5.8 AA floor and the recommended touch target for primary controls.
   // The visible element may be smaller — the hit area is what must be big,

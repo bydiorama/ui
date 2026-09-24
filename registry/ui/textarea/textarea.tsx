@@ -21,8 +21,11 @@ const SURFACE = {
 /**
  * Geometry per size, DERIVED from Input's table rather than drawn.
  *
- * Input is `h-12 px-md py-sm text-body-md` / `h-10 p-sm text-caption` /
- * `h-8 px-sm py-xs text-caption`. Everything there except the height carries
+ * Input is `h-field-lg px-field-inset-lg py-sm text-body-md` /
+ * `h-field-md px-field-inset-md py-sm text-caption` /
+ * `h-field-sm px-field-inset-sm py-xs text-caption` — the field family of
+ * ADR 0020 §4, 48/40/32 with 12/8/8 insets at default density, and the
+ * insets move with density here too. Everything there except the height carries
  * over unchanged, because the two fields have to sit in one form without a
  * seam — that the surfaces match is asserted per size as a RELATIONSHIP
  * against a real Input, not as numbers, so they cannot drift apart silently.
@@ -44,9 +47,9 @@ const SURFACE = {
  * and snug is the nearest role at 0.2px per line.
  */
 const SIZE = {
-  lg: "px-md py-sm text-body-md",
-  md: "p-sm text-caption",
-  sm: "px-sm py-xs text-caption",
+  lg: "px-field-inset-lg py-sm text-body-md",
+  md: "px-field-inset-md py-sm text-caption",
+  sm: "px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<TextareaSize, string>;
 
 const DEFAULT_ROWS = 6;

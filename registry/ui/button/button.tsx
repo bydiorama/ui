@@ -32,9 +32,9 @@ const SIZE = {
   // The explicit block size is intentional. Padding plus line-height produced
   // 40/28/20px controls even though the documented and drawn contract is
   // 44/32/24px. Keep padding for label geometry; own the hit area directly.
-  lg: "h-11 gap-sm py-md px-lg text-button-lg ring-hairline",
-  md: "h-8 gap-sm py-sm px-md text-button-sm ring-hairline",
-  sm: "h-6 gap-xs py-xs px-sm text-button-sm ring-hairline",
+  lg: "h-control-lg gap-sm py-md px-control-inset-lg text-button-lg ring-hairline",
+  md: "h-control-md gap-sm py-sm px-control-inset-md text-button-sm ring-hairline",
+  sm: "h-control-sm gap-xs py-xs px-control-inset-sm text-button-sm ring-hairline",
 } as const satisfies Record<ButtonSize, string>;
 
 /**
@@ -53,9 +53,9 @@ const SOFT_RADIUS = {
 /** Icon-only buttons are square at the size's own height, so a row of mixed
  *  buttons keeps one baseline. All three clear the 24px WCAG 2.5.8 floor. */
 const ICON_SIZE = {
-  lg: "size-11 p-0 gap-0 ring-hairline",
-  md: "size-8 p-0 gap-0 ring-hairline",
-  sm: "size-6 p-0 gap-0 ring-hairline",
+  lg: "size-control-lg p-0 gap-0 ring-hairline",
+  md: "size-control-md p-0 gap-0 ring-hairline",
+  sm: "size-control-sm p-0 gap-0 ring-hairline",
 } as const satisfies Record<ButtonSize, string>;
 
 /**

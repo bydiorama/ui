@@ -665,7 +665,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
       <div
         data-slot="sidebar-search"
         className={cn(
-          "flex h-10 items-center gap-sm rounded-sm px-sm py-xs",
+          "flex h-field-md items-center gap-sm rounded-sm px-field-inset-md py-xs",
           // An OUTLINE for the resting edge, not a border — and the sheet
           // draws it that way for a reason that only shows up when you
           // measure. A border takes layout space, so the input's text lands

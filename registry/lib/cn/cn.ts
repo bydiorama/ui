@@ -62,6 +62,11 @@ const twMerge = extendTailwindMerge({
       spacing: [
         "xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl",
         "nav", "nav-rail", "dialog-md", "dialog-lg",
+        // Control sizing (ADR 0020 §4) — heights and insets per family.
+        "control-sm", "control-md", "control-lg",
+        "control-inset-sm", "control-inset-md", "control-inset-lg",
+        "field-sm", "field-md", "field-lg",
+        "field-inset-sm", "field-inset-md", "field-inset-lg",
       ],
     },
     classGroups: {

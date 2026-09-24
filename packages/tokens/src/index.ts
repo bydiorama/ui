@@ -40,7 +40,8 @@ export { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA } from
 export type { Scheme, ResolveOptions, ResolveResult, ResolvedPair, ContrastAdjustment } from "./resolve.ts";
 
 // Non-brandable tokens.
-export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES } from "./base.ts";
+export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES, CONTROL_SIZES, CONTROL_FLOOR_PX, DENSITY_STEP_PX } from "./base.ts";
+export type { Density } from "./base.ts";
 
 // Emitters.
 export { toCss, toStyleObject } from "./emit/css.ts";

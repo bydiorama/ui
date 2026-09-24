@@ -379,6 +379,16 @@ export const FIXED_TOKENS = [
   // press" has exactly one answer across the system.
   "--ui-press-scale", "--ui-stagger-step",
 
+  // Control sizing (ADR 0020 §4). Two families, deliberately: an ACTION
+  // (Button, the chrome control) and a FIELD (Input, Select, Multiselect) are
+  // different objects with different heights, and one ladder would move one
+  // of them. Structural, not brandable — density is a decision about the
+  // SCREEN, re-bound by `[data-ui-density]` (see DENSITY_MODES in base.ts).
+  "--ui-control-sm-height", "--ui-control-md-height", "--ui-control-lg-height",
+  "--ui-control-sm-inset", "--ui-control-md-inset", "--ui-control-lg-inset",
+  "--ui-field-sm-height", "--ui-field-md-height", "--ui-field-lg-height",
+  "--ui-field-sm-inset", "--ui-field-md-inset", "--ui-field-lg-inset",
+
   // Hit targets. The floor is conformance; the touch value is the recommended
   // target for primary controls.
   "--ui-hit-area-min", "--ui-hit-area-touch",

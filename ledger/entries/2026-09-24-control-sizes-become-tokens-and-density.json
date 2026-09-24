@@ -1,0 +1,28 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-24-control-sizes-become-tokens-and-density",
+  "date": "2026-09-24",
+  "item": "system",
+  "kind": "addition",
+  "summary": "ADR 0020 §4. Control heights were Tailwind numeric steps inside size maps, in two ladders under one set of names: fields h-12/h-10/h-8 (48/40/32) and Button h-11/h-8/h-6 (44/32/24), and no brand, screen or knob could reach either. The maintainer decided to keep TWO FAMILIES, because an action and a field are different objects and one ladder would move one of them. New fixed tokens `--ui-control-{sm,md,lg}-height|-inset` and `--ui-field-{sm,md,lg}-height|-inset`, with utilities h-control-*, size-control-*, px-control-inset-*, h-field-* and px-field-inset-*. They are consumed by Button (text and icon-only), the chrome control, Input, Select, DatePicker's field, Textarea's insets, Multiselect's trigger and search, and the Sidebar search. Default density is pixel-identical: the browser suite is unchanged and a new test measures every drawn height. Density is a MODE, not a brand value, so it is not in ThemeSeed. toCss() emits `[data-ui-density=\"compact|comfortable|default\"]` blocks that re-bind only these tokens for their subtree. Each step moves every height by 4px and every inset by one spacing step, floored at 24px (SC 2.5.8), so compact is actions 24/28/40 and fields 28/36/44, and comfortable is 28/36/48 and 36/44/52. Type, icons, radii and layout spacing do not move. Compact Button lg is 40px, so it gives up the 44px touch target; the Button doc says so. Modes nest (default inside compact returns to default). A portalled panel leaves the subtree, and every overlay panel forwards unknown props to its popup, so `data-ui-density` travels on the popup part with no new API. That is proven failing-first: without the attribute, a Button inside a Modal opened from a compact subtree renders at default height. A new `density` system case in the visual matrix draws the three modes; check:visual-coverage gained a SYSTEM_CASES list for cases that are a mode rather than a component, and it fails on stale entries.",
+  "affects": [
+    "token:--ui-control-*-height",
+    "token:--ui-control-*-inset",
+    "token:--ui-field-*-height",
+    "token:--ui-field-*-inset",
+    "attribute:data-ui-density",
+    "registry:button",
+    "registry:input",
+    "registry:select",
+    "registry:multiselect",
+    "registry:date-picker",
+    "registry:textarea",
+    "registry:sidebar",
+    "lib:chrome-control",
+    "lib:cn",
+    "gate:check-visual-coverage"
+  ],
+  "migration": {
+    "manual": "Regenerate your token CSS before syncing: the synced controls read h-control-*/h-field-*, which emit nothing against an older theme. To use density, set data-ui-density=\"compact\" (or \"comfortable\") on any element, or on <body> for a whole app. Inside a scoped subtree, also pass it to the popup part of any Modal, Sheet, Drawer, Popover or Menu opened from there."
+  }
+}

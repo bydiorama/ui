@@ -174,6 +174,18 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
     ["--spacing-dialog-lg", "var(--ui-dialog-width-lg)"],
   ]);
 
+  // Control sizing (ADR 0020 §4): `h-control-md`, `size-control-lg`,
+  // `px-field-inset-md`. Purpose-named like the chrome widths above, so no
+  // one mistakes a control height for a spacing step, and density re-binds
+  // the token under `[data-ui-density]` without touching a utility.
+  push(
+    "Control sizing.",
+    FIXED_TOKENS.filter((t) => /^--ui-(control|field)-(sm|md|lg)-(height|inset)$/.test(t)).map((t) => {
+      const [, family, size, part] = t.match(/^--ui-(control|field)-(sm|md|lg)-(height|inset)$/)!;
+      return [`--spacing-${family}-${part === "inset" ? "inset-" : ""}${size}`, `var(${t})`] as [string, string];
+    }),
+  );
+
   // Stroke widths (ADR 0020 §2). Tailwind 4 resolves `border-<name>`,
   // `ring-<name>` and `outline-<name>` against these width namespaces (after
   // the colour namespace misses — none of these names is a colour), and a

@@ -18,9 +18,9 @@ const forBaseUI = <T,>(props: object) => props as T;
 export type MultiselectSize = "lg" | "md" | "sm";
 
 const SIZE = {
-  lg: "h-12 px-lg text-body-md",
-  md: "h-10 px-md text-caption",
-  sm: "h-8 px-sm text-caption",
+  lg: "h-field-lg px-lg text-body-md",
+  md: "h-field-md px-md text-caption",
+  sm: "h-field-sm px-sm text-caption",
 } as const satisfies Record<MultiselectSize, string>;
 
 export interface MultiselectItem {
@@ -225,7 +225,7 @@ export function Multiselect({
               })}
             >
               <div className="pb-xs">
-                <div className="flex h-10 items-center gap-sm rounded-sm bg-field px-lg py-xs ring ring-edge-subtle focus-within:ring-edge-focus">
+                <div className="flex h-field-md items-center gap-sm rounded-sm bg-field px-lg py-xs ring ring-edge-subtle focus-within:ring-edge-focus">
                   <BaseCombobox.Input
                     {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Input>>({
                       "data-slot": "multiselect-search",

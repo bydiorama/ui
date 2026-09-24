@@ -152,6 +152,12 @@ Utilities come from the spacing namespace: `h-control-md`, `px-field-inset-lg`.
   in a test. Compact Button `sm` therefore stays at 24.
 - Compact gives up the 44px touch target on Button `lg` (40px). The Button
   doc says so.
+- **Where it applies:** Button and the chrome control take the control
+  family; Input, Select, DatePicker's field, Textarea's insets, Multiselect's
+  trigger and search, and the Sidebar search take the field family.
+  Multiselect keeps its own base-step insets, because its trigger is padded
+  like a list rather than like a field, so only its height moves. NavRail's
+  32px squares are navigation, not controls, and stay out.
 - Type size, icon size, radius and layout spacing **do not** change with
   density. Avatars and badges are content rather than controls, so they
   stay out of it too.

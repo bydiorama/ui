@@ -84,3 +84,13 @@ test("composite values carry light-dark() per layer, never around the list", () 
   // And the upward cast merges the same way, negated only in its offsets.
   assert.match(css, /--ui-shadow-sm-up: 0 -0\.5px 1\.5px light-dark\(/);
 });
+
+test("density modes are emitted as attribute blocks, default included (ADR 0020 §4)", () => {
+  const css = toCss(resolveThemePair(THEME_ZERO));
+  for (const density of ["compact", "comfortable", "default"]) {
+    assert.match(css, new RegExp(`\\[data-ui-density="${density}"\\] \\{`));
+  }
+  assert.match(css, /\[data-ui-density="compact"\] \{[^}]*--ui-control-lg-height: 2\.5rem;/);
+  // A brand scope nested in a document never re-emits them.
+  assert.doesNotMatch(toCss(resolveThemePair(THEME_ZERO), { scope: "[data-ui-theme=x]", includeBase: false }), /data-ui-density/);
+});

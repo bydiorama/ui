@@ -28,7 +28,7 @@ const forBaseUI = <T,>(props: object) => props as T;
  * border and colour — asserting `48px` on each would pass while the two
  * silently drifted apart, which is the only failure that matters here.
  */
-const CONTROL = "h-12 gap-sm px-md py-sm";
+const CONTROL = "h-field-lg gap-sm px-field-inset-lg py-sm";
 
 export interface DatePickerProps {
   /**

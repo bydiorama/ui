@@ -305,6 +305,33 @@ const CASES: Array<{
   isOverlay?: boolean;
 }> = [
   {
+    /*
+      A SYSTEM case, not a component: the three density modes (ADR 0020 §4)
+      side by side on the controls they re-size — actions, the chrome control
+      and fields. Density is a mode over every control, so no single
+      component's case can own it; check:visual-coverage lists system cases
+      by name.
+    */
+    name: "density",
+    ui: (
+      <div className="flex flex-col gap-md">
+        {(["compact", "default", "comfortable"] as const).map((density) => (
+          <div key={density} data-ui-density={density} className="flex flex-col gap-xs">
+            <div className="flex items-center gap-sm">
+              {(["lg", "md", "sm"] as const).map((size) => (
+                <Button key={size} size={size}>{size}</Button>
+              ))}
+              <button type="button" aria-label={`Back, ${density}`} className={chromeControl()}>
+                <ChevronDown />
+              </button>
+            </div>
+            <Input label={density} size="md" placeholder="Field" />
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
     name: "button",
     ui: (
       <div className="flex flex-col gap-md">

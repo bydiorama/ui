@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type FixedToken } from "./contract.ts";
-import { FIXED_TOKEN_VALUES } from "./base.ts";
+import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES } from "./base.ts";
 import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
@@ -911,4 +911,39 @@ test("leading has no knob: no seed moves a role's line-height (ADR 0020 §3)", (
       assert.equal(b[t], a[t]);
     }
   }
+});
+
+// ── Density (ADR 0020 §4) ───────────────────────────────────────────────────
+
+
+const heightPx = (rem: string) => parseFloat(rem) * 16;
+
+test("default density is the drawn ladders: actions 24/32/44, fields 32/40/48", () => {
+  const d = CONTROL_SIZES.default;
+  assert.deepEqual(
+    [d["--ui-control-sm-height"], d["--ui-control-md-height"], d["--ui-control-lg-height"]].map(heightPx),
+    [24, 32, 44],
+  );
+  assert.deepEqual(
+    [d["--ui-field-sm-height"], d["--ui-field-md-height"], d["--ui-field-lg-height"]].map(heightPx),
+    [32, 40, 48],
+  );
+  // The default block IS the fixed table — one source for both.
+  for (const [token, value] of Object.entries(d)) assert.equal(FIXED_TOKEN_VALUES[token as FixedToken], value);
+});
+
+test("every density step is 4px on the grid, and nothing goes under the 24px floor", () => {
+  for (const density of ["compact", "default", "comfortable"] as const) {
+    for (const [token, value] of Object.entries(CONTROL_SIZES[density])) {
+      if (!token.endsWith("-height")) continue;
+      const px = heightPx(value);
+      assert.ok(px >= CONTROL_FLOOR_PX, `${density} ${token} is ${px}px, under SC 2.5.8's floor`);
+      assert.equal(px % 4, 0, `${density} ${token} is ${px}px, off the 4px grid`);
+    }
+  }
+  const c = CONTROL_SIZES.compact;
+  const d = CONTROL_SIZES.default;
+  assert.equal(heightPx(c["--ui-control-sm-height"]), 24, "compact action sm holds at the floor");
+  assert.equal(heightPx(d["--ui-control-lg-height"]) - heightPx(c["--ui-control-lg-height"]), DENSITY_STEP_PX);
+  assert.equal(heightPx(CONTROL_SIZES.comfortable["--ui-field-lg-height"]) - heightPx(d["--ui-field-lg-height"]), DENSITY_STEP_PX);
 });

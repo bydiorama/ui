@@ -405,7 +405,7 @@ function SheetTitle({ className, ...rest }: SheetTitleProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Title>>(rest)}
       data-slot="sheet-title"
       className={cn(
-        "line-clamp-1 text-body-lg font-body font-bold leading-normal tracking-tight text-ink-primary",
+        "line-clamp-1 text-body-lg font-body text-ink-primary",
         className,
       )}
     />

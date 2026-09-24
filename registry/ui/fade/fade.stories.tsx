@@ -37,10 +37,10 @@ export const Playground: Story = {
   render: () => (
     <div className="relative h-54 w-140 max-w-full overflow-clip rounded-md border border-edge-subtle bg-base">
       <div className="flex flex-col gap-md p-xl">
-        <p className="text-title-md font-medium tracking-tight text-ink-primary">
+        <p className="text-title-md text-ink-primary">
           Case study: Jan Tschichold — asymmetric typography
         </p>
-        <p className="text-body-md leading-relaxed text-ink-secondary">{COPY}</p>
+        <p className="text-body-md text-ink-secondary">{COPY}</p>
       </div>
       <Fade ground="base" size="lg" />
       <button
@@ -77,7 +77,7 @@ export const Matrix: Story = {
       <div
         className={`relative h-36 w-60 shrink-0 overflow-clip rounded-md border border-edge-subtle ${canvas ?? "bg-base"}`}
       >
-        <p className="p-lg text-body-sm leading-relaxed text-ink-secondary">{COPY}</p>
+        <p className="p-lg text-body-sm text-ink-secondary">{COPY}</p>
         {children}
       </div>
     );
@@ -144,7 +144,7 @@ export const States: Story = {
               setAtEnd(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
             }}
           >
-            <p className="text-body-sm leading-relaxed text-ink-secondary">{COPY}</p>
+            <p className="text-body-sm text-ink-secondary">{COPY}</p>
           </div>
           <Fade isVisible={!atEnd} />
         </div>
@@ -154,14 +154,14 @@ export const States: Story = {
       <div className="flex flex-wrap gap-lg">
         <div className="flex flex-col gap-xs">
           <div className="relative h-36 w-60 overflow-clip rounded-md border border-edge-subtle bg-surface">
-            <p className="p-lg text-body-sm leading-relaxed text-ink-secondary">{COPY}</p>
+            <p className="p-lg text-body-sm text-ink-secondary">{COPY}</p>
             <Fade />
           </div>
           <p className="text-caption text-ink-muted">visible — content continues</p>
         </div>
         <div className="flex flex-col gap-xs">
           <div className="relative h-36 w-60 overflow-clip rounded-md border border-edge-subtle bg-surface">
-            <p className="p-lg text-body-sm leading-relaxed text-ink-secondary">
+            <p className="p-lg text-body-sm text-ink-secondary">
               The letter S arrived where no wire ran — the entire proof. Scrolled flush to the
               end: nothing continues, so nothing fades.
             </p>
@@ -214,13 +214,13 @@ export const BrandThemed: Story = {
             component. */}
         <div className="relative max-w-fit overflow-clip rounded-lg bg-elevated">
           <div className="relative h-24 overflow-clip px-lg pt-lg">
-            <p className="w-96 text-body-md leading-relaxed text-ink-primary">{COPY}</p>
+            <p className="w-96 text-body-md text-ink-primary">{COPY}</p>
             <Fade ground="elevated" />
           </div>
           <button
             type="button"
             onClick={fn()}
-            className="cursor-pointer px-lg pt-xs pb-md text-left text-body-sm font-semibold text-ink-primary"
+            className="cursor-pointer px-lg pt-xs pb-md text-left text-body-sm text-ink-primary"
           >
             Show more
           </button>

@@ -70,6 +70,11 @@ jobs:
       - name: Stroke widths are tokenised
         run: node scripts/check-strokes.mjs
 
+      # Type roles are enforced at runtime in every story (ADR 0020 §3); this
+      # keeps the declared exceptions naming parts that still exist.
+      - name: Type-role exceptions are current
+        run: node scripts/check-type-roles.mjs
+
       - name: Behaviour-layer boundaries
         run: node scripts/check-boundaries.mjs
 

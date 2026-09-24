@@ -362,7 +362,8 @@ describe("the chip is drawn the way the sheet draws it", () => {
     const cs = getComputedStyle(chip()!);
 
     expect(cs.fontSize).toBe("12px");
-    expect(cs.fontWeight).toBe("500");
+    // caption's own weight (ADR 0020 §3: 600, where the sheet drew 500).
+    expect(cs.fontWeight).toBe("600");
     // leading-normal, not leading-flat: a control label never wraps and this
     // always might.
     expect(Number.parseFloat(cs.lineHeight)).toBeGreaterThan(14);

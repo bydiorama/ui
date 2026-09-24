@@ -212,7 +212,7 @@ export function Slider(props: SliderProps) {
           id={labelId}
           data-slot="slider-label"
           className={cn(
-            "flex-1 text-body-sm font-body font-medium leading-normal text-ink-muted",
+            "flex-1 text-body-sm font-body text-ink-muted",
             isLabelHidden && "sr-only",
           )}
         >
@@ -222,7 +222,7 @@ export function Slider(props: SliderProps) {
           <BaseSlider.Value
             {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSlider.Value>>({
               "data-slot": "slider-value",
-              className: "text-body-sm font-body font-medium leading-normal text-ink-primary",
+              className: "text-body-sm font-body text-ink-primary",
             })}
           />
         )}

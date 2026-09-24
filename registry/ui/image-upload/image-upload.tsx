@@ -155,7 +155,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           // stack in a form. The sheet draws weight 550 here and 500 on
           // Input; following Input is what keeps a form from having two
           // label styles. Flagged in needsDesign.
-          "text-label-md font-body font-medium text-ink-secondary",
+          "text-label-md font-body text-ink-secondary",
           isLabelHidden && "sr-only",
         )}
       >
@@ -232,14 +232,14 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                 <p
                   id={errorId}
                   data-slot="image-upload-error"
-                  className="text-label-md font-body font-medium leading-normal text-ink-on-danger-subtle"
+                  className="text-label-md font-body text-ink-on-danger-subtle"
                 >
                   {errorText}
                 </p>
                 {errorDetail && (
                   <p
                     data-slot="image-upload-error-detail"
-                    className="text-caption font-body font-book leading-normal text-ink-on-danger-subtle"
+                    className="text-caption font-body text-ink-on-danger-subtle"
                   >
                     {errorDetail}
                   </p>
@@ -269,7 +269,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                 <p
                   role="status"
                   data-slot="image-upload-busy"
-                  className="text-label-md font-body font-medium leading-normal text-ink-secondary"
+                  className="text-label-md font-body text-ink-secondary"
                 >
                   {busyText}
                 </p>
@@ -279,7 +279,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                 <Upload aria-hidden="true" className="text-ink-secondary" />
                 <p
                   data-slot="image-upload-prompt"
-                  className="flex items-center gap-xs text-label-md font-body font-medium leading-normal text-ink-secondary"
+                  className="flex items-center gap-xs text-label-md font-body text-ink-secondary"
                 >
                   {prompt}
                   {/*
@@ -320,7 +320,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           id={helperId}
           data-slot="image-upload-helper"
           className={cn(
-            "text-caption font-body font-book leading-normal",
+            "text-caption font-body",
             // The sheet turns the constraints red once one of them is broken,
             // which is right: they stop being guidance and become the reason.
             state === "rejected" ? "text-danger" : "text-ink-muted",
@@ -395,7 +395,7 @@ function ImageUploadFile({
         <span className="flex items-center gap-sm">
           <span
             data-slot="image-upload-file-name"
-            className="min-w-0 flex-1 truncate text-body-sm font-body font-semibold leading-normal text-ink-primary"
+            className="min-w-0 flex-1 truncate text-body-sm font-body text-ink-primary"
           >
             {name}
           </span>
@@ -409,7 +409,7 @@ function ImageUploadFile({
             <span
               aria-hidden="true"
               data-slot="image-upload-file-value"
-              className="shrink-0 text-caption font-body font-medium leading-normal text-ink-muted"
+              className="shrink-0 text-caption font-body text-ink-muted"
             >
               {`${Math.round(value)}%`}
             </span>
@@ -429,7 +429,7 @@ function ImageUploadFile({
         {detail && (
           <span
             data-slot="image-upload-file-detail"
-            className="text-caption font-body font-book leading-normal text-ink-muted"
+            className="text-caption font-body text-ink-muted"
           >
             {detail}
           </span>

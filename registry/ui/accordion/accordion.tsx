@@ -214,7 +214,7 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
             // the child's own attribute — which it never has, so the chevron
             // silently never turned.
             "group flex flex-1 cursor-pointer items-center gap-sm p-md text-start",
-            "text-body-sm font-body font-bold leading-normal text-ink-primary",
+            "text-body-sm font-body text-ink-primary",
             // The sheet draws every mark in this row at 16px, leading and
             // trailing alike. griddy renders width/height="24" as ATTRIBUTES,
             // so an unsized slot ships 24px whatever the sheet says.
@@ -298,7 +298,7 @@ const AccordionPanel = forwardRef<HTMLDivElement, AccordionPanelProps>(function 
         data-slot="accordion-panel-inner"
         className={cn(
           "flex flex-col gap-lg p-md",
-          "text-body-sm font-body font-medium leading-normal text-ink-secondary",
+          "text-body-sm font-body text-ink-secondary",
           className,
         )}
       >

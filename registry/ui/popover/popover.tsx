@@ -196,7 +196,7 @@ function PopoverTitle({ className, ...rest }: PopoverTitleProps) {
       data-slot="popover-title"
       className={cn(
         UNBOXED_INSET,
-        "py-xs text-title-sm font-body font-bold leading-normal tracking-tight text-ink-primary",
+        "py-xs text-title-sm font-body text-ink-primary",
         className,
       )}
     />
@@ -216,7 +216,7 @@ function PopoverDescription({ className, ...rest }: PopoverDescriptionProps) {
         // ink. Weight is `medium`, not the sheet's 600 — the only description
         // drawn anywhere sits in a destructive confirmation, and that emphasis
         // does not generalise to ordinary body copy. Confirmed with design.
-        "py-xs text-body-md font-body font-medium leading-relaxed tracking-tight text-ink-secondary",
+        "py-xs text-body-md font-body text-ink-secondary",
         className,
       )}
     />

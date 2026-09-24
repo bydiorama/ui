@@ -45,20 +45,13 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   "--ui-space-inset-lg": "var(--ui-space-xl)",
   "--ui-space-inset-xl": "var(--ui-space-2xl)",
 
-  // Typography attributes shared across roles (ADR 0009). Aspekta's variable
-  // axis makes the quarter-weights (450/550) real cuts, not synthesis.
-  "--ui-weight-regular": "400",
-  "--ui-weight-book": "450",
-  "--ui-weight-medium": "500",
-  "--ui-weight-semibold": "550",
-  "--ui-weight-bold": "600",
+  // The leading ladder (ADR 0009). Weights and trackings are brandable now
+  // (ADR 0020 §3) and derived in resolve.ts.
   "--ui-leading-flat": "1",
   "--ui-leading-tight": "1.25",
   "--ui-leading-snug": "1.3",
   "--ui-leading-normal": "1.35",
   "--ui-leading-relaxed": "1.55",
-  "--ui-tracking-tight": "-0.02em",
-  "--ui-tracking-normal": "-0.01em",
 
   "--ui-duration-fast": "120ms",
   "--ui-duration-base": "200ms",

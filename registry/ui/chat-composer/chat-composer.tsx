@@ -524,7 +524,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
               data-slot="chat-composer-input"
               className={cn(
                 "w-full min-w-0 resize-none bg-transparent",
-                "font-body text-body-md font-regular leading-normal tracking-normal",
+                "font-body text-body-md",
                 "text-ink-primary placeholder:text-ink-placeholder",
                 "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:placeholder:text-ink-disabled",
                 // The drop label is a MESSAGE, not a hint — the sheet draws it

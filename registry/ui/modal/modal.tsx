@@ -211,7 +211,7 @@ function ModalTitle({ className, ...rest }: ModalTitleProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Title>>(rest)}
       data-slot="modal-title"
       className={cn(
-        "text-title-lg font-body font-medium leading-normal tracking-tight text-ink-primary",
+        "text-title-lg font-body text-ink-primary",
         className,
       )}
     />
@@ -226,7 +226,7 @@ function ModalDescription({ className, ...rest }: ModalDescriptionProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Description>>(rest)}
       data-slot="modal-description"
       className={cn(
-        "text-body-md font-body font-medium leading-relaxed tracking-tight text-ink-secondary",
+        "text-body-md font-body text-ink-secondary",
         className,
       )}
     />

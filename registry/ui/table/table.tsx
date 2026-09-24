@@ -508,7 +508,7 @@ export function Table<Row>({
                       ? { "aria-sort": "none" as const }
                       : {})}
                   className={cn(
-                    "bg-elevated font-body text-label-sm leading-normal font-medium align-middle",
+                    "bg-elevated font-body text-label-sm align-middle",
                     sorted ? "text-ink-primary" : "text-ink-muted",
                     isEnd && "text-right",
                     // A sortable header's fill covers the whole lane, so its

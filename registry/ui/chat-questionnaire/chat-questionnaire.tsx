@@ -147,7 +147,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
           className={cn("flex w-full flex-wrap items-center gap-sm", className)}
           {...rest}
         >
-          <p data-slot="chat-questionnaire-question" className="font-body text-body-sm leading-normal text-ink-muted">
+          <p data-slot="chat-questionnaire-question" className="font-body text-body-sm text-ink-muted">
             {question}
           </p>
           <Badge variant="selected" data-slot="chat-questionnaire-answer">
@@ -169,7 +169,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
         <p
           id={questionId}
           data-slot="chat-questionnaire-question"
-          className="font-body text-body-md font-medium leading-normal text-ink-primary"
+          className="font-body text-body-md text-ink-primary"
         >
           {question}
         </p>
@@ -241,7 +241,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                 </span>
                 <span
                   className={cn(
-                    "font-body text-caption leading-normal",
+                    "font-body text-caption",
                     isSelected ? "text-ink-primary" : "text-ink-muted",
                   )}
                 >
@@ -258,7 +258,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                 onClick={() => choose(option)}
                 className={cn(
                   "flex cursor-pointer items-center gap-sm rounded-md border-hairline px-md py-sm text-start",
-                  "bg-base font-body text-body-sm font-medium leading-normal",
+                  "bg-base font-body text-body-sm",
                   "transition-[background-color,border-color,color]", motionMicro,
                   "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
                   isSelected

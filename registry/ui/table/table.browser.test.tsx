@@ -325,7 +325,8 @@ describe("the header", () => {
 
     expect(style.fontSize).toBe("12px");
     expect(style.color).toBe(tokenColor("--ui-text-muted"));
-    expect(style.fontWeight).toBe("500");
+    // The role's own weight (ADR 0020 §3: 600, where the sheet drew 500).
+    expect(style.fontWeight).toBe("600");
   });
 
   test("a hidden header keeps its name and loses its paint", () => {

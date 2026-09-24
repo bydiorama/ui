@@ -19,15 +19,20 @@ export type BadgeShape = "soft" | "full";
  * The sheet reaches those heights by inflating the md line-height to 145%,
  * which is off the leading scale (flat/tight/snug/normal/relaxed) and makes a
  * control's height depend on font metrics. Pinning `min-h` instead lands on the
- * designed numbers exactly, keeps `leading-flat` for both, and survives a font
- * swap. The padding scale cannot express it: py-xs gives 22px and py-sm 30px.
+ * designed numbers exactly and survives a font swap.
+ *
+ * There is no vertical padding, and that is what lets the label take its
+ * role's own leading (ADR 0020 §3: `text-label-sm` is 1.3 now, where Badge
+ * used to force `leading-flat`). With `py-xs` the sm badge would have grown
+ * past 22px the moment the leading moved; with the height pinned and the
+ * label centred, the leading changes nothing about the box.
  *
  * These were previously identical apart from the icon, so a badge with no icon
  * rendered the same at both sizes.
  */
 const SIZE = {
-  md: "gap-xs px-sm py-xs text-label-sm min-h-7 [&_svg]:size-4",
-  sm: "gap-xs px-sm py-xs text-label-sm min-h-5.5 [&_svg]:size-3",
+  md: "gap-xs px-sm text-label-sm min-h-7 [&_svg]:size-4",
+  sm: "gap-xs px-sm text-label-sm min-h-5.5 [&_svg]:size-3",
 } as const satisfies Record<BadgeSize, string>;
 
 /**
@@ -128,7 +133,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
       data-size={size}
       className={cn(
         "inline-flex w-fit shrink-0 items-center border-hairline",
-        "font-body font-bold leading-flat tracking-tight whitespace-nowrap",
+        "font-body whitespace-nowrap",
         shape === "full" ? "rounded-full" : "rounded-sm",
         SIZE[size],
         VARIANT[variant],

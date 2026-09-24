@@ -220,7 +220,7 @@ function ThumbnailGroup({
             "relative inline-flex size-12 shrink-0 items-center justify-center",
             "rounded-md bg-sunken text-ink-muted",
             "outline-hairline outline-offset-[-1.5px] outline-sunken",
-            "font-body text-label-sm font-semibold leading-flat tracking-tight",
+            "font-body text-label-sm",
           )}
         >
           <span aria-hidden="true">{`+${hidden}`}</span>

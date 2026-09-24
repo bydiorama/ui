@@ -83,8 +83,9 @@ own vocabulary: the 1.5px control edge has always been called the hairline.
 
 **The table is the source of truth.** Decided by the maintainer on
 2026-09-24, over the alternative of treating what components render as
-truth. Components that disagreed are restyled to the table. That is a
-deliberate visual change, and the baselines move with it.
+truth. Components that disagreed are restyled to the table (242 classes
+removed across 47 files). That is a deliberate visual change, and the
+baselines move with it. The exceptions below were decided the same day.
 
 - Every role gains three brandable tokens: `--ui-text-<role>-weight`,
   `-leading` and `-tracking`. The Tailwind emitter maps them to v4's
@@ -106,9 +107,27 @@ deliberate visual change, and the baselines move with it.
     their own spacing.
 - **No leading knob.** Line-height moves every geometry spec, and nothing
   asks for it.
-- **Enforced by `check:type-roles`**: a class string that names a role may
-  not also set a weight, leading or tracking. Exceptions go on an
-  allow-list with a reason, following the `check:controls` pattern.
+- **Enforced at runtime, in every story.** A Storybook `afterEach` fails
+  any story in which an element naming `text-<role>` renders a weight,
+  leading or tracking other than its role's. It reads the role's own tokens
+  off the element, so it holds inside brand scopes too. It has to run at
+  runtime: a component's size map and its base classes are separate strings
+  that `cn()` joins only in the browser, so a source scan cannot see which
+  element ends up with which. `check:type-roles` keeps the exception list
+  honest (an entry naming a part that no longer exists fails).
+- **Declared exceptions** (decided 2026-09-24, with the reason in
+  `.storybook/type-roles.ts`). Each one is either a designed *difference*
+  between parts that share a role, or a box height the sheet pins, which
+  following the table would erase:
+
+  | Part | Attribute | Why |
+  |---|---|---|
+  | `calendar-day`, `calendar-{month,year}-option` | weight | Resting one step under `button-sm`, so the selected one reads heavier |
+  | `sidebar-section-label` | weight, leading | The two nav levels share a size and an inset; the heading is told apart by weight. The 46px row is drawn at `leading-normal` |
+  | `sidebar-item`, `sidebar-layer-title` | leading | The sheet's 46px row |
+  | `sidebar-profile-name` | weight, leading | At `body-lg`'s 500 it would read lighter than the 600 email beneath it; a rail row at the rows' leading |
+  | `chat-message-bubble` | leading | The sender's voice is tighter (1.35) than the receiver's 1.55, the pair's signature |
+  | `textarea` | leading | The box is rows × leading; the sheet's 128px is drawn at `leading-snug` |
 
 ### 4. Control sizing and density
 

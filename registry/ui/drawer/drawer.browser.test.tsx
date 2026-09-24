@@ -307,7 +307,8 @@ describe("Drawer comes from the bottom and is built to be grabbed", () => {
     // title-sm peaks at 16 too, but it is fluid — and a drawer is narrowest on
     // the phone, which is exactly where the sheet draws this at 16.
     expect(getComputedStyle(title).fontSize).toBe("16px");
-    expect(getComputedStyle(title).fontWeight).toBe("600");
+    // body-lg's own weight (ADR 0020 §3: the table, not the sheet's bold).
+    expect(getComputedStyle(title).fontWeight).toBe("500");
   });
 });
 

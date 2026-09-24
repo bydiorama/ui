@@ -168,7 +168,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(funct
       <legend
         data-slot="radio-group-label"
         className={cn(
-          "text-label-md font-body font-bold leading-snug tracking-tight text-ink-primary",
+          "text-label-md font-body text-ink-primary",
           // A legend is not in the flow the way a heading is — it wants the
           // group's gap rather than a margin of its own, and `float-none` is
           // what puts it back in the column in every browser.
@@ -370,7 +370,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
         <span
           data-slot="label"
           className={cn(
-            "text-label-md font-body font-medium leading-snug tracking-tight",
+            "text-label-md font-body",
             disabled ? "text-ink-disabled" : "text-ink-primary",
           )}
         >
@@ -380,7 +380,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
           <span
             data-slot="radio-description"
             className={cn(
-              "text-caption font-body leading-normal tracking-tight",
+              "text-caption font-body",
               disabled ? "text-ink-disabled" : "text-ink-muted",
             )}
           >

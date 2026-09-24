@@ -179,7 +179,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
       <span
         data-slot="label"
         className={cn(
-          "text-label-md font-body font-medium leading-snug",
+          "text-label-md font-body",
           isDisabled ? "text-ink-disabled" : "text-ink-primary",
         )}
       >

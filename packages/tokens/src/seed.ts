@@ -30,6 +30,9 @@ export interface SeedColors {
 
 export type NavStyle = "page" | "tinted" | "accent";
 
+/** The steps of the weight ladder, named as the `font-*` utilities are. */
+export type WeightName = "regular" | "book" | "medium" | "semibold" | "bold";
+
 export interface SeedTypography {
   /** Body size in px. Drives the whole type scale. */
   baseSize?: number;
@@ -37,6 +40,14 @@ export interface SeedTypography {
   ratio?: number;
   fontBody?: string;
   fontDisplay?: string;
+  /** Maps the weight ladder onto the cuts the brand's face actually has
+   *  (ADR 0020 §3). Aspekta's 450/550 exist because it is variable; a static
+   *  face would synthesise or round them, so a brand points `book` and
+   *  `semibold` at real cuts. Every role's weight follows. */
+  weights?: Partial<Record<WeightName, number>>;
+  /** `tight` (default) is the −0.02em Aspekta is set at. `font` sets every
+   *  tracking to 0 for a face that ships with its own spacing. */
+  tracking?: "tight" | "font";
   /** No mono counterpart exists — ADR 0011. Code content is set in the body
    *  face; numeric alignment uses `font-variant-numeric: tabular-nums`. */
 }
@@ -95,6 +106,9 @@ export const SEED_BOUNDS = {
    *  seed shape so accepting it again later is not a breaking change. */
   ratio: { min: 1.1, max: 1.414, default: 1.2 },
   contentWidthPx: { min: 560, max: 1440, default: 880 },
+  /** Any weight a variable or static face can name (CSS allows 1–1000; the
+   *  named cuts run 100–900). Defaults are Aspekta's ladder. */
+  weight: { min: 100, max: 900 },
   borderWidthPx: { min: 1, max: 2, default: 1 },
   focusRingWidthPx: { min: 2, max: 4, default: 2 },
   radiusPx: {

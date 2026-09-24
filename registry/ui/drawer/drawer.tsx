@@ -391,7 +391,7 @@ function DrawerTitle({ className, ...rest }: DrawerTitleProps) {
         // body-lg, NOT title-sm: both peak at 16px but the title roles are
         // fluid, and a drawer is at its narrowest on the phone where the sheet
         // draws this at 16. The same trap Sidebar hit.
-        "line-clamp-1 text-body-lg font-body font-bold leading-normal tracking-tight text-ink-primary",
+        "line-clamp-1 text-body-lg font-body text-ink-primary",
         className,
       )}
     />

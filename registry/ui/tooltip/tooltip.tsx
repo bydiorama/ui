@@ -227,7 +227,7 @@ function TooltipContent({
             // that must not be mistaken for a menu is the one that does not
             // move when the surface scale inverts.
             "bg-emphasis text-ink-on-emphasis shadow-sm",
-            "text-caption font-body font-medium leading-normal tracking-normal",
+            "text-caption font-body",
             // `scale`, not `transform` — see the identical note in modal.tsx.
             "transition-[opacity,scale]",
             motionMicro,

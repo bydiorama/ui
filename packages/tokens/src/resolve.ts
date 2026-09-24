@@ -23,7 +23,7 @@ import {
 } from "./color.ts";
 import {
   SEED_BOUNDS, clamp, validateSeed,
-  type SeedColors, type SeedValidationIssue, type ThemeSeed,
+  type SeedColors, type SeedValidationIssue, type ThemeSeed, type WeightName,
 } from "./seed.ts";
 
 /** The two inks every "which ink reads here" decision chooses between. */
@@ -288,6 +288,59 @@ const FOCUS_RING_OFFSET_PX = 2;
 /** A gap in the page colour, then the ring — as a box-shadow list. */
 function focusRing(gap: string, color: string, offsetPx: number, widthPx: number): string {
   return `0 0 0 ${offsetPx}px ${gap}, 0 0 0 ${offsetPx + widthPx}px ${color}`;
+}
+
+/**
+ * Aspekta's weight ladder (ADR 0007: the variable axis makes 450 and 550 real
+ * cuts). `TYPE_ROLES` states weights as numbers on this ladder; a brand's
+ * `typography.weights` re-points a step, and every role on it follows.
+ */
+export const WEIGHT_LADDER: Record<WeightName, number> = {
+  regular: 400, book: 450, medium: 500, semibold: 550, bold: 600,
+};
+
+/** The two trackings in the system, as `TYPE_ROLES` and the utilities name them. */
+const TRACKINGS = { tight: "-0.02em", normal: "-0.01em" } as const;
+
+type RoleToken = keyof typeof TYPE_ROLES;
+type RoleAttributeToken = `${RoleToken}-${"weight" | "leading" | "tracking"}`;
+type TypeAttributeToken =
+  | RoleAttributeToken
+  | `--ui-weight-${WeightName}`
+  | `--ui-tracking-${keyof typeof TRACKINGS}`;
+
+/**
+ * Every role's weight, leading and tracking, plus the ladders they sit on
+ * (ADR 0020 §3). The table is the source of truth — decided 2026-09-24 over
+ * "what components render is the truth" — so a role's attributes come from
+ * `TYPE_ROLES` alone and components stop choosing them per call site.
+ */
+function typeAttributes(seed: ThemeSeed): Record<TypeAttributeToken, string> {
+  const knobs = seed.typography?.weights ?? {};
+  const weights = Object.fromEntries(
+    (Object.keys(WEIGHT_LADDER) as WeightName[]).map((name) => [
+      name,
+      Math.round(clamp(knobs[name] ?? WEIGHT_LADDER[name], SEED_BOUNDS.weight.min, SEED_BOUNDS.weight.max)),
+    ]),
+  ) as Record<WeightName, number>;
+  const ownSpacing = seed.typography?.tracking === "font";
+  const tracking = (value: string) => (ownSpacing ? "0em" : value);
+
+  const out = {
+    "--ui-tracking-tight": tracking(TRACKINGS.tight),
+    "--ui-tracking-normal": tracking(TRACKINGS.normal),
+  } as Record<TypeAttributeToken, string>;
+  for (const name of Object.keys(WEIGHT_LADDER) as WeightName[]) {
+    out[`--ui-weight-${name}`] = String(weights[name]);
+  }
+  for (const [token, role] of Object.entries(TYPE_ROLES) as [RoleToken, (typeof TYPE_ROLES)[RoleToken]][]) {
+    const step = (Object.keys(WEIGHT_LADDER) as WeightName[]).find((name) => WEIGHT_LADDER[name] === role.weight);
+    if (!step) throw new Error(`TYPE_ROLES ${token}: weight ${role.weight} is not a step of the ladder`);
+    out[`${token}-weight`] = String(weights[step]);
+    out[`${token}-leading`] = String(role.leading);
+    out[`${token}-tracking`] = tracking(role.tracking);
+  }
+  return out;
 }
 
 // ── The derivation ──────────────────────────────────────────────────────
@@ -820,6 +873,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-font-body": seed.typography?.fontBody ?? "Aspekta, ui-sans-serif, system-ui, sans-serif",
     "--ui-font-display": seed.typography?.fontDisplay ?? "Aspekta, ui-sans-serif, system-ui, sans-serif",
     ...type,
+    ...typeAttributes(seed),
 
     // Chrome
     "--ui-nav-bg": navBg,

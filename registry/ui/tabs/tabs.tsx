@@ -148,7 +148,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
       data-variant={variant}
       className={cn(
         "flex min-h-6 items-center gap-xs px-sm py-xs",
-        "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap",
+        "text-button-sm font-body whitespace-nowrap",
         "transition-[background-color,color]", motionMicro,
         "text-ink-muted",
         // Enclosed divides the track evenly and centres each label; ghost sizes
@@ -191,7 +191,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
             // 12px, not the sheet's 11px: below the scale's own floor, which
             // ADR 0009 set after an 11px label pushed a control under the
             // WCAG target size.
-            "text-label-sm font-body font-bold leading-flat",
+            "text-label-sm font-body",
             "bg-elevated text-ink-primary",
           )}
         >

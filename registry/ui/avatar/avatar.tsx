@@ -201,7 +201,7 @@ const AvatarRoot = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(prop
         data-slot="avatar-frame"
         className={cn(
           "flex size-full items-center justify-center overflow-clip",
-          "font-body font-medium tracking-tight",
+          "font-body",
           // NO ring. It used to carry a full-perimeter hairline in the page's
           // colour, which is what every library ships and what made the avatar
           // wrong on any ground but one. Separating two overlapping avatars is
@@ -336,7 +336,7 @@ function AvatarGroup({
           data-slot="avatar-overflow"
           className={cn(
             "relative inline-flex shrink-0 select-none items-center justify-center",
-            "bg-sunken text-ink-muted font-body font-medium tracking-tight",
+            "bg-sunken text-ink-muted font-body",
             SIZE[size],
             shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
           )}

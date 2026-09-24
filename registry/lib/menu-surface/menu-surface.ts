@@ -98,7 +98,7 @@ export function menuPanel(className?: string): string {
 export function menuItem(className?: string): string {
   return [
     "flex w-full cursor-pointer items-center justify-between gap-sm rounded-sm p-md",
-    "text-body-lg font-body font-bold leading-normal tracking-tight",
+    "text-body-lg font-body",
     "text-ink-primary select-none",
     "[&_svg]:size-4 [&_svg]:shrink-0",
     "transition-[background-color,color]", motionMicro,
@@ -138,7 +138,7 @@ export function menuSeparator(className?: string): string {
 export function menuGroupLabel(className?: string): string {
   return [
     "px-md pt-md pb-sm",
-    "text-label-sm font-body font-bold leading-flat tracking-tight text-ink-muted",
+    "text-label-sm font-body text-ink-muted",
     className,
   ]
     .filter(Boolean)

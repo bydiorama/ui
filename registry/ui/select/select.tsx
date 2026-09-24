@@ -117,7 +117,7 @@ export function Select({
           id={labelId}
           data-slot="select-label"
           className={cn(
-            "px-sm text-label-md font-body font-medium leading-normal text-ink-secondary",
+            "px-sm text-label-md font-body text-ink-secondary",
             isLabelHidden && "sr-only",
           )}
         >
@@ -133,7 +133,7 @@ export function Select({
             className: cn(
               "flex w-full items-center justify-between gap-sm rounded-md",
               SIZE[size],
-              "border-hairline bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
+              "border-hairline bg-field border-edge-subtle text-body-md font-body text-ink-primary",
               "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               invalid && "border-danger",
@@ -226,7 +226,7 @@ export function Select({
                       // The fourth (GVO-0) is drawn py-lg and is the outlier;
                       // flagged rather than followed.
                       "flex cursor-pointer items-center gap-sm rounded-sm p-md",
-                      "text-body-md font-body font-medium text-ink-primary",
+                      "text-body-md font-body text-ink-primary",
                       "data-[highlighted]:bg-hover",
                       "data-[selected]:font-bold",
                       "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",

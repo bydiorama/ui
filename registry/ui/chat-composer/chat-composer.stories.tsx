@@ -62,7 +62,7 @@ const DictateAction = () => (
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex items-start gap-lg">
-    <span className="w-32 shrink-0 pt-md text-caption font-semibold text-ink-primary">{label}</span>
+    <span className="w-32 shrink-0 pt-md text-caption text-ink-primary">{label}</span>
     <div className="min-w-0 flex-1">{children}</div>
   </div>
 );
@@ -258,7 +258,7 @@ export const Contexts: Story = {
   render: () => (
     <div className="flex flex-col gap-2xl">
       <div className="flex flex-col gap-md">
-        <p className="text-caption font-semibold text-ink-muted">Desktop · 640</p>
+        <p className="text-caption text-ink-muted">Desktop · 640</p>
         <ChatComposer
           className="w-[640px]"
           label="Message"
@@ -272,7 +272,7 @@ export const Contexts: Story = {
       </div>
       <div className="flex items-start gap-3xl">
         <div className="flex flex-col gap-md">
-          <p className="text-caption font-semibold text-ink-muted">Sidebar · 308</p>
+          <p className="text-caption text-ink-muted">Sidebar · 308</p>
           <ChatComposer
             className="w-[308px]"
             label="Ask about this document"
@@ -284,7 +284,7 @@ export const Contexts: Story = {
           />
         </div>
         <div className="flex flex-col gap-md">
-          <p className="text-caption font-semibold text-ink-muted">Mobile · 343</p>
+          <p className="text-caption text-ink-muted">Mobile · 343</p>
           <ChatComposer
             className="w-[343px]"
             label="Message"

@@ -92,6 +92,11 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   `--ui-space-sm` of inline padding; children with their own fill or border sit
   flush at the panel's padding. Encode it in the component (as
   `Popover.Title` does), never at the call site.
+- **A type role is a composite** (ADR 0020 §3): `text-<role>` sets size,
+  weight, leading and tracking. Do not add `font-*`, `leading-*` or
+  `tracking-*` beside it. Every story fails if an element renders another
+  value than its role's, unless its `data-slot` is a declared exception in
+  `apps/storybook/.storybook/type-roles.ts` with a reason.
 - **Stroke widths come from the scale** (ADR 0020 §2), never a literal: bare
   `border` / `ring` / `outline` is the default stroke, `-hairline` the 1.5px
   edge that identifies a control or field, `-thick` selection and emphasis,

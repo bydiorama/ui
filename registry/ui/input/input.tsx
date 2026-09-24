@@ -127,7 +127,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         data-slot="label"
         htmlFor={inputId}
         className={cn(
-          "text-label-md font-body font-medium text-ink-secondary",
+          "text-label-md font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
           // accessibility tree and still be clickable as a target.
           isLabelHidden && "sr-only",

@@ -61,7 +61,7 @@ type Story = StoryObj<typeof ChatQuestionnaire>;
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex items-start gap-lg">
-    <span className="w-32 shrink-0 text-caption font-semibold text-ink-primary">{label}</span>
+    <span className="w-32 shrink-0 text-caption text-ink-primary">{label}</span>
     <div className="min-w-0 flex-1">{children}</div>
   </div>
 );

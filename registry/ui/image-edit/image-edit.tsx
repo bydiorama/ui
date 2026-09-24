@@ -516,7 +516,7 @@ function ImageEditControl({
       <div className="flex items-baseline justify-between self-stretch">
         <span
           data-slot="image-edit-control-label"
-          className="text-label-md font-body font-semibold leading-normal text-ink-secondary"
+          className="text-label-md font-body text-ink-secondary"
         >
           {label}
         </span>
@@ -525,7 +525,7 @@ function ImageEditControl({
         <span
           aria-hidden="true"
           data-slot="image-edit-control-value"
-          className="text-caption font-body font-medium leading-normal text-ink-muted"
+          className="text-caption font-body text-ink-muted"
         >
           {value}
         </span>

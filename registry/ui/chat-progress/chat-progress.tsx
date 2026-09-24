@@ -251,7 +251,7 @@ export const ChatProgress = forwardRef<HTMLDivElement, ChatProgressProps>(functi
       {status === "failed" ? (
         <div data-slot="chat-progress-failure" className="flex items-center gap-sm">
           <CloseCircle size={14} aria-hidden="true" className="shrink-0 text-danger" />
-          <p className="font-body text-body-sm font-medium leading-normal text-danger">{errorText}</p>
+          <p className="font-body text-body-sm text-danger">{errorText}</p>
           {onRetryAction && retryLabel ? (
             <Button variant="ghost" size="sm" data-slot="chat-progress-retry" onClick={onRetryAction}>
               {retryLabel}
@@ -277,7 +277,7 @@ export const ChatProgress = forwardRef<HTMLDivElement, ChatProgressProps>(functi
             {status === "done" ? (
               <>
                 <CheckCircle size={14} aria-hidden="true" className="shrink-0 text-success" />
-                <span className="font-body text-body-sm leading-normal text-ink-muted">{receiptText}</span>
+                <span className="font-body text-body-sm text-ink-muted">{receiptText}</span>
                 <Chevron />
                 {/* The trigger's accessible name. The receipt line alone says
                     what happened and not what the control does. */}
@@ -286,9 +286,9 @@ export const ChatProgress = forwardRef<HTMLDivElement, ChatProgressProps>(functi
             ) : (
               <>
                 <Chevron />
-                <span className="font-body text-label-md font-bold leading-normal text-ink-secondary">{label}</span>
+                <span className="font-body text-label-md text-ink-secondary">{label}</span>
                 {duration ? (
-                  <span className="font-body text-caption leading-normal text-ink-muted">{`· ${duration}`}</span>
+                  <span className="font-body text-caption text-ink-muted">{`· ${duration}`}</span>
                 ) : null}
               </>
             )}
@@ -342,7 +342,7 @@ function FormBody(props: ResolvedProgress & { icon?: ReactElement }) {
           >
             <span
               data-slot="chat-progress-activity-verb"
-              className="shrink-0 font-body text-label-md font-bold leading-normal text-ink-secondary"
+              className="shrink-0 font-body text-label-md text-ink-secondary"
             >
               {activity.verb}
             </span>
@@ -350,7 +350,7 @@ function FormBody(props: ResolvedProgress & { icon?: ReactElement }) {
                 one-line status into a paragraph the reader has to parse. */}
             <span
               data-slot="chat-progress-activity-detail"
-              className="min-w-0 flex-1 truncate font-body text-body-sm leading-normal text-ink-muted"
+              className="min-w-0 flex-1 truncate font-body text-body-sm text-ink-muted"
             >
               {activity.detail}
             </span>
@@ -378,7 +378,7 @@ function FormBody(props: ResolvedProgress & { icon?: ReactElement }) {
             )}
             <span
               className={cn(
-                "font-body text-body-sm leading-normal",
+                "font-body text-body-sm",
                 // The CURRENT step is the only one that steps forward; done and
                 // pending both sit in text-ink-muted and are told apart by their
                 // glyph — a check against an empty ring.
@@ -429,7 +429,7 @@ function FormBody(props: ResolvedProgress & { icon?: ReactElement }) {
       className="flex items-center gap-sm [&_svg]:size-4 [&_svg]:shrink-0"
     >
       {icon ?? <Spinner className="size-4 border-thick" />}
-      <span className="font-body text-body-sm font-medium leading-normal text-ink-muted">{label}</span>
+      <span className="font-body text-body-sm text-ink-muted">{label}</span>
     </div>
   );
 }

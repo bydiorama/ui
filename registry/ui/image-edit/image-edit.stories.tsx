@@ -44,7 +44,7 @@ type Story = StoryObj<typeof meta>;
  */
 const Panel = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="flex w-104 flex-col gap-lg rounded-lg bg-surface p-lg shadow-sm">
-    <p className="text-title-md font-display font-medium leading-normal tracking-tight text-ink-primary">
+    <p className="text-title-md font-display text-ink-primary">
       {title}
     </p>
     {children}

@@ -164,7 +164,7 @@ export function DatePicker({
           id={labelId}
           data-slot="date-picker-label"
           className={cn(
-            "text-label-md font-body font-medium leading-normal text-ink-secondary",
+            "text-label-md font-body text-ink-secondary",
             // Bare text inside a rounded surface takes the inset (§6) — but
             // the two are alternatives, not layers: `sr-only` resets padding
             // to 0 and a later `px-sm` puts 16px of it back, so a "hidden"
@@ -188,7 +188,7 @@ export function DatePicker({
             className: cn(
               "flex w-full items-center justify-between rounded-md",
               CONTROL,
-              "border-hairline bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
+              "border-hairline bg-field border-edge-subtle text-body-md font-body text-ink-primary",
               "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               "[&_svg]:size-4 [&_svg]:shrink-0",

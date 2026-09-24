@@ -152,7 +152,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         data-slot="label"
         htmlFor={textareaId}
         className={cn(
-          "text-label-md font-body font-medium text-ink-secondary",
+          "text-label-md font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
           // accessibility tree and still be clickable as a target.
           isLabelHidden && "sr-only",
@@ -235,12 +235,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           className={cn(
             "w-full min-w-0 bg-transparent",
             SIZE[size],
-            // The leading is set once for every size rather than per step:
-            // the ROLE is "snug" at all three, and only the size it multiplies
-            // changes. A textarea is the first component where this is
-            // load-bearing — an unset leading falls to the font's own, which
-            // is what made Badge's two sizes identical.
-            "font-body font-medium leading-snug",
+            // Weight comes from the size's ROLE (ADR 0020 §3); the leading is
+            // "snug" at every size instead of the role's, because the box is
+            // rows × leading and the sheet's 128px is drawn at snug — a
+            // declared exception to TYPE_ROLES (.storybook/type-roles.ts).
+            "font-body leading-snug",
             "text-ink-primary placeholder:text-ink-placeholder",
             isResizable ? "resize-y" : "resize-none",
             // A disabled field cannot be dragged either — the grip would be

@@ -101,7 +101,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
           id={labelId}
           data-slot="progress-label"
           className={cn(
-            "flex-1 text-body-sm font-body font-medium leading-normal text-ink-muted",
+            "flex-1 text-body-sm font-body text-ink-muted",
             isLabelHidden && "sr-only",
           )}
         >
@@ -110,7 +110,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
         {hasValueText && (
           <span
             data-slot="progress-value"
-            className="text-body-sm font-body font-medium leading-normal text-ink-secondary"
+            className="text-body-sm font-body text-ink-secondary"
           >
             {`${Math.round(percent)}%`}
           </span>

@@ -39,6 +39,9 @@ function utilityName(token: BrandableToken): string | null {
   // Type SIZES share the --ui-text-* prefix with ink COLOURS. Sizes are
   // enumerated because only they belong in Tailwind's --text-* namespace.
   if (TYPE_SIZE_ROLES.has(token)) return null;
+  // …and so do a role's weight, leading and tracking (ADR 0020 §3), which
+  // would otherwise mint `text-ink-body-md-weight`, a colour whose value is 400.
+  if (TYPE_ATTRIBUTES.test(token)) return null;
 
   if (name.startsWith("bg-")) return `--color-${name.slice(3)}`;
   if (name.startsWith("text-")) return `--color-ink-${name.slice(5)}`;
@@ -76,11 +79,21 @@ function utilityName(token: BrandableToken): string | null {
   return null;
 }
 
+/** Anchored at BOTH ends: the role attribute tokens share the prefix, and
+ *  an open-ended pattern swept `--ui-text-body-md-weight` into the size
+ *  namespace as `--text-body-md-weight`, a font size of 400. */
 const TYPE_SIZE_ROLES = new Set<string>(
   BRANDABLE_TOKENS.filter((t) =>
-    /^--ui-text-(display|title|body|label|caption|button)/.test(t),
+    /^--ui-text-(?:(?:display|title|body|label|button)-(?:lg|md|sm)|caption)$/.test(t),
   ),
 );
+
+const TYPE_ATTRIBUTES = /^--ui-text-.+-(weight|leading|tracking)$/;
+
+/** Role attribute → the Tailwind v4 companion that a `text-<role>` utility
+ *  applies with its size. Tailwind reads each one through `--tw-*` first, so
+ *  an explicit `font-*`, `leading-*` or `tracking-*` still wins. */
+const COMPANIONS = { weight: "font-weight", leading: "line-height", tracking: "letter-spacing" } as const;
 
 const SHAPE_NAMESPACES: Array<[prefix: string, namespace: string]> = [
   ["--ui-radius-", "--radius-"],
@@ -121,9 +134,19 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
   }
   push("Colour roles.", colors);
 
+  // Each role is a composite (ADR 0020 §3): the size, then its weight,
+  // leading and tracking as v4 companions, so `text-body-md` sets all four.
   push(
-    "Type scale.",
-    [...TYPE_SIZE_ROLES].map((t) => [`--text-${t.replace("--ui-text-", "")}`, `var(${t})`]),
+    "Type scale — size plus weight, leading and tracking per role.",
+    [...TYPE_SIZE_ROLES].flatMap((t) => {
+      const role = t.replace("--ui-text-", "");
+      return [
+        [`--text-${role}`, `var(${t})`] as [string, string],
+        ...(Object.entries(COMPANIONS) as [keyof typeof COMPANIONS, string][]).map(
+          ([attr, prop]) => [`--text-${role}--${prop}`, `var(${t}-${attr})`] as [string, string],
+        ),
+      ];
+    }),
   );
 
   for (const [prefix, namespace] of SHAPE_NAMESPACES) {
@@ -180,7 +203,7 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
 
   push(
     "Typography attributes.",
-    FIXED_TOKENS.filter((t) => /^--ui-(weight|leading|tracking)-/.test(t)).map((t) => {
+    [...BRANDABLE_TOKENS, ...FIXED_TOKENS].filter((t) => /^--ui-(weight|leading|tracking)-/.test(t)).map((t) => {
       const [, family, name] = t.match(/^--ui-(weight|leading|tracking)-(.+)$/)!;
       const ns = family === "weight" ? "--font-weight-" : family === "leading" ? "--leading-" : "--tracking-";
       return [`${ns}${name}`, `var(${t})`] as [string, string];

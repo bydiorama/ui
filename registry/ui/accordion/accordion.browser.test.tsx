@@ -478,14 +478,16 @@ describe("Accordion paints the designed surface", () => {
     expect(card.bottom - i.bottom + pad(inner, "Bottom")).toBeCloseTo(20, 1);
   });
 
-  test("the trigger's label is the sheet's 13px bold, clamped to one line", () => {
+  test("the trigger's label is the sheet's 13px at body-sm's own weight, clamped to one line", () => {
     const c = mount(<Basic />);
     const trigger = c.querySelector('[data-slot="accordion-trigger"]') as HTMLElement;
     const label = c.querySelector('[data-slot="accordion-label"]') as HTMLElement;
     const style = getComputedStyle(trigger);
 
     expect(style.fontSize).toBe("13px");
-    expect(style.fontWeight).toBe("600");
+    // The ROLE's weight (TYPE_ROLES body-sm: 500). The sheet drew it bold;
+    // the table is the source of truth since ADR 0020 §3.
+    expect(style.fontWeight).toBe("500");
     expect(getComputedStyle(label).webkitLineClamp).toBe("1");
   });
 });

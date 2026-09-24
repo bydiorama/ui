@@ -43,7 +43,7 @@ const ALLOWED = new Map([
   ["--ui-logo-height", "Consumer-side chrome (ADR 0006): the height a brand's logo renders at in the app's header slot. The library renders logos through a slot and never sizes them."],
   [/^--ui-selection-(bg|fg)$/, "Applied once per document by the consuming app's root stylesheet to `::selection`. A component that set it would fight the app."],
   [/^--ui-measure-/, "Line-length caps for long-form text in consumer pages. No component sets running prose."],
-  [/^--ui-text-(display-lg|display-md|title-md)$/, "Page-heading roles of the authored type table (ADR 0009). Components do not set page headings; consumer pages do."],
+  [/^--ui-text-(display-lg|display-md|title-md)(-weight|-leading|-tracking)?$/, "Page-heading roles of the authored type table (ADR 0009), with their attributes (ADR 0020 §3). Components do not set page headings; consumer pages do."],
 
   // ── Families whose consumers live outside registry/ by design ──
   [/^--ui-data-/, "Categorical data colours (ADR 0006(a)) for consumer charts. The library ships no chart component."],
@@ -55,7 +55,8 @@ const ALLOWED = new Map([
   // ── Open questions already on record, not new ones ──
   [/^--ui-(ease-in|stagger-step|motion-(micro|standard|deliberate|choreographed))$/, "PLAN.md § Motion records it: the curve vocabulary has almost no consumers, and whether it is too big is an open question for a person. Listed here so that question is visible, not settled."],
   [/^--ui-space-(3xl|(stack|inline|inset)-[a-z0-9]+)$/, "ADR 0020 §5: components use the base steps directly; the intent layer is kept for a future brand `rhythm` knob. 3xl is reached only through stack-xl."],
-  ["--ui-leading-tight", "A step of the leading ladder `leading-*` utilities resolve against. No role takes it (ADR 0009's table uses flat/snug/normal/relaxed)."],
+  [/^--ui-leading-(tight|relaxed)$/, "Steps of the leading ladder `leading-*` utilities resolve against. Roles carry their own leading since ADR 0020 §3, and no declared exception takes these two; kept for consumer prose, listed so the question stays visible."],
+  ["--ui-weight-book", "A step of the weight ladder (Aspekta's 450 cut) that no role in TYPE_ROLES sits on and no component names since ADR 0020 §3. Kept so `font-book` and a brand's `weights.book` keep a meaning; listed for review, not settled."],
   [/^--ui-(text-link-hover|text-on-muted|text-on-danger-solid|bg-danger-solid|bg-muted|bg-overlay|bg-affix-floor|bg-accent-subtle-hover|bg-emphasis-hover|bg-emphasis-active|nav-border|nav-active-ink)$/, "A colour role in the vocabulary apps style their own screens with, and contrast-audited as such. Unread inside the library at ADR 0020; removing a role is a breaking change owed its own ledger entry, so this lists it for review rather than deleting it."],
 ]);
 

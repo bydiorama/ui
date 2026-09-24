@@ -160,7 +160,7 @@ const SidebarNav = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
           className={cn(
             isLabelHidden
               ? "sr-only"
-              : "px-md pt-xs pb-sm text-label-sm font-body font-bold tracking-tight text-ink-nav-muted uppercase",
+              : "px-md pt-xs pb-sm text-label-sm font-body text-ink-nav-muted uppercase",
           )}
         >
           {label}
@@ -237,7 +237,7 @@ function SidebarLayer({ children, id, title, backLabel, className, ...rest }: Si
       </div>
       <p
         data-slot="sidebar-layer-title"
-        className="flex min-h-9 items-center p-md text-body-lg font-body font-medium leading-normal tracking-tight text-ink-nav"
+        className="flex min-h-9 items-center p-md text-body-lg font-body leading-normal text-ink-nav"
       >
         {/* Same `sidebar-text` slot every other labelled part uses, so the
             lane is one selector away for a test and for a consumer. */}
@@ -322,7 +322,7 @@ function SidebarSection({
    */
   const headingClass =
     "flex min-h-9 w-full items-center justify-between gap-sm rounded-sm p-md " +
-    "text-body-lg font-body font-bold leading-normal tracking-tight text-ink-nav";
+    "text-body-lg font-body font-bold leading-normal text-ink-nav";
 
   const triggerClass = cn(
     headingClass,
@@ -494,8 +494,9 @@ function SidebarItem({
         "flex min-h-9 items-center justify-between gap-sm rounded-sm p-md",
         // Same 16px size as the section heading (see headingClass on why it is
         // body-lg and not the fluid title-sm); the levels differ by weight and
-        // ink, since they share an inset.
-        "text-body-lg font-body font-medium leading-normal tracking-tight no-underline",
+        // ink, since they share an inset. `leading-normal` keeps the sheet's
+        // 46px row — a declared exception to body-lg's 1.55 (ADR 0020 §3).
+        "text-body-lg font-body leading-normal no-underline",
         inSection ? "text-ink-nav-muted" : "text-ink-nav",
         isLink && [
           "cursor-pointer transition-[background-color,color]", motionMicro,
@@ -621,11 +622,11 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
           </span>
         )}
         <span className="flex min-w-0 flex-1 flex-col gap-xs">
-          <span data-slot="sidebar-profile-name" className="truncate text-body-lg font-body font-bold leading-normal tracking-tight text-ink-nav">
+          <span data-slot="sidebar-profile-name" className="truncate text-body-lg font-body font-bold leading-normal text-ink-nav">
             {name}
           </span>
           {email && (
-            <span data-slot="sidebar-profile-email" className="truncate text-button-sm font-body font-medium leading-flat tracking-tight text-ink-muted">
+            <span data-slot="sidebar-profile-email" className="truncate text-button-sm font-body text-ink-muted">
               {email}
             </span>
           )}
@@ -690,7 +691,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
           placeholder={placeholder}
           className={cn(
             "min-w-0 flex-1 bg-transparent outline-none",
-            "text-body-md font-body font-medium text-ink-nav",
+            "text-body-md font-body text-ink-nav",
             "placeholder:text-ink-placeholder",
           )}
           {...rest}
@@ -737,7 +738,7 @@ function SidebarHeading({ children, className, ...rest }: SidebarHeadingProps) {
     <p
       data-slot="sidebar-heading"
       className={cn(
-        "flex p-md text-button-sm font-body font-bold leading-flat tracking-tight text-ink-nav-muted",
+        "flex p-md text-button-sm font-body text-ink-nav-muted",
         className,
       )}
       {...rest}

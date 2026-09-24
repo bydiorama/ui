@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type FixedToken } from "./contract.ts";
 import { FIXED_TOKEN_VALUES } from "./base.ts";
-import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA } from "./resolve.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
 import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
@@ -858,4 +858,57 @@ test("theme zero's focus ring is unchanged by being composed", () => {
   const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
   assert.equal(light["--ui-focus-ring"], "0 0 0 2px #FFFFFF, 0 0 0 4px #1B6C84");
   assert.equal(dark["--ui-focus-ring"], "0 0 0 2px #423E3A, 0 0 0 4px #79B8D3");
+});
+
+// ── Type roles (ADR 0020 §3) ────────────────────────────────────────────────
+
+
+test("every role's weight, leading and tracking is the table's — the table is the truth", () => {
+  const { theme } = resolveTheme(THEME_ZERO, { scheme: "light" });
+  for (const [token, role] of Object.entries(TYPE_ROLES)) {
+    const t = token as keyof typeof TYPE_ROLES;
+    assert.equal(theme[`${t}-weight`], String(role.weight), `${t} weight`);
+    assert.equal(theme[`${t}-leading`], String(role.leading), `${t} leading`);
+    assert.equal(theme[`${t}-tracking`], role.tracking, `${t} tracking`);
+  }
+  assert.equal(theme["--ui-weight-semibold"], "550");
+  assert.equal(theme["--ui-tracking-tight"], "-0.02em");
+});
+
+test("typography.weights re-points a ladder step, and every role on it follows", () => {
+  // A static face with no 550 cut: semibold goes to 600, bold to 700.
+  const { theme } = resolveTheme(
+    { ...THEME_ZERO, typography: { weights: { semibold: 600, bold: 700 } } },
+    { scheme: "light" },
+  );
+  assert.equal(theme["--ui-weight-semibold"], "600");
+  assert.equal(theme["--ui-text-title-md-weight"], "600", "title-md sits on semibold");
+  assert.equal(theme["--ui-text-label-md-weight"], "700", "label-md sits on bold");
+  assert.equal(theme["--ui-text-body-md-weight"], String(WEIGHT_LADDER.regular), "untouched steps keep Aspekta's");
+});
+
+test("weights clamp to the named range", () => {
+  const { theme } = resolveTheme({ ...THEME_ZERO, typography: { weights: { regular: 20, bold: 2000 } } }, { scheme: "light" });
+  assert.equal(theme["--ui-weight-regular"], String(SEED_BOUNDS.weight.min));
+  assert.equal(theme["--ui-weight-bold"], String(SEED_BOUNDS.weight.max));
+});
+
+test("tracking: 'font' zeroes every tracking, role and ladder alike", () => {
+  const { theme } = resolveTheme({ ...THEME_ZERO, typography: { tracking: "font" } }, { scheme: "light" });
+  for (const token of Object.keys(TYPE_ROLES)) {
+    assert.equal(theme[`${token as keyof typeof TYPE_ROLES}-tracking`], "0em");
+  }
+  assert.equal(theme["--ui-tracking-tight"], "0em");
+  assert.equal(theme["--ui-tracking-normal"], "0em");
+});
+
+test("leading has no knob: no seed moves a role's line-height (ADR 0020 §3)", () => {
+  const a = resolveTheme(THEME_ZERO, { scheme: "light" }).theme;
+  for (const { seed } of STRESS_BRANDS) {
+    const b = resolveTheme(seed, { scheme: "light" }).theme;
+    for (const token of Object.keys(TYPE_ROLES)) {
+      const t = `${token as keyof typeof TYPE_ROLES}-leading` as const;
+      assert.equal(b[t], a[t]);
+    }
+  }
 });

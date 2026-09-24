@@ -267,7 +267,8 @@ describe("ImageOverlay caption", () => {
     // from a grid column rather than from the viewport. Only the number tells
     // the right role from the plausible one.
     expect(title.fontSize).toBe("16px");
-    expect(title.fontWeight).toBe("600");
+    // body-lg's own weight (ADR 0020 §3).
+    expect(title.fontWeight).toBe("500");
     expect(description.fontSize).toBe("12px");
   });
 

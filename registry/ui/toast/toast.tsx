@@ -356,7 +356,7 @@ function ToastRoot({
               // settings), so the glyph centres on the first line however far
               // the description wraps.
               "flex w-4 shrink-0 items-center justify-center self-start",
-              "h-[1lh] text-body-lg leading-normal",
+              "h-[1lh] text-body-lg",
               "[&_svg]:size-4 [&_svg]:shrink-0",
               TYPE_INK[type],
             )}
@@ -373,13 +373,13 @@ function ToastRoot({
               // the viewport — title-sm would render below the sheet's 16px
               // exactly where the sheet draws it. The browser test asserts
               // the computed 16px, which is the only thing telling them apart.
-              className="text-body-lg font-body font-bold leading-normal tracking-tight text-ink-primary"
+              className="text-body-lg font-body text-ink-primary"
             />
           ) : null}
           {toast.description != null ? (
             <BaseToast.Description
               data-slot="toast-description"
-              className="text-body-sm font-body font-medium leading-normal tracking-normal text-ink-muted"
+              className="text-body-sm font-body text-ink-muted"
             />
           ) : null}
         </div>

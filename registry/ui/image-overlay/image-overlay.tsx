@@ -124,14 +124,14 @@ function ImageOverlayTitle({ className, ...rest }: HTMLAttributes<HTMLParagraphE
     <p
       data-slot="image-overlay-title"
       className={cn(
-        // `text-body-lg font-bold`, NOT `text-title-sm` — which is the role
+        // `text-body-lg`, NOT `text-title-sm` — which is the role
         // whose peak matches the sheet's 16px and is the wrong one anyway.
         // The title roles are FLUID (`clamp(…vw…)`), and a caption lives
         // inside a media frame whose width comes from a grid column, not from
         // the viewport: title-sm computed to 12.17px in the browser while the
         // sheet draws 16, worst on the phone where the picture is widest.
         // body-lg is the fixed 16px role; the weight and leading are set here.
-        "px-xs text-body-lg font-display font-bold leading-normal tracking-tight",
+        "px-xs text-body-lg font-display",
         // NOT --ui-text-inverse, which the sheet used. Inverse resolves as
         // "the ink readable on the page's own text colour", so in dark it is
         // near-BLACK and this line would vanish into the veil in one scheme.
@@ -151,7 +151,7 @@ function ImageOverlayDescription({ className, ...rest }: HTMLAttributes<HTMLPara
     <p
       data-slot="image-overlay-description"
       className={cn(
-        "px-xs text-label-sm font-body font-medium leading-normal tracking-tight",
+        "px-xs text-label-sm font-body",
         // The sheet reached for a raw --ui-neutral-80 here. Same value, as a
         // role, floored against the veil in both schemes.
         "text-ink-on-media-muted",

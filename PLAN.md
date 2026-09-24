@@ -26,7 +26,7 @@ read for compliance. This file carries only what is not yet true.
 
 Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 
-## Status — 2026-09-04
+## Status — 2026-09-24
 
 | | |
 |---|---:|
@@ -34,12 +34,12 @@ Phases 0.5 and 4 are consumer-side and belong to the portal's own plan.
 | — components | 45 |
 | — lib / hook / font / skill | 5 / 3 / 1 / 1 |
 | Generated registry items (`r/*.json`) | 55 |
-| Ledger entries / ADRs | 197 / 19 |
-| `pnpm verify` gates | 18, green |
-| Node tests | 112, green |
-| Browser tests — contract + story a11y | 1263 across 102 files, green |
+| Ledger entries / ADRs | 201 / 20 |
+| `pnpm verify` gates | 21, green |
+| Node tests | 130, green |
+| Browser tests — contract + story a11y + type roles | 1276 across 104 files; green except two outline-offset assertions that fail only on an older Chromium build than CI pins |
 | Declared design gaps | 171, across 45 of 45 docs |
-| Visual baselines | 180 (45 cases x 2 schemes, darwin + linux), all current |
+| Visual baselines | 180 (45 cases x 2 schemes, darwin + linux) — **stale by design after ADR 0020**: the type-role restyle moves 64 cases and the new `density` case has none yet. Regenerate linux with the workflow and darwin locally |
 | Consumer drift (service-portal, 26 items) | not re-measured since 2026-08-16 — needs a consumer checkout |
 
 Reproduce with `pnpm verify`, `pnpm test`, `pnpm test:browser`,
@@ -73,6 +73,25 @@ Three of four emitters are built: `emit/css.ts`, `emit/tailwind.ts`,
       waiting on it — unchanged since 2026-08-08. Tokens reach Paper today via
       `design/paper/tokens.snapshot.json`. Build it when something needs a live
       push, not before.
+
+### Non-colour theming (ADR 0020) · **done**
+
+The seed could re-skin every colour and radius but not the geometry under
+them. Three knobs and one mode now reach components, each behind a gate:
+
+- [x] **Strokes** — `--ui-stroke-default|hairline|thick` and the focus pair,
+      from `shape.borderWidthPx` (1–2) and `shape.focusRingWidthPx` (2–4).
+      `check:strokes` bans literal widths.
+- [x] **Type roles are composites** — `text-<role>` sets size, weight,
+      leading and tracking. The table is the truth; nine declared
+      exceptions. Enforced in every story at runtime; `check:type-roles`
+      keeps the exceptions current.
+- [x] **Control sizes and density** — two families (control, field) and
+      `[data-ui-density]` modes, floored at 24px.
+- [x] **`check:token-consumers`** — a contract token nothing reads fails
+      unless declared with a reason. 79 are declared; twelve colour roles,
+      `--ui-weight-book` and two leadings are listed for review, not settled.
+- [ ] **Regenerate the visual baselines** the restyle moved (see Status).
 
 ## Phase 2 — core primitives · **in progress, exit gate not met**
 

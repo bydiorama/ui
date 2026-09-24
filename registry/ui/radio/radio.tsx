@@ -168,7 +168,7 @@ export const RadioGroup = forwardRef<HTMLFieldSetElement, RadioGroupProps>(funct
       <legend
         data-slot="radio-group-label"
         className={cn(
-          "text-label-md font-body font-bold leading-snug tracking-tight text-ink-primary",
+          "text-label-md font-body text-ink-primary",
           // A legend is not in the flow the way a heading is — it wants the
           // group's gap rather than a margin of its own, and `float-none` is
           // what puts it back in the column in every browser.
@@ -360,7 +360,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
           // clipped. Border colour alone would not clear SC 1.4.11 against
           // the resting edge, so the ring carries the indicator.
           "peer-focus-visible:border-edge-focus peer-focus-visible:shadow-(--ui-focus-ring)",
-          "peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-2",
+          "peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-focus",
         )}
       >
         {checked && <span data-slot="dot" className={cn(DOT, "shrink-0 rounded-full bg-current")} />}
@@ -370,7 +370,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
         <span
           data-slot="label"
           className={cn(
-            "text-label-md font-body font-medium leading-snug tracking-tight",
+            "text-label-md font-body",
             disabled ? "text-ink-disabled" : "text-ink-primary",
           )}
         >
@@ -380,7 +380,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
           <span
             data-slot="radio-description"
             className={cn(
-              "text-caption font-body leading-normal tracking-tight",
+              "text-caption font-body",
               disabled ? "text-ink-disabled" : "text-ink-muted",
             )}
           >

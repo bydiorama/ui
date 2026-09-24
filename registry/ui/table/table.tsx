@@ -508,7 +508,7 @@ export function Table<Row>({
                       ? { "aria-sort": "none" as const }
                       : {})}
                   className={cn(
-                    "bg-elevated font-body text-label-sm leading-normal font-medium align-middle",
+                    "bg-elevated font-body text-label-sm align-middle",
                     sorted ? "text-ink-primary" : "text-ink-muted",
                     isEnd && "text-right",
                     // A sortable header's fill covers the whole lane, so its
@@ -535,12 +535,12 @@ export function Table<Row>({
                         sorted && "font-bold text-ink-primary",
                         "transition-[background-color,color]", motionMicro,
                         "hover:bg-hover hover:text-ink-primary",
-                        // No bare `outline` beside `outline-2`: tailwind-merge
+                        // No bare `outline` beside `outline-focus`: tailwind-merge
                         // reads the two as one group and DELETES the first, so
                         // the style keyword never reaches the DOM. v4's
-                        // `outline-2` already carries `--tw-outline-style:
+                        // `outline-focus` already carries `--tw-outline-style:
                         // solid` — the same shape Button uses.
-                        "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus-ring",
+                        "focus-visible:outline-focus focus-visible:-outline-offset-focus focus-visible:outline-focus-ring",
                       )}
                     >
                       {label}
@@ -665,7 +665,7 @@ export function Table<Row>({
                     // stops — everything a row does is reachable from the
                     // checkbox inside it — so this fires when a control in the
                     // row takes focus, which is the state the sheet is drawing.
-                    "has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-focus-ring",
+                    "has-[:focus-visible]:outline-focus has-[:focus-visible]:-outline-offset-focus has-[:focus-visible]:outline-focus-ring",
                   )}
                 >
                   {isSelectable ? (

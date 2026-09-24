@@ -92,6 +92,23 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   `--ui-space-sm` of inline padding; children with their own fill or border sit
   flush at the panel's padding. Encode it in the component (as
   `Popover.Title` does), never at the call site.
+- **Control and field sizes come from the density tokens** (ADR 0020 §4):
+  `h-control-*` / `size-control-*` / `px-control-inset-*` for actions,
+  `h-field-*` / `px-field-inset-*` for fields — never `h-11` or `h-12`, which
+  `[data-ui-density]` cannot reach. A portalled panel leaves the density
+  subtree, so pass `data-ui-density` to its popup part too.
+- **A type role is a composite** (ADR 0020 §3): `text-<role>` sets size,
+  weight, leading and tracking. Do not add `font-*`, `leading-*` or
+  `tracking-*` beside it. Every story fails if an element renders another
+  value than its role's, unless its `data-slot` is a declared exception in
+  `apps/storybook/.storybook/type-roles.ts` with a reason.
+- **Stroke widths come from the scale** (ADR 0020 §2), never a literal: bare
+  `border` / `ring` / `outline` is the default stroke, `-hairline` the 1.5px
+  edge that identifies a control or field, `-thick` selection and emphasis,
+  and `outline-focus` + `outline-offset-focus` the focus indicator. A
+  hairline that must keep its half pixel at DPR 1 is a `ring`, not a
+  `border` — Chromium floors borders to device pixels. `check:strokes`
+  enforces it.
 - **Shadows for elevation, borders for structure.** A border whose only job is
   depth becomes a layered translucent `--ui-shadow-*`; borders that communicate
   structure or state stay.

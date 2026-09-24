@@ -79,7 +79,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function E
 
         <p
           data-slot="empty-state-title"
-          className="font-body text-label-md leading-normal font-medium text-ink-secondary"
+          className="font-body text-label-md text-ink-secondary"
         >
           {title}
         </p>
@@ -94,7 +94,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(function E
               // collides the moment the sentence is two lines long. `caption`
               // is the role for this, at the leading prose is set in. The
               // handoff sheet adopted this reading; see its Gaps section.
-              "font-body text-caption leading-normal font-medium tracking-tight text-ink-muted",
+              "font-body text-caption text-ink-muted",
             )}
           >
             {description}

@@ -57,7 +57,7 @@ const Actions = () => (
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex items-start gap-lg">
-    <span className="w-32 shrink-0 text-caption font-semibold text-ink-primary">{label}</span>
+    <span className="w-32 shrink-0 text-caption text-ink-primary">{label}</span>
     <div className="min-w-0 flex-1">{children}</div>
   </div>
 );
@@ -177,7 +177,7 @@ export const Widths: Story = {
   render: () => (
     <div className="flex items-start gap-3xl">
       <div className="flex w-[308px] flex-col gap-md">
-        <p className="text-caption font-semibold text-ink-muted">Sidebar · 308</p>
+        <p className="text-caption text-ink-muted">Sidebar · 308</p>
         <div className="flex flex-col gap-lg [--ui-chat-message-bubble-max-width:85%]">
           <ChatMessage.Sender size="sm">Shorten the intro and make it more personal.</ChatMessage.Sender>
           <ChatMessage.Receiver size="sm">
@@ -187,7 +187,7 @@ export const Widths: Story = {
         </div>
       </div>
       <div className="flex w-[343px] flex-col gap-md">
-        <p className="text-caption font-semibold text-ink-muted">Mobile · 343</p>
+        <p className="text-caption text-ink-muted">Mobile · 343</p>
         <div className="flex flex-col gap-lg [--ui-chat-message-bubble-max-width:85%]">
           <ChatMessage.Sender>Build a habit tracker with a progress bar on top.</ChatMessage.Sender>
           <ChatMessage.Receiver>

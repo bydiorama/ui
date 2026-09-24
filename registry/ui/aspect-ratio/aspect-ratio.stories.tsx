@@ -95,10 +95,10 @@ export const Matrix: Story = {
     <div className="flex flex-col gap-xl">
       {RATIOS.map((ratio) => (
         <div key={ratio} className="flex flex-col items-start gap-sm">
-          <p className="text-title-lg font-display font-medium leading-normal tracking-tight text-ink-primary">
+          <p className="text-title-lg font-display text-ink-primary">
             {`Aspect Ratio ${ratio[0]!.toUpperCase()}${ratio.slice(1)}`}
           </p>
-          <p className="text-body-sm font-body font-medium leading-normal text-ink-muted">
+          <p className="text-body-sm font-body text-ink-muted">
             {CAPTION[ratio]}
           </p>
           <div className="w-48">

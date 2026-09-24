@@ -82,7 +82,7 @@ export const Banner = forwardRef<HTMLDivElement, BannerProps>(function Banner(
       {...rest}
     >
       {icon}
-      <p data-slot="banner-message" className="min-w-0 flex-1 text-body-sm font-body font-medium leading-normal">
+      <p data-slot="banner-message" className="min-w-0 flex-1 text-body-sm font-body">
         {children}
       </p>
       {onDismiss && (

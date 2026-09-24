@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type FixedToken } from "./contract.ts";
-import { FIXED_TOKEN_VALUES } from "./base.ts";
-import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA } from "./resolve.ts";
+import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES } from "./base.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
 import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
@@ -797,4 +797,202 @@ test("the z scale orders every surface under the surfaces it can open", () => {
   above("modal", "overlay", "a confirmation is raised from a panel");
   above("tooltip", "dropdown", "a tooltip attaches to controls on every other surface");
   above("overlay", "sticky", "the affix Header must not cover a Sheet — the defect this fixed");
+});
+
+// ── Strokes (ADR 0020 §2) ───────────────────────────────────────────────────
+
+test("theme zero's stroke scale is the widths the library drew as literals", () => {
+  const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  for (const theme of [light, dark]) {
+    assert.equal(theme["--ui-stroke-default"], "1px");
+    // Not rounded. The shared `px()` helper rounds, and would have made the
+    // hairline 2px — every control edge in the library a third heavier.
+    assert.equal(theme["--ui-stroke-hairline"], "1.5px");
+    assert.equal(theme["--ui-stroke-thick"], "2px");
+    assert.equal(theme["--ui-focus-ring-width"], "2px");
+    assert.equal(theme["--ui-focus-ring-offset"], "2px");
+  }
+});
+
+test("borderWidthPx drives the whole stroke scale, in proportion", () => {
+  const { theme } = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: 2 } }, { scheme: "light" });
+  assert.equal(theme["--ui-stroke-default"], "2px");
+  assert.equal(theme["--ui-stroke-hairline"], "3px");
+  assert.equal(theme["--ui-stroke-thick"], "4px");
+  // …and NOT the focus ring, which has its own knob: a brand choosing
+  // delicate edges must not thin the focus indicator with them.
+  assert.equal(theme["--ui-focus-ring-width"], "2px");
+});
+
+test("stroke knobs clamp: no borderless brand, no focus ring under 2px", () => {
+  const thin = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: 0, focusRingWidthPx: 1 } }, { scheme: "light" }).theme;
+  assert.equal(thin["--ui-stroke-default"], "1px", "a 0 base would erase every control boundary");
+  assert.equal(thin["--ui-focus-ring-width"], "2px", "SC 2.4.13's 2px floor, adopted on purpose");
+  const heavy = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: 9, focusRingWidthPx: 9 } }, { scheme: "light" }).theme;
+  assert.equal(heavy["--ui-stroke-default"], `${SEED_BOUNDS.borderWidthPx.max}px`);
+  assert.equal(heavy["--ui-focus-ring-width"], `${SEED_BOUNDS.focusRingWidthPx.max}px`);
+});
+
+test("the focus ring is composed from its own tokens, after authoring", () => {
+  // It used to be a hand-written string beside the two tokens it duplicated,
+  // in the resolver AND twice in theme zero. Now nothing can make the drawn
+  // ring disagree with its stated colour, width or gap.
+  for (const { seed, authored } of [
+    { seed: THEME_ZERO, authored: ZERO_AUTHORED },
+    { seed: { ...THEME_ZERO, shape: { focusRingWidthPx: 3 } }, authored: undefined },
+    ...STRESS_BRANDS.map((b) => ({ seed: b.seed, authored: undefined })),
+  ]) {
+    const pair = resolveThemePair(seed, authored ? { authored } : {});
+    for (const theme of [pair.light, pair.dark]) {
+      const offset = parseFloat(theme["--ui-focus-ring-offset"]);
+      const width = parseFloat(theme["--ui-focus-ring-width"]);
+      assert.equal(
+        theme["--ui-focus-ring"],
+        `0 0 0 ${offset}px ${theme["--ui-bg-base"]}, 0 0 0 ${offset + width}px ${theme["--ui-focus-ring-color"]}`,
+      );
+    }
+  }
+});
+
+test("theme zero's focus ring is unchanged by being composed", () => {
+  const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  assert.equal(light["--ui-focus-ring"], "0 0 0 2px #FFFFFF, 0 0 0 4px #1B6C84");
+  assert.equal(dark["--ui-focus-ring"], "0 0 0 2px #423E3A, 0 0 0 4px #79B8D3");
+});
+
+test("an authored --ui-focus-ring is discarded but never silently (review finding I1)", () => {
+  // It is derived-only: always recomposed from -color/-width/-offset, so it
+  // can never disagree with the tokens that state its geometry. This is what
+  // stops that recomposition from being a SILENT overwrite of an author's
+  // intent — theme zero itself used to author this exact string twice.
+  const { theme, issues } = resolveTheme(THEME_ZERO, {
+    scheme: "light",
+    authored: { ...ZERO_AUTHORED.light, "--ui-focus-ring": "0 0 0 99px red" },
+  });
+  assert.notEqual(theme["--ui-focus-ring"], "0 0 0 99px red", "the composite always wins");
+  assert.ok(
+    issues.some((i) => i.path === "authored.--ui-focus-ring"),
+    "discarding an authored value must be reported, not silent",
+  );
+});
+
+// ── Type roles (ADR 0020 §3) ────────────────────────────────────────────────
+
+
+test("every role's weight, leading and tracking is the table's — the table is the truth", () => {
+  const { theme } = resolveTheme(THEME_ZERO, { scheme: "light" });
+  for (const [token, role] of Object.entries(TYPE_ROLES)) {
+    const t = token as keyof typeof TYPE_ROLES;
+    assert.equal(theme[`${t}-weight`], String(role.weight), `${t} weight`);
+    assert.equal(theme[`${t}-leading`], String(role.leading), `${t} leading`);
+    assert.equal(theme[`${t}-tracking`], role.tracking, `${t} tracking`);
+  }
+  assert.equal(theme["--ui-weight-semibold"], "550");
+  assert.equal(theme["--ui-tracking-tight"], "-0.02em");
+});
+
+test("typography.weights re-points a ladder step, and every role on it follows", () => {
+  // A static face with no 550 cut: semibold goes to 600, bold to 700.
+  const { theme } = resolveTheme(
+    { ...THEME_ZERO, typography: { weights: { semibold: 600, bold: 700 } } },
+    { scheme: "light" },
+  );
+  assert.equal(theme["--ui-weight-semibold"], "600");
+  assert.equal(theme["--ui-text-title-md-weight"], "600", "title-md sits on semibold");
+  assert.equal(theme["--ui-text-label-md-weight"], "700", "label-md sits on bold");
+  assert.equal(theme["--ui-text-body-md-weight"], String(WEIGHT_LADDER.regular), "untouched steps keep Aspekta's");
+});
+
+test("weights clamp to the named range", () => {
+  const { theme } = resolveTheme({ ...THEME_ZERO, typography: { weights: { regular: 20, bold: 2000 } } }, { scheme: "light" });
+  assert.equal(theme["--ui-weight-regular"], String(SEED_BOUNDS.weight.min));
+  assert.equal(theme["--ui-weight-bold"], String(SEED_BOUNDS.weight.max));
+});
+
+// ── Malformed numeric knobs (ADR 0020, review finding C1) ───────────────────
+//
+// A seed is untyped JSON at the boundary, not a TypeScript literal, so a
+// non-numeric value is a real input, not a type error someone can catch
+// upstream. Before this, `borderWidthPx: "2"` threw ("2".toFixed is not a
+// function — clamp assumed a finite number), and `focusRingWidthPx: NaN`
+// silently produced a NaN-wide focus ring: a control with no visible
+// indicator at all, and no build error to find it by.
+
+test("a non-numeric borderWidthPx falls back to the default instead of throwing", () => {
+  assert.doesNotThrow(() => resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: "2" as unknown as number } }, { scheme: "light" }));
+  const { theme, issues } = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: "2" as unknown as number } }, { scheme: "light" });
+  assert.equal(theme["--ui-stroke-default"], `${SEED_BOUNDS.borderWidthPx.default}px`);
+  assert.ok(issues.some((i) => i.path === "shape.borderWidthPx"), "validateSeed must report the bad value");
+});
+
+test("a NaN focusRingWidthPx falls back to the default instead of poisoning the focus ring", () => {
+  const { theme, issues } = resolveTheme({ ...THEME_ZERO, shape: { focusRingWidthPx: Number.NaN } }, { scheme: "light" });
+  assert.equal(theme["--ui-focus-ring-width"], `${SEED_BOUNDS.focusRingWidthPx.default}px`);
+  assert.doesNotMatch(theme["--ui-focus-ring"], /NaN/);
+  assert.ok(issues.some((i) => i.path === "shape.focusRingWidthPx"));
+});
+
+test("a non-numeric weight falls back to that step's ladder default", () => {
+  const { theme, issues } = resolveTheme(
+    { ...THEME_ZERO, typography: { weights: { bold: "heavy" as unknown as number } } },
+    { scheme: "light" },
+  );
+  assert.equal(theme["--ui-weight-bold"], String(WEIGHT_LADDER.bold));
+  assert.doesNotMatch(theme["--ui-text-title-sm-weight"], /NaN/);
+  assert.ok(issues.some((i) => i.path === "typography.weights.bold"));
+});
+
+test("tracking: 'font' zeroes every tracking, role and ladder alike", () => {
+  const { theme } = resolveTheme({ ...THEME_ZERO, typography: { tracking: "font" } }, { scheme: "light" });
+  for (const token of Object.keys(TYPE_ROLES)) {
+    assert.equal(theme[`${token as keyof typeof TYPE_ROLES}-tracking`], "0em");
+  }
+  assert.equal(theme["--ui-tracking-tight"], "0em");
+  assert.equal(theme["--ui-tracking-normal"], "0em");
+});
+
+test("leading has no knob: no seed moves a role's line-height (ADR 0020 §3)", () => {
+  const a = resolveTheme(THEME_ZERO, { scheme: "light" }).theme;
+  for (const { seed } of STRESS_BRANDS) {
+    const b = resolveTheme(seed, { scheme: "light" }).theme;
+    for (const token of Object.keys(TYPE_ROLES)) {
+      const t = `${token as keyof typeof TYPE_ROLES}-leading` as const;
+      assert.equal(b[t], a[t]);
+    }
+  }
+});
+
+// ── Density (ADR 0020 §4) ───────────────────────────────────────────────────
+
+
+const heightPx = (rem: string) => parseFloat(rem) * 16;
+
+test("default density is the drawn ladders: actions 24/32/44, fields 32/40/48", () => {
+  const d = CONTROL_SIZES.default;
+  assert.deepEqual(
+    [d["--ui-control-sm-height"], d["--ui-control-md-height"], d["--ui-control-lg-height"]].map(heightPx),
+    [24, 32, 44],
+  );
+  assert.deepEqual(
+    [d["--ui-field-sm-height"], d["--ui-field-md-height"], d["--ui-field-lg-height"]].map(heightPx),
+    [32, 40, 48],
+  );
+  // The default block IS the fixed table — one source for both.
+  for (const [token, value] of Object.entries(d)) assert.equal(FIXED_TOKEN_VALUES[token as FixedToken], value);
+});
+
+test("every density step is 4px on the grid, and nothing goes under the 24px floor", () => {
+  for (const density of ["compact", "default", "comfortable"] as const) {
+    for (const [token, value] of Object.entries(CONTROL_SIZES[density])) {
+      if (!token.endsWith("-height")) continue;
+      const px = heightPx(value);
+      assert.ok(px >= CONTROL_FLOOR_PX, `${density} ${token} is ${px}px, under SC 2.5.8's floor`);
+      assert.equal(px % 4, 0, `${density} ${token} is ${px}px, off the 4px grid`);
+    }
+  }
+  const c = CONTROL_SIZES.compact;
+  const d = CONTROL_SIZES.default;
+  assert.equal(heightPx(c["--ui-control-sm-height"]), 24, "compact action sm holds at the floor");
+  assert.equal(heightPx(d["--ui-control-lg-height"]) - heightPx(c["--ui-control-lg-height"]), DENSITY_STEP_PX);
+  assert.equal(heightPx(CONTROL_SIZES.comfortable["--ui-field-lg-height"]) - heightPx(d["--ui-field-lg-height"]), DENSITY_STEP_PX);
 });

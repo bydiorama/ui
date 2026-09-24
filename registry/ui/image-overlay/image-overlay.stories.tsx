@@ -79,10 +79,10 @@ export const Matrix: Story = {
   render: () => (
     <div className="flex flex-col gap-xl">
       <div className="flex flex-col items-start gap-sm">
-        <p className="text-title-lg font-display font-medium leading-normal tracking-tight text-ink-primary">
+        <p className="text-title-lg font-display text-ink-primary">
           Image Overlay Scrim
         </p>
-        <p className="text-body-sm font-body font-medium leading-normal text-ink-muted">Scrim</p>
+        <p className="text-body-sm font-body text-ink-muted">Scrim</p>
         <div className="w-64">
           <ImageOverlay src={DARK_IMAGE} alt="Abstract gradient">
             <Badge variant="success">Approved</Badge>
@@ -92,10 +92,10 @@ export const Matrix: Story = {
         </div>
       </div>
       <div className="flex flex-col items-start gap-sm">
-        <p className="text-title-lg font-display font-medium leading-normal tracking-tight text-ink-primary">
+        <p className="text-title-lg font-display text-ink-primary">
           Image Overlay Full
         </p>
-        <p className="text-body-sm font-body font-medium leading-normal text-ink-muted">Full</p>
+        <p className="text-body-sm font-body text-ink-muted">Full</p>
         <div className="w-64">
           <ImageOverlay src={DARK_IMAGE} alt="Abstract gradient" variant="full">
             <Button size="md" shape="full" onClick={fn()}>

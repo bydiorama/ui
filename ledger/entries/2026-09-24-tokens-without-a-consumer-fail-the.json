@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-24-tokens-without-a-consumer-fail-the",
+  "date": "2026-09-24",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0020 records the non-colour theming decisions: stroke weight and type attributes become brand knobs, control height and density become a mode axis outside the brand, the type table is the source of truth, and fields and actions keep two height families. Its first step is a gate. `shape.borderWidthPx` resolved to `--ui-border-width` for the whole life of the knob and no file in registry/ read it, so a brand that set it changed nothing and was told nothing; every existing gate was green because the contract was total and the resolver complete. `check:token-consumers` resolves every class in registry/ through the Tailwind emitter to the contract token it reads (`bg-surface` → `--color-surface` → `--ui-bg-surface`), adds direct `--ui-*` reads and token-to-token references, and fails on any contract token with no reader unless ALLOWED names it with a reason. Stories and tests are not readers. First run: 61 of 187 tokens had no reader. Every one was spot-checked as a true negative. They are now declared by family (consumer-side chrome, chart colours, page-heading roles, ADR 0016's editor elevations, the motion vocabulary PLAN.md already lists as an open question, the unused spacing intents ADR 0020 §5 keeps, and twelve colour roles listed for review rather than deleted). `--ui-border-width` is declared RESERVED with the phase that retires it. Stale entries fail: an exact name that gains a reader, or a pattern that no longer excuses anything. The class-extraction helpers moved from check-utilities.mjs to scripts/lib/classes.mjs so the new gates read a file exactly the way the old one does.",
+  "affects": [
+    "token:--ui-border-width",
+    "seed:shape.borderWidthPx",
+    "gate:check-token-consumers",
+    "adr:0020"
+  ]
+}

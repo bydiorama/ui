@@ -349,7 +349,7 @@ export const ImageEdit = forwardRef<HTMLDivElement, ImageEditProps>(function Ima
           "bg-media",
           "cursor-grab touch-none active:cursor-grabbing",
           "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-          "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+          "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
         )}
       >
         {/*
@@ -388,7 +388,7 @@ export const ImageEdit = forwardRef<HTMLDivElement, ImageEditProps>(function Ima
             "relative shrink-0",
             // The window's edge and marks are ink ON MEDIA, so they hold
             // against any photograph rather than against the page.
-            "border-[1.5px] border-solid border-(--ui-text-on-media)",
+            "border-hairline border-solid border-(--ui-text-on-media)",
             CROP[shape],
           )}
         >
@@ -516,7 +516,7 @@ function ImageEditControl({
       <div className="flex items-baseline justify-between self-stretch">
         <span
           data-slot="image-edit-control-label"
-          className="text-label-md font-body font-semibold leading-normal text-ink-secondary"
+          className="text-label-md font-body text-ink-secondary"
         >
           {label}
         </span>
@@ -525,7 +525,7 @@ function ImageEditControl({
         <span
           aria-hidden="true"
           data-slot="image-edit-control-value"
-          className="text-caption font-body font-medium leading-normal text-ink-muted"
+          className="text-caption font-body text-ink-muted"
         >
           {value}
         </span>

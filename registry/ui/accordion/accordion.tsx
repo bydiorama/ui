@@ -214,13 +214,13 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
             // the child's own attribute — which it never has, so the chevron
             // silently never turned.
             "group flex flex-1 cursor-pointer items-center gap-sm p-md text-start",
-            "text-body-sm font-body font-bold leading-normal text-ink-primary",
+            "text-body-sm font-body text-ink-primary",
             // The sheet draws every mark in this row at 16px, leading and
             // trailing alike. griddy renders width/height="24" as ATTRIBUTES,
             // so an unsized slot ships 24px whatever the sheet says.
             "[&_svg]:size-4 [&_svg]:shrink-0",
             "rounded-sm",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+            "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
             // The hover fill is the ITEM's in the card variant, so the whole
             // tile lights rather than a smaller rectangle inset inside it. The
             // trigger keeps it only where there is no tile to light — and the
@@ -298,7 +298,7 @@ const AccordionPanel = forwardRef<HTMLDivElement, AccordionPanelProps>(function 
         data-slot="accordion-panel-inner"
         className={cn(
           "flex flex-col gap-lg p-md",
-          "text-body-sm font-body font-medium leading-normal text-ink-secondary",
+          "text-body-sm font-body text-ink-secondary",
           className,
         )}
       >

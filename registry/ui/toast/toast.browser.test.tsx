@@ -89,7 +89,8 @@ describe("anatomy — the sheet's values, computed", () => {
     // which computes BELOW 16 in a fixed-width surface (the title-role trap).
     const title = getComputedStyle(slot("toast-title")!);
     expect(title.fontSize).toBe("16px");
-    expect(title.fontWeight).toBe("600");
+    // body-lg's own weight (ADR 0020 §3).
+    expect(title.fontWeight).toBe("500");
 
     const description = getComputedStyle(slot("toast-description")!);
     expect(description.fontSize).toBe("13px");

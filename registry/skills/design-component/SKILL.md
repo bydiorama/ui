@@ -52,7 +52,7 @@ numbers it gives you.
 Tokens are not enough, and one sheet proved it: Buttons drawn as pills, fields
 with a 1px `border-control` edge, segmented rows at 32px — every value a legal
 token, not one of them what ships. `shape` defaults to **`soft`**; a Button's
-edge is an inset **`ring-[1.5px]`**, not a border; `secondary` carries **no
+edge is an inset **`ring-hairline`** (the 1.5px `--ui-stroke-hairline`), not a border; `secondary` carries **no
 fill**; a field's resting edge is a **1.5px `border-subtle`** hairline because
 the focus ring — not the border — carries SC 1.4.11.
 

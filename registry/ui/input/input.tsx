@@ -29,9 +29,9 @@ const SURFACE = {
  * is the 44px+ touch target for primary forms.
  */
 const SIZE = {
-  lg: "h-12 gap-sm px-md py-sm text-body-md",
-  md: "h-10 gap-xs p-sm text-caption",
-  sm: "h-8 gap-xs px-sm py-xs text-caption",
+  lg: "h-field-lg gap-sm px-field-inset-lg py-sm text-body-md",
+  md: "h-field-md gap-xs px-field-inset-md py-sm text-caption",
+  sm: "h-field-sm gap-xs px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<InputSize, string>;
 
 interface InputBaseProps
@@ -127,7 +127,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         data-slot="label"
         htmlFor={inputId}
         className={cn(
-          "text-label-md font-body font-medium text-ink-secondary",
+          "text-label-md font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
           // accessibility tree and still be clickable as a target.
           isLabelHidden && "sr-only",
@@ -161,7 +161,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // `border-width: 1.5px` — verified in the compiled sheet — so there
           // is nothing to fix here, and `border-hairline.browser.test.tsx`
           // pins the platform behaviour so this is not re-investigated.
-          "flex w-full shrink-0 items-center overflow-clip rounded-md border-[1.5px]",
+          "flex w-full shrink-0 items-center overflow-clip rounded-md border-hairline",
           // Both icon slots at 16px, as Button sizes its own — see the note
           // there. griddy's IconBase hard-codes width/height="24", so an
           // unsized slot rendered every leading and trailing glyph oversize.
@@ -184,7 +184,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // not exist. The outline is the fallback; it costs nothing outside
           // forced colours, where it never applies.
           "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
-          "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
+          "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
           SIZE[size],
         )}
       >

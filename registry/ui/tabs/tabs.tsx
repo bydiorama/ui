@@ -115,7 +115,7 @@ function TabsList({ className, ...rest }: TabsListProps) {
         // radius-sm rows plus a 3px inset want exactly 7.
         "p-[3px]",
         orientation === "vertical" ? "flex-col" : "justify-center",
-        variant === "enclosed" && "bg-surface border-[1.5px] border-edge-subtle",
+        variant === "enclosed" && "bg-surface border-hairline border-edge-subtle",
         // Ghost hugs. It is a flex child of the root column, so the default
         // `stretch` had been making it full-width and `justify-center` then
         // centred the strip inside it — which is neither what the sheet draws
@@ -148,7 +148,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
       data-variant={variant}
       className={cn(
         "flex min-h-6 items-center gap-xs px-sm py-xs",
-        "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap",
+        "text-button-sm font-body whitespace-nowrap",
         "transition-[background-color,color]", motionMicro,
         "text-ink-muted",
         // Enclosed divides the track evenly and centres each label; ghost sizes
@@ -175,7 +175,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
         // Base UI leaves only the selected tab in the tab order (roving
         // tabindex), so the ring is the only thing telling a keyboard user
         // where they are.
-        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
         className,
       )}
     >
@@ -191,7 +191,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
             // 12px, not the sheet's 11px: below the scale's own floor, which
             // ADR 0009 set after an 11px label pushed a control under the
             // WCAG target size.
-            "text-label-sm font-body font-bold leading-flat",
+            "text-label-sm font-body",
             "bg-elevated text-ink-primary",
           )}
         >
@@ -212,7 +212,7 @@ function TabsPanel({ value, className, ...rest }: TabsPanelProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTabs.Panel>>(rest)}
       value={value}
       data-slot="tabs-panel"
-      className={cn("focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none", className)}
+      className={cn("focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none", className)}
     />
   );
 }

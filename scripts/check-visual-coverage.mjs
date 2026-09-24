@@ -14,10 +14,21 @@ const source = readFileSync(join(ROOT, "registry/visual/matrix.visual.test.tsx")
 const casesSource = source.slice(source.indexOf("const CASES"), source.indexOf('describe("visual baselines"'));
 
 const components = manifest.items.filter((item) => item.type === "ui").map((item) => item.name);
+
+/**
+ * Cases that are not one component: a MODE drawn across several. Each needs
+ * a reason, because the rule this gate enforces — one case per component,
+ * named after it — is what keeps the matrix honest, and an exception is a
+ * decision rather than a loophole.
+ */
+const SYSTEM_CASES = new Map([
+  ["density", "The three density modes (ADR 0020 §4) across the controls they re-size. A mode over every control belongs to no single component's case."],
+]);
 const cases = [...casesSource.matchAll(/name:\s*"([^"]+)"/g)].map((match) => match[1]);
 const duplicates = cases.filter((name, index) => cases.indexOf(name) !== index);
 const missing = components.filter((name) => !cases.includes(name));
-const unknown = cases.filter((name) => !components.includes(name));
+const unknown = cases.filter((name) => !components.includes(name) && !SYSTEM_CASES.has(name));
+const staleSystem = [...SYSTEM_CASES.keys()].filter((name) => !cases.includes(name));
 
 const errors = [];
 if (source.indexOf("const CASES") === -1 || source.indexOf('describe("visual baselines"') === -1) {
@@ -26,6 +37,7 @@ if (source.indexOf("const CASES") === -1 || source.indexOf('describe("visual bas
 if (duplicates.length) errors.push(`duplicate visual cases: ${[...new Set(duplicates)].join(", ")}`);
 if (missing.length) errors.push(`manifest components without a visual case: ${missing.join(", ")}`);
 if (unknown.length) errors.push(`visual cases not present as manifest UI items: ${unknown.join(", ")}`);
+if (staleSystem.length) errors.push(`SYSTEM_CASES lists cases the matrix no longer has: ${staleSystem.join(", ")}`);
 
 if (errors.length) {
   console.error("Visual coverage is incomplete:\n");
@@ -33,4 +45,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`visual coverage ok — ${components.length} manifest components have one matrix case each`);
+console.log(`visual coverage ok — ${components.length} manifest components have one matrix case each, plus ${SYSTEM_CASES.size} system case(s)`);

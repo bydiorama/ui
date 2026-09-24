@@ -9,9 +9,10 @@
 // lint cannot see it (it is valid syntax), and a screenshot only shows it if
 // someone happens to hover the right element.
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ROOT } from "./lib/manifest.mjs";
+import { classesIn, stripComments, walk } from "./lib/classes.mjs";
 
 const { toTailwindTheme } = await import(
   join(ROOT, "packages/tokens/src/index.ts")
@@ -36,8 +37,25 @@ const { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS } = await import(
 );
 const contractTokens = new Set([...BRANDABLE_TOKENS, ...FIXED_TOKENS, ...SCHEME_ONLY_TOKENS]);
 
+/**
+ * Stroke-width names the emitter declares (ADR 0020 §2), read from its own
+ * output so this list cannot drift from it. `border-`, `ring-` and `outline-`
+ * each carry colours AND widths; Tailwind tries the colour namespace first and
+ * falls back to the width one, so a width name has to be routed BEFORE the
+ * colour patterns below or it is reported as a missing colour. A misspelt
+ * width still fails — it falls through to the colour route and names the
+ * `--color-*` it could not find.
+ */
+const widthNames = (ns) =>
+  [...declared].filter((k) => k.startsWith(ns)).map((k) => k.slice(ns.length)).join("|") || "(?!)";
+
 /** Utility prefix → the theme namespace it resolves against. */
 const NAMESPACES = [
+  [new RegExp(`^border(?:-[xytrbles])?-(${widthNames("--border-width-")})$`), "--border-width-"],
+  [new RegExp(`^ring-(${widthNames("--ring-width-")})$`), "--ring-width-"],
+  [new RegExp(`^outline-(${widthNames("--outline-width-")})$`), "--outline-width-"],
+  // A NAMED offset must exist; numeric offsets are the built-in scale.
+  [/^-?outline-offset-([a-z][\w-]*)$/, "--outline-offset-"],
   // `bg-linear-to-b` is a GRADIENT DIRECTION, not a colour, and the bare
   // `bg-(.+)` pattern resolved it against `--color-linear-to-b` and failed the
   // build for writing a correct gradient. Both halves of this gate were wrong
@@ -222,7 +240,13 @@ const ENTER_EXIT = /data-\[(?:starting|ending)-style\]:-?(scale|translate|rotate
  *       declares — an override of nothing, which is exactly how a
  *       story comes to demonstrate a customisation surface that is not there.
  */
-const COMPONENT_PROP_READ = /\((?:image:)?(--ui-[\w-]+)\)/g;
+// Any CSS type hint, not only `image:`. Tailwind's typed form —
+// `border-(length:--ui-x)`, `bg-(color:--ui-x)` — is how a utility whose
+// namespace is ambiguous reads a variable, and with only `image:` known a
+// misspelt `(length:--ui-strok-default)` was never read as a read at all: it
+// fell back silently, the exact failure CONVENTIONS §6 names. Found by the
+// ADR 0020 plan review, probed failing-first.
+const COMPONENT_PROP_READ = /\((?:[a-z-]+:)?(--ui-[\w-]+)\)/g;
 
 /**
  * A declaration has TWO spellings, and the first version of this rule knew one.
@@ -241,90 +265,6 @@ const COMPONENT_PROP_READ = /\((?:image:)?(--ui-[\w-]+)\)/g;
  */
 const COMPONENT_PROP_DECLARED =
   /\[(--ui-[\w-]+):[^\]]*\]|["'](--ui-[\w-]+)["']\s*:/g;
-
-const VARIANT =
-  /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-[a-z-]+|aria-\[[^\]]+\]|data-\[[^\]]+\]|has-\[[^\]]+\]|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
-
-/**
- * Comments are not code, and this gate must not read them.
- *
- * Tailwind itself scans comments — a class named in one compiles a dead rule,
- * which is harmless. Here it is not: the SIZING rule below REJECTS names, so a
- * comment explaining why `max-w-md` is wrong would fail the build for saying
- * so. Block comments are where the prose lives; `//` is only treated as one
- * when it is not part of a `://` URL.
- */
-function stripComments(source) {
-  return source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
-}
-
-/**
- * Prose attributes hold sentences, and a sentence is not a class list.
- *
- * The same lesson as `stripComments`, one layer over. This gate reads EVERY
- * string literal in a file and splits it on whitespace, so a word in an
- * accessible name is a candidate utility. Most prose escapes by accident —
- * capitals and punctuation fail the shape filter — but an all-lowercase
- * hyphenated word does not: "right-click", in `aria-label="Brand asset —
- * right-click or press Shift+F10 for actions"`, resolved against the spacing
- * namespace as `right-` + `click` and failed the build asking for
- * `--spacing-click`.
- *
- * Rewording the sentence would have been the cheap fix and the wrong one: a
- * gate that makes people write worse accessible names to keep it quiet is a
- * gate that will be worked around. Blanking these VALUES costs no coverage —
- * none of these attributes ever holds a class — while `className` and every
- * recipe array are still read in full.
- */
-const PROSE_ATTRIBUTE =
-  /\b(?:aria-label|aria-description|aria-placeholder|aria-roledescription|aria-valuetext|title|alt|placeholder|label|accessibleName|description|summary|content)\s*=\s*(?:"[^"\n]*"|'[^'\n]*')/g;
-
-function stripProse(source) {
-  return source.replace(PROSE_ATTRIBUTE, (match) => `${match.split("=")[0]}=""`);
-}
-
-function classesIn(source) {
-  return new Set(
-    [...stripProse(stripComments(source)).matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`/g)]
-      .flatMap((m) => (m[1] ?? m[2] ?? m[3] ?? "").split(/\s+/))
-      // `:` must be allowed here — variant prefixes are stripped below, and
-      // filtering them out first silently skipped every hover/disabled state.
-      // A leading `-` must be allowed through. Tailwind spells a negative
-      // utility `-ml-xs` / `-space-x-xs`, and an anchored `^[a-z]` filter drops
-      // the whole class before any namespace is consulted — so every negative
-      // utility in the library was unscanned, and `-space-x-nudge` would have
-      // emitted no CSS with the gate green. Avatar.Group is the first component
-      // to need one, which is the first-of-its-kind rule landing on a SIGN
-      // rather than on a namespace or a file extension.
-      // A leading `[` must also be allowed through: an ARBITRARY PROPERTY
-      // (`[transition-property:translate,scale]`) is a class too, and the
-      // transition rules above read it. The anchored `^-?[a-z]` filter dropped
-      // every one of them, so Toast's longhand transition — the first in the
-      // library — was invisible to rule B and the gate demanded a shorthand
-      // the component deliberately avoids.
-      .filter((c) => /^-?[a-z][\w:[\]().,%/#-]*$/.test(c) || /^\[[a-z-]+:[^\s\]]+\]$/.test(c))
-      .map((c) => {
-        let out = c;
-        while (VARIANT.test(out)) out = out.replace(VARIANT, "");
-        return out;
-      }),
-  );
-}
-
-function walk(dir, out = []) {
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) walk(full, out);
-    // `.ts` AND `.tsx`. The chrome control is a `.ts` file that is ENTIRELY
-    // utility classes, and a `.tsx`-only filter meant none of them had ever
-    // been checked — a probe put two nonexistent utilities in it and the gate
-    // reported green. `.doc.ts` is excluded because it is prose: a doc that
-    // says "p-lg, gap-sm" is describing the component, not styling anything,
-    // and the same rule that keeps comments out keeps documentation out.
-    else if (/\.tsx?$/.test(entry) && !/\.(test|doc|d)\.tsx?$/.test(entry)) out.push(full);
-  }
-  return out;
-}
 
 const errors = [];
 let checkedFiles = 0;

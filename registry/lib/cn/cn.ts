@@ -25,11 +25,13 @@ const twMerge = extendTailwindMerge({
   override: {
     conflictingClassGroups: {
       // Stock `text-sm` sets a font size AND a line height, so tailwind-merge
-      // makes any font size clear a preceding `leading-*`. Our roles are pure
-      // sizes — ADR 0009 pairs every role with its own leading token — so that
-      // conflict is a lie here: `text-label-sm` silently deleted `leading-flat`
-      // from every Badge, the font's normal leading took over, and md and sm
-      // both rendered at 28px.
+      // makes any font size clear a preceding `leading-*`. That deletion is
+      // wrong here: `text-label-sm` once silently deleted `leading-flat` from
+      // every Badge, and md and sm both rendered at 28px. Our roles DO carry
+      // a line height now (ADR 0020 §3, as a Tailwind companion), but an
+      // explicit `leading-*` beside one is a DECLARED exception to it, and
+      // Tailwind lets it win through `--tw-leading` — so the merger must not
+      // delete it either.
       //
       // Our roles have to live in the `font-size` group to be classified
       // correctly at all (a separate group makes `text-color` swallow them),
@@ -60,6 +62,11 @@ const twMerge = extendTailwindMerge({
       spacing: [
         "xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl",
         "nav", "nav-rail", "dialog-md", "dialog-lg",
+        // Control sizing (ADR 0020 §4) — heights and insets per family.
+        "control-sm", "control-md", "control-lg",
+        "control-inset-sm", "control-inset-md", "control-inset-lg",
+        "field-sm", "field-md", "field-lg",
+        "field-inset-sm", "field-inset-md", "field-inset-lg",
       ],
     },
     classGroups: {
@@ -75,6 +82,21 @@ const twMerge = extendTailwindMerge({
       // still merge correctly.
       "font-weight": [{ font: ["regular", "book"] }],
       leading: [{ leading: ["flat"] }],
+      // Stroke widths (ADR 0020 §2). tailwind-merge reads an unknown
+      // `border-<word>` as a COLOUR, so without these `border-hairline` and
+      // `border-edge-subtle` would share a group and one would be deleted.
+      // A literal name is matched before any validator, which is what puts
+      // these in the width group rather than the colour one.
+      "border-w": [{ border: ["hairline", "thick"] }],
+      "border-w-x": [{ "border-x": ["hairline", "thick"] }],
+      "border-w-y": [{ "border-y": ["hairline", "thick"] }],
+      "border-w-t": [{ "border-t": ["hairline", "thick"] }],
+      "border-w-r": [{ "border-r": ["hairline", "thick"] }],
+      "border-w-b": [{ "border-b": ["hairline", "thick"] }],
+      "border-w-l": [{ "border-l": ["hairline", "thick"] }],
+      "ring-w": [{ ring: ["hairline", "thick"] }],
+      "outline-w": [{ outline: ["hairline", "thick", "focus"] }],
+      "outline-offset": [{ "outline-offset": ["focus"] }],
     },
   },
 });

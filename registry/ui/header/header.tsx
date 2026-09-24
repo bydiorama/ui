@@ -375,7 +375,7 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         // min-h-6 keeps the target at SC 2.5.8's 24px floor.
         "inline-flex min-h-6 cursor-pointer items-center justify-center gap-xs rounded-sm px-sm py-xs",
         "[&_svg]:size-4 [&_svg]:shrink-0",
-        "text-button-sm font-body font-bold leading-flat tracking-tight whitespace-nowrap no-underline",
+        "text-button-sm font-body whitespace-nowrap no-underline",
         "text-ink-primary",
         "transition-[background-color,color]", motionMicro,
         // TWO CHANNELS, not one, and they are separate on purpose: FILL answers
@@ -433,7 +433,7 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         // that could ever answer the question, and a consumer restyling the
         // current item needs the same hook the component uses.
         "group-data-[affixed]/header:data-[current]:text-ink-secondary",
-        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
         className,
       ),
       ...(rest as HTMLAttributes<HTMLElement>),

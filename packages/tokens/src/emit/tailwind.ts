@@ -21,8 +21,12 @@ import { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS, type BrandableToken
  *  Mapping these into `--color-*` would mint utilities like `bg-nav-width` —
  *  a colour whose value is `17rem`. */
 const NOT_COLORS = new Set<string>([
-  "--ui-border-width",
   "--ui-focus-ring",
+  "--ui-focus-ring-width",
+  "--ui-focus-ring-offset",
+  "--ui-stroke-default",
+  "--ui-stroke-hairline",
+  "--ui-stroke-thick",
   "--ui-nav-width",
   "--ui-nav-rail-width",
 ]);
@@ -35,6 +39,9 @@ function utilityName(token: BrandableToken): string | null {
   // Type SIZES share the --ui-text-* prefix with ink COLOURS. Sizes are
   // enumerated because only they belong in Tailwind's --text-* namespace.
   if (TYPE_SIZE_ROLES.has(token)) return null;
+  // …and so do a role's weight, leading and tracking (ADR 0020 §3), which
+  // would otherwise mint `text-ink-body-md-weight`, a colour whose value is 400.
+  if (TYPE_ATTRIBUTES.test(token)) return null;
 
   if (name.startsWith("bg-")) return `--color-${name.slice(3)}`;
   if (name.startsWith("text-")) return `--color-ink-${name.slice(5)}`;
@@ -72,11 +79,21 @@ function utilityName(token: BrandableToken): string | null {
   return null;
 }
 
+/** Anchored at BOTH ends: the role attribute tokens share the prefix, and
+ *  an open-ended pattern swept `--ui-text-body-md-weight` into the size
+ *  namespace as `--text-body-md-weight`, a font size of 400. */
 const TYPE_SIZE_ROLES = new Set<string>(
   BRANDABLE_TOKENS.filter((t) =>
-    /^--ui-text-(display|title|body|label|caption|button)/.test(t),
+    /^--ui-text-(?:(?:display|title|body|label|button)-(?:lg|md|sm)|caption)$/.test(t),
   ),
 );
+
+const TYPE_ATTRIBUTES = /^--ui-text-.+-(weight|leading|tracking)$/;
+
+/** Role attribute → the Tailwind v4 companion that a `text-<role>` utility
+ *  applies with its size. Tailwind reads each one through `--tw-*` first, so
+ *  an explicit `font-*`, `leading-*` or `tracking-*` still wins. */
+const COMPANIONS = { weight: "font-weight", leading: "line-height", tracking: "letter-spacing" } as const;
 
 const SHAPE_NAMESPACES: Array<[prefix: string, namespace: string]> = [
   ["--ui-radius-", "--radius-"],
@@ -117,9 +134,19 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
   }
   push("Colour roles.", colors);
 
+  // Each role is a composite (ADR 0020 §3): the size, then its weight,
+  // leading and tracking as v4 companions, so `text-body-md` sets all four.
   push(
-    "Type scale.",
-    [...TYPE_SIZE_ROLES].map((t) => [`--text-${t.replace("--ui-text-", "")}`, `var(${t})`]),
+    "Type scale — size plus weight, leading and tracking per role.",
+    [...TYPE_SIZE_ROLES].flatMap((t) => {
+      const role = t.replace("--ui-text-", "");
+      return [
+        [`--text-${role}`, `var(${t})`] as [string, string],
+        ...(Object.entries(COMPANIONS) as [keyof typeof COMPANIONS, string][]).map(
+          ([attr, prop]) => [`--text-${role}--${prop}`, `var(${t}-${attr})`] as [string, string],
+        ),
+      ];
+    }),
   );
 
   for (const [prefix, namespace] of SHAPE_NAMESPACES) {
@@ -147,6 +174,38 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
     ["--spacing-dialog-lg", "var(--ui-dialog-width-lg)"],
   ]);
 
+  // Control sizing (ADR 0020 §4): `h-control-md`, `size-control-lg`,
+  // `px-field-inset-md`. Purpose-named like the chrome widths above, so no
+  // one mistakes a control height for a spacing step, and density re-binds
+  // the token under `[data-ui-density]` without touching a utility.
+  push(
+    "Control sizing.",
+    FIXED_TOKENS.filter((t) => /^--ui-(control|field)-(sm|md|lg)-(height|inset)$/.test(t)).map((t) => {
+      const [, family, size, part] = t.match(/^--ui-(control|field)-(sm|md|lg)-(height|inset)$/)!;
+      return [`--spacing-${family}-${part === "inset" ? "inset-" : ""}${size}`, `var(${t})`] as [string, string];
+    }),
+  );
+
+  // Stroke widths (ADR 0020 §2). Tailwind 4 resolves `border-<name>`,
+  // `ring-<name>` and `outline-<name>` against these width namespaces (after
+  // the colour namespace misses — none of these names is a colour), and a
+  // BARE `border`/`ring`/`outline`/`divide-*` reads `--default-*-width`. So
+  // the everyday 1px edge needs no call-site change to become brandable, and
+  // the hairline is one word instead of `ring-[1.5px]`.
+  push("Stroke widths.", [
+    ["--default-border-width", "var(--ui-stroke-default)"],
+    ["--default-ring-width", "var(--ui-stroke-default)"],
+    ["--default-outline-width", "var(--ui-stroke-default)"],
+    ["--border-width-hairline", "var(--ui-stroke-hairline)"],
+    ["--border-width-thick", "var(--ui-stroke-thick)"],
+    ["--ring-width-hairline", "var(--ui-stroke-hairline)"],
+    ["--ring-width-thick", "var(--ui-stroke-thick)"],
+    ["--outline-width-hairline", "var(--ui-stroke-hairline)"],
+    ["--outline-width-thick", "var(--ui-stroke-thick)"],
+    ["--outline-width-focus", "var(--ui-focus-ring-width)"],
+    ["--outline-offset-focus", "var(--ui-focus-ring-offset)"],
+  ]);
+
   push(
     "Spacing — the base scale only; stack/inline/inset intents stay CSS-side.",
     FIXED_TOKENS.filter((t) => /^--ui-space-(xs|sm|md|lg|xl|2xl|3xl|4xl)$/.test(t)).map(
@@ -156,7 +215,7 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
 
   push(
     "Typography attributes.",
-    FIXED_TOKENS.filter((t) => /^--ui-(weight|leading|tracking)-/.test(t)).map((t) => {
+    [...BRANDABLE_TOKENS, ...FIXED_TOKENS].filter((t) => /^--ui-(weight|leading|tracking)-/.test(t)).map((t) => {
       const [, family, name] = t.match(/^--ui-(weight|leading|tracking)-(.+)$/)!;
       const ns = family === "weight" ? "--font-weight-" : family === "leading" ? "--leading-" : "--tracking-";
       return [`${ns}${name}`, `var(${t})`] as [string, string];

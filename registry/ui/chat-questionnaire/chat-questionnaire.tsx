@@ -147,7 +147,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
           className={cn("flex w-full flex-wrap items-center gap-sm", className)}
           {...rest}
         >
-          <p data-slot="chat-questionnaire-question" className="font-body text-body-sm leading-normal text-ink-muted">
+          <p data-slot="chat-questionnaire-question" className="font-body text-body-sm text-ink-muted">
             {question}
           </p>
           <Badge variant="selected" data-slot="chat-questionnaire-answer">
@@ -169,7 +169,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
         <p
           id={questionId}
           data-slot="chat-questionnaire-question"
-          className="font-body text-body-md font-medium leading-normal text-ink-primary"
+          className="font-body text-body-md text-ink-primary"
         >
           {question}
         </p>
@@ -211,7 +211,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                     // picture keeps its own edge and the selection reads as a
                     // ring around the thing rather than a border on it. Image
                     // Thumbnail uses the same 2px offset.
-                    "outline-2 outline-offset-2 outline-transparent",
+                    "outline-thick outline-offset-2 outline-transparent",
                     "transition-[outline-color]", motionMicro,
                     isSelected && "outline-edge-focus",
                   )}
@@ -241,7 +241,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                 </span>
                 <span
                   className={cn(
-                    "font-body text-caption leading-normal",
+                    "font-body text-caption",
                     isSelected ? "text-ink-primary" : "text-ink-muted",
                   )}
                 >
@@ -257,10 +257,10 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                 {...(mode === "multiple" ? { "aria-pressed": isSelected } : { "aria-current": isSelected || undefined })}
                 onClick={() => choose(option)}
                 className={cn(
-                  "flex cursor-pointer items-center gap-sm rounded-md border-[1.5px] px-md py-sm text-start",
-                  "bg-base font-body text-body-sm font-medium leading-normal",
+                  "flex cursor-pointer items-center gap-sm rounded-md border-hairline px-md py-sm text-start",
+                  "bg-base font-body text-body-sm",
                   "transition-[background-color,border-color,color]", motionMicro,
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+                  "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
                   isSelected
                     ? OPTION_SELECTED
                     : cn(

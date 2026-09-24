@@ -28,7 +28,7 @@ const forBaseUI = <T,>(props: object) => props as T;
  * border and colour — asserting `48px` on each would pass while the two
  * silently drifted apart, which is the only failure that matters here.
  */
-const CONTROL = "h-12 gap-sm px-md py-sm";
+const CONTROL = "h-field-lg gap-sm px-field-inset-lg py-sm";
 
 export interface DatePickerProps {
   /**
@@ -164,7 +164,7 @@ export function DatePicker({
           id={labelId}
           data-slot="date-picker-label"
           className={cn(
-            "text-label-md font-body font-medium leading-normal text-ink-secondary",
+            "text-label-md font-body text-ink-secondary",
             // Bare text inside a rounded surface takes the inset (§6) — but
             // the two are alternatives, not layers: `sr-only` resets padding
             // to 0 and a later `px-sm` puts 16px of it back, so a "hidden"
@@ -188,12 +188,12 @@ export function DatePicker({
             className: cn(
               "flex w-full items-center justify-between rounded-md",
               CONTROL,
-              "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
+              "border-hairline bg-field border-edge-subtle text-body-md font-body text-ink-primary",
               "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               "[&_svg]:size-4 [&_svg]:shrink-0",
               invalid && "border-danger",
-              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
               "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
             ),
           })}

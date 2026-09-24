@@ -160,7 +160,7 @@ const SidebarNav = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
           className={cn(
             isLabelHidden
               ? "sr-only"
-              : "px-md pt-xs pb-sm text-label-sm font-body font-bold tracking-tight text-ink-nav-muted uppercase",
+              : "px-md pt-xs pb-sm text-label-sm font-body text-ink-nav-muted uppercase",
           )}
         >
           {label}
@@ -237,7 +237,7 @@ function SidebarLayer({ children, id, title, backLabel, className, ...rest }: Si
       </div>
       <p
         data-slot="sidebar-layer-title"
-        className="flex min-h-9 items-center p-md text-body-lg font-body font-medium leading-normal tracking-tight text-ink-nav"
+        className="flex min-h-9 items-center p-md text-body-lg font-body leading-normal text-ink-nav"
       >
         {/* Same `sidebar-text` slot every other labelled part uses, so the
             lane is one selector away for a test and for a consumer. */}
@@ -322,13 +322,13 @@ function SidebarSection({
    */
   const headingClass =
     "flex min-h-9 w-full items-center justify-between gap-sm rounded-sm p-md " +
-    "text-body-lg font-body font-bold leading-normal tracking-tight text-ink-nav";
+    "text-body-lg font-body font-bold leading-normal text-ink-nav";
 
   const triggerClass = cn(
     headingClass,
     "cursor-pointer transition-[background-color]", motionMicro,
     "hover:bg-nav-hover",
-    "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+    "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
   );
 
   /**
@@ -494,12 +494,13 @@ function SidebarItem({
         "flex min-h-9 items-center justify-between gap-sm rounded-sm p-md",
         // Same 16px size as the section heading (see headingClass on why it is
         // body-lg and not the fluid title-sm); the levels differ by weight and
-        // ink, since they share an inset.
-        "text-body-lg font-body font-medium leading-normal tracking-tight no-underline",
+        // ink, since they share an inset. `leading-normal` keeps the sheet's
+        // 46px row — a declared exception to body-lg's 1.55 (ADR 0020 §3).
+        "text-body-lg font-body leading-normal no-underline",
         inSection ? "text-ink-nav-muted" : "text-ink-nav",
         isLink && [
           "cursor-pointer transition-[background-color,color]", motionMicro,
-          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
         ],
         // Hover and current are gated on `not-[[data-disabled]]` so an
         // unavailable row cannot light up as if it were reachable.
@@ -610,7 +611,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
           "flex w-full items-center gap-sm rounded-sm p-xs text-left",
           "cursor-pointer transition-[background-color]", motionMicro,
           "hover:bg-nav-hover",
-          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
           className,
         )}
         {...rest}
@@ -621,11 +622,11 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
           </span>
         )}
         <span className="flex min-w-0 flex-1 flex-col gap-xs">
-          <span data-slot="sidebar-profile-name" className="truncate text-body-lg font-body font-bold leading-normal tracking-tight text-ink-nav">
+          <span data-slot="sidebar-profile-name" className="truncate text-body-lg font-body font-bold leading-normal text-ink-nav">
             {name}
           </span>
           {email && (
-            <span data-slot="sidebar-profile-email" className="truncate text-button-sm font-body font-medium leading-flat tracking-tight text-ink-muted">
+            <span data-slot="sidebar-profile-email" className="truncate text-button-sm font-body text-ink-muted">
               {email}
             </span>
           )}
@@ -664,7 +665,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
       <div
         data-slot="sidebar-search"
         className={cn(
-          "flex h-10 items-center gap-sm rounded-sm px-sm py-xs",
+          "flex h-field-md items-center gap-sm rounded-sm px-field-inset-md py-xs",
           // An OUTLINE for the resting edge, not a border — and the sheet
           // draws it that way for a reason that only shows up when you
           // measure. A border takes layout space, so the input's text lands
@@ -676,7 +677,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
           // The WRAPPER draws the ring, so the input inside can safely carry
           // outline-none — the one place that is safe (§6).
           "focus-within:outline-edge-focus focus-within:shadow-(--ui-focus-ring)",
-          "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
+          "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
           className,
         )}
       >
@@ -690,7 +691,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
           placeholder={placeholder}
           className={cn(
             "min-w-0 flex-1 bg-transparent outline-none",
-            "text-body-md font-body font-medium text-ink-nav",
+            "text-body-md font-body text-ink-nav",
             "placeholder:text-ink-placeholder",
           )}
           {...rest}
@@ -737,7 +738,7 @@ function SidebarHeading({ children, className, ...rest }: SidebarHeadingProps) {
     <p
       data-slot="sidebar-heading"
       className={cn(
-        "flex p-md text-button-sm font-body font-bold leading-flat tracking-tight text-ink-nav-muted",
+        "flex p-md text-button-sm font-body text-ink-nav-muted",
         className,
       )}
       {...rest}

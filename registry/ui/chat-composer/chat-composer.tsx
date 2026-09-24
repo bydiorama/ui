@@ -465,7 +465,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
             // 1.5px is the sheet's hairline; Chromium snaps it to 1 device
             // pixel at DPR 1, which is what `border-hairline.browser.test.tsx`
             // pins so it is not re-investigated.
-            "border-[1.5px] border-edge-subtle",
+            "border-hairline border-edge-subtle",
             // border-radius is deliberately NOT in this list. rounded-full
             // computes to 999px and only the PAINTED radius is clamped to the
             // box, so a transition from it spends ~99% of its duration above
@@ -482,7 +482,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
             "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
             // A box-shadow is forced to `none` in forced-colors mode, so the
             // outline is the fallback there. It costs nothing elsewhere.
-            "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
+            "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
             invalid && "border-danger",
             // Image Upload's drop treatment, verbatim: a solid focus edge over
             // the subtle accent fill. Never dashed.
@@ -524,7 +524,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
               data-slot="chat-composer-input"
               className={cn(
                 "w-full min-w-0 resize-none bg-transparent",
-                "font-body text-body-md font-regular leading-normal tracking-normal",
+                "font-body text-body-md",
                 "text-ink-primary placeholder:text-ink-placeholder",
                 "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:placeholder:text-ink-disabled",
                 // The drop label is a MESSAGE, not a hint — the sheet draws it

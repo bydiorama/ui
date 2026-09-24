@@ -29,9 +29,9 @@ export type SelectSize = "lg" | "md" | "sm";
  * that matters here.
  */
 const SIZE = {
-  lg: "h-12 gap-sm px-md py-sm text-body-md",
-  md: "h-10 gap-xs p-sm text-caption",
-  sm: "h-8 gap-xs px-sm py-xs text-caption",
+  lg: "h-field-lg gap-sm px-field-inset-lg py-sm text-body-md",
+  md: "h-field-md gap-xs px-field-inset-md py-sm text-caption",
+  sm: "h-field-sm gap-xs px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<SelectSize, string>;
 
 export interface SelectItem {
@@ -117,7 +117,7 @@ export function Select({
           id={labelId}
           data-slot="select-label"
           className={cn(
-            "px-sm text-label-md font-body font-medium leading-normal text-ink-secondary",
+            "px-sm text-label-md font-body text-ink-secondary",
             isLabelHidden && "sr-only",
           )}
         >
@@ -133,11 +133,11 @@ export function Select({
             className: cn(
               "flex w-full items-center justify-between gap-sm rounded-md",
               SIZE[size],
-              "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
+              "border-hairline bg-field border-edge-subtle text-body-md font-body text-ink-primary",
               "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               invalid && "border-danger",
-              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
               "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
             ),
           })}
@@ -226,7 +226,7 @@ export function Select({
                       // The fourth (GVO-0) is drawn py-lg and is the outlier;
                       // flagged rather than followed.
                       "flex cursor-pointer items-center gap-sm rounded-sm p-md",
-                      "text-body-md font-body font-medium text-ink-primary",
+                      "text-body-md font-body text-ink-primary",
                       "data-[highlighted]:bg-hover",
                       "data-[selected]:font-bold",
                       "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",

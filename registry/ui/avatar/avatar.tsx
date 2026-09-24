@@ -102,7 +102,7 @@ const DOT_SIZE = {
  * way; it computed to rgb(29, 27, 25). `check:utilities` cannot see it either,
  * because arbitrary values are skipped there by design.
  */
-const DOT_RING = "outline-[1.5px] outline-[color:var(--ui-avatar-ring-color,var(--ui-bg-surface))]";
+const DOT_RING = "outline-hairline outline-[color:var(--ui-avatar-ring-color,var(--ui-bg-surface))]";
 
 /**
  * Dot fills, as ROLES rather than as the sheet's values.
@@ -201,7 +201,7 @@ const AvatarRoot = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(prop
         data-slot="avatar-frame"
         className={cn(
           "flex size-full items-center justify-center overflow-clip",
-          "font-body font-medium tracking-tight",
+          "font-body",
           // NO ring. It used to carry a full-perimeter hairline in the page's
           // colour, which is what every library ships and what made the avatar
           // wrong on any ground but one. Separating two overlapping avatars is
@@ -336,7 +336,7 @@ function AvatarGroup({
           data-slot="avatar-overflow"
           className={cn(
             "relative inline-flex shrink-0 select-none items-center justify-center",
-            "bg-sunken text-ink-muted font-body font-medium tracking-tight",
+            "bg-sunken text-ink-muted font-body",
             SIZE[size],
             shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
           )}

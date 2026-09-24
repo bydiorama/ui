@@ -21,8 +21,11 @@ const SURFACE = {
 /**
  * Geometry per size, DERIVED from Input's table rather than drawn.
  *
- * Input is `h-12 px-md py-sm text-body-md` / `h-10 p-sm text-caption` /
- * `h-8 px-sm py-xs text-caption`. Everything there except the height carries
+ * Input is `h-field-lg px-field-inset-lg py-sm text-body-md` /
+ * `h-field-md px-field-inset-md py-sm text-caption` /
+ * `h-field-sm px-field-inset-sm py-xs text-caption` — the field family of
+ * ADR 0020 §4, 48/40/32 with 12/8/8 insets at default density, and the
+ * insets move with density here too. Everything there except the height carries
  * over unchanged, because the two fields have to sit in one form without a
  * seam — that the surfaces match is asserted per size as a RELATIONSHIP
  * against a real Input, not as numbers, so they cannot drift apart silently.
@@ -44,9 +47,9 @@ const SURFACE = {
  * and snug is the nearest role at 0.2px per line.
  */
 const SIZE = {
-  lg: "px-md py-sm text-body-md",
-  md: "p-sm text-caption",
-  sm: "px-sm py-xs text-caption",
+  lg: "px-field-inset-lg py-sm text-body-md",
+  md: "px-field-inset-md py-sm text-caption",
+  sm: "px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<TextareaSize, string>;
 
 const DEFAULT_ROWS = 6;
@@ -152,7 +155,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         data-slot="label"
         htmlFor={textareaId}
         className={cn(
-          "text-label-md font-body font-medium text-ink-secondary",
+          "text-label-md font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
           // accessibility tree and still be clickable as a target.
           isLabelHidden && "sr-only",
@@ -201,7 +204,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           // `items-start` is the other half — it stops the textarea being
           // stretched to a wrapper height, so the CHILD's height is the box's
           // height and a resize drag grows the box instead of being clipped.
-          "flex w-full shrink-0 items-start overflow-clip rounded-md border-[1.5px]",
+          "flex w-full shrink-0 items-start overflow-clip rounded-md border-hairline",
           "transition-[border-color,box-shadow,background-color]", motionMicro,
           "border-edge-subtle",
           // The fill comes from the GROUND-and-state pair, never from a surface
@@ -219,7 +222,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           // not exist. The outline is the fallback; it costs nothing outside
           // forced colours, where it never applies.
           "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
-          "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
+          "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
         )}
       >
         <textarea
@@ -235,12 +238,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           className={cn(
             "w-full min-w-0 bg-transparent",
             SIZE[size],
-            // The leading is set once for every size rather than per step:
-            // the ROLE is "snug" at all three, and only the size it multiplies
-            // changes. A textarea is the first component where this is
-            // load-bearing — an unset leading falls to the font's own, which
-            // is what made Badge's two sizes identical.
-            "font-body font-medium leading-snug",
+            // Weight comes from the size's ROLE (ADR 0020 §3); the leading is
+            // "snug" at every size instead of the role's, because the box is
+            // rows × leading and the sheet's 128px is drawn at snug — a
+            // declared exception to TYPE_ROLES (.storybook/type-roles.ts).
+            "font-body leading-snug",
             "text-ink-primary placeholder:text-ink-placeholder",
             isResizable ? "resize-y" : "resize-none",
             // A disabled field cannot be dragged either — the grip would be

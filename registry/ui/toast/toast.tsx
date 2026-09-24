@@ -246,7 +246,7 @@ function typeIcon(type: ToastType): ReactNode {
       return (
         <span
           data-slot="toast-spinner"
-          className="size-4 shrink-0 animate-spin rounded-full border-2 border-current/30 border-r-current motion-reduce:animate-none"
+          className="size-4 shrink-0 animate-spin rounded-full border-thick border-current/30 border-r-current motion-reduce:animate-none"
         />
       );
   }
@@ -334,7 +334,7 @@ function ToastRoot({
         "after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
         // F6 lands here. Outline, not box-shadow, so it survives forced
         // colors — Button's rule.
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+        "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
       )}
     >
       <BaseToast.Content
@@ -356,7 +356,7 @@ function ToastRoot({
               // settings), so the glyph centres on the first line however far
               // the description wraps.
               "flex w-4 shrink-0 items-center justify-center self-start",
-              "h-[1lh] text-body-lg leading-normal",
+              "h-[1lh] text-body-lg",
               "[&_svg]:size-4 [&_svg]:shrink-0",
               TYPE_INK[type],
             )}
@@ -373,13 +373,13 @@ function ToastRoot({
               // the viewport — title-sm would render below the sheet's 16px
               // exactly where the sheet draws it. The browser test asserts
               // the computed 16px, which is the only thing telling them apart.
-              className="text-body-lg font-body font-bold leading-normal tracking-tight text-ink-primary"
+              className="text-body-lg font-body text-ink-primary"
             />
           ) : null}
           {toast.description != null ? (
             <BaseToast.Description
               data-slot="toast-description"
-              className="text-body-sm font-body font-medium leading-normal tracking-normal text-ink-muted"
+              className="text-body-sm font-body text-ink-muted"
             />
           ) : null}
         </div>
@@ -407,7 +407,7 @@ function ToastRoot({
             "text-ink-muted [&_svg]:size-4 [&_svg]:shrink-0",
             "transition-[background-color]", motionMicro,
             "hover:bg-current/10",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+            "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
           )}
         >
           <Close size={16} aria-hidden="true" />

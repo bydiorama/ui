@@ -87,7 +87,7 @@ export const States: Story = {
             </>
           ) : (
             <>
-              <p className="text-body-sm font-medium text-ink-primary">Jakub Otčenáš</p>
+              <p className="text-body-sm text-ink-primary">Jakub Otčenáš</p>
               <p className="text-body-sm text-ink-secondary">Design systems, Diorama</p>
             </>
           )}

@@ -155,7 +155,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           // stack in a form. The sheet draws weight 550 here and 500 on
           // Input; following Input is what keeps a form from having two
           // label styles. Flagged in needsDesign.
-          "text-label-md font-body font-medium text-ink-secondary",
+          "text-label-md font-body text-ink-secondary",
           isLabelHidden && "sr-only",
         )}
       >
@@ -200,7 +200,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
         className={cn(
           "flex w-full flex-col items-center justify-center self-stretch",
           "min-h-38 gap-sm rounded-lg p-sm",
-          "border-[1.5px] border-solid bg-surface",
+          "border-hairline border-solid bg-surface",
           // The drag-over ring. `border-edge-focus` is the role whose whole job is
           // "something is happening here", and it is already audited at 3:1.
           isDragging && !isDisabled ? "border-edge-focus" : EDGE[state],
@@ -232,14 +232,14 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                 <p
                   id={errorId}
                   data-slot="image-upload-error"
-                  className="text-label-md font-body font-medium leading-normal text-ink-on-danger-subtle"
+                  className="text-label-md font-body text-ink-on-danger-subtle"
                 >
                   {errorText}
                 </p>
                 {errorDetail && (
                   <p
                     data-slot="image-upload-error-detail"
-                    className="text-caption font-body font-book leading-normal text-ink-on-danger-subtle"
+                    className="text-caption font-body text-ink-on-danger-subtle"
                   >
                     {errorDetail}
                   </p>
@@ -255,7 +255,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                   data-slot="image-upload-spinner"
                   className={cn(
                     "size-4 shrink-0 rounded-full",
-                    "border-[1.5px] border-solid border-edge-subtle border-t-(--ui-text-secondary)",
+                    "border-hairline border-solid border-edge-subtle border-t-(--ui-text-secondary)",
                     "motion-safe:animate-spin",
                   )}
                 />
@@ -269,7 +269,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                 <p
                   role="status"
                   data-slot="image-upload-busy"
-                  className="text-label-md font-body font-medium leading-normal text-ink-secondary"
+                  className="text-label-md font-body text-ink-secondary"
                 >
                   {busyText}
                 </p>
@@ -279,7 +279,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                 <Upload aria-hidden="true" className="text-ink-secondary" />
                 <p
                   data-slot="image-upload-prompt"
-                  className="flex items-center gap-xs text-label-md font-body font-medium leading-normal text-ink-secondary"
+                  className="flex items-center gap-xs text-label-md font-body text-ink-secondary"
                 >
                   {prompt}
                   {/*
@@ -297,7 +297,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                       "cursor-pointer rounded-sm font-semibold text-ink-link underline",
                       "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:no-underline",
                       "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-                      "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+                      "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
                     )}
                   >
                     {browseLabel}
@@ -320,7 +320,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           id={helperId}
           data-slot="image-upload-helper"
           className={cn(
-            "text-caption font-body font-book leading-normal",
+            "text-caption font-body",
             // The sheet turns the constraints red once one of them is broken,
             // which is right: they stop being guidance and become the reason.
             state === "rejected" ? "text-danger" : "text-ink-muted",
@@ -375,7 +375,7 @@ function ImageUploadFile({
       data-slot="image-upload-file"
       className={cn(
         "flex w-full items-center gap-md self-stretch rounded-lg p-md",
-        "border-[1.5px] border-solid border-edge-subtle bg-elevated",
+        "border-hairline border-solid border-edge-subtle bg-elevated",
         className,
       )}
       {...rest}
@@ -395,7 +395,7 @@ function ImageUploadFile({
         <span className="flex items-center gap-sm">
           <span
             data-slot="image-upload-file-name"
-            className="min-w-0 flex-1 truncate text-body-sm font-body font-semibold leading-normal text-ink-primary"
+            className="min-w-0 flex-1 truncate text-body-sm font-body text-ink-primary"
           >
             {name}
           </span>
@@ -409,7 +409,7 @@ function ImageUploadFile({
             <span
               aria-hidden="true"
               data-slot="image-upload-file-value"
-              className="shrink-0 text-caption font-body font-medium leading-normal text-ink-muted"
+              className="shrink-0 text-caption font-body text-ink-muted"
             >
               {`${Math.round(value)}%`}
             </span>
@@ -429,7 +429,7 @@ function ImageUploadFile({
         {detail && (
           <span
             data-slot="image-upload-file-detail"
-            className="text-caption font-body font-book leading-normal text-ink-muted"
+            className="text-caption font-body text-ink-muted"
           >
             {detail}
           </span>
@@ -449,7 +449,7 @@ function ImageUploadFile({
             "enabled:hover:bg-hover enabled:hover:text-ink-primary",
             "transition-[background-color,color]", motionMicro,
             "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-            "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+            "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
           )}
         >
           {/* `Close`, not `X` — in griddy, `X` is the X/Twitter wordmark. */}
@@ -476,7 +476,7 @@ function ImageUploadGrid({ children, className, ...rest }: ImageUploadGridProps)
       data-slot="image-upload-grid"
       className={cn(
         "flex w-full items-center gap-sm self-stretch rounded-lg p-sm",
-        "border-[1.5px] border-solid border-edge-subtle bg-surface",
+        "border-hairline border-solid border-edge-subtle bg-surface",
         className,
       )}
       {...rest}
@@ -516,7 +516,7 @@ function ImageUploadAdd({ label, isDisabled = false, className, ...rest }: Image
         "disabled:cursor-not-allowed disabled:text-ink-disabled",
         "transition-[background-color,color]", motionMicro,
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-        "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+        "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
         className,
       )}
       {...rest}

@@ -105,10 +105,11 @@ describe("type", () => {
     const style = getComputedStyle(title);
 
     expect(style.fontSize).toBe("13px");
-    expect(style.fontWeight).toBe("500");
+    // label-md's own weight and leading (ADR 0020 §3): 600, and 130% —
+    // 13 * 1.3 = 16.9. The sheet drew 500 at 135%; the table is the truth.
+    expect(style.fontWeight).toBe("600");
     expect(style.color).toBe(tokenColor("--ui-text-secondary"));
-    // leading-normal is 135%: 13 * 1.35 = 17.55.
-    expect(style.lineHeight).toBe("17.55px");
+    expect(style.lineHeight).toBe("16.9px");
   });
 
   test("the description WRAPS without colliding — the sheet's leading-flat is why this exists", () => {

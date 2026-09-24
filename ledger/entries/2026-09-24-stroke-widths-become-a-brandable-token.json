@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-09-24-stroke-widths-become-a-brandable-token",
+  "date": "2026-09-24",
+  "item": "system",
+  "kind": "breaking",
+  "summary": "ADR 0020 §2. `shape.borderWidthPx` finally reaches a rendered edge. It resolved to `--ui-border-width`, which nothing read, while components drew strokes as literals: border-[1.5px] ×17, ring-[1.5px] ×7, outline-[1.5px] ×3, border-2 ×4, ring-1, ring-2, outline-2 ×44 and outline-offset-2 ×11. The contract replaces the dead token with a scale named by job: `--ui-stroke-default` (1px; bare border, ring, outline and divide read it through Tailwind's --default-*-width keys, so the everyday edge became brandable with no call-site change), `--ui-stroke-hairline` (1.5px, the edge that identifies a control; `border-/ring-/outline-hairline`) and `--ui-stroke-thick` (2px; `-thick`). The focus indicator gets its own pair, `--ui-focus-ring-width` and `--ui-focus-ring-offset` (`outline-focus`, `outline-offset-focus`), and `--ui-focus-ring` is now COMPOSED from them and the final ring colour after authoring and the contrast audit. Theme zero hand-wrote that string twice beside the tokens it duplicated; the composed value is byte-identical. Knobs: borderWidthPx is the base (hairline 1.5×, thick 2×), bounds 1–2, was 0–4, because a 0 base would erase every control boundary. New `shape.focusRingWidthPx`, bounds 2–4, is independent of the base so delicate edges never thin the focus ring; the 2px floor adopts SC 2.4.13 (AAA) on purpose. The widths are emitted unrounded: the shared px() helper rounds, and would have made the hairline 2px. Theme zero is unchanged. The browser suite measures used widths for every utility against the old literals, and a heavy brand (base 2, focus 3) moves all of them, bare ones included. Hairlines that must keep their half pixel at DPR 1 stay rings. Gates: new `check:strokes` fails on any literal stroke width in registry/ (zero allowed; 50 violations on the pre-migration tree, probed). `check:utilities` routes the width names before the colour patterns, and rule C now reads any CSS type hint (`(length:--ui-x)`), not only `image:`; a misspelt typed read was previously invisible, and that was probed failing-first. cn() registers the width names: tailwind-merge reads an unknown border-<word> as a colour, so `border-hairline` next to `border-edge-subtle` would have deleted one of them. Three tests were written first and failed first.",
+  "affects": [
+    "token:--ui-border-width",
+    "token:--ui-stroke-default",
+    "token:--ui-stroke-hairline",
+    "token:--ui-stroke-thick",
+    "token:--ui-focus-ring",
+    "token:--ui-focus-ring-width",
+    "token:--ui-focus-ring-offset",
+    "seed:shape.borderWidthPx",
+    "seed:shape.focusRingWidthPx",
+    "lib:cn",
+    "gate:check-strokes",
+    "gate:check-utilities"
+  ],
+  "migration": {
+    "manual": "Regenerate your token CSS (toCss + toTailwindTheme) BEFORE syncing any component from this revision: the synced components use `ring-hairline`, `outline-focus` etc., which emit nothing against an older theme, so edges and focus indicators would silently disappear. Replace any read of `--ui-border-width` with `--ui-stroke-default`. A seed with `shape.borderWidthPx` below 1 now clamps to 1, and above 2 clamps to 2. In your own code, replace literal widths with the scale: `border-[1.5px]`/`ring-[1.5px]` → `-hairline`, `border-2` → `border-thick`, `outline-2 outline-offset-2` on focus → `outline-focus outline-offset-focus`."
+  }
+}

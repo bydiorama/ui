@@ -28,7 +28,7 @@ const ASSETS = [
 const Row = ({ asset }: { asset: (typeof ASSETS)[number] }) => (
   <>
     <span className="flex min-w-0 flex-col items-start gap-xs">
-      <span className="truncate text-body-lg font-body font-bold leading-normal tracking-tight">
+      <span className="truncate text-body-lg font-body">
         {asset.label}
       </span>
       <Badge variant={asset.visibility === "Public" ? "success" : "unselected"}>
@@ -97,13 +97,13 @@ export const States: Story = {
         </p>
         <CardSorting label="Long names" className="w-full max-w-nav">
           <CardSorting.Item id="long" label="A brand guideline with a very long name indeed">
-            <span className="truncate text-body-lg font-body font-bold leading-normal tracking-tight">
+            <span className="truncate text-body-lg font-body">
               A brand guideline with a very long name indeed
             </span>
             <Badge variant="unselected">Team only</Badge>
           </CardSorting.Item>
           <CardSorting.Item id="short" label="Short">
-            <span className="truncate text-body-lg font-body font-bold leading-normal tracking-tight">Short</span>
+            <span className="truncate text-body-lg font-body">Short</span>
             <Badge variant="success">Public</Badge>
           </CardSorting.Item>
         </CardSorting>

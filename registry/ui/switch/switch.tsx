@@ -103,7 +103,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
           !isDisabled && !checked && "group-hover:bg-edge-control group-hover:border-edge-control",
           !isDisabled && checked && "group-hover:bg-accent-hover group-hover:border-accent-hover",
           isDisabled && "bg-sunken border-edge-subtle",
-          "peer-focus-visible:shadow-(--ui-focus-ring) peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-2",
+          "peer-focus-visible:shadow-(--ui-focus-ring) peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-focus",
         )}
       >
         <span
@@ -121,7 +121,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       <span
         data-slot="label"
         className={cn(
-          "text-label-md font-body font-medium leading-snug",
+          "text-label-md font-body",
           isLabelHidden && "sr-only",
           isDisabled ? "text-ink-disabled" : "text-ink-primary",
         )}

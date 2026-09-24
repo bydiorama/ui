@@ -24,9 +24,11 @@ import { motionMicro } from "@/lib/motion";
 
 export function chromeControl(className?: string): string {
   return [
-    // 32px square. The sheet draws exactly one size, so there is no scale here
-    // to get wrong — and 32 clears SC 2.5.8's 24px floor with room to spare.
-    "inline-flex size-8 shrink-0 items-center justify-center",
+    // The md action square: 32px at default density, so it matches a medium
+    // Button beside it in a bar, and moves with it under `[data-ui-density]`
+    // (ADR 0020 §4). The sheet draws exactly one size, so there is no scale
+    // here to get wrong, and the density floor keeps it over SC 2.5.8's 24px.
+    "inline-flex size-control-md shrink-0 items-center justify-center",
     // radius-md, matching Button's own soft radius at md so a chrome control
     // and a medium button sitting in the same bar share a corner.
     "rounded-md",
@@ -40,7 +42,7 @@ export function chromeControl(className?: string): string {
     // The ring is a box-shadow, which forced-colors mode forces to `none` —
     // the outline is what survives there. Same rule as every other control.
     "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-    "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+    "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
     className,
   ]
     .filter(Boolean)

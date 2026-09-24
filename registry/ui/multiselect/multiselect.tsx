@@ -18,9 +18,9 @@ const forBaseUI = <T,>(props: object) => props as T;
 export type MultiselectSize = "lg" | "md" | "sm";
 
 const SIZE = {
-  lg: "h-12 px-lg text-body-md",
-  md: "h-10 px-md text-caption",
-  sm: "h-8 px-sm text-caption",
+  lg: "h-field-lg px-lg text-body-md",
+  md: "h-field-md px-md text-caption",
+  sm: "h-field-sm px-sm text-caption",
 } as const satisfies Record<MultiselectSize, string>;
 
 export interface MultiselectItem {
@@ -113,7 +113,7 @@ export function Multiselect({
           id={labelId}
           data-slot="multiselect-label"
           className={cn(
-            "px-sm text-label-md font-body font-medium leading-normal text-ink-secondary",
+            "px-sm text-label-md font-body text-ink-secondary",
             isLabelHidden && "sr-only",
           )}
         >
@@ -127,10 +127,10 @@ export function Multiselect({
             className: cn(
               "flex w-full items-center justify-between gap-sm rounded-md",
               SIZE[size],
-              "border-[1.5px] bg-field border-edge-subtle text-body-md font-body font-medium text-ink-primary",
+              "border-hairline bg-field border-edge-subtle text-body-md font-body text-ink-primary",
               "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
-              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+              "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
               "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
             ),
           })}
@@ -225,14 +225,14 @@ export function Multiselect({
               })}
             >
               <div className="pb-xs">
-                <div className="flex h-10 items-center gap-sm rounded-sm bg-field px-lg py-xs ring-1 ring-edge-subtle focus-within:ring-edge-focus">
+                <div className="flex h-field-md items-center gap-sm rounded-sm bg-field px-lg py-xs ring ring-edge-subtle focus-within:ring-edge-focus">
                   <BaseCombobox.Input
                     {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Input>>({
                       "data-slot": "multiselect-search",
                       placeholder: searchPlaceholder,
                       "aria-label": `Search ${label}`,
                       className:
-                        "min-w-0 flex-1 bg-transparent text-button-sm font-body font-medium tracking-tight text-ink-primary placeholder:text-ink-placeholder outline-none",
+                        "min-w-0 flex-1 bg-transparent text-button-sm font-body text-ink-primary placeholder:text-ink-placeholder outline-none",
                     })}
                   />
                   <Search size={16} aria-hidden="true" className="shrink-0 text-ink-secondary" />
@@ -258,7 +258,7 @@ export function Multiselect({
                       "data-slot": "multiselect-option",
                       className: cn(
                         "flex cursor-pointer items-center gap-sm rounded-sm p-md",
-                        "text-button-sm font-body font-medium tracking-tight text-ink-primary",
+                        "text-button-sm font-body text-ink-primary",
                         "data-[highlighted]:bg-hover data-[selected]:bg-elevated",
                         "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",
                       ),
@@ -290,7 +290,7 @@ export function Multiselect({
               <BaseCombobox.Empty
                 {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Empty>>({
                   "data-slot": "multiselect-empty",
-                  className: "px-lg text-button-sm font-body font-medium text-ink-muted empty:hidden not-empty:pb-md",
+                  className: "px-lg text-button-sm font-body text-ink-muted empty:hidden not-empty:pb-md",
                 })}
               >
                 {emptyMessage}

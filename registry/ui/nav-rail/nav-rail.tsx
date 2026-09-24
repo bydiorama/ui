@@ -205,7 +205,7 @@ function NavRailItem({
         ],
         isDisabled && "cursor-not-allowed text-ink-nav-disabled",
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-        "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+        "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
         className,
       ),
       children: icon,

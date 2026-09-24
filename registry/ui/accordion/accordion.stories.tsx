@@ -107,7 +107,7 @@ export const Matrix: Story = {
  * about (see the doc's needsDesign).
  */
 const StepBadge = ({ n }: { n: number }) => (
-  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-sunken text-caption font-body font-medium text-ink-muted">
+  <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-sunken text-caption font-body text-ink-muted">
     {n}
   </span>
 );

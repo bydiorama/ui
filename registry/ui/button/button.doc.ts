@@ -36,7 +36,7 @@ Button
     size: {
       type: '"lg" | "md" | "sm"',
       default: '"md"',
-      notes: "44 / 32 / 24px tall. lg is the touch target for primary page actions.",
+      notes: "44 / 32 / 24px tall at default density (--ui-control-*-height). lg is the touch target for primary page actions. Under [data-ui-density=\"compact\"] every size is 4px shorter, floored at 24 — so lg is 40px and gives up the 44px touch target; under comfortable they are 4px taller (ADR 0020 §4).",
     },
     shape: {
       type: '"soft" | "full"',
@@ -108,7 +108,7 @@ Button
       { fg: "--ui-border-strong", bg: "--ui-bg-base", floor: "non-text", role: "a pressed secondary's edge, the firmest step in ADR 0010's stack" },
     ],
     hitArea:
-      "sm is exactly 24px, the WCAG 2.5.8 floor. lg is 44px, the recommended touch target. md sits between at 32px — pair it with generous surrounding space on touch surfaces.",
+      "sm is exactly 24px, the WCAG 2.5.8 floor, at every density — compact cannot go under it. lg is 44px, the recommended touch target, at default and comfortable density only: compact lg is 40px, so a compact screen meant for touch should reach for comfortable instead. md sits between at 32px — pair it with generous surrounding space on touch surfaces.",
   },
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */

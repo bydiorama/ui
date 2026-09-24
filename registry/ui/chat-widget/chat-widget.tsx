@@ -79,7 +79,7 @@ const ChatWidgetHeader = forwardRef<HTMLDivElement, ChatWidgetHeaderProps>(funct
       {icon}
       <p
         data-slot="chat-widget-name"
-        className="min-w-0 flex-1 truncate font-body text-label-md font-bold leading-normal tracking-normal text-ink-primary"
+        className="min-w-0 flex-1 truncate font-body text-label-md text-ink-primary"
       >
         {name}
       </p>
@@ -161,8 +161,8 @@ const ChatWidgetBody = forwardRef<HTMLDivElement, ChatWidgetBodyProps>(function 
         style={{ maxHeight: `${BODY_MAX_HEIGHT}px` }}
         className={cn(
           "flex flex-col gap-md overflow-y-auto px-md",
-          "font-body text-body-md font-regular leading-relaxed tracking-normal text-ink-primary",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+          "font-body text-body-md text-ink-primary",
+          "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
         )}
         {...rest}
       >
@@ -283,7 +283,7 @@ const ChatWidgetCaption = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLPa
       <p
         ref={ref}
         data-slot="chat-widget-caption"
-        className={cn("px-md font-body text-caption leading-normal text-ink-muted", className)}
+        className={cn("px-md font-body text-caption text-ink-muted", className)}
         {...rest}
       >
         {children}

@@ -50,10 +50,10 @@ export const Playground: Story = {
 
 const Section = ({ title, caption, children }: { title: string; caption: string; children: React.ReactNode }) => (
   <div className="flex flex-col items-start gap-sm">
-    <p className="text-title-lg font-display font-medium leading-normal tracking-tight text-ink-primary">
+    <p className="text-title-lg font-display text-ink-primary">
       {title}
     </p>
-    <p className="pb-xs text-body-sm font-body font-medium leading-normal text-ink-muted">{caption}</p>
+    <p className="pb-xs text-body-sm font-body text-ink-muted">{caption}</p>
     <div className="w-full max-w-dialog-md">{children}</div>
   </div>
 );
@@ -124,7 +124,7 @@ export const Matrix: Story = {
 
       <Section title="Image Upload Multiple" caption="Multiple — attached set with an add tile">
         <div className="flex flex-col items-start gap-sm">
-          <span className="text-label-md font-body font-medium text-ink-secondary">Gallery images</span>
+          <span className="text-label-md font-body text-ink-secondary">Gallery images</span>
           <ImageUpload.Grid>
             {["Poster.png", "Deck.pdf", "Icon set.png"].map((file) => (
               <Thumbnail
@@ -138,7 +138,7 @@ export const Matrix: Story = {
             ))}
             <ImageUpload.Add label="Add images" onClick={fn()} />
           </ImageUpload.Grid>
-          <span className="text-caption font-body font-book text-ink-muted">
+          <span className="text-caption font-body text-ink-muted">
             3 of 8 attached · drag a tile to reorder
           </span>
         </div>

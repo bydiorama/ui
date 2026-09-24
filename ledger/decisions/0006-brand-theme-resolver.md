@@ -1,6 +1,7 @@
 # 0006 — The Brand Theme resolver
 
-**Status:** accepted · **Date:** 2026-08-02
+**Status:** accepted · **Date:** 2026-08-02 · amended by 0020 (stroke and
+type knobs join the seed; density is a mode, not a seed field)
 
 ## Context
 

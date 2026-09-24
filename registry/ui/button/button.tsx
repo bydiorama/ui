@@ -27,14 +27,14 @@ export type ButtonShape = "soft" | "full";
 const SIZE = {
   // px-lg, not px-xl: three of the four large buttons in the sheet draw
   // `paddingInline: space-lg` and only Ghost draws xl, which is a slip.
-  // ring-[1.5px] at EVERY size — the sheet's outline is 1.5 throughout, and
+  // ring-hairline at EVERY size — the sheet's outline is 1.5 throughout, and
   // md/sm shipped at ring-1.
   // The explicit block size is intentional. Padding plus line-height produced
   // 40/28/20px controls even though the documented and drawn contract is
   // 44/32/24px. Keep padding for label geometry; own the hit area directly.
-  lg: "h-11 gap-sm py-md px-lg text-button-lg ring-[1.5px]",
-  md: "h-8 gap-sm py-sm px-md text-button-sm ring-[1.5px]",
-  sm: "h-6 gap-xs py-xs px-sm text-button-sm ring-[1.5px]",
+  lg: "h-control-lg gap-sm py-md px-control-inset-lg text-button-lg ring-hairline",
+  md: "h-control-md gap-sm py-sm px-control-inset-md text-button-sm ring-hairline",
+  sm: "h-control-sm gap-xs py-xs px-control-inset-sm text-button-sm ring-hairline",
 } as const satisfies Record<ButtonSize, string>;
 
 /**
@@ -53,9 +53,9 @@ const SOFT_RADIUS = {
 /** Icon-only buttons are square at the size's own height, so a row of mixed
  *  buttons keeps one baseline. All three clear the 24px WCAG 2.5.8 floor. */
 const ICON_SIZE = {
-  lg: "size-11 p-0 gap-0 ring-[1.5px]",
-  md: "size-8 p-0 gap-0 ring-[1.5px]",
-  sm: "size-6 p-0 gap-0 ring-[1.5px]",
+  lg: "size-control-lg p-0 gap-0 ring-hairline",
+  md: "size-control-md p-0 gap-0 ring-hairline",
+  sm: "size-control-sm p-0 gap-0 ring-hairline",
 } as const satisfies Record<ButtonSize, string>;
 
 /**
@@ -204,11 +204,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // Focus lives on the outline layer so it can never be confused with a
         // variant's resting ring, and no variant can suppress it. There is
         // deliberately NO `outline-none` base: it poisons `--tw-outline-style`
-        // with `none`, which `focus-visible:outline-2` then inherits — a
+        // with `none`, which `focus-visible:outline-focus` then inherits — a
         // 2px-wide ring drawn in style:none, i.e. an invisible focus
         // indicator at a perfect contrast ratio. The UA outline needs no
         // suppressing: ours overrides it whenever :focus-visible matches.
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+        "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
         !staticTap && "enabled:active:scale-(--ui-press-scale) motion-reduce:active:scale-100",
         shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
         isIconOnly ? ICON_SIZE[size] : SIZE[size],
@@ -264,7 +264,7 @@ function Spinner() {
     <span
       aria-hidden="true"
       data-slot="button-spinner"
-      className="size-4 shrink-0 animate-spin rounded-full border-2 border-current/30 border-r-current motion-reduce:animate-none"
+      className="size-4 shrink-0 animate-spin rounded-full border-thick border-current/30 border-r-current motion-reduce:animate-none"
     />
   );
 }

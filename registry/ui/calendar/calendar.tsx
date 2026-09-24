@@ -423,7 +423,7 @@ export function Calendar({
               // to live on the CELLS — and without it the header sat on the
               // first week and the grid came out 8px short, which is also
               // what made a month select resize the card on open.
-              className="mb-sm flex items-center justify-center py-sm text-label-md font-body font-medium leading-snug tracking-tight text-ink-muted"
+              className="mb-sm flex items-center justify-center py-sm text-label-md font-body text-ink-muted"
             >
               {day.short}
             </span>
@@ -469,7 +469,11 @@ export function Calendar({
                     }}
                     className={cn(
                       "flex aspect-square cursor-pointer items-center justify-center rounded-md",
-                      "text-button-sm font-body font-medium leading-flat",
+                      // A resting day is one step LIGHTER than its role so the
+                      // selected day, at the role's own 600, reads heavier —
+                      // a declared exception to TYPE_ROLES (ADR 0020 §3,
+                      // apps/storybook/.storybook/type-roles.ts).
+                      "text-button-sm font-body font-medium",
                       "bg-elevated text-ink-muted",
                       "transition-[background-color,color]", motionMicro,
                       "hover:bg-hover hover:text-ink-primary",
@@ -480,7 +484,7 @@ export function Calendar({
                       // coexist with the selection rather than compete with it.
                       "data-[today]:outline data-[today]:outline-edge-default",
                       "aria-disabled:cursor-not-allowed aria-disabled:text-ink-disabled aria-disabled:bg-sunken",
-                      "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+                      "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
                     )}
                   >
                     {date.getDate()}
@@ -592,7 +596,9 @@ function OptionList({ id, slot, label, columns, options, onSelect, onDismiss }: 
             // min-h-8 rather than padding alone: py-sm around 12px leading-flat
             // text is 8 + 12 + 8 = 28, and the sheet draws 32.
             "flex min-h-8 cursor-pointer items-center justify-center rounded-md px-md py-sm",
-            "text-button-sm font-body font-medium leading-flat",
+            // Resting one step under the role, as the day cells are, so the
+            // selected option reads heavier (a declared exception, ADR 0020 §3).
+            "text-button-sm font-body font-medium",
             "bg-elevated text-ink-muted",
             "transition-[background-color,color]", motionMicro,
             "hover:bg-hover hover:text-ink-primary",
@@ -603,7 +609,7 @@ function OptionList({ id, slot, label, columns, options, onSelect, onDismiss }: 
             // decoration the fill already carries.
             "data-[selected]:bg-accent-subtle data-[selected]:text-ink-primary data-[selected]:font-bold",
             "data-[current]:outline data-[current]:outline-edge-default",
-            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
           )}
         >
           {option.label}
@@ -647,7 +653,7 @@ function ViewTrigger({ ref, slot, label, accessibleName, controls, isOpen, onCli
         // roles are FLUID — clamp(...vw...) — and this panel is a fixed 320px
         // that a narrow viewport does not shrink. title-sm computed to 12.17px
         // on a phone, worst exactly where the sheet draws 16.
-        "text-button-lg font-body font-bold leading-flat tracking-tight",
+        "text-button-lg font-body",
         "text-ink-primary [&_svg]:size-4 [&_svg]:shrink-0",
         "transition-[background-color,color]", motionMicro,
         "hover:bg-hover",
@@ -655,7 +661,7 @@ function ViewTrigger({ ref, slot, label, accessibleName, controls, isOpen, onCli
         // raw --ui-blue-70, which is the DARK scheme's value for that role and
         // measures 2.1:1 on a light panel. Corrected in Paper.
         "data-[open]:text-ink-link",
-        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
       )}
     >
       {label}

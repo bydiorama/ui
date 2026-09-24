@@ -30,6 +30,9 @@ export interface SeedColors {
 
 export type NavStyle = "page" | "tinted" | "accent";
 
+/** The steps of the weight ladder, named as the `font-*` utilities are. */
+export type WeightName = "regular" | "book" | "medium" | "semibold" | "bold";
+
 export interface SeedTypography {
   /** Body size in px. Drives the whole type scale. */
   baseSize?: number;
@@ -37,6 +40,14 @@ export interface SeedTypography {
   ratio?: number;
   fontBody?: string;
   fontDisplay?: string;
+  /** Maps the weight ladder onto the cuts the brand's face actually has
+   *  (ADR 0020 §3). Aspekta's 450/550 exist because it is variable; a static
+   *  face would synthesise or round them, so a brand points `book` and
+   *  `semibold` at real cuts. Every role's weight follows. */
+  weights?: Partial<Record<WeightName, number>>;
+  /** `tight` (default) is the −0.02em Aspekta is set at. `font` sets every
+   *  tracking to 0 for a face that ships with its own spacing. */
+  tracking?: "tight" | "font";
   /** No mono counterpart exists — ADR 0011. Code content is set in the body
    *  face; numeric alignment uses `font-variant-numeric: tabular-nums`. */
 }
@@ -50,7 +61,14 @@ export type ShadowIntensity = "none" | "subtle" | "standard" | "strong";
 export interface SeedShape {
   /** Six knobs matching the approved radius scale (4/8/16/24/32/pill). */
   radiusPx?: { sm?: number; md?: number; lg?: number; xl?: number; "2xl"?: number; pill?: number };
+  /** The base of the stroke scale (ADR 0020 §2): `--ui-stroke-default` is
+   *  this, the control hairline 1.5×, the thick stroke 2×. Floored at 1 — a
+   *  0 base would erase every control boundary. */
   borderWidthPx?: number;
+  /** The focus indicator's width, deliberately NOT derived from the base: a
+   *  brand choosing delicate edges must not thin its focus ring. Floored at
+   *  2px (SC 2.4.13, AAA, adopted on purpose). */
+  focusRingWidthPx?: number;
   shadow?: ShadowIntensity;
 }
 
@@ -88,7 +106,11 @@ export const SEED_BOUNDS = {
    *  seed shape so accepting it again later is not a breaking change. */
   ratio: { min: 1.1, max: 1.414, default: 1.2 },
   contentWidthPx: { min: 560, max: 1440, default: 880 },
-  borderWidthPx: { min: 0, max: 4, default: 1 },
+  /** Any weight a variable or static face can name (CSS allows 1–1000; the
+   *  named cuts run 100–900). Defaults are Aspekta's ladder. */
+  weight: { min: 100, max: 900 },
+  borderWidthPx: { min: 1, max: 2, default: 1 },
+  focusRingWidthPx: { min: 2, max: 4, default: 2 },
   radiusPx: {
     sm: { min: 0, max: 24, default: 4 },
     md: { min: 0, max: 32, default: 8 },
@@ -100,6 +122,25 @@ export const SEED_BOUNDS = {
 } as const;
 
 export const clamp = (n: number, min: number, max: number) => (n < min ? min : n > max ? max : n);
+
+/**
+ * Every numeric knob's real gate, run before `clamp` ever sees the value.
+ *
+ * A seed is untyped JSON at the boundary — an author-supplied theme, not a
+ * TypeScript literal — so `"2"`, `null` or `NaN` arrive as legitimate input.
+ * `clamp` assumed a finite `number` and either threw (`"2".toFixed is not a
+ * function`, one call site up the chain) or propagated `NaN` into a composite
+ * CSS value with no signal — a `NaN`-wide focus ring is emitted, not a build
+ * failure, and it guards nothing.
+ *
+ * Deliberately NOT a coercing parse: `Number("2")` is tempting, but a knob
+ * typed `number` that arrives as a string is a seed built by hand or by a
+ * broken editor, and guessing at "2px" or a locale-formatted "2,5" invites
+ * more failure modes than it fixes. Anything short of a genuine finite
+ * `number` falls back; `validateSeed` is what tells the author it happened.
+ */
+export const seedNumber = (value: unknown, fallback: number): number =>
+  typeof value === "number" && Number.isFinite(value) ? value : fallback;
 
 /**
  * Characters a seed value may contain.
@@ -131,6 +172,16 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
     }
   };
 
+  /** `seedNumber` recovers silently, by design (a build must never throw on
+   *  a bad brand seed); this is what tells the author it happened, so
+   *  "borderWidthPx: '2'" reads as their bug rather than a mystery default. */
+  const checkNumber = (path: string, value: unknown) => {
+    if (value === undefined) return;
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      issues.push({ path, message: `must be a finite number — the resolver fell back to its default` });
+    }
+  };
+
   const requiredColors: ReadonlyArray<keyof SeedColors> = [
     "bg", "surface", "muted", "textPrimary", "textMuted", "border", "accent",
   ];
@@ -152,6 +203,18 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
   checkValue("typography.fontDisplay", seed.typography?.fontDisplay);
   checkValue("chrome.sectionGap", seed.chrome?.sectionGap);
   checkValue("chrome.logoHeight", seed.chrome?.logoHeight);
+
+  checkNumber("typography.baseSize", seed.typography?.baseSize);
+  checkNumber("typography.ratio", seed.typography?.ratio);
+  checkNumber("chrome.contentWidthPx", seed.chrome?.contentWidthPx);
+  checkNumber("shape.borderWidthPx", seed.shape?.borderWidthPx);
+  checkNumber("shape.focusRingWidthPx", seed.shape?.focusRingWidthPx);
+  for (const key of ["sm", "md", "lg", "xl", "2xl", "pill"] as const) {
+    checkNumber(`shape.radiusPx.${key}`, seed.shape?.radiusPx?.[key]);
+  }
+  for (const name of ["regular", "book", "medium", "semibold", "bold"] as const) {
+    checkNumber(`typography.weights.${name}`, seed.typography?.weights?.[name]);
+  }
 
   return issues;
 }

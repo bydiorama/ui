@@ -111,3 +111,43 @@ test("the knowing trade: a stock font size no longer clears a stock leading", ()
   assert.ok(has(result, "leading-6"), `expected the documented trade: ${result}`);
   assert.ok(has(result, "text-sm"));
 });
+
+// ── Stroke widths (ADR 0020 §2) ────────────────────────────────────────────
+//
+// tailwind-merge reads an unknown `border-<word>` as a COLOUR — its default
+// colour scale accepts any value. So without registering the width names,
+// `border-hairline` and `border-edge-subtle` land in the same group and the
+// merger deletes one: a field with no edge, or an edge with no colour.
+
+test("a stroke width and a stroke colour coexist — border, ring and outline", () => {
+  for (const [width, colour] of [
+    ["border-hairline", "border-edge-subtle"],
+    ["border-thick", "border-edge-strong"],
+    ["ring-hairline", "ring-edge-control"],
+    ["ring-thick", "ring-edge-focus"],
+    ["outline-hairline", "outline-edge-default"],
+    ["outline-focus", "outline-edge-focus"],
+  ]) {
+    const result = cn(width!, colour!);
+    assert.ok(has(result, width!), `width ${width} was dropped by ${colour}: ${result}`);
+    assert.ok(has(result, colour!), `colour ${colour} was dropped by ${width}: ${result}`);
+  }
+});
+
+test("two stroke widths merge — a consumer's width displaces the component's", () => {
+  for (const [a, b] of [
+    ["border-hairline", "border-thick"],
+    ["ring-hairline", "ring-thick"],
+    ["outline-focus", "outline-hairline"],
+    ["border-thick", "border-0"],
+  ]) {
+    const result = cn(a!, b!);
+    assert.ok(!has(result, a!), `both widths survived (${a}, ${b}): ${result}`);
+    assert.ok(has(result, b!));
+  }
+});
+
+test("the focus offset merges against a stock offset", () => {
+  const result = cn("outline-offset-focus", "outline-offset-0");
+  assert.ok(!has(result, "outline-offset-focus"), `both offsets survived: ${result}`);
+});

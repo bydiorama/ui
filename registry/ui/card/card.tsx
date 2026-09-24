@@ -83,7 +83,7 @@ function CardHeader({
       <Heading
         id={titleId}
         data-slot="card-title"
-        className="min-w-0 flex-1 truncate text-title-sm font-body font-bold leading-normal tracking-tight text-ink-primary"
+        className="min-w-0 flex-1 truncate text-title-sm font-body text-ink-primary"
       >
         {children}
       </Heading>

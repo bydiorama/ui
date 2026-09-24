@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { resolveThemePair } from "../resolve.ts";
 import { THEME_ZERO } from "../themes/zero.ts";
 import { BRANDABLE_TOKENS } from "../contract.ts";
-import { FIXED_TOKEN_VALUES } from "../base.ts";
+import { CONTROL_SIZES, FIXED_TOKEN_VALUES } from "../base.ts";
 import { toCss, toStyleObject } from "./css.ts";
 
 const pair = resolveThemePair(THEME_ZERO);
@@ -83,4 +83,33 @@ test("composite values carry light-dark() per layer, never around the list", () 
   assert.match(css, /--ui-shadow-sm: 0 0\.5px 1\.5px light-dark\(rgba\(29, 27, 25, 0\.16\), rgba\(34, 31, 27, 0\.256\)\);/);
   // And the upward cast merges the same way, negated only in its offsets.
   assert.match(css, /--ui-shadow-sm-up: 0 -0\.5px 1\.5px light-dark\(/);
+});
+
+test("density modes are emitted as attribute blocks, default included (ADR 0020 §4)", () => {
+  const css = toCss(resolveThemePair(THEME_ZERO));
+  for (const density of ["compact", "comfortable", "default"]) {
+    assert.match(css, new RegExp(`\\[data-ui-density="${density}"\\] \\{`));
+  }
+  assert.match(css, /\[data-ui-density="compact"\] \{[^}]*--ui-control-lg-height: 2\.5rem;/);
+  // A brand scope nested in a document never re-emits them.
+  assert.doesNotMatch(toCss(resolveThemePair(THEME_ZERO), { scope: "[data-ui-theme=x]", includeBase: false }), /data-ui-density/);
+});
+
+test("a nested scope never re-declares control/field sizes, even with includeBase (review finding I2)", () => {
+  // Density works by INHERITANCE: an ancestor `[data-ui-density="compact"]`
+  // sets these custom properties, and anything nested inherits them — unless
+  // something nested declares its own value, which always wins over an
+  // inherited one. `includeBase` defaults to true and is documented as the
+  // right call for a brand scope ("[data-ui-theme=\"acme\"]"), so if that
+  // path re-declared the control/field sizes, EVERY brand scope would reset
+  // density back to default for anything under it, silently.
+  const css = toCss(resolveThemePair(THEME_ZERO), { scope: '[data-ui-theme="acme"]', includeBase: true });
+  const scopeBlock = css.slice(css.indexOf('[data-ui-theme="acme"] {'), css.indexOf("\n}\n") + 3);
+  for (const key of Object.keys(CONTROL_SIZES.default)) {
+    assert.ok(!scopeBlock.includes(`${key}:`), `nested scope must not declare ${key}, or it overrides an inherited density`);
+  }
+  // :root is the one place they DO belong — a document with no density
+  // attribute anywhere still needs a value to inherit from.
+  const root = toCss(resolveThemePair(THEME_ZERO), { scope: ":root", includeBase: true });
+  assert.match(root, /:root \{[^]*?--ui-control-lg-height: 2\.75rem;/);
 });

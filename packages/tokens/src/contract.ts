@@ -214,6 +214,11 @@ export const BRANDABLE_TOKENS = [
   "--ui-border-focus",
   "--ui-focus-ring-color",
   "--ui-focus-ring",
+  // The focus indicator's GEOMETRY, apart from its colour (ADR 0020 §2).
+  // `--ui-focus-ring` above is composed from these two and the ring colour;
+  // the forced-colours outline reads the width directly (`outline-focus`).
+  "--ui-focus-ring-width",
+  "--ui-focus-ring-offset",
 
   // Intents — meaning-bearing, re-toned per theme for legibility
   "--ui-intent-success-fg",
@@ -252,7 +257,13 @@ export const BRANDABLE_TOKENS = [
   "--ui-radius-xl",
   "--ui-radius-2xl",
   "--ui-radius-full",
-  "--ui-border-width",
+  // Stroke WIDTHS, beside ADR 0010's stroke colours, named by job (ADR 0020
+  // §2). `default` is what a bare `border`/`ring`/`outline` draws; the
+  // hairline is the 1.5px edge that identifies a control or field, drawn as a
+  // ring where the half pixel must survive DPR 1.
+  "--ui-stroke-default",
+  "--ui-stroke-hairline",
+  "--ui-stroke-thick",
   "--ui-shadow-sm",
   "--ui-shadow-md",
   "--ui-shadow-lg",
@@ -285,6 +296,29 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-caption",
   "--ui-text-button-lg",
   "--ui-text-button-sm",
+  // Each role's weight, leading and tracking (ADR 0020 §3). The table in
+  // `TYPE_ROLES` is the source of truth; these make it reach the page, and
+  // the Tailwind emitter hangs them on the size utility as v4 companions, so
+  // `text-body-md` sets all four properties from one class.
+  "--ui-text-display-lg-weight", "--ui-text-display-lg-leading", "--ui-text-display-lg-tracking",
+  "--ui-text-display-md-weight", "--ui-text-display-md-leading", "--ui-text-display-md-tracking",
+  "--ui-text-title-lg-weight", "--ui-text-title-lg-leading", "--ui-text-title-lg-tracking",
+  "--ui-text-title-md-weight", "--ui-text-title-md-leading", "--ui-text-title-md-tracking",
+  "--ui-text-title-sm-weight", "--ui-text-title-sm-leading", "--ui-text-title-sm-tracking",
+  "--ui-text-body-lg-weight", "--ui-text-body-lg-leading", "--ui-text-body-lg-tracking",
+  "--ui-text-body-md-weight", "--ui-text-body-md-leading", "--ui-text-body-md-tracking",
+  "--ui-text-body-sm-weight", "--ui-text-body-sm-leading", "--ui-text-body-sm-tracking",
+  "--ui-text-label-md-weight", "--ui-text-label-md-leading", "--ui-text-label-md-tracking",
+  "--ui-text-label-sm-weight", "--ui-text-label-sm-leading", "--ui-text-label-sm-tracking",
+  "--ui-text-caption-weight", "--ui-text-caption-leading", "--ui-text-caption-tracking",
+  "--ui-text-button-lg-weight", "--ui-text-button-lg-leading", "--ui-text-button-lg-tracking",
+  "--ui-text-button-sm-weight", "--ui-text-button-sm-leading", "--ui-text-button-sm-tracking",
+  // The weight ladder and the trackings, brandable so an explicit
+  // `font-medium` or `tracking-tight` follows the brand's face too: a static
+  // face has no 450/550 cut, and a face with its own spacing wants no −0.02em.
+  "--ui-weight-regular", "--ui-weight-book", "--ui-weight-medium",
+  "--ui-weight-semibold", "--ui-weight-bold",
+  "--ui-tracking-tight", "--ui-tracking-normal",
 
   // Chrome — the layout surfaces a themed portal legitimately re-skins
   "--ui-nav-bg",
@@ -328,13 +362,11 @@ export const FIXED_TOKENS = [
   "--ui-space-inset-xs", "--ui-space-inset-sm", "--ui-space-inset-md",
   "--ui-space-inset-lg", "--ui-space-inset-xl",
 
-  // Typography attributes shared across roles (ADR 0009). Sizes are brandable;
-  // the weights of the single face, leadings and trackings are structural.
-  "--ui-weight-regular", "--ui-weight-book", "--ui-weight-medium",
-  "--ui-weight-semibold", "--ui-weight-bold",
+  // The leading ladder (ADR 0009). Structural: line-height moves every
+  // geometry spec, so no brand knob reaches it (ADR 0020 §3). Weights and
+  // trackings moved to the brandable set.
   "--ui-leading-flat", "--ui-leading-tight", "--ui-leading-snug",
   "--ui-leading-normal", "--ui-leading-relaxed",
-  "--ui-tracking-tight", "--ui-tracking-normal",
 
   // Motion. Durations collapse under prefers-reduced-motion at this layer, so
   // every CSS-driven animation in the system complies without per-component work.
@@ -346,6 +378,16 @@ export const FIXED_TOKENS = [
   // Interaction constants. Named values so "how much does a button shrink on
   // press" has exactly one answer across the system.
   "--ui-press-scale", "--ui-stagger-step",
+
+  // Control sizing (ADR 0020 §4). Two families, deliberately: an ACTION
+  // (Button, the chrome control) and a FIELD (Input, Select, Multiselect) are
+  // different objects with different heights, and one ladder would move one
+  // of them. Structural, not brandable — density is a decision about the
+  // SCREEN, re-bound by `[data-ui-density]` (see DENSITY_MODES in base.ts).
+  "--ui-control-sm-height", "--ui-control-md-height", "--ui-control-lg-height",
+  "--ui-control-sm-inset", "--ui-control-md-inset", "--ui-control-lg-inset",
+  "--ui-field-sm-height", "--ui-field-md-height", "--ui-field-lg-height",
+  "--ui-field-sm-inset", "--ui-field-md-inset", "--ui-field-lg-inset",
 
   // Hit targets. The floor is conformance; the touch value is the recommended
   // target for primary controls.

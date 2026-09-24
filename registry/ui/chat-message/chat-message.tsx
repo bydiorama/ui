@@ -100,7 +100,11 @@ const ChatMessageSender = forwardRef<HTMLDivElement, ChatMessageSenderProps>(
             // bubble sits ABOVE the page ground, so the step is upward and no
             // hairline is needed to find it.
             "rounded-lg bg-elevated",
-            "font-body font-regular leading-normal tracking-normal text-ink-primary",
+            // Weight and tracking come from the size's ROLE (ADR 0020 §3).
+            // The leading does not: the sender's voice is set TIGHTER than
+            // the receiver's 1.55 — the pair's signature, and a declared
+            // exception to TYPE_ROLES (.storybook/type-roles.ts).
+            "font-body leading-normal text-ink-primary",
             BUBBLE_SIZE[size],
           )}
         >
@@ -123,10 +127,10 @@ const ChatMessageSender = forwardRef<HTMLDivElement, ChatMessageSenderProps>(
           <div data-slot="chat-message-status" className="flex items-center gap-xs">
             <p
               className={cn(
-                "font-body text-caption leading-normal",
+                "font-body text-caption",
                 // Failure is the only one that colours: a "Sending…" caption in
                 // danger ink would report a problem that has not happened.
-                status === "failed" ? "font-medium text-danger" : "text-ink-muted",
+                status === "failed" ? "text-danger" : "text-ink-muted",
               )}
             >
               {statusText}
@@ -232,7 +236,7 @@ const ChatMessageReceiver = forwardRef<HTMLDivElement, ChatMessageReceiverProps>
             // this is the same 16px the sheet names, spelled the way the theme
             // can resolve.
             "flex min-w-0 flex-col gap-lg",
-            "font-body font-regular leading-relaxed tracking-normal text-ink-primary",
+            "font-body text-ink-primary",
             BODY_SIZE[size],
           )}
         >
@@ -259,7 +263,7 @@ const ChatMessageReceiver = forwardRef<HTMLDivElement, ChatMessageReceiverProps>
             role="status"
             className="flex items-center gap-md rounded-md bg-danger-subtle px-md py-sm"
           >
-            <p className="min-w-0 flex-1 font-body text-body-sm leading-normal text-ink-on-danger-subtle">
+            <p className="min-w-0 flex-1 font-body text-body-sm text-ink-on-danger-subtle">
               {errorText}
             </p>
             {onRetryAction && retryLabel ? (
@@ -291,7 +295,7 @@ const ChatMessageReceiver = forwardRef<HTMLDivElement, ChatMessageReceiverProps>
           >
             {actions}
             {meta ? (
-              <p data-slot="chat-message-meta" className="ms-auto font-body text-caption leading-normal text-ink-muted">
+              <p data-slot="chat-message-meta" className="ms-auto font-body text-caption text-ink-muted">
                 {meta}
               </p>
             ) : null}

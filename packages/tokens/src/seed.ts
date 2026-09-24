@@ -50,6 +50,9 @@ export type ShadowIntensity = "none" | "subtle" | "standard" | "strong";
 export interface SeedShape {
   /** Six knobs matching the approved radius scale (4/8/16/24/32/pill). */
   radiusPx?: { sm?: number; md?: number; lg?: number; xl?: number; "2xl"?: number; pill?: number };
+  /** RESERVED until ADR 0020 Phase 1 wires it to the stroke scale: it
+   *  resolves to `--ui-border-width`, which no component reads, so setting it
+   *  currently changes nothing. `check:token-consumers` records that. */
   borderWidthPx?: number;
   shadow?: ShadowIntensity;
 }

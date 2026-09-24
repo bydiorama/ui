@@ -481,7 +481,7 @@ function SheetBody({ className, children, ...rest }: SheetBodyProps) {
         // outward ring would be clipped by the panel's own overflow on three
         // sides. `outline` rather than a box-shadow ring because forced-colors
         // mode forces box-shadow to `none`, and an outline needs no fallback.
-        "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-edge-focus",
+        "focus-visible:outline-focus focus-visible:-outline-offset-focus focus-visible:outline-edge-focus",
         className,
       )}
       {...rest}

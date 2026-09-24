@@ -1,6 +1,7 @@
 # 0009 — The type scale is an authored table; `ratio` is reserved
 
-**Status:** accepted · 2026-08-03
+**Status:** accepted · 2026-08-03 · §3 amended by 0020: per-role weight,
+leading and tracking are tokens now, not data for the component layer
 
 ## Decision
 

@@ -109,7 +109,7 @@ export function menuItem(className?: string): string {
     // Forced-colors flattens author backgrounds, so the highlight has to have
     // a second channel there or the keyboard user loses their place entirely
     // — the same failure the box-shadow focus rings had.
-    "data-[highlighted]:forced-colors:outline data-[highlighted]:forced-colors:outline-2",
+    "data-[highlighted]:forced-colors:outline data-[highlighted]:forced-colors:outline-focus",
     "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",
     className,
   ]

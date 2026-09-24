@@ -211,7 +211,7 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                     // picture keeps its own edge and the selection reads as a
                     // ring around the thing rather than a border on it. Image
                     // Thumbnail uses the same 2px offset.
-                    "outline-2 outline-offset-2 outline-transparent",
+                    "outline-thick outline-offset-2 outline-transparent",
                     "transition-[outline-color]", motionMicro,
                     isSelected && "outline-edge-focus",
                   )}
@@ -257,10 +257,10 @@ export const ChatQuestionnaire = forwardRef<HTMLDivElement, ChatQuestionnairePro
                 {...(mode === "multiple" ? { "aria-pressed": isSelected } : { "aria-current": isSelected || undefined })}
                 onClick={() => choose(option)}
                 className={cn(
-                  "flex cursor-pointer items-center gap-sm rounded-md border-[1.5px] px-md py-sm text-start",
+                  "flex cursor-pointer items-center gap-sm rounded-md border-hairline px-md py-sm text-start",
                   "bg-base font-body text-body-sm font-medium leading-normal",
                   "transition-[background-color,border-color,color]", motionMicro,
-                  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+                  "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
                   isSelected
                     ? OPTION_SELECTED
                     : cn(

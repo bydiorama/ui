@@ -37,8 +37,25 @@ const { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS } = await import(
 );
 const contractTokens = new Set([...BRANDABLE_TOKENS, ...FIXED_TOKENS, ...SCHEME_ONLY_TOKENS]);
 
+/**
+ * Stroke-width names the emitter declares (ADR 0020 §2), read from its own
+ * output so this list cannot drift from it. `border-`, `ring-` and `outline-`
+ * each carry colours AND widths; Tailwind tries the colour namespace first and
+ * falls back to the width one, so a width name has to be routed BEFORE the
+ * colour patterns below or it is reported as a missing colour. A misspelt
+ * width still fails — it falls through to the colour route and names the
+ * `--color-*` it could not find.
+ */
+const widthNames = (ns) =>
+  [...declared].filter((k) => k.startsWith(ns)).map((k) => k.slice(ns.length)).join("|") || "(?!)";
+
 /** Utility prefix → the theme namespace it resolves against. */
 const NAMESPACES = [
+  [new RegExp(`^border(?:-[xytrbles])?-(${widthNames("--border-width-")})$`), "--border-width-"],
+  [new RegExp(`^ring-(${widthNames("--ring-width-")})$`), "--ring-width-"],
+  [new RegExp(`^outline-(${widthNames("--outline-width-")})$`), "--outline-width-"],
+  // A NAMED offset must exist; numeric offsets are the built-in scale.
+  [/^-?outline-offset-([a-z][\w-]*)$/, "--outline-offset-"],
   // `bg-linear-to-b` is a GRADIENT DIRECTION, not a colour, and the bare
   // `bg-(.+)` pattern resolved it against `--color-linear-to-b` and failed the
   // build for writing a correct gradient. Both halves of this gate were wrong
@@ -223,7 +240,13 @@ const ENTER_EXIT = /data-\[(?:starting|ending)-style\]:-?(scale|translate|rotate
  *       declares — an override of nothing, which is exactly how a
  *       story comes to demonstrate a customisation surface that is not there.
  */
-const COMPONENT_PROP_READ = /\((?:image:)?(--ui-[\w-]+)\)/g;
+// Any CSS type hint, not only `image:`. Tailwind's typed form —
+// `border-(length:--ui-x)`, `bg-(color:--ui-x)` — is how a utility whose
+// namespace is ambiguous reads a variable, and with only `image:` known a
+// misspelt `(length:--ui-strok-default)` was never read as a read at all: it
+// fell back silently, the exact failure CONVENTIONS §6 names. Found by the
+// ADR 0020 plan review, probed failing-first.
+const COMPONENT_PROP_READ = /\((?:[a-z-]+:)?(--ui-[\w-]+)\)/g;
 
 /**
  * A declaration has TWO spellings, and the first version of this rule knew one.

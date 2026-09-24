@@ -336,7 +336,7 @@ function DrawerPanel({
             "flex w-full shrink-0 cursor-grab items-center justify-center pt-sm pb-lg",
             // The browser must not scroll or select while the finger drags.
             "touch-none select-none active:cursor-grabbing",
-            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
           )}
         >
           <span data-slot="drawer-handle-bar" className="h-sm w-3/10 rounded-full bg-sunken" />

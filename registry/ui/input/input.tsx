@@ -161,7 +161,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // `border-width: 1.5px` — verified in the compiled sheet — so there
           // is nothing to fix here, and `border-hairline.browser.test.tsx`
           // pins the platform behaviour so this is not re-investigated.
-          "flex w-full shrink-0 items-center overflow-clip rounded-md border-[1.5px]",
+          "flex w-full shrink-0 items-center overflow-clip rounded-md border-hairline",
           // Both icon slots at 16px, as Button sizes its own — see the note
           // there. griddy's IconBase hard-codes width/height="24", so an
           // unsized slot rendered every leading and trailing glyph oversize.
@@ -184,7 +184,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // not exist. The outline is the fallback; it costs nothing outside
           // forced colours, where it never applies.
           "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
-          "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
+          "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
           SIZE[size],
         )}
       >

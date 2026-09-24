@@ -246,7 +246,7 @@ function typeIcon(type: ToastType): ReactNode {
       return (
         <span
           data-slot="toast-spinner"
-          className="size-4 shrink-0 animate-spin rounded-full border-2 border-current/30 border-r-current motion-reduce:animate-none"
+          className="size-4 shrink-0 animate-spin rounded-full border-thick border-current/30 border-r-current motion-reduce:animate-none"
         />
       );
   }
@@ -334,7 +334,7 @@ function ToastRoot({
         "after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
         // F6 lands here. Outline, not box-shadow, so it survives forced
         // colors — Button's rule.
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+        "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
       )}
     >
       <BaseToast.Content
@@ -407,7 +407,7 @@ function ToastRoot({
             "text-ink-muted [&_svg]:size-4 [&_svg]:shrink-0",
             "transition-[background-color]", motionMicro,
             "hover:bg-current/10",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+            "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
           )}
         >
           <Close size={16} aria-hidden="true" />

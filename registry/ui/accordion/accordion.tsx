@@ -220,7 +220,7 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
             // so an unsized slot ships 24px whatever the sheet says.
             "[&_svg]:size-4 [&_svg]:shrink-0",
             "rounded-sm",
-            "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+            "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
             // The hover fill is the ITEM's in the card variant, so the whole
             // tile lights rather than a smaller rectangle inset inside it. The
             // trigger keeps it only where there is no tile to light — and the

@@ -328,7 +328,7 @@ function SidebarSection({
     headingClass,
     "cursor-pointer transition-[background-color]", motionMicro,
     "hover:bg-nav-hover",
-    "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+    "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
   );
 
   /**
@@ -499,7 +499,7 @@ function SidebarItem({
         inSection ? "text-ink-nav-muted" : "text-ink-nav",
         isLink && [
           "cursor-pointer transition-[background-color,color]", motionMicro,
-          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
         ],
         // Hover and current are gated on `not-[[data-disabled]]` so an
         // unavailable row cannot light up as if it were reachable.
@@ -610,7 +610,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
           "flex w-full items-center gap-sm rounded-sm p-xs text-left",
           "cursor-pointer transition-[background-color]", motionMicro,
           "hover:bg-nav-hover",
-          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+          "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
           className,
         )}
         {...rest}
@@ -676,7 +676,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
           // The WRAPPER draws the ring, so the input inside can safely carry
           // outline-none — the one place that is safe (§6).
           "focus-within:outline-edge-focus focus-within:shadow-(--ui-focus-ring)",
-          "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
+          "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
           className,
         )}
       >

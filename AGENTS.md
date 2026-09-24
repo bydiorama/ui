@@ -43,6 +43,7 @@ to be read, owned and modified downstream.
 | `pnpm check:boundaries` | Fail if the behaviour layer leaks into a public signature |
 | `pnpm check:motion` | Fail on a literal duration, an unguarded keyframe, or undocumented motion |
 | `pnpm check:design-spec` | Fail if a design geometry spec breaks its own laws, or nothing renders it |
+| `pnpm check:strokes` | Fail on a literal stroke width (`border-2`, `ring-[1.5px]` …) — use the scale (ADR 0020 §2) |
 | `pnpm check:token-consumers` | Fail on a contract token that nothing in `registry/` reads, unless it is declared with a reason (ADR 0020) |
 | `pnpm ledger:new` | Scaffold a change-ledger entry |
 | `pnpm type-check` | `tsc --noEmit` **and** the storybook project's own. Run the script, never bare `tsc`: `apps/storybook` has a separate tsconfig, and every `*.stories.tsx` error appears only there |

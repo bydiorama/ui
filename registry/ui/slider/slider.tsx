@@ -292,9 +292,9 @@ export function Slider(props: SliderProps) {
                   // fill: white on the sheet's pale blue-80 measures 1.51:1,
                   // under SC 1.4.11, which is why the ring takes the legible
                   // role instead — 3.73:1 in light.
-                  "border-2 border-accent-legible",
+                  "border-thick border-accent-legible",
                   "transition-[box-shadow]", motionMicro,
-                  "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+                  "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
                   "disabled:border-edge-subtle",
                 ),
               })}

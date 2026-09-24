@@ -200,7 +200,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
         className={cn(
           "flex w-full flex-col items-center justify-center self-stretch",
           "min-h-38 gap-sm rounded-lg p-sm",
-          "border-[1.5px] border-solid bg-surface",
+          "border-hairline border-solid bg-surface",
           // The drag-over ring. `border-edge-focus` is the role whose whole job is
           // "something is happening here", and it is already audited at 3:1.
           isDragging && !isDisabled ? "border-edge-focus" : EDGE[state],
@@ -255,7 +255,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                   data-slot="image-upload-spinner"
                   className={cn(
                     "size-4 shrink-0 rounded-full",
-                    "border-[1.5px] border-solid border-edge-subtle border-t-(--ui-text-secondary)",
+                    "border-hairline border-solid border-edge-subtle border-t-(--ui-text-secondary)",
                     "motion-safe:animate-spin",
                   )}
                 />
@@ -297,7 +297,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
                       "cursor-pointer rounded-sm font-semibold text-ink-link underline",
                       "disabled:cursor-not-allowed disabled:text-ink-disabled disabled:no-underline",
                       "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-                      "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+                      "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
                     )}
                   >
                     {browseLabel}
@@ -375,7 +375,7 @@ function ImageUploadFile({
       data-slot="image-upload-file"
       className={cn(
         "flex w-full items-center gap-md self-stretch rounded-lg p-md",
-        "border-[1.5px] border-solid border-edge-subtle bg-elevated",
+        "border-hairline border-solid border-edge-subtle bg-elevated",
         className,
       )}
       {...rest}
@@ -449,7 +449,7 @@ function ImageUploadFile({
             "enabled:hover:bg-hover enabled:hover:text-ink-primary",
             "transition-[background-color,color]", motionMicro,
             "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-            "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+            "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
           )}
         >
           {/* `Close`, not `X` — in griddy, `X` is the X/Twitter wordmark. */}
@@ -476,7 +476,7 @@ function ImageUploadGrid({ children, className, ...rest }: ImageUploadGridProps)
       data-slot="image-upload-grid"
       className={cn(
         "flex w-full items-center gap-sm self-stretch rounded-lg p-sm",
-        "border-[1.5px] border-solid border-edge-subtle bg-surface",
+        "border-hairline border-solid border-edge-subtle bg-surface",
         className,
       )}
       {...rest}
@@ -516,7 +516,7 @@ function ImageUploadAdd({ label, isDisabled = false, className, ...rest }: Image
         "disabled:cursor-not-allowed disabled:text-ink-disabled",
         "transition-[background-color,color]", motionMicro,
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-        "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+        "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
         className,
       )}
       {...rest}

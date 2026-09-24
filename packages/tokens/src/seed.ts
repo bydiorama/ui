@@ -50,10 +50,14 @@ export type ShadowIntensity = "none" | "subtle" | "standard" | "strong";
 export interface SeedShape {
   /** Six knobs matching the approved radius scale (4/8/16/24/32/pill). */
   radiusPx?: { sm?: number; md?: number; lg?: number; xl?: number; "2xl"?: number; pill?: number };
-  /** RESERVED until ADR 0020 Phase 1 wires it to the stroke scale: it
-   *  resolves to `--ui-border-width`, which no component reads, so setting it
-   *  currently changes nothing. `check:token-consumers` records that. */
+  /** The base of the stroke scale (ADR 0020 §2): `--ui-stroke-default` is
+   *  this, the control hairline 1.5×, the thick stroke 2×. Floored at 1 — a
+   *  0 base would erase every control boundary. */
   borderWidthPx?: number;
+  /** The focus indicator's width, deliberately NOT derived from the base: a
+   *  brand choosing delicate edges must not thin its focus ring. Floored at
+   *  2px (SC 2.4.13, AAA, adopted on purpose). */
+  focusRingWidthPx?: number;
   shadow?: ShadowIntensity;
 }
 
@@ -91,7 +95,8 @@ export const SEED_BOUNDS = {
    *  seed shape so accepting it again later is not a breaking change. */
   ratio: { min: 1.1, max: 1.414, default: 1.2 },
   contentWidthPx: { min: 560, max: 1440, default: 880 },
-  borderWidthPx: { min: 0, max: 4, default: 1 },
+  borderWidthPx: { min: 1, max: 2, default: 1 },
+  focusRingWidthPx: { min: 2, max: 4, default: 2 },
   radiusPx: {
     sm: { min: 0, max: 24, default: 4 },
     md: { min: 0, max: 32, default: 8 },

@@ -1,6 +1,7 @@
 # 0010 — Four border weights; inputs sit on `subtle` by choice
 
-**Status:** accepted · 2026-08-03 · amended 2026-08-09 (point 3, and § Which
+**Status:** accepted · 2026-08-03 · stroke WIDTHS beside this colour stack:
+0020 §2 · amended 2026-08-09 (point 3, and § Which
 token an edge takes)
 
 ## Decision

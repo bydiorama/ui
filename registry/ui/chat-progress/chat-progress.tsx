@@ -73,7 +73,7 @@ function PendingRing() {
     <span
       aria-hidden="true"
       data-slot="chat-progress-pending"
-      className="size-[14px] shrink-0 rounded-full border-[1.5px] border-edge-default"
+      className="size-[14px] shrink-0 rounded-full border-hairline border-edge-default"
     />
   );
 }
@@ -271,7 +271,7 @@ export const ChatProgress = forwardRef<HTMLDivElement, ChatProgressProps>(functi
             data-slot="chat-progress-summary"
             className={cn(
               "group/summary flex cursor-pointer items-center gap-sm rounded-sm text-start",
-              "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+              "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
             )}
           >
             {status === "done" ? (
@@ -372,7 +372,7 @@ function FormBody(props: ResolvedProgress & { icon?: ReactElement }) {
             {step.status === "done" ? (
               <CheckCircle size={14} aria-hidden="true" className="shrink-0 text-success" />
             ) : step.status === "current" ? (
-              <Spinner className="size-[14px] border-[1.5px]" />
+              <Spinner className="size-[14px] border-hairline" />
             ) : (
               <PendingRing />
             )}
@@ -428,7 +428,7 @@ function FormBody(props: ResolvedProgress & { icon?: ReactElement }) {
       // component is in it.
       className="flex items-center gap-sm [&_svg]:size-4 [&_svg]:shrink-0"
     >
-      {icon ?? <Spinner className="size-4 border-2" />}
+      {icon ?? <Spinner className="size-4 border-thick" />}
       <span className="font-body text-body-sm font-medium leading-normal text-ink-muted">{label}</span>
     </div>
   );

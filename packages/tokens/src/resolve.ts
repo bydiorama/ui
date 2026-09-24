@@ -279,6 +279,17 @@ function typeScale(seed: ThemeSeed): Record<keyof typeof TYPE_ROLES, string> {
   return out;
 }
 
+// ── Focus geometry ──────────────────────────────────────────────────────
+
+/** The gap between a control and its focus indicator. Fixed rather than a
+ *  knob: nothing asks to move it, and the width is where brands differ. */
+const FOCUS_RING_OFFSET_PX = 2;
+
+/** A gap in the page colour, then the ring — as a box-shadow list. */
+function focusRing(gap: string, color: string, offsetPx: number, widthPx: number): string {
+  return `0 0 0 ${offsetPx}px ${gap}, 0 0 0 ${offsetPx + widthPx}px ${color}`;
+}
+
 // ── The derivation ──────────────────────────────────────────────────────
 
 function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
@@ -389,6 +400,12 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     sm: radiusKnob("sm"), md: radiusKnob("md"), lg: radiusKnob("lg"),
     xl: radiusKnob("xl"), "2xl": radiusKnob("2xl"), pill: radiusKnob("pill"),
   };
+
+  // Strokes (ADR 0020 §2). NOT through `px()`, which rounds — it would turn
+  // the 1.5px hairline into 2px. A width is emitted to two decimals.
+  const strokePx = (n: number) => `${Number(n.toFixed(2))}px`;
+  const strokeBase = clamp(shape.borderWidthPx ?? SEED_BOUNDS.borderWidthPx.default, SEED_BOUNDS.borderWidthPx.min, SEED_BOUNDS.borderWidthPx.max);
+  const focusWidth = clamp(shape.focusRingWidthPx ?? SEED_BOUNDS.focusRingWidthPx.default, SEED_BOUNDS.focusRingWidthPx.min, SEED_BOUNDS.focusRingWidthPx.max);
 
   // Layered translucent shadows (CONVENTIONS §6, ADR 0016).
   // The xl geometry is the approved modal's shadow; sm is the raised-control
@@ -718,7 +735,11 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     // Spelled out rather than composed from other vars: whether a nested
     // var() re-resolves against a themed scope is exactly the kind of
     // substitution-timing detail no one should have to be right about.
-    "--ui-focus-ring": `0 0 0 2px ${colors.bg}, 0 0 0 4px ${link}`,
+    // Recomposed by `resolveTheme` after authoring and the contrast audit,
+    // so the geometry and the final ring colour can never disagree.
+    "--ui-focus-ring": focusRing(colors.bg, link, FOCUS_RING_OFFSET_PX, focusWidth),
+    "--ui-focus-ring-width": strokePx(focusWidth),
+    "--ui-focus-ring-offset": strokePx(FOCUS_RING_OFFSET_PX),
 
     // Intents.
     //
@@ -774,7 +795,9 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-radius-xl": px(radius.xl),
     "--ui-radius-2xl": px(radius["2xl"]),
     "--ui-radius-full": px(radius.pill),
-    "--ui-border-width": px(clamp(shape.borderWidthPx ?? SEED_BOUNDS.borderWidthPx.default, SEED_BOUNDS.borderWidthPx.min, SEED_BOUNDS.borderWidthPx.max)),
+    "--ui-stroke-default": strokePx(strokeBase),
+    "--ui-stroke-hairline": strokePx(strokeBase * 1.5),
+    "--ui-stroke-thick": strokePx(strokeBase * 2),
     // Four steps, each with a ROLE rather than a size (ADR 0016): sm is the
     // raised control, md the attached panel, lg the surface floating free of
     // the layout, xl the surface that has taken the whole screen. sm is the
@@ -920,6 +943,18 @@ export function resolveTheme(seed: ThemeSeed, options: ResolveOptions = {}): Res
     ? { ...derive(seed, colors), ...options.authored }
     : derive(seed, colors);
   const adjustments = auditContrast(theme);
+
+  // The composite ring LAST: after an authored ring colour or page colour
+  // has landed and after the audit may have nudged the colour, so the
+  // box-shadow draws exactly the colour and width the other tokens state.
+  // Theme zero used to author this string by hand, twice, beside the two
+  // tokens it duplicated.
+  theme["--ui-focus-ring"] = focusRing(
+    theme["--ui-bg-base"],
+    theme["--ui-focus-ring-color"],
+    parseFloat(theme["--ui-focus-ring-offset"]),
+    parseFloat(theme["--ui-focus-ring-width"]),
+  );
 
   return { theme, adjustments, issues };
 }

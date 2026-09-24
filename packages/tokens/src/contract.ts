@@ -214,6 +214,11 @@ export const BRANDABLE_TOKENS = [
   "--ui-border-focus",
   "--ui-focus-ring-color",
   "--ui-focus-ring",
+  // The focus indicator's GEOMETRY, apart from its colour (ADR 0020 §2).
+  // `--ui-focus-ring` above is composed from these two and the ring colour;
+  // the forced-colours outline reads the width directly (`outline-focus`).
+  "--ui-focus-ring-width",
+  "--ui-focus-ring-offset",
 
   // Intents — meaning-bearing, re-toned per theme for legibility
   "--ui-intent-success-fg",
@@ -252,7 +257,13 @@ export const BRANDABLE_TOKENS = [
   "--ui-radius-xl",
   "--ui-radius-2xl",
   "--ui-radius-full",
-  "--ui-border-width",
+  // Stroke WIDTHS, beside ADR 0010's stroke colours, named by job (ADR 0020
+  // §2). `default` is what a bare `border`/`ring`/`outline` draws; the
+  // hairline is the 1.5px edge that identifies a control or field, drawn as a
+  // ring where the half pixel must survive DPR 1.
+  "--ui-stroke-default",
+  "--ui-stroke-hairline",
+  "--ui-stroke-thick",
   "--ui-shadow-sm",
   "--ui-shadow-md",
   "--ui-shadow-lg",

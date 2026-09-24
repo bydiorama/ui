@@ -127,7 +127,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
       data-variant={variant}
       data-size={size}
       className={cn(
-        "inline-flex w-fit shrink-0 items-center border-[1.5px]",
+        "inline-flex w-fit shrink-0 items-center border-hairline",
         "font-body font-bold leading-flat tracking-tight whitespace-nowrap",
         shape === "full" ? "rounded-full" : "rounded-sm",
         SIZE[size],

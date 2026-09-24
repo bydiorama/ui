@@ -480,7 +480,7 @@ export function Calendar({
                       // coexist with the selection rather than compete with it.
                       "data-[today]:outline data-[today]:outline-edge-default",
                       "aria-disabled:cursor-not-allowed aria-disabled:text-ink-disabled aria-disabled:bg-sunken",
-                      "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+                      "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
                     )}
                   >
                     {date.getDate()}
@@ -603,7 +603,7 @@ function OptionList({ id, slot, label, columns, options, onSelect, onDismiss }: 
             // decoration the fill already carries.
             "data-[selected]:bg-accent-subtle data-[selected]:text-ink-primary data-[selected]:font-bold",
             "data-[current]:outline data-[current]:outline-edge-default",
-            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
           )}
         >
           {option.label}
@@ -655,7 +655,7 @@ function ViewTrigger({ ref, slot, label, accessibleName, controls, isOpen, onCli
         // raw --ui-blue-70, which is the DARK scheme's value for that role and
         // measures 2.1:1 on a light panel. Corrected in Paper.
         "data-[open]:text-ink-link",
-        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
       )}
     >
       {label}

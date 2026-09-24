@@ -30,7 +30,7 @@ const Region = ({ children }: { children?: React.ReactNode }) => (
     tabIndex={0}
     role="group"
     aria-label="Brand asset — right-click or press Shift+F10 for actions"
-    className="flex h-40 w-full max-w-96 items-center justify-center rounded-lg bg-elevated text-body-md text-ink-muted focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2"
+    className="flex h-40 w-full max-w-96 items-center justify-center rounded-lg bg-elevated text-body-md text-ink-muted focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus"
   >
     {children ?? "Right-click here"}
   </ContextMenu.Trigger>

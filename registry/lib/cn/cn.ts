@@ -75,6 +75,21 @@ const twMerge = extendTailwindMerge({
       // still merge correctly.
       "font-weight": [{ font: ["regular", "book"] }],
       leading: [{ leading: ["flat"] }],
+      // Stroke widths (ADR 0020 §2). tailwind-merge reads an unknown
+      // `border-<word>` as a COLOUR, so without these `border-hairline` and
+      // `border-edge-subtle` would share a group and one would be deleted.
+      // A literal name is matched before any validator, which is what puts
+      // these in the width group rather than the colour one.
+      "border-w": [{ border: ["hairline", "thick"] }],
+      "border-w-x": [{ "border-x": ["hairline", "thick"] }],
+      "border-w-y": [{ "border-y": ["hairline", "thick"] }],
+      "border-w-t": [{ "border-t": ["hairline", "thick"] }],
+      "border-w-r": [{ "border-r": ["hairline", "thick"] }],
+      "border-w-b": [{ "border-b": ["hairline", "thick"] }],
+      "border-w-l": [{ "border-l": ["hairline", "thick"] }],
+      "ring-w": [{ ring: ["hairline", "thick"] }],
+      "outline-w": [{ outline: ["hairline", "thick", "focus"] }],
+      "outline-offset": [{ "outline-offset": ["focus"] }],
     },
   },
 });

@@ -162,7 +162,7 @@ const ChatWidgetBody = forwardRef<HTMLDivElement, ChatWidgetBodyProps>(function 
         className={cn(
           "flex flex-col gap-md overflow-y-auto px-md",
           "font-body text-body-md font-regular leading-relaxed tracking-normal text-ink-primary",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-edge-focus",
+          "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
         )}
         {...rest}
       >

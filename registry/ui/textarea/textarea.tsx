@@ -201,7 +201,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           // `items-start` is the other half — it stops the textarea being
           // stretched to a wrapper height, so the CHILD's height is the box's
           // height and a resize drag grows the box instead of being clipped.
-          "flex w-full shrink-0 items-start overflow-clip rounded-md border-[1.5px]",
+          "flex w-full shrink-0 items-start overflow-clip rounded-md border-hairline",
           "transition-[border-color,box-shadow,background-color]", motionMicro,
           "border-edge-subtle",
           // The fill comes from the GROUND-and-state pair, never from a surface
@@ -219,7 +219,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           // not exist. The outline is the fallback; it costs nothing outside
           // forced colours, where it never applies.
           "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
-          "focus-within:forced-colors:outline focus-within:forced-colors:outline-2",
+          "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
         )}
       >
         <textarea

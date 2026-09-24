@@ -28,3 +28,19 @@ test("no dimension token is emitted into the colour namespace", () => {
     assert.equal(utility, undefined, `${token} is a dimension and must not become a colour utility`);
   }
 });
+
+test("bare border, ring and outline read the brand's default stroke (ADR 0020 §2)", () => {
+  // Tailwind 4 reads `--default-*-width` for the bare utilities. Mapping them
+  // onto the stroke token is what makes the everyday 1px edge brandable with
+  // no call-site change at all.
+  const theme = toTailwindTheme();
+  for (const key of ["--default-border-width", "--default-ring-width", "--default-outline-width"]) {
+    assert.match(theme, new RegExp(`${key}: var\\(--ui-stroke-default\\);`));
+  }
+  assert.match(theme, /--ring-width-hairline: var\(--ui-stroke-hairline\);/);
+  assert.match(theme, /--outline-width-focus: var\(--ui-focus-ring-width\);/);
+  assert.match(theme, /--outline-offset-focus: var\(--ui-focus-ring-offset\);/);
+  // A width must never land in the colour namespace, where it would mint
+  // `bg-stroke-hairline` — a colour whose value is 1.5px.
+  assert.doesNotMatch(theme, /--color-(stroke|focus-ring-(width|offset))/);
+});

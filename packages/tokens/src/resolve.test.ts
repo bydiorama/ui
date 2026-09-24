@@ -798,3 +798,64 @@ test("the z scale orders every surface under the surfaces it can open", () => {
   above("tooltip", "dropdown", "a tooltip attaches to controls on every other surface");
   above("overlay", "sticky", "the affix Header must not cover a Sheet — the defect this fixed");
 });
+
+// ── Strokes (ADR 0020 §2) ───────────────────────────────────────────────────
+
+test("theme zero's stroke scale is the widths the library drew as literals", () => {
+  const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  for (const theme of [light, dark]) {
+    assert.equal(theme["--ui-stroke-default"], "1px");
+    // Not rounded. The shared `px()` helper rounds, and would have made the
+    // hairline 2px — every control edge in the library a third heavier.
+    assert.equal(theme["--ui-stroke-hairline"], "1.5px");
+    assert.equal(theme["--ui-stroke-thick"], "2px");
+    assert.equal(theme["--ui-focus-ring-width"], "2px");
+    assert.equal(theme["--ui-focus-ring-offset"], "2px");
+  }
+});
+
+test("borderWidthPx drives the whole stroke scale, in proportion", () => {
+  const { theme } = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: 2 } }, { scheme: "light" });
+  assert.equal(theme["--ui-stroke-default"], "2px");
+  assert.equal(theme["--ui-stroke-hairline"], "3px");
+  assert.equal(theme["--ui-stroke-thick"], "4px");
+  // …and NOT the focus ring, which has its own knob: a brand choosing
+  // delicate edges must not thin the focus indicator with them.
+  assert.equal(theme["--ui-focus-ring-width"], "2px");
+});
+
+test("stroke knobs clamp: no borderless brand, no focus ring under 2px", () => {
+  const thin = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: 0, focusRingWidthPx: 1 } }, { scheme: "light" }).theme;
+  assert.equal(thin["--ui-stroke-default"], "1px", "a 0 base would erase every control boundary");
+  assert.equal(thin["--ui-focus-ring-width"], "2px", "SC 2.4.13's 2px floor, adopted on purpose");
+  const heavy = resolveTheme({ ...THEME_ZERO, shape: { borderWidthPx: 9, focusRingWidthPx: 9 } }, { scheme: "light" }).theme;
+  assert.equal(heavy["--ui-stroke-default"], `${SEED_BOUNDS.borderWidthPx.max}px`);
+  assert.equal(heavy["--ui-focus-ring-width"], `${SEED_BOUNDS.focusRingWidthPx.max}px`);
+});
+
+test("the focus ring is composed from its own tokens, after authoring", () => {
+  // It used to be a hand-written string beside the two tokens it duplicated,
+  // in the resolver AND twice in theme zero. Now nothing can make the drawn
+  // ring disagree with its stated colour, width or gap.
+  for (const { seed, authored } of [
+    { seed: THEME_ZERO, authored: ZERO_AUTHORED },
+    { seed: { ...THEME_ZERO, shape: { focusRingWidthPx: 3 } }, authored: undefined },
+    ...STRESS_BRANDS.map((b) => ({ seed: b.seed, authored: undefined })),
+  ]) {
+    const pair = resolveThemePair(seed, authored ? { authored } : {});
+    for (const theme of [pair.light, pair.dark]) {
+      const offset = parseFloat(theme["--ui-focus-ring-offset"]);
+      const width = parseFloat(theme["--ui-focus-ring-width"]);
+      assert.equal(
+        theme["--ui-focus-ring"],
+        `0 0 0 ${offset}px ${theme["--ui-bg-base"]}, 0 0 0 ${offset + width}px ${theme["--ui-focus-ring-color"]}`,
+      );
+    }
+  }
+});
+
+test("theme zero's focus ring is unchanged by being composed", () => {
+  const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  assert.equal(light["--ui-focus-ring"], "0 0 0 2px #FFFFFF, 0 0 0 4px #1B6C84");
+  assert.equal(dark["--ui-focus-ring"], "0 0 0 2px #423E3A, 0 0 0 4px #79B8D3");
+});

@@ -433,7 +433,7 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         // that could ever answer the question, and a consumer restyling the
         // current item needs the same hook the component uses.
         "group-data-[affixed]/header:data-[current]:text-ink-secondary",
-        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2 focus-visible:outline-none",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
         className,
       ),
       ...(rest as HTMLAttributes<HTMLElement>),

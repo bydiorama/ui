@@ -21,8 +21,12 @@ import { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS, type BrandableToken
  *  Mapping these into `--color-*` would mint utilities like `bg-nav-width` —
  *  a colour whose value is `17rem`. */
 const NOT_COLORS = new Set<string>([
-  "--ui-border-width",
   "--ui-focus-ring",
+  "--ui-focus-ring-width",
+  "--ui-focus-ring-offset",
+  "--ui-stroke-default",
+  "--ui-stroke-hairline",
+  "--ui-stroke-thick",
   "--ui-nav-width",
   "--ui-nav-rail-width",
 ]);
@@ -145,6 +149,26 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
     ["--spacing-nav-rail", "var(--ui-nav-rail-width)"],
     ["--spacing-dialog-md", "var(--ui-dialog-width-md)"],
     ["--spacing-dialog-lg", "var(--ui-dialog-width-lg)"],
+  ]);
+
+  // Stroke widths (ADR 0020 §2). Tailwind 4 resolves `border-<name>`,
+  // `ring-<name>` and `outline-<name>` against these width namespaces (after
+  // the colour namespace misses — none of these names is a colour), and a
+  // BARE `border`/`ring`/`outline`/`divide-*` reads `--default-*-width`. So
+  // the everyday 1px edge needs no call-site change to become brandable, and
+  // the hairline is one word instead of `ring-[1.5px]`.
+  push("Stroke widths.", [
+    ["--default-border-width", "var(--ui-stroke-default)"],
+    ["--default-ring-width", "var(--ui-stroke-default)"],
+    ["--default-outline-width", "var(--ui-stroke-default)"],
+    ["--border-width-hairline", "var(--ui-stroke-hairline)"],
+    ["--border-width-thick", "var(--ui-stroke-thick)"],
+    ["--ring-width-hairline", "var(--ui-stroke-hairline)"],
+    ["--ring-width-thick", "var(--ui-stroke-thick)"],
+    ["--outline-width-hairline", "var(--ui-stroke-hairline)"],
+    ["--outline-width-thick", "var(--ui-stroke-thick)"],
+    ["--outline-width-focus", "var(--ui-focus-ring-width)"],
+    ["--outline-offset-focus", "var(--ui-focus-ring-offset)"],
   ]);
 
   push(

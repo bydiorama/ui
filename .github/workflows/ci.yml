@@ -66,6 +66,10 @@ jobs:
       - name: Tokens have consumers
         run: node --experimental-strip-types scripts/check-token-consumers.mjs
 
+      # Stroke widths come from the token scale, never a literal (ADR 0020 §2).
+      - name: Stroke widths are tokenised
+        run: node scripts/check-strokes.mjs
+
       - name: Behaviour-layer boundaries
         run: node scripts/check-boundaries.mjs
 

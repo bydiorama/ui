@@ -102,7 +102,7 @@ const DOT_SIZE = {
  * way; it computed to rgb(29, 27, 25). `check:utilities` cannot see it either,
  * because arbitrary values are skipped there by design.
  */
-const DOT_RING = "outline-[1.5px] outline-[color:var(--ui-avatar-ring-color,var(--ui-bg-surface))]";
+const DOT_RING = "outline-hairline outline-[color:var(--ui-avatar-ring-color,var(--ui-bg-surface))]";
 
 /**
  * Dot fills, as ROLES rather than as the sheet's values.

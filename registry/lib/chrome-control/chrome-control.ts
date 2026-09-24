@@ -40,7 +40,7 @@ export function chromeControl(className?: string): string {
     // The ring is a box-shadow, which forced-colors mode forces to `none` —
     // the outline is what survives there. Same rule as every other control.
     "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-    "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+    "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
     className,
   ]
     .filter(Boolean)

@@ -360,7 +360,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
           // clipped. Border colour alone would not clear SC 1.4.11 against
           // the resting edge, so the ring carries the indicator.
           "peer-focus-visible:border-edge-focus peer-focus-visible:shadow-(--ui-focus-ring)",
-          "peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-2",
+          "peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-focus",
         )}
       >
         {checked && <span data-slot="dot" className={cn(DOT, "shrink-0 rounded-full bg-current")} />}

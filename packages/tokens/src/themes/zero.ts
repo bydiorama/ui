@@ -190,7 +190,6 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-border-strong": NEUTRAL[40],
     "--ui-border-focus": BLUE[40],
     "--ui-focus-ring-color": BLUE[40],
-    "--ui-focus-ring": `0 0 0 2px ${NEUTRAL[100]}, 0 0 0 4px ${BLUE[40]}`,
 
     // Intents — fg on step 40, ground on step 90
     "--ui-intent-success-fg": GREEN[40],
@@ -267,7 +266,6 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-accent-legible": BLUE[80],
     "--ui-border-focus": BLUE[70],
     "--ui-focus-ring-color": BLUE[70],
-    "--ui-focus-ring": `0 0 0 2px ${NEUTRAL[20]}, 0 0 0 4px ${BLUE[70]}`,
     "--ui-intent-success-fg": GREEN[80],
     "--ui-intent-success-bg": onDarkPage("rgba(70, 164, 105, 0.18)"),
     "--ui-intent-warning-fg": ORANGE[80],

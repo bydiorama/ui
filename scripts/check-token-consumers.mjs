@@ -52,9 +52,6 @@ const ALLOWED = new Map([
   [/^--ui-z-(below|base)$/, "Ends of the stacking scale, for consumer layouts that need to sit under or reset to the page plane. Every floating surface in the library takes a positive role."],
   [/^--ui-hit-area-(min|touch)$/, "WCAG 2.5.8 target sizes for consumer layouts. Inside the library the floor is enforced where sizes are DERIVED — the density modes clamp at 24px (ADR 0020 §4) — rather than read at a call site."],
 
-  // ── Reserved, with the change that retires the entry named ──
-  ["--ui-border-width", "RESERVED (ADR 0020 §2): `shape.borderWidthPx` resolves here and nothing reads it. ADR 0020 Phase 1 replaces it with the --ui-stroke-* scale that components do read, and deletes this entry."],
-
   // ── Open questions already on record, not new ones ──
   [/^--ui-(ease-in|stagger-step|motion-(micro|standard|deliberate|choreographed))$/, "PLAN.md § Motion records it: the curve vocabulary has almost no consumers, and whether it is too big is an open question for a person. Listed here so that question is visible, not settled."],
   [/^--ui-space-(3xl|(stack|inline|inset)-[a-z0-9]+)$/, "ADR 0020 §5: components use the base steps directly; the intent layer is kept for a future brand `rhythm` knob. 3xl is reached only through stack-xl."],

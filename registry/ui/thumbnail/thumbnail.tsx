@@ -67,7 +67,7 @@ const ThumbnailRoot = forwardRef<HTMLSpanElement, ThumbnailProps>(function Thumb
           // loads, and the inset ring keeps a photograph's own white edge from
           // bleeding into the page. See needsDesign — in a stacked group this
           // means no seam between neighbours, which Avatar solves differently.
-          "bg-sunken outline-[1.5px] outline-offset-[-1.5px] outline-sunken",
+          "bg-sunken outline-hairline outline-offset-[-1.5px] outline-sunken",
         )}
       >
         {isLoading ? (
@@ -89,7 +89,7 @@ const ThumbnailRoot = forwardRef<HTMLSpanElement, ThumbnailProps>(function Thumb
               data-slot="thumbnail-spinner"
               className={cn(
                 "size-4 shrink-0 rounded-full",
-                "border-[1.5px] border-solid border-edge-subtle border-t-(--ui-text-muted)",
+                "border-hairline border-solid border-edge-subtle border-t-(--ui-text-muted)",
                 "motion-safe:animate-spin",
               )}
             />
@@ -129,7 +129,7 @@ const ThumbnailRoot = forwardRef<HTMLSpanElement, ThumbnailProps>(function Thumb
             // The ring is a box-shadow, which forced-colors mode forces to
             // `none` — the outline is what survives there.
             "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
-            "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-2",
+            "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
           )}
         >
           {/* `Close`, not `X` — in griddy, `X` is the X/Twitter wordmark and
@@ -219,7 +219,7 @@ function ThumbnailGroup({
           className={cn(
             "relative inline-flex size-12 shrink-0 items-center justify-center",
             "rounded-md bg-sunken text-ink-muted",
-            "outline-[1.5px] outline-offset-[-1.5px] outline-sunken",
+            "outline-hairline outline-offset-[-1.5px] outline-sunken",
             "font-body text-label-sm font-semibold leading-flat tracking-tight",
           )}
         >

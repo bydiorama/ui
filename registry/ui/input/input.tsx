@@ -23,16 +23,63 @@ const SURFACE = {
 } as const satisfies Record<InputSurface, { rest: string; disabled: string }>;
 
 /**
+ * `soft` and `full`, the two words Button and Avatar use for the same two
+ * shapes (CONVENTIONS §2). `soft` is the default and the form a form draws;
+ * `full` is the pill a search field or a composer-style prompt draws.
+ */
+export type InputShape = "soft" | "full";
+
+/**
  * Geometry per size, transcribed from the approved design.
  *
  * Heights are 48/40/32 — all three clear the 24px WCAG 2.5.8 floor, and `lg`
  * is the 44px+ touch target for primary forms.
+ *
+ * The value is `body-md` (14px) at lg AND md: the owner's frames draw every
+ * 40px field value at body-md, and a row mixing an Input with a Select at md
+ * read as two type styles while this said caption (#16). `sm` stays caption.
+ * The field tokens carry no type step at all — ADR 0020 §4 keeps type out of
+ * density — so this map is the only authority, and at sm a 14px value's
+ * 21.7px line would leave 3px of block padding in a compact 28px field.
+ *
+ * Inline padding and radius are NOT here: they depend on the shape too, so
+ * they live in INSET below.
  */
 const SIZE = {
-  lg: "h-field-lg gap-sm px-field-inset-lg py-sm text-body-md",
-  md: "h-field-md gap-xs px-field-inset-md py-sm text-caption",
-  sm: "h-field-sm gap-xs px-field-inset-sm py-xs text-caption",
+  lg: "h-field-lg gap-sm py-sm text-body-md",
+  md: "h-field-md gap-xs py-sm text-body-md",
+  sm: "h-field-sm gap-xs py-xs text-caption",
 } as const satisfies Record<InputSize, string>;
+
+/**
+ * Radius and inline padding, by shape and size.
+ *
+ * `soft` is the field inset from the density tokens, unchanged. `full` is a
+ * capsule, and a capsule's ends curve in on the text, so its inset is one
+ * spacing step (4px) wider: 16 / 12 / 12 at default density, about a third
+ * of the height — the proportion Button's own pill keeps. Written as a calc
+ * on the density token rather than as a fixed step, so it still moves with
+ * `data-ui-density` the way the soft inset does.
+ *
+ * A pill's trailing control is a ROUND one (a submit), and a circle inside a
+ * capsule only reads as concentric when its end gap equals its top gap. The
+ * top gap is set by centring — (field − control) / 2 — so the end padding
+ * collapses to the block padding minus the edge when the last child is a
+ * button. That closes exactly for the documented pairing (lg field + md
+ * Button, md + sm, sm + sm: 8 / 8 / 4px) and is asserted in the browser test.
+ */
+const INSET = {
+  soft: {
+    lg: "rounded-md px-field-inset-lg",
+    md: "rounded-md px-field-inset-md",
+    sm: "rounded-md px-field-inset-sm",
+  },
+  full: {
+    lg: "rounded-full px-[calc(var(--ui-field-lg-inset)+var(--ui-space-xs))] has-[>button:last-child]:pe-[calc(var(--ui-space-sm)-var(--ui-stroke-hairline))]",
+    md: "rounded-full px-[calc(var(--ui-field-md-inset)+var(--ui-space-xs))] has-[>button:last-child]:pe-[calc(var(--ui-space-sm)-var(--ui-stroke-hairline))]",
+    sm: "rounded-full px-[calc(var(--ui-field-sm-inset)+var(--ui-space-xs))] has-[>button:last-child]:pe-[calc(var(--ui-space-xs)-var(--ui-stroke-hairline))]",
+  },
+} as const satisfies Record<InputShape, Record<InputSize, string>>;
 
 interface InputBaseProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "disabled" | "size" | "required"> {
@@ -45,6 +92,12 @@ interface InputBaseProps
   /** Renders the label visually hidden rather than omitting it. */
   isLabelHidden?: boolean;
   size?: InputSize;
+  /**
+   * `soft` (the default) is the form field; `full` is the capsule a search
+   * field draws, with its inline padding widened so the text clears the
+   * curve. A round submit goes in `iconEnd` — see INSET for the pairing.
+   */
+  shape?: InputShape;
   /**
    * WHICH GROUND the field is cut from (ADR 0017). A field is a well, and a
    * well means nothing on its own — it means something against its floor.
@@ -74,7 +127,10 @@ interface InputBaseProps
   errorText?: string;
   /** Slot: leading adornment. Never wrapped (CONVENTIONS §3). */
   icon?: ReactElement;
-  /** Slot: trailing adornment — a reveal toggle, a unit, a clear button. */
+  /**
+   * Slot: trailing adornment — a reveal toggle, a unit, a clear button, or a
+   * round submit on a `full` field (an icon-only `Button shape="full"`).
+   */
   iconEnd?: ReactElement;
 }
 
@@ -85,6 +141,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     label,
     isLabelHidden = false,
     size = "lg",
+    shape = "soft",
     surface = "page",
     isDisabled = false,
     isRequired = false,
@@ -150,6 +207,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <div
         data-slot="control"
         data-size={size}
+        data-shape={shape}
         data-invalid={invalid || undefined}
         data-disabled={isDisabled || undefined}
         className={cn(
@@ -161,7 +219,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // `border-width: 1.5px` — verified in the compiled sheet — so there
           // is nothing to fix here, and `border-hairline.browser.test.tsx`
           // pins the platform behaviour so this is not re-investigated.
-          "flex w-full shrink-0 items-center overflow-clip rounded-md border-hairline",
+          "flex w-full shrink-0 items-center overflow-clip border-hairline",
           // Both icon slots at 16px, as Button sizes its own — see the note
           // there. griddy's IconBase hard-codes width/height="24", so an
           // unsized slot rendered every leading and trailing glyph oversize.
@@ -186,6 +244,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
           "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
           SIZE[size],
+          INSET[shape][size],
         )}
       >
         {icon}

@@ -9,7 +9,7 @@ export const multiselectDoc = {
   anatomy: [
     { part: "root", slot: "multiselect", notes: "The field wrapper. className lands here (§5)." },
     { part: "label", slot: "multiselect-label", notes: "Names the trigger via aria-labelledby. Takes the unboxed inset." },
-    { part: "trigger", slot: "multiselect-trigger", notes: "48px, radius-md — the SAME control surface as Input size lg, asserted as a relationship rather than as numbers." },
+    { part: "trigger", slot: "multiselect-trigger", notes: "48px, radius-md — the SAME control surface as Input size lg, asserted as a relationship rather than as numbers. Its value takes Input's type step at every size (14 / 14 / 12px) from the size map alone; a hard-coded text-body-md after the map used to win the merge (#16)." },
     { part: "chips", slot: "multiselect-chips", notes: "The selection, as Badge components with real remove buttons. Hidden when empty." },
     { part: "panel", slot: "multiselect-panel", notes: "The portalled list surface. radius-lg, bg-surface, hairline and shadow-md." },
     { part: "search", slot: "multiselect-search", notes: "Filters the list. Carries its own accessible name (\"Search <label>\")." },

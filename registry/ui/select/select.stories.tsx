@@ -83,6 +83,26 @@ export const BesideInput: Story = {
   ),
 };
 
+/**
+ * Options that say what choosing them MEANS (#26) — a permission picker,
+ * where the label alone does not. Open it: each description is a second,
+ * muted line in the list, and the trigger still shows the label alone.
+ */
+const ROLES: SelectItem[] = [
+  { value: "admin", label: "Brand Admin", description: "Full access, including members and billing." },
+  { value: "editor", label: "Editor", description: "Edits the brand; cannot manage members." },
+  { value: "viewer", label: "Viewer", description: "Read only." },
+  { value: "owner", label: "Owner", description: "Transfer ownership from the account page.", isDisabled: true },
+];
+
+export const WithDescriptions: Story = {
+  render: () => (
+    <div className="w-96">
+      <Select label="Role" items={ROLES} defaultValue="editor" onValueChange={fn()} />
+    </div>
+  ),
+};
+
 /** Controlled: the value lives in the page, and `null` is a real state. */
 export const Controlled: Story = {
   render: function ControlledStory() {

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-input-takes-shape-soft-or-full",
+  "date": "2026-10-05",
+  "item": "input",
+  "kind": "addition",
+  "summary": "Closes #18. Input takes `shape?: \"soft\" | \"full\"`, Button's and Avatar's words for the same two shapes (§2), default soft, so nothing that exists changes. full is a capsule: rounded-full, with the inline padding one spacing step wider (16 / 12 / 12px at default density) because a capsule's ends curve in on the text. It is written as a calc on the density token (`--ui-field-*-inset` + `--ui-space-xs`), so it still moves with data-ui-density. The control carries `data-shape`. The trailing round submit uses the existing `iconEnd` slot rather than a new one: on a full field, when the last child is a <button>, the end padding collapses to the block padding minus the edge, so an icon-only Button shape=\"full\" one size under the field (lg field + md Button, md + sm, sm + sm) sits concentric with the capsule, 8 / 8 / 4px from the edge on every side. That is what service-portal's Brand Home search re-implemented as a native input inside a frame recipe, losing Input's label, helper, error wiring, sizes and focus. New Shapes and PillSearch stories; the browser test asserts the capsule radius, the wider inset, the inset following density, and the circle's end gap equal to its top gap within the 0.5px dPR-1 border floor (the last fails 9/5/9px off without the collapse, probed). Known: at sm the 4px gap clips the outermost pixel of the Button's focus outline; the field's own focus-within ring still shows.",
+  "affects": [
+    "item:input",
+    "prop:shape",
+    "type:InputShape",
+    "slot:control",
+    "data:data-shape",
+    "slot:iconEnd"
+  ]
+}

@@ -162,8 +162,9 @@ export const BRANDABLE_TOKENS = [
   // It exists because `--ui-bg-emphasis` cannot do this job and looks as
   // though it can. Emphasis DERIVES FROM THE ACCENT (see the media note
   // above) and theme zero pins it to neutral-0 in BOTH schemes — so a control
-  // filled with it disappears against `--ui-bg-field`, which is also
-  // neutral-0 in dark. The Chat Composer's Stop button is where that became
+  // filled with it disappeared against `--ui-bg-field`, which was also
+  // neutral-0 in dark until ADR 0017's 2026-10-05 amendment raised the field.
+  // The Chat Composer's Stop button is where that became
   // load-bearing; the sheet flagged it as a Conflict and named this role.
   //
   // Derived as `colors.textPrimary`, so it inverts with the scheme by

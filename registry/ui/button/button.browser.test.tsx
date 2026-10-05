@@ -74,24 +74,153 @@ describe("Button keyboard contract", () => {
     expect(document.activeElement).not.toBe(button);
   });
 
-  test("isBusy KEEPS focus and stays operable — the distinction from isDisabled", async () => {
-    const onClick = vi.fn();
-    const button = mount(<Button isBusy onClick={onClick}>Saving…</Button>);
+  test("isBusy KEEPS focus and its tab stop — the distinction from isDisabled", () => {
+    const button = mount(<Button isBusy>Saving…</Button>);
 
     expect(button.getAttribute("aria-busy")).toBe("true");
     expect(button.disabled).toBe(false);
+    expect(button.tabIndex).toBe(0);
 
     button.focus();
     expect(document.activeElement).toBe(button);
-
-    await userEvent.keyboard("{Enter}");
-    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   test("the busy contract cannot be undone by a forwarded aria-busy", () => {
     const forwarded = { "aria-busy": false } as const;
     const button = mount(<Button isBusy {...forwarded}>Saving…</Button>);
     expect(button.getAttribute("aria-busy")).toBe("true");
+  });
+});
+
+/**
+ * BUSY SWALLOWS ACTIVATION (#8). The maintainer decision of 2026-10-05: a busy
+ * button is the double-submit guard on its own. Before it, busy stayed fully
+ * operable, and ~87 of 93 real `loading=` call sites in a consuming app would
+ * have lost their guard on a mechanical `loading` → `isBusy` rename.
+ *
+ * Clicks are dispatched natively inside act(): Playwright's actionability
+ * check treats aria-disabled="true" as not-enabled and would wait forever.
+ * What is being proved is that the handler refuses, and a dispatched click
+ * proves that just as well.
+ */
+describe("a busy Button swallows activation", () => {
+  test("a busy click does not call onClick", () => {
+    const onClick = vi.fn();
+    const button = mount(<Button isBusy onClick={onClick}>Saving…</Button>);
+    act(() => button.click());
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ["Enter", "{Enter}"],
+    ["Space", " "],
+  ])("a focused busy button ignores %s", async (_, key) => {
+    const onClick = vi.fn();
+    const button = mount(<Button isBusy onClick={onClick}>Saving…</Button>);
+    button.focus();
+    expect(document.activeElement).toBe(button);
+    await userEvent.keyboard(key);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  test("activation returns the moment busy clears", () => {
+    const onClick = vi.fn();
+    const button = mount(<Button isBusy onClick={onClick}>Save</Button>);
+    act(() => root!.render(<Button onClick={onClick}>Save</Button>));
+    act(() => button.click());
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(button.hasAttribute("aria-disabled")).toBe(false);
+  });
+
+  test("it announces that activation is unavailable — aria-disabled, not only aria-busy", () => {
+    // Most screen readers do not announce aria-busy on a button at all, so a
+    // control that refuses activation while saying only aria-busy would be
+    // presented as operable.
+    const button = mount(<Button isBusy>Saving…</Button>);
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+  });
+
+  test("a caller's own aria-disabled survives on a button that is not busy", () => {
+    const button = mount(<Button aria-disabled>Explain why</Button>);
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+  });
+
+  test("busy shows the progress cursor, not a pointer promising a click", () => {
+    const button = mount(<Button isBusy>Saving…</Button>);
+    expect(getComputedStyle(button).cursor).toBe("progress");
+  });
+});
+
+/**
+ * A busy SUBMIT button must not submit its form, by any route. The subtle one
+ * is implicit submission: Enter in a text field submits through the form's
+ * DEFAULT BUTTON by firing a synthetic click at it, so a guard that watched
+ * only the button's own keyboard would let it straight through.
+ */
+describe("a busy submit button does not submit its form", () => {
+  function mountForm(isBusy: boolean) {
+    const onSubmit = vi.fn();
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root!.render(
+        <form
+          onSubmit={(event) => {
+            // Never let a real submission navigate the test page away.
+            event.preventDefault();
+            onSubmit();
+          }}
+        >
+          <input aria-label="Name" defaultValue="Brief" />
+          <Button type="submit" isBusy={isBusy}>
+            Save
+          </Button>
+        </form>,
+      );
+    });
+    return {
+      onSubmit,
+      input: container.querySelector("input")!,
+      button: container.querySelector("button")!,
+    };
+  }
+
+  test("control: the same form NOT busy submits by click and by Enter in the field", async () => {
+    // Without this, every busy assertion below would pass against a harness
+    // that never submits at all.
+    const { onSubmit, input, button } = mountForm(false);
+    act(() => button.click());
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    input.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+  });
+
+  test("clicking a busy submit button does not fire onSubmit", () => {
+    const { onSubmit, button } = mountForm(true);
+    act(() => button.click());
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("Enter on the focused busy submit button does not fire onSubmit", async () => {
+    const { onSubmit, button } = mountForm(true);
+    button.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("Enter in a field — implicit submission — does not fire onSubmit", async () => {
+    const { onSubmit, input } = mountForm(true);
+    input.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  test("the busy submit button stays focusable", () => {
+    const { button } = mountForm(true);
+    button.focus();
+    expect(document.activeElement).toBe(button);
   });
 });
 
@@ -287,6 +416,49 @@ describe("pressing an edge-only Button paints no fill", () => {
     expect(declarationsFor(button, ":disabled").get("background-color")).toBe(
       "var(--ui-bg-elevated)",
     );
+  });
+
+  test("a disabled GHOST keeps no fill and no ring — only the disabled ink (#27)", () => {
+    // Every disabled Button used to flatten to the same filled chip, which
+    // turned a ghost — no fill at rest — into a grey slab, the heaviest thing
+    // in a row of quiet actions, for an action that is unavailable.
+    const ghost = mount(<Button variant="ghost" isDisabled>Delete</Button>);
+    const declared = declarationsFor(ghost, ":disabled");
+    expect([...declared.keys()]).not.toContain("background-color");
+    expect([...declared.keys()]).not.toContain("--tw-ring-color");
+
+    const style = getComputedStyle(ghost);
+    expect(style.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    // Ring width is shared by every type; ghost's ring COLOUR is transparent,
+    // so whatever box-shadow is declared must paint nothing.
+    const shadow = style.boxShadow;
+    expect(shadow === "none" || shadow.startsWith("rgba(0, 0, 0, 0)"), `box-shadow: ${shadow}`).toBe(
+      true,
+    );
+  });
+
+  test("a disabled ghost takes the SAME disabled ink as the chip variants", () => {
+    // Assert the relationship, not a hex: the ghost and the chip must agree
+    // on what "unavailable" looks like in ink.
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root!.render(
+        <>
+          <Button variant="ghost" isDisabled>Ghost</Button>
+          <Button variant="secondary" isDisabled>Secondary</Button>
+          <Button variant="ghost">Resting</Button>
+        </>,
+      );
+    });
+    const [ghost, secondary, resting] = Array.from(container.querySelectorAll("button"));
+    expect(getComputedStyle(ghost!).color).toBe(getComputedStyle(secondary!).color);
+    expect(getComputedStyle(ghost!).color).not.toBe(getComputedStyle(resting!).color);
+    // ...and the chip variants KEEP their chip — the rule is ghost-only.
+    expect(getComputedStyle(secondary!).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(ghost!).backgroundColor).toBe(getComputedStyle(resting!).backgroundColor);
+    expect(getComputedStyle(ghost!).boxShadow).toBe(getComputedStyle(resting!).boxShadow);
   });
 
   test("ghost's hover fill is the sheet's bg-elevated, not a step darker", () => {

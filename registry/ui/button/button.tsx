@@ -1,4 +1,10 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactElement, type ReactNode } from "react";
+import {
+  forwardRef,
+  type ButtonHTMLAttributes,
+  type MouseEvent,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
@@ -96,6 +102,29 @@ const VARIANT = {
     "bg-danger-subtle ring-danger-border text-ink-on-danger-subtle enabled:hover:bg-danger-subtle-hover",
 } as const satisfies Record<ButtonVariant, string>;
 
+/**
+ * Disabled, PER VARIANT. The sheet's Disabled frame fills with --ui-neutral-95
+ * and rings itself with that same value, so a filled or edged control reads as
+ * flattened rather than as a filled chip. It shipped as `bg-sunken`
+ * (neutral-90) with a subtle edge — one step darker than drawn, and the same
+ * off-by-one ghost's hover had. This is the state seen most: a form disables
+ * its secondary actions while it submits, so a whole column goes grey at once.
+ *
+ * GHOST IS THE EXCEPTION (#27). It has no fill and no ring at rest, so the one
+ * shared chip turned it into a grey slab the moment it disabled — the heaviest
+ * thing in a row of quiet actions, for an action that is UNAVAILABLE. A ghost
+ * keeps its absence of chrome and takes only the disabled ink; its ring stays
+ * the `ring-transparent` it rests with.
+ */
+const DISABLED_CHIP = "disabled:bg-elevated disabled:text-ink-disabled disabled:ring-elevated";
+const DISABLED = {
+  primary: DISABLED_CHIP,
+  secondary: DISABLED_CHIP,
+  outline: DISABLED_CHIP,
+  ghost: "disabled:text-ink-disabled",
+  danger: DISABLED_CHIP,
+} as const satisfies Record<ButtonVariant, string>;
+
 interface ButtonBaseProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled" | "aria-busy"> {
   /**
@@ -114,9 +143,16 @@ interface ButtonBaseProps
   /** Non-interactive and out of the tab order. Distinct from `isBusy`. */
   isDisabled?: boolean;
   /**
-   * Visual only: keeps focus, stays operable to assistive tech, announces via
-   * `aria-busy`. A control that leaves the tab order mid-submit strands the
-   * keyboard user who was standing on it (CONVENTIONS §4).
+   * BUSY SWALLOWS ACTIVATION. Keeps focus and its place in the tab order, but
+   * a click, Enter or Space does nothing: `onClick` is not called and a
+   * `type="submit"` button does not submit its form — including the implicit
+   * submission Enter triggers from a text field. That makes `isBusy` the
+   * double-submit guard on its own; it needs no `isDisabled` beside it.
+   *
+   * It is still NOT `isDisabled`: no disabled styling, and it does not leave
+   * the tab order, because a control that disappears mid-submit strands the
+   * keyboard user who was standing on it (CONVENTIONS §4). Announced with
+   * `aria-busy` and `aria-disabled`.
    */
   isBusy?: boolean;
   /** Stretches to the container — the designed full-width action. */
@@ -165,8 +201,28 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     children,
     type = "button",
     "data-slot": dataSlot = "button",
+    onClick,
     ...rest
   } = props;
+
+  // A busy button is still focusable but not ACTIVATABLE (#8). This is a
+  // safety invariant, not optional behaviour, so it is an unconditional
+  // wrapper rather than `composeEventHandlers` (CONVENTIONS §5): nothing a
+  // consumer does can re-enable activation mid-flight.
+  //
+  // Cancelling the click is the whole mechanism, and it reaches further than
+  // `onClick`. A submit button's activation behaviour runs only if its click
+  // event is not cancelled, and implicit submission — Enter in a text field —
+  // works by firing a synthetic click at the form's default button. So the one
+  // `preventDefault()` refuses the pointer, Enter and Space on the button, and
+  // Enter from any field whose default button this is. The native way to
+  // refuse implicit submission is `disabled` on the default button; this gets
+  // the same result while keeping focus.
+  const handleClick = isBusy
+    ? (event: MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+      }
+    : onClick;
 
   return (
     <button
@@ -177,7 +233,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       data-variant={variant}
       data-size={size}
       disabled={isDisabled}
+      onClick={handleClick}
       aria-busy={isBusy || undefined}
+      // aria-disabled, because activation is now genuinely unavailable and
+      // aria-busy alone does not say so: on a button, most screen readers do
+      // not announce aria-busy at all. aria-disabled is the attribute AT
+      // reads as "present, focusable, cannot be activated right now" — the
+      // pattern Calendar, Accordion and Menu already use for a control that
+      // must stay reachable. Spread conditionally so a caller's own
+      // aria-disabled survives on a button that is not busy.
+      {...(isBusy ? { "aria-disabled": true as const } : {})}
       className={cn(
         "inline-flex shrink-0 items-center justify-center ring-inset",
         "font-body font-bold leading-flat tracking-tight whitespace-nowrap",
@@ -194,7 +259,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // browser: without this the computed cursor is `default`. The pointer
         // is the only pre-click signal that a thing is clickable, so it is
         // part of the contract, not decoration.
-        "cursor-pointer disabled:cursor-not-allowed",
+        //
+        // BUSY shows `progress`: the pointer would promise a click that is
+        // now swallowed, and not-allowed is disabled's signal, which busy
+        // deliberately is not. `progress` is the platform's own "working, you
+        // can still interact with the page" cursor. Disabled still wins.
+        isBusy && !isDisabled ? "cursor-progress" : "cursor-pointer disabled:cursor-not-allowed",
         // Enumerated properties, never `all` (CONVENTIONS §8). Scale is left
         // out deliberately: press feedback should snap, not ease.
         // Custom properties use the PARENS syntax — `duration-(--x)` compiles
@@ -209,7 +279,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // indicator at a perfect contrast ratio. The UA outline needs no
         // suppressing: ours overrides it whenever :focus-visible matches.
         "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
-        !staticTap && "enabled:active:scale-(--ui-press-scale) motion-reduce:active:scale-100",
+        // No press-scale while busy: pressing a busy button activates nothing,
+        // and motion that acknowledges a press nobody acted on is a false cue.
+        !staticTap && !isBusy && "enabled:active:scale-(--ui-press-scale) motion-reduce:active:scale-100",
         shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
         isIconOnly ? ICON_SIZE[size] : SIZE[size],
         VARIANT[variant],
@@ -222,14 +294,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // tab order, so suppressing pointer events adds nothing except making
         // the button unhoverable — which kills the tooltip that would explain
         // WHY it is disabled. Hover states are gated with `enabled:` instead.
-        // The sheet's Disabled frame fills with --ui-neutral-95 and rings itself
-        // with that same value, so the control reads as flattened rather than
-        // as a filled chip. It shipped as `bg-sunken` (neutral-90) with a
-        // subtle edge — one step darker than drawn, and the same off-by-one
-        // ghost's hover had. This is the state seen most: a form disables its
-        // secondary actions while it submits, so a whole column of them goes
-        // grey at once.
-        "disabled:bg-elevated disabled:text-ink-disabled disabled:ring-elevated",
+        // The treatment is per variant — see DISABLED for why ghost differs.
+        DISABLED[variant],
         className,
       )}
     >

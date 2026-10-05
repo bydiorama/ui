@@ -11,6 +11,7 @@ import {
 } from "@bydiorama/tokens";
 
 import { chromeControl } from "@/lib/chrome-control";
+import { Input } from "@/ui/input/input.tsx";
 import { Button } from "./button.tsx";
 
 const meta = {
@@ -161,9 +162,21 @@ export const States: Story = {
           Create New
         </Button>
       </Row>
-      {/* isBusy is deliberately NOT disabled: it keeps focus and stays
-          operable, so a keyboard user is not stranded mid-submit. */}
-      <Row label="busy (keeps focus)">
+      {/* Ghost disables WITHOUT the chip (#27): no fill, no ring, only the
+          disabled ink. Beside a resting ghost so the difference is the ink
+          alone, which is the point. */}
+      <Row label="disabled ghost">
+        <Button size="lg" variant="ghost">
+          Delete
+        </Button>
+        <Button size="lg" variant="ghost" isDisabled>
+          Delete
+        </Button>
+      </Row>
+      {/* isBusy keeps focus and its tab stop, so a keyboard user is not
+          stranded mid-submit — but it swallows activation, so it is the
+          double-submit guard on its own (#8). */}
+      <Row label="busy (keeps focus, ignores activation)">
         <Button size="lg" isBusy>
           Saving…
         </Button>
@@ -175,6 +188,36 @@ export const States: Story = {
       </Row>
     </div>
   ),
+};
+
+/**
+ * BUSY IS THE DOUBLE-SUBMIT GUARD (#8). Submit, then hammer the button, press
+ * Enter on it, or press Enter in the field while it says "Saving…": the count
+ * moves once per round trip. No `isDisabled` is paired with it, and focus
+ * stays on the button throughout.
+ */
+export const BusySubmit: Story = {
+  render: () => {
+    const [isBusy, setIsBusy] = useState(false);
+    const [count, setCount] = useState(0);
+    return (
+      <form
+        className="flex flex-col items-start gap-md"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setCount((n) => n + 1);
+          setIsBusy(true);
+          window.setTimeout(() => setIsBusy(false), 1500);
+        }}
+      >
+        <Input label="Brief name" defaultValue="Spring launch" />
+        <Button type="submit" isBusy={isBusy}>
+          {isBusy ? "Saving…" : "Save"}
+        </Button>
+        <p className="text-body-sm text-ink-muted">submitted {count}×</p>
+      </form>
+    );
+  },
 };
 
 export const WithIcons: Story = {

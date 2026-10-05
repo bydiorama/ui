@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-disabled-ghost-keeps-no-fill-or",
+  "date": "2026-10-05",
+  "item": "button",
+  "kind": "visual",
+  "summary": "A disabled ghost Button keeps no fill and no ring and takes only the disabled ink. Closes #27. Every disabled Button flattened to the same chip — bg-elevated with a matching elevated ring — which is right for primary, secondary, outline and danger, the types that have a fill or an edge to flatten. A ghost has neither at rest, so the shared chip turned it into a grey block the moment it disabled: in service-portal's Brand Profile › Fonts, the ghost Delete that is disabled for the sole heading/body provider read as a solid slab on bg-base, the heaviest thing in its row, for an action that is unavailable. The product's Paper frame draws it as ghost text in --ui-text-disabled with no fill and no ring, and that is now the ghost's disabled treatment; the ring stays the ring-transparent it rests with. The disabled treatment is a per-variant map in button.tsx rather than one string. The four chip variants are unchanged.",
+  "affects": [
+    "item:button",
+    "prop:variant",
+    "prop:isDisabled",
+    "token:--ui-text-disabled",
+    "token:--ui-bg-elevated",
+    "visual:button-disabled-ghost"
+  ],
+  "migration": {
+    "manual": "Visual only — no API change. Disabled ghost buttons lose their grey chip and show only the disabled ink. If you patched this locally (service-portal carried a temporary rule on `[data-slot=\"button\"][data-variant=\"ghost\"]:disabled` in globals.css), delete the patch."
+  }
+}

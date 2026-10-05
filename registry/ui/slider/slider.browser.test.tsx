@@ -93,6 +93,34 @@ describe("The behaviour layer carries the slider contract", () => {
     expect(typeof onValueChange.mock.calls[0]?.[0]).toBe("number");
   });
 
+  test("getAriaValueText becomes aria-valuetext on the INPUT, and follows the value (#25)", async () => {
+    // Five 0-100 sliders between named poles announced "Formality, 70",
+    // which means nothing without the poles. The text belongs on the input:
+    // that is the element with the slider role, so a valuetext on the thumb
+    // div or the group would be announced by nothing.
+    const poles = vi.fn((v: number) => (v >= 60 ? "Mostly formal" : v <= 40 ? "Mostly casual" : "Balanced"));
+    mount(<Slider label="Formality" defaultValue={70} getAriaValueText={poles} />);
+    const s = slider();
+    expect(s.getAttribute("aria-valuetext")).toBe("Mostly formal");
+    expect(s.getAttribute("aria-valuenow")).toBe("70");
+
+    s.focus();
+    await userEvent.keyboard("{Home}");
+    await expect.poll(() => s.getAttribute("aria-valuetext")).toBe("Mostly casual");
+    await userEvent.keyboard("{End}");
+    await expect.poll(() => s.getAttribute("aria-valuetext")).toBe("Mostly formal");
+    // Called with the NUMBER alone — not Base UI's (formattedValue, value,
+    // index), whose first argument is a locale-formatted STRING.
+    expect(poles.mock.calls.every((call) => call.length === 1 && typeof call[0] === "number")).toBe(true);
+  });
+
+  test("without getAriaValueText the value is not dressed up", () => {
+    mount(<Slider label="Logo size" defaultValue={62} />);
+    // Base UI's default is the formatted number; nothing invented on top.
+    const text = slider().getAttribute("aria-valuetext");
+    expect(text === null || text === "62").toBe(true);
+  });
+
   test("disabled does not respond to the keyboard", async () => {
     const onValueChange = vi.fn();
     mount(<Slider label="Logo size" defaultValue={50} isDisabled onValueChange={onValueChange} />);

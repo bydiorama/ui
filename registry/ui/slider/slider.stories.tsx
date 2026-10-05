@@ -130,6 +130,29 @@ export const Controlled: Story = {
   },
 };
 
+/**
+ * A value that means nothing as a number. `getAriaValueText` is what a screen
+ * reader announces in its place — "Mostly formal", not "70". Nothing visible
+ * changes; inspect the thumb's input for `aria-valuetext`.
+ */
+const formality = (v: number) =>
+  v >= 80 ? "Formal" : v >= 60 ? "Mostly formal" : v > 40 ? "Balanced" : v > 20 ? "Mostly casual" : "Casual";
+
+export const AnnouncedValue: Story = {
+  render: () => (
+    <div className="flex w-96 flex-col gap-xl">
+      <Slider label="Formality, casual to formal" defaultValue={70} getAriaValueText={formality} onValueChange={fn()} />
+      <Slider
+        label="Upload limit"
+        defaultValue={24}
+        hasValueText
+        getAriaValueText={(v) => `${v} megabytes`}
+        onValueChange={fn()}
+      />
+    </div>
+  ),
+};
+
 const STRESS_BRAND: ThemeSeed = {
   colors: {
     bg: "#fffdf5", surface: "#ffffff", muted: "#f4ecd8",

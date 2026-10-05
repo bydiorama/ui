@@ -173,6 +173,28 @@ describe("Select's trigger IS Input's control surface", () => {
     }
   });
 
+  /**
+   * ADR 0017 §3: a state never points at a surface role. The trigger used to
+   * fill disabled with `bg-sunken`, which only matched Input's field-disabled
+   * by coincidence — and stopped matching in dark once #24 moved the field.
+   */
+  test("disabled takes Input's disabled fill, in both schemes", () => {
+    for (const scheme of ["light", "dark"] as const) {
+      const c = mount(
+        <div style={{ colorScheme: scheme }}>
+          <Select label="Services" items={ITEMS} isDisabled />
+          <Input label="Company" isDisabled />
+        </div>,
+      );
+      const select = getComputedStyle(trigger()).backgroundColor;
+      const input = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="control"]')!).backgroundColor;
+      expect(select, `${scheme} disabled fill`).toBe(input);
+      act(() => root?.unmount());
+      container?.remove();
+      root = null; container = null;
+    }
+  });
+
   test("the sizes' text steps actually differ — the map is applied, not overridden", () => {
     const sizes = (["lg", "md", "sm"] as const).map((size) => {
       mount(<Select label="Services" size={size} items={ITEMS} defaultValue="design" />);

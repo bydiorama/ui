@@ -153,7 +153,7 @@ export function Select({
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               invalid && "border-danger",
               "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
-              "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
+              "disabled:cursor-not-allowed disabled:bg-field-disabled disabled:text-ink-disabled",
             ),
           })}
         >

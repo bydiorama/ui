@@ -122,7 +122,7 @@ function MenuPanel({
         <BaseMenu.Popup
           {...forBaseUI<ComponentPropsWithoutRef<typeof BaseMenu.Popup>>(rest)}
           data-slot="menu-panel"
-          className={menuPanel(cn(className))}
+          className={menuPanel(className)}
         >
           {children}
         </BaseMenu.Popup>
@@ -159,7 +159,7 @@ function MenuItemPart({ children, icon, trailing, isDisabled = false, onSelect, 
         disabled: isDisabled,
         ...(onSelect ? { onClick: () => onSelect() } : {}),
         ...(render ? { render } : {}),
-        className: menuItem(cn(className)),
+        className: menuItem(className),
       })}
     >
       <span className="flex min-w-0 items-center gap-sm">
@@ -180,7 +180,7 @@ function MenuSeparatorPart({ className, ...rest }: MenuSeparatorProps) {
     <BaseMenu.Separator
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseMenu.Separator>>(rest)}
       data-slot="menu-separator"
-      className={menuSeparator(cn(className))}
+      className={menuSeparator(className)}
     />
   );
 }
@@ -234,7 +234,7 @@ function MenuSubTrigger({ children, icon, isDisabled = false, className }: MenuS
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseMenu.SubmenuTrigger>>({
         "data-slot": "menu-sub-trigger",
         disabled: isDisabled,
-        className: menuItem(cn(className)),
+        className: menuItem(className),
       })}
     >
       <span className="flex min-w-0 items-center gap-sm">

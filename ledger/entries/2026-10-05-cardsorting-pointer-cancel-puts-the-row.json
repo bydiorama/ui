@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-cardsorting-pointer-cancel-puts-the-row",
+  "date": "2026-10-05",
+  "item": "card-sorting",
+  "kind": "fix",
+  "summary": "Five defects in CardSorting's pointer path, two of which changed the user's data. Closes #21. (1) `pointercancel` called the same endDrag as `pointerup`, so it announced \"dropped\" and KEPT the move; on touch, pointercancel is the browser taking the gesture away (a scroll takeover, an OS gesture), and the portal saves on settle, so it persisted a move the person abandoned. It now restores the order from before the gesture, calls onOrderChange once more with that order, and announces cancelled. (2) Escape only cancelled a keyboard/click LIFT; during a pointer drag it did nothing. It now cancels a drag the same way, listened for on the document while a drag is live, because a press does not focus a button in every browser (Safari) and the person pressing Escape mid-drag is not thinking about focus. (3) The handle's onClick always toggled lift, and a comment claimed pointerup had already cleared the drag so it would not; the handler never read that state. With the pointer captured on the grip, the click after pointerup lands on it, so every finished drag also lifted the row. A press now becomes a drag only after 4px of travel; a press that moves less is still a click and still lifts (the SC 2.5.7 single-pointer path), and the click that ends a real drag is swallowed. A side effect worth knowing: a plain click no longer announces \"dropped\" before \"lifted\" for a drag that never happened. (4) Any button started a drag, including right and middle clicks; only event.button === 0 does now. (5) setPointerCapture throws NotFoundError for a pointer that is no longer active, which broke the handler before the drag began; it and releasePointerCapture are wrapped in try/catch. Each case has a browser test, and all eight new pointer tests fail against the previous component, checked by swapping it back in.",
+  "affects": [
+    "item:card-sorting",
+    "component:card-sorting",
+    "slot:card-sorting-handle",
+    "slot:card-sorting-announcer",
+    "event:onPointerCancel",
+    "event:onPointerUp",
+    "prop:onOrderChange"
+  ],
+  "migration": {
+    "manual": "If you added your own restore-on-pointercancel or settle detection around onOrderChange to work around this, remove it: a cancelled gesture now calls onOrderChange with the restored order itself, and doing both restores twice. A drag now needs 4px of pointer travel before rows move."
+  }
+}

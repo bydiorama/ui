@@ -47,20 +47,33 @@ const labels = () => rows().map((r) => r.dataset["itemLabel"]);
 const handles = () => Array.from(document.querySelectorAll<HTMLElement>('[data-slot="card-sorting-handle"]'));
 const announcer = () => document.querySelector<HTMLElement>('[data-slot="card-sorting-announcer"]')!;
 
-/** Drives a pointer drag from a handle to a y coordinate. */
-async function dragTo(handle: HTMLElement, clientY: number) {
+/** One pointer, step by step, so a test can interleave Escape or a cancel. */
+function pointer(handle: HTMLElement, init: { pointerId?: number; button?: number } = {}) {
   const box = handle.getBoundingClientRect();
   const x = box.left + box.width / 2;
-  const opts = { pointerId: 1, pointerType: "mouse", bubbles: true, cancelable: true } as const;
-  await act(async () => {
-    handle.dispatchEvent(new PointerEvent("pointerdown", { ...opts, clientX: x, clientY: box.top + 8 }));
-  });
-  await act(async () => {
-    handle.dispatchEvent(new PointerEvent("pointermove", { ...opts, clientX: x, clientY }));
-  });
-  await act(async () => {
-    handle.dispatchEvent(new PointerEvent("pointerup", { ...opts, clientX: x, clientY }));
-  });
+  const opts = { pointerId: 1, pointerType: "mouse", bubbles: true, cancelable: true, ...init } as const;
+  const fire = (type: string, clientY: number) =>
+    act(async () => { handle.dispatchEvent(new PointerEvent(type, { ...opts, clientX: x, clientY })); });
+  return {
+    down: () => fire("pointerdown", box.top + 8),
+    move: (clientY: number) => fire("pointermove", clientY),
+    up: (clientY: number) => fire("pointerup", clientY),
+    cancel: (clientY: number) => fire("pointercancel", clientY),
+    /**
+     * The click a real release produces. The pointer is captured on the
+     * handle, so it lands there — dispatched by hand because synthetic pointer
+     * events do not synthesise one.
+     */
+    click: () => act(async () => { handle.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true })); }),
+  };
+}
+
+/** Drives a pointer drag from a handle to a y coordinate. */
+async function dragTo(handle: HTMLElement, clientY: number) {
+  const p = pointer(handle);
+  await p.down();
+  await p.move(clientY);
+  await p.up(clientY);
 }
 
 describe("CardSorting is a named list of reorderable rows", () => {
@@ -283,5 +296,330 @@ describe("CardSorting survives its children changing", () => {
     // and a new id missing from the order would never appear at all.
     act(() => { root!.render(<Growing ids={["b", "c"]} />); });
     expect(labels()).toEqual(["b", "c"]);
+  });
+});
+
+describe("the pointer path never commits a gesture the person abandoned (#21)", () => {
+  const ORIGINAL = ["Brand guidelines", "Business cards", "Email signatures", "Dokument test"];
+
+  test("pointercancel puts the row BACK and says so — it does not drop it", async () => {
+    const onOrderChange = vi.fn();
+    mount(<List onOrderChange={onOrderChange} />);
+    const third = rows()[2]!.getBoundingClientRect();
+    const p = pointer(handles()[0]!);
+    await p.down();
+    await p.move(third.top + third.height * 0.75);
+    expect(labels()).not.toEqual(ORIGINAL);
+    // On touch, pointercancel is the browser taking the gesture away (a scroll
+    // takeover, an OS gesture). The consumer saves on settle, so committing
+    // here would persist a move the person abandoned.
+    await p.cancel(third.top + third.height * 0.75);
+    expect(labels()).toEqual(ORIGINAL);
+    expect(onOrderChange).toHaveBeenLastCalledWith(["guidelines", "cards", "signatures", "test"]);
+    expect(announcer().textContent).toBe("Reordering cancelled, in Brand assets.");
+    expect(rows().some((row) => row.dataset["dragging"] === "true")).toBe(false);
+  });
+
+  test("Escape during a drag cancels it, wherever focus is", async () => {
+    mount(<List />);
+    const third = rows()[2]!.getBoundingClientRect();
+    const target = third.top + third.height * 0.75;
+    const p = pointer(handles()[0]!);
+    await p.down();
+    await p.move(target);
+    expect(labels()).not.toEqual(ORIGINAL);
+    // Focus is on the body: a synthetic press focuses nothing, and Safari does
+    // not focus a button on a real one either.
+    expect(document.activeElement).toBe(document.body);
+    await userEvent.keyboard("{Escape}");
+    expect(labels()).toEqual(ORIGINAL);
+    expect(announcer().textContent).toContain("cancelled");
+    // The release and its click still arrive. Neither may move or lift anything.
+    await p.move(target);
+    await p.up(target);
+    await p.click();
+    expect(labels()).toEqual(ORIGINAL);
+    expect(handles()[0]!.getAttribute("aria-pressed")).toBe("false");
+    expect(announcer().textContent).toContain("cancelled");
+  });
+
+  test("Escape during a drag cancels it when the handle has focus too", async () => {
+    mount(<List />);
+    const third = rows()[2]!.getBoundingClientRect();
+    const handle = handles()[0]!;
+    const p = pointer(handle);
+    await p.down();
+    handle.focus();
+    await p.move(third.top + third.height * 0.75);
+    await userEvent.keyboard("{Escape}");
+    expect(labels()).toEqual(ORIGINAL);
+    expect(announcer().textContent).toBe("Reordering cancelled, in Brand assets.");
+  });
+
+  test("the click that ENDS a drag does not lift the row", async () => {
+    mount(<List />);
+    const third = rows()[2]!.getBoundingClientRect();
+    const target = third.top + third.height * 0.75;
+    const p = pointer(handles()[0]!);
+    await p.down();
+    await p.move(target);
+    await p.up(target);
+    // With the pointer captured on the grip, the browser's click after
+    // pointerup lands on it. It is the end of the drag, not a request to lift.
+    await p.click();
+    expect(labels()[2]).toBe("Brand guidelines");
+    expect(rows().some((row) => row.dataset["lifted"] === "true")).toBe(false);
+    expect(handles().every((h) => h.getAttribute("aria-pressed") === "false")).toBe(true);
+    expect(announcer().textContent).toBe("Brand guidelines, dropped, position 3 of 4, in Brand assets.");
+  });
+
+  test("a press that never travels is still a click, and still lifts", async () => {
+    mount(<List />);
+    const h = handles()[0]!;
+    const box = h.getBoundingClientRect();
+    const p = pointer(h);
+    // A hand never presses perfectly still: a 2px wobble is a click.
+    await p.down();
+    await p.move(box.top + 10);
+    await p.up(box.top + 10);
+    await p.click();
+    expect(h.getAttribute("aria-pressed")).toBe("true");
+    expect(announcer().textContent).toBe("Brand guidelines, lifted, position 1 of 4, in Brand assets.");
+  });
+
+  test.each([
+    ["middle", 1],
+    ["right", 2],
+  ])("a %s-button press does not start a drag", async (_name, button) => {
+    mount(<List />);
+    const third = rows()[2]!.getBoundingClientRect();
+    const p = pointer(handles()[0]!, { button });
+    await p.down();
+    expect(rows().some((row) => row.dataset["dragging"] === "true")).toBe(false);
+    await p.move(third.top + third.height * 0.75);
+    await p.up(third.top + third.height * 0.75);
+    expect(labels()).toEqual(ORIGINAL);
+  });
+
+  test("a refused pointer capture does not break the drag", async () => {
+    // setPointerCapture throws NotFoundError for a pointer that is no longer
+    // active. An unguarded call threw out of the handler before the drag began.
+    const capture = vi.spyOn(HTMLElement.prototype, "setPointerCapture").mockImplementation(() => {
+      throw new DOMException("No active pointer", "NotFoundError");
+    });
+    try {
+      mount(<List />);
+      const third = rows()[2]!.getBoundingClientRect();
+      await dragTo(handles()[0]!, third.top + third.height * 0.75);
+      expect(capture).toHaveBeenCalled();
+      expect(labels()[2]).toBe("Brand guidelines");
+    } finally {
+      capture.mockRestore();
+    }
+  });
+
+  test("a throwing releasePointerCapture does not break the drop", async () => {
+    const has = vi.spyOn(HTMLElement.prototype, "hasPointerCapture").mockReturnValue(true);
+    const releaseCapture = vi.spyOn(HTMLElement.prototype, "releasePointerCapture").mockImplementation(() => {
+      throw new DOMException("No active pointer", "NotFoundError");
+    });
+    try {
+      mount(<List />);
+      const third = rows()[2]!.getBoundingClientRect();
+      await dragTo(handles()[0]!, third.top + third.height * 0.75);
+      expect(releaseCapture).toHaveBeenCalled();
+      expect(labels()[2]).toBe("Brand guidelines");
+      expect(announcer().textContent).toContain("dropped");
+    } finally {
+      has.mockRestore();
+      releaseCapture.mockRestore();
+    }
+  });
+});
+
+describe("every string CardSorting speaks is a prop (#20)", () => {
+  // Slovak — the portal's own locale. Word order around the number moves,
+  // which is why each message is a function rather than a template.
+  const SLOVAK = {
+    handleLabel: ({ label, position, total }: { label: string; position: number; total: number }) =>
+      `Presunúť ${label}, ${position}. z ${total}`,
+    lifted: ({ label, position, total, listLabel }: Details) => `${label} zdvihnuté, ${position}. z ${total}, ${listLabel}.`,
+    moved: ({ label, position, total, listLabel }: Details) => `${label} presunuté, ${position}. z ${total}, ${listLabel}.`,
+    dropped: ({ label, position, total, listLabel }: Details) => `${label} položené, ${position}. z ${total}, ${listLabel}.`,
+    cancelled: ({ label, position, listLabel }: Details) => `Zrušené, ${label} späť na ${position}. mieste, ${listLabel}.`,
+  };
+  type Details = { label: string; position: number; total: number; listLabel: string };
+
+  function Localised({ messages }: { messages: Partial<typeof SLOVAK> }) {
+    return (
+      <CardSorting label="Značka" messages={messages}>
+        {ITEMS.map(([id, label]) => (
+          <CardSorting.Item key={id} id={id} label={label}><span>{label}</span></CardSorting.Item>
+        ))}
+      </CardSorting>
+    );
+  }
+
+  test("the handle's accessible name comes from messages.handleLabel", () => {
+    mount(<Localised messages={SLOVAK} />);
+    expect(handles()[0]!.getAttribute("aria-label")).toBe("Presunúť Brand guidelines, 1. z 4");
+    expect(handles()[3]!.getAttribute("aria-label")).toBe("Presunúť Dokument test, 4. z 4");
+  });
+
+  test("lifted, moved, dropped and cancelled all come from messages", async () => {
+    mount(<Localised messages={SLOVAK} />);
+    handles()[0]!.focus();
+    await userEvent.keyboard(" ");
+    expect(announcer().textContent).toBe("Brand guidelines zdvihnuté, 1. z 4, Značka.");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(announcer().textContent).toBe("Brand guidelines presunuté, 2. z 4, Značka.");
+    await userEvent.keyboard(" ");
+    expect(announcer().textContent).toBe("Brand guidelines položené, 2. z 4, Značka.");
+
+    // Cancelled reports where the row went BACK to, not where it was held.
+    await userEvent.keyboard(" ");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard("{Escape}");
+    expect(announcer().textContent).toBe("Zrušené, Brand guidelines späť na 2. mieste, Značka.");
+  });
+
+  test("a pointer cancel speaks messages.cancelled too", async () => {
+    mount(<Localised messages={SLOVAK} />);
+    const third = rows()[2]!.getBoundingClientRect();
+    const p = pointer(handles()[0]!);
+    await p.down();
+    await p.move(third.top + third.height * 0.75);
+    await p.cancel(third.top + third.height * 0.75);
+    expect(announcer().textContent).toBe("Zrušené, Brand guidelines späť na 1. mieste, Značka.");
+  });
+
+  test("a message left out keeps its English default", async () => {
+    mount(<Localised messages={{ lifted: SLOVAK.lifted }} />);
+    expect(handles()[0]!.getAttribute("aria-label")).toBe("Reorder Brand guidelines, position 1 of 4");
+    handles()[0]!.focus();
+    await userEvent.keyboard(" ");
+    expect(announcer().textContent).toBe("Brand guidelines zdvihnuté, 1. z 4, Značka.");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(announcer().textContent).toBe("Brand guidelines, moved, position 2 of 4, in Značka.");
+  });
+});
+
+describe("CardSorting.Handle places the grip where the design puts it (#19)", () => {
+  const SWATCHES = [
+    ["ink", "Ink"],
+    ["paper", "Paper"],
+    ["accent", "Accent"],
+  ] as const;
+
+  /** The portal's specimen block: a tile with the grip in its top-right corner. */
+  function Specimens(props: { onOrderChange?: (order: string[]) => void } = {}) {
+    return (
+      <CardSorting label="Colours" {...props}>
+        {SWATCHES.map(([id, label]) => (
+          <CardSorting.Item key={id} id={id} label={label}>
+            <div data-testid="tile" className="relative h-24 w-60 rounded-md bg-sunken">
+              <CardSorting.Handle className="absolute top-xs right-xs" />
+            </div>
+            <span>{label}</span>
+          </CardSorting.Item>
+        ))}
+      </CardSorting>
+    );
+  }
+
+  /** A Handle rendered by a component of the caller's — invisible to a JSX scan. */
+  function Tile() {
+    return (
+      <div className="relative h-24 w-60 rounded-md bg-sunken">
+        <CardSorting.Handle className="absolute top-xs right-xs" />
+      </div>
+    );
+  }
+
+  test("one grip per row, inside the tile, in its top-right corner", () => {
+    mount(<Specimens />);
+    expect(handles()).toHaveLength(3);
+    const tiles = Array.from(document.querySelectorAll<HTMLElement>('[data-testid="tile"]'));
+    tiles.forEach((tile, i) => {
+      const handle = handles()[i]!;
+      expect(tile.contains(handle)).toBe(true);
+      const t = tile.getBoundingClientRect();
+      const h = handle.getBoundingClientRect();
+      // The corner, not the leading edge: flush with the tile's top and end
+      // insets, nowhere near its start.
+      expect(Math.round(t.right - h.right)).toBe(Math.round(h.top - t.top));
+      expect(h.left).toBeGreaterThan(t.left + t.width / 2);
+    });
+    // No lane of its own: the row's first child is the content, not a grip.
+    for (const row of rows()) expect(row.firstElementChild!.getAttribute("data-slot")).toBe("card-sorting-content");
+  });
+
+  test("a row with a placed Handle keeps the card's full inset on both sides", () => {
+    mount(<Specimens />);
+    const style = getComputedStyle(rows()[0]!);
+    expect(style.paddingLeft).toBe(style.paddingRight);
+  });
+
+  test("the placed Handle is labelled, and names the row", () => {
+    mount(<Specimens />);
+    const h = handles()[1]!;
+    expect(h.tagName).toBe("BUTTON");
+    expect(h.getAttribute("aria-label")).toBe("Reorder Paper, position 2 of 3");
+    expect(rows()[1]!.getAttribute("aria-labelledby")).toBe(h.id);
+    expect(h.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  test("a caller's aria-label cannot replace the handle's name", () => {
+    // Omitted from the props, but TypeScript never checks a hyphenated JSX
+    // attribute — so the contract has to hold at runtime, and it does.
+    const props = { "aria-label": "Drag" } as Record<string, string>;
+    mount(
+      <CardSorting label="Colours">
+        <CardSorting.Item id="ink" label="Ink"><CardSorting.Handle {...props} /></CardSorting.Item>
+      </CardSorting>,
+    );
+    expect(handles()[0]!.getAttribute("aria-label")).toBe("Reorder Ink, position 1 of 1");
+  });
+
+  test("the placed Handle keyboard-lifts, moves and drops", async () => {
+    const onOrderChange = vi.fn();
+    mount(<Specimens onOrderChange={onOrderChange} />);
+    handles()[0]!.focus();
+    await userEvent.keyboard(" ");
+    expect(handles()[0]!.getAttribute("aria-pressed")).toBe("true");
+    expect(announcer().textContent).toBe("Ink, lifted, position 1 of 3, in Colours.");
+    await userEvent.keyboard("{ArrowDown}");
+    await userEvent.keyboard(" ");
+    expect(labels()).toEqual(["Paper", "Ink", "Accent"]);
+    expect(onOrderChange).toHaveBeenLastCalledWith(["paper", "ink", "accent"]);
+  });
+
+  test("the placed Handle drags", async () => {
+    mount(<Specimens />);
+    const last = rows()[2]!.getBoundingClientRect();
+    await dragTo(handles()[0]!, last.bottom + 40);
+    expect(labels()).toEqual(["Paper", "Accent", "Ink"]);
+  });
+
+  test("a Handle rendered inside the caller's own component still replaces the default grip", () => {
+    mount(
+      <CardSorting label="Colours">
+        {SWATCHES.map(([id, label]) => (
+          <CardSorting.Item key={id} id={id} label={label}>
+            <Tile />
+            <span>{label}</span>
+          </CardSorting.Item>
+        ))}
+      </CardSorting>,
+    );
+    // Found by registration, not by reading the JSX: still exactly one grip.
+    expect(handles()).toHaveLength(3);
+    for (const row of rows()) expect(row.firstElementChild!.getAttribute("data-slot")).toBe("card-sorting-content");
+  });
+
+  test("an Item with no Handle keeps the leading grip", () => {
+    mount(<List />);
+    // Back-compat: every existing list renders exactly as it did.
+    for (const row of rows()) expect(row.firstElementChild!.getAttribute("data-slot")).toBe("card-sorting-handle");
   });
 });

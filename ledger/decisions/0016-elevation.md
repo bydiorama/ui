@@ -1,6 +1,6 @@
 # 0016 — Elevation is a role scale, cast dark in both schemes
 
-**Status:** accepted · 2026-08-10
+**Status:** accepted · 2026-08-10 · amended 2026-10-05 (Modal takes md, #23)
 
 Supersedes the note in `resolve.ts` that read "the larger steps are engineering
 defaults extrapolated from it plus the draft modal's overlay geometry, **pending
@@ -103,3 +103,15 @@ digit would have read as deliberate.
   `Inspector (shadow-lg)`. That name is the only record the implementer gets,
   which is why a name claiming a token it does not use is a defect rather than
   untidiness.
+
+## Amendment — 2026-10-05: Modal takes md (#23)
+
+The table in point 1 lists Modal under `--ui-shadow-sm`. It now takes
+`--ui-shadow-md`, with a `border-subtle` hairline and `radius-xl`: the owner
+redrew the confirm dialog as Card's surface, so a dialog raised over cards
+reads as the same object as them. The md row's job ("a panel attached to the
+thing that opened it") does not describe a centred dialog, and that is a known
+stretch rather than a reclassification: the reason is parity with Card, not
+attachment. Sheet had already left the sm row on 2026-08-25 (`sheet.doc.ts`)
+without the table being updated; it takes md too. In `registry/` today the sm
+row ships on the Switch thumb, Slider thumb, Calendar and Tooltip.

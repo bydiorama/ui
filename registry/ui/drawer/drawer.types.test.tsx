@@ -1,5 +1,7 @@
 /** Compile-time contract tests. `tsc --noEmit` is the runner. */
-import { Drawer } from "./drawer.tsx";
+import { createRef } from "react";
+
+import { Drawer, type DrawerFocusTarget } from "./drawer.tsx";
 
 export function Valid() {
   return (
@@ -80,4 +82,30 @@ export function DetentMisuse() {
   const c = <Drawer.Panel label="x" snapPoints={["half", "full"]} />;
 
   return [a, b, c];
+}
+
+const saveRef = createRef<HTMLButtonElement>();
+const drawerTarget: DrawerFocusTarget = saveRef;
+
+export function FocusTargets() {
+  void drawerTarget;
+  return (
+    <Drawer>
+      <Drawer.Trigger>Open</Drawer.Trigger>
+      <Drawer.Panel label="Profile" initialFocus={saveRef} finalFocus={() => document.getElementById("next")}>
+        <Drawer.Footer>
+          <button ref={saveRef} type="button">Save</button>
+        </Drawer.Footer>
+      </Drawer.Panel>
+    </Drawer>
+  );
+}
+
+export function FocusTargetMisuse() {
+  /* Not Base UI's boolean form: `false` would leave focus behind the scrim. */
+  /* @ts-expect-error initialFocus takes a ref or a function, never a boolean */
+  const a = <Drawer.Panel label="x" initialFocus={false} />;
+  /* @ts-expect-error finalFocus does not take a selector */
+  const b = <Drawer.Panel label="x" finalFocus="#next" />;
+  return [a, b];
 }

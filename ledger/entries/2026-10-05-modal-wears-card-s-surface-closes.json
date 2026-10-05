@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-modal-wears-card-s-surface-closes",
+  "date": "2026-10-05",
+  "item": "modal",
+  "kind": "visual",
+  "summary": "Modal wears Card's surface, adopting the owner's redraw of the confirm dialog (portal Brand Profile › Members, 'Remove member'). Closes #23. Surface: rounded-lg (16px) becomes rounded-xl (24px), it gains Card's 1px border-subtle hairline (`border border-edge-subtle`, ADR 0010), and shadow-sm becomes Card's shadow-md (ADR 0016, amended). Title: text-title-lg becomes text-title-sm — the role's own weight is the 600 the drawing asks for, so no type-role exception is declared — inset by Card's unboxed px-sm. The description takes the same px-sm so title and description keep one left edge (CONVENTIONS §6 for bare text inside a large radius); the drawing did not say, and that alignment is this change's call. Gap (gap-2xl), padding (p-lg) and the bg-surface ground are unchanged. Why: a dialog raised over cards now reads as the same object as them, and title-lg was the loudest thing on screen for a one-line question in a 416px dialog. The browser test asserts the RELATIONSHIP to a rendered Card — radius, all four border sides, the whole box-shadow list, and the title's size, weight, leading, tracking and text inset — so the two cannot drift; it failed on all three points against the old classes. Not adopted: the drawing's py-xs on the title, because Card.Header has none and matching Card literally was the brief. --ui-text-title-lg lost its last component consumer and is now listed in check:token-consumers as a page-heading role. Visual baselines that change: modal (light and dark, darwin and linux), not regenerated here.",
+  "affects": [
+    "component:modal",
+    "slot:modal-surface",
+    "slot:modal-title",
+    "slot:modal-description",
+    "decision:0016-elevation"
+  ],
+  "migration": {
+    "manual": "If you applied the portal's temporary rule on [data-slot=\"modal-surface\"] and [data-slot=\"modal-title\"]:not(.sr-only), delete it: the component ships those values now, and the override would fight the description's new px-sm inset. A Modal.Title you styled larger on purpose keeps working through className, but it now diverges from Card's header type by design."
+  }
+}

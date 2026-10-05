@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ArrowLeft, Close, Menu } from "griddy-icons";
+import { ArrowLeft, ArrowRight, Close, Menu } from "griddy-icons";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
@@ -194,6 +194,40 @@ export const States: Story = {
       </Sheet>
     </div>
   ),
+};
+
+/**
+ * A record panel whose band carries Previous and Next BEFORE Close. Left to
+ * the default, focus lands on Previous — the first tabbable element — and
+ * one Enter pages away from the record just opened. `initialFocus` hands it to
+ * Close instead; `finalFocus` sends it to the table's next row on close.
+ */
+export const FocusTargets: Story = {
+  render: function FocusTargetsStory() {
+    const closeRef = useRef<HTMLButtonElement>(null);
+    const afterRef = useRef<HTMLButtonElement>(null);
+    return (
+      <div className="flex gap-lg">
+        <Sheet>
+          <Sheet.Trigger render={<Button variant="secondary">Open record</Button>} />
+          <Sheet.Panel label="Josef Müller-Brockmann" side="right" size="lg" initialFocus={closeRef} finalFocus={afterRef}>
+            <Sheet.Header>
+              <div className="flex gap-xs">
+                <Button variant="ghost" size="sm" isIconOnly aria-label="Previous record" icon={<ArrowLeft />} />
+                <Button variant="ghost" size="sm" isIconOnly aria-label="Next record" icon={<ArrowRight />} />
+              </div>
+              <Sheet.Close render={<Button ref={closeRef} variant="ghost" size="sm" isIconOnly aria-label="Close" icon={<Close />} />} />
+            </Sheet.Header>
+            <Sheet.Body>
+              <Sheet.Title>Josef Müller-Brockmann</Sheet.Title>
+              <Input label="Discipline" defaultValue="Grid systems" />
+            </Sheet.Body>
+          </Sheet.Panel>
+        </Sheet>
+        <Button ref={afterRef} variant="secondary">Focus returns here</Button>
+      </div>
+    );
+  },
 };
 
 const STRESS_BRAND: ThemeSeed = {

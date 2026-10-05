@@ -1,7 +1,13 @@
 /** Compile-time contract tests. `tsc --noEmit` is the runner. */
-import { Sheet } from "./sheet.tsx";
+import { createRef } from "react";
+
+import { Sheet, type SheetFocusTarget } from "./sheet.tsx";
+
+const closeRef = createRef<HTMLButtonElement>();
+const target: SheetFocusTarget = closeRef;
 
 export function Valid() {
+  void target;
   return (
     <>
       <Sheet>
@@ -30,6 +36,11 @@ export function Valid() {
       </Sheet>
       <Sheet>
         <Sheet.Panel label="Record" size="lg">Content</Sheet.Panel>
+      </Sheet>
+      <Sheet>
+        <Sheet.Panel label="Record" initialFocus={closeRef} finalFocus={() => document.getElementById("row-3")}>
+          <button ref={closeRef} type="button">Close</button>
+        </Sheet.Panel>
       </Sheet>
     </>
   );
@@ -64,5 +75,13 @@ export function Invalid() {
   /* @ts-expect-error size does not take a length */
   const g = <Sheet><Sheet.Panel label="N" size={416}>Content</Sheet.Panel></Sheet>;
 
-  return [a, b, c, d, e, f, g];
+  {/* Not Base UI's boolean form: `false` would leave focus behind the scrim. */}
+  /* @ts-expect-error initialFocus takes a ref or a function, never a boolean */
+  const h = <Sheet><Sheet.Panel label="N" initialFocus={false}>Content</Sheet.Panel></Sheet>;
+
+  {/* A selector string is not a target; the element has to be found by the caller. */}
+  /* @ts-expect-error finalFocus does not take a selector */
+  const i = <Sheet><Sheet.Panel label="N" finalFocus="#row-3">Content</Sheet.Panel></Sheet>;
+
+  return [a, b, c, d, e, f, g, h, i];
 }

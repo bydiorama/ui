@@ -9,6 +9,7 @@ build/
 storybook-static/
 .next/
 coverage/
+design/
 
 # Design exports from Paper. Renders, not sources: the Paper file is the
 # source of truth and these PDFs are stale the moment a sheet moves. They are

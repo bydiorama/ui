@@ -13,11 +13,12 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { ROOT } from "./lib/manifest.mjs";
-import { readSkills, installName, SKILL_INSTALL_DIR } from "./lib/skills.mjs";
+import { readSkills, installName, skillReferences, SKILL_INSTALL_DIR, SKILL_SOURCE_DIR } from "./lib/skills.mjs";
 
 const README = `# Generated — do not edit
 
-Every file here is copied from \`registry/skills/<dir>/SKILL.md\` by
+Every file here is copied from \`registry/skills/<dir>/\` (SKILL.md and any
+reference files beside it) by
 \`pnpm skills:build\`. Edit the source, not this copy; \`pnpm check:skills\`
 fails if the two drift.
 
@@ -34,6 +35,10 @@ const expected = new Map([[join(SKILL_INSTALL_DIR, "README.md"), README]]);
 for (const skill of skills) {
   if (!skill.source) continue;
   expected.set(join(SKILL_INSTALL_DIR, installName(skill), "SKILL.md"), skill.source);
+  // Reference files travel with their skill, byte for byte (Buffers, so binaries survive).
+  for (const rel of skillReferences(skill)) {
+    expected.set(join(SKILL_INSTALL_DIR, installName(skill), rel), readFileSync(join(SKILL_SOURCE_DIR, skill.dir, rel)));
+  }
 }
 
 /** Everything currently in .claude/skills, so removals are caught too. */
@@ -55,7 +60,7 @@ if (check) {
   const stale = [];
   for (const [path, contents] of expected) {
     if (!existsSync(path)) stale.push(`${relative(ROOT, path)} (missing)`);
-    else if (readFileSync(path, "utf8") !== contents) stale.push(`${relative(ROOT, path)} (differs from source)`);
+    else if (!readFileSync(path).equals(Buffer.from(contents))) stale.push(`${relative(ROOT, path)} (differs from source)`);
   }
   for (const path of actualFiles()) {
     if (!expected.has(path)) stale.push(`${relative(ROOT, path)} (not generated from any skill)`);

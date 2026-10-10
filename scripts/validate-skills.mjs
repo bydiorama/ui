@@ -8,7 +8,7 @@
 // mode is silence, not an error.
 
 import { existsSync } from "node:fs";
-import { readSkills, installName, DISTRIBUTED_PREFIX } from "./lib/skills.mjs";
+import { readSkills, installName, DISTRIBUTED_PREFIX, skillReferences } from "./lib/skills.mjs";
 import { readManifest, ROOT } from "./lib/manifest.mjs";
 import { join } from "node:path";
 
@@ -87,6 +87,10 @@ for (const skill of skills) {
     }
     if (skill.item.files?.length !== 1) {
       errors.push(`${where}: a distributed skill ships exactly one SKILL.md`);
+    }
+    const refs = skillReferences(skill);
+    if (refs.length) {
+      errors.push(`${where}: a distributed skill ships exactly one SKILL.md, but its directory also has ${refs.join(", ")} — reference files are for authoring skills only`);
     }
   }
 }

@@ -67,6 +67,25 @@ export function readSkills() {
 }
 
 /**
+ * Every file in a skill's directory other than SKILL.md, relative to it —
+ * reference scripts and pages an authoring skill points at. Distributed skills
+ * may not have any (they ship exactly one file; `check:skills` enforces it).
+ */
+export function skillReferences(skill) {
+  const root = join(SKILL_SOURCE_DIR, skill.dir), out = [];
+  const walk = (dir, rel) => {
+    for (const name of readdirSync(dir).sort()) {
+      if (name === ".DS_Store") continue;
+      const full = join(dir, name), r = rel ? `${rel}/${name}` : name;
+      if (statSync(full).isDirectory()) walk(full, r);
+      else if (r !== "SKILL.md") out.push(r);
+    }
+  };
+  walk(root, "");
+  return out;
+}
+
+/**
  * Where a skill lands in `.claude/skills/`. Distributed skills use their
  * namespaced front-matter name — the SAME directory a consumer installs into,
  * so this repo dogfoods the exact path it publishes.

@@ -1,6 +1,7 @@
 # Generated — do not edit
 
-Every file here is copied from `registry/skills/<dir>/SKILL.md` by
+Every file here is copied from `registry/skills/<dir>/` (SKILL.md and any
+reference files beside it) by
 `pnpm skills:build`. Edit the source, not this copy; `pnpm check:skills`
 fails if the two drift.
 

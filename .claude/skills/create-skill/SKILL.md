@@ -109,3 +109,4 @@ phrasings someone would actually type when they need it.
 | A description that describes | It must *trigger*. "Use when …" is the load-bearing half |
 | Copying a rule out of `CONVENTIONS.md` | Two copies drift; the skill loses and the reader believes it |
 | A skill nobody can run | Distributed skills ship exactly one `SKILL.md`, to `.claude/skills/<namespaced-name>/` |
+| Pointing a skill at files elsewhere in the repo | Folders get moved or ignored (`design/` left the repo and took the references with it). An authoring skill keeps its reference scripts and pages BESIDE its `SKILL.md` (`scripts/`, `reference/`); `skills:build` copies them byte for byte. Distributed skills may not have any — `check:skills` fails |

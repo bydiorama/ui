@@ -9,12 +9,12 @@ export const menuDoc = {
   anatomy: [
     { part: "trigger", slot: "menu-trigger", notes: "A render slot. Pass a Button; it keeps its own type, ref and accessible name and gains only the ARIA wiring." },
     { part: "panel", slot: "menu-panel", notes: "role=menu. radius-md over a 4px inset around radius-sm rows — 4 + 4 = 8, concentric (§6). Capped to --available-height/width, so it shrinks rather than running off a short window." },
-    { part: "item", slot: "menu-item", notes: "role=menuitem. p-md, radius-sm, 16px/600 in primary ink — identical IN ROLE to a Select option, because two panels on one page should be one panel. Carries data-highlighted from the behaviour layer, which is what the arrow keys move." },
+    { part: "item", slot: "menu-item", notes: "role=menuitem. p-md, radius-sm, text-body-md in primary ink — Select's option role, matched BY ROLE so the size, weight and leading cannot drift apart: two panels on one page should be one panel. Carries data-highlighted from the behaviour layer, which is what the arrow keys move." },
     { part: "item label", slot: "menu-item-label", notes: "Truncates. The icon and trailing slots sit outside it, so a long label never pushes them out of the row." },
     { part: "separator", slot: "menu-separator", notes: "role=separator. SPACE, not a rule — 8px above and below, and nothing painted. Announced either way, which is the half that matters." },
     { part: "group", slot: "menu-group", notes: "role=group, named by its label so a screen reader announces the grouping the eye gets from the spacing." },
     { part: "group label", slot: "menu-group-label", notes: "A heading, never interactive. label-sm in muted ink." },
-    { part: "sub trigger", slot: "menu-sub-trigger", notes: "A row that opens a nested panel beside itself. Chevron RIGHT — see needsDesign." },
+    { part: "sub trigger", slot: "menu-sub-trigger", notes: "A row that opens a nested panel beside itself, drawn from the same row recipe as menu-item. Chevron RIGHT — see needsDesign." },
   ],
 
   composition: `
@@ -43,6 +43,7 @@ Menu                       isOpen? / defaultIsOpen? / onOpenChange? / isModal?
     "Item.trailing": { type: "ReactElement", notes: "A shortcut hint, a check, a count." },
     "Item.render": { type: "ReactElement", notes: "Renders the row as something else — an <a> for a link. Note that the row's own data-slot loses to the rendered element's, which is true of every render slot here." },
     "Item.isDisabled": { type: "boolean", default: "false", notes: "Sets aria-disabled and refuses activation by pointer and by Enter, but stays REACHABLE by the arrow keys so it can be announced. This doc originally claimed the arrows skipped it; the browser test disagreed, and the behaviour layer was right." },
+    "Item.className": { type: "string", notes: "Merged through cn() TOGETHER with the row's own classes, so a conflicting utility REPLACES the base one rather than racing it in the stylesheet — `className=\"text-caption\"` removes `text-body-md` from the row's class list. Same on SubTrigger, Panel and Separator." },
     "Group.label": { type: "string", notes: "Names the group AND draws its heading. Without it the grouping is visual only." },
   },
 
@@ -89,6 +90,7 @@ Menu                       isOpen? / defaultIsOpen? / onOpenChange? / isModal?
   needsDesign: [
     "The sheet draws a chevron-DOWN on 'Admin Settings' and 'Team Settings', and the second variant shows a second level expanded INLINE beneath its parent, in the same panel, in muted nav ink. That is a disclosure, not a submenu. Shipped as a Base UI submenu with a chevron-RIGHT, because an inline disclosure inside role=menu breaks the roving-focus model that makes a menu a menu — and because the Sidebar already ships exactly the inline pattern, with the same layer names the sheet uses here ('Primary Level 1 Item', 'Second Level 2 Item'). If the drawing is the intent, this surface is a Sidebar inside a Popover and not a Menu at all. This is the one question worth answering first.",
     "The sheet paints the panel --ui-bg-surface and its rows --ui-nav-ink, which mixes two role families: the nav inks are derived against --ui-nav-bg, the rail they belong to. Declaring --ui-nav-ink-muted on --ui-bg-surface made the resolver's own audit fail at 1.03:1 in dark for the saturated-accent seed, because no single ink can serve two surfaces a brand has pulled that far apart. Shipped with --ui-text-primary on --ui-bg-surface and --ui-bg-hover for the highlight, which is what Select's list already uses. The artboard's layer names say where the mix came from — the rows are Sidebar frames, copied.",
+    "The sheet draws rows at 16px/600. Shipped at text-body-md, Select's option role, after a design review of a members table — a role Select and a row Menu on every line — found the menu a size above the dropdowns beside it, in what is the same kind of popup (#22). The sheet wants redrawing at body-md so the two drawings agree.",
     "The panel's inset is drawn at 8px, which does not close §6's arithmetic — 4 + 8 wants a 12px outer radius and the scale has no 12px step. Shipped at 4px, exactly as Select's panel resolved the identical problem.",
     "No disabled row is drawn; its ink is derived from --ui-nav-ink-disabled.",
     "No icons are drawn on any row, though the slot exists.",

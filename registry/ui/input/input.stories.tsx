@@ -10,6 +10,9 @@ import {
   type ThemeSeed,
 } from "@bydiorama/tokens";
 
+import { ArrowRight, Search } from "griddy-icons";
+
+import { Button } from "@/ui/button/button.tsx";
 import { Input } from "./input.tsx";
 
 const meta = {
@@ -38,6 +41,68 @@ export const Matrix: Story = {
       {(["lg", "md", "sm"] as const).map((size) => (
         <Row key={size} label={size}>
           <Input label="Task title" size={size} placeholder="Task title" />
+        </Row>
+      ))}
+    </div>
+  ),
+};
+
+/** Both shapes at every size, side by side — a shape nobody sees together is
+ *  a shape nobody checks. */
+export const Shapes: Story = {
+  render: () => (
+    <div>
+      {(["lg", "md", "sm"] as const).map((size) => (
+        <Row key={size} label={size}>
+          <div className="flex flex-col gap-md">
+            <Input label={`Soft · ${size}`} isLabelHidden size={size} placeholder="soft" />
+            <Input label={`Full · ${size}`} isLabelHidden size={size} shape="full" placeholder="full" />
+          </div>
+        </Row>
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * The pill search field (#18): `shape="full"` with a leading glyph and a
+ * ROUND submit in `iconEnd`. The submit is an icon-only `Button
+ * shape="full"`, one size under the field (lg field + md Button, md + sm,
+ * sm + sm) — the pairing the field's end padding is concentric for, so the
+ * circle sits the same distance from the capsule's edge on every side.
+ */
+export const PillSearch: Story = {
+  render: () => (
+    <div>
+      {([
+        ["lg", "md"],
+        ["md", "sm"],
+        ["sm", "sm"],
+      ] as const).map(([size, buttonSize]) => (
+        <Row key={size} label={`${size} field · ${buttonSize} button`}>
+          <form onSubmit={(event) => event.preventDefault()}>
+            <Input
+              label="Search the brand"
+              isLabelHidden
+              type="search"
+              size={size}
+              shape="full"
+              placeholder="Search the brand…"
+              icon={<Search aria-hidden="true" className="text-ink-muted" />}
+              iconEnd={
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size={buttonSize}
+                  shape="full"
+                  isIconOnly
+                  aria-label="Search"
+                  icon={<ArrowRight aria-hidden="true" />}
+                  onClick={fn()}
+                />
+              }
+            />
+          </form>
         </Row>
       ))}
     </div>

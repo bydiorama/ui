@@ -440,7 +440,13 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     }
     return towardL(from, colors.textPrimary, 0.32);
   };
-  const field = dark ? shiftL(colors.surface, -0.06) : colors.bg;
+  // In dark the page field sits HALFWAY between `surface` and `elevated`
+  // (ADR 0017, amended 2026-10-05). It was `surface - 0.06`, under every
+  // ground in the scheme — 1.62:1 against a `bg-base` Sheet — so a form read
+  // as a column of holes cut through the panel. Halfway between the two
+  // panel steps it equals no ground a field can land on, and, as in light
+  // (where the white field IS the white page), the hairline draws its edge.
+  const field = dark ? towardL(colors.surface, elevated, 0.5) : colors.bg;
   const fieldDisabled = separateFrom(field, 1.12);
   const fieldChrome = separateFrom(elevated, 1.08);
   const fieldChromeDisabled = separateFrom(fieldChrome, 1.12);
@@ -695,9 +701,11 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-elevated": elevated,
     "--ui-bg-sunken": shiftL(colors.surface, dark ? -0.03 : -0.04),
     // A field is RECESSED from whatever contains it, and the surface scale
-    // inverts between schemes: in light that means the page's lightest value,
-    // in dark it means going further DOWN than any panel. Painting a field
-    // with `bg-base` made it identical to its container in dark.
+    // inverts between schemes: in light that means the page's lightest value.
+    // In dark it USED to mean going further down than any panel, which read
+    // as a hole; it now sits between `surface` and `elevated`, equal to no
+    // ground (see `field` above). Painting a field with `bg-base` made it
+    // identical to its container in dark, and that is still the thing to avoid.
     //
     // "Whatever contains it" was the unexamined half. This pair is derived
     // from the PAGE, so it only holds when the page is what contains the

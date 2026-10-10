@@ -20,7 +20,7 @@ export const sheetDoc = {
   composition: `
 Sheet                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissable?
 ├─ Sheet.Trigger          render={<Button isIconOnly aria-label="Open menu" icon={<Menu />} />}
-└─ Sheet.Panel            label (required) / side? / size? / container?
+└─ Sheet.Panel            label (required) / side? / size? / container? / initialFocus? / finalFocus?
    ├─ Sheet.Header        the 48px chrome band — chromeControls, never a Title
    │  └─ Sheet.Close      render={<Button isIconOnly aria-label="Close" icon={<Close />} />}
    ├─ Sheet.Body          the only region that scrolls
@@ -51,6 +51,14 @@ Sheet
       type: '"left" | "right"',
       default: '"left"',
       notes: "Which edge it slides from. Only the two INNER corners are rounded — a fully rounded panel leaves four slivers of scrim in the screen corners, which reads as a modal rather than a drawer.",
+    },
+    initialFocus: {
+      type: "RefObject<HTMLElement | null> | (() => HTMLElement | null)",
+      notes: "On Panel. Where focus lands when the panel opens. The default is the first tabbable element inside it, which in the record-panel composition is Previous, not Close, because the band carries Previous/Next first. Pass Close's ref to land there. A function is called at open time; returning null, or a ref that is still empty, keeps the default instead of dropping focus. Restated in our own type (SheetFocusTarget) rather than Base UI's, which also takes booleans and an interaction type: `false` would leave focus behind the scrim, and that is not a choice this component offers.",
+    },
+    finalFocus: {
+      type: "RefObject<HTMLElement | null> | (() => HTMLElement | null)",
+      notes: "On Panel. Where focus goes when the panel closes. The default is the trigger, or whatever was focused before the panel opened. Set it when that element will be gone, for example a row deleted from inside the panel, so focus lands somewhere real rather than on <body>. Same fallback rule as initialFocus.",
     },
     isOpen: { type: "boolean", notes: "Controlled. Omit and the sheet owns it." },
     defaultIsOpen: { type: "boolean", notes: "Uncontrolled starting state." },
@@ -95,7 +103,7 @@ Sheet
       { key: "Tab", does: "Cycles within the panel only; focus cannot reach the page behind." },
       { key: "Tab to Sheet.Body", does: "Reaches the scroll region — but ONLY while it actually scrolls, so a panel whose content fits has no silent tab stop in it. Arrow keys and Page Up/Down then scroll it (SC 2.1.1)." },
     ],
-    focus: "Focus moves into the panel on open and returns to the trigger on close. Both asserted in a real browser — focus falling to <body> is the classic hand-rolled-drawer failure.",
+    focus: "Focus moves into the panel on open and returns to the trigger on close. Both asserted in a real browser — focus falling to <body> is the classic hand-rolled-drawer failure. `initialFocus` and `finalFocus` on the Panel move either end deliberately; both are asserted too, against the default they replace.",
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "content on the panel" },
     ],

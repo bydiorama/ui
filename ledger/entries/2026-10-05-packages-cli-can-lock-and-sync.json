@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-packages-cli-can-lock-and-sync",
+  "date": "2026-10-05",
+  "item": "system",
+  "kind": "fix",
+  "summary": "packages/cli can now lock, sync and install skill items. Closes #12. resolveTargetPath() treated the first segment of every registry target as a components.json alias, so ui-craft's `.claude/skills/diorama-ui-craft/SKILL.md` looked up an alias called `.claude` and threw UnresolvableAliasError before the file was ever read. The one distributed skill was the one item type ui.lock.json could not track, and a hand-written lock entry did not help, because the next `lock` run hit the same throw. A target now has one of two shapes, read off the string and never off the item's `type`, so the next non-component type needs no special case. Alias-shaped (`ui/header.tsx`) resolves through aliases and the tsconfig @/* mapping exactly as before. Literal targets resolve from the consumer root as-is: the first segment starts with `.`, or the target starts with `~/`, shadcn's own project-root marker. UnresolvableAliasError survives on purpose and only fires for alias-shaped targets. Falling back to a literal path whenever the alias lookup misses would have turned a typo'd `iu/button.tsx` into a file silently written at the app root, so the error now says how to mark a path literal instead. Because a target is registry data, a `..` segment or an absolute path is refused in either shape (UnsafeTargetPathError), and `add` resolves every target in the install set before it writes anything, so a bad target aborts the install instead of leaving half of it on disk. font-aspekta had the same bug under a different name: `public/fonts/...` is alias-shaped and failed as `No alias \"public\"`. Its targets are now `~/public/fonts/aspekta/...`. That also fixes the shadcn CLI install for src-dir apps, which otherwise prefixes a plain registry:file target with `src/`.",
+  "affects": [
+    "package:cli",
+    "schema:ui.manifest",
+    "manifest",
+    "item:ui-craft",
+    "item:font-aspekta"
+  ],
+  "migration": {
+    "manual": "Nothing breaks: every alias-shaped target resolves exactly as before. To start tracking the skill, run `lock ui-craft --revision <sha>` (or `add ui-craft`), and it appears in `sync` like any component. font-aspekta's lock key is now `~/public/fonts/aspekta/...`. It could never be locked before, so no existing lockfile carries the old key, and its files land in the same place for a CLI install. A registry that adds a root-level target without a leading dot must write it as `~/path`, or the CLI reads its first segment as an alias."
+  }
+}

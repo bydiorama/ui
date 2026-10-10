@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
-import { act, useState } from "react";
+import { act, useRef, useState } from "react";
 import type { ReactElement } from "react";
 
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
@@ -156,6 +156,88 @@ describe("Sheet is a dialog, and Base UI provides the behaviour", () => {
   });
 });
 
+describe("Sheet.Panel chooses where focus lands, in its own terms (#28)", () => {
+  // The record-panel band: Previous and Next come BEFORE Close, so the
+  // default — the first tabbable element — lands on Previous.
+  function Record({ useFunctions = false }: { useFunctions?: boolean }) {
+    const closeRef = useRef<HTMLButtonElement>(null);
+    const afterRef = useRef<HTMLButtonElement>(null);
+    return (
+      <Sheet>
+        <Sheet.Trigger>Open record</Sheet.Trigger>
+        <button ref={afterRef} type="button">Next record in table</button>
+        <Sheet.Panel
+          label="Record"
+          initialFocus={useFunctions ? () => closeRef.current : closeRef}
+          finalFocus={useFunctions ? () => afterRef.current : afterRef}
+        >
+          <button type="button">Previous</button>
+          <button type="button">Next</button>
+          <Sheet.Close render={<button ref={closeRef} type="button">Close</button>} />
+        </Sheet.Panel>
+      </Sheet>
+    );
+  }
+
+  const button = (name: string) =>
+    Array.from(document.querySelectorAll<HTMLElement>("button")).find((b) => b.textContent === name)!;
+
+  for (const useFunctions of [false, true]) {
+    const form = useFunctions ? "a function" : "a ref";
+
+    test(`initialFocus as ${form} lands on Close, not on the first tabbable element`, async () => {
+      mount(<Record useFunctions={useFunctions} />);
+      await userEvent.click(trigger());
+      await settled(panel()!);
+      // Without the prop this is "Previous" — asserted below, so the test
+      // cannot pass on a default that happens to match.
+      await expect.poll(() => document.activeElement?.textContent).toBe("Close");
+    });
+
+    test(`finalFocus as ${form} receives focus on close, instead of the trigger`, async () => {
+      mount(<Record useFunctions={useFunctions} />);
+      await userEvent.click(trigger());
+      await settled(panel()!);
+      await userEvent.keyboard("{Escape}");
+      await expect.poll(() => document.activeElement).toBe(button("Next record in table"));
+      expect(document.activeElement).not.toBe(trigger());
+    });
+  }
+
+  test("without them, the defaults stand: first tabbable on open, trigger on close", async () => {
+    mount(
+      <Sheet>
+        <Sheet.Trigger>Open record</Sheet.Trigger>
+        <Sheet.Panel label="Record">
+          <button type="button">Previous</button>
+          <Sheet.Close>Close</Sheet.Close>
+        </Sheet.Panel>
+      </Sheet>,
+    );
+    await userEvent.click(trigger());
+    await settled(panel()!);
+    await expect.poll(() => document.activeElement?.textContent).toBe("Previous");
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => document.activeElement).toBe(trigger());
+  });
+
+  test("a function that finds nothing keeps the default instead of dropping focus", async () => {
+    mount(
+      <Sheet>
+        <Sheet.Trigger>Open record</Sheet.Trigger>
+        <Sheet.Panel label="Record" initialFocus={() => null} finalFocus={() => null}>
+          <button type="button">Previous</button>
+        </Sheet.Panel>
+      </Sheet>,
+    );
+    await userEvent.click(trigger());
+    await settled(panel()!);
+    await expect.poll(() => document.activeElement?.textContent).toBe("Previous");
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => document.activeElement).toBe(trigger());
+  });
+});
+
 describe("Sheet paints a drawer, not a dialog", () => {
   test("it is flush to its edge and as tall as the screen", async () => {
     mount(<Basic />);
@@ -216,7 +298,7 @@ describe("Sheet paints a drawer, not a dialog", () => {
     expect(w).toBeLessThanOrEqual(272);
   });
 
-  test("the panel carries --ui-shadow-md, not Modal's single-layer sm", async () => {
+  test("the panel carries --ui-shadow-md: two substantive layers, not sm's one", async () => {
     mount(<Basic />);
     await userEvent.click(trigger());
     const p = panel()!;

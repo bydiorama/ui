@@ -5,6 +5,7 @@ import { hashContent } from "./hash.ts";
 import { addItems, registryDependencyName, resolveInstallSet } from "./add.ts";
 import type { RegistryItem, RegistrySource } from "./registry-source.ts";
 import type { UiLock } from "./lockfile.ts";
+import { resolveTargetPath, UnsafeTargetPathError } from "./target-path.ts";
 
 const identity = (target: string) => target;
 const EMPTY_LOCK: UiLock = { registry: "", items: {} };
@@ -160,4 +161,34 @@ test("files are written through the target resolver, not at the raw target", asy
   const written: Record<string, string> = {};
   await addItems(["cn"], registry, EMPTY_LOCK, fakeReader({}), fakeWriter(written), (t) => `src/app/${t}`);
   assert.deepEqual(Object.keys(written), ["src/app/lib/cn.ts"]);
+});
+
+test("installs a skill at its literal target, and a target escaping the root aborts before ANY write (#12)", async () => {
+  const aliases = { ui: "@/components/ui", lib: "@/lib" };
+  const resolve = (target: string) => resolveTargetPath(target, aliases, "src");
+
+  const written: Record<string, string> = {};
+  const skillTarget = ".claude/skills/diorama-ui-craft/SKILL.md";
+  await addItems(
+    ["ui-craft"],
+    fakeRegistry({ "ui-craft": { files: [{ target: skillTarget, content: "# rules" }] } }),
+    EMPTY_LOCK, fakeReader({}), fakeWriter(written), resolve,
+  );
+  assert.deepEqual(written, { [skillTarget]: "# rules" });
+
+  // cn installs first (dependency order), so a resolver that throws mid-loop
+  // would have left cn on disk and the rest absent.
+  const partial: Record<string, string> = {};
+  await assert.rejects(
+    addItems(
+      ["evil"],
+      fakeRegistry({
+        cn: { files: [{ target: "lib/cn.ts", content: "cn" }] },
+        evil: { files: [{ target: "../../outside.sh", content: "x" }], registryDependencies: ["@bydiorama/cn"] },
+      }),
+      EMPTY_LOCK, fakeReader({}), fakeWriter(partial), resolve,
+    ),
+    UnsafeTargetPathError,
+  );
+  assert.deepEqual(partial, {});
 });

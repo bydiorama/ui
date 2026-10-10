@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-menu-rows-set-in-select-s",
+  "date": "2026-10-05",
+  "item": "menu-surface",
+  "kind": "visual",
+  "summary": "Menu and ContextMenu rows are set in text-body-md, Select's option role, instead of text-body-lg. Closes #22. A design review of a members table, with a role Select and a row Menu on every line, found the menu a size above the dropdown beside it: 16px/500 against 14px/400, in what is the same kind of popup, list and gesture. Matched by ROLE rather than by copying numbers, because since ADR 0020 a role carries its own weight and leading, so naming Select's role is what keeps the two from drifting. Menu.Item, Menu.SubTrigger and every ContextMenu row change together, since they are one recipe. Separately, the consumer className is now merged INSIDE the recipe, through the same cn() as the base classes. The call sites used to run `menuItem(cn(className))`, which merged the caller's classes only with each other and then appended them, so `className=\"text-body-md\"` worked only because Tailwind happened to emit it after `.text-body-lg`. The stylesheet order decided, which is the failure cn() exists to prevent. All four recipes (panel, row, separator, group label) now merge, so a conflicting utility replaces the base one in the rendered class list. The browser test compares a Menu row and sub trigger to a real Select option on size, weight, leading, tracking and family, and asserts the class list holds exactly one type role after `className=\"text-caption\"`. Both fail against the old recipe.",
+  "affects": [
+    "item:menu",
+    "item:context-menu",
+    "item:menu-surface",
+    "lib:menu-surface",
+    "slot:menu-item",
+    "slot:menu-sub-trigger",
+    "prop:className",
+    "manifest"
+  ],
+  "migration": {
+    "manual": "Remove any local override that shrank menu rows (for example an unlayered rule on [data-slot=\"menu-item\"] / [data-slot=\"menu-sub-trigger\"]); the rows now render at body-md on their own. A caller who wants the old 16px row passes className=\"text-body-lg\", which now actually replaces the base role. Local copies of lib/menu-surface.ts need lib/cn.ts beside them; the manifest now declares that dependency."
+  }
+}

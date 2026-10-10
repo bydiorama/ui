@@ -16,6 +16,31 @@ export function Valid() {
         <CardSorting.Item id="a" label="Brand guidelines">Content</CardSorting.Item>
         <CardSorting.Item id="b" label="Business cards">Content</CardSorting.Item>
       </CardSorting>
+      {/* #20: every phrase is a function of the row, its position and the list. */}
+      <CardSorting
+        label="Značka"
+        messages={{
+          handleLabel: ({ label, position, total }) => `Presunúť ${label}, ${position}. z ${total}`,
+          lifted: ({ label }) => `${label} zdvihnuté`,
+          moved: ({ label, position }) => `${label}, ${position}.`,
+          dropped: ({ label }) => `${label} položené`,
+          cancelled: ({ listLabel }) => `Zrušené, ${listLabel}`,
+        }}
+      >
+        <CardSorting.Item id="a" label="A">Content</CardSorting.Item>
+      </CardSorting>
+      {/* Any subset; the rest stay English. */}
+      <CardSorting label="L" messages={{ cancelled: () => "Abgebrochen." }}>
+        <CardSorting.Item id="a" label="A">Content</CardSorting.Item>
+      </CardSorting>
+      {/* #19: a placed grip, positioned by the caller. */}
+      <CardSorting label="Colours">
+        <CardSorting.Item id="ink" label="Ink">
+          <div className="relative">
+            <CardSorting.Handle className="absolute top-xs right-xs" onPointerDown={() => {}} />
+          </div>
+        </CardSorting.Item>
+      </CardSorting>
     </>
   );
 }
@@ -43,5 +68,23 @@ export function Invalid() {
   /* @ts-expect-error order is string[], not number[] */
   const e = <CardSorting label="L" order={[0, 1]}><CardSorting.Item id="a" label="A">x</CardSorting.Item></CardSorting>;
 
-  return [a, b, c, d, e];
+  {/* A message takes the position and count; a fixed string cannot place them. */}
+  /* @ts-expect-error a message is a function, not a string */
+  const f = <CardSorting label="L" messages={{ lifted: "zdvihnuté" }}><CardSorting.Item id="a" label="A">x</CardSorting.Item></CardSorting>;
+
+  {/* There is no sixth phrase to translate; a typo must not pass silently. */}
+  /* @ts-expect-error unknown message key */
+  const g = <CardSorting label="L" messages={{ grabbed: () => "x" }}><CardSorting.Item id="a" label="A">x</CardSorting.Item></CardSorting>;
+
+  {/* NOT tested here: `aria-label` on a Handle. It is omitted from the props,
+      but TypeScript never excess-checks a HYPHENATED JSX attribute, so the
+      directive would report as unused. The contract holds at runtime instead —
+      the handle's own name is written after the spread — and the browser test
+      asserts it. */}
+
+  {/* It is the drag target; nothing nests inside it. */}
+  /* @ts-expect-error a handle takes no children */
+  const i = <CardSorting.Handle>Drag</CardSorting.Handle>;
+
+  return [a, b, c, d, e, f, g, i];
 }

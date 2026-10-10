@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type FixedToken } from "./contract.ts";
+import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type BrandableToken, type FixedToken } from "./contract.ts";
 import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES } from "./base.ts";
 import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
@@ -759,6 +759,37 @@ test("each field pair separates on its OWN ground, in both schemes", () => {
       const well = contrastRatio(t["--ui-bg-field-chrome"]!, t["--ui-bg-elevated"]!);
       assert.ok(well >= 1.06, `${name} ${scheme}: the chrome field is not a well (${well.toFixed(3)} against the panel)`);
     }
+  }
+});
+
+/**
+ * A DARK PAGE FIELD IS AN INPUT ON THE PANEL, NOT A HOLE THROUGH IT (ADR 0017,
+ * amended 2026-10-05; closes #24).
+ *
+ * The field was derived as `surface - 0.06` and theme zero pinned it to
+ * neutral-0 — the darkest ground in the scheme, 1.62:1 under a `bg-base`
+ * Sheet. Every field in a dark form read as an inlay cut through the panel.
+ * The rule now is that it sits strictly BETWEEN `surface` and `elevated`, so
+ * it equals no ground a field can land on and is darker than none of the
+ * panels above `surface`. Light is untouched: there the field is the page.
+ */
+test("the dark page field sits between surface and elevated, never under every ground", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    const d = pair.dark;
+    const L = (token: BrandableToken) => toOklch(d[token])!.L;
+    const [lo, hi] = [L("--ui-bg-surface"), L("--ui-bg-elevated")].sort((a, b) => a - b) as [number, number];
+    const field = L("--ui-bg-field");
+    assert.ok(
+      field > lo && field < hi,
+      `${name} dark: --ui-bg-field (${d["--ui-bg-field"]}) is outside surface..elevated (${d["--ui-bg-surface"]}..${d["--ui-bg-elevated"]})`,
+    );
+    for (const ground of ["--ui-bg-base", "--ui-bg-surface", "--ui-bg-elevated", "--ui-bg-sunken"] as const) {
+      const ratio = contrastRatio(d["--ui-bg-field"], d[ground]);
+      assert.ok(ratio >= 1.03, `${name} dark: the field collapses onto ${ground} (${ratio.toFixed(3)})`);
+    }
+    // And light is the page, exactly as before.
+    assert.equal(pair.light["--ui-bg-field"], pair.light["--ui-bg-base"], `${name} light: the field moved off the page`);
   }
 });
 

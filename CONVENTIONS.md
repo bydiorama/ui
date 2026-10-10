@@ -51,8 +51,12 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 - Every controllable component also works uncontrolled via `default*`, through
   the shared `useControllableState` hook — never a bespoke implementation.
 - `isDisabled` and `isBusy` are **different**: disabled is non-interactive and
-  removed from the tab order; busy is visual only, keeps focus, and keeps the
-  element operable to assistive tech (`aria-busy`).
+  removed from the tab order; busy keeps focus and its tab stop, takes no
+  disabled styling, and **swallows activation** — the handler does not run and
+  a submit does not submit (`aria-busy` + `aria-disabled`). Busy is therefore
+  the double-submit guard on its own; never pair `isDisabled` with it for that.
+  (ADR 0021, issue #8; it replaced "busy stays
+  operable", which left every `loading` → `isBusy` rename without a guard.)
 
 ## 5. Forwarding and refs
 

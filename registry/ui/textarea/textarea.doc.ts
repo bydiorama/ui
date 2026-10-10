@@ -41,7 +41,7 @@ Textarea
       type: '"lg" | "md" | "sm"',
       default: '"lg"',
       notes:
-        "Input's scale, minus the part that cannot carry over. Inset and type step exactly as Input's do (px-md py-sm / p-sm / px-sm py-xs, 14 / 12 / 12px), and the browser test asserts each step against a real Input at that size. The HEIGHT does not carry over: Input's is a constant, this one is rows line boxes, so the same rows gives 127 / 112 / 104px. A size changes the line, never the count.",
+        "Input's scale, minus the part that cannot carry over. Inset and type step exactly as Input's do (px-md py-sm / p-sm / px-sm py-xs, 14 / 14 / 12px), and the browser test asserts each step against a real Input at that size. The HEIGHT does not carry over: Input's is a constant, this one is rows line boxes, so the same rows gives 127 / 127 / 104px — lg and md are one box with a different inline inset, since md's value moved from caption to body-md with the rest of the field family (#16). A size changes the line, never the count.",
     },
     isDisabled: { type: "boolean", default: "false", notes: "Native disabled: blocked, out of the tab order, and the resize grip is withdrawn with it." },
     isRequired: { type: "boolean", default: "false", notes: "Sets the native required attribute and appends an aria-hidden asterisk to the visible label." },
@@ -142,7 +142,7 @@ Textarea
    * gets re-litigated by the next person who reads it.
    */
   derivations: [
-    "The three sizes. The sheet drew one box, matching Input's lg. Inset and type step exactly as Input's do; the height does NOT, because Input's is a constant and this one is `rows` line boxes — so the same rows gives 127 / 112 / 104px. Now drawn on the sheet as its own size row.",
+    "The three sizes. The sheet drew one box, matching Input's lg. Inset and type step exactly as Input's do; the height does NOT, because Input's is a constant and this one is `rows` line boxes — so the same rows gives 127 / 127 / 104px. Now drawn on the sheet as its own size row.",
     "The line. The sheet stored a raw 18px on 14px type — 1.286, off the --ui-leading-* scale entirely (tight 1.25, snug 1.3). Shipped as leading-snug, the nearest role, 0.2px per line larger, which lands the 6-row lg box on the sheet's own 128px. The sheet is now bound to var(--ui-leading-snug) rather than to the literal.",
     "The value ink. The sheet drew --ui-text-secondary; Input ships --ui-text-primary, and a form holding both must not show two inks for the same thing. The sheet now carries --ui-text-primary.",
     "Hover, error and disabled. None was drawn. Each is Input's, which takes them from Button's secondary variant: hover moves the edge subtle -> default, error moves it to --ui-border-danger, disabled fills --ui-bg-sunken with --ui-text-disabled ink and withdraws the resize grip. All are now drawn on the sheet.",

@@ -222,13 +222,18 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
   // From the handover's dark portal: ramp-80 inks on translucent ramp-60
   // grounds, brand blue as both accent and link.
   dark: {
-    // Recessed from the card, matching the dark portal in the sheet: the
-    // field reads as a well, not as another panel.
-    "--ui-bg-field": NEUTRAL[0],
-    // Dark inverts the scale, so a well goes DOWN from a lighter panel here
-    // too — but the panel itself is dark, so the steps are the low end of the
-    // ramp rather than the high end (ADR 0017).
-    "--ui-bg-field-disabled": NEUTRAL[10],
+    // `--ui-bg-field` and `--ui-bg-field-disabled` are NOT pinned in dark
+    // (ADR 0017, amended 2026-10-05). The field was neutral-0, under every
+    // ground in the scheme, and a dark Sheet of fields read as a column of
+    // holes. The resolver now derives it halfway between `surface` and
+    // `elevated` (#33302D here) so it equals no ground a field can land on.
+    // Disabled follows by derivation because neutral-10 — its old pin — is
+    // `surface` itself and measured 1.06 against the new field, under the
+    // 1.1 the pair has to keep.
+    //
+    // Dark inverts the scale, so a chrome well goes DOWN from a lighter panel
+    // here too — but the panel itself is dark, so the steps are the low end
+    // of the ramp rather than the high end.
     "--ui-bg-field-chrome": NEUTRAL[10],
     "--ui-bg-field-chrome-disabled": NEUTRAL[20],
     "--ui-gradient-brand": `linear-gradient(in oklab 270deg, ${BLUE[80]} 0%, ${LAVENDER[80]} 50%, ${RED[80]} 100%)`,
@@ -249,8 +254,10 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-emphasis": NEUTRAL[0],
     "--ui-bg-emphasis-hover": NEUTRAL[10],
     "--ui-bg-emphasis-active": NEUTRAL[20],
-    // Inverted, which emphasis above is not. On the dark scheme the field is
-    // neutral-0, so a neutral-0 control is not there at all.
+    // Inverted, which emphasis above is not. On the dark scheme the field was
+    // neutral-0 when this was decided, so a neutral-0 control was not there
+    // at all; the field has since moved up (ADR 0017 amendment), and a
+    // near-black control on it would still read as a hole, not a button.
     "--ui-bg-inverse": NEUTRAL[95],
     "--ui-bg-inverse-hover": NEUTRAL[90],
     "--ui-bg-inverse-active": NEUTRAL[80],

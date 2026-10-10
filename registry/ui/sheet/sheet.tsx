@@ -13,6 +13,7 @@ import {
   type HTMLAttributes,
   type ReactElement,
   type ReactNode,
+  type RefObject,
 } from "react";
 
 import { cn } from "@/lib/cn";
@@ -33,6 +34,23 @@ interface DismissDetails {
   reason?: string;
   cancel: () => void;
 }
+
+/**
+ * Where focus lands: a ref to the element, or a function that finds it at
+ * that moment. A function returning `null` — or a ref still empty — keeps the
+ * default rather than dropping focus, which is the one outcome a dialog may
+ * never have (§10).
+ *
+ * Restated in our own terms rather than taken from the behaviour layer
+ * (ADR 0012): Base UI's version also accepts booleans and passes the
+ * interaction type, and neither is a decision this component wants to hand
+ * out — `false` would leave focus behind the scrim.
+ */
+export type SheetFocusTarget = RefObject<HTMLElement | null> | (() => HTMLElement | null);
+
+/** Our target → Base UI's. A function's `null` becomes `true`: "the default". */
+const toBaseFocus = (target: SheetFocusTarget) =>
+  typeof target === "function" ? () => target() ?? true : target;
 
 export type SheetSide = "left" | "right";
 export type SheetSize = "sm" | "md" | "lg";
@@ -223,6 +241,18 @@ export interface SheetPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "t
    * only the caller knows whether theirs is safe.
    */
   container?: HTMLElement | null;
+  /**
+   * Where focus lands when the panel OPENS. Defaults to the first tabbable
+   * element inside it — which, in a record panel whose band carries
+   * Previous/Next before Close, is Previous. Pass Close's ref to land there.
+   */
+  initialFocus?: SheetFocusTarget;
+  /**
+   * Where focus goes when the panel CLOSES. Defaults to the trigger, or the
+   * element focused before it opened. Set it when that element is gone — a
+   * row deleted from inside the panel — so focus has somewhere real to go.
+   */
+  finalFocus?: SheetFocusTarget;
 }
 
 function SheetPanel({
@@ -232,6 +262,8 @@ function SheetPanel({
   side = "left",
   size = "sm",
   container,
+  initialFocus,
+  finalFocus,
   ...rest
 }: SheetPanelProps) {
   const [overflow, setOverflowState] = useState<SheetOverflow>({ top: false, bottom: false });
@@ -261,7 +293,13 @@ function SheetPanel({
         )}
       />
       <BaseDialog.Popup
-        {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Popup>>(rest)}
+        {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Popup>>({
+          ...rest,
+          // DECLARED and mapped, not left to ride the spread: an undeclared
+          // prop reaching Base UI untyped breaks silently on a rename (#28).
+          ...(initialFocus ? { initialFocus: toBaseFocus(initialFocus) } : {}),
+          ...(finalFocus ? { finalFocus: toBaseFocus(finalFocus) } : {}),
+        })}
         aria-label={label}
         data-slot="sheet-panel"
         data-side={side}

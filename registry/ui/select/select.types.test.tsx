@@ -23,6 +23,14 @@ export function Valid() {
       />
       {/* null is a real selection state, not an omission. */}
       <Select label="Services" items={ITEMS} value={null} />
+      {/* A per-option second line (#26). Optional, row by row. */}
+      <Select
+        label="Role"
+        items={[
+          { value: "admin", label: "Brand Admin", description: "Full access." },
+          { value: "guest", label: "Guest" },
+        ]}
+      />
     </>
   );
 }
@@ -47,5 +55,9 @@ export function Invalid() {
   /* @ts-expect-error size is a closed union */
   const e = <Select label="Services" items={ITEMS} size="xl" />;
 
-  return [a, b, c, d, e];
+  {/* A description is text for people — a string, never a node. */}
+  /* @ts-expect-error description is a string */
+  const f = <Select label="Role" items={[{ value: "a", label: "A", description: <b>Full</b> }]} />;
+
+  return [a, b, c, d, e, f];
 }

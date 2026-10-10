@@ -102,7 +102,7 @@ function ContextMenuPanel({ children, className, container, ...rest }: ContextMe
         <BaseContextMenu.Popup
           {...forBaseUI<ComponentPropsWithoutRef<typeof BaseContextMenu.Popup>>(rest)}
           data-slot="context-menu-panel"
-          className={menuPanel(cn(className))}
+          className={menuPanel(className)}
         >
           {children}
         </BaseContextMenu.Popup>

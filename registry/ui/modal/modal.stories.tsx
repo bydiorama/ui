@@ -12,6 +12,7 @@ import {
 import { Button } from "@/ui/button/button.tsx";
 import { Input } from "@/ui/input/input.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
+import { Card } from "@/ui/card/card.tsx";
 import { Modal } from "./modal.tsx";
 
 const meta = {
@@ -88,6 +89,39 @@ export const Destructive: Story = {
         </Modal.Footer>
       </Modal.Surface>
     </Modal>
+  ),
+};
+
+/**
+ * The owner's redraw (#23): a confirm raised over the cards it acts on. The
+ * dialog IS Card's surface — 24px corner, border-subtle hairline, shadow-md,
+ * a title-sm header inset like Card.Header's — so the two read as one object.
+ * Open it to compare them edge for edge.
+ */
+export const OverCards: Story = {
+  render: () => (
+    <Card className="max-w-dialog-md">
+      <Card.Header
+        headingLevel={2}
+        actions={
+          <Modal onOpenChange={fn()}>
+            <Modal.Trigger render={<Button variant="danger" size="sm">Remove</Button>} />
+            <Modal.Surface>
+              <Modal.Title>Remove Ada Lovelace?</Modal.Title>
+              <Modal.Description>
+                She loses access to this brand profile. You can invite her again later.
+              </Modal.Description>
+              <Modal.Footer>
+                <Modal.Close render={<Button variant="secondary" size="md">Cancel</Button>} />
+                <Modal.Close render={<Button variant="danger" size="md">Remove member</Button>} />
+              </Modal.Footer>
+            </Modal.Surface>
+          </Modal>
+        }
+      >
+        Members
+      </Card.Header>
+    </Card>
   ),
 };
 

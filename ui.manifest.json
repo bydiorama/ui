@@ -58,6 +58,7 @@
       ],
       "status": "stable",
       "registryDependencies": [
+        "cn",
         "motion"
       ]
     },
@@ -116,11 +117,11 @@
       "files": [
         {
           "path": "registry/fonts/aspekta/aspekta.css",
-          "target": "public/fonts/aspekta/aspekta.css"
+          "target": "~/public/fonts/aspekta/aspekta.css"
         },
         {
           "path": "registry/fonts/aspekta/OFL.txt",
-          "target": "public/fonts/aspekta/OFL.txt"
+          "target": "~/public/fonts/aspekta/OFL.txt"
         }
       ],
       "status": "stable"
@@ -128,7 +129,7 @@
     {
       "name": "button",
       "type": "ui",
-      "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy is visual-only and keeps focus, unlike isDisabled.",
+      "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy keeps focus but swallows activation (the double-submit guard), unlike isDisabled, which leaves the tab order.",
       "files": [
         {
           "path": "registry/ui/button/button.tsx",

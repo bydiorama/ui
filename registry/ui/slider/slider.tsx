@@ -85,6 +85,19 @@ interface SliderBaseProps {
   isLabelHidden?: boolean;
   /** Shows the current value beside the label, as the sheet draws it. */
   hasValueText?: boolean;
+  /**
+   * What a screen reader announces for the value, in place of the bare
+   * number: `(v) => v > 60 ? "Mostly formal" : …`, or `"2.4 MB"` for a slider
+   * reporting bytes. Becomes `aria-valuetext` on the thumb's input, the
+   * element that carries the slider role — the label still names the
+   * control; this only says where it is.
+   *
+   * Restated in our own shape rather than Base UI's
+   * `(formattedValue, value, index)`: one thumb has no index, and the
+   * pre-formatted string is the library's locale formatting, which is what
+   * a caller writing this function is replacing.
+   */
+  getAriaValueText?: (value: number) => string;
   value?: number;
   defaultValue?: number;
   onValueChange?: (value: number) => void;
@@ -163,6 +176,7 @@ export function Slider(props: SliderProps) {
     size = "md",
     className,
     valueControl,
+    getAriaValueText,
   } = props;
   const hasSteppers = props.hasSteppers === true;
   const labelId = useId();
@@ -285,6 +299,12 @@ export function Slider(props: SliderProps) {
                 // that input is the control, and naming the surrounding group
                 // does not name it.
                 "aria-labelledby": labelId,
+                // Base UI calls this with (formatted, value, index) and writes
+                // the result to the INPUT's aria-valuetext — the thumb div is
+                // not the control. Narrowed to the value alone (see the prop).
+                ...(getAriaValueText
+                  ? { getAriaValueText: (_formatted: string, next: number) => getAriaValueText(next) }
+                  : {}),
                 className: cn(
                   "rounded-full bg-base shadow-sm",
                   geometry.thumb,

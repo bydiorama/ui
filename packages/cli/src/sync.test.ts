@@ -6,6 +6,7 @@ import { diffItem } from "./sync.ts";
 import type { LockedItem } from "./lockfile.ts";
 import type { RegistrySource } from "./registry-source.ts";
 import type { LedgerEntry } from "./ledger-source.ts";
+import { resolveTargetPath } from "./target-path.ts";
 
 const identity = (target: string) => target;
 
@@ -146,4 +147,17 @@ test("ledger entries are filtered to this item and to after the lock date", asyn
   ];
   const result = await diffItem("widget", locked, fakeReader({ "a.ts": V1 }), identity, fakeRegistry({ "a.ts": V1 }), entries);
   assert.deepEqual(result.ledgerEntries.map((e) => e.id), ["new-1", "new-3"]);
+});
+
+test("a locked skill syncs through the real resolver: stale when upstream gains a rule (#12)", async () => {
+  // The drift the lockfile exists to catch, on the one item type it could not
+  // cover: a consumer installs the skill, upstream adds a rule, nothing tells
+  // them.
+  const aliases = { ui: "@/components/ui", lib: "@/lib", hooks: "@/hooks" };
+  const resolve = (target: string) => resolveTargetPath(target, aliases, "src");
+  const target = ".claude/skills/diorama-ui-craft/SKILL.md";
+  const locked: LockedItem = { revision: "abc", lockedAt: "2026-01-01T00:00:00.000Z", files: { [target]: hashContent(V1) } };
+  const result = await diffItem("ui-craft", locked, fakeReader({ [target]: V1 }), resolve, fakeRegistry({ [target]: V2 }), []);
+  assert.equal(result.status, "stale");
+  assert.equal(result.files[0]!.installedHash, hashContent(V1));
 });

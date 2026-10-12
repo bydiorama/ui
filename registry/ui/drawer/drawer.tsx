@@ -11,6 +11,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactElement,
   type ReactNode,
+  type RefObject,
 } from "react";
 
 import { cn } from "@/lib/cn";
@@ -136,6 +137,17 @@ function DrawerTrigger({ children, render, className }: DrawerTriggerProps) {
   );
 }
 
+/**
+ * Where focus lands: a ref, or a function that finds the element. `null` or
+ * an empty ref keeps the default. Same shape and reasoning as Sheet's
+ * `SheetFocusTarget` — restated, since each component ships on its own.
+ */
+export type DrawerFocusTarget = RefObject<HTMLElement | null> | (() => HTMLElement | null);
+
+/** Our target → Base UI's. A function's `null` becomes `true`: "the default". */
+const toBaseFocus = (target: DrawerFocusTarget) =>
+  typeof target === "function" ? () => target() ?? true : target;
+
 export interface DrawerPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title" | "aria-label"> {
   /**
    * Refused, not overridden — `label` sets it. See the identical note in
@@ -167,6 +179,17 @@ export interface DrawerPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   defaultSnapPoint?: number;
   /** Always `onSnapPointChange(index)` — never onExpand/onCollapse (§1). */
   onSnapPointChange?: (index: number) => void;
+  /**
+   * Where focus lands when the drawer OPENS. Defaults to the first tabbable
+   * element inside it — the drag handle, which is also a close button. Pass
+   * the ref of the control the drawer exists for to land there instead.
+   */
+  initialFocus?: DrawerFocusTarget;
+  /**
+   * Where focus goes when the drawer CLOSES. Defaults to the trigger, or the
+   * element focused before it opened. Set it when that element is gone.
+   */
+  finalFocus?: DrawerFocusTarget;
 }
 
 function DrawerPanel({
@@ -179,6 +202,8 @@ function DrawerPanel({
   snapPoint,
   defaultSnapPoint,
   onSnapPointChange,
+  initialFocus,
+  finalFocus,
   ...rest
 }: DrawerPanelProps) {
   const close = useContext(DrawerClose_);
@@ -269,7 +294,12 @@ function DrawerPanel({
         )}
       />
       <BaseDialog.Popup
-        {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Popup>>(rest)}
+        {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Popup>>({
+          ...rest,
+          // Declared and mapped, not left to ride the spread (#28).
+          ...(initialFocus ? { initialFocus: toBaseFocus(initialFocus) } : {}),
+          ...(finalFocus ? { finalFocus: toBaseFocus(finalFocus) } : {}),
+        })}
         aria-label={label}
         data-slot="drawer-panel"
         data-dragging={isDragging || undefined}

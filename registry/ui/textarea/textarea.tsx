@@ -22,7 +22,7 @@ const SURFACE = {
  * Geometry per size, DERIVED from Input's table rather than drawn.
  *
  * Input is `h-field-lg px-field-inset-lg py-sm text-body-md` /
- * `h-field-md px-field-inset-md py-sm text-caption` /
+ * `h-field-md px-field-inset-md py-sm text-body-md` /
  * `h-field-sm px-field-inset-sm py-xs text-caption` — the field family of
  * ADR 0020 §4, 48/40/32 with 12/8/8 insets at default density, and the
  * insets move with density here too. Everything there except the height carries
@@ -37,8 +37,12 @@ const SURFACE = {
  * icon slots, and there are none here.
  *
  *   lg  6 x (14px x 1.3 = 18.2)  + py-sm x2 (16) + border = 127.125px
- *   md  6 x (12px x 1.3 = 15.6)  + p-sm  x2 (16) + border = 111.5625px
+ *   md  6 x (14px x 1.3 = 18.2)  + py-sm x2 (16) + border = 127.125px
  *   sm  6 x (12px x 1.3 = 15.6)  + py-xs x2  (8) + border = 103.5625px
+ *
+ * lg and md are the same BOX and differ by their inline inset alone (12 / 8),
+ * because md's value is body-md like lg's — the owner's frames draw every
+ * 40px field value at 14px, and Input, Select and this moved together (#16).
  *
  * (Chromium lays a line box out at 1/64px, and floors the 1.5px border to 1
  * device pixel at dPR 1 — the browser test carries the full derivation.) The
@@ -48,7 +52,7 @@ const SURFACE = {
  */
 const SIZE = {
   lg: "px-field-inset-lg py-sm text-body-md",
-  md: "px-field-inset-md py-sm text-caption",
+  md: "px-field-inset-md py-sm text-body-md",
   sm: "px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<TextareaSize, string>;
 

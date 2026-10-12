@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-busy-swallows-activation",
+  "date": "2026-10-05",
+  "item": "button",
+  "kind": "breaking",
+  "summary": "A busy Button now swallows activation, so isBusy is the double-submit guard on its own. Closes #8. Busy used to be 'visual only': it set aria-busy, drew a spinner and stayed fully operable, and its doc said never to swap it for isDisabled during submit. That left a gap the first real migration fell straight into: a legacy `loading` prop implied disabled, and an audit of service-portal found ~87 of 93 `loading=` call sites relied on that implication (57 passed no `disabled` at all, 29 bound it to an unrelated validity check) — so a mechanical `loading` -> `isBusy` rename would have reopened double-submit across save, delete, create and publish flows. Maintainer decision (2026-10-05): while isBusy is true the button keeps focus and its tab stop and takes no disabled styling, but a click, Enter or Space does nothing — onClick is not called, and a type=\"submit\" button does not submit its form. That includes implicit submission: Enter in a text field submits through the form's default button by firing a synthetic click at it, and the guard cancels that click, which is the one thing the native `disabled` attribute would otherwise be needed for. The guard is an unconditional wrapper, not composeEventHandlers — a safety invariant a consumer cannot opt out of (CONVENTIONS §5). A busy button now also carries aria-disabled=\"true\": activation genuinely is unavailable, and most screen readers ignore aria-busy on a button, so without it assistive tech would present a control that does nothing as operable. The cursor is `progress` rather than a pointer promising a click, and the press-scale is off while busy. CONVENTIONS §4 is amended to match.",
+  "affects": [
+    "item:button",
+    "prop:isBusy",
+    "prop:onClick",
+    "aria:disabled",
+    "aria:busy",
+    "behaviour:form-submit",
+    "behaviour:implicit-submission",
+    "style:cursor",
+    "motion:press-scale"
+  ],
+  "migration": {
+    "manual": "Migrating a legacy `loading` prop that implied disabled: rename `loading` -> `isBusy` and STOP there — do not add `isDisabled={<same pending var>}` beside it. Busy already refuses a second activation and a second submit, and pairing disabled with it throws away the keyboard user's focus mid-submit, which is exactly what busy exists to avoid. Keep an `isDisabled` that is bound to something else (a validity check, a permission): that is a different state and still wanted. Existing isBusy call sites: if anything relied on a click reaching onClick WHILE busy (a cancel-by-clicking-again pattern, say), move that to a separate cancel button — it no longer fires. Tests: Playwright/vitest-browser treat aria-disabled=\"true\" as not-enabled, so `userEvent.click` on a busy button now waits until timeout; dispatch `button.click()` inside act() to assert that it refuses, and assert `aria-disabled` rather than the absence of `disabled`."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/XK7-0"
+  }
+}

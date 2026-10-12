@@ -4,6 +4,9 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
 
+import { ArrowRight } from "griddy-icons";
+
+import { Button } from "@/ui/button/button.tsx";
 import { Input } from "./input.tsx";
 
 /**
@@ -193,9 +196,11 @@ describe("Input forwarding contract (CONVENTIONS §5)", () => {
 });
 
 describe("Input typography matches the design sheet", () => {
+  // md is body-md (14px), not caption: the owner's frames draw every 40px
+  // field value at 14px, and Input at 12 beside Select at 14 is what #16 was.
   test.each([
     ["lg", "48px", "14px"],
-    ["md", "40px", "12px"],
+    ["md", "40px", "14px"],
     ["sm", "32px", "12px"],
   ] as const)("size %s is %s tall with a %s value", (size, height, fontSize) => {
     const { input, control } = mount(<Input label="Task title" size={size} />);
@@ -211,5 +216,114 @@ describe("Input typography matches the design sheet", () => {
       act(() => root?.unmount());
       container?.remove();
     }
+  });
+});
+
+/**
+ * `shape` (#18). Every assertion here is a RELATIONSHIP — full against soft,
+ * the circle against the capsule — because the numbers move with density and
+ * the claims do not.
+ */
+describe("Input shape", () => {
+  const unmount = () => {
+    act(() => root?.unmount());
+    container?.remove();
+    root = null;
+    container = null;
+  };
+
+  test("soft is the default, and full is a capsule at every size", () => {
+    for (const size of ["lg", "md", "sm"] as const) {
+      const soft = mount(<Input label="Search" size={size} />);
+      expect(soft.control.getAttribute("data-shape")).toBe("soft");
+      const softRadius = parseFloat(getComputedStyle(soft.control).borderTopLeftRadius);
+      unmount();
+
+      const full = mount(<Input label="Search" size={size} shape="full" />);
+      const style = getComputedStyle(full.control);
+      // rounded-full is a huge radius the box clamps to half its height —
+      // so assert what is PAINTED: a radius at least half the height.
+      const height = parseFloat(style.height);
+      expect(parseFloat(style.borderTopLeftRadius), size).toBeGreaterThanOrEqual(height / 2);
+      expect(parseFloat(style.borderTopLeftRadius), size).toBeGreaterThan(softRadius);
+      unmount();
+    }
+  });
+
+  test("full widens the inline inset so the text clears the curve, and keeps the height", () => {
+    for (const size of ["lg", "md", "sm"] as const) {
+      const soft = getComputedStyle(mount(<Input label="Search" size={size} />).control);
+      const [softInset, softHeight] = [parseFloat(soft.paddingLeft), soft.height];
+      unmount();
+      const full = getComputedStyle(mount(<Input label="Search" size={size} shape="full" />).control);
+      // One spacing step (4px) wider, on both sides when nothing trails.
+      expect(parseFloat(full.paddingLeft) - softInset, size).toBe(4);
+      expect(full.paddingRight, size).toBe(full.paddingLeft);
+      expect(full.height, size).toBe(softHeight);
+      unmount();
+    }
+  });
+
+  test("the full inset still moves with density", () => {
+    const c = mount(
+      <>
+        <Input label="Default" shape="full" />
+        <div data-ui-density="compact">
+          <Input label="Compact" shape="full" />
+        </div>
+      </>,
+    ).container;
+    const [def, compact] = [...c.querySelectorAll<HTMLElement>('[data-slot="control"]')];
+    expect(parseFloat(getComputedStyle(compact!).paddingLeft)).toBeLessThan(
+      parseFloat(getComputedStyle(def!).paddingLeft),
+    );
+  });
+
+  /**
+   * The pill search field: a round submit one Button size under the field.
+   * A circle reads as concentric with the capsule only when it sits the same
+   * distance from the edge at the END as at the TOP. The top gap comes from
+   * centring, (field − button) / 2; the end gap from the padding the field
+   * collapses to. Before the collapse the end gap was the 16/12/12 text inset
+   * plus the edge, against a top gap of 8/8/4.
+   *
+   * Tolerance 0.5px: the end padding subtracts the 1.5px hairline TOKEN, and
+   * Chromium floors the border to 1px at dPR 1. At dPR 2 the two are equal.
+   */
+  test.each([
+    ["lg", "md"],
+    ["md", "sm"],
+    ["sm", "sm"],
+  ] as const)("a %s field holds a round %s Button concentrically", (size, buttonSize) => {
+    const { control } = mount(
+      <Input
+        label="Search"
+        isLabelHidden
+        size={size}
+        shape="full"
+        iconEnd={
+          <Button size={buttonSize} shape="full" isIconOnly aria-label="Search" icon={<ArrowRight />} />
+        }
+      />,
+    );
+    const field = control.getBoundingClientRect();
+    const button = control.querySelector("button")!.getBoundingClientRect();
+
+    const top = button.top - field.top;
+    const bottom = field.bottom - button.bottom;
+    const end = field.right - button.right;
+    expect(Math.abs(top - bottom), "centred").toBeLessThan(0.01);
+    expect(Math.abs(end - top), `end ${end} vs top ${top}`).toBeLessThanOrEqual(0.5);
+    // And it is a circle inside the capsule, not clipped by it.
+    expect(button.width).toBe(button.height);
+    expect(top).toBeGreaterThan(0);
+  });
+
+  test("the collapse is for a trailing BUTTON only — a glyph keeps the text inset", () => {
+    const { control } = mount(
+      <Input label="Search" shape="full" iconEnd={<ArrowRight aria-hidden="true" />} />,
+    );
+    const style = getComputedStyle(control);
+    expect(style.paddingRight).toBe(style.paddingLeft);
   });
 });

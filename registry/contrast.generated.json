@@ -420,7 +420,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 15.53,
+      "dark": 11.86,
       "role": "the entered message"
     },
     {
@@ -428,7 +428,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 7.54,
+      "dark": 5.76,
       "role": "the placeholder, and the drop label that replaces it"
     },
     {
@@ -444,7 +444,7 @@
       "bg": "--ui-bg-field",
       "floor": "non-text",
       "light": 17.17,
-      "dark": 15.53,
+      "dark": 11.86,
       "role": "the Stop control's fill against the frame — the only channel telling it from Send, and the pair --ui-bg-emphasis failed at 1:1 in dark"
     },
     {
@@ -460,7 +460,7 @@
       "bg": "--ui-bg-field",
       "floor": "non-text",
       "light": 5.94,
-      "dark": 11.88,
+      "dark": 9.07,
       "role": "the invalid frame edge (SC 1.4.11 — state carried by a boundary)"
     },
     {
@@ -500,7 +500,7 @@
       "bg": "--ui-bg-field",
       "floor": "decorative",
       "light": 1.24,
-      "dark": 1.48,
+      "dark": 1.47,
       "role": "the drag-over fill"
     }
   ],
@@ -778,7 +778,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 15.53,
+      "dark": 11.86,
       "role": "the chosen date in the field"
     },
     {
@@ -786,7 +786,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 7.54,
+      "dark": 5.76,
       "role": "the placeholder"
     },
     {
@@ -1134,7 +1134,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 15.53,
+      "dark": 11.86,
       "role": "the value"
     },
     {
@@ -1142,7 +1142,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 7.54,
+      "dark": 5.76,
       "role": "the placeholder"
     },
     {
@@ -1190,7 +1190,7 @@
       "bg": "--ui-bg-field",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.49,
+      "dark": 1.51,
       "role": "the resting hairline"
     }
   ],
@@ -1244,6 +1244,14 @@
       "light": 13.54,
       "dark": 10.36,
       "role": "the description"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 1.43,
+      "dark": 1.53,
+      "role": "the surface hairline"
     }
   ],
   "Multiselect": [
@@ -1252,7 +1260,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 15.53,
+      "dark": 11.86,
       "role": "the trigger value"
     },
     {
@@ -1421,7 +1429,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 15.53,
+      "dark": 11.86,
       "role": "the chosen value in the trigger"
     },
     {
@@ -1429,7 +1437,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 7.54,
+      "dark": 5.76,
       "role": "the placeholder"
     },
     {
@@ -1447,6 +1455,22 @@
       "light": 14.11,
       "dark": 10.38,
       "role": "the highlighted option"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.47,
+      "role": "an option's description"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 4.87,
+      "dark": 5.35,
+      "role": "the highlighted option's description"
     }
   ],
   "Sheet": [
@@ -1737,7 +1761,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 15.53,
+      "dark": 11.86,
       "role": "the value"
     },
     {
@@ -1745,7 +1769,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 7.54,
+      "dark": 5.76,
       "role": "the placeholder"
     },
     {
@@ -1801,7 +1825,7 @@
       "bg": "--ui-bg-field",
       "floor": "non-text",
       "light": 5.94,
-      "dark": 11.88,
+      "dark": 9.07,
       "role": "the invalid border — the boundary that says the control is in error (SC 1.4.11)"
     },
     {
@@ -1809,7 +1833,7 @@
       "bg": "--ui-bg-field",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.49
+      "dark": 1.51
     }
   ],
   "Thumbnail": [

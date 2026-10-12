@@ -21,7 +21,7 @@ export const drawerDoc = {
   composition: `
 Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissable?
 ├─ Drawer.Trigger          render={<Button>…</Button>}
-└─ Drawer.Panel            label (required) / handleLabel? / container?
+└─ Drawer.Panel            label (required) / handleLabel? / container? / initialFocus? / finalFocus?
    ├─ (drag handle)        drawn by Panel, not composed
    ├─ Drawer.Header?        the 48px chrome band — chromeControls, never a Title
    │  └─ Drawer.Close       render={<button className={chromeControl()} …/>}
@@ -44,6 +44,8 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
       default: '"Close"',
       notes: "The handle is a real button as well as a drag target, so it needs a name. Rename it when 'Close' would be ambiguous on the screen.",
     },
+    "Panel.initialFocus": { type: "RefObject<HTMLElement | null> | (() => HTMLElement | null)", notes: "Where focus lands when the drawer opens. The default is the first tabbable element inside it, which is the drag handle, and that handle is also a close button. Pass the ref of the control the drawer exists for. A function is called at open time; returning null, or a ref that is still empty, keeps the default rather than dropping focus. Restated as DrawerFocusTarget, the same shape as Sheet's SheetFocusTarget, and deliberately not Base UI's, whose `false` would leave focus behind the scrim." },
+    "Panel.finalFocus": { type: "RefObject<HTMLElement | null> | (() => HTMLElement | null)", notes: "Where focus goes when the drawer closes. The default is the trigger, or whatever was focused before it opened. Set it when that element will be gone. Same fallback rule as initialFocus." },
     isOpen: { type: "boolean", notes: "Controlled. Omit and the drawer owns it." },
     defaultIsOpen: { type: "boolean", notes: "Uncontrolled starting state." },
     onOpenChange: { type: "(isOpen: boolean) => void", notes: "One callback for both directions (§1). Narrowed from Base UI's signature so no third-party type reaches ours." },
@@ -92,6 +94,7 @@ Drawer                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissa
       { key: "Escape", does: "Closes when isDismissable, and RESTORES FOCUS to the trigger. Asserted in Chromium." },
       { key: "Tab", does: "Cycles within the panel only; focus cannot reach the page behind." },
     ],
+    focus: "Focus moves into the panel on open and returns to the trigger on close, both from the behaviour layer and both asserted in Chromium. `initialFocus` and `finalFocus` on the Panel move either end deliberately; both are asserted against the default they replace.",
     pointer:
       "The drag is never the only way. SC 2.5.7 (Dragging Movements) requires a single-pointer alternative to EVERY dragging movement, and detents give the drag three of them — expand, collapse, dismiss. Tapping the handle steps up and wraps from the tallest back to the shortest, covering expand and collapse; the scrim and Escape cover dismissal. A tap that sometimes expanded and sometimes threw the drawer away would be worse than either.",
     target: "The handle button is the full 32px header band, not the 8px bar inside it — the bar alone would be an 8px target against SC 2.5.8's 24px floor.",

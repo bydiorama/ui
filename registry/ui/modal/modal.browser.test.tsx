@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
-import { act } from "react";
+import { act, useRef } from "react";
 import type { ReactElement } from "react";
 
+import { Card } from "@/ui/card/card.tsx";
 import { Modal } from "./modal.tsx";
 
 let container: HTMLDivElement | null = null;
@@ -178,7 +179,7 @@ describe("The surface paints the designed dialog", () => {
     await settled(s);
     const style = getComputedStyle(s);
 
-    expect(style.borderRadius).toBe("16px");
+    // Radius, edge and shadow are asserted against Card below, not here.
     expect(style.padding).toBe("16px");
     expect(style.gap).toBe("32px");
     expect(style.backgroundColor).toBe("rgb(253, 252, 251)");
@@ -206,12 +207,17 @@ describe("The surface paints the designed dialog", () => {
     await userEvent.click(trigger());
     await settled(surface()!);
 
-    const title = getComputedStyle(document.querySelector('[data-slot="modal-title"]')!);
-    // title-lg is FLUID (ADR 0009): a band, not a value.
-    const titlePx = Number.parseFloat(title.fontSize);
-    expect(titlePx).toBeGreaterThanOrEqual(17);
-    expect(titlePx).toBeLessThanOrEqual(24);
-    expect(title.fontWeight).toBe("500");
+    const titleEl = document.querySelector<HTMLElement>('[data-slot="modal-title"]')!;
+    const title = getComputedStyle(titleEl);
+    // title-sm, at the role's OWN weight (ADR 0020 §3) — which is the 600 the
+    // redraw asks for, so no type-role exception is declared. title-sm is
+    // FLUID (ADR 0009), so its size is compared to Card's title below rather
+    // than pinned here; the weight is not fluid and is read off the role.
+    expect(titleEl.classList.contains("text-title-sm")).toBe(true);
+    expect(title.fontWeight).toBe(
+      getComputedStyle(titleEl).getPropertyValue("--ui-text-title-sm-weight").trim(),
+    );
+    expect(title.fontWeight).toBe("600");
 
     const description = getComputedStyle(
       document.querySelector('[data-slot="modal-description"]')!,
@@ -270,6 +276,100 @@ async function transitionsStartedBy(target: () => Element | null, interaction: (
   return [...captured].filter((a) => (a.effect as KeyframeEffect | null)?.target === el);
 }
 
+/**
+ * #23: the owner redrew the confirm dialog as CARD'S surface — same corner,
+ * same hairline, same lift, same header type — so a dialog raised over cards
+ * reads as the same object as them.
+ *
+ * Asserted as a RELATIONSHIP, rendered side by side, never as numbers: pinning
+ * "24px" on each would pass while Card and Modal drifted apart, which is the
+ * only failure that matters here. Every one of these failed before the change:
+ * Modal was 16px, had no border at all, carried sm's single shadow layer, and
+ * set its title at title-lg / 500.
+ */
+describe("Modal wears Card's surface (#23)", () => {
+  function ModalBesideCard() {
+    return (
+      <>
+        <Card>
+          <Card.Header>Members</Card.Header>
+        </Card>
+        <Modal defaultIsOpen>
+          <Modal.Surface>
+            <Modal.Title>Remove member?</Modal.Title>
+            <Modal.Description>They lose access to this brand profile.</Modal.Description>
+          </Modal.Surface>
+        </Modal>
+      </>
+    );
+  }
+
+  test("same radius, same hairline, same shadow", async () => {
+    mount(<ModalBesideCard />);
+    const s = surface()!;
+    await settled(s);
+    const modal = getComputedStyle(s);
+    const card = getComputedStyle(document.querySelector('[data-slot="card"]')!);
+
+    expect(modal.borderTopLeftRadius).toBe(card.borderTopLeftRadius);
+    expect(modal.borderBottomRightRadius).toBe(card.borderBottomRightRadius);
+    // The radius-xl step, not radius-lg — a sanity check that the comparison
+    // is not two zeros agreeing.
+    expect(Number.parseFloat(modal.borderTopLeftRadius)).toBeGreaterThan(16);
+
+    for (const side of ["Top", "Right", "Bottom", "Left"] as const) {
+      expect(modal[`border${side}Style`], side).toBe("solid");
+      expect(modal[`border${side}Width`], side).toBe(card[`border${side}Width`]);
+      expect(modal[`border${side}Color`], side).toBe(card[`border${side}Color`]);
+    }
+    expect(modal.borderTopWidth).toBe("1px");
+
+    // The whole shadow list, transparent placeholder layers included: both
+    // elements are built by the same Tailwind utility, so they must match
+    // byte for byte. sm is ONE substantive layer and md two, so the old
+    // value cannot satisfy this.
+    expect(modal.boxShadow).toBe(card.boxShadow);
+  });
+
+  test("the title is Card.Header's title: same role, size, weight and inset", async () => {
+    mount(<ModalBesideCard />);
+    await settled(surface()!);
+    const modalTitle = document.querySelector<HTMLElement>('[data-slot="modal-title"]')!;
+    const cardTitle = document.querySelector<HTMLElement>('[data-slot="card-title"]')!;
+    const m = getComputedStyle(modalTitle);
+    const c = getComputedStyle(cardTitle);
+
+    // Same viewport, same fluid role: these must be equal to the pixel.
+    expect(m.fontSize).toBe(c.fontSize);
+    expect(m.fontWeight).toBe(c.fontWeight);
+    expect(m.lineHeight).toBe(c.lineHeight);
+    expect(m.letterSpacing).toBe(c.letterSpacing);
+    expect(m.fontFamily).toBe(c.fontFamily);
+
+    // Card puts its unboxed inset on the HEADER, Modal on the title itself
+    // (it has no header row) — so compare where the TEXT starts, measured
+    // from each surface's own border box.
+    const inset = (text: HTMLElement, box: Element) =>
+      text.getBoundingClientRect().left + Number.parseFloat(getComputedStyle(text).paddingLeft) -
+      box.getBoundingClientRect().left;
+    expect(inset(modalTitle, surface()!)).toBeCloseTo(
+      inset(cardTitle.parentElement!, document.querySelector('[data-slot="card"]')!) +
+        Number.parseFloat(getComputedStyle(cardTitle).paddingLeft),
+      1,
+    );
+  });
+
+  test("the description shares the title's left edge", async () => {
+    mount(<ModalBesideCard />);
+    await settled(surface()!);
+    const textStart = (slot: string) => {
+      const el = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
+      return el.getBoundingClientRect().left + Number.parseFloat(getComputedStyle(el).paddingLeft);
+    };
+    expect(textStart("modal-description")).toBeCloseTo(textStart("modal-title"), 1);
+  });
+});
+
 describe("Modal's motion and sizes are real, not declared", () => {
   test("the enter transition ACTUALLY runs on scale, not just opacity", async () => {
     mount(<Basic />);
@@ -310,5 +410,75 @@ describe("Modal's motion and sizes are real, not declared", () => {
     expect(getComputedStyle(md!).maxWidth).toBe("416px");
     expect(getComputedStyle(lg!).maxWidth).toBe("640px");
     expect(getComputedStyle(md!).maxWidth).not.toBe(getComputedStyle(lg!).maxWidth);
+  });
+});
+
+
+describe("Modal.Surface chooses where focus lands, in its own terms (#28)", () => {
+  // Two controls ahead of the target, so the default (the first tabbable
+  // element) and the requested one cannot coincide.
+  function Fixture({ useFunctions = false }: { useFunctions?: boolean }) {
+    const targetRef = useRef<HTMLButtonElement>(null);
+    const afterRef = useRef<HTMLButtonElement>(null);
+    return (
+      <Modal>
+        <Modal.Trigger>Open</Modal.Trigger>
+        <button ref={afterRef} type="button">After close</button>
+        <Modal.Surface
+          initialFocus={useFunctions ? () => targetRef.current : targetRef}
+          finalFocus={useFunctions ? () => afterRef.current : afterRef}
+        >
+          <button type="button">First</button>
+          <button type="button">Second</button>
+          <button ref={targetRef} type="button">Target</button>
+        </Modal.Surface>
+      </Modal>
+    );
+  }
+
+  const named = (name: string) =>
+    Array.from(document.querySelectorAll<HTMLElement>("button")).find((b) => b.textContent === name)!;
+
+  for (const useFunctions of [false, true]) {
+    const form = useFunctions ? "a function" : "a ref";
+
+    test(`initialFocus as ${form} lands on the target, not the first tabbable element`, async () => {
+      mount(<Fixture useFunctions={useFunctions} />);
+      await userEvent.click(trigger());
+      await vi.waitFor(() => expect(surface()).not.toBeNull());
+      await expect.poll(() => document.activeElement?.textContent).toBe("Target");
+    });
+
+    test(`finalFocus as ${form} receives focus on close, instead of the trigger`, async () => {
+      mount(<Fixture useFunctions={useFunctions} />);
+      await userEvent.click(trigger());
+      await vi.waitFor(() => expect(surface()).not.toBeNull());
+      await expect.poll(() => document.activeElement?.textContent).toBe("Target");
+      await userEvent.keyboard("{Escape}");
+      await expect.poll(() => document.activeElement).toBe(named("After close"));
+    });
+  }
+
+  test("without them the defaults stand, and a function finding nothing keeps them", async () => {
+    for (const props of [{}, { initialFocus: () => null, finalFocus: () => null }]) {
+      mount(
+        <Modal>
+          <Modal.Trigger>Open</Modal.Trigger>
+          <Modal.Surface {...props}>
+            <button type="button">First</button>
+            <button type="button">Target</button>
+          </Modal.Surface>
+        </Modal>,
+      );
+      await userEvent.click(trigger());
+      await vi.waitFor(() => expect(surface()).not.toBeNull());
+      await expect.poll(() => surface()!.contains(document.activeElement)).toBe(true);
+      expect(document.activeElement?.textContent).not.toBe("Target");
+      await userEvent.keyboard("{Escape}");
+      await expect.poll(() => document.activeElement).toBe(trigger());
+      act(() => root?.unmount());
+      container?.remove();
+      root = null; container = null;
+    }
   });
 });

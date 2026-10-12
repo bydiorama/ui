@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-sheet-panel-declares-initialfocus-and-finalfocus",
+  "date": "2026-10-05",
+  "item": "sheet",
+  "kind": "addition",
+  "summary": "Sheet.Panel declares `initialFocus` and `finalFocus`, typed as our own `SheetFocusTarget`: a ref, or a function returning the element. Closes #28. A record panel wants Close to take focus on open, but its band carries Previous/Next first, so Base UI's default (the first tabbable element) lands on Previous. That only worked through the panel's untyped `forBaseUI(rest)` spread on Base UI 1.7.0, and would break silently on a rename, because nothing declared it. Restated rather than re-exported (ADR 0012): Base UI's type also takes booleans and passes an interaction type, and `false` would leave focus behind the scrim, which is not a choice a dialog should offer. A function returning null, or a ref still empty, keeps the default rather than dropping focus. check:boundaries stays green. The browser test opens a Previous/Next/Close panel and asserts focus lands on Close and returns to a named element on Escape, in both the ref and function forms, against a control case proving the defaults are Previous and the trigger. Removing the mapping fails all four.",
+  "affects": [
+    "item:sheet",
+    "prop:initialFocus",
+    "prop:finalFocus",
+    "type:SheetFocusTarget",
+    "slot:sheet-panel"
+  ],
+  "migration": {
+    "manual": "A caller passing `initialFocus`/`finalFocus` through the untyped spread keeps working. A ref or a function returning an element is unchanged; a boolean `initialFocus={false}` or a function taking Base UI's interaction type no longer type-checks, so pass a ref or `() => element` instead."
+  }
+}

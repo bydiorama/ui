@@ -295,21 +295,26 @@ describe("Textarea paints the designed surface", () => {
         fontSize: getComputedStyle(textarea).fontSize,
         lineHeight: getComputedStyle(textarea).lineHeight,
         paddingTop: getComputedStyle(textarea).paddingTop,
+        paddingLeft: getComputedStyle(textarea).paddingLeft,
       };
       unmount();
       return out;
     };
     const [lg, md, sm] = [measure("lg"), measure("md"), measure("sm")];
 
-    // Strictly ordered, not merely unequal — a size scale that is not
-    // monotonic is a scale nobody can reason about.
-    expect(lg.height).toBeGreaterThan(md.height);
+    // Ordered, not merely unequal — a size scale that is not monotonic is a
+    // scale nobody can reason about.
+    //
+    // lg and md share Input's 14px value (#16: md moved from caption to
+    // body-md across the field family) and the same block padding, so they
+    // are one BOX and differ by their inline inset alone — the same
+    // relationship Input's own lg and md now have. md and sm differ in type,
+    // line and block padding, so the box steps down there.
+    expect(lg.fontSize).toBe(md.fontSize);
+    expect(lg.height).toBe(md.height);
+    expect(parseFloat(lg.paddingLeft)).toBeGreaterThan(parseFloat(md.paddingLeft));
     expect(md.height).toBeGreaterThan(sm.height);
-    expect(parseFloat(lg.fontSize)).toBeGreaterThan(parseFloat(md.fontSize));
-    // md and sm share Input's 12px type and differ by inset alone — the same
-    // relationship Input's own md and sm have.
-    expect(sm.fontSize).toBe(md.fontSize);
-    expect(sm.lineHeight).toBe(md.lineHeight);
+    expect(parseFloat(md.fontSize)).toBeGreaterThan(parseFloat(sm.fontSize));
     expect(parseFloat(md.paddingTop)).toBeGreaterThan(parseFloat(sm.paddingTop));
   });
 
@@ -351,11 +356,13 @@ describe("Textarea paints the designed surface", () => {
     expect(parseFloat(getComputedStyle(control).height)).toBeCloseTo(127.125, 2);
     unmount();
 
-    // The derived sizes, by the same arithmetic on a 12px line box:
+    // The derived sizes. md is lg's 14px line over lg's py-sm, so lg's box:
+    //   md  6 x 18.1875 + py-sm x2 (16) + 2 = 127.125
+    // sm by the same arithmetic on a 12px line box:
     //   floor(12 x 1.3 x 64)/64 = 15.59375; 6 rows = 93.5625
-    //   md  + p-sm  x2 (16) + 2 = 111.5625      sm  + py-xs x2 (8) + 2 = 103.5625
+    //   sm  + py-xs x2 (8) + 2 = 103.5625
     for (const [size, height] of [
-      ["md", 111.5625],
+      ["md", 127.125],
       ["sm", 103.5625],
     ] as const) {
       const { control: c } = mount(<Textarea label="Message" size={size} />);

@@ -11,6 +11,7 @@ import { ContextMenu } from "@/ui/context-menu/context-menu.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Header } from "@/ui/header/header.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
+import { Select } from "@/ui/select/select.tsx";
 
 let container: HTMLDivElement | null = null;
 let root: Root | null = null;
@@ -231,18 +232,94 @@ describe("The menu surface is ONE surface", () => {
     const [rowA, rowB] = items();
     const ra = getComputedStyle(rowA!);
     const rb = getComputedStyle(rowB!);
-    for (const property of ["padding", "borderRadius", "fontSize", "fontWeight", "color"] as const) {
+    for (const property of ["padding", "borderRadius", "fontSize", "fontWeight", "lineHeight", "color"] as const) {
       expect(`${property}: ${ra[property]}`).toBe(`${property}: ${rb[property]}`);
     }
   });
 
-  test("the row is FIXED type, not a fluid title role", async () => {
-    mount(<Basic />);
+  test("a menu row sets its label exactly as a Select option does (#22)", async () => {
+    // Compared to a REAL Select option rather than to numbers: the members
+    // table that reported this put a role Select and a row Menu on every line,
+    // and the menu read a size above the dropdown beside it (body-lg 16/500
+    // against body-md 14/400). Pinning "14px" would pass while the two
+    // drifted apart again, which is the only failure that matters here.
+    mount(
+      <div>
+        <Select
+          label="Role"
+          items={[{ value: "admin", label: "Admin" }, { value: "member", label: "Member" }]}
+        />
+        <Menu>
+          <Menu.Trigger render={<Button>Actions</Button>} />
+          <Menu.Panel>
+            <Menu.Item>Resend invite</Menu.Item>
+            <Menu.Sub>
+              <Menu.SubTrigger>Change role</Menu.SubTrigger>
+              <Menu.Panel side="right"><Menu.Item>Admin</Menu.Item></Menu.Panel>
+            </Menu.Sub>
+          </Menu.Panel>
+        </Menu>
+      </div>,
+    );
+    const TYPE = ["fontSize", "fontWeight", "lineHeight", "letterSpacing", "fontFamily"] as const;
+
+    const selectTrigger = document.querySelector<HTMLElement>('[data-slot="select-trigger"]')!;
+    await userEvent.click(selectTrigger);
+    // Nothing is selected, so no option carries Select's selected-row bold —
+    // the resting row is the one a menu row has to match.
+    await expect.poll(() => document.querySelector('[data-slot="select-option"]')).not.toBeNull();
+    const optionEl = document.querySelector<HTMLElement>('[data-slot="select-option"]')!;
+    expect(optionEl.hasAttribute("data-selected")).toBe(false);
+    const want = getComputedStyle(optionEl);
+    const expected = Object.fromEntries(TYPE.map((p) => [p, want[p]]));
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(() => selectTrigger.getAttribute("aria-expanded")).toBe("false");
+
     await userEvent.click(trigger());
-    // text-title-sm peaks at 16 and is clamp(...vw...), so inside a panel of
-    // fixed width it computes to ~12px on a phone. The sheet draws 16 at every
-    // viewport, which only a fixed role delivers.
-    expect(getComputedStyle(item("Profile")).fontSize).toBe("16px");
+    const row = item("Resend invite");
+    const sub = document.querySelector<HTMLElement>('[data-slot="menu-sub-trigger"]')!;
+    for (const el of [row, sub]) {
+      const got = getComputedStyle(el);
+      expect(Object.fromEntries(TYPE.map((p) => [p, got[p]]))).toEqual(expected);
+    }
+    // And still a FIXED role. text-title-* is clamp(...vw...), so inside a
+    // fixed-width panel it shrinks with a viewport the panel ignores.
+    expect(getComputedStyle(row).fontSize).toBe("14px");
+  });
+
+  test("a consumer className is MERGED with the row's, not appended after it (#22)", async () => {
+    // `menuItem(cn(className))` merged the caller's classes only with each
+    // other, then appended them — so `text-caption` sat beside `text-body-md`
+    // and the stylesheet's ORDER picked the winner. The class list is the
+    // evidence: a real merge leaves exactly one type role on the element.
+    mount(
+      <Menu defaultIsOpen>
+        <Menu.Trigger render={<Button>Open</Button>} />
+        <Menu.Panel className="min-w-80">
+          <Menu.Item className="text-caption">Small</Menu.Item>
+          <Menu.Sub>
+            <Menu.SubTrigger className="text-caption">Nested</Menu.SubTrigger>
+            <Menu.Panel><Menu.Item>Inner</Menu.Item></Menu.Panel>
+          </Menu.Sub>
+        </Menu.Panel>
+      </Menu>,
+    );
+    const row = item("Small");
+    const sub = document.querySelector<HTMLElement>('[data-slot="menu-sub-trigger"]')!;
+    const roles = (el: Element) =>
+      Array.from(el.classList).filter((c) => /^text-((display|title|body|label|button)-(lg|md|sm)|caption)$/.test(c));
+    for (const el of [row, sub]) expect(roles(el)).toEqual(["text-caption"]);
+    expect(panel()!.classList.contains("min-w-80")).toBe(true);
+    expect(panel()!.classList.contains("min-w-56")).toBe(false);
+
+    // And the merge is what renders: caption's own size, not body-md's.
+    const probe = document.createElement("span");
+    probe.className = "text-caption";
+    document.body.appendChild(probe);
+    const caption = getComputedStyle(probe).fontSize;
+    probe.remove();
+    expect(caption).not.toBe("14px");
+    expect(getComputedStyle(row).fontSize).toBe(caption);
   });
 
   test("the highlight is a real fill, and it moves", async () => {

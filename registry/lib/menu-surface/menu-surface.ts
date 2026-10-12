@@ -19,7 +19,22 @@
  * each separately would pass while the two drifted apart.
  */
 
+import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
+
+/*
+ * Every recipe here runs the caller's `className` through `cn()` TOGETHER
+ * with its own base classes, so an override is a real merge: a consumer's
+ * `text-caption` REPLACES the row's type role instead of sitting beside it.
+ *
+ * It used to be `menuItem(cn(className))` at the call site, which merged the
+ * consumer's classes only with EACH OTHER and then appended them after the
+ * base. `className="text-body-md"` appeared to work, but only because
+ * Tailwind happened to emit `.text-body-md` after `.text-body-lg` in the
+ * stylesheet — the cascade decided, which is the failure cn() exists to
+ * prevent (#22). Doing the merge inside the recipe means no caller can forget
+ * it, which matters for a recipe two components share.
+ */
 
 /**
  * The popup.
@@ -35,7 +50,7 @@ import { motionMicro } from "@/lib/motion";
  * repositioning cannot make a panel SMALLER than the space it lands in (§7c).
  */
 export function menuPanel(className?: string): string {
-  return [
+  return cn(
     "min-w-56 rounded-md p-xs",
     "max-h-(--available-height) max-w-(--available-width) overflow-y-auto",
     "bg-surface border border-edge-subtle shadow-md",
@@ -67,18 +82,25 @@ export function menuPanel(className?: string): string {
     "transition-[opacity]", motionMicro,
     "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 }
 
 /**
  * A row.
  *
- * `text-body-lg`, NOT `text-title-sm`. Both peak at 16px and the sheet draws
- * 16, but the title roles are FLUID — `clamp(…vw…)` — and a menu panel is a
- * fixed-width surface that a narrow viewport does not shrink. The identical
- * substitution is recorded on Sidebar, which draws the same 16/600 row.
+ * `text-body-md` — Select's option role, so a menu and a select list on one
+ * page set their rows in one type (#22). The sheet draws 16/600 and this
+ * shipped as `text-body-lg`; a members table with a role Select and a row
+ * Menu on every line then read as two type systems side by side, a size
+ * apart, in what is the same kind of popup, list and gesture. Matched BY
+ * ROLE, not by copying weights: since ADR 0020 the role carries its own
+ * weight, so naming the same role is what keeps the two from drifting.
+ * Select bolds only its SELECTED row; a menu has no selected state, so
+ * nothing here does.
+ *
+ * Still a fixed role, never `text-title-*`: the title roles are FLUID
+ * (`clamp(…vw…)`) and a menu panel is a fixed-width surface that a narrow
+ * viewport does not shrink.
  *
  * The general ink roles, NOT the sheet's nav ones — and this is a measured
  * decision, not a preference. The sheet paints the panel `--ui-bg-surface`
@@ -96,9 +118,9 @@ export function menuPanel(className?: string): string {
  * panel. Recorded in `needsDesign`.
  */
 export function menuItem(className?: string): string {
-  return [
+  return cn(
     "flex w-full cursor-pointer items-center justify-between gap-sm rounded-sm p-md",
-    "text-body-lg font-body",
+    "text-body-md font-body",
     "text-ink-primary select-none",
     "[&_svg]:size-4 [&_svg]:shrink-0",
     "transition-[background-color,color]", motionMicro,
@@ -112,9 +134,7 @@ export function menuItem(className?: string): string {
     "data-[highlighted]:forced-colors:outline data-[highlighted]:forced-colors:outline-focus",
     "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 }
 
 /**
@@ -131,16 +151,14 @@ export function menuItem(className?: string): string {
  * announced whether or not anything is painted.
  */
 export function menuSeparator(className?: string): string {
-  return ["my-sm h-px bg-transparent", className].filter(Boolean).join(" ");
+  return cn("my-sm h-px bg-transparent", className);
 }
 
 /** A group heading. Quieter and smaller than a row; never interactive. */
 export function menuGroupLabel(className?: string): string {
-  return [
+  return cn(
     "px-md pt-md pb-sm",
     "text-label-sm font-body text-ink-muted",
     className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  );
 }

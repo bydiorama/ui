@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-slider-announces-a-caller-supplied-value",
+  "date": "2026-10-05",
+  "item": "slider",
+  "kind": "a11y",
+  "summary": "Slider takes `getAriaValueText?: (value: number) => string`, written to aria-valuetext on the thumb's native input. Closes #25. Five 0-100 brand-voice sliders with named poles (Casual to Formal) announced \"Formality, 70\", which means nothing without the poles; folding the poles into the label named the control but still read the value as a bare number. The text goes on the INPUT because that is the element carrying the slider role, so a valuetext anywhere else would be announced by nothing. Restated in our own shape rather than Base UI's `(formattedValue, value, index)`: one thumb has no index, and the pre-formatted string is the locale formatting a caller writing this function is replacing. check:boundaries stays green. The doc's knownGaps entry for valuetext is removed. The browser test reads aria-valuetext off the input at the default, after Home and after End, and asserts the function is called with one numeric argument.",
+  "affects": [
+    "item:slider",
+    "prop:getAriaValueText",
+    "slot:slider-thumb"
+  ]
+}

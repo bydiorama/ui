@@ -1,6 +1,6 @@
 # 0017 — A field is a well cut from its ground, so its fills come in pairs
 
-**Status:** accepted · 2026-08-10
+**Status:** accepted · 2026-08-10 · amended 2026-10-05 (dark page field, #24)
 
 ## The finding
 
@@ -99,3 +99,52 @@ what contained the field, and there was no name for the other case.
   ceremony — but it means the failure mode is silent. A lint rule that flags a
   field inside a known chrome recipe is the obvious ratchet step and is not
   built.
+
+## Amendment — 2026-10-05: the dark page field is an input, not a hole (#24)
+
+**What changed.** In dark, `--ui-bg-field` was neutral-0 (`#1D1B19`), the
+darkest ground in the scheme, and the derivation (`surface - 0.06`) agreed.
+The owner's review of a dark Sheet with twelve fields called the inlays "too
+hard": every field read as a hole cut through the panel. The field is now
+DERIVED in every theme as the point halfway between `surface` and `elevated`
+(`towardL(surface, elevated, 0.5)`), which is `#33302D` in theme zero, and
+theme zero no longer pins it. Light is unchanged: the resolved light scheme
+was diffed before and after for theme zero and every stress brand, and no
+value moved.
+
+It equals no ground a field can land on, measured in theme zero dark:
+
+| Ground | Field `#33302D` | Field `#1D1B19` (before) |
+| --- | --- | --- |
+| `bg-base` `#423E3A` | 1.24 | 1.62 |
+| `bg-elevated` `#373430` | 1.06 | 1.39 |
+| `bg-surface` `#2F2C29` | 1.06 | 1.24 |
+| `bg-sunken` `#282522` | 1.16 | 1.13 |
+
+Ink on it: text-primary 11.86, placeholder 5.76, text-muted 6.12,
+`border-control` 3.82 (was 15.53 / 7.54 / 8.01 / 5.01). As in light, where the white
+field is the white page, the hairline draws the field's edge
+(`border-subtle` 1.51 against it).
+
+**`--ui-bg-field-disabled` had to move too, against the request.** The issue's
+revised proposal kept it at neutral-10, but neutral-10 is `bg-surface`, and it
+measures **1.06** against the new field — under the 1.1 point 2 of this ADR
+requires of each pair on its own ground. The pin is dropped and the value
+derives by `separateFrom(field, 1.12)`: `#3D3A37`, **1.16** from the field,
+1.07 against `bg-base`, 1.10 against `bg-elevated`. It still equals no
+ground. `--ui-bg-field-chrome` (neutral-10) and `-chrome-disabled`
+(neutral-20) keep their values; the chrome pair is untouched at 1.31.
+
+**Enforced.** `resolve.test.ts` gains "the dark page field sits between
+surface and elevated, never under every ground": across every stress seed the
+dark field lies strictly between `surface` and `elevated` in OKLCH lightness,
+clears 1.03 against all four grounds, and the light field is still the page.
+Probed against the old derivation: it fails on theme zero first. The pair
+assertion above still passes in both schemes for every seed.
+
+**Moves.** Every stress brand's dark field rises the same way (each derives
+the same rule), and their dark placeholders shift by one 8-bit step where the
+floor re-measures against the new ground. The dark visual baseline of every
+matrix case that draws a page field moves (darwin and linux): `input`,
+`textarea`, `select`, `multiselect`, `date-picker`, `chat-composer`, `card`,
+`modal`, `drawer` and `density`. Not regenerated with this change.

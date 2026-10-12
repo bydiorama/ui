@@ -13,13 +13,16 @@ const forBaseUI = <T,>(props: object) => props as T;
 
 /**
  * Control geometry, taken from Input rather than re-derived — the trigger is
- * the same control surface, so the two must not drift. Input: 48 / 40 / 32.
+ * the same control surface, so the two must not drift. Input: 48 / 40 / 32,
+ * with a 14 / 14 / 12px value. The text step lives here and nowhere else on
+ * the trigger: a hard-coded `text-body-md` after this map used to win the
+ * merge, the bug Select had too (#16).
  */
 export type MultiselectSize = "lg" | "md" | "sm";
 
 const SIZE = {
   lg: "h-field-lg px-lg text-body-md",
-  md: "h-field-md px-md text-caption",
+  md: "h-field-md px-md text-body-md",
   sm: "h-field-sm px-sm text-caption",
 } as const satisfies Record<MultiselectSize, string>;
 
@@ -127,11 +130,11 @@ export function Multiselect({
             className: cn(
               "flex w-full items-center justify-between gap-sm rounded-md",
               SIZE[size],
-              "border-hairline bg-field border-edge-subtle text-body-md font-body text-ink-primary",
+              "border-hairline bg-field border-edge-subtle font-body text-ink-primary",
               "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
-              "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
+              "disabled:cursor-not-allowed disabled:bg-field-disabled disabled:text-ink-disabled",
             ),
           })}
         >

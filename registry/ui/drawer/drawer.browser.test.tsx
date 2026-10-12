@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
-import { act, useState } from "react";
+import { act, useRef, useState } from "react";
 import type { ReactElement } from "react";
 
 import { Drawer } from "./drawer.tsx";
@@ -503,5 +503,78 @@ describe("Drawer.Header is the sheet's chrome band", () => {
     expect(handle!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
       band.getBoundingClientRect().top,
     );
+  });
+});
+
+
+describe("Drawer.Panel chooses where focus lands, in its own terms (#28)", () => {
+  // Two controls ahead of the target, so the default (the first tabbable
+  // element) and the requested one cannot coincide.
+  function Fixture({ useFunctions = false }: { useFunctions?: boolean }) {
+    const targetRef = useRef<HTMLButtonElement>(null);
+    const afterRef = useRef<HTMLButtonElement>(null);
+    return (
+      <Drawer>
+        <Drawer.Trigger>Open</Drawer.Trigger>
+        <button ref={afterRef} type="button">After close</button>
+        <Drawer.Panel
+          label="Fixture" initialFocus={useFunctions ? () => targetRef.current : targetRef}
+          finalFocus={useFunctions ? () => afterRef.current : afterRef}
+        >
+          <button type="button">First</button>
+          <button type="button">Second</button>
+          <button ref={targetRef} type="button">Target</button>
+        </Drawer.Panel>
+      </Drawer>
+    );
+  }
+
+  const named = (name: string) =>
+    Array.from(document.querySelectorAll<HTMLElement>("button")).find((b) => b.textContent === name)!;
+
+  for (const useFunctions of [false, true]) {
+    const form = useFunctions ? "a function" : "a ref";
+
+    test(`initialFocus as ${form} lands on the target, not the first tabbable element`, async () => {
+      mount(<Fixture useFunctions={useFunctions} />);
+      await userEvent.click(trigger());
+      await settled(panel()!);
+      await expect.poll(() => document.activeElement?.textContent).toBe("Target");
+    });
+
+    test(`finalFocus as ${form} receives focus on close, instead of the trigger`, async () => {
+      mount(<Fixture useFunctions={useFunctions} />);
+      await userEvent.click(trigger());
+      await settled(panel()!);
+      await expect.poll(() => document.activeElement?.textContent).toBe("Target");
+      await userEvent.keyboard("{Escape}");
+      await expect.poll(() => document.activeElement).toBe(named("After close"));
+    });
+  }
+
+  test("without them the defaults stand, and a function finding nothing keeps them", async () => {
+    for (const props of [{}, { initialFocus: () => null, finalFocus: () => null }]) {
+      mount(
+        <Drawer>
+          <Drawer.Trigger>Open</Drawer.Trigger>
+          <Drawer.Panel label="Fixture" {...props}>
+            <button type="button">First</button>
+            <button type="button">Target</button>
+          </Drawer.Panel>
+        </Drawer>,
+      );
+      await userEvent.click(trigger());
+      await settled(panel()!);
+      await expect.poll(() => panel()!.contains(document.activeElement)).toBe(true);
+      expect(document.activeElement?.textContent).not.toBe("Target");
+      // The default is the drag handle: it precedes the content, and it is a
+      // close button — which is why a drawer often wants initialFocus.
+      expect(document.activeElement).toBe(handle());
+      await userEvent.keyboard("{Escape}");
+      await expect.poll(() => document.activeElement).toBe(trigger());
+      act(() => root?.unmount());
+      container?.remove();
+      root = null; container = null;
+    }
   });
 });

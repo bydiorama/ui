@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { hashContent } from "./hash.ts";
 import { lockItem } from "./lock.ts";
 import type { RegistryItem } from "./registry-source.ts";
+import { resolveTargetPath } from "./target-path.ts";
 
 const identity = (target: string) => target;
 
@@ -51,4 +52,22 @@ test("a clean lock carries no `forked` key at all", async () => {
   // Absent rather than `[]`, so a lockfile with no forks reads exactly as it
   // did before this existed — and `"forked" in item` is a usable question.
   assert.equal("forked" in locked, false);
+});
+
+test("a skill item locks through the real resolver — its literal target is not an alias (#12)", async () => {
+  // Through resolveTargetPath with service-portal's aliases, not `identity`:
+  // the bug was the resolver throwing before the file was ever read.
+  const aliases = { ui: "@/components/ui", lib: "@/lib", hooks: "@/hooks" };
+  const resolve = (target: string) => resolveTargetPath(target, aliases, "src");
+  const target = ".claude/skills/diorama-ui-craft/SKILL.md";
+  const skill: RegistryItem = { name: "ui-craft", files: [{ target, content: "# craft rules" }] };
+  const read: string[] = [];
+  const reader = async (p: string) => {
+    read.push(p);
+    return p === target ? "# craft rules" : null;
+  };
+  const { locked, divergesFromRegistry } = await lockItem(skill, "sha1", "2026-01-01T00:00:00.000Z", reader, resolve);
+  assert.deepEqual(read, [target]); // read from the consumer root, not under src/
+  assert.deepEqual(locked.files, { [target]: hashContent("# craft rules") });
+  assert.deepEqual(divergesFromRegistry, []);
 });

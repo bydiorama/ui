@@ -44,12 +44,12 @@ Button
       notes:
         "soft is the DEFAULT and full is the alternative — the design's own legend calls them \"Default (soft border radius)\" and \"Rounded Full\", which is where the value names now come from. The soft radius SCALES: 4px at sm (the sheet's Small Rounded column), 8px at md and lg (as Header, Sheet and Calendar draw their 32px controls). Only lg is derived; it follows md rather than inventing a third step. This axis shipped INVERTED, with the fully-rounded shape as the default, which is why every button placed anywhere came out a pill and the soft control the design actually draws looked like an invention each time it was needed.",
     },
-    isDisabled: { type: "boolean", default: "false", notes: "Non-interactive, removed from the tab order." },
+    isDisabled: { type: "boolean", default: "false", notes: "Non-interactive, removed from the tab order. The disabled treatment is PER VARIANT: primary, secondary, outline and danger flatten to the --ui-bg-elevated chip the sheet's Disabled frame draws; ghost keeps no fill and no ring and takes only the disabled ink (--ui-text-disabled), because a control with no chrome at rest turned into a grey slab — the heaviest thing in its row — the moment it disabled (#27)." },
     isBusy: {
       type: "boolean",
       default: "false",
       notes:
-        "Keeps focus and stays operable; sets aria-busy. Never swap this for isDisabled during submit. Shows a 16px spinner IN PLACE OF the leading icon rather than beside it, so the button keeps its width and does not shift the layout under a pointer still resting on it; the spinner is aria-hidden because aria-busy already carries the meaning, and it stops turning under prefers-reduced-motion while staying visibly different from the resting icon. DERIVED — the sheet draws no busy state; it shipped as a prop that announced to assistive tech and showed sighted users nothing, which is worse than not having it.",
+        "BUSY SWALLOWS ACTIVATION (maintainer decision 2026-10-05, #8). Keeps focus and its place in the tab order, but a click, Enter or Space does nothing: onClick is not called, and a type=\"submit\" button does not submit its form — by click, by Enter on the button, or by Enter in a text field (implicit submission fires a synthetic click at the form's default button, and that click is cancelled). So isBusy is the double-submit guard ON ITS OWN; do not pair isDisabled with it for that. It is still not isDisabled: no disabled styling, no lost focus. Sets aria-busy and aria-disabled=\"true\" (aria-busy alone is not announced on a button by most screen readers, and the control genuinely cannot be activated). The cursor is `progress` and the press-scale is off, because both would acknowledge a press nothing acts on. Shows a 16px spinner IN PLACE OF the leading icon rather than beside it, so the button keeps its width and does not shift the layout under a pointer still resting on it; the spinner is aria-hidden because aria-busy already carries the meaning, and it stops turning under prefers-reduced-motion while staying visibly different from the resting icon. DERIVED — the sheet draws no busy state; it shipped as a prop that announced to assistive tech and showed sighted users nothing, which is worse than not having it.",
     },
     isFullWidth: { type: "boolean", default: "false" },
     isIconOnly: {
@@ -64,13 +64,15 @@ Button
 
   do: [
     "Give every icon-only button an aria-label describing the action, not the glyph.",
-    "Use isBusy for in-flight submits so focus survives the round trip.",
+    "Use isBusy for in-flight submits: it refuses a second activation AND keeps focus on the button for the round trip. It is the whole double-submit guard — migrating from a `loading` prop that implied disabled is a straight rename.",
     "Pass icons as slots so usage is visible at the call site.",
     "Reach for size=\"lg\" on primary page actions — it is the only size at the 44px touch target.",
   ],
 
   dont: [
     "Do not use isDisabled to indicate loading; the control disappears from the tab order.",
+    "Do not pair isDisabled with isBusy to stop a double submit — busy already refuses activation, and adding disabled only throws the keyboard user's focus away mid-submit.",
+    "Do not rely on a click reaching onClick while busy (to cancel, say). A busy button swallows activation; a cancel action is a separate button.",
     "Do not add pointer-events-none to a disabled control — it blocks the tooltip that explains why it is disabled, and the disabled attribute already prevents activation.",
     "Do not nest a Link inside a Button, and do not wrap a Button in an <a> — nested interactive elements are invalid HTML and double-announce to screen readers. A `render` slot for link-buttons ships with the behaviour layer; until then, a navigation styled as a button is out of scope for this component.",
     "Do not add a second filled primary to the same view; the brand fill is the one loudest thing on a screen.",
@@ -82,17 +84,20 @@ Button
     keyboard: [
       {
         key: "Enter",
-        does: "Activates. Native implicit activation, verified in a real browser (button.browser.test.tsx) — not re-implemented. Note the UA applies `:active` only instantaneously for Enter, so the press-scale is not perceptible; the focus ring is the static cue and the resulting action is the acknowledgement.",
+        does: "Activates — unless busy, when it does nothing (and does not submit a form). Native implicit activation, verified in a real browser (button.browser.test.tsx) — not re-implemented. Note the UA applies `:active` only instantaneously for Enter, so the press-scale is not perceptible; the focus ring is the static cue and the resulting action is the acknowledgement.",
       },
-      { key: "Space", does: "Activates on release, and holds the `:active` press-scale while down." },
+      { key: "Space", does: "Activates on release, and holds the `:active` press-scale while down. Busy: does nothing, and no press-scale." },
       { key: "Tab", does: "Moves in and out. isDisabled removes it from the sequence; isBusy does not." },
+      { key: "Enter (in a field of the same form)", does: "Implicit submission targets the form's default button. If that is a busy submit Button, nothing is submitted — the synthetic click it receives is cancelled." },
     ],
     pointer:
       "cursor: pointer is set explicitly. A <button> has no pointer cursor by default — the UA default is the arrow and Tailwind's preflight adds nothing — so omitting it silently costs the only pre-click affordance. Disabled shows not-allowed.",
     pressed:
       "PAINTS NO NEW FILL on the edge-on-nothing types. secondary firms its ring (default -> strong) and takes its ink to primary; outline takes its ink to primary; ghost keeps the fill hover already painted and darkens its ink. A pointer press is necessarily also a hover, so :hover's treatment is already applied and :active adding a second, darker fill is what produced a neutral chip on a control the design draws with no fill in any state. primary and danger are FILLS by definition and keep theirs. The ink step is required, not decorative: §8 forbids motion being the only feedback channel, and the press-scale is the motion.",
     disabled:
-      "Fills and rings with --ui-bg-elevated, which is what the sheet's Disabled frame draws — the control flattens rather than becoming a filled chip. It shipped one step darker (bg-sunken). Uses the native disabled attribute only; pointer-events are deliberately left alone so a tooltip can still explain why the control is unavailable. Hover and press states are gated behind `enabled:` instead.",
+      "PER VARIANT. primary, secondary, outline and danger fill and ring with --ui-bg-elevated, which is what the sheet's Disabled frame draws — the control flattens rather than becoming a filled chip. It shipped one step darker (bg-sunken). ghost keeps its absence of chrome — no fill, a transparent ring — and takes only --ui-text-disabled, so an unavailable quiet action stays the quietest thing in its row (#27). Uses the native disabled attribute only; pointer-events are deliberately left alone so a tooltip can still explain why the control is unavailable. Hover and press states are gated behind `enabled:` instead.",
+    busy:
+      "aria-busy=\"true\" plus aria-disabled=\"true\", focusable, in the tab order, activation refused. aria-disabled is deliberate: activation really is unavailable, and aria-busy on a button is silently ignored by most screen readers, so without it AT would present a control that does nothing as operable. The label (\"Saving…\") carries the why. Note for consumers' tests: Playwright treats aria-disabled as not-enabled, so `userEvent.click` on a busy button waits forever — dispatch `.click()` to assert that it refuses.",
     focus:
       "focus-visible only, drawn as a 2px outline offset 2px in --ui-focus-ring-color (5.6:1 against the page). Sits on the outline layer so no variant's resting ring can be mistaken for it, and forced-colors mode keeps it.",
     contrastPairs: [
@@ -119,7 +124,8 @@ Button
     "E3V-0's Outline and Outline Hover rows disagree with what ships in two ways. Its hover edge is border-default, which measures 2.14:1 and fails the 3:1 SC 1.4.11 asks of the boundary this variant exists to provide, so border-control ships instead. And its hover LIGHTENS the ink (text-primary at rest, text-muted on hover), the opposite direction from every other variant; ours keeps the ink and firms the ring. Both need a decision.",
     "E3V-0's Secondary Hover fills with --ui-bg-sunken and rings itself with that same value. What ships has no hover fill at all: the ring firms and the ink darkens. Two different pictures of one state, and only one can be right. The handoff sheet draws the shipped version.",
     "The soft radius at lg is derived from md (8px). The sheet draws soft only at sm.",
-    "No busy state is drawn; the spinner is ours.",
+    "No busy state is drawn; the spinner is ours. So is the `progress` cursor busy now shows, since busy refuses activation (#8).",
+    "The component sheet draws ONE Disabled frame — the elevated chip — for every type. The ghost exception (no fill, no ring, disabled ink only; #27) comes from a product frame (service-portal, Brand Profile › Fonts, each style's Delete), not from the sheet. Draw a disabled ghost in the handoff sheet so the two agree.",
     "Ghost Large draws paddingInline xl where the other three large buttons draw lg. Corrected to lg in Paper — confirm.",
   ],
 

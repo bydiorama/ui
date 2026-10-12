@@ -28,14 +28,19 @@ if COMP:
     Image.new("RGBA", (W, H), (0, 0, 0, 0)).save(f"{cap}/mask.png")
     vf = f"[0:v]scale={W}:{H}:flags=lanczos,fps=60[v];[v][1:v]overlay=0:0:format=auto,format=yuv420p"
 else:
-    W, H, MAXW, MAXH = 1024, 768, 0.60, 0.84
+    # FOCUS_W overrides the 60% rule for full-app views (e.g. FOCUS_W=0.84); DIM=0 drops the surround wash when the
+    # focus IS the whole app — there is nothing around it to push back. Defaults keep the snippet framing.
+    import os
+    W, H = (int(v) for v in os.environ.get("OUT_SIZE", "1024x768").split("x"))   # e.g. OUT_SIZE=1440x1080
+    MAXW, MAXH = float(os.environ.get("FOCUS_W", "0.60")), float(os.environ.get("FOCUS_H", "0.84"))
+    DIM = os.environ.get("DIM", "1") != "0"
     c = m["crop"]; bx, by, bw, bh = c["x"], c["y"], c["w"], c["h"]
     z = min(MAXW * W / bw, MAXH * H / bh); cw, ch = W / z, H / z
     cx, cy = bx + bw / 2 - cw / 2, by + bh / 2 - ch / 2
     rw, rh = bw * z, bh * z; x0, y0 = (W - rw) / 2, (H - rh) / 2
-    dim = Image.new("L", (W, H), int(255 * (0.55 if LIGHT else 0.46)))
-    ImageDraw.Draw(dim).rounded_rectangle([x0, y0, x0 + rw, y0 + rh], radius=int(min(28, rh / 3)), fill=0)
-    dim = dim.filter(ImageFilter.GaussianBlur(22))
+    dim = Image.new("L", (W, H), int(255 * (0.55 if LIGHT else 0.46)) if DIM else 0)
+    ImageDraw.Draw(dim).rounded_rectangle([x0, y0, x0 + rw, y0 + rh], radius=int(min(28 * W / 1024, rh / 3)), fill=0)
+    dim = dim.filter(ImageFilter.GaussianBlur(22 * W / 1024))
     vig = vignette(W, H, 0.05 if LIGHT else 0.62, inner=0.6, span=0.7)
     # light: wash toward the warm ground, then a soft ink vignette; dark: one black layer
     if LIGHT:
@@ -51,7 +56,10 @@ else:
     mask.save(f"{cap}/mask.png")
     L = max(0, math.ceil(-cx)); T = max(0, math.ceil(-cy)); R = max(0, math.ceil(cx + cw - CW)); B = max(0, math.ceil(cy + ch - CH))
     padc = "#F6F3F0" if LIGHT else "black"
-    pre = f"pad={CW + L + R}:{CH + T + B}:{L}:{T}:{padc}," if (L or T or R or B) else ""
+    # Where the framing leaves the capture, continue the page's own edge pixels (smear) — a flat fill left a visible
+    # rectangle around the app, because the page ground is a gradient and no single colour matches all four edges.
+    pre = (f"pad={CW + L + R}:{CH + T + B}:{L}:{T}:{padc},fillborders=left={L}:right={R}:top={T}:bottom={B}:mode=smear,"
+           if (L or T or R or B) else "")
     vf = f"[0:v]{pre}crop={int(cw)}:{int(ch)}:{int(cx + L)}:{int(cy + T)},scale={W}:{H}:flags=lanczos,fps=60[v];[v][1:v]overlay=0:0:format=auto,format=yuv420p"
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", f"{cap}/list.txt", "-i", f"{cap}/mask.png",
                 "-filter_complex", vf, "-r", "60", "-c:v", "libx264", "-preset", "slow", "-crf", "15", "-movflags", "+faststart", out], check=True)

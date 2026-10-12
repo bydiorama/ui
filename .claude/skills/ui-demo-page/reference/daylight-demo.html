@@ -184,6 +184,20 @@ html.is-demo .stage-wrap { max-width: none; }
 .figure { font-size: 48px; line-height: 44px; font-weight: 600; letter-spacing: -0.04em; }
 .figure-label { font-size: 20px; line-height: 24px; font-weight: 500; color: var(--ink-muted); letter-spacing: -0.025em; }
 .figure-note { color: var(--ink-muted); line-height: 18px; margin-top: 8px; }
+/* Hero text changes borrow the chat thread: lines swap like the thinking text (old slides up and blurs out, new rises
+   in), and the note's new sentence streams in word by word like a reply. Both versions share one grid cell, so the
+   swap never widens the line — the note wraps inside the card instead of running past it (the old char-diff morph
+   measured the two halves side by side, nowrap, and leaked out of the banner). */
+.t-swap { position: relative; display: inline-block; vertical-align: baseline; white-space: nowrap; }
+.t-swap-block { display: block; white-space: normal; }
+/* the leaving line is lifted out of the flow, so only the arriving one sizes the box — sharing a cell let the old
+   "5h 30m" size the figure while its width animated, and the line overflowed the card */
+.t-swap > .is-exit { position: absolute; left: 0; top: 0; }
+.t-swap-block > .is-exit { right: 0; }
+.t-swap > span { transition: transform var(--think-swap) var(--think-ease), filter var(--think-swap) var(--think-ease), opacity var(--think-swap) var(--think-ease); }
+.t-swap > .is-exit { transform: translateY(calc(var(--think-distance) * -1)); filter: blur(var(--think-blur)); opacity: 0; }
+.t-swap > .is-enter-start { transition: none; transform: translateY(var(--think-distance)); filter: blur(var(--think-blur)); opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .t-swap > span { transition: none; } }
 .strip { display: flex; flex-direction: column; gap: 10px; }
 .track { display: flex; gap: 2px; height: 20px; position: relative; }
 .seg { flex-basis: 0; border-radius: 4px; transition: background-color var(--duration-slow) var(--ease-smooth-out), box-shadow var(--duration-slow) var(--ease-smooth-out); }
@@ -445,6 +459,100 @@ html[data-mode="light"] .toast button { background: #F6F3F0; color: #1B6C84; }
 html[data-mode="light"] .t-tt { box-shadow: inset 0 0 0 1px rgba(29, 27, 25, 0.08), var(--shadow-lg) !important; }
 html[data-mode="light"] .type-fade { background: linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%); }
 html[data-mode="light"] .cursor svg path { fill: #1D1B19; stroke: #FFFFFF; }
+
+
+/* ═════════ Generating · a block being written by the Assistant (Paper ref "Adding Event Animation") ═════════
+   Three keyframes from the reference: generating (hue 48%, inner glow 48px, ink 72%), resolving (hue 32%, glow 8px,
+   ink 80%), settled (layer gone, ink 100%). Blobs are radial gradients — white core into the tone's wash — blurred 32px. */
+/* dark carries less light: on Jet Black the same blobs glare, so the strengths drop */
+:root { --gen-hue-rgb: 72, 147, 172; --gen-core-rgb: 158, 219, 243; --gen-hot-rgb: 200, 236, 250; --gen-glow: rgba(158, 219, 243, 0.12);
+  --gen-a1: 0.30; --gen-a2: 0.18; --gen-core-a: 0.42; --gen-hot-a: 0.5; --gen-sweep: 0.22; }
+html[data-mode="light"] { --gen-hue-rgb: 87, 153, 177; --gen-core-rgb: 210, 235, 248; --gen-hot-rgb: 255, 255, 255; --gen-glow: rgba(255, 255, 255, 0.32);
+  --gen-a1: 0.48; --gen-a2: 0.32; --gen-core-a: 0.9; --gen-hot-a: 0.95; --gen-sweep: 0.75; }
+/* positioned hosts (a schedule event is absolute) keep their own position; only static ones become the containing block */
+.gen-host { overflow: hidden; isolation: isolate; }
+.gen-host:not(.ev) { position: relative; }
+.gen { position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit;
+  background-color: rgba(var(--gen-hue-rgb), var(--gen-a1)); box-shadow: inset 0 0 48px var(--gen-glow);
+  transition: opacity 700ms var(--ease-smooth-out), background-color 900ms var(--ease-smooth-out), box-shadow 900ms var(--ease-smooth-out); }
+.gen i { position: absolute; width: 62%; aspect-ratio: 1; border-radius: 50%; filter: blur(32px);
+  background: radial-gradient(circle, rgba(var(--gen-hot-rgb), var(--gen-hot-a)) 0%, rgba(var(--gen-core-rgb), var(--gen-core-a)) 42%, rgba(var(--gen-core-rgb), 0) 70%);
+  animation: gen-drift 2.4s ease-in-out infinite alternate, gen-twinkle 0.9s ease-in-out infinite alternate; }
+.gen i:nth-child(1) { left: -12%; top: -120%; }
+.gen i:nth-child(2) { left: 48%; top: -70%; animation-duration: 2.9s; animation-delay: -0.9s; }
+.gen i:nth-child(3) { left: 14%; top: 0%; width: 48%; animation-duration: 3.3s; animation-delay: -1.7s; }
+/* shimmer: a band of light travels across the block while it is being written, and the blobs twinkle */
+.gen::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(var(--gen-hot-rgb), var(--gen-sweep)) 50%, transparent 62%);
+  background-size: 260% 100%; background-repeat: no-repeat; animation: gen-sweep 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.gen-host.is-resolving .gen::after { animation-duration: 1.5s; opacity: 0.6; }
+@keyframes gen-sweep { from { background-position: 140% 0; } to { background-position: -40% 0; } }
+@keyframes gen-twinkle { from { opacity: 0.6; } to { opacity: 1; } }
+@keyframes gen-drift { from { transform: translate(-8%, -6%) scale(0.9); } to { transform: translate(10%, 8%) scale(1.1); } }
+.gen-host > :not(.gen) { position: relative; z-index: 1; }
+/* Text is never blurred while generating — it follows the chat's thinking text: the ink held back (72% generating,
+   80% resolving, as in the reference) while a highlight band sweeps through the letters. */
+.ev.gen-host [data-gen-text] { --gen-ink: var(--info); }
+.task.gen-host .task-title { --gen-ink: var(--ink); }
+.task.gen-host .task-meta { --gen-ink: var(--ink-muted); }
+.gen-host [data-gen-text] { position: relative; transition: color 700ms var(--ease-smooth-out); }
+.gen-host.is-generating [data-gen-text] { color: color-mix(in oklab, var(--gen-ink) 72%, transparent); }
+.gen-host.is-resolving [data-gen-text] { color: color-mix(in oklab, var(--gen-ink) 80%, transparent); }
+.gen-host [data-gen-text]::before { content: attr(data-gen-text); position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(90deg, transparent 0%, transparent 40%, var(--gen-text-hi) 50%, transparent 60%, transparent 100%);
+  background-size: 400% 100%; background-repeat: no-repeat; -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+  animation: t-think-shimmer var(--think-shimmer) linear infinite; transition: opacity 500ms var(--ease-smooth-out); }
+.gen-host.is-settled [data-gen-text]::before { opacity: 0; }
+:root { --gen-text-hi: color-mix(in oklab, var(--gen-ink), white 60%); }
+html[data-mode="light"] { --gen-text-hi: color-mix(in oklab, var(--gen-ink), black 45%); }
+.gen-host.is-resolving .gen { background-color: rgba(var(--gen-hue-rgb), var(--gen-a2)); box-shadow: inset 0 0 8px var(--gen-glow); }
+.gen-host.is-settled .gen { opacity: 0; }
+/* entrance: the block itself arrives soft, then the generation resolves on it */
+.gen-enter { opacity: 0; transform: scale(0.985); transition: opacity 500ms var(--ease-smooth-out), transform 600ms var(--ease-smooth-out); }
+.gen-enter.is-in { opacity: 1; transform: none; }
+/* landing: the settled event taps down like haptic feedback — overshoot, compress, rebound, rest — a ring pulses
+   out from its edge (box-shadow, so its own overflow cannot clip it) and the neighbours give 1.5px and come back */
+:root { --land-rgb: 158, 219, 243; --land-base: inset 0 0 0 1px rgba(158, 219, 243, 0.12); }
+html[data-mode="light"] { --land-rgb: 81, 140, 162; --land-base: 0 0.5px 1.5px rgba(29, 27, 25, 0.16); }
+.ev.is-landing { animation: ev-land 520ms cubic-bezier(0.3, 0.7, 0.4, 1) both, ev-ring 700ms cubic-bezier(0.2, 0.6, 0.3, 1) both; }
+@keyframes ev-land { 0% { transform: scale(1.022); } 34% { transform: scale(0.986); } 62% { transform: scale(1.005); } 100% { transform: none; } }
+@keyframes ev-ring { 0% { box-shadow: var(--land-base), 0 0 0 0 rgba(var(--land-rgb), 0.5); } 100% { box-shadow: var(--land-base), 0 0 0 10px rgba(var(--land-rgb), 0); } }
+.ev.is-nudge-up { animation: ev-nudge-up 420ms cubic-bezier(0.3, 0.7, 0.4, 1) both; }
+.ev.is-nudge-down { animation: ev-nudge-down 420ms cubic-bezier(0.3, 0.7, 0.4, 1) both; }
+@keyframes ev-nudge-up { 0% { transform: none; } 35% { transform: translateY(-1.5px); } 100% { transform: none; } }
+@keyframes ev-nudge-down { 0% { transform: none; } 35% { transform: translateY(1.5px); } 100% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ev.is-landing, .ev.is-nudge-up, .ev.is-nudge-down { animation: none; } .gen::after, .think-line.gen-pill::after { animation: none; opacity: 0; } }
+.task-grow { overflow: hidden; transition: height 600ms var(--ease-smooth-out), margin-bottom 600ms var(--ease-smooth-out); }
+#openSlot { transition: opacity 400ms var(--ease-smooth-out), filter 400ms var(--ease-smooth-out); }
+#openSlot.is-taken { opacity: 0; filter: blur(4px); }
+/* halo in the bubble: while the Assistant writes, its thinking line becomes a pill with a breathing halo.
+   The halo lives on the line, not on .t-think — that one clips its own overflow for the text swap. */
+.think-line.gen-pill { position: relative; isolation: isolate; width: fit-content; padding: 7px 14px; margin: 4px 0 16px 4px; border-radius: 999px; background: var(--raised); }
+html[data-mode="light"] .think-line.gen-pill { background: #FFFFFF; box-shadow: var(--shadow-sm); }
+/* The halo lives INSIDE the bubble: drifting circular gradients behind the text, painted inside the pill's own box and radius (no overflow clip — the thinking text sits outside the line's box).
+   Outside it would be cut by the thread — a scroll container with 4px to the pill's left and 14px below — which is
+   what made the first version end in a hard rectangle. No blur filter is needed; the gradients fade on their own. */
+.think-line.gen-pill::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(var(--halo-a-rgb), var(--halo-a)) 0%, transparent 55%),
+    radial-gradient(circle at 55% 40%, rgba(var(--halo-b-rgb), var(--halo-b)) 0%, transparent 50%),
+    radial-gradient(circle at 85% 60%, rgba(var(--halo-c-rgb), var(--halo-c)) 0%, transparent 45%);
+  background-size: 160% 260%; background-position: 0% 50%;
+  animation: gen-halo 2.2s ease-in-out infinite alternate;
+  transition: opacity 500ms var(--ease-smooth-out); }
+/* light: white into the accent wash on a white pill; dark: the light accent at low strength on the raised pill */
+/* strengths capped so --ink-muted keeps >= 4.6:1 where the halo's strongest stop meets the sweep
+   (measured: dark 4.62 at halo 0.16 + sweep 0.10; light 4.62 at the halo peak, 5.51 under the white sweep) */
+:root { --halo-a-rgb: 158, 219, 243; --halo-b-rgb: 121, 184, 211; --halo-c-rgb: 158, 219, 243; --halo-a: 0.12; --halo-b: 0.16; --halo-c: 0.12; --halo-sweep-rgb: 200, 236, 250; --halo-sweep: 0.10; }
+html[data-mode="light"] { --halo-a-rgb: 210, 235, 248; --halo-b-rgb: 158, 219, 243; --halo-c-rgb: 210, 235, 248; --halo-a: 1; --halo-b: 0.6; --halo-c: 0.9; --halo-sweep-rgb: 255, 255, 255; --halo-sweep: 0.7; }
+.think-line.gen-pill::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(105deg, transparent 36%, rgba(var(--halo-sweep-rgb), var(--halo-sweep)) 50%, transparent 64%);
+  background-size: 260% 100%; background-repeat: no-repeat; animation: gen-sweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.think-line.gen-pill.is-done::before, .think-line.gen-pill.is-done::after { opacity: 0; }
+.think-line.gen-pill.is-done { opacity: 0; transition: opacity 400ms var(--ease-smooth-out) 120ms; }
+@keyframes gen-halo { from { background-position: 0% 30%; } to { background-position: 100% 70%; } }
+@media (prefers-reduced-motion: reduce) { .gen i, .think-line.gen-pill::before { animation: none; } }
 
 /* Snippet captures: one continuous ground. The frame's own background (artboard: bg-surface -> bg-elevated, oklab)
    is extended past its edges — the stops sit exactly at the frame's top and bottom, so ground and frame agree at
@@ -878,14 +986,14 @@ html[data-mode="light"].is-compose .app { border-color: #DAD4CE; }
             </div>
             <div>
               <div class="figure-row">
-                <span class="figure tnum"><span class="t-digit-group" id="figure"><span class="t-digit">4</span><span class="t-digit">h</span></span></span>
+                <span class="figure tnum"><span class="t-swap" id="figure"><span class="is-current">4h</span></span></span>
                 <span class="figure-label">to yourself</span>
               </div>
-              <div class="figure-note"><span class="t-morph" id="figureNote">2h 30m still ahead. Next free stretch at 11:30.</span></div>
+              <div class="figure-note"><span class="t-swap t-swap-block" id="figureNote"><span class="is-current">2h 30m still ahead. Next free stretch at 11:30.</span></span></div>
             </div>
             <div class="strip">
               <div class="track">
-                <i class="seg open" style="flex-grow:90"></i><i class="seg focus" style="flex-grow:90"></i><i class="seg meet" style="flex-grow:30"></i><i class="seg open" style="flex-grow:60"></i><i class="seg personal" style="flex-grow:60"></i><i class="seg open" style="flex-grow:30"></i><i class="seg meet" style="flex-grow:60"></i><i class="seg client" style="flex-grow:30"></i><i class="seg suggest" id="segSuggest" style="flex-grow:90"></i><i class="seg open" style="flex-grow:60"></i>
+                <i class="seg open" style="flex-grow:90"></i><i class="seg focus" style="flex-grow:90"></i><i class="seg meet" style="flex-grow:30"></i><i class="seg open" id="segFree1130" style="flex-grow:60"></i><i class="seg personal" style="flex-grow:60"></i><i class="seg open" style="flex-grow:30"></i><i class="seg meet" style="flex-grow:60"></i><i class="seg client" style="flex-grow:30"></i><i class="seg suggest" id="segSuggest" style="flex-grow:90"></i><i class="seg open" style="flex-grow:60"></i>
                 <i class="veil"></i><i class="tick"></i>
               </div>
               <div class="scale tnum"><span>08</span><span>10</span><span>12</span><span>14</span><span>16</span><span>18</span></div>
@@ -893,7 +1001,7 @@ html[data-mode="light"].is-compose .app { border-color: #DAD4CE; }
           </div>
 
           <div class="t-stagger-line t-stagger-line--2">
-            <div class="group-head"><b>Focus</b><span class="tnum"><span class="t-digit-group" id="doneCount"><span class="t-digit">1</span></span> of 3</span></div>
+            <div class="group-head"><b>Focus</b><span class="tnum"><span class="t-digit-group" id="doneCount"><span class="t-digit">1</span></span> of <span class="t-digit-group" id="focusTotal"><span class="t-digit">3</span></span></span></div>
             <div class="tasks" id="focusTasks">
               <div class="task" data-task>
                 <button class="box t-check" role="checkbox" aria-checked="false" aria-label="Finish grid proofs"><svg class="i" data-i="Check"></svg></button>
@@ -970,7 +1078,7 @@ html[data-mode="light"].is-compose .app { border-color: #DAD4CE; }
 
               <div class="ev focus" style="top:1px;height:88px"><div class="col"><span class="t">Grid proofs</span><span class="m tnum">Since 09:30 · 20 min left · Focus</span></div></div>
               <div class="ev meet short" style="top:91px;height:43px"><span class="t">Pictogram brief</span><span class="m tnum">11:00</span><span class="av">OA</span></div>
-              <div class="open-time" style="top:136px;color:var(--ink-muted)"><svg class="i" data-i="Sun"></svg><span>1 hour, unclaimed</span></div>
+              <div class="open-time" id="openSlot" style="top:136px;color:var(--ink-muted)"><svg class="i" data-i="Sun"></svg><span>1 hour, unclaimed</span></div>
               <div class="ev personal" style="top:226px;height:88px"><div class="col"><span class="t">Lunch with Massimo</span><span class="m tnum">12:30 – 13:30 · Café Luitpold · kept at your request</span></div><span class="av">MV</span></div>
               <div class="ev meet" style="top:361px;height:88px"><div class="col"><span class="t">Studio crit</span><span class="m tnum">14:00 – 15:00 · shortened from 90 min</span></div>
                 <div class="t-avatar-group" id="critAvatars" aria-label="Wim Crouwel, Karl Gerstner, Muriel Cooper"><span class="av t-avatar" title="Wim Crouwel">WC</span><span class="av t-avatar" title="Karl Gerstner">KG</span><span class="av t-avatar" title="Muriel Cooper">MC</span></div></div>
@@ -1125,11 +1233,51 @@ function morphText(el, next) {
   const inn = document.createElement("span"); inn.className = "t-morph-new"; inn.textContent = next.slice(a, next.length - b);
   swap.append(out, inn);
   el.textContent = ""; el.append(next.slice(0, a), swap, next.slice(next.length - b));
-  swap.style.width = out.getBoundingClientRect().width + "px";
+  swap.style.width = out.offsetWidth + "px";   // layout px — immune to the render's stage scale
   void swap.offsetWidth;
   swap.classList.add("is-morphing");
-  swap.style.width = inn.getBoundingClientRect().width + "px";
+  swap.style.width = inn.offsetWidth + "px";
   el._morphTimer = setTimeout(() => { el.textContent = next; }, Math.max(ms("--text-morph-dur"), ms("--text-morph-resize-dur")) + 40);
+}
+
+/* ── hero text: line swap (figure) and swap + word stream (note) ── */
+function swapLine(el, next, { stream = false } = {}) {
+  const cur = el.querySelector(":scope > .is-current");
+  if (cur && cur.dataset.v === next) return;
+  if (!cur && el.textContent.trim() === next) return;
+  const dur = ms("--think-swap", 150) + 120;
+  // offsetWidth, not getBoundingClientRect: the renderer scales the stage, and a screen-space width written back as
+  // CSS doubled the box at 2x — that pushed the label and note out of the banner in the rendered videos
+  const w0 = el.offsetWidth;
+  const nu = document.createElement("span"); nu.className = "is-current is-enter-start"; nu.dataset.v = next;
+  if (stream) {
+    next.split(/\s+/).forEach((w, k, a) => { const s = document.createElement("span"); s.className = "t-stream-w"; s.textContent = w; nu.appendChild(s); if (k < a.length - 1) nu.appendChild(document.createTextNode(" ")); });
+  } else nu.textContent = next;
+  if (cur) { cur.classList.remove("is-current"); cur.classList.add("is-exit"); setTimeout(() => cur.remove(), dur + 60); }
+  el.appendChild(nu);
+  if (!el.classList.contains("t-swap-block")) {   // the figure's width glides, so "to yourself" slides instead of jumping
+    const w1 = nu.offsetWidth;
+    el.style.width = w0 + "px"; void el.offsetWidth;
+    el.style.transition = `width ${dur}ms var(--think-ease)`; el.style.width = w1 + "px";
+    setTimeout(() => { el.style.width = ""; el.style.transition = ""; }, dur + 80);
+  }
+  requestAnimationFrame(() => requestAnimationFrame(() => nu.classList.remove("is-enter-start")));
+  if (stream) {
+    const words = [...nu.querySelectorAll(".t-stream-w")], gap = ms("--stream-gap", 60) * 0.6;
+    words.forEach((w, k) => setTimeout(() => w.classList.add("is-in"), 90 + k * gap));
+  }
+}
+/* free time is derived, not hard-coded: a dismissed suggestion frees 90 min, a task the Assistant adds takes 60 */
+let genAdded = false;
+function fmtH(mins) { const h = Math.floor(mins / 60), m = mins % 60; return m ? `${h}h ${m}m` : `${h}h`; }
+function updateHero() {
+  const free = 240 + (suggState === "dismissed" ? 90 : 0) - (genAdded ? 60 : 0);
+  const ahead = 150 + (suggState === "dismissed" ? 90 : 0) - (genAdded ? 60 : 0);
+  const next = genAdded ? "13:30" : "11:30";
+  swapLine(figure, fmtH(free));
+  setTimeout(() => swapLine(figureNote, `${fmtH(ahead)} still ahead. Next free stretch at ${next}.`, { stream: true }), 120);
+  document.getElementById("segFree1130").classList.toggle("focus", genAdded);
+  document.getElementById("segFree1130").classList.toggle("open", !genAdded);
 }
 
 /* ── 02 · number pop-in ── */
@@ -1208,9 +1356,7 @@ function setSugg(state) {
   morphText(blockLabel, state === "blocked" ? "Blocked" : "Block it");
   morphText(skipLabel, state === "blocked" ? "Undo" : "Not today");
   morphText(document.getElementById("refLabel"), state === "blocked" ? "Blocked 15:30 – 17:00" : state === "dismissed" ? "Dismissed for today" : "Waiting for you in the calendar");
-  const fig = state === "dismissed" ? "5h 30m" : "4h";
-  if (figure.textContent.replace(/\s+/g, "") !== fig.replace(/\s+/g, "")) setDigits(figure, fig);
-  morphText(figureNote, state === "dismissed" ? "4h still ahead. Next free stretch at 11:30." : "2h 30m still ahead. Next free stretch at 11:30.");
+  updateHero();
 }
 document.getElementById("blockBtn").addEventListener("click", () => {
   if (suggState === "blocked") return;
@@ -1309,6 +1455,7 @@ askInput.addEventListener("input", () => sendBtn.classList.toggle("is-ready", as
 const REPLIES = {
   "plan monday": { states: ["Reading Monday's calendar", "Weighing the six parked tasks", "Finding your quiet stretch"], text: "Monday has the weekly sync at 10:00 and nothing after 14:00. I'd put the Wim Crouwel reply and the Linotype expense before the sync, and keep 14:00 – 16:30 clear for the retrospective layouts." },
   "what can i skip?": { states: ["Reading the rest of today", "Checking who's expecting you", "Ranking by what moves the work"], text: "Programme review at 15:00 is the safest to skip. Karl only needs your sign-off, and I can ask him to take it async. That turns 15:00 – 17:00 into one two-hour stretch for the pictograms." },
+  add: { states: ["Reading your day", "Finding an hour before lunch", "Writing the task"], generate: true, ref: "In your calendar at 11:30", text: "Done. It's first on your focus list, and I've blocked 11:30 – 12:30 for it — the last free hour before lunch." },
   default: { states: ["Reading your day", "Checking the calendar", "Drafting a reply"], text: "Noted. Your afternoon stays as it is: studio crit at 14:00, programme review at 15:00, and the pictograms pencilled in from 15:30 until you head home at 17:00." },
 };
 let busy = false;
@@ -1319,10 +1466,11 @@ function ask(q) {
   const u = addEl("", "msg user t-stagger"); const b = document.createElement("div"); b.className = "bubble t-stagger-line"; b.textContent = q; u.appendChild(b);
   requestAnimationFrame(() => u.classList.add("is-shown"));
   const ql = q.trim().toLowerCase();
-  const r = REPLIES[ql] || (ql.includes("skip") ? REPLIES["what can i skip?"] : ql.includes("monday") ? REPLIES["plan monday"] : REPLIES.default);
+  const r = REPLIES[ql] || (/^add\b|\badd (a|an)\b/.test(ql) ? REPLIES.add : ql.includes("skip") ? REPLIES["what can i skip?"] : ql.includes("monday") ? REPLIES["plan monday"] : REPLIES.default);
   const longest = r.states.reduce((a, s) => (s.length > a.length ? s : a), "");
   const line = addEl(`<span class="t-think" role="status"><span class="t-think-sizer" aria-hidden="true"></span><span class="t-think-text"></span></span>`, "think-line");
   line.querySelector(".t-think-sizer").textContent = longest + "…";
+  if (r.generate) { line.classList.add("gen-pill"); smoothScroll(thread, thread.scrollHeight - thread.clientHeight); }
   let live = line.querySelector(".t-think-text"); live.textContent = r.states[0] + "…"; live.setAttribute("data-text", r.states[0] + "…");
   const box = line.querySelector(".t-think"); let i = 0;
   const hold = 1100;
@@ -1336,20 +1484,82 @@ function ask(q) {
       const release = () => { void next.offsetWidth; next.classList.remove("is-enter-start"); };
       if (gap > 0) setTimeout(release, gap); else release();
       setTimeout(() => { leaving.remove(); cycle(); }, swap + gap);
+      if (r.generate && i === r.states.length - 1) generateTask();
     }, hold);
   }
-  function finish() {
+  async function finish() {
+    if (r.generate) { line.classList.add("is-done"); await new Promise((d) => setTimeout(d, 520)); }
     line.remove();
     const m = addEl("", "msg"); const block = document.createElement("div"); block.className = "t-stream"; m.appendChild(block);
     const words = r.text.split(/\s+/);
     const spans = words.map((w, k) => { const s = document.createElement("span"); s.className = "t-stream-w"; s.textContent = w; block.appendChild(s); if (k < words.length - 1) block.appendChild(document.createTextNode(" ")); return s; });
     const gap = ms("--stream-gap", 60);
-    (function next(n) { if (n >= spans.length) { busy = false; return; } spans[n].classList.add("is-in"); if (n % 6 === 0) smoothScroll(thread, thread.scrollHeight - thread.clientHeight); setTimeout(() => next(n + 1), gap); })(0);
+    (function next(n) { if (n >= spans.length) {
+      if (r.ref) { const ref = document.createElement("span"); ref.className = "ref t-stagger"; ref.innerHTML = "<i></i><span></span>"; ref.lastChild.textContent = r.ref; m.appendChild(ref); requestAnimationFrame(() => ref.classList.add("is-shown")); }
+      busy = false; return; } spans[n].classList.add("is-in"); if (n % 6 === 0) smoothScroll(thread, thread.scrollHeight - thread.clientHeight); setTimeout(() => next(n + 1), gap); })(0);
   }
   cycle();
 }
 document.getElementById("askForm").addEventListener("submit", (e) => { e.preventDefault(); ask(askInput.value); askInput.value = ""; sendBtn.classList.remove("is-ready"); });
 document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => ask(c.dataset.prompt)));
+
+/* ── a task written by the Assistant: grows into the focus list and onto the schedule, generated on the go ── */
+const GEN_TASK = { title: "Outline the agentic design systems article", meta: "60 min · 11:30, before lunch", ev: "11:30 – 12:30 · added by Assistant" };
+const genLayer = () => '<div class="gen" aria-hidden="true"><i></i><i></i><i></i></div>';
+function land(ev) {
+  const above = ev.previousElementSibling?.previousElementSibling, below = ev.nextElementSibling;   // skip the faded open-time row
+  const near = [[above, "is-nudge-up"], [below, "is-nudge-down"]].filter(([el]) => el && el.classList.contains("ev"));
+  ev.classList.add("is-landing"); near.forEach(([el, c]) => el.classList.add(c));
+  setTimeout(() => { ev.classList.remove("is-landing"); near.forEach(([el, c]) => el.classList.remove(c)); }, 760);
+}
+function resolveGen(host, delay = 0, onSettle) {
+  return new Promise((done) => {
+    setTimeout(() => host.classList.replace("is-generating", "is-resolving"), delay + 1100);
+    setTimeout(() => { host.classList.replace("is-resolving", "is-settled"); onSettle?.(host); }, delay + 1900);
+    // at rest nothing stays filtered or promoted (ui-craft 23): drop the layer and the state classes
+    setTimeout(() => { host.querySelector(":scope > .gen")?.remove(); host.querySelectorAll("[data-gen-text]").forEach((n) => delete n.dataset.genText); host.classList.remove("gen-host", "is-settled"); done(); }, delay + 2700);
+  });
+}
+function generateTask() {
+  if (document.getElementById("genTask")) return;
+  // the task row grows in at the top of Focus
+  const row = document.createElement("div");
+  row.className = "task gen-host is-generating task-grow"; row.id = "genTask"; row.dataset.task = "";
+  row.innerHTML = genLayer() + '<button class="box t-check" role="checkbox" aria-checked="false"><svg class="i" data-i="Check"></svg></button><div><div class="task-title"></div><div class="task-meta tnum"></div></div>';
+  row.querySelector(".task-title").textContent = GEN_TASK.title; row.querySelector(".task-meta").textContent = GEN_TASK.meta;
+  row.querySelectorAll(".task-title, .task-meta").forEach((n) => n.dataset.genText = n.textContent);
+  row.querySelector(".t-check").setAttribute("aria-label", GEN_TASK.title);
+  fillIcons(row);
+  const list = document.getElementById("focusTasks"); list.prepend(row);
+  // measure the row's own content: scrollHeight would include the generating layer's blobs, which overflow far below
+  // the row — that grew it to nearly twice its height until the layer was removed
+  const layer = row.querySelector(":scope > .gen"); layer.style.display = "none";
+  const h = row.scrollHeight; layer.style.display = "";
+  row.style.height = "0px"; row.style.marginBottom = "-8px"; void row.offsetHeight;
+  row.style.height = h + "px"; row.style.marginBottom = "0px";
+  setTimeout(() => { row.classList.remove("task-grow"); row.style.height = ""; row.style.marginBottom = ""; }, 650);
+  setDigits(document.getElementById("focusTotal"), "4");
+  genAdded = true; setTimeout(updateHero, 420);   // the banner answers as the event appears
+  resolveGen(row, 250);
+  // the same block lands in the open hour on the schedule
+  const slot = document.getElementById("openSlot"); slot.classList.add("is-taken");
+  const ev = document.createElement("div"); ev.className = "ev focus gen-host is-generating gen-enter"; ev.id = "genEvent";
+  ev.style.top = "136px"; ev.style.height = "88px";
+  ev.innerHTML = genLayer() + '<div class="col"><span class="t"></span><span class="m tnum"></span></div>';
+  ev.querySelector(".t").textContent = GEN_TASK.title; ev.querySelector(".m").textContent = GEN_TASK.ev;
+  ev.querySelectorAll(".t, .m").forEach((n) => n.dataset.genText = n.textContent);
+  slot.after(ev); void ev.offsetWidth;
+  setTimeout(() => ev.classList.add("is-in"), 120);
+  setTimeout(() => ev.classList.remove("gen-enter", "is-in"), 900);
+  return resolveGen(ev, 420, land);
+}
+function undoGeneratedTask() {
+  const row = document.getElementById("genTask"), ev = document.getElementById("genEvent"), slot = document.getElementById("openSlot");
+  if (row) { row.classList.add("task-grow"); row.style.height = row.offsetHeight + "px"; void row.offsetHeight; row.style.height = "0px"; row.style.marginBottom = "-8px"; row.style.opacity = "0"; row.style.transition = "height 600ms var(--ease-smooth-out), margin-bottom 600ms var(--ease-smooth-out), opacity 300ms var(--ease-smooth-out)"; setTimeout(() => row.remove(), 650); }
+  if (ev) { ev.style.transition = "opacity 400ms var(--ease-smooth-out), filter 400ms var(--ease-smooth-out)"; ev.style.opacity = "0"; ev.style.filter = "blur(6px)"; setTimeout(() => { ev.remove(); slot.classList.remove("is-taken"); }, 420); }
+  setDigits(document.getElementById("focusTotal"), "3");
+  genAdded = false; updateHero();
+}
 /* ═════════ #demo · choreographed walkthrough (for video) ═════════ */
 const cursor = document.getElementById("cursor");
 const threadInitial = thread.innerHTML;
@@ -1461,6 +1671,27 @@ async function runDemo() {
 
 /* ═════════ component snippets (each returns to its first frame) ═════════ */
 const $ = (q) => document.querySelector(q);
+
+async function runAddTask(quick = false) {
+  const before = thread.children.length;
+  if (quick) {   // list and schedule framings: the chat is off-frame, so no cursor and no typing — the message just arrives
+    await wait(700); ask("Add an hour before lunch to outline the agentic design systems article");
+    while (busy) await wait(200);
+    await wait(2400); undoGeneratedTask(); await wait(900); await settleThread(before); await wait(300);
+    return;
+  }
+  const inp = $("#askInput");
+  await moveTo(inp, 850, -40); await wait(150); await press(inp);
+  await typeInto(inp, "Add an hour before lunch to outline the agentic design systems article", 38);
+  await wait(450);
+  await moveTo($("#sendBtn"), 420); await wait(150);
+  endTyping(inp); await press($("#sendBtn"));
+  await moveTo({ x: pt.x - 90, y: pt.y + 46 }, 600);
+  while (busy) await wait(200);
+  await wait(2400);
+  undoGeneratedTask(); await wait(700);
+  await settleThread(before);
+}
 const SNIPPETS = {
   hero: { box: () => $(".hero"), cursor: false, async run() {
     await wait(700); setSugg("dismissed"); await wait(2400); setSugg("pending"); await wait(2200);
@@ -1504,6 +1735,10 @@ const SNIPPETS = {
     await wait(1800);
     await settleThread(before);
   } },
+  addtask: { box: () => $("#app"), async run() { await runAddTask(); } },
+  "addtask-chat": { box: () => $(".composer"), growTop: 300, async run() { await runAddTask(); } },
+  "addtask-list": { box: () => $("#focusTasks").parentElement, grow: 90, cursor: false, async run() { await runAddTask(true); } },
+  "addtask-schedule": { box: () => $("#openSlot"), growTop: 60, grow: 120, cursor: false, async run() { await runAddTask(true); } },
   "assistant-input": { box: () => $(".composer"), growTop: 300, async run() {
     const before = thread.children.length;
     const inp = $("#askInput");

@@ -8,7 +8,7 @@ it was checked, and how to make it again.
 | Date | 2026-10-19 |
 | Requested by | Jakub Otčenáš |
 | Made with | Claude Code (Opus 5.5) · skills `ui-motion-media`, `ui-demo-page`, `ui-video-render`, `ui-stills-render` |
-| Status | delivered: 2 films + 2 stills. `.gitignore` narrowed from `design/` to `design/*` + `!design/motion/`, so the storyboard, spec, page and tools are trackable while `exports/` and `__pycache__/` stay ignored. Not committed |
+| Status | delivered: 2 films + 2 stills. `.gitignore` narrowed from `design/` to `design/*` + `!design/motion/`, so the storyboard, spec, page and tools are trackable while `exports/` and `__pycache__/` stay ignored. Committed on branch `claude/today-banner-evolution` |
 
 ## 1 · Request
 

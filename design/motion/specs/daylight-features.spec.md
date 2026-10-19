@@ -42,10 +42,10 @@ the format, the framing and the hero thumbnail's moment.
 | `daylight-walkthrough.html`, `SNIPPETS.hero` | Adds the agent-taken hour after the declined suggestion | The banner's second live response (above) |
 | `daylight-walkthrough.html`, snippet ground | `html.is-demo:not(.is-compose)` uses the design's oklab gradient | Seamless ground after the sync |
 | `daylight-walkthrough.html`, `ask()` → `finish()` | Scrolls the thread to the reply's reference line | The action's feedback, *In your calendar at 11:30*, was appended below the fold and never showed. Found on the chat clip's first contact sheet |
-| `tools/render.py` | `--snippet NAME`: the stage + 120 px of ground, settled first, focus rect recorded | Snippet capture (`render.mjs`) |
-| `tools/encode.py` | Snippet framing: window maths, edge smear, dim + vignette overlay | `compose.py`, in numpy |
-| `tools/still.py` | `--snippet`: the same framing at 2× with `np.pad(mode="edge")` | `still.py` from `ui-stills-render` |
-| `tools/common.py` | `snippet_window`, `snippet_mask`, `font_guard` | Shared by the three tools |
+| `scripts/python/render.py` | `--snippet NAME`: the stage + 120 px of ground, settled first, focus rect recorded | Snippet capture (`render.mjs`) |
+| `scripts/python/encode.py` | Snippet framing: window maths, edge smear, dim + vignette overlay | `compose.py`, in numpy |
+| `scripts/python/still.py` | `--snippet`: the same framing at 2× with `np.pad(mode="edge")` | `still.py` from `ui-stills-render` |
+| `scripts/python/common.py` | `snippet_window`, `snippet_mask`, `font_guard` | Shared by the three tools |
 | Font guard | Every capture asserts each declared font family has a loaded face and none errored, after load and after the run | The calendar's first render logged `ERR_INTERNET_DISCONNECTED`, and a fallback face passes a visual check at this size. That render was discarded |
 
 None of these changes affects the finished walkthrough films. The ground rule
@@ -105,25 +105,26 @@ All three are dark, 1600×1200, 60 fps, H.264 CRF 15, BT.709-tagged.
 
 ## 6 · Reproduce
 
-From `design/motion/tools/`, with the venv from the banner spec:
+From the repo root, with `T=registry/skills/ui-video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill), with the venv from the banner spec:
 
 ```sh
 PY=~/.cache/ui-motion/venv/bin/python
-PAGE=../daylight-walkthrough/daylight-walkthrough.html
-OUT=../daylight-features/exports
+T=registry/skills/ui-video-render/scripts/python
+PAGE=design/motion/daylight-walkthrough/daylight-walkthrough.html
+OUT=design/motion/daylight-features/exports
 CAP=/tmp/feature-cap
 
 # snippet name in the page → file name
 for pair in hero:hero addtask-chat:assistant addtask-schedule:calendar; do
   snip=${pair%%:*}; name=${pair##*:}
-  $PY render.py $PAGE $CAP/$name --snippet $snip
-  $PY encode.py $CAP/$name $OUT/daylight-$name-1600x1200-60fps.mp4 --size 1600x1200
-  $PY check.py  $OUT/daylight-$name-1600x1200-60fps.mp4 --sheet $CAP/$name-sheet.png
+  $PY $T/render.py $PAGE $CAP/$name --snippet $snip
+  $PY $T/encode.py $CAP/$name $OUT/daylight-$name-1600x1200-60fps.mp4 --size 1600x1200
+  $PY $T/check.py  $OUT/daylight-$name-1600x1200-60fps.mp4 --sheet $CAP/$name-sheet.png
 done
 
-$PY still.py $PAGE $OUT/daylight-hero-3200x2400.png      --snippet hero             --size 1600x1200 --at 2.6
-$PY still.py $PAGE $OUT/daylight-assistant-3200x2400.png --snippet addtask-chat     --size 1600x1200 --at T_CHAT
-$PY still.py $PAGE $OUT/daylight-calendar-3200x2400.png  --snippet addtask-schedule --size 1600x1200 --at T_CAL
+$PY $T/still.py $PAGE $OUT/daylight-hero-3200x2400.png      --snippet hero             --size 1600x1200 --at 2.6
+$PY $T/still.py $PAGE $OUT/daylight-assistant-3200x2400.png --snippet addtask-chat     --size 1600x1200 --at T_CHAT
+$PY $T/still.py $PAGE $OUT/daylight-calendar-3200x2400.png  --snippet addtask-schedule --size 1600x1200 --at T_CAL
 ```
 
 `T_CHAT` = 12.5 and `T_CAL` = 7.0 (§5). A loop over `pair` splits with `%%`/`##`, which zsh and bash both do. It does

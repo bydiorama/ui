@@ -11,7 +11,7 @@ request, and **the calendar** shows the result land.
 | Design | Paper `5F5-0` (*Screens*, dark), the same screen as the walkthrough |
 | Page | [`../daylight-walkthrough/daylight-walkthrough.html`](../daylight-walkthrough/daylight-walkthrough.html): one product page for the walkthrough and the features |
 | Framing reference | The example frame from the brief: the hero banner at ~48 % width, the screen around it dimmed and vignetted, 4:3 |
-| Pipeline | `ui-demo-page` snippets → `ui-video-render` framing → `ui-stills-render` thumbnails, Python port in [`../tools/`](../tools/) |
+| Pipeline | `ui-demo-page` snippets → `ui-video-render` framing → `ui-stills-render` thumbnails, Python port in `ui-video-render/scripts/python/` (`registry/skills/ui-video-render/scripts/python`) |
 | Output | `exports/` beside this file, git-ignored |
 | Job trail | [`../specs/daylight-features.spec.md`](../specs/daylight-features.spec.md) |
 

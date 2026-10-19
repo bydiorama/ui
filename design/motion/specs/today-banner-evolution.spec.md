@@ -84,7 +84,7 @@ each iteration is built on a new frame, to the right.
 ```
 design/motion/
 ├─ specs/today-banner-evolution.spec.md     ← this file
-├─ tools/                                   ← Python port of the ui-video-render / ui-stills-render scripts
+├─ (tools)                                 ← the Python port; now in registry/skills/ui-video-render/scripts/python/
 └─ today-banner-evolution/
    ├─ storyboard.md
    ├─ today-banner-evolution.html          ← the demo page (#demo, #demo-light)
@@ -145,24 +145,25 @@ python3 -m venv ~/.cache/ui-motion/venv
 ~/.cache/ui-motion/venv/bin/python -m playwright install chromium
 ```
 
-Per clip, from `design/motion/tools/`. Captures go to a scratch dir, never into the repo (≈ 3–4 k JPEGs at 2×):
+Per clip, from the repo root, with `T=registry/skills/ui-video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill). Captures go to a scratch dir, never into the repo (≈ 3–4 k JPEGs at 2×):
 
 ```sh
 PY=~/.cache/ui-motion/venv/bin/python
-PAGE=../today-banner-evolution/today-banner-evolution.html
-OUT=../today-banner-evolution/exports
+T=registry/skills/ui-video-render/scripts/python
+PAGE=design/motion/today-banner-evolution/today-banner-evolution.html
+OUT=design/motion/today-banner-evolution/exports
 CAP=/tmp/banner-cap
 
-$PY render.py $PAGE $CAP/dark                       # ×8 slow, 2× stage, ~3 min real time
-$PY encode.py $CAP/dark $OUT/daylight-banner-evolution-1600x900-60fps.mp4
-$PY check.py  $OUT/daylight-banner-evolution-1600x900-60fps.mp4 --sheet $CAP/dark-sheet.png
+$PY $T/render.py $PAGE $CAP/dark                       # ×8 slow, 2× stage, ~3 min real time
+$PY $T/encode.py $CAP/dark $OUT/daylight-banner-evolution-1600x900-60fps.mp4
+$PY $T/check.py  $OUT/daylight-banner-evolution-1600x900-60fps.mp4 --sheet $CAP/dark-sheet.png
 
-$PY render.py $PAGE $CAP/light --light
-$PY encode.py $CAP/light $OUT/daylight-banner-evolution-light-1600x900-60fps.mp4
-$PY check.py  $OUT/daylight-banner-evolution-light-1600x900-60fps.mp4 --sheet $CAP/light-sheet.png
+$PY $T/render.py $PAGE $CAP/light --light
+$PY $T/encode.py $CAP/light $OUT/daylight-banner-evolution-light-1600x900-60fps.mp4
+$PY $T/check.py  $OUT/daylight-banner-evolution-light-1600x900-60fps.mp4 --sheet $CAP/light-sheet.png
 
-$PY still.py $PAGE $OUT/daylight-banner-evolution-3200x1800.png --at 18.5
-$PY still.py $PAGE $OUT/daylight-banner-evolution-light-3200x1800.png --at 18.5 --light
+$PY $T/still.py $PAGE $OUT/daylight-banner-evolution-3200x1800.png --at 18.5
+$PY $T/still.py $PAGE $OUT/daylight-banner-evolution-light-3200x1800.png --at 18.5 --light
 ```
 
 Other sizes: `--size WxH` on `render.py` and `still.py` re-frames the same film. The camera keeps zoom 1.75 around

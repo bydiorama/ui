@@ -9,7 +9,7 @@ Banner Iterations*, then pulls back to that asset exactly as drawn.
 | Source | Paper, *Assets* page, artboard `HD9-0` — [link](https://app.paper.design/file/01M4GMVJN4AY0DTXQ9FYJ61JNF/p-2-0/HD9-0) |
 | Context | The result frame for *Prompt 02 · Iterate* — "Good job. Please check my comments and implement them on a new frame." (`ANH-0`, `AWE-0`) |
 | Page | [`today-banner-evolution.html`](./today-banner-evolution.html) (`#demo`, `#demo-light`) |
-| Pipeline | `ui-motion-media` → `ui-demo-page` → `ui-video-render` → `ui-stills-render`, Python port in [`../tools/`](../tools/) |
+| Pipeline | `ui-motion-media` → `ui-demo-page` → `ui-video-render` → `ui-stills-render`, Python port in `ui-video-render/scripts/python/` (`registry/skills/ui-video-render/scripts/python`) |
 | Output | `exports/` beside this file, git-ignored |
 | Job trail | [`../specs/today-banner-evolution.spec.md`](../specs/today-banner-evolution.spec.md) |
 

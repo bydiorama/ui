@@ -55,7 +55,7 @@ uniformity (no vignette).
 ```
 design/motion/
 ├─ specs/daylight-walkthrough.spec.md        ← this file
-├─ tools/                                     ← shared; gained --compose and --run
+├─ (tools)                                     ← shared Python port, now in the ui-video-render skill; gained --compose and --run
 └─ daylight-walkthrough/
    ├─ storyboard.md
    ├─ daylight-walkthrough.html              ← reference page + Paper sync layer + Full View rules
@@ -103,23 +103,24 @@ design/motion/
 
 ## 6 · Reproduce
 
-From `design/motion/tools/`, with the venv from the banner spec:
+From the repo root, with `T=registry/skills/ui-video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill), with the venv from the banner spec:
 
 ```sh
 PY=~/.cache/ui-motion/venv/bin/python
-PAGE=../daylight-walkthrough/daylight-walkthrough.html
-OUT=../daylight-walkthrough/exports
+T=registry/skills/ui-video-render/scripts/python
+PAGE=design/motion/daylight-walkthrough/daylight-walkthrough.html
+OUT=design/motion/daylight-walkthrough/exports
 CAP=/tmp/walk-cap
 
-$PY render.py $PAGE $CAP/dark --size 1600x1200 --compose 44,109           # ×8 slow, 2×, ~5 min
-$PY encode.py $CAP/dark $OUT/daylight-walkthrough-1600x1200-60fps.mp4
-$PY check.py  $OUT/daylight-walkthrough-1600x1200-60fps.mp4 --sheet $CAP/dark-sheet.png
+$PY $T/render.py $PAGE $CAP/dark --size 1600x1200 --compose 44,109           # ×8 slow, 2×, ~5 min
+$PY $T/encode.py $CAP/dark $OUT/daylight-walkthrough-1600x1200-60fps.mp4
+$PY $T/check.py  $OUT/daylight-walkthrough-1600x1200-60fps.mp4 --sheet $CAP/dark-sheet.png
 
-$PY render.py $PAGE $CAP/light --size 1600x1200 --compose 44,109 --light
-$PY encode.py $CAP/light $OUT/daylight-walkthrough-light-1600x1200-60fps.mp4
+$PY $T/render.py $PAGE $CAP/light --size 1600x1200 --compose 44,109 --light
+$PY $T/encode.py $CAP/light $OUT/daylight-walkthrough-light-1600x1200-60fps.mp4
 
-$PY still.py $PAGE $OUT/daylight-walkthrough-3200x2400.png       --size 1600x1200 --compose 44,109 --at T
-$PY still.py $PAGE $OUT/daylight-walkthrough-light-3200x2400.png --size 1600x1200 --compose 44,109 --at T --light
+$PY $T/still.py $PAGE $OUT/daylight-walkthrough-3200x2400.png       --size 1600x1200 --compose 44,109 --at T
+$PY $T/still.py $PAGE $OUT/daylight-walkthrough-light-3200x2400.png --size 1600x1200 --compose 44,109 --at T --light
 ```
 
 `T` is the still's film time: 25.3 (§5). Preview without rendering: open the page in a browser.

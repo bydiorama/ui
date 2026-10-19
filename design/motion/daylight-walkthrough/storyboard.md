@@ -9,7 +9,7 @@ composition and synced to the current screen design.
 | Design | Paper, *Screens* page, artboard `5F5-0` (dark) — [link](https://app.paper.design/file/01M4GMVJN4AY0DTXQ9FYJ61JNF/p-1-0/5F5-0) |
 | Composition | *_Assets* page, **Article Asset Full View Dark Landscape** `89Y-0` — [link](https://app.paper.design/file/01M4GMVJN4AY0DTXQ9FYJ61JNF/p-2-0/89Y-0) · light twin `EYT-0` |
 | Page | [`daylight-walkthrough.html`](./daylight-walkthrough.html) — built from `ui-demo-page/reference/daylight-demo.html` plus a Paper sync layer |
-| Pipeline | `ui-motion-media` → `ui-demo-page` → `ui-video-render` → `ui-stills-render`, Python port in [`../tools/`](../tools/) |
+| Pipeline | `ui-motion-media` → `ui-demo-page` → `ui-video-render` → `ui-stills-render`, Python port in `ui-video-render/scripts/python/` (`registry/skills/ui-video-render/scripts/python`) |
 | Output | `exports/` beside this file, git-ignored |
 | Job trail | [`../specs/daylight-walkthrough.spec.md`](../specs/daylight-walkthrough.spec.md) |
 

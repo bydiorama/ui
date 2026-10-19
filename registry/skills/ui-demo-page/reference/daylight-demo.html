@@ -961,6 +961,59 @@ html[data-mode="light"].is-compose .app { border-color: #DAD4CE; }
 @media (prefers-reduced-motion: reduce) {
   .sugg, .seg, .send, .asst-inner, .asst-rail, .thread-fade { transition: none !important; }
 }
+
+/* ═════════ Sync to Paper, 2026-10-19 ═════════
+   This page began as ui-demo-page/reference/daylight-demo.html. The design has moved on since; these rules bring it
+   to the current artboards, read node by node from Paper (computed styles): Screens 5F5-0 (dark) and the light screen
+   inside Full View composition EYT-0 (EYV-0). Kept as one layer at the end so the diff against the reference is
+   readable. design/motion/specs/daylight-walkthrough.spec.md has the measured before/after table. */
+
+/* The screen paints itself (the Full View shows the whole frame): radius 24, its own ground. */
+.app { border-radius: 24px; background: #121212 linear-gradient(oklab(0.146 0.001 0.003) 0%, oklab(0.182 0 0) 45%); }
+html[data-mode="light"] .app { background: #F6F3F0 linear-gradient(in oklab 180deg, #FDFCFB 0%, #F6F3F0 100%); }
+
+/* Snippet captures extend the screen's own paint past its edges (ui-demo-page § Seamless ground), so the dark ground
+   follows the new paint too: stops at the frame's top and at 45% of its height, as the screen draws them. */
+html.is-demo:not(.is-compose) { background: linear-gradient(in oklab 180deg, oklab(0.146 0.001 0.003) var(--demo-pad, 120px),
+  oklab(0.182 0 0) calc(var(--demo-pad, 120px) + (100% - 2 * var(--demo-pad, 120px)) * 0.45)); }
+
+/* Dark surfaces lost their drop shadows; only the hairline ring stays. Light keeps its shadow ladder (its own rules win). */
+.hero, .cal { box-shadow: inset 0 0 0 1px var(--ring-strong); }
+.quick, .field, .sugg { box-shadow: none; }
+.task, .quick { background: rgba(14, 13, 12, 0.8); }
+/* Light hero: the wash is at 0% in the design — a plain sheet. */
+html[data-mode="light"] .hero { background: #FFFFFF; }
+
+/* Type: secondary text is Inter 450 with its own line box and no tracking; the assistant's prose stays 400. */
+.app { font-weight: 450; }
+.msg, .bubble, .field input { font-weight: 400; }
+.recap { font-weight: 450; }   /* sits inside a .msg but is UI, not prose: "Week 41", "tasks done", "in focus" */
+.ref { font-weight: 500; }
+.hero-sub, .figure-note, .scale, .task-meta, .hour .lab span, .ev .m, .recap-head span, .stat .cap, .cal-title span,
+.t-acc-head .sum, .stamp, .changes span, .chip, .open-time span { letter-spacing: normal; }
+
+/* The assistant thread sits under its header, not at the foot of the column (the reference bottom-aligned it,
+   39px lower than the design at rest). New messages still scroll it from the bottom. */
+.thread > :first-child { margin-top: 0; }
+
+/* Quick add: the design sets the prompt as two runs — the action, then the promise — not one placeholder string. */
+.quick-ph { position: absolute; left: 0; top: 50%; transform: translateY(-50%); display: flex; align-items: baseline; gap: 6px;
+  white-space: nowrap; pointer-events: none; transition: opacity var(--duration-quick) var(--ease-out); }
+.quick-ph b { font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+.quick-ph span { font-size: 13px; line-height: 20px; font-weight: 450; letter-spacing: -0.01em; color: var(--ink-placeholder); }
+.quick input:not(:placeholder-shown) ~ .quick-ph, .quick:focus-within .quick-ph { opacity: 0; }
+
+/* ═════════ Full View composition (Paper _Assets: "Article Asset Full View Dark/Light Landscape", 89Y-0 / EYT-0) ═════════
+   1600×1200, the whole screen centred at (44, 109), no bleed. Ground: the reference gradients (now in oklab, as Paper
+   draws them) under Paper's dot shader, sampled from its canvas: 16px pitch, dots centred at x≡8 y≡0, core r 1.25px
+   fading out by 2px, ink rgb(13,13,13) at 0.078 in both schemes. The draft has no vignette and no frame border. */
+html[data-mode="light"].is-compose { background: linear-gradient(in oklab 180deg, #EDE8E3 0%, #DAD4CE 100%); }
+html.is-compose, html[data-mode="light"].is-compose { --dot-ink: rgba(13, 13, 13, 0.078); }
+html.is-compose .page::before {
+  background-image: radial-gradient(circle at center, var(--dot-ink) calc(var(--dot-gap) * 0.078), transparent calc(var(--dot-gap) * 0.125));
+  background-position: 0 calc(var(--dot-gap) / -2); }
+html.is-compose .page::after { display: none; }
+html.is-compose .app, html[data-mode="light"].is-compose .app { border: 0; }
 </style>
 
 <div class="page">
@@ -1037,7 +1090,7 @@ html[data-mode="light"].is-compose .app { border-color: #DAD4CE; }
 
           <form class="quick t-stagger-line t-stagger-line--4" id="quickForm" autocomplete="off">
             <span class="quick-disc"><svg class="i" data-i="Plus"></svg></span>
-            <span class="type-field"><input id="quickInput" placeholder="Add a task · I'll find it a time" aria-label="Add a task"><i class="type-fade" aria-hidden="true"></i><i class="type-caret" aria-hidden="true"></i></span>
+            <span class="type-field"><input id="quickInput" placeholder=" " aria-label="Add a task · I'll find it a time"><span class="quick-ph" aria-hidden="true"><b>Add a task</b><span>I'll find it a time</span></span><i class="type-fade" aria-hidden="true"></i><i class="type-caret" aria-hidden="true"></i></span>
             <span class="kbd">N</span>
           </form>
         </section>
@@ -1495,7 +1548,9 @@ function ask(q) {
     const spans = words.map((w, k) => { const s = document.createElement("span"); s.className = "t-stream-w"; s.textContent = w; block.appendChild(s); if (k < words.length - 1) block.appendChild(document.createTextNode(" ")); return s; });
     const gap = ms("--stream-gap", 60);
     (function next(n) { if (n >= spans.length) {
-      if (r.ref) { const ref = document.createElement("span"); ref.className = "ref t-stagger"; ref.innerHTML = "<i></i><span></span>"; ref.lastChild.textContent = r.ref; m.appendChild(ref); requestAnimationFrame(() => ref.classList.add("is-shown")); }
+      // the reference is the action's feedback ("In your calendar at 11:30"), so bring it into view: appended after the
+      // last word's scroll, it sat just below the thread's fold and never showed
+      if (r.ref) { const ref = document.createElement("span"); ref.className = "ref t-stagger"; ref.innerHTML = "<i></i><span></span>"; ref.lastChild.textContent = r.ref; m.appendChild(ref); requestAnimationFrame(() => ref.classList.add("is-shown")); smoothScroll(thread, thread.scrollHeight - thread.clientHeight); }
       busy = false; return; } spans[n].classList.add("is-in"); if (n % 6 === 0) smoothScroll(thread, thread.scrollHeight - thread.clientHeight); setTimeout(() => next(n + 1), gap); })(0);
   }
   cycle();
@@ -1693,8 +1748,12 @@ async function runAddTask(quick = false) {
   await settleThread(before);
 }
 const SNIPPETS = {
+  // Feature film "hero banner": the banner answers both ways the day changes, with no cursor — the causes are off-frame.
+  // A suggestion declined gives 1h 30m back (4h → 5h 30m, the 15:30 block frees); an hour the Assistant takes before
+  // lunch costs one (4h → 3h, next free stretch moves to 13:30, the 11:30 segment fills). Each reverts before the next.
   hero: { box: () => $(".hero"), cursor: false, async run() {
-    await wait(700); setSugg("dismissed"); await wait(2400); setSugg("pending"); await wait(2200);
+    await wait(700); setSugg("dismissed"); await wait(2600); setSugg("pending"); await wait(1500);
+    generateTask(); await wait(2800); undoGeneratedTask(); await wait(2000);
   } },
   suggestion: { box: () => $("#suggSlot"), extendY: () => $(".toast-host"), async run() {   // the toast is the feedback, so it stays in focus
     await moveTo($("#blockBtn"), 900); await wait(200); await press($("#blockBtn")); await wait(1900);

@@ -78,12 +78,18 @@ it covers several products.
   that would repoint this whole repo's git hooks, `@/*` aimed at its own `src/`
   where registry source needs `@/` for consumer install targets, and a newer
   ESLint major. Each is resolved on import (README § Importing the
-  boilerplate); none is a reason to keep the site elsewhere.
+  boilerplate and § The four conflicts); none is a reason to keep the site
+  elsewhere. The resolutions follow this repo's existing rules: one package
+  manager, checks instead of local hooks, and `@/` meaning only what it means
+  to a consumer.
+- **Analytics is Simple Analytics** — cookieless, no consent banner,
+  production deploy only. The privacy policy stays.
 - **The registry URL can move.** Consumers fetch from
   `raw.githubusercontent.com/bydiorama/ui/main/r/` today. Moving to
   `ui.bydiorama.com/r/` touches the CLI and every consumer's instructions, so
   it is its own decision and its own ledger entry — not a side effect of the
-  site going live.
+  site going live. The analysis and a recommended order are in
+  `apps/site/README.md` § Registry URL.
 
 ## Revisit when
 

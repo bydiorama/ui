@@ -236,7 +236,8 @@ application of the same pattern. That is the right order.
 
 Its exit gate is untouched:
 
-- [ ] **Docs site.** Placed and scoped, not built: `apps/site` (Astro, static,
+- [ ] **Docs site.** Placed and scoped, not built: `apps/site` (Astro, from
+      `bydiorama/diorama-2026-astro-boilerplate`, static on Cloudflare Workers,
       `ui.bydiorama.com`) exists as empty folders with no `package.json` —
       [ADR 0022](ledger/decisions/0022-docs-site-in-this-repo.md) and
       [`apps/site/README.md`](apps/site/README.md) hold the decision and the

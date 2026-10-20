@@ -27,8 +27,13 @@ it covers several products.
 1. **The site is `apps/site` in this repo,** a pnpm workspace package beside
    `apps/storybook`. It serves the landing page, the catalogue, the docs, the
    registry JSON and `llms.txt` from one build.
-2. **It is built with Astro** and deployed as a static site at
-   **`https://ui.bydiorama.com`**.
+2. **It is built with Astro, starting from Diorama's own boilerplate**
+   ([`bydiorama/diorama-2026-astro-boilerplate`](https://github.com/bydiorama/diorama-2026-astro-boilerplate)),
+   and deployed as a static site to Cloudflare Workers at
+   **`https://ui.bydiorama.com`**. The boilerplate is copied in as a snapshot
+   at a recorded commit, not depended on. It ships no design, so it inherits
+   nothing ADR 0002 forbids. What is kept, dropped and adapted is in
+   `apps/site/README.md`.
 3. **Per-component pages are generated, never hand-written.** Routes come from
    `ui.manifest.json`; content comes from each item's `*.doc.ts`; live demos
    come from its `*.stories.tsx`. Adding a component through the
@@ -68,6 +73,12 @@ it covers several products.
 - **CI cost is contained, not avoided.** The site builds in its own job.
   `pnpm verify` stays dependency-free and must not gain a step that needs the
   site's `node_modules`.
+- **The boilerplate adapts to the monorepo, not the other way round.** It
+  is written for a standalone repo: Bun instead of pnpm, a `prepare` script
+  that would repoint this whole repo's git hooks, `@/*` aimed at its own `src/`
+  where registry source needs `@/` for consumer install targets, and a newer
+  ESLint major. Each is resolved on import (README § Importing the
+  boilerplate); none is a reason to keep the site elsewhere.
 - **The registry URL can move.** Consumers fetch from
   `raw.githubusercontent.com/bydiorama/ui/main/r/` today. Moving to
   `ui.bydiorama.com/r/` touches the CLI and every consumer's instructions, so

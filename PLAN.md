@@ -236,8 +236,11 @@ application of the same pattern. That is the right order.
 
 Its exit gate is untouched:
 
-- [ ] **Docs site.** No `apps/docs`. `apps/` holds `registry/visual` and
-      `storybook` only.
+- [ ] **Docs site.** Placed and scoped, not built: `apps/site` (Astro, static,
+      `ui.bydiorama.com`) exists as empty folders with no `package.json` —
+      [ADR 0022](ledger/decisions/0022-docs-site-in-this-repo.md) and
+      [`apps/site/README.md`](apps/site/README.md) hold the decision and the
+      order of work.
 - [ ] **`llms.txt` and per-page markdown.** Absent. The plan rates this tertiary
       — sequence it behind the site, not in front of it.
 - [x] **MCP.** Reachable now via the public registry, which is what §4.5 item 2

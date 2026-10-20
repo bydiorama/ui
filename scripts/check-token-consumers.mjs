@@ -43,7 +43,7 @@ const ALLOWED = new Map([
   ["--ui-logo-height", "Consumer-side chrome (ADR 0006): the height a brand's logo renders at in the app's header slot. The library renders logos through a slot and never sizes them."],
   [/^--ui-selection-(bg|fg)$/, "Applied once per document by the consuming app's root stylesheet to `::selection`. A component that set it would fight the app."],
   [/^--ui-measure-/, "Line-length caps for long-form text in consumer pages. No component sets running prose."],
-  [/^--ui-text-(display-lg|display-md|title-md)(-weight|-leading|-tracking)?$/, "Page-heading roles of the authored type table (ADR 0009), with their attributes (ADR 0020 §3). Components do not set page headings; consumer pages do."],
+  [/^--ui-text-(display-lg|display-md|title-lg|title-md)(-weight|-leading|-tracking)?$/, "Page-heading roles of the authored type table (ADR 0009), with their attributes (ADR 0020 §3). Components do not set page headings; consumer pages do. title-lg joined this list when Modal, its last component consumer, moved to Card's title-sm (#23)."],
 
   // ── Families whose consumers live outside registry/ by design ──
   [/^--ui-data-/, "Categorical data colours (ADR 0006(a)) for consumer charts. The library ships no chart component."],

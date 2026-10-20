@@ -48,7 +48,7 @@
               },
               "target": {
                 "type": "string",
-                "description": "Path inside the consuming app, relative to its configured alias root."
+                "description": "Path inside the consuming app. Alias-shaped (`ui/button.tsx`): the first segment is a key in the consumer's components.json `aliases`. Literal: a first segment starting with `.` (`.claude/skills/<name>/SKILL.md`) or a `~/` prefix (`~/public/...`, shadcn's project-root marker) is a path from the consumer root, used as-is. A non-dot root path like `public/...` without `~/` is read as an alias and fails. Never `..` or absolute."
               }
             }
           }

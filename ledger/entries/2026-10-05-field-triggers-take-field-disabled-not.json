@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-field-triggers-take-field-disabled-not",
+  "date": "2026-10-05",
+  "item": "select",
+  "kind": "fix",
+  "summary": "Select, Multiselect and DatePicker filled a disabled trigger with `bg-sunken`, a surface role standing in for a state, which ADR 0017 §3 forbids and which Input and Textarea dropped when that ADR landed. It only looked right because the two values happened to be close. When #24 moved the dark field ground, a disabled Select (#282522) and a disabled Input (#3d3a37) beside it stopped matching. All three triggers now take `bg-field-disabled`, Input's page-ground disabled fill. Light is unchanged, because sunken and field-disabled resolve to the same value there (#EDE8E3). Select's browser test asserts the disabled fill equals Input's in both schemes and fails against the old class.",
+  "affects": [
+    "registry:select",
+    "registry:multiselect",
+    "registry:date-picker",
+    "token:--ui-bg-field-disabled"
+  ]
+}

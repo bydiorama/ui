@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-cardsorting-handle-lets-the-caller-place",
+  "date": "2026-10-05",
+  "item": "card-sorting",
+  "kind": "addition",
+  "summary": "Adds `CardSorting.Handle`, the grip as a part the caller places anywhere inside an Item. Closes #19. The grip was always the row's first child with no way to move it, and the portal's Brand Profile collections (Colors, Type styles) put it in the top-right corner of a 240px specimen tile, where it reads as \"pick this up\" and costs no lane; with the grip forced to the leading edge every block gained a 24px gutter the design does not have, and two consumers shipped it that way in one week rather than fight it with CSS. The Handle is the SAME wired button the default grip is (one internal component behind both), so it carries the whole keyboard contract, the pointer drag, the click-to-lift path, aria-pressed and the row's accessible name, and the row stays aria-labelledby it. An Item that contains a Handle draws no leading grip and takes px-lg instead of the pl-xs that made room for one; an Item without one renders exactly as before, and the card-sorting visual baseline is unchanged. Presence is found two ways: a render-time scan of the Item's JSX, so the first paint and a server's HTML never carry two grips sharing an id, and a layout-effect registration for a Handle rendered from inside the caller's own component, which the scan cannot see. Its name, id, type and pressed state are not props; TypeScript cannot refuse a hyphenated aria-label in JSX, so the browser test asserts the handle's own name wins at runtime instead. New PlacedHandle story draws the specimen-tile layout; browser tests cover placement in the corner, the name, keyboard lift-move-drop and a pointer drag through the placed Handle, and the registration path.",
+  "affects": [
+    "item:card-sorting",
+    "component:card-sorting",
+    "part:CardSorting.Handle",
+    "type:CardSortingHandleProps",
+    "slot:card-sorting-handle",
+    "slot:card-sorting-item",
+    "story:card-sorting/PlacedHandle"
+  ],
+  "migration": {
+    "manual": "Optional. If you repositioned the grip with CSS on [data-slot=card-sorting-handle], render <CardSorting.Handle className=\"...\" /> where the design puts it instead and delete the override; the Item then drops its leading grip and its pl-xs."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-modal-and-drawer-declare-initialfocus-and",
+  "date": "2026-10-05",
+  "item": "modal",
+  "kind": "addition",
+  "summary": "Modal.Surface and Drawer.Panel declare `initialFocus` and `finalFocus`, the same props #28 gave Sheet.Panel, with the same semantics. Both forwarded `rest` to Base UI's Dialog.Popup untyped, so the props already reached the behaviour layer by accident. They were undeclared, and a rename upstream would have broken them silently. Each takes a ref or a function returning the element. A function returning null, or a ref still empty, keeps the default instead of dropping focus. Base UI's boolean and interaction-type forms are not offered, because `false` would leave focus behind the scrim. The types are restated locally as `ModalFocusTarget` and `DrawerFocusTarget` rather than shared from a lib item, because the components ship as independent source and every other behaviour-layer shape in these files (DismissDetails, the forBaseUI shim) is restated per file. check:boundaries stays green. For a Drawer the default matters more than it looks: the first tabbable element is the drag handle, which is also a close button. The browser tests put two buttons ahead of the target and assert focus lands on it and returns to a named element on Escape, in both forms, against a control case proving the defaults. Removing the mapping fails all eight.",
+  "affects": [
+    "item:modal",
+    "item:drawer",
+    "prop:initialFocus",
+    "prop:finalFocus",
+    "type:ModalFocusTarget",
+    "type:DrawerFocusTarget",
+    "slot:modal-surface",
+    "slot:drawer-panel"
+  ],
+  "migration": {
+    "manual": "A caller passing `initialFocus`/`finalFocus` through the untyped spread keeps working with a ref or a function returning an element. A boolean, or a function taking Base UI's interaction type, no longer type-checks; pass a ref or `() => element` instead."
+  }
+}

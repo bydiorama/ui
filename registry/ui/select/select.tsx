@@ -19,24 +19,36 @@ const forBaseUI = <T,>(props: object) => props as T;
 export type SelectSize = "lg" | "md" | "sm";
 
 /**
- * Input's control geometry, character for character.
+ * Input's control geometry at its default `soft` shape — Input's SIZE joined
+ * with its soft INSET (the radius sits in the trigger's base classes).
  *
  * Copied rather than imported because the registry ships components as files a
  * consumer owns — Select cannot reach into Input's module for a private
  * constant. The browser test renders both and compares their COMPUTED height,
- * radius, border and colour, so the two cannot drift apart quietly; asserting
- * `48px` on each would pass while they diverged, which is the only failure
- * that matters here.
+ * radius, border, colour and VALUE TYPE, so the two cannot drift apart
+ * quietly; asserting `48px` on each would pass while they diverged, which is
+ * the only failure that matters here.
+ *
+ * The text step lives HERE and nowhere else on the trigger. A hard-coded
+ * `text-body-md` used to follow this map in the class list and win the merge,
+ * so md and sm rendered 14px whatever the map said (#16).
  */
 const SIZE = {
   lg: "h-field-lg gap-sm px-field-inset-lg py-sm text-body-md",
-  md: "h-field-md gap-xs px-field-inset-md py-sm text-caption",
+  md: "h-field-md gap-xs px-field-inset-md py-sm text-body-md",
   sm: "h-field-sm gap-xs px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<SelectSize, string>;
 
 export interface SelectItem {
   value: string;
   label: string;
+  /**
+   * A second, muted line under the label — what choosing this option MEANS,
+   * for a list where the label alone does not say (a role, a plan, a
+   * permission). Shown in the open list only, never in the trigger, and wired
+   * to the option as its accessible description.
+   */
+  description?: string;
   isDisabled?: boolean;
 }
 
@@ -94,6 +106,7 @@ export function Select({
   const labelId = useId();
   const helperId = useId();
   const errorId = useId();
+  const optionId = useId();
   const invalid = Boolean(errorText);
 
   // Both are announced when both exist: an error rarely makes the guidance
@@ -132,13 +145,15 @@ export function Select({
             ...(invalid ? { "aria-invalid": true } : {}),
             className: cn(
               "flex w-full items-center justify-between gap-sm rounded-md",
+              // SIZE carries the text step. Nothing after it may name a type
+              // role, or it wins the merge and the map stops applying (#16).
               SIZE[size],
-              "border-hairline bg-field border-edge-subtle text-body-md font-body text-ink-primary",
+              "border-hairline bg-field border-edge-subtle font-body text-ink-primary",
               "transition-[border-color,box-shadow]", motionMicro,
               "enabled:hover:border-edge-default enabled:cursor-pointer",
               invalid && "border-danger",
               "focus-visible:border-edge-focus focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
-              "disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-disabled",
+              "disabled:cursor-not-allowed disabled:bg-field-disabled disabled:text-ink-disabled",
             ),
           })}
         >
@@ -213,48 +228,80 @@ export function Select({
                 ),
               })}
             >
-              {items.map((item) => (
-                <BaseSelect.Item
-                  key={item.value}
-                  {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.Item>>({
-                    value: item.value,
-                    disabled: item.isDisabled ?? false,
-                    "data-slot": "select-option",
-                    className: cn(
-                      // p-md — 12px on every side, as three of the sheet's
-                      // four rows draw it and as both of Multiselect's do.
-                      // The fourth (GVO-0) is drawn py-lg and is the outlier;
-                      // flagged rather than followed.
-                      "flex cursor-pointer items-center gap-sm rounded-sm p-md",
-                      "text-body-md font-body text-ink-primary",
-                      "data-[highlighted]:bg-hover",
-                      "data-[selected]:font-bold",
-                      "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",
-                    ),
-                  })}
-                >
-                  <BaseSelect.ItemText
-                    {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.ItemText>>({
-                      className: "min-w-0 flex-1 truncate",
+              {items.map((item, index) => {
+                // Ids only when there is a description to point at. The label
+                // gets one too, because an option's name is computed from its
+                // CONTENT — without aria-labelledby the description would be
+                // read twice, once inside the name and once as the description.
+                const textId = `${optionId}-${index}-label`;
+                const descriptionId = `${optionId}-${index}-description`;
+                return (
+                  <BaseSelect.Item
+                    key={item.value}
+                    {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.Item>>({
+                      value: item.value,
+                      // Typeahead matches the label, never the description.
+                      label: item.label,
+                      disabled: item.isDisabled ?? false,
+                      "data-slot": "select-option",
+                      ...(item.description
+                        ? { "aria-labelledby": textId, "aria-describedby": descriptionId }
+                        : {}),
+                      className: cn(
+                        // p-md — 12px on every side, as three of the sheet's
+                        // four rows draw it and as both of Multiselect's do.
+                        // The fourth (GVO-0) is drawn py-lg and is the outlier;
+                        // flagged rather than followed.
+                        "flex cursor-pointer items-center gap-sm rounded-sm p-md",
+                        "text-body-md font-body text-ink-primary",
+                        "data-[highlighted]:bg-hover",
+                        "data-[selected]:font-bold",
+                        "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",
+                      ),
                     })}
                   >
-                    {item.label}
-                  </BaseSelect.ItemText>
-                  {/*
-                    A tick, not colour alone. The selected row also goes bold —
-                    two channels, because conveying selection by fill only is
-                    WCAG 1.4.1, and the highlighted row already owns a fill.
-                  */}
-                  <BaseSelect.ItemIndicator
-                    {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.ItemIndicator>>({
-                      "data-slot": "select-indicator",
-                      className: "shrink-0 text-ink-primary [&_svg]:size-4 [&_svg]:shrink-0",
-                    })}
-                  >
-                    <Check />
-                  </BaseSelect.ItemIndicator>
-                </BaseSelect.Item>
-              ))}
+                    {/* Label over description, 4px apart — Radio's stack. A div,
+                        because ItemText renders one and a span may not hold it. */}
+                    <div data-slot="select-option-text" className="flex min-w-0 flex-1 flex-col gap-xs">
+                      <BaseSelect.ItemText
+                        {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.ItemText>>({
+                          ...(item.description ? { id: textId } : {}),
+                          className: "min-w-0 truncate",
+                        })}
+                      >
+                        {item.label}
+                      </BaseSelect.ItemText>
+                      {item.description && (
+                        // Wraps rather than truncates: a description cut off
+                        // mid-sentence is the half of a permission that matters.
+                        <span
+                          id={descriptionId}
+                          data-slot="select-option-description"
+                          className={cn(
+                            "text-caption font-body",
+                            item.isDisabled ? "text-ink-disabled" : "text-ink-muted",
+                          )}
+                        >
+                          {item.description}
+                        </span>
+                      )}
+                    </div>
+                    {/*
+                      A tick, not colour alone. The selected row also goes bold —
+                      two channels, because conveying selection by fill only is
+                      WCAG 1.4.1, and the highlighted row already owns a fill.
+                    */}
+                    <BaseSelect.ItemIndicator
+                      {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.ItemIndicator>>({
+                        "data-slot": "select-indicator",
+                        className: "shrink-0 text-ink-primary [&_svg]:size-4 [&_svg]:shrink-0",
+                      })}
+                    >
+                      <Check />
+                    </BaseSelect.ItemIndicator>
+                  </BaseSelect.Item>
+                );
+              })}
             </BaseSelect.Popup>
           </BaseSelect.Positioner>
         </BaseSelect.Portal>

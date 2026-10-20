@@ -33,8 +33,8 @@ against a branch that hasn't merged to `main` yet.
 
 Installs items from the registry into the consumer app: resolves each name
 plus its transitive `registryDependencies` (dependencies first, each item
-once), writes the files through the consumer's own `components.json` aliases
-and `tsconfig.json` `@/*` mapping, locks what the run newly installed, and
+once), writes the files to their [target paths](#target-paths), locks what
+the run newly installed, and
 prints the npm dependencies the consumer still has to install — reported,
 never run, because this CLI shells out to nothing.
 
@@ -136,6 +136,30 @@ ledger entry with no code-level drift yet.
 ```sh
 node --experimental-strip-types bin/ui.ts sync --cwd ../service-portal --json
 ```
+
+## Target paths
+
+Every command maps a registry file's `target` to a path in the consumer app
+the same way (`src/target-path.ts`). A target has one of two shapes, read off
+the string itself — never off the item's `type`, so the next non-component
+item type needs no special case:
+
+| Shape | Looks like | Resolves to |
+| --- | --- | --- |
+| **Alias** | `ui/header.tsx`, `lib/cn.ts` | The first segment is a key in `components.json` `aliases`, mapped through `tsconfig.json`'s `@/*` — `ui/header.tsx` → `src/components/ui/header.tsx`. |
+| **Literal** | `.claude/skills/diorama-ui-craft/SKILL.md`, `~/public/fonts/aspekta/aspekta.css` | A path from the consumer root, as-is. Literal means the first segment starts with `.`, or the target starts with `~/` (shadcn's own project-root marker, for a root path with no leading dot). |
+
+The split is by shape, not by "was it found in `aliases`". An alias-shaped
+target whose alias is missing still fails with `No alias "…" in
+components.json` — falling back to a literal path on a miss would turn a
+typo'd `iu/button.tsx` into a file silently written at the app root. A root
+path without a dot, like `public/...`, is therefore alias-shaped and must be
+written `~/public/...`.
+
+A target containing a `..` segment, or an absolute path, is refused in either
+shape: a target is registry data and must not reach outside the app. `add`
+resolves every target in the install set before writing anything, so a bad
+target aborts the install instead of leaving half of it on disk.
 
 ## Registry and ledger sources
 

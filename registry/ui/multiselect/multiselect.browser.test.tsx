@@ -151,6 +151,34 @@ describe("The multiselect paints the designed surface", () => {
     expect(t.height).toBe("48px");
   });
 
+  /**
+   * #16, which Multiselect had exactly as Select did: a hard-coded
+   * `text-body-md` followed the size map and won the merge, so md and sm
+   * rendered 14px whatever the map said. Asserted as a relationship against
+   * Input's value, at every size.
+   */
+  test("the trigger's value type matches Input's value at every size", () => {
+    for (const size of ["lg", "md", "sm"] as const) {
+      const c = mount(
+        <>
+          <Basic size={size} />
+          <Input label="Reference" size={size} defaultValue="Diorama" />
+        </>,
+      );
+      const value = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="multiselect-value"]')!);
+      const input = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="input"]')!);
+      expect(value.fontSize, `${size} font-size`).toBe(input.fontSize);
+      expect(value.lineHeight, `${size} line-height`).toBe(input.lineHeight);
+      expect(getComputedStyle(trigger()).height, `${size} height`).toBe(
+        getComputedStyle(c.querySelector('[data-slot="control"]')!).height,
+      );
+      act(() => root?.unmount());
+      container?.remove();
+      root = null;
+      container = null;
+    }
+  });
+
   test("the selected option's box uses the accent role, not a palette step", async () => {
     mount(<Basic defaultValue={["guidelines"]} />);
     await userEvent.click(trigger());

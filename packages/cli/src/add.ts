@@ -121,6 +121,18 @@ export async function addItems(
 ): Promise<AddResult> {
   const { items, notFound } = await resolveInstallSet(itemNames, registrySource);
 
+  // Every target is resolved BEFORE anything is written. The resolver throws
+  // on an unknown alias or a target that would escape the consumer root, and
+  // throwing halfway through the install set would leave the earlier items on
+  // disk and the later ones absent — a partial install that looks like a
+  // finished one.
+  const resolvedPaths = new Map<string, string>();
+  for (const { item } of items) {
+    for (const file of item.files) {
+      if (!resolvedPaths.has(file.target)) resolvedPaths.set(file.target, resolveTargetToPath(file.target));
+    }
+  }
+
   const result: AddResult = { items: [], notFound, npmDependencies: [] };
   const npmSeen = new Set<string>();
 
@@ -129,7 +141,7 @@ export async function addItems(
     const lockedForks = lock.items[item.name]?.forked ?? {};
 
     for (const file of item.files) {
-      const path = resolveTargetToPath(file.target);
+      const path = resolvedPaths.get(file.target)!;
       const installed = await readInstalledFile(path);
 
       if (installed === null) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
-import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode, RefObject } from "react";
 
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
@@ -25,7 +25,26 @@ interface DismissDetails {
   cancel: () => void;
 }
 
+/**
+ * Where focus lands: a ref, or a function that finds the element. `null` or
+ * an empty ref keeps the default. Same shape and reasoning as Sheet's
+ * `SheetFocusTarget` — restated, since each component ships on its own.
+ */
+export type ModalFocusTarget = RefObject<HTMLElement | null> | (() => HTMLElement | null);
+
+/** Our target → Base UI's. A function's `null` becomes `true`: "the default". */
+const toBaseFocus = (target: ModalFocusTarget) =>
+  typeof target === "function" ? () => target() ?? true : target;
+
 export type ModalSize = "md" | "lg";
+
+/**
+ * Card's unboxed inset, for the same reason Card gives: bare text flush at the
+ * padding crowds a 24px corner arc, while a boxed child's own edge already
+ * reads as an edge. Title and Description carry it; the Footer's buttons and
+ * any field in the body are boxed, so they sit flush at `p-lg`.
+ */
+const UNBOXED_INSET = "px-sm";
 
 /**
  * Widths, not heights: a modal grows with its content and scrolls if it must.
@@ -130,9 +149,29 @@ export interface ModalSurfaceProps extends Omit<HTMLAttributes<HTMLDivElement>, 
    * `sheet.tsx` on why this is a prop and not resolved automatically.
    */
   container?: HTMLElement | null;
+  /**
+   * Where focus lands when the dialog OPENS. Defaults to the first tabbable
+   * element inside it. A confirmation that should land on Cancel rather than
+   * a destructive first action passes Cancel's ref.
+   */
+  initialFocus?: ModalFocusTarget;
+  /**
+   * Where focus goes when the dialog CLOSES. Defaults to the trigger, or the
+   * element focused before it opened. Set it when that element is gone — the
+   * row a delete confirmation just removed — so focus lands somewhere real.
+   */
+  finalFocus?: ModalFocusTarget;
 }
 
-function ModalSurface({ children, className, size = "md", container, ...rest }: ModalSurfaceProps) {
+function ModalSurface({
+  children,
+  className,
+  size = "md",
+  container,
+  initialFocus,
+  finalFocus,
+  ...rest
+}: ModalSurfaceProps) {
   return (
     <BaseDialog.Portal {...(container ? { container } : {})}>
       {/*
@@ -150,7 +189,12 @@ function ModalSurface({ children, className, size = "md", container, ...rest }: 
         )}
       />
       <BaseDialog.Popup
-        {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Popup>>(rest)}
+        {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Popup>>({
+          ...rest,
+          // Declared and mapped, not left to ride the spread (#28).
+          ...(initialFocus ? { initialFocus: toBaseFocus(initialFocus) } : {}),
+          ...(finalFocus ? { finalFocus: toBaseFocus(finalFocus) } : {}),
+        })}
         data-slot="modal-surface"
         data-size={size}
         className={cn(
@@ -179,12 +223,20 @@ function ModalSurface({ children, className, size = "md", container, ...rest }: 
           // really would displace the size. `w-full` is what holds the dialog
           // inside its containing block; a viewport cap would have to be one
           // class using `min()`, not two.
-          "flex w-full min-w-80 flex-col gap-2xl rounded-lg p-lg",
+          //
+          // radius-xl, the hairline and shadow-md are CARD'S surface, class for
+          // class (#23, the owner's redraw of the confirm dialog): a dialog
+          // raised over cards should read as the same object as them — same
+          // corner, same edge, same lift. The edge is ADR 0010's everyday
+          // hairline, a boundary rather than a lift (ADR 0016 point 6), and
+          // the shadow is the md step Card and Sheet already carry. The
+          // browser test asserts the RELATIONSHIP to Card, so the two cannot
+          // drift apart again.
+          "flex w-full min-w-80 flex-col gap-2xl rounded-xl p-lg",
           SIZE[size],
-          // bg-surface, not bg-elevated: the scrim already separates the
-          // dialog from the page, so the surface carries only the shadow the
-          // sheet draws.
-          "bg-surface text-ink-primary shadow-sm",
+          // bg-surface, not Card's bg-elevated: the scrim already separates
+          // the dialog from the page, and the redraw kept the ground.
+          "bg-surface border border-edge-subtle text-ink-primary shadow-md",
           // Long content scrolls inside the dialog rather than the page, which
           // would otherwise scroll behind a fixed, focus-trapped surface.
           "max-h-[calc(100vh-2rem)] overflow-y-auto",
@@ -211,7 +263,12 @@ function ModalTitle({ className, ...rest }: ModalTitleProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Title>>(rest)}
       data-slot="modal-title"
       className={cn(
-        "text-title-lg font-body text-ink-primary",
+        // Card.Header's title, set the same way: title-sm (whose role weight
+        // is the 600 the redraw asks for, so no exception) inset by Card's
+        // unboxed inset. It was title-lg — the loudest thing on the screen
+        // for a one-line question in a 416px dialog (#23).
+        UNBOXED_INSET,
+        "text-title-sm font-body text-ink-primary",
         className,
       )}
     />
@@ -226,6 +283,9 @@ function ModalDescription({ className, ...rest }: ModalDescriptionProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Description>>(rest)}
       data-slot="modal-description"
       className={cn(
+        // Inset with the title so the two keep one left edge: bare text
+        // inside a large radius takes the unboxed inset (CONVENTIONS §6).
+        UNBOXED_INSET,
         "text-body-md font-body text-ink-secondary",
         className,
       )}

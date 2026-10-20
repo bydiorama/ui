@@ -10,6 +10,7 @@ export function Valid() {
       <Slider label="Logo size" defaultValue={1} isLabelHidden className="max-w-sm" />
       <Slider label="Logo size" size="md" defaultValue={62} />
       <Slider label="Logo size" size="xl" defaultValue={62} />
+      <Slider label="Formality" defaultValue={70} getAriaValueText={(v) => (v > 60 ? "Mostly formal" : "Mostly casual")} />
       <Slider
         label="Logo size"
         size="xl"
@@ -39,5 +40,11 @@ export function Invalid() {
   const e = <Slider label="x" hasSteppers />;
   /* @ts-expect-error a stepper label without the steppers is a name for nothing */
   const f = <Slider label="x" decrementLabel="Smaller" />;
-  return [a, b, c, d, e, f];
+  /* aria-valuetext is a string; a number would announce nothing new. */
+  /* @ts-expect-error getAriaValueText must return a string */
+  const g = <Slider label="x" getAriaValueText={(v: number) => v * 2} />;
+  /* Our shape, not Base UI's (formattedValue: string, value, index). */
+  /* @ts-expect-error getAriaValueText receives the NUMBER, not a formatted string */
+  const h = <Slider label="x" getAriaValueText={(formatted: string) => formatted} />;
+  return [a, b, c, d, e, f, g, h];
 }

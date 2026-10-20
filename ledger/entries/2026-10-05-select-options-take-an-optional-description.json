@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-select-options-take-an-optional-description",
+  "date": "2026-10-05",
+  "item": "select",
+  "kind": "addition",
+  "summary": "Closes #26. `SelectItem` takes an optional `description`: a second, muted line under the label in the open list, never in the trigger. A permission picker is the case — service-portal's team-role Select lost what each role grants (Brand Admin: full access…) when it moved onto the registry Select, which drew a flat list of labels. The option is NAMED by its label (aria-labelledby on the option) and DESCRIBED by the second line (aria-describedby). The labelledby is not optional: an option's name is otherwise computed from its whole content, so the description would be read inside the name and then again as the description. The line follows Radio's description — caption, text-muted, 4px under the label, text-disabled on a disabled row — and wraps rather than truncates, since a permission cut off mid-sentence loses the half that matters. Typeahead is pinned to the label through Base UI's `label` prop. New parts `select-option-text` and `select-option-description`; contrast pairs text-muted on bg-surface (5.78 / 6.47) and on bg-hover (4.87 / 5.35) declared. Derived, not drawn: recorded in needsDesign. New WithDescriptions story; browser tests assert the description is in the popup row and absent from the trigger before and after choosing, the option's labelledby and describedby resolve to the label and the description, and an option without one carries neither attribute.",
+  "affects": [
+    "item:select",
+    "prop:items",
+    "type:SelectItem",
+    "slot:select-option",
+    "slot:select-option-text",
+    "slot:select-option-description"
+  ]
+}

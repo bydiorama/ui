@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-field-value-text-at-md-is",
+  "date": "2026-10-05",
+  "item": "select",
+  "kind": "visual",
+  "summary": "Closes #16. A field's value at md is now body-md (14px) in Input, Textarea, Select and Multiselect, where it was caption (12px); lg stays body-md and sm stays caption. Two defects, one decision. First, Select's trigger, and Multiselect's, ignored their size map for text: `SIZE[size]` carried the caption step, then a hard-coded `text-body-md` on the next line won the merge, so every Select rendered 14px at every size while the Input beside it rendered 12 at md and sm. The boxes matched (40px at md), so the geometry relationship test passed for the bug's whole life; only the text inside differed. The hard-coded class is gone and the map is the only thing on either trigger that names a type role. Second, the direction: the maintainer decided md settles at 14px, not 12, because the owner's Paper frames draw every 40px field value at body-md, and service-portal had to patch `[data-slot=\"control\"][data-size=\"md\"]` to get there. sm stays caption because the field tokens carry no type step at all (ADR 0020 §4 keeps type out of density), so the map is the only authority, and a 14px value's 21.7px line in a compact 28px field leaves 3px of block padding. Textarea's md box is now lg's box (127px at 6 rows) with the narrower inline inset. DatePicker draws lg only and does not change. Select's and Multiselect's browser tests now compare the VALUE's font-size and line-height to a real Input's at every size; both fail against the old trigger (probed). Deliberate visual change: the `select` matrix baseline moves (its md and sm rows) and the `textarea` baseline moves (its md row), light and dark, darwin and linux. The input, multiselect and date-picker cases draw lg only and do not move for this. Weight is NOT yet one relationship: Input's value is font-medium (500) at every size, while Select, Multiselect, DatePicker and Textarea take their role's weight (body-md 400, caption 600), so a Select at sm now renders 600 where it rendered 400. Recorded for a maintainer decision rather than changed here.",
+  "affects": [
+    "item:input",
+    "item:textarea",
+    "item:select",
+    "item:multiselect",
+    "prop:size",
+    "slot:select-trigger",
+    "slot:multiselect-trigger",
+    "slot:control",
+    "slot:textarea"
+  ],
+  "migration": {
+    "manual": "Remove any local override that forced field text to one size (for example a rule on [data-slot=\"control\"][data-size=\"md\"] setting body-md); md renders body-md on its own now. A form that relied on Select rendering 14px at sm will see 12px there, matching Input; pass size=\"md\" if you meant the larger value."
+  }
+}

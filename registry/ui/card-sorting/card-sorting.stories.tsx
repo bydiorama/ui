@@ -112,6 +112,69 @@ export const States: Story = {
   ),
 };
 
+/**
+ * The grip, placed. A Brand Profile colour block puts it in the top-right
+ * corner of the 240px specimen tile, where it reads as "pick this colour up"
+ * and costs no lane of its own. `CardSorting.Handle` carries the whole
+ * keyboard and pointer contract and the row's name; an Item that renders one
+ * draws no leading grip.
+ */
+const SPECIMENS = [
+  { id: "accent", label: "Accent", role: "--ui-bg-accent", fill: "bg-accent" },
+  { id: "inverse", label: "Inverse", role: "--ui-bg-inverse", fill: "bg-inverse" },
+  { id: "success", label: "Success", role: "--ui-bg-success", fill: "bg-success" },
+  { id: "sunken", label: "Sunken", role: "--ui-bg-sunken", fill: "bg-sunken" },
+] as const;
+
+export const PlacedHandle: Story = {
+  render: () => (
+    <CardSorting label="Colours" className="w-full max-w-dialog-md">
+      {SPECIMENS.map((specimen) => (
+        <CardSorting.Item key={specimen.id} id={specimen.id} label={specimen.label} className="p-sm">
+          <span className="flex min-w-0 items-center gap-lg">
+            <span className={`relative h-24 w-60 shrink-0 rounded-md ${specimen.fill}`}>
+              {/* A resting fill of its own, so the grip reads on any specimen —
+                  a ghost control on a saturated swatch has nothing to stand on. */}
+              <CardSorting.Handle className="absolute top-sm right-sm bg-base" />
+            </span>
+            <span className="flex min-w-0 flex-col gap-xs">
+              <span className="truncate text-body-lg font-body">{specimen.label}</span>
+              <span className="truncate text-caption text-ink-muted">{specimen.role}</span>
+            </span>
+          </span>
+        </CardSorting.Item>
+      ))}
+    </CardSorting>
+  ),
+};
+
+/**
+ * Every phrase the list speaks, in Slovak. They reach a screen reader only,
+ * which is the reason they are props: a string nobody sees is the one a
+ * localised product forgets.
+ */
+export const Localised: Story = {
+  render: () => (
+    <CardSorting
+      label="Firemné podklady"
+      className="w-full max-w-nav"
+      messages={{
+        handleLabel: ({ label, position, total }) => `Presunúť ${label}, ${position}. z ${total}`,
+        lifted: ({ label, position, total, listLabel }) => `${label} zdvihnuté, ${position}. z ${total}, ${listLabel}.`,
+        moved: ({ label, position, total, listLabel }) => `${label} presunuté na ${position}. z ${total}, ${listLabel}.`,
+        dropped: ({ label, position, total, listLabel }) => `${label} položené na ${position}. z ${total}, ${listLabel}.`,
+        cancelled: ({ label, position, listLabel }) => `Presúvanie zrušené, ${label} späť na ${position}. mieste, ${listLabel}.`,
+      }}
+    >
+      {ASSETS.map((asset) => (
+        <CardSorting.Item key={asset.id} id={asset.id} label={asset.label}>
+          <Row asset={asset} />
+        </CardSorting.Item>
+      ))}
+    </CardSorting>
+  ),
+};
+
 const STRESS_BRAND: ThemeSeed = {
   colors: {
     bg: "#fffdf5", surface: "#ffffff", muted: "#f4ecd8",

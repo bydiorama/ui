@@ -16,6 +16,9 @@ export function Valid() {
       <Input label="Password" type="password" iconEnd={<svg />} />
       <Input label="Amount" isRequired isDisabled defaultValue="0" />
       <Input label="Search" value="" onChange={() => {}} />
+      {/* Button's and Avatar's two shape words (§2). */}
+      <Input label="Search" shape="full" />
+      <Input label="Search" shape="soft" size="sm" />
     </>
   );
 }
@@ -46,6 +49,11 @@ export function Invalid() {
       {/* Sizes are a closed set. */}
       {/* @ts-expect-error unknown size */}
       <Input label="Company name" size="xl" />
+
+      {/* Shapes are Button's vocabulary, not a synonym for it — `pill` and
+          `rounded` are the names this axis was renamed AWAY from. */}
+      {/* @ts-expect-error shape is "soft" | "full" */}
+      <Input label="Search" shape="pill" />
     </>
   );
 }

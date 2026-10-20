@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-dark-ui-bg-field-rises-from",
+  "date": "2026-10-05",
+  "item": "system",
+  "kind": "token",
+  "summary": "Dark --ui-bg-field rises from #1D1B19 (neutral-0) to #33302D, halfway between bg-surface and bg-elevated. Closes #24. The old field was the darkest ground in the dark scheme, 1.62:1 under a bg-base Sheet, so the owner's review of a twelve-field dark Sheet read every input as a hole cut through the panel. The value is DERIVED, not pinned: the resolver now builds the dark page field as towardL(surface, elevated, 0.5) for every theme, and theme zero drops its neutral-0 pin, so client brands get the same rule rather than keeping the hole. Measured in theme zero dark it equals no ground a field can land on: 1.24 against bg-base, 1.06 against bg-elevated and bg-surface, 1.16 against bg-sunken. Ink on it: text-primary 11.86:1, placeholder 5.76:1, border-control 3.82:1. As in light, where the white field is the white page, the hairline draws the edge. --ui-bg-field-disabled HAD TO MOVE TOO, against the issue's revised proposal: its pin, neutral-10, is bg-surface and measured 1.06 against the new field, under the 1.1 ADR 0017 requires of each pair on its own ground. It now derives to #3D3A37, 1.16 from the field. --ui-bg-field-chrome and -chrome-disabled keep their values. Light is unchanged in theme zero and every stress brand (resolved light scheme diffed before and after). A new resolve.test.ts assertion keeps the dark field between surface and elevated across every stress seed; it fails against the old derivation.",
+  "affects": [
+    "token:--ui-bg-field",
+    "token:--ui-bg-field-disabled",
+    "decision:0017-field-grounds",
+    "component:input",
+    "component:textarea",
+    "component:select",
+    "component:multiselect",
+    "component:date-picker",
+    "component:chat-composer"
+  ],
+  "migration": {
+    "manual": "Re-emit your token CSS. If you shipped a local :root override of dark --ui-bg-field (the service-portal did, as #33302D), remove it: the registry value now matches. If you also overrode --ui-bg-field-disabled, note it is #3D3A37 now, not #2F2C29, so a disabled field stays distinguishable from an enabled one."
+  }
+}

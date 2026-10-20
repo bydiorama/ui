@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-05-cardsorting-speaks-caller-supplied-messages",
+  "date": "2026-10-05",
+  "item": "card-sorting",
+  "kind": "a11y",
+  "summary": "CardSorting takes `messages?: Partial<CardSortingMessages>` for every string it speaks: `handleLabel` (the grip's accessible name), and the live region's `lifted`, `moved`, `dropped` and `cancelled`. Closes #20. All five were hard-coded English, and they reach assistive technology only, which is what made them easy to miss: the portal ships in en, sk, cs and de, and a Slovak screen-reader user reordering a palette heard English for every step while the item names around it were Slovak. Each message is a FUNCTION of `{ label, position, total, listLabel }` rather than a string, because every phrase carries a position and a count and the word order around a number is the part a translator owns; the registry's existing localisable strings (Toast's dismissLabel, Drawer's handleLabel, ImageEdit's seven *Label props) are flat strings because none of them interpolates. One object rather than five `*Label` props because they are one vocabulary, and §3 prefers that to prop explosion. English stays the default and any key left out stays English, so existing lists are unchanged; `cancelled` now also receives the row and the position it went back to, which the English default does not use. A new Localised story speaks Slovak. Browser tests assert the handle's name and all four announcements come from the prop, a pointer cancel included, and that a partial object keeps the rest in English; type tests refuse a string message and an unknown key.",
+  "affects": [
+    "item:card-sorting",
+    "component:card-sorting",
+    "prop:messages",
+    "type:CardSortingMessages",
+    "type:CardSortingMessageDetails",
+    "slot:card-sorting-handle",
+    "slot:card-sorting-announcer",
+    "story:card-sorting/Localised"
+  ]
+}

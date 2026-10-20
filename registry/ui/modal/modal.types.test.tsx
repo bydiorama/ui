@@ -1,6 +1,8 @@
 /** Compile-time contract tests. `tsc --noEmit` is the runner. */
 
-import { Modal } from "./modal.tsx";
+import { createRef } from "react";
+
+import { Modal, type ModalFocusTarget } from "./modal.tsx";
 import { Button } from "@/ui/button/button.tsx";
 
 export function Valid() {
@@ -50,4 +52,29 @@ export function Invalid() {
   );
 
   return [a, b, c, d, e];
+}
+
+const cancelRef = createRef<HTMLButtonElement>();
+const modalTarget: ModalFocusTarget = cancelRef;
+
+export function FocusTargets() {
+  void modalTarget;
+  return (
+    <Modal>
+      <Modal.Trigger>Delete</Modal.Trigger>
+      <Modal.Surface initialFocus={cancelRef} finalFocus={() => document.getElementById("next-row")}>
+        <Modal.Title>Delete this row?</Modal.Title>
+        <Modal.Close render={<Button ref={cancelRef} variant="secondary">Cancel</Button>} />
+      </Modal.Surface>
+    </Modal>
+  );
+}
+
+export function FocusTargetMisuse() {
+  /* Not Base UI's boolean form: `false` would leave focus behind the scrim. */
+  /* @ts-expect-error initialFocus takes a ref or a function, never a boolean */
+  const a = <Modal.Surface initialFocus={false} />;
+  /* @ts-expect-error finalFocus does not take a selector */
+  const b = <Modal.Surface finalFocus="#next-row" />;
+  return [a, b];
 }

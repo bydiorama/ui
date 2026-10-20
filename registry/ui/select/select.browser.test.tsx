@@ -148,6 +148,68 @@ describe("Select's trigger IS Input's control surface", () => {
     }
   });
 
+  /**
+   * #16. The geometry test above passed for the whole life of the bug: the
+   * boxes matched and only the TEXT inside them differed, because a
+   * hard-coded `text-body-md` followed the size map and won the merge. So the
+   * relationship is asserted on the value itself, against Input's value, at
+   * every size — never as "14px", which would pass while both moved.
+   */
+  test("the VALUE's type matches Input's value at every size", () => {
+    for (const size of ["lg", "md", "sm"] as const) {
+      const c = mount(
+        <>
+          <Select label="Services" size={size} items={ITEMS} defaultValue="design" />
+          <Input label="Company" size={size} defaultValue="Diorama" />
+        </>,
+      );
+      const select = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="select-value"]')!);
+      const input = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="input"]')!);
+      expect(select.fontSize, `${size} font-size`).toBe(input.fontSize);
+      expect(select.lineHeight, `${size} line-height`).toBe(input.lineHeight);
+      act(() => root?.unmount());
+      container?.remove();
+      root = null; container = null;
+    }
+  });
+
+  /**
+   * ADR 0017 §3: a state never points at a surface role. The trigger used to
+   * fill disabled with `bg-sunken`, which only matched Input's field-disabled
+   * by coincidence — and stopped matching in dark once #24 moved the field.
+   */
+  test("disabled takes Input's disabled fill, in both schemes", () => {
+    for (const scheme of ["light", "dark"] as const) {
+      const c = mount(
+        <div style={{ colorScheme: scheme }}>
+          <Select label="Services" items={ITEMS} isDisabled />
+          <Input label="Company" isDisabled />
+        </div>,
+      );
+      const select = getComputedStyle(trigger()).backgroundColor;
+      const input = getComputedStyle(c.querySelector<HTMLElement>('[data-slot="control"]')!).backgroundColor;
+      expect(select, `${scheme} disabled fill`).toBe(input);
+      act(() => root?.unmount());
+      container?.remove();
+      root = null; container = null;
+    }
+  });
+
+  test("the sizes' text steps actually differ — the map is applied, not overridden", () => {
+    const sizes = (["lg", "md", "sm"] as const).map((size) => {
+      mount(<Select label="Services" size={size} items={ITEMS} defaultValue="design" />);
+      const fontSize = getComputedStyle(trigger()).fontSize;
+      act(() => root?.unmount());
+      container?.remove();
+      root = null; container = null;
+      return fontSize;
+    });
+    // lg and md share body-md; sm is caption. A trigger that ignores its map
+    // renders one size three times, which is the bug.
+    expect(new Set(sizes).size).toBe(2);
+    expect(parseFloat(sizes[2]!)).toBeLessThan(parseFloat(sizes[1]!));
+  });
+
   test("the focus ring is PAINTED, with the forced-colors fallback", async () => {
     mount(<Select label="Services" items={ITEMS} />);
     const t = trigger();
@@ -249,5 +311,85 @@ describe("Select's panel is the system's panel", () => {
     await expect
       .poll(() => panel()!.getAnimations().map((a) => (a as CSSTransition).transitionProperty))
       .toContain("scale");
+  });
+});
+
+/**
+ * #26: a second, muted line per option — in the popup only, and wired as the
+ * option's accessible DESCRIPTION rather than folded into its name.
+ */
+describe("Select option descriptions", () => {
+  const ROLES: SelectItem[] = [
+    { value: "admin", label: "Brand Admin", description: "Full access, including members and billing." },
+    { value: "editor", label: "Editor", description: "Edits the brand; cannot manage members." },
+    { value: "viewer", label: "Viewer", description: "Read only.", isDisabled: true },
+    { value: "guest", label: "Guest" },
+  ];
+  const optionNamed = (label: string) => options().find((o) => o.textContent?.startsWith(label))!;
+
+  test("the description is in the popup row and NEVER in the trigger", async () => {
+    const c = mount(<Select label="Role" items={ROLES} defaultValue="admin" />);
+    expect(trigger().textContent).toContain("Brand Admin");
+    expect(trigger().textContent).not.toContain("Full access");
+    // Nor anywhere else in the closed field.
+    expect(c.textContent).not.toContain("Full access");
+
+    await userEvent.click(trigger());
+    await settled(panel()!);
+    const row = optionNamed("Brand Admin");
+    const description = row.querySelector<HTMLElement>('[data-slot="select-option-description"]')!;
+    expect(description.textContent).toBe("Full access, including members and billing.");
+    // A second line, below the label — not beside it.
+    const label = row.querySelector<HTMLElement>(`#${CSS.escape(row.getAttribute("aria-labelledby")!)}`)!;
+    expect(description.getBoundingClientRect().top).toBeGreaterThanOrEqual(label.getBoundingClientRect().bottom);
+    // Choosing still puts only the label in the trigger.
+    await userEvent.click(optionNamed("Editor"));
+    expect(trigger().textContent).toContain("Editor");
+    expect(trigger().textContent).not.toContain("cannot manage");
+  });
+
+  test("the option is NAMED by its label and DESCRIBED by its description", async () => {
+    mount(<Select label="Role" items={ROLES} />);
+    await userEvent.click(trigger());
+    await settled(panel()!);
+    const row = optionNamed("Editor");
+    expect(row.getAttribute("role")).toBe("option");
+    const byId = (attr: string) =>
+      (row.getAttribute(attr) ?? "").split(" ").map((id) => document.getElementById(id)?.textContent).join(" ");
+    // Without aria-labelledby the name would be computed from the row's whole
+    // content, label and description run together, and the description would
+    // then be announced a second time as the description.
+    expect(byId("aria-labelledby")).toBe("Editor");
+    expect(byId("aria-describedby")).toBe("Edits the brand; cannot manage members.");
+  });
+
+  test("an option without a description carries neither attribute", async () => {
+    mount(<Select label="Role" items={ROLES} />);
+    await userEvent.click(trigger());
+    await settled(panel()!);
+    const guest = optionNamed("Guest");
+    expect(guest.getAttribute("aria-describedby")).toBeNull();
+    expect(guest.getAttribute("aria-labelledby")).toBeNull();
+    expect(guest.querySelector('[data-slot="select-option-description"]')).toBeNull();
+  });
+
+  test("the description is quieter than the label, and quieter still when disabled", async () => {
+    mount(<Select label="Role" items={ROLES} />);
+    await userEvent.click(trigger());
+    await settled(panel()!);
+    const ink = (label: string) => {
+      const row = optionNamed(label);
+      return {
+        label: getComputedStyle(document.getElementById(row.getAttribute("aria-labelledby")!)!).color,
+        description: getComputedStyle(row.querySelector('[data-slot="select-option-description"]')!),
+      };
+    };
+    const editor = ink("Editor");
+    const viewer = ink("Viewer");
+    expect(editor.description.color).not.toBe(editor.label);
+    expect(parseFloat(editor.description.fontSize)).toBeLessThan(
+      parseFloat(getComputedStyle(optionNamed("Editor")).fontSize),
+    );
+    expect(viewer.description.color).not.toBe(editor.description.color);
   });
 });

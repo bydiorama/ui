@@ -23,6 +23,7 @@ Slider
 ├─ label            string (required) — the accessible name
 ├─ value? / defaultValue?   number — one thumb, so a number, never an array
 ├─ onValueChange?   (value: number) => void
+├─ getAriaValueText? (value: number) => string — what a screen reader says instead of the number
 ├─ min? / max? / step?
 ├─ size?            sm (8) | md (16) | lg (24) | xl (32, squared)
 ├─ hasSteppers?     boolean — requires decrementLabel AND incrementLabel
@@ -35,6 +36,7 @@ Slider
     onValueChange: { type: "(value: number) => void", notes: "Narrowed from Base UI's number | number[]." },
     step: { type: "number", default: "1", notes: "Keyboard stepping and pointer snapping both honour it." },
     hasValueText: { type: "boolean", default: "false" },
+    getAriaValueText: { type: "(value: number) => string", notes: "Becomes aria-valuetext on the thumb's native input, the element that carries the slider role. Use it whenever the number means nothing on its own: poles (\"Mostly formal\" on a Casual-to-Formal scale), units (\"2.4 MB\"), or named steps. Without it a screen reader announces the bare value. Restated as (value) => string rather than Base UI's (formattedValue, value, index): one thumb has no index. It changes only what is ANNOUNCED; the visible hasValueText still shows the number." },
     size: { type: '"sm" | "md" | "lg" | "xl"', default: '"md"', notes: "8/16/24/32px tracks, all four drawn. xl is the control-row height: it squares off to radius-md because the sheet draws it beside a 32px Select and a pill next to a soft-cornered control reads as a different family." },
     hasSteppers: { type: "boolean", default: "false", notes: "Renders the -/+ pair from the shared chrome control. They step by one `step` and clamp to min/max — the same arithmetic the keyboard performs, so the two cannot disagree. Each is disabled at its end of the range." },
     decrementLabel: { type: "string", notes: "REQUIRED with hasSteppers, by the type. Two icon-only buttons with no name announce as 'button, button', and the component cannot write the words: it has no i18n runtime (§9) and does not know what is being stepped." },
@@ -59,6 +61,7 @@ Slider
   a11y: {
     role: "slider, IMPLICIT: Base UI renders a native input[type=range] inside the thumb rather than a div with role=slider. Querying [role=\"slider\"] finds nothing, which is the point — the implicit role and its keyboard behaviour come from the platform.",
     name: "The `label` prop, via aria-labelledby on BOTH the group and the thumb. Naming only the group leaves the input itself unnamed — found in review, because the group's name does not name the control inside it.",
+    value: "aria-valuenow is the number. getAriaValueText adds aria-valuetext on the same input, which screen readers announce in its place — so a 0–100 slider between named poles can say \"Mostly formal\" instead of \"70\". Folding the poles into the label works around a missing valuetext but still reads the value as a bare number.",
     keyboard: [
       { key: "Arrow keys", does: "Step by `step`. Asserted in Chromium." },
       { key: "Home / End", does: "Jump to min and max — the part a hand-rolled slider usually omits." },
@@ -85,7 +88,7 @@ Slider
 
   knownGaps: [
     "Single value only. A range slider is a different control and is not drawn.",
-    "No tick marks, no aria-valuetext formatting (a slider reporting bytes still announces a bare number), and no vertical orientation. None are drawn.",
+    "No tick marks and no vertical orientation. Neither is drawn.",
     "The steppers are plain buttons rather than a NumberField: they change the slider's own value, so the slider stays the single source of it. A caller wanting a typable number field should compose one into valueControl and drive both from the same state.",
     "The steppers only work on a CONTROLLED slider. They read `value ?? defaultValue` and call onValueChange, so an uncontrolled slider with steppers steps once from its default and then stops — it has no way to read what the thumb has since been dragged to. Controlled is the only sensible pairing and the story shows it that way.",
   ],

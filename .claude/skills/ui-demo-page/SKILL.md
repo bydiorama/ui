@@ -64,6 +64,25 @@ A reference page is a snapshot of an older revision. Before rendering from it:
 
 ## transitions.dev snippets
 
+**Source:** the transitions.dev skills by Jakub Antalik,
+<https://github.com/Jakubantalik/transitions.dev/tree/main/skills>. Install with
+`npx skills add Jakubantalik/transitions.dev` and load the one the task needs:
+
+| Skill | Use it for |
+| --- | --- |
+| `transitions-dev` | the `t-*` CSS transitions and their motion tokens: card resize, number pop-in, text and icon swaps, avatar hover, tooltip, text reveal, accordion, toast, checkbox, thinking states, streaming text and more |
+| `transitions-polish` | tuning motion that already exists against the token scale (duration, distance, scale, blur, easing), plus open/close and hover in/out asymmetry, stagger and delay |
+| `transitions-ui-generation` | an "agent is generating this" reveal: a dotted wireframe measured from the element, then the real UI behind a scan line |
+
+**Attribution and terms.** © 2026 Jakub Antalik / Transitions.dev, under the
+Transitions.dev License (`licenses/transitions-dev.LICENSE.txt`; full terms
+at <https://transitions.dev/terms.html>). It is not MIT. You may use, copy and
+modify the transitions in our own products, demos and media. You may not
+republish the collection, or a substantial part of it, as a transitions
+library, motion pack or animation kit. The reference pages carry the snippets
+they use inline, marked `transitions.dev`, as part of a demo. Keep them that
+way, and keep the credit in `CREDITS.md`.
+
 Use them verbatim where they fit (card resize, number pop-in, icon swap,
 avatar hover, tooltip, text reveal, accordion, toast, thinking state,
 streaming text, text morph, assistant input). Adapt only where the design
@@ -148,6 +167,7 @@ and leaves unseen.
 
 | Trap | Rule |
 | --- | --- |
+| Moving this skill, or its reference pages, to the product tier | That would install the transitions.dev snippets into other people's repositories. That is distribution, not use in our own product, so read the Transitions.dev terms first. The same goes for pulling the snippets out into a shared motion file or package |
 | Tooltips cropped inside a scrolling column | Flip them below (`.t-tt--below`) where the top would clip |
 | The native caret in a slowed render | It blinks in real time, so at ×8 slow-down it flickers. `caret-color: transparent` in demo mode plus a drawn caret |
 | Overflowing typed text | Scroll the field with the text and fade the left edge; a static line reads broken |

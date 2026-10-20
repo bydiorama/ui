@@ -30,6 +30,17 @@ notice is installed beside it rather than left behind in this file.
   credited for completeness. Licence:
   `licenses/jakubkrehel-make-interfaces-feel-better.MIT.txt`.
 
+- **[Jakubantalik/transitions.dev](https://github.com/Jakubantalik/transitions.dev)**
+  — © 2026 Jakub Antalik / Transitions.dev, **Transitions.dev License**. This
+  is not MIT: it allows free personal and commercial use, copying and
+  modification, but not republishing the collection (or a substantial part of
+  it) as a transitions library, motion pack or animation kit. Full terms:
+  <https://transitions.dev/terms.html>. The motion demo pages
+  (`registry/skills/ui-demo-page/reference/*.html` and `design/motion/*/`) use
+  its CSS transitions, verbatim or adapted and marked `transitions.dev` in the
+  source, along with its motion tokens. The `ui-demo-page` skill points agents at its
+  `transitions-dev`, `transitions-polish` and `transitions-ui-generation`
+  skills (verified 2026-10-20). Licence: `licenses/transitions-dev.LICENSE.txt`.
 - **[Aspekta](https://github.com/ivodolenc/aspekta)** — © 2025 Ivo Dolenc,
   SIL Open Font License 1.1. The design system's typeface, redistributed as
   `registry/fonts/aspekta/AspektaVF.woff2` with the OFL text alongside as the

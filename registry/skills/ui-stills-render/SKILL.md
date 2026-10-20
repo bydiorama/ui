@@ -9,6 +9,11 @@ Reference scripts beside this file: **`scripts/still.mjs`** (capture, `PAGE=`
 the demo page, run from the repo root) and **`scripts/still.py`** (frame + mask). A still is **a fresh render, not a frame pulled
 from the video**: the video is 1×, H.264-compressed and has the cursor in it.
 
+Without Node, use **`ui-video-render/scripts/python/still.py`**. It shares the
+video's framing code (`common.py`), so a still and its clip cannot drift.
+Capture, freeze, hide the cursor and frame are one command, and its `--at` is
+**film** time: it starts the run itself.
+
 ## 1 · Pick the moment from a contact sheet
 
 Pull 8 evenly spaced frames per clip (`ffmpeg -ss t`) into one strip per
@@ -25,6 +30,15 @@ visible — not mid-transition:
 
 Record the video time `t`. The page time is `t × slow − 0.3s`, because the
 renderer starts the run 300ms after the screencast.
+
+Prefer a `t` **inside a static hold** of the capture: a gap of ≥ 0.1 s in
+the frame log (`ui-video-render` § Cadence). Nothing is moving there, so the
+still cannot catch a blend, and a few hundred ms of timer drift at ×8 changes
+nothing.
+
+When the brief comes with an example frame, match it. Its focus proportion
+tells you the framing (an example hero at ~48 % width of 4:3 was exactly the
+60 % rule at 1600×1200), and its state tells you the moment.
 
 ## 2 · Capture
 
@@ -59,7 +73,8 @@ with numpy rather than per-pixel Python loops:
 Test two stills (one light, one dark) before the batch. Then sample pixels
 across every boundary that could band (frame edge, padded edge), and look at
 each still. Name them like their videos, with the 2× size:
-`daylight-<clip>[-light]-2048x1536.png`.
+`daylight-<clip>[-light]-2048x1536.png` (or `-3200x2400.png` for a
+1600×1200 clip).
 
 ## Traps
 

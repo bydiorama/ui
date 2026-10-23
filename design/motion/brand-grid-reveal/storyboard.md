@@ -40,3 +40,45 @@ and 2px local blur. Shared characters stay still. Both graphs morph over
 Edit `timeline.js`; run `node design/motion/brand-grid-reveal/sync-timeline.mjs`;
 run `validate.mjs` before `render.mjs`. The HTML is self-contained with embedded
 assets. Reduced motion displays the initial finished screen with motion skipped.
+
+## Revision 7 — generated-code widget and concentric card corners
+
+Paper card wells now use 15px 15px 0 0 inside a 16px shell with a 1px border.
+Both Paper and the film clip contents to the parent. During construction the
+film’s inner content clip is max(0, animated outer radius − 1px), so differing
+child cue times cannot paint over the shell border. Shader paint inherits
+all four parent corners separately.
+
+The editable Paper widget is at (40,40), 448 × 304: 40px header, 222px code
+viewport, 40px status footer, inside a 1px border. Paper Mono Regular at 13/22px
+for code; 11–12px for chrome. Code rows begin at .3s with 190ms stagger;
+characters fade over 140ms with 6ms offsets. The viewport has local top/bottom
+faders, and scrolls 90px between 1.8 and 2.75s. The twelve lines contain the
+actual surface/accent colors, 16/1/15px corner geometry, 320/250ms trace/paint,
+390ms corner motion and smooth-out curve. The widget enters at .1s, completes
+by 2.67s, holds, then fades out at 5.8–6.15s. Loop remains 9.5s.
+
+## Revision 8 — hand-refined widget, 55-line build stream
+
+Synced the user's Paper refinements: 11px Paper Mono, file path
+`diorama / UI / build.ts`, initial Tokens heading, #EDE8E4 code surface,
+and #EDE5E2-tinted 20px/32px top/bottom faders. Footer reads Generating...
+with a restrained 1.4s shimmer clipped only to those glyphs while code is
+being generated; becomes Generated when complete.
+
+55 lines populate in six blocks: Tokens .30s, Layout 1.15s, Components 2s,
+Motion 2.95s, Metrics 3.95s, Render 4.85s. Rows stagger by 35ms; glyphs fade
+with 2ms offsets over 120ms. Scroll follows each section over 420ms, leaving
+brief reading holds. Heading follows the active section. Last block completes
+by 5.35s; the widget exits at 5.8–6.15s. Duration remains 9.5s.
+
+Code includes demo geometry, tokens, the real Button SOFT_RADIUS mapping,
+concentric clipping, exact reveal timings, metric values and deterministic
+frame seeking. `widget-code.txt` holds the complete readable source, also
+updated in the editable Paper text layer.
+
+## Revision 9 — widget placement
+
+Widget follows the updated Paper anchor: top 32px, right 32px on the
+1600 × 1200 stage (x=1120, y=32), retaining its 448 × 304 dimensions.
+Timing and code content unchanged.

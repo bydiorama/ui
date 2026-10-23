@@ -226,3 +226,77 @@ mean absolute difference 0.125/255 (limit 0.5). Reviewed the 11-beat contact
 sheet and decoded MP4 frames at 1.6, 3.6 and 6.2 seconds: skeleton-only slots,
 expanded photo destination, and clean final metrics. Job validation,
 `pnpm verify`, and `git diff --check` passed.
+
+## Revision 7 — Paper widget with code faders
+
+Updated the linked card pair in Paper: outer radius 16px, 1px border, inner
+well top corners 15px, lower corners square, outer overflow clipped. The
+film mirrors this and clips all inner content with a radius derived from the
+animated outer radius minus the border. This also prevents staggered inner
+surfaces from crossing the outer corners. Corrected inherited shader corner
+geometry to preserve independent corners rather than forcing four equal radii.
+
+Reworked the linked widget directly in Paper with separately editable header,
+code viewport, gradient faders, and footer. Stored its export in
+widget-source.jsx. Design review: consistent inset rhythm, readable Paper Mono,
+quiet warm-neutral contrast, aligned number column, no unintended overflow.
+Paper’s viewport deliberately clips and fades the scrolling code.
+
+Film widget uses the same 448 × 304 geometry at (40,40). A local alpha mask
+fades scrolling code at viewport boundaries; each generated character resolves
+independently. The visible code represents values used by this animation,
+not unrelated sample code. The widget exits before component retirement and
+is hidden in reduced-motion mode. The current storyboard records its timing.
+
+Paper Mono Regular is embedded for offline rendering, obtained from the
+[official Paper Mono repository](https://github.com/paper-design/paper-mono).
+SIL OFL retained in Paper-Mono-OFL.txt. Font is confined to this requested
+presentation artifact; no distributable design-system item or manifest changed.
+
+Validation covers loaded Paper Mono, local fader mask, twelve completed lines,
+widget visibility/exit, and all previous geometry, text, metric and loop checks.
+
+Final revision-7 export: 1600 × 1200, 60fps, 570 frames, 9.50s. Encoded seam
+mean absolute difference 0.137/255 (limit 0.5). Reviewed the 11-beat contact
+sheet and decoded frames at 1.6, 3.6, 6.2s. Paper edits and film show aligned
+card corners; widget code is legible, locally faded, and clears before the
+final screen. Visual QA caught small controls incorrectly inheriting zero
+radius; fixed inheritance to apply only from a rounded parent and re-rendered.
+Added explicit checks for 15px upper and 0px lower card-well corners.
+Job validation, `pnpm verify`, and `git diff --check` passed.
+
+## Revision 8 — user refinements and comment review
+
+Read the full current Paper artboard JSX/styles and the page's comments.
+One open thread, pinned to the footer status, requested “add shimmer”. Applied
+this only to Generating... with a deterministic text-clipped gradient; no
+screen-wide effect. Synced 11px text, new title and section label, viewport
+background and tinted faders. Preserved hand-refined Paper styles.
+
+User then requested more substantive generated code. Expanded to 55 lines
+and six timed sections. Content references the demo's actual geometry and
+motion values and the library Button SOFT_RADIUS mapping read directly from
+registry/ui/button/button.tsx. These are presentation excerpts/configuration,
+not a replacement executable module. Updated Paper's code text/count and the
+clean JSX export. Design review: same alignment, type and inset geometry;
+viewport intentionally clips the long source through its local faders.
+
+Validation checks 55 populated lines, section progression, precise 11px font
+and viewport color, both faders, shimmer during generation and plain status
+after completion, in addition to retained component geometry and loop tests.
+
+Final revision-8 encode: 1600 × 1200, 60fps, 570 frames, 9.50s. Reviewed
+11-beat contact sheet and decoded 1.6/3.6/5.6s frames for scrolling sections,
+refined colors/type, intact cards and completed 55-line count. Browser tests,
+`pnpm verify` and `git diff --check` pass. The addressed shimmer comment was
+marked resolved after rendering and visual verification.
+
+## Revision 9 — widget placement
+
+Read the updated widget styles from Paper: right 32px, top 32px, 448 × 304.
+Synced the film to the top-right anchor; reviewed the 2.8s frame to confirm
+placement and clearance from the main heading. Retained all choreography.
+
+Revision-9 validation: browser checks, `pnpm verify`, and `git diff --check`
+passed. Reviewed the updated contact sheet. Final video remains 1600 × 1200,
+60fps, 570 frames, 9.50s; encoded loop seam verified below the 0.5 threshold.

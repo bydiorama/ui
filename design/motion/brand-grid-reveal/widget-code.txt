@@ -1,0 +1,55 @@
+01  const tokens = {
+02    surface: '#FFFFFF',
+03    accent:  '#9EDBF3',
+04    edge:    '#DAD4CE',
+05    radius:  16,
+06    inset:   1,
+07    inner:   15,
+08  };
+09  // Demo / app frame
+10  const layout = {
+11    frame: [1280, 784],
+12    origin: [160, 208],
+13    sidebar: 240,
+14    content: 616,
+15    gap: 8,
+16    cards: [304, 272],
+17  };
+18  // registry/ui/button/button.tsx
+19  const SOFT_RADIUS = {
+20    lg: 'rounded-md',
+21    md: 'rounded-md',
+22    sm: 'rounded-sm',
+23  };
+24  // Demo / concentric card clip
+25  const innerRadius = Math.max(
+26    0, outerRadius - tokens.inset
+27  );
+28  const motion = {
+29    trace: 320, paint: 250,
+30    corners: 390,
+31    ease: [.22, 1, .36, 1],
+32    photo: 420, stagger: 40,
+33  };
+34  const enter = {
+35    shell: .04, heading: .38,
+36    cards: [1.02, 1.16],
+37    metrics: [1.70, 1.82, 1.94],
+38  };
+39  // Demo / responsive metrics
+40  const views = { from: 1200, to: 1300 };
+41  const storage = { from: .70, to: .72 };
+42  const members = { from: 14, to: 15 };
+43  const share = .70 + .02 * progress;
+44  const sweep = share * Math.PI * 2;
+45  const graphDuration = 400;
+46  // Update number, label and graph together.
+47  // Deterministic rendering / 60 fps
+48  const duration = 9.5;
+49  const fps = 60;
+50  const frames = duration * fps;
+51  for (let frame = 0; frame < frames; frame++) {
+52    seek(frame / fps);
+53  }
+54  // Last state returns to the opening grid.
+55  // Reduced motion skips the entire reveal.

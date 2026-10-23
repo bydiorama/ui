@@ -9,6 +9,7 @@ const clamp = x => Math.max(0, Math.min(1, x));
 const ease = x => { x = clamp(x); return x*x*(3-2*x); };
 const phase = (t, start, duration) => ease((t-start)/duration);
 const NS = 'http://www.w3.org/2000/svg';
+const cardClips=[];
 const atoms = [], groups = new Map(), photoSources = new Map(), photos = [];
 // Transitions.dev: skeleton reveal 400ms; digit pop 500ms/8px/70ms/2px;
 // stacked-item motion 320ms/1.05; chart morph 400ms. Sampled exactly for export.
@@ -42,6 +43,8 @@ function groupFor(r) {
 function construct() {
  stage.style.transform='none';stage.style.left='0';stage.style.top='0';
  const sidebar=[...app.querySelectorAll('div')].find(n=>n.style.width==='240px');sidebar.style.borderRadius='8px';
+ const cardSources=[...app.querySelectorAll('div')].filter(n=>n.style.width==='100%'&&n.style.borderRadius==='16px');
+ for(const card of cardSources){card.style.overflow='hidden';if(card.firstElementChild?.style.height==='200px')card.firstElementChild.style.borderRadius='15px 15px 0px 0px';}
  const nodes=[app,...app.querySelectorAll('div,svg')];
  for(const node of nodes) {
   if(node.closest('svg') && node.tagName.toLowerCase()!=='svg') continue;
@@ -70,7 +73,7 @@ function construct() {
   const cornerRadii=['borderTopLeftRadius','borderTopRightRadius','borderBottomRightRadius','borderBottomLeftRadius'].map(k=>Math.min(parseFloat(cs[k])||0,w/2,h/2));
   const outline=document.createElementNS(NS,'rect');
   let radius=Math.min(parseFloat(cs.borderTopLeftRadius)||0,w/2,h/2);
-  if(node.parentElement){const pr=node.parentElement.getBoundingClientRect();if(Math.abs(pr.x-r.x)<2&&Math.abs(pr.y-r.y)<2&&Math.abs(pr.width-r.width)<3&&Math.abs(pr.height-r.height)<3){radius=Math.max(radius,parseFloat(getComputedStyle(node.parentElement).borderTopLeftRadius)||0);target.style.borderRadius=radius+'px';cornerRadii.fill(radius);}}
+  if(node.parentElement){const pr=node.parentElement.getBoundingClientRect();if(Math.abs(pr.x-r.x)<2&&Math.abs(pr.y-r.y)<2&&Math.abs(pr.width-r.width)<3&&Math.abs(pr.height-r.height)<3){radius=Math.max(radius,parseFloat(getComputedStyle(node.parentElement).borderTopLeftRadius)||0);const ps=getComputedStyle(node.parentElement);if(parseFloat(ps.borderTopLeftRadius)>0)['borderTopLeftRadius','borderTopRightRadius','borderBottomRightRadius','borderBottomLeftRadius'].forEach((k,i)=>cornerRadii[i]=Math.min(parseFloat(ps[k])||0,w/2,h/2));target.style.borderRadius=cornerRadii.map(r=>r+'px').join(' ');}}
   const x=r.x+r.width/2-w/2,y=r.y+r.height/2-h/2;
   // Text uses an in-place skeleton slot; surfaces trace their actual rounded edge.
   const oh=isText?Math.max(6,Math.min(20,parseFloat(cs.fontSize)*.6)):h, oy=isText?y+(h-oh)/2:y;
@@ -107,6 +110,12 @@ function construct() {
   info.dx=dest.x+dest.width/2-info.cx;info.dy=dest.y+dest.height/2-info.cy;info.dr=parseFloat(destination.rotate)-oldRotation;
   info.destination={x:dest.x,y:dest.y,width:dest.width,height:dest.height};source.style.cssText=saved;
   const wrap=document.createElement('div');wrap.className='t-avatar';wrap.dataset.photo=info.index;Object.assign(wrap.style,{position:'absolute',inset:'0',transformOrigin:`${info.cx}px ${info.cy}px`,transition:'none'});groups.get('library').el.append(wrap);for(const a of atoms.filter(a=>a.photo===source))wrap.append(a.target);photos.push({...info,wrap});}
+ for(const key of ['brand','library']){
+  const outer=atoms.find(a=>a.key===key&&parseFloat(a.target.style.width)===304);
+  const content=document.createElement('div');content.dataset.cardClip=key;Object.assign(content.style,{position:'absolute',inset:'0'});
+  const group=groups.get(key).el;for(const child of [...group.children])if(child!==outer.target)content.append(child);group.append(content);
+  cardClips.push({outer,content,x:parseFloat(outer.target.style.left)+1,y:parseFloat(outer.target.style.top)+1});
+ }
  const donut=atoms.find(a=>a.key==='metric1'&&a.isSVG);donut.target.replaceChildren();
  for(const color of ['#5799B1','#EDE8E3']){const path=document.createElementNS(NS,'path');path.setAttribute('fill',color);path.setAttribute('stroke',color);path.setAttribute('stroke-width','1');path.setAttribute('stroke-linejoin','round');donut.target.append(path);}
  app.style.visibility='hidden';
@@ -117,7 +126,30 @@ function construct() {
  const ring=document.createElement('div');ring.id='search-feedback';
  Object.assign(ring.style,{position:'absolute',left:'616px',top:'416px',width:'616px',height:'56px',border:'1.5px solid #5799B1',borderRadius:'999px',opacity:'0'});layer.append(ring);
  const frame=document.createElement('div');frame.id='app-frame-edge';Object.assign(frame.style,{position:'absolute',left:'160px',top:'208px',width:'1280px',height:'784px',boxSizing:'border-box',border:'1px solid #ECE7E3',pointerEvents:'none'});layer.append(frame);
+ createCodeWidget();
  ready=true;fit();
+}
+// Editable Paper widget: fonts and geometry mirror the source card.
+const codeLines=["const tokens = {", "  surface: '#FFFFFF',", "  accent:  '#9EDBF3',", "  edge:    '#DAD4CE',", "  radius:  16,", "  inset:   1,", "  inner:   15,", "};", "// Demo / app frame", "const layout = {", "  frame: [1280, 784],", "  origin: [160, 208],", "  sidebar: 240,", "  content: 616,", "  gap: 8,", "  cards: [304, 272],", "};", "// registry/ui/button/button.tsx", "const SOFT_RADIUS = {", "  lg: 'rounded-md',", "  md: 'rounded-md',", "  sm: 'rounded-sm',", "};", "// Demo / concentric card clip", "const innerRadius = Math.max(", "  0, outerRadius - tokens.inset", ");", "const motion = {", "  trace: 320, paint: 250,", "  corners: 390,", "  ease: [.22, 1, .36, 1],", "  photo: 420, stagger: 40,", "};", "const enter = {", "  shell: .04, heading: .38,", "  cards: [1.02, 1.16],", "  metrics: [1.70, 1.82, 1.94],", "};", "// Demo / responsive metrics", "const views = { from: 1200, to: 1300 };", "const storage = { from: .70, to: .72 };", "const members = { from: 14, to: 15 };", "const share = .70 + .02 * progress;", "const sweep = share * Math.PI * 2;", "const graphDuration = 400;", "// Update number, label and graph together.", "// Deterministic rendering / 60 fps", "const duration = 9.5;", "const fps = 60;", "const frames = duration * fps;", "for (let frame = 0; frame < frames; frame++) {", "  seek(frame / fps);", "}", "// Last state returns to the opening grid.", "// Reduced motion skips the entire reveal."];
+const codeSections=[{"name": "Tokens", "start": 0.3, "index": 0, "count": 8}, {"name": "Layout", "start": 1.15, "index": 8, "count": 9}, {"name": "Components", "start": 2, "index": 17, "count": 10}, {"name": "Motion", "start": 2.95, "index": 27, "count": 11}, {"name": "Metrics", "start": 3.95, "index": 38, "count": 8}, {"name": "Render", "start": 4.85, "index": 46, "count": 9}];
+function createCodeWidget(){
+ const widget=document.createElement('section');widget.id='code-widget';widget.setAttribute('aria-label','Generated design tokens and animation code');
+ Object.assign(widget.style,{position:'absolute',right:'32px',top:'32px',width:'448px',height:'304px',boxSizing:'border-box',background:'#FDFCFB',border:'1px solid #DAD4CE',borderRadius:'16px',boxShadow:'0 8px 32px #1D1B1914, 0 2px 4px #1D1B190A',overflow:'hidden',fontFamily:'Paper Mono',fontSize:'11px',lineHeight:'22px',color:'#69635D',zIndex:'4',pointerEvents:'none'});
+ widget.innerHTML='<div style="height:40px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:#F6F3F0;border-bottom:1px solid #EDE8E3;font-size:11px"><span style="color:#1D1B19">diorama / UI / build.ts</span><span id="code-status" style="font-size:11px">Tokens</span></div><div id="code-viewport" style="height:222px;overflow:hidden;position:relative;background:#EDE8E4"><div id="code-lines" style="padding:16px 20px"></div><div class="code-fader" style="position:absolute;inset:0 0 auto;height:20px;background:linear-gradient(in oklab 180deg,#EDE5E2,#FDFCFB00)"></div><div class="code-fader" style="position:absolute;inset:auto 0 0;height:32px;background:linear-gradient(in oklab 180deg,#FDFCFB00,#EDE5E2)"></div></div><div style="height:40px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #EDE8E3;background:#F6F3F0;font-size:11px"><span id="generation-status">Generating...</span><span id="code-count">0 lines</span></div>';
+ const rows=widget.querySelector('#code-lines');codeLines.forEach((line,i)=>{const row=document.createElement('div');row.style.cssText='height:22px;white-space:pre;display:flex';const n=document.createElement('span');n.textContent=String(i+1).padStart(2,'0');n.style.cssText='width:28px;flex-shrink:0;color:#69635D';row.append(n);for(const ch of line){const c=document.createElement('span');c.textContent=ch;row.append(c);}rows.append(row);});stage.append(widget);
+}
+function animateCodeWidget(t){
+ const widget=document.querySelector('#code-widget');const visible=reducedMotion.matches?0:tween(t,.1,.25)*(1-tween(t,5.8,.35));widget.style.opacity=visible;widget.style.transform=`translateY(${8*(1-tween(t,.1,.35))}px)`;widget.style.borderRadius=16*tween(t,.1,.45,inOut)+'px';
+ let completed=0;
+ [...document.querySelector('#code-lines').children].forEach((row,i)=>{const section=[...codeSections].reverse().find(s=>i>=s.index);const start=section.start+(i-section.index)*.035;const progress=tween(t,start,.22,inOut);row.firstChild.style.opacity=progress;[...row.children].slice(1).forEach((c,j)=>{c.style.opacity=tween(t,start+j*.002,.12);});if(t>=start+.22)completed++;});
+ let scroll=0;for(let i=1;i<codeSections.length;i++){const section=codeSections[i],previous=codeSections[i-1];const to=Math.min(section.index*22,codeLines.length*22+32-222);const from=i===1?0:Math.min(previous.index*22,codeLines.length*22+32-222);scroll+=(to-from)*tween(t,section.start,.42,inOut);}
+ document.querySelector('#code-lines').style.transform=`translateY(${-scroll}px)`;
+ document.querySelector('#code-count').textContent=completed+' lines';document.querySelector('#code-status').textContent=([...codeSections].reverse().find(s=>t>=s.start)||codeSections[0]).name;
+ const status=document.querySelector('#generation-status'),generating=completed<codeLines.length&&!reducedMotion.matches;
+ status.textContent=generating?'Generating...':'Generated';
+ status.style.backgroundImage=generating?'linear-gradient(110deg,#69635D 35%,#B7B0A9 48%,#69635D 61%)':'none';
+ status.style.backgroundSize='220% 100%';status.style.backgroundPosition=`${100-((Math.max(0,t-.3)%1.4)/1.4)*200}% 0`;
+ status.style.backgroundClip=generating?'text':'border-box';status.style.color=generating?'transparent':'#69635D';
 }
 function pulse(t,a,b,c,d){return phase(t,a,b-a)*(1-phase(t,c,d-c));}
 // Ring-sector geometry from transitions.dev / 35-donut-chart.md, kept inline
@@ -189,6 +221,8 @@ function seek(t){
  const shell=atoms.find(a=>a.key==='shell');
  const frame=document.querySelector('#app-frame-edge');frame.style.borderRadius=shell.target.style.borderRadius;frame.style.opacity=shell.target.style.opacity;
  for(const [key,g]of groups)if(key!=='shell')g.el.style.clipPath=`inset(208px 160px 208px 160px round ${parseFloat(shell.target.style.borderTopLeftRadius)}px)`;
+ for(const {outer,content,x,y}of cardClips){const radius=Math.max(0,parseFloat(outer.target.style.borderTopLeftRadius)-1);content.style.clipPath=`inset(${y}px ${1600-x-302}px ${1200-y-270}px ${x}px round ${radius}px)`;}
+ animateCodeWidget(time);
  animateMetrics(time);
  for(const a of atoms){const x=parseFloat(a.target.style.left),y=parseFloat(a.target.style.top);if(a.key==='metric2'&&x>=1155&&y<865)a.target.style.transform='scale('+(1-.025*pulse(time,5,5.08,5.16,5.32))+')';}
  // Dots never change phase, radius, or brightness; opaque surfaces simply occlude them.
@@ -203,6 +237,8 @@ window.revealAudit=()=>({
  corners:atoms.filter(a=>a.cornerRadii.some(r=>r>0)).map(a=>({cue:a.introCue,current:parseFloat(a.target.style.borderTopLeftRadius),final:a.cornerRadii[0]})),
  photos:photos.map(p=>({actual:p.wrap.firstElementChild.getBoundingClientRect().toJSON(),destination:p.destination})),
  shell:{border:shellStyle().borderTop,shadow:shellStyle().boxShadow},
+ widget:{total:codeLines.length,font:getComputedStyle(document.querySelector('#code-widget')).fontFamily,opacity:+document.querySelector('#code-widget').style.opacity,lines:document.querySelector('#code-count').textContent,background:getComputedStyle(document.querySelector('#code-viewport')).backgroundColor,fontSize:getComputedStyle(document.querySelector('#code-widget')).fontSize,faders:document.querySelectorAll('.code-fader').length,status:document.querySelector('#generation-status').textContent,shimmer:document.querySelector('#generation-status').style.backgroundImage},
+ cardClips:cardClips.map(c=>({outer:parseFloat(c.outer.target.style.borderTopLeftRadius),clip:c.content.style.clipPath})),
 });
 function shellStyle(){return getComputedStyle(atoms.find(a=>a.key==='shell').target)}
 window.seek=seek;window.duration=DURATION;window.showIntroInstant=()=>seek(2.8);

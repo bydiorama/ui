@@ -84,3 +84,13 @@ each still. Name them like their videos, with the 2× size:
 | Screenshot during a transition | Freeze with `playbackRate: 0` first; screenshotting a 3504px viewport takes long enough to catch a blend |
 | Waiting the clip's real duration | Remember the ×8: a 15s-in moment is a 2-minute wait. Batch in the background |
 | One still per clip, by the clip's start frame | The first frame is the loop's resting state — usually the least telling |
+
+
+## Seekable pages and organized exports
+
+If the page exposes `seek(seconds)`, await `ready` and font loading, seek
+straight to the chosen film time, hide the cursor, then capture lossless PNG
+at DPR 2. No wall-time multiplier is needed. Use exactly the same composition
+as the video. Put delivery stills and QA frames under `exports/stills/`,
+contact sheets under `exports/contact-sheets/`, and reports under
+`exports/reports/`; label decoded MP4 frames as review evidence, not masters.

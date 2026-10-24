@@ -107,3 +107,23 @@ for the storyboard and the safe moments for stills.
 | A render log line you do not recognise | One `net::ERR_INTERNET_DISCONNECTED` meant a font may have fallen back, and it was invisible on the contact sheet. Treat any resource error as a failed capture until the font guard says otherwise |
 | Re-rendering one clip after a page edit | Re-stage `index.html` from the built page first — the renderer reads the staged copy |
 | ffmpeg concat timing | The list needs `file`/`duration` pairs and the last file repeated without a duration, or the final frame is dropped |
+
+
+## Deterministic capture
+
+For a page exposing `seek(seconds)`, use **`scripts/render-seek.mjs`** instead
+of slowing wall time. Capture every frame at `index / fps`, including holds.
+This makes cadence exact without depending on browser screenshot throughput.
+Set `PAGE`, `OUT`, `WIDTH`, `HEIGHT`; `PLAYWRIGHT_MODULE` and
+`CHROMIUM_EXECUTABLE` support external toolchains. `BEATS` is an optional
+comma-separated list of film times. Keep the capture sequential.
+
+Before rendering, compare the composed geometry to Paper, including intended
+cropping. Check loaded font faces, resource errors, reduced motion, text versus
+skeleton separation, ongoing stream content during dismissal, and persistent
+ground layers at multiple times. Regenerate each changed preview before capture.
+
+For exact browser endpoint comparison, decode PNGs and compare pixels. PNG
+byte hashes can differ for identical pixels because compression differs. Still
+measure the encoded MP4 with `seam.py`; a passing browser seam does not verify
+the encoder. Review decoded contact sheets at even times AND animation beats.

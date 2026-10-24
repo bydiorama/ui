@@ -37,7 +37,7 @@ Changed digits pop over 500ms with 8px travel, 70ms trailing-digit stagger,
 and 2px local blur. Shared characters stay still. Both graphs morph over
 400ms with smooth-out easing. The storage ring represents its numeric share.
 
-Edit `timeline.js`; run `node design/motion/brand-grid-reveal/sync-timeline.mjs`;
+Edit `source/timeline.js`; run `node design/motion/brand-grid-reveal/scripts/sync-timeline.mjs`;
 run `validate.mjs` before `render.mjs`. The HTML is self-contained with embedded
 assets. Reduced motion displays the initial finished screen with motion skipped.
 
@@ -82,3 +82,21 @@ updated in the editable Paper text layer.
 Widget follows the updated Paper anchor: top 32px, right 32px on the
 1600 × 1200 stage (x=1120, y=32), retaining its 448 × 304 dimensions.
 Timing and code content unchanged.
+
+## Alternative — dense code stream
+
+Separate preview: brand-grid-reveal-dense.html. Separate renderer:
+render-dense.mjs. Regenerate both with build-dense-variant.py.
+
+Widget body is 6.5px Paper Mono on 9px lines. Continuous 220 lines/sec scroll
+keeps approximately 25 lines in view, each for ~112ms; there are no section
+reading holds or a static completed-code state. Header/footer remain 11px.
+The stream draws from actual component and animation sources, with a 2400-line
+buffer and 28 virtual rows. Widget placement, entry/exit and the 9.5s film
+remain unchanged. All alternative frames/reports/video have distinct filenames.
+
+### Dense alternative — typography correction
+
+Restore the approved 11px Paper Mono, 22px line height, normal tracking and
+20px horizontal code inset. Keep the 2400-line buffer and 220 lines/sec stream.
+Only the alternative preview/video changes; the original version is preserved.

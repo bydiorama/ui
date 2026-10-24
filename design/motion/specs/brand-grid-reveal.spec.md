@@ -38,19 +38,19 @@ not product navigation. See the storyboard for the exact cue table.
 
 ## Editing and reproduction
 
-Open `design/motion/brand-grid-reveal/brand-grid-reveal.html` directly.
+Open `design/motion/brand-grid-reveal/previews/brand-grid-reveal.html` directly.
 Pause and scrub controls appear at the bottom on hover or keyboard focus.
 All assets are embedded; no server or network is required.
 
-Edit `timeline.js`, then:
+Edit `source/timeline.js`, then:
 
 ```sh
-node design/motion/brand-grid-reveal/sync-timeline.mjs
+node design/motion/brand-grid-reveal/scripts/sync-timeline.mjs
 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
 CHROMIUM_EXECUTABLE=/absolute/path/to/chromium \
-node design/motion/brand-grid-reveal/render.mjs
+node design/motion/brand-grid-reveal/scripts/render.mjs
 python3 -I registry/skills/ui-video-render/scripts/seam.py \
-  design/motion/brand-grid-reveal/exports/brand-grid-reveal-light-1600x1200-60fps.mp4
+  design/motion/brand-grid-reveal/exports/videos/brand-grid-reveal-light-1600x1200-60fps.mp4
 pnpm verify
 ```
 
@@ -300,3 +300,152 @@ placement and clearance from the main heading. Retained all choreography.
 Revision-9 validation: browser checks, `pnpm verify`, and `git diff --check`
 passed. Reviewed the updated contact sheet. Final video remains 1600 × 1200,
 60fps, 570 frames, 9.50s; encoded loop seam verified below the 0.5 threshold.
+
+## Alternative export — dense code, preserved original
+
+User requested code that cannot be recognized during runtime and a separate
+MP4. Created an isolated HTML variant plus reproducible builder/renderer.
+Uses 6.5px Paper Mono, 9px line boxes, continuous 220 lines/sec (~1980px/sec).
+A line traverses the 222px viewport in ~112ms. It reads as moving code texture
+at normal playback speed; paused frames remain source text. No reading holds.
+The 2400-line buffer is assembled from real button/card/header/motion/demo
+sources and repeated to fill the buffer. Virtualized rows keep rendering light.
+Original HTML/timeline/renderer/video are not replaced. Alternative output:
+brand-grid-reveal-dense-code-light-1600x1200-60fps.mp4.
+
+Browser QA confirms 28 virtual rows, 6.5px body type, advancing content,
+no page errors and pixel-identical browser loop endpoints. Visually inspected
+the 2.8s frame before the full render. Original video checksum recorded for
+post-render preservation verification.
+
+Alternative render finished: 1600 × 1200, 60fps, 570 frames, 9.50s. Reviewed
+decoded 1.6/2.8/5.6s frames; dense stream stays within the widget and UI remains
+intact. Encoded seam passes (<0.5). `pnpm verify`, `git diff --check` and
+original-MP4 SHA-256 preservation check passed.
+
+### Dense alternative — typography correction
+
+User requested the previous code font size with the same volume of code.
+Restored 11px Paper Mono and its 22px leading, normal tracking and 20px inset.
+Retained 2400 source lines and 220 lines/sec. Regenerated only the alternative.
+Browser font, advancing stream, error and exact endpoint checks passed.
+
+Corrected alternative re-rendered at 1600 × 1200 / 60fps / 9.50s. Decoded
+1.6/2.8/5.6s frames reviewed. Encoded seam passes (<0.5); repository checks
+pass and the original MP4's SHA-256 remains unchanged.
+
+## Directed cut — product hierarchy and narrative handoff
+
+New alternative requested as a complete motion-design review. Reviewed the
+repo's media workflow and preceding variants. Diagnosis: the code window
+competed with product interactions, the brand surfaces arrived relatively
+late, search focus lacked a consequence, and a long retirement consumed time
+that could establish the completed workspace.
+
+The separate directed cut advances the headline (.12s cue), brand (.5s) and
+library (.68s), completes all 72 atoms by 2.5s, and ends code generation at
+that milestone. A brief Ready state leads to widget dismissal at 2.85–3.1s.
+Library expansion starts at 3.2s with 55ms staggering, 540ms smooth-out and
+exact approved endpoints. Metric events retain their relationship to graphs;
+Invite press at 5.35s leads to member update at 5.55s. Glyph motion is now 4px,
+340ms, no blur or overshoot. Search pulse is removed. Complete UI holds through
+7.65s. Local retirement begins 7.7s; all contours are gone by approximately
+8.7s and the grid matches the first frame through 9.5s.
+
+Construction outlines reduced to .28 opacity; square-to-round construction
+is preserved and reversed locally during exit. No camera drift, global effect,
+extra label or artboard change. Dense 11px Paper Mono remains; source comments
+are filtered so the stream reads as code. A wider line-number gutter prevents
+four-digit numbers colliding with source text. Paper's geometry, assets, 8px
+sidebar, concentric card corners, and frame treatment are preserved.
+
+Artifacts are isolated: directed-timeline.js, sync-directed.mjs,
+brand-grid-reveal-directed.html, validate-directed.mjs, render-directed.mjs,
+and directed-storyboard.md. Earlier previews and MP4s remain intact.
+
+Browser validation covers the early headline, fully visible UI at 2.5s,
+11px code, code dismissal before photo expansion, exact photo destinations,
+settled metrics, product hold, skeleton/text separation, exact loop endpoints,
+reduced motion, and absence of resource errors. Reviewed 14 representative
+frames across construction, handoff, interactions, hold, retirement and seam.
+
+Directed final export: 1600 × 1200, 60fps, 570 frames, 9.50s. Inspected decoded
+1.2/3.15/6.5s frames: early brand recognition, clean code-to-product handoff,
+and final product hold. Encoded seam passes the <0.5 threshold. Browser QA,
+`pnpm verify`, `git diff --check`, and original-video checksum preservation pass.
+
+
+## Continuous widget dismissal and delivery variants
+
+Requested longer widget presence, continuous code generation through its exit,
+a tidy asset structure, a slower reveal, and a 4:5 portrait version.
+
+The directed cut now continues its 220-lines/sec stream through a 3.0–3.65s
+fade. It no longer freezes or displays Ready before dismissal. Paper Mono
+remains 11px with 22px leading. The fade overlaps the start of the library
+expansion, connecting generation to the finished workspace.
+
+The slower variant maps the original 0–2.5s construction to 0–9s, then keeps
+subsequent action timing unchanged. Its duration is 16s. This interpretation
+was stated while an optional timing clarification remained unanswered.
+The 4:5 version is 1080 × 1350 and 9.5s, preserving the entire workspace and
+placing the widget above it. The design is scaled uniformly without cropping.
+
+Folder organization: previews/, source/, scripts/, docs/, licenses/, and
+exports/{videos,contact-sheets,stills,reports}/. The root README links current
+artifacts and gives reproduction commands. Prior original and dense-code
+previews and videos are retained; old captures are in stills/archive/.
+
+Validated exports:
+
+| Version | Size | Duration | Frames | Encoded seam mean |
+| --- | --- | --- | --- | --- |
+| directed | 1600 × 1200 | 9.5s | 570 | 0.133 |
+| slow | 1600 × 1200 | 16s | 960 | 0.095 |
+| portrait | 1080 × 1350 | 9.5s | 570 | 0.103 |
+
+Every frame is sought explicitly at 1/60s, so film-time cadence is 16.667ms
+(median and p99), with no skipped samples. All MP4s report 60/1 fps. All three
+seams are below the 0.5 threshold. Reviewed decoded contact sheets: directed
+and portrait at animation beats, slower at evenly spaced times. Full-size
+portrait preview was also inspected for clipping and hierarchy.
+
+Browser checks passed for embedded fonts, 11px code, continuing generation
+while opacity decreases, no skeleton/glyph overlap, portrait bounds, final
+metric values, identical decoded endpoint pixels, reduced motion and no
+resource errors. PNG byte hashes were replaced with decoded-pixel hashes
+because identical pixels can have different PNG compression streams.
+`pnpm verify` and `git diff --check` passed. No real-device social-platform
+transcoding or playback test was performed.
+
+### Portrait composition matched to Paper
+
+User supplied a dedicated portrait artboard. Read its JSX, computed styles,
+world coordinates and screenshot directly from Paper. The 960 × 1200 artboard
+places the 1144 × 784 app at (32, 208), intentionally cropping its right side.
+The 448 × 242 code widget is at (480, 32), with a 160px code viewport. The
+content column begins at (420, 345); cards begin at (420, 505). Source JSX is
+saved in source/portrait-composition.jsx.
+
+The portrait builder now applies this composition at 1.125× for 1080 × 1350
+output. It retains the 9.5s timeline, 11px source typography, dense code stream
+and 3.0–3.65s fade. The static Paper ground is plain; the single dot lattice
+remains during construction and returns during the loop reset. Browser QA
+asserts the measured app and widget bounds, deliberate right-edge crop, and
+card origin. Card-origin tolerance is 0.05 output pixels because Chromium
+places its text-driven layout at 504.984375px against Paper's rounded 505px.
+The visual checkpoint matches spacing, scale, alignment and intended crop.
+
+Updated portrait export: 1080 × 1350, 9.50s, 570 frames at 60fps. Encoded
+seam mean is 0.065 (<0.5). Reviewed the decoded beat contact sheet across
+construction, continuous widget dismissal, photo expansion, metric updates
+and retirement. Browser checks, `pnpm verify` and `git diff --check` pass.
+
+### Portrait background persistence correction
+
+User confirmed that the dot lattice must remain visible throughout. Removed
+the settled-state fade: the ground now stays at .35 opacity at every sampled
+time, while preserving the approved Paper crop and widget placement. Added
+checks at 0, 1, 2.8, 4, 6, 8 and 9.5 seconds. Re-rendered portrait only; encoded
+seam 0.059, 1080 × 1350, 570 frames at 60fps. This supersedes the preceding
+plain-ground choice.

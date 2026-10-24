@@ -76,7 +76,8 @@ are in the name and the folder can be handed off as is.
 - Report outcomes with evidence: seam diff per clip, frame cadence, frames
   looked at, what was not checked.
 - **Leave a trail per job.** In this repo: `design/motion/<job>/` holds the
-  `storyboard.md`, the page and a git-ignored `exports/`. A spec in
+  `docs/storyboard.md`, `previews/`, `source/`, `scripts/`, and a git-ignored
+  `exports/` with `videos/`, `stills/`, `contact-sheets/` and `reports/`. A spec in
   `design/motion/specs/` holds the request, the decisions with their reasons,
   each pass with what it found, the final numbers, what was not verified, and
   the commands to reproduce. The next job starts from it, not from memory.
@@ -94,3 +95,17 @@ are in the name and the folder can be handed off as is.
 | A web font loaded over the network | A dropped connection mid-capture logged one `ERR_INTERNET_DISCONNECTED` and nothing else, and a fallback face passes a visual check at snippet size. The Python tools' font guard fails the capture instead. Embed a face (base64) where its licence allows |
 | A reference page built from an older design revision | It looks right and is not. Diff it node by node against the current artboard before rendering (`ui-demo-page` § Syncing to a newer design) |
 | Blender for UI intros | Out of scope here — this pipeline is browser-native |
+
+
+## Revisions and handoff
+
+- Preserve approved timing, typography and component behavior across format
+  changes. A new Paper composition sets crop, scale and placement; it does
+  not silently reset earlier motion decisions or a persistent background.
+- Measure portrait artboards independently. An intentional right-edge crop
+  must be reproduced, not "fixed" by fitting the whole desktop screen inside.
+- Retiming is a separate variant. State which beat becomes slower and the
+  resulting total duration; preserve action/feedback relationships.
+- Keep source previews editable and prior alternatives identifiable. Link the
+  finished videos from the job README and keep review artifacts in their
+  own directories. Record changes and measured validation in the job spec.

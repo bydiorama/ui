@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-10-24-motion-media-workflows-preserve-composition-and",
+  "date": "2026-10-24",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Motion media workflows preserve composition and continuous generation",
+  "affects": [
+    "skill:ui-motion-media",
+    "skill:ui-demo-page",
+    "skill:ui-video-render",
+    "skill:ui-stills-render",
+    "tool:render-seek"
+  ]
+}

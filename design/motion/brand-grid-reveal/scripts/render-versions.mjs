@@ -1,0 +1,12 @@
+import fs from 'node:fs';import {fileURLToPath,pathToFileURL} from 'node:url';import {dirname,join} from 'node:path';import {spawn} from 'node:child_process';import {once} from 'node:events';
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
+const root=dirname(dirname(fileURLToPath(import.meta.url)));
+const mode=process.argv[2]||'directed';
+const options={directed:{w:1600,h:1200,duration:9.5,beats:[0,.5,1.2,2.5,3.15,3.5,3.8,5.7,7.65,8.9]},slow:{w:1600,h:1200,duration:16,beats:[0,1.8,4.32,7.2,9,9.65,10,10.3,12.2,14.15,15.4]},portrait:{w:1080,h:1350,duration:9.5,beats:[0,.5,1.2,2.5,3.15,3.5,3.8,5.7,7.65,8.9]}};
+const v=options[mode];if(!v)throw Error('Use directed, slow, or portrait');
+const stills=join(root,'exports/stills',mode),videos=join(root,'exports/videos'),reports=join(root,'exports/reports');for(const p of [stills,videos,reports])fs.mkdirSync(p,{recursive:true});
+const b=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE});const p=await b.newPage({viewport:{width:v.w,height:v.h},deviceScaleFactor:2});const errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('requestfailed',r=>errors.push(r.url()));
+const out=join(videos,`brand-grid-reveal-${mode}-light-${v.w}x${v.h}-60fps.mp4`);
+await p.goto(pathToFileURL(join(root,`previews/brand-grid-reveal-${mode}.html`)).href+'#render');await p.evaluate(()=>window.ready);
+const ff=spawn('ffmpeg',['-v','error','-y','-f','image2pipe','-framerate','60','-vcodec','mjpeg','-i','pipe:0','-vf',`scale=${v.w}:${v.h}:flags=lanczos`,'-c:v','libx264','-preset','slow','-crf','15','-pix_fmt','yuv420p','-movflags','+faststart',out]);ff.stderr.pipe(process.stderr);const done=once(ff,'close');
+try{const count=v.duration*60,samples=new Set([...v.beats.map(t=>Math.round(t*60)),count-1]);for(let i=0;i<count;i++){await p.evaluate(t=>seek(t),i/60);if(samples.has(i))await p.screenshot({path:join(stills,`frame-${String(i).padStart(4,'0')}.png`)});const data=await p.screenshot({type:'jpeg',quality:95});if(!ff.stdin.write(data))await once(ff.stdin,'drain');if(i%180===0)console.log(`${mode}: ${i}/${count}`);}ff.stdin.end();const [code]=await done;if(code||errors.length)throw Error(JSON.stringify({code,errors}));fs.writeFileSync(join(reports,`${mode}-render.json`),JSON.stringify({...v,frames:count,fps:60,filmTimeGapMs:1000/60,errors},null,2));console.log(out)}finally{await b.close();if(ff.exitCode===null)ff.kill()}

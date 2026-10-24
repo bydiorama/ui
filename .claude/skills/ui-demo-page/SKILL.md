@@ -184,3 +184,28 @@ and leaves unseen.
 | A `requestAnimationFrame` tween | It runs at real speed against ×8-slowed CSS and timers. Drive motion with CSS/WAAPI, or divide the tween's clock by `__SLOW` (the reference's `clock()`) |
 | A shared-element flight with an even crossfade | It reads as a double exposure: "Three things" and "You have" legible on top of each other. The ghost fades 12–45 % (blur 3 px), the arrival resolves 40–80 %, and the source frame washes out at once, so the lifting copy reads against a dimmed original |
 | Feedback appended after the last scroll | The reply's *In your calendar at 11:30* was appended below the thread's fold and never showed. Scroll after appending feedback, and check on the contact sheet that it is inside the focus box |
+
+## Procedural component reveals
+
+Use one measured, stationary dot lattice. Connect anchors to the actual
+component bounds; do not add a second dot layer, falling particles or a
+screen-wide shimmer. Give each component a local trace, paint and settle beat.
+Text uses filled skeleton slots with the glyphs hidden until the slots retire.
+Trace opacity stays subordinate to final ink. Animate square-to-final corners
+when requested; nested clips use the current outer radius minus the inset.
+
+For a generation widget, keep the code stream moving through its fade. A
+freeze followed by dismissal introduces an unintended pause. Increase code
+volume by advancing or virtualizing rows, not by shrinking approved type.
+Scope any shimmer to the generating indicator. Validate changing content at
+two points within the fade, fixed font size, and final opacity zero.
+
+Every interaction must show a useful cause and consequence: press → busy →
+completion, or changing data → matching chart. Busy retains focus and blocks
+repeat activation; use the current component contract when old sheet copy
+contradicts it. A short film should demonstrate a few legible behaviors,
+not compress the whole component catalogue into a tour.
+
+Expose `seek(seconds)`, `duration` and a `ready` promise for deterministic
+capture. Seek must restore all state in either direction, including digits,
+scroll, focus, code position, corner radii and cursor. Honor reduced motion.

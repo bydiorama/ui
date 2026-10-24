@@ -6,9 +6,9 @@ import {writeFileSync,mkdirSync} from 'node:fs';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const b=await chromium.launch(process.env.CHROMIUM_EXECUTABLE?{executablePath:process.env.CHROMIUM_EXECUTABLE}:{});
 const p=await b.newPage({viewport:{width:1600,height:1200}});const errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('requestfailed',r=>errors.push(r.url()));
-const dir=new URL('./exports/',import.meta.url);mkdirSync(dir,{recursive:true});
+const dir=new URL('../exports/stills/archive/',import.meta.url);mkdirSync(dir,{recursive:true});
 try{
- await p.goto(new URL('./brand-grid-reveal.html#render',import.meta.url).href);await p.evaluate(()=>window.ready);
+ await p.goto(new URL('../previews/brand-grid-reveal.html#render',import.meta.url).href);await p.evaluate(()=>window.ready);
  const at=async t=>p.evaluate(t=>{seek(t);return filmAudit()},t);
  assert.equal((await at(2.8)).sidebarRadius,'8px');assert.equal((await at(2.8)).photoGroups,3);
  assert.equal((await at(2.8)).globalEffects,0);assert.equal((await at(2.8)).gridLayers,1);
@@ -40,5 +40,5 @@ try{
  const wells=await p.evaluate(()=>[...document.querySelectorAll('[data-card-clip] div')].filter(e=>e.style.height==='200px'&&e.style.width==='302px').map(e=>{const c=getComputedStyle(e);return [c.borderTopLeftRadius,c.borderBottomLeftRadius]}));assert.ok(wells.length>=2);assert.ok(wells.every(([top,bottom])=>top==='15px'&&bottom==='0px'),'Concentric inner corners with square lower join');assert.ok(widget.font.includes('Paper Mono'));assert.ok(widget.total>=50);assert.equal(widget.lines,widget.total+' lines');assert.equal(widget.opacity,1);assert.equal(widget.faders,2);assert.equal(widget.fontSize,'11px');assert.equal(widget.background,'rgb(237, 232, 228)');assert.equal(widget.status,'Generated');await at(1.6);assert.ok((await p.evaluate(()=>revealAudit().widget)).shimmer.includes('linear-gradient'));assert.equal(await p.locator('#code-status').textContent(),'Layout');assert.ok(await p.evaluate(()=>document.fonts.check('13px "Paper Mono"')));await at(6.2);assert.equal((await p.evaluate(()=>revealAudit().widget)).opacity,0);
  assert.deepEqual(errors,[]);
  const report={checks:['sidebar radius 8px','filled text skeletons, no text strokes','one grid, no global effects','photos expand to exact Paper positions','metric values and ring agree','sparkline responds to views update','no digit wrapping','no skeleton/text overlap','progressive corner radii','frame border and shadow','no invitation tooltip','Paper Mono widget with fader, completed code and clean exit','pixel-identical unencoded loop seam','reduced-motion static initial state','no resource/page errors'],passed:true};
- writeFileSync(new URL('validation-report.json',dir),JSON.stringify(report,null,2));console.log(report);
+ writeFileSync(new URL('../exports/reports/validation-report.json',import.meta.url),JSON.stringify(report,null,2));console.log(report);
 }finally{await b.close();}

@@ -15,7 +15,7 @@ const atoms = [], groups = new Map(), photoSources = new Map(), photos = [];
 // stacked-item motion 320ms/1.05; chart morph 400ms. Sampled exactly for export.
 const MOTION={skeleton:.4,digit:.5,digitStep:.07,digitDistance:8,digitBlur:2,photo:.25,photoScale:1.02,chart:.4};
 function bezier(x1,y1,x2,y2){return x=>{if(x<=0)return 0;if(x>=1)return 1;let lo=0,hi=1,u=x;for(let i=0;i<24;i++){u=(lo+hi)/2;const q=3*u*(1-u)*(1-u)*x1+3*u*u*(1-u)*x2+u*u*u;if(q<x)lo=u;else hi=u;}return 3*u*(1-u)*(1-u)*y1+3*u*u*(1-u)*y2+u*u*u;};}
-const smoothOut=bezier(.22,1,.36,1), inOut=bezier(.42,0,.58,1), digitEase=bezier(.34,1.45,.64,1), tooltipEase=bezier(0,0,.58,1);
+const smoothOut=bezier(.22,1,.36,1), inOut=bezier(.42,0,.58,1), digitEase=bezier(.34,1.45,.64,1);
 const tween=(t,start,duration,curve=smoothOut)=>curve(clamp((t-start)/duration));
 let current = 0, playing = true, last = 0, ready = false;
 const layer = document.createElement('div');

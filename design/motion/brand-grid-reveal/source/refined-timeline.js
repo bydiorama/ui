@@ -16,7 +16,7 @@ const atoms = [], groups = new Map(), photoSources = new Map(), photos = [];
 // stacked-item motion 320ms/1.05; chart morph 400ms. Sampled exactly for export.
 const MOTION={skeleton:.4,digit:.34,digitStep:.035,digitDistance:4,digitBlur:0,photo:.25,photoScale:1.02,chart:.4};
 function bezier(x1,y1,x2,y2){return x=>{if(x<=0)return 0;if(x>=1)return 1;let lo=0,hi=1,u=x;for(let i=0;i<24;i++){u=(lo+hi)/2;const q=3*u*(1-u)*(1-u)*x1+3*u*u*(1-u)*x2+u*u*u;if(q<x)lo=u;else hi=u;}return 3*u*(1-u)*(1-u)*y1+3*u*u*(1-u)*y2+u*u*u;};}
-const smoothOut=bezier(.22,1,.36,1), inOut=bezier(.42,0,.58,1), digitEase=bezier(.34,1.45,.64,1), tooltipEase=bezier(0,0,.58,1);
+const smoothOut=bezier(.22,1,.36,1), inOut=bezier(.42,0,.58,1);
 const tween=(t,start,duration,curve=smoothOut)=>curve(clamp((t-start)/duration));
 let current = 0, playing = true, last = 0, ready = false;
 const layer = document.createElement('div');
@@ -141,7 +141,6 @@ const blocks = V.blocks.map((b, i) => {
  const commit = start + (b.lines.length - 1) * V.lineStagger + lastLen * CHAR_STEP + GLYPH;
  return {...b, start, commit, row: V.blocks.slice(0, i).reduce((n, x) => n + x.lines.length, 0)};
 });
-const totalRows = blocks.reduce((n, b) => n + b.lines.length, 0);
 const rowTiming = blocks.flatMap(b => b.lines.map((text, r) => ({start: b.start + r * V.lineStagger, text, block: b})));
 // Region -> [releasing block, offset]. A region never starts before its block has landed.
 const RELEASE={shell:[0,0],header:[1,.12],heading:[1,0],sidebar:[1,.1],search:[1,.28],brand:[2,0],library:[2,.16],metric0:[3,0],metric1:[3,.08],metric2:[3,.16]};

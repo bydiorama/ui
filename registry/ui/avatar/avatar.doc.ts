@@ -111,7 +111,7 @@ Avatar.Group
         fg: "--ui-bg-surface",
         bg: "--ui-bg-sunken",
         floor: "decorative",
-        why: "The 1.5px SEAM between two overlapping avatars, against the initials well it most often lands on — 1.19:1 light / 1.10:1 dark. Decorative rather than a boundary anything depends on identifying: a photo avatar's own fill separates it, and the stack reads as a stack from the offset alone. Declared rather than omitted so the number is visible; a seam this quiet is worth a designer knowing about, and it is in needsDesign. Rebinding --ui-avatar-ring-color moves this pair and the dots' 3:1 floor above with it, which is why the property takes a surface ROLE and not an arbitrary colour.",
+        why: "The 1.5px SEAM between two overlapping avatars, against the initials well it most often lands on — 1.19:1 light / 1.41:1 dark (the sunken fill sits above the surface on the 2026-11-03 warm-ink ramp). Decorative rather than a boundary anything depends on identifying: a photo avatar's own fill separates it, and the stack reads as a stack from the offset alone. Declared rather than omitted so the number is visible; a seam this quiet is worth a designer knowing about, and it is in needsDesign. Rebinding --ui-avatar-ring-color moves this pair and the dots' 3:1 floor above with it, which is why the property takes a surface ROLE and not an arbitrary colour.",
       },
     ],
     imageFallback: "A broken src degrades to the alt text rather than an empty box, because the image is a real <img> and not a background.",

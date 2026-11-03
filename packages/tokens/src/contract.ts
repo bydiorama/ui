@@ -487,20 +487,15 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // that fails.
   //
   // The SECOND ink is here because the first measurement said it had to be.
-  // A Header's current item recedes, and `--ui-text-muted` on this ground
-  // measures 4.75:1 in light but 3.73:1 in dark — under AA, with no alpha able
-  // to close it (0.96 still measures 4.43:1 and an opaque bar is 4.94:1, the
-  // ceiling `header.doc.ts` records as its least headroom). Dark's two
-  // surfaces sit close together: ADR 0016 point 4, arriving somewhere new.
-  //
-  // Declaring the MUTED pair would have made `auditContrast` lighten
-  // `--ui-text-muted` for every dark surface in the system to pay for one bar
-  // state — the auditor fixes by moving the ink, and a role used everywhere is
-  // the wrong thing to move. A receding item on an affix bar takes `secondary`
-  // instead, which still reads as a step back and measures 11.12:1 / 5.86:1
-  // here. That is the pair, and this is where it is held.
+  // A Header's current item recedes, in `--ui-text-muted`, on the affix bar
+  // too. On the old mid-grey dark ramp that pair measured 3.73:1, under AA,
+  // and declaring it would have made `auditContrast` lighten muted for every
+  // dark surface in the system to pay for one bar state — so the affixed item
+  // stepped to secondary and THAT pair was held here. On the 2026-11-03
+  // warm-ink ramp muted measures 4.75:1 light / 5.38:1 dark on this ground,
+  // theme zero needs no adjustment, and the step is gone (header.doc.ts).
   ["--ui-text-primary", "--ui-bg-affix-floor"],
-  ["--ui-text-secondary", "--ui-bg-affix-floor"],
+  ["--ui-text-muted", "--ui-bg-affix-floor"],
   // Second-level nav items. nav-ink and nav-active-ink were already audited;
   // the muted step was not, and Sidebar is the first thing to render it.
   ["--ui-nav-ink-muted", "--ui-nav-bg"],

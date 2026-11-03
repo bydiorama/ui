@@ -5,7 +5,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "a trigger label on the plain variant"
     },
     {
@@ -13,7 +13,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "a trigger label on a card"
     },
     {
@@ -21,7 +21,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "panel copy on the plain variant"
     },
     {
@@ -29,7 +29,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 9.24,
+      "dark": 9.79,
       "role": "panel copy on a card"
     },
     {
@@ -37,7 +37,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "the chevron on a card"
     },
     {
@@ -45,7 +45,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "a trigger label on a HOVERED card — the fill is the item's, so the whole tile's ink sits on this ground, panel copy included"
     },
     {
@@ -53,7 +53,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 11.4,
-      "dark": 8.56,
+      "dark": 9.28,
       "role": "panel copy inside an open card while its trigger is hovered"
     },
     {
@@ -61,7 +61,7 @@
       "bg": "--ui-bg-hover",
       "floor": "non-text",
       "light": 4.87,
-      "dark": 5.35,
+      "dark": 5.38,
       "role": "the chevron on a hovered card"
     },
     {
@@ -69,7 +69,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the keyboard focus ring"
     },
     {
@@ -77,7 +77,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "decorative",
       "light": 1.94,
-      "dark": 2.93
+      "dark": 2.18
     }
   ],
   "AspectRatio": [
@@ -86,7 +86,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.22,
-      "dark": 1.44
+      "dark": 1.5
     }
   ],
   "Avatar": [
@@ -95,7 +95,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "text",
       "light": 4.87,
-      "dark": 7.11,
+      "dark": 4.67,
       "role": "initials on the well — the pair the component actually renders"
     },
     {
@@ -103,7 +103,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 6.06,
-      "dark": 9.26,
+      "dark": 11.43,
       "role": "the success dot against its ring, at the ring's default colour"
     },
     {
@@ -111,7 +111,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "the neutral dot against its ring, at the ring's default colour"
     },
     {
@@ -119,7 +119,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 5.8,
-      "dark": 9.6,
+      "dark": 8.06,
       "role": "the danger dot against its ring, at the ring's default colour"
     },
     {
@@ -127,7 +127,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.19,
-      "dark": 1.1
+      "dark": 1.41
     }
   ],
   "Badge": [
@@ -144,7 +144,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "unselected badge ink"
     },
     {
@@ -152,7 +152,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "text",
       "light": 4.87,
-      "dark": 7.11,
+      "dark": 4.67,
       "role": "neutral badge — the same pair Banner's neutral variant declares. The ink is deliberately unchanged by the 2026-08-10 edge: raising the FILL to fix dark would have dropped this pair to 3.86:1, which is why the boundary moved instead"
     },
     {
@@ -160,7 +160,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.43,
-      "dark": 1.53,
+      "dark": 1.25,
       "role": "the neutral badge's hairline on a table row"
     },
     {
@@ -168,7 +168,7 @@
       "bg": "--ui-intent-info-bg",
       "floor": "text",
       "light": 4.82,
-      "dark": 5.64,
+      "dark": 9.04,
       "role": "info badge — Banner info's own pair, so Badge's five statuses are Banner's five intents (#9)"
     },
     {
@@ -176,7 +176,7 @@
       "bg": "--ui-intent-success-bg",
       "floor": "text",
       "light": 5.05,
-      "dark": 5.68,
+      "dark": 9.09,
       "role": "success badge"
     },
     {
@@ -184,7 +184,7 @@
       "bg": "--ui-intent-warning-bg",
       "floor": "text",
       "light": 5.03,
-      "dark": 4.92,
+      "dark": 7.93,
       "role": "warning badge"
     },
     {
@@ -192,7 +192,7 @@
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
       "light": 8.52,
-      "dark": 5.93,
+      "dark": 9.53,
       "role": "danger badge"
     }
   ],
@@ -202,7 +202,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "text",
       "light": 4.87,
-      "dark": 7.11,
+      "dark": 4.67,
       "role": "neutral banner ink"
     },
     {
@@ -210,7 +210,7 @@
       "bg": "--ui-intent-info-bg",
       "floor": "text",
       "light": 4.82,
-      "dark": 5.64,
+      "dark": 9.04,
       "role": "info banner ink"
     },
     {
@@ -218,7 +218,7 @@
       "bg": "--ui-intent-success-bg",
       "floor": "text",
       "light": 5.05,
-      "dark": 5.68,
+      "dark": 9.09,
       "role": "success banner ink"
     },
     {
@@ -226,7 +226,7 @@
       "bg": "--ui-intent-warning-bg",
       "floor": "text",
       "light": 5.03,
-      "dark": 4.92,
+      "dark": 7.93,
       "role": "warning banner ink"
     },
     {
@@ -234,7 +234,7 @@
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
       "light": 4.79,
-      "dark": 5.93,
+      "dark": 6.48,
       "role": "danger banner ink"
     },
     {
@@ -242,7 +242,7 @@
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
       "light": 8.52,
-      "dark": 5.93,
+      "dark": 9.53,
       "role": "danger banner action — label and 1.5px ring (Button danger's own ink)"
     }
   ],
@@ -260,7 +260,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "secondary label"
     },
     {
@@ -268,7 +268,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "outline label"
     },
     {
@@ -276,7 +276,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.48,
+      "dark": 1.34,
       "role": "the secondary edge"
     },
     {
@@ -284,7 +284,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 3.11,
-      "dark": 3.09,
+      "dark": 4.59,
       "role": "the outline edge"
     },
     {
@@ -292,7 +292,7 @@
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
       "light": 8.52,
-      "dark": 5.93,
+      "dark": 9.53,
       "role": "danger label"
     },
     {
@@ -300,7 +300,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the focus ring"
     },
     {
@@ -308,7 +308,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 9.24,
+      "dark": 9.79,
       "role": "a hovered ghost label, on the fill the sheet's Ghost Hover frame actually draws"
     },
     {
@@ -316,7 +316,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "a PRESSED ghost label — the ink step that keeps press from being motion alone"
     },
     {
@@ -324,7 +324,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.93,
-      "dark": 4.85,
+      "dark": 7.02,
       "role": "a pressed secondary's edge, the firmest step in ADR 0010's stack"
     },
     {
@@ -332,7 +332,7 @@
       "bg": "--ui-bg-inverse",
       "floor": "text",
       "light": 15.53,
-      "dark": 17.17,
+      "dark": 15.53,
       "role": "inverse label, and its edge"
     },
     {
@@ -340,7 +340,7 @@
       "bg": "--ui-bg-inverse-hover",
       "floor": "text",
       "light": 12.55,
-      "dark": 15.6,
+      "dark": 14.11,
       "role": "a hovered inverse label"
     },
     {
@@ -348,15 +348,15 @@
       "bg": "--ui-bg-inverse-active",
       "floor": "text",
       "light": 9.59,
-      "dark": 12.92,
+      "dark": 11.68,
       "role": "a pressed inverse label"
     },
     {
       "fg": "--ui-text-inverse-muted",
       "bg": "--ui-bg-inverse",
       "floor": "decorative",
-      "light": 7.14,
-      "dark": 6.7,
+      "light": 8.01,
+      "dark": 5.36,
       "role": "a disabled inverse label and edge"
     }
   ],
@@ -366,7 +366,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "an unselected day, month or year"
     },
     {
@@ -374,7 +374,7 @@
       "bg": "--ui-bg-accent-subtle",
       "floor": "text",
       "light": 13.88,
-      "dark": 6.66,
+      "dark": 13.92,
       "role": "the selected day, month or year"
     },
     {
@@ -382,7 +382,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "the weekday headers"
     },
     {
@@ -390,7 +390,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "a closed month or year trigger"
     },
     {
@@ -398,7 +398,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.81,
-      "dark": 8.63,
+      "dark": 11.33,
       "role": "the OPEN month or year trigger"
     },
     {
@@ -406,7 +406,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 4.89,
-      "dark": 7.14,
+      "dark": 9.3,
       "role": "the open trigger under the pointer"
     },
     {
@@ -414,7 +414,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "any hovered cell or trigger"
     }
   ],
@@ -424,7 +424,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "title on the card surface"
     },
     {
@@ -432,7 +432,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.11,
-      "dark": 1.17,
+      "dark": 1.24,
       "role": "the card surface against the page"
     }
   ],
@@ -442,7 +442,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "the row's own content"
     },
     {
@@ -450,7 +450,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "the grip"
     },
     {
@@ -458,7 +458,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.39,
-      "dark": 5.67,
+      "dark": 9.82,
       "role": "the outline on a lifted or dragging row"
     }
   ],
@@ -468,7 +468,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.89,
       "role": "the entered message"
     },
     {
@@ -476,7 +476,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 5.76,
+      "dark": 5.83,
       "role": "the placeholder, and the drop label that replaces it"
     },
     {
@@ -492,7 +492,7 @@
       "bg": "--ui-bg-field",
       "floor": "non-text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.28,
       "role": "the Stop control's fill against the frame — the only channel telling it from Send, and the pair --ui-bg-emphasis failed at 1:1 in dark"
     },
     {
@@ -500,7 +500,7 @@
       "bg": "--ui-bg-inverse",
       "floor": "text",
       "light": 15.53,
-      "dark": 17.17,
+      "dark": 15.53,
       "role": "the Stop glyph"
     },
     {
@@ -508,7 +508,7 @@
       "bg": "--ui-bg-field",
       "floor": "non-text",
       "light": 5.94,
-      "dark": 9.07,
+      "dark": 8.98,
       "role": "the invalid frame edge (SC 1.4.11 — state carried by a boundary)"
     },
     {
@@ -516,7 +516,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.94,
-      "dark": 7.33,
+      "dark": 8.63,
       "role": "the error caption, which sits on the page rather than in the frame"
     },
     {
@@ -524,7 +524,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the disclaimer caption"
     },
     {
@@ -532,7 +532,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the focus ring — the resting hairline is decorative by design, so the ring is what carries SC 1.4.11 here"
     },
     {
@@ -540,7 +540,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.76,
-      "dark": 3.6,
+      "dark": 1.79,
       "role": "the ArrowUp glyph while the composer is empty"
     },
     {
@@ -548,7 +548,7 @@
       "bg": "--ui-bg-field",
       "floor": "decorative",
       "light": 1.24,
-      "dark": 1.47,
+      "dark": 1.21,
       "role": "the drag-over fill"
     }
   ],
@@ -558,7 +558,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "the sender's message inside the bubble"
     },
     {
@@ -566,7 +566,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the receiver's answer, which sits on the page with no container"
     },
     {
@@ -574,7 +574,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the meta line and the \"Sending…\" caption"
     },
     {
@@ -582,7 +582,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.94,
-      "dark": 7.33,
+      "dark": 8.63,
       "role": "the sender's failure caption"
     },
     {
@@ -590,7 +590,7 @@
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
       "light": 8.52,
-      "dark": 5.93,
+      "dark": 9.53,
       "role": "the receiver's failure block and its Retry label"
     },
     {
@@ -598,7 +598,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.11,
-      "dark": 1.17,
+      "dark": 1.24,
       "role": "the bubble against the page"
     }
   ],
@@ -608,7 +608,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the thinking line, the receipt, and every step that is not the current one"
     },
     {
@@ -616,7 +616,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "the step-list header and the current step"
     },
     {
@@ -624,7 +624,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 9.24,
+      "dark": 9.79,
       "role": "the activity verb, on its pill"
     },
     {
@@ -632,7 +632,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "the activity detail, on its pill"
     },
     {
@@ -640,7 +640,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 6.21,
-      "dark": 7.07,
+      "dark": 12.24,
       "role": "the done glyph and the receipt glyph — the only channel saying a step finished (SC 1.4.11)"
     },
     {
@@ -648,7 +648,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.94,
-      "dark": 7.33,
+      "dark": 8.63,
       "role": "the failure glyph and its line"
     },
     {
@@ -656,7 +656,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 3.07,
-      "dark": 10.07,
+      "dark": 8.06,
       "role": "the spinner's arc against its track, and the measured fill against its own — the pair the legible accent role exists for"
     },
     {
@@ -664,7 +664,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 2.14,
-      "dark": 2.03,
+      "dark": 1.84,
       "role": "a pending step's empty ring"
     }
   ],
@@ -674,7 +674,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the question, and a chosen option's label"
     },
     {
@@ -682,7 +682,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "a resting option's label"
     },
     {
@@ -690,7 +690,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the handoff option, the unchosen options once something is picked, and the answered question"
     },
     {
@@ -698,7 +698,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the chosen option's edge and its check — the only channel saying which answer was given (SC 1.4.11)"
     },
     {
@@ -714,7 +714,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 11.4,
-      "dark": 8.56,
+      "dark": 9.28,
       "role": "an option under the pointer"
     },
     {
@@ -722,7 +722,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.22,
-      "dark": 1.08,
+      "dark": 1.3,
       "role": "the hover fill"
     }
   ],
@@ -732,7 +732,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "the artifact's name and its body copy"
     },
     {
@@ -740,7 +740,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "the header glyph, the caption, and every action-bar label"
     },
     {
@@ -748,7 +748,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.11,
-      "dark": 1.17,
+      "dark": 1.24,
       "role": "the container against the page"
     },
     {
@@ -756,7 +756,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "decorative",
       "light": 6.14,
-      "dark": 1.82,
+      "dark": 2.19,
       "role": "the media stage before a picture lands"
     }
   ],
@@ -774,7 +774,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 14.11,
-      "dark": 13.79,
+      "dark": 11.42,
       "role": "the dash on a mixed box"
     },
     {
@@ -782,7 +782,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 3.11,
-      "dark": 3.09,
+      "dark": 4.59,
       "role": "the unchecked box edge"
     },
     {
@@ -790,7 +790,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the label"
     }
   ],
@@ -800,7 +800,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.89,
       "role": "the value"
     },
     {
@@ -808,7 +808,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 5.76,
+      "dark": 5.83,
       "role": "the placeholder"
     },
     {
@@ -816,7 +816,7 @@
       "bg": "--ui-bg-field-chrome",
       "floor": "text",
       "light": 14.11,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "the value on a chrome ground"
     },
     {
@@ -824,7 +824,7 @@
       "bg": "--ui-bg-hover",
       "floor": "non-text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "the clear glyph on its hover square"
     },
     {
@@ -832,7 +832,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "the label"
     },
     {
@@ -840,7 +840,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the focus ring"
     },
     {
@@ -848,7 +848,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.94,
-      "dark": 7.33,
+      "dark": 8.63,
       "role": "the field's error message"
     },
     {
@@ -856,7 +856,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "an option, the error status text"
     },
     {
@@ -864,7 +864,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "the highlighted option"
     },
     {
@@ -872,7 +872,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "group labels, loading and empty status rows"
     },
     {
@@ -880,7 +880,7 @@
       "bg": "--ui-bg-hover",
       "floor": "non-text",
       "light": 4.87,
-      "dark": 5.35,
+      "dark": 5.38,
       "role": "the link arrow and the action's icon on a highlighted row"
     },
     {
@@ -888,7 +888,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 5.8,
-      "dark": 9.6,
+      "dark": 8.06,
       "role": "the list-error AlertCircle"
     },
     {
@@ -896,7 +896,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.19,
-      "dark": 1.21,
+      "dark": 1.22,
       "role": "the highlight fill against the panel"
     }
   ],
@@ -906,7 +906,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "a resting row — the shared menu surface"
     },
     {
@@ -914,7 +914,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "the highlighted row"
     },
     {
@@ -922,7 +922,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.43,
-      "dark": 1.53,
+      "dark": 1.25,
       "role": "the panel edge"
     }
   ],
@@ -932,7 +932,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.89,
       "role": "the chosen date in the field"
     },
     {
@@ -940,7 +940,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 5.76,
+      "dark": 5.83,
       "role": "the placeholder"
     },
     {
@@ -948,7 +948,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "the label"
     },
     {
@@ -956,7 +956,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the helper text"
     },
     {
@@ -964,7 +964,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.94,
-      "dark": 7.33,
+      "dark": 8.63,
       "role": "the error message"
     },
     {
@@ -972,7 +972,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "text",
       "light": 14.11,
-      "dark": 13.79,
+      "dark": 11.42,
       "role": "a disabled field's remaining ink"
     },
     {
@@ -980,7 +980,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.48,
+      "dark": 1.34,
       "role": "the field's resting edge"
     }
   ],
@@ -990,14 +990,14 @@
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.21,
-      "dark": 1.53
+      "dark": 1.12
     },
     {
       "fg": "--ui-border-default",
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.76,
-      "dark": 2.92
+      "dark": 1.22
     }
   ],
   "Drawer": [
@@ -1006,7 +1006,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the title and content on the panel"
     },
     {
@@ -1014,7 +1014,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.22,
-      "dark": 1.44,
+      "dark": 1.5,
       "role": "the handle bar against the panel"
     }
   ],
@@ -1024,7 +1024,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 13.54,
-      "dark": 10.36,
+      "dark": 11.3,
       "role": "the title, on a table body or a panel — the surface the sheet draws it on"
     },
     {
@@ -1032,7 +1032,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "the description"
     },
     {
@@ -1040,7 +1040,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 11.4,
-      "dark": 11.37,
+      "dark": 8.04,
       "role": "the mark on its well. aria-hidden, but a mark nobody can see is a 32px grey square, so it is held to the graphical floor rather than waved through as decoration"
     },
     {
@@ -1048,7 +1048,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.19,
-      "dark": 1.1
+      "dark": 1.41
     }
   ],
   "Fade": [
@@ -1057,7 +1057,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 13.54,
-      "dark": 10.36
+      "dark": 11.3
     }
   ],
   "Header": [
@@ -1066,7 +1066,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "item labels on the bar — the bar is the page ground, so this pair is the page's own body contrast"
     },
     {
@@ -1074,15 +1074,15 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
-      "role": "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones. This is the pair the bar's move to bg-base costs the most: 6.47:1 against the old bg-surface bar in dark, 4.94:1 now. Still over AA, with the least headroom of any pair here — a step darker on --ui-bg-base in dark would spend it"
+      "dark": 7.02,
+      "role": "the CURRENT item's label — it recedes rather than being emphasised, and a receding label is still body text: WCAG exempts disabled controls, not quiet ones. The bar's move to bg-base cost it the most on the old mid-grey dark ramp (6.47:1 on the bg-surface bar, 4.94:1 on bg-base); on the 2026-11-03 warm-ink ramp it is 5.93:1 light / 7.02:1 dark"
     },
     {
       "fg": "--ui-text-primary",
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "the menu button's glyph on its chrome fill, and a nav item's label on the hover fill"
     },
     {
@@ -1090,7 +1090,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "the current item's label while it is hovered — the fill answers the pointer, the muted ink persists underneath it"
     },
     {
@@ -1098,7 +1098,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "the menu button's glyph while hovered"
     },
     {
@@ -1106,23 +1106,23 @@
       "bg": "--ui-bg-affix-floor",
       "floor": "text",
       "light": 13.76,
-      "dark": 7.11,
-      "role": "item labels while the bar is AFFIXED — measured against what can scroll under it (the fill at AFFIX_BG_ALPHA over black in light, white in dark) rather than against the page it floats over, which reconstructs the best case and would clear a bar that fails. 13.76:1 light, 7.11:1 dark"
+      "dark": 13.16,
+      "role": "item labels while the bar is AFFIXED — measured against what can scroll under it (the fill at AFFIX_BG_ALPHA over black in light, white in dark) rather than against the page it floats over, which reconstructs the best case and would clear a bar that fails. 13.76:1 light, 13.16:1 dark"
     },
     {
-      "fg": "--ui-text-secondary",
+      "fg": "--ui-text-muted",
       "bg": "--ui-bg-affix-floor",
       "floor": "text",
-      "light": 11.12,
-      "dark": 5.86,
-      "role": "the CURRENT item's label while the bar is affixed. It steps up from muted, and the step is CONFORMANCE rather than taste: muted measures 3.66:1 on this ground in dark and no alpha closes it. Secondary still reads as receding and measures 11.12:1 light / 5.86:1 dark. On the RESTING bar the current item is still muted, which is the pair above this one"
+      "light": 4.75,
+      "dark": 5.38,
+      "role": "the CURRENT item's label while the bar is affixed — muted, exactly as on the resting bar: 4.75:1 light / 5.38:1 dark, the least headroom on the bar. It stepped up to secondary while the old mid-grey dark ramp put muted at 3.66:1 here (closed 2026-11-03)"
     },
     {
       "fg": "--ui-text-disabled",
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.76,
-      "dark": 3.6,
+      "dark": 1.79,
       "role": "a disabled chrome control"
     }
   ],
@@ -1140,7 +1140,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 13.54,
-      "dark": 10.36,
+      "dark": 11.3,
       "role": "a control's label"
     },
     {
@@ -1148,7 +1148,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "a control's value readout"
     },
     {
@@ -1183,7 +1183,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "the field label"
     },
     {
@@ -1191,7 +1191,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 9.24,
+      "dark": 9.79,
       "role": "the prompt, and the busy status — NOT the sheet's --ui-text-disabled, which measures 1.94:1 here"
     },
     {
@@ -1199,7 +1199,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.39,
-      "dark": 7.7,
+      "dark": 9.82,
       "role": "the browse control at rest"
     },
     {
@@ -1207,7 +1207,7 @@
       "bg": "--ui-bg-accent-subtle",
       "floor": "text",
       "light": 4.82,
-      "dark": 4.58,
+      "dark": 9.82,
       "role": "the browse control while a file is dragged over the target"
     },
     {
@@ -1215,7 +1215,7 @@
       "bg": "--ui-intent-danger-bg",
       "floor": "text",
       "light": 8.52,
-      "dark": 5.93,
+      "dark": 9.53,
       "role": "the rejection headline and its detail, on the danger well"
     },
     {
@@ -1223,7 +1223,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.94,
-      "dark": 7.33,
+      "dark": 8.63,
       "role": "the helper once a constraint is broken"
     },
     {
@@ -1231,7 +1231,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the helper at rest"
     },
     {
@@ -1239,7 +1239,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "a file row's name"
     },
     {
@@ -1247,7 +1247,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "a file row's detail, and its cancel glyph"
     },
     {
@@ -1255,7 +1255,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 4.87,
-      "dark": 7.11,
+      "dark": 4.67,
       "role": "the add tile's plus — a graphical control whose only visual channel is its glyph"
     },
     {
@@ -1263,7 +1263,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 5.8,
-      "dark": 9.6,
+      "dark": 8.06,
       "role": "the rejected dropzone's edge, which is the boundary that carries the state"
     },
     {
@@ -1271,7 +1271,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the drag-over edge"
     },
     {
@@ -1279,7 +1279,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.48
+      "dark": 1.34
     }
   ],
   "Input": [
@@ -1288,7 +1288,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.89,
       "role": "the value"
     },
     {
@@ -1296,7 +1296,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 5.76,
+      "dark": 5.83,
       "role": "the placeholder"
     },
     {
@@ -1304,7 +1304,7 @@
       "bg": "--ui-bg-field-chrome",
       "floor": "text",
       "light": 14.11,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "the value, on a chrome ground (surface=\"chrome\")"
     },
     {
@@ -1312,7 +1312,7 @@
       "bg": "--ui-bg-field-chrome",
       "floor": "text",
       "light": 4.87,
-      "dark": 6.1,
+      "dark": 5.23,
       "role": "the placeholder, on a chrome ground"
     },
     {
@@ -1320,7 +1320,7 @@
       "bg": "--ui-bg-field-chrome-disabled",
       "floor": "decorative",
       "light": 1.46,
-      "dark": 2.51,
+      "dark": 2.18,
       "role": "a disabled field's value on a chrome ground"
     },
     {
@@ -1328,7 +1328,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "the label"
     },
     {
@@ -1336,7 +1336,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the focus ring"
     },
     {
@@ -1344,7 +1344,7 @@
       "bg": "--ui-bg-field",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.51,
+      "dark": 1.4,
       "role": "the resting hairline"
     }
   ],
@@ -1370,7 +1370,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the focus ring's outer stop"
     }
   ],
@@ -1380,7 +1380,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "a resting menu row"
     },
     {
@@ -1388,7 +1388,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "the highlighted row"
     },
     {
@@ -1396,7 +1396,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "a group heading"
     },
     {
@@ -1404,7 +1404,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.43,
-      "dark": 1.53,
+      "dark": 1.25,
       "role": "the panel edge"
     }
   ],
@@ -1414,7 +1414,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "the title on the surface"
     },
     {
@@ -1422,7 +1422,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 13.54,
-      "dark": 10.36,
+      "dark": 11.3,
       "role": "the description"
     },
     {
@@ -1430,7 +1430,7 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.43,
-      "dark": 1.53,
+      "dark": 1.25,
       "role": "the surface hairline"
     }
   ],
@@ -1440,7 +1440,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.89,
       "role": "the trigger value"
     },
     {
@@ -1456,7 +1456,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "option ink on the panel"
     }
   ],
@@ -1466,7 +1466,7 @@
       "bg": "--ui-nav-bg",
       "floor": "non-text",
       "light": 10.66,
-      "dark": 6.97,
+      "dark": 11.53,
       "role": "a resting row's glyph — non-text, because the row renders no text at all"
     },
     {
@@ -1474,7 +1474,7 @@
       "bg": "--ui-nav-hover-bg",
       "floor": "non-text",
       "light": 16.76,
-      "dark": 8.46,
+      "dark": 15.35,
       "role": "a hovered row's glyph on the hover fill"
     },
     {
@@ -1482,7 +1482,7 @@
       "bg": "--ui-nav-active-bg",
       "floor": "non-text",
       "light": 9.64,
-      "dark": 5.42,
+      "dark": 9.79,
       "role": "the current row's glyph — the ink does not move between states on this rail, so this is the resting ink measured on the current fill"
     },
     {
@@ -1490,7 +1490,7 @@
       "bg": "--ui-nav-bg",
       "floor": "decorative",
       "light": 2.63,
-      "dark": 2.63,
+      "dark": 2.8,
       "role": "a disabled row's glyph"
     }
   ],
@@ -1500,7 +1500,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "the title on the panel"
     },
     {
@@ -1508,7 +1508,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 9.24,
+      "dark": 9.79,
       "role": "the description"
     },
     {
@@ -1516,7 +1516,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.11,
-      "dark": 1.17,
+      "dark": 1.24,
       "role": "the panel against the page"
     }
   ],
@@ -1526,7 +1526,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 3.07,
-      "dark": 10.07,
+      "dark": 8.06,
       "role": "the fill against its track"
     },
     {
@@ -1534,7 +1534,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "the value text"
     },
     {
@@ -1542,7 +1542,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the label"
     }
   ],
@@ -1552,7 +1552,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 3.04,
-      "dark": 4.05,
+      "dark": 4.28,
       "role": "the unselected circle's edge — the only thing drawing the control, so it is held to the graphical floor"
     },
     {
@@ -1560,7 +1560,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 5.78,
-      "dark": 6.36,
+      "dark": 6.56,
       "role": "the hovered edge, one step further from the ground"
     },
     {
@@ -1576,7 +1576,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the option label and the legend"
     },
     {
@@ -1584,7 +1584,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the per-option description and the helper text"
     },
     {
@@ -1592,7 +1592,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.94,
-      "dark": 7.33,
+      "dark": 8.63,
       "role": "the group's error message, and the invalid edge"
     },
     {
@@ -1600,7 +1600,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.76,
-      "dark": 3.6
+      "dark": 1.79
     }
   ],
   "RangeSlider": [
@@ -1609,7 +1609,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 3.07,
-      "dark": 10.07,
+      "dark": 8.06,
       "role": "each thumb's ring against the track — the thumbs identify the control and mark both ends"
     },
     {
@@ -1617,7 +1617,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 3.73,
-      "dark": 7,
+      "dark": 12.13,
       "role": "each thumb's ring against its own white fill"
     },
     {
@@ -1625,14 +1625,14 @@
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.24,
-      "dark": 10.07
+      "dark": 8.06
     },
     {
       "fg": "--ui-text-primary",
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the readout"
     },
     {
@@ -1640,7 +1640,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the label"
     }
   ],
@@ -1650,7 +1650,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.89,
       "role": "the chosen value in the trigger"
     },
     {
@@ -1658,7 +1658,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 5.76,
+      "dark": 5.83,
       "role": "the placeholder"
     },
     {
@@ -1666,7 +1666,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "an option in the panel"
     },
     {
@@ -1674,7 +1674,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "the highlighted option"
     },
     {
@@ -1682,7 +1682,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "an option's description"
     },
     {
@@ -1690,7 +1690,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 4.87,
-      "dark": 5.35,
+      "dark": 5.38,
       "role": "the highlighted option's description"
     }
   ],
@@ -1700,7 +1700,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "content on the panel"
     }
   ],
@@ -1710,7 +1710,7 @@
       "bg": "--ui-nav-bg",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 16.39,
       "role": "section headings and top-level rows on the rail"
     },
     {
@@ -1718,7 +1718,7 @@
       "bg": "--ui-nav-bg",
       "floor": "text",
       "light": 10.66,
-      "dark": 6.97,
+      "dark": 11.53,
       "role": "second-level item ink"
     },
     {
@@ -1726,15 +1726,15 @@
       "bg": "--ui-nav-active-bg",
       "floor": "text",
       "light": 9.64,
-      "dark": 5.42,
-      "role": "the current item — its ink steps BACK to muted rather than up to full, the same two-channel split Header uses: the fill says where you are, and you cannot navigate to it, so it is the one row not worth pointing at. 9.64:1 light, 5.42:1 dark"
+      "dark": 9.79,
+      "role": "the current item — its ink steps BACK to muted rather than up to full, the same two-channel split Header uses: the fill says where you are, and you cannot navigate to it, so it is the one row not worth pointing at. 9.64:1 light, 9.79:1 dark"
     },
     {
       "fg": "--ui-nav-ink-disabled",
       "bg": "--ui-nav-bg",
       "floor": "decorative",
       "light": 2.63,
-      "dark": 2.63,
+      "dark": 2.8,
       "role": "a disabled row"
     }
   ],
@@ -1744,31 +1744,31 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
-      "role": "a quiet item at REST on the page ground, and the menu's rows. 5.93:1 light, 4.94:1 dark"
+      "dark": 7.02,
+      "role": "a quiet item at REST on the page ground, and the menu's rows. 5.93:1 light, 7.02:1 dark"
     },
     {
       "fg": "--ui-text-primary",
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the wordmark, Menu/Close, and a quiet item hovered or current — 2.90:1 above the rest ink, which is what makes the current page legible as current"
     },
     {
-      "fg": "--ui-text-secondary",
+      "fg": "--ui-text-muted",
       "bg": "--ui-bg-affix-floor",
       "floor": "text",
-      "light": 11.12,
-      "dark": 5.86,
-      "role": "a quiet item at rest while the bar is AFFIXED. It steps up from muted because muted measures 3.66:1 on this ground in dark, the same conformance step the default item's current page takes"
+      "light": 4.75,
+      "dark": 5.38,
+      "role": "a quiet item at rest while the bar is AFFIXED — muted, as at rest: 4.75:1 light / 5.38:1 dark. It stepped up to secondary while the old mid-grey dark ramp put muted at 3.66:1 here (closed 2026-11-03, with Header's current item)"
     },
     {
       "fg": "--ui-text-primary",
       "bg": "--ui-bg-affix-floor",
       "floor": "text",
       "light": 13.76,
-      "dark": 7.11,
+      "dark": 13.16,
       "role": "the wordmark, Menu and the current item while affixed"
     },
     {
@@ -1802,7 +1802,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.22,
-      "dark": 1.44
+      "dark": 1.5
     }
   ],
   "Slider": [
@@ -1811,7 +1811,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 3.07,
-      "dark": 10.07,
+      "dark": 8.06,
       "role": "the THUMB's ring against the track — the thumb is what identifies the control and marks the value, so this is the pair SC 1.4.11 turns on"
     },
     {
@@ -1819,7 +1819,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 3.73,
-      "dark": 7,
+      "dark": 12.13,
       "role": "the thumb's ring against the thumb's own white fill — a ring that vanishes into the thumb identifies nothing either"
     },
     {
@@ -1827,14 +1827,14 @@
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.02,
-      "dark": 1.49
+      "dark": 1.27
     },
     {
       "fg": "--ui-border-strong",
       "bg": "--ui-bg-accent-subtle",
       "floor": "non-text",
       "light": 4.79,
-      "dark": 3.37,
+      "dark": 5.69,
       "role": "the INLINE handle on the filled side of the bar — with no thumb, it is the mark that shows the value"
     },
     {
@@ -1842,7 +1842,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.36,
-      "dark": 5.67,
+      "dark": 5.68,
       "role": "the inline handle on the empty side of the bar (and flush against it at 0)"
     },
     {
@@ -1850,7 +1850,7 @@
       "bg": "--ui-bg-accent-subtle-hover",
       "floor": "non-text",
       "light": 11.94,
-      "dark": 5.54,
+      "dark": 11.89,
       "role": "the inline handle on hover and drag, against the hover wash"
     },
     {
@@ -1858,21 +1858,21 @@
       "bg": "--ui-bg-elevated",
       "floor": "decorative",
       "light": 1.12,
-      "dark": 1.47
+      "dark": 1.27
     },
     {
       "fg": "--ui-border-default",
       "bg": "--ui-bg-sunken",
       "floor": "decorative",
       "light": 1.76,
-      "dark": 2.92
+      "dark": 1.22
     },
     {
       "fg": "--ui-text-secondary",
       "bg": "--ui-bg-accent-subtle",
       "floor": "text",
       "light": 11.22,
-      "dark": 5.49,
+      "dark": 9.8,
       "role": "the inline label over the filled part of the bar"
     },
     {
@@ -1880,7 +1880,7 @@
       "bg": "--ui-bg-accent-subtle-hover",
       "floor": "text",
       "light": 9.65,
-      "dark": 4.57,
+      "dark": 8.37,
       "role": "the inline label over the hover wash — why it is secondary and not muted"
     },
     {
@@ -1888,7 +1888,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 12.55,
-      "dark": 9.24,
+      "dark": 9.79,
       "role": "the inline label over the empty part of the bar"
     },
     {
@@ -1896,7 +1896,7 @@
       "bg": "--ui-bg-accent-subtle",
       "floor": "text",
       "light": 13.88,
-      "dark": 6.66,
+      "dark": 13.92,
       "role": "the inline value over the wash (at high values)"
     },
     {
@@ -1904,7 +1904,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "the inline value over the empty bar"
     },
     {
@@ -1912,7 +1912,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the value text, and the leaning pole"
     },
     {
@@ -1920,7 +1920,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the label, and the pole the value does not lean toward"
     }
   ],
@@ -1930,7 +1930,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 3.73,
-      "dark": 7,
+      "dark": 12.13,
       "role": "the ON track against the page"
     },
     {
@@ -1938,7 +1938,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.93,
-      "dark": 4.85,
+      "dark": 7.02,
       "role": "the OFF track against the page"
     },
     {
@@ -1946,7 +1946,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
-      "dark": 9.59,
+      "dark": 17.18,
       "role": "the label"
     }
   ],
@@ -1956,7 +1956,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 16.76,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "the primary column's ink on a resting row"
     },
     {
@@ -1964,7 +1964,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 13.54,
-      "dark": 10.36,
+      "dark": 11.3,
       "role": "every other column's ink on a resting row"
     },
     {
@@ -1972,7 +1972,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "a disabled row's ink — the sheet's text-disabled measures 2.09:1 here, see needsDesign"
     },
     {
@@ -1980,7 +1980,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
+      "dark": 5.68,
       "role": "a resting column header, on the mat"
     },
     {
@@ -1988,7 +1988,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 14.11,
-      "dark": 10.38,
+      "dark": 13.18,
       "role": "the hovered row's primary ink, and a sortable header's label under the pointer"
     },
     {
@@ -1996,7 +1996,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 11.4,
-      "dark": 8.56,
+      "dark": 9.28,
       "role": "the hovered row's other lanes"
     },
     {
@@ -2004,7 +2004,7 @@
       "bg": "--ui-bg-hover",
       "floor": "text",
       "light": 4.87,
-      "dark": 5.35,
+      "dark": 5.38,
       "role": "the other column headers while one of them is hovered"
     },
     {
@@ -2012,7 +2012,7 @@
       "bg": "--ui-bg-active",
       "floor": "text",
       "light": 11.68,
-      "dark": 8.48,
+      "dark": 12.28,
       "role": "the pressed row's primary ink"
     },
     {
@@ -2020,7 +2020,7 @@
       "bg": "--ui-bg-active",
       "floor": "text",
       "light": 9.44,
-      "dark": 7,
+      "dark": 8.64,
       "role": "the pressed row's other lanes"
     },
     {
@@ -2028,7 +2028,7 @@
       "bg": "--ui-bg-accent-subtle",
       "floor": "text",
       "light": 13.88,
-      "dark": 6.66,
+      "dark": 13.92,
       "role": "the selected row's primary ink"
     },
     {
@@ -2036,7 +2036,7 @@
       "bg": "--ui-bg-accent-subtle",
       "floor": "text",
       "light": 11.22,
-      "dark": 5.49,
+      "dark": 9.8,
       "role": "the selected row's other lanes"
     },
     {
@@ -2044,7 +2044,7 @@
       "bg": "--ui-bg-accent-subtle-hover",
       "floor": "text",
       "light": 11.94,
-      "dark": 5.54,
+      "dark": 11.89,
       "role": "the selected row under the pointer"
     },
     {
@@ -2052,7 +2052,7 @@
       "bg": "--ui-bg-accent-subtle-hover",
       "floor": "text",
       "light": 9.65,
-      "dark": 4.57,
+      "dark": 8.37,
       "role": "the same row's other lanes"
     },
     {
@@ -2060,7 +2060,7 @@
       "bg": "--ui-bg-surface",
       "floor": "non-text",
       "light": 5.81,
-      "dark": 6.35,
+      "dark": 11.33,
       "role": "the row's focus outline. Every other ring pair in this system is measured against the page; a row is one surface step off it"
     },
     {
@@ -2068,14 +2068,14 @@
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.08,
-      "dark": 1.12
+      "dark": 1.15
     },
     {
       "fg": "--ui-bg-sunken",
       "bg": "--ui-bg-surface",
       "floor": "decorative",
       "light": 1.19,
-      "dark": 1.1
+      "dark": 1.41
     }
   ],
   "Tabs": [
@@ -2084,7 +2084,7 @@
       "bg": "--ui-bg-selected",
       "floor": "text",
       "light": 14.11,
-      "dark": 7.48,
+      "dark": 13.54,
       "role": "selected tab ink on its fill"
     },
     {
@@ -2092,7 +2092,7 @@
       "bg": "--ui-bg-surface",
       "floor": "text",
       "light": 5.78,
-      "dark": 6.47,
+      "dark": 6.56,
       "role": "unselected tab ink on the strip"
     },
     {
@@ -2100,7 +2100,7 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
+      "dark": 13.9,
       "role": "count ink on its pill"
     },
     {
@@ -2108,7 +2108,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.48,
+      "dark": 1.34,
       "role": "the strip boundary"
     }
   ],
@@ -2118,7 +2118,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 17.17,
-      "dark": 11.86,
+      "dark": 17.89,
       "role": "the value"
     },
     {
@@ -2126,7 +2126,7 @@
       "bg": "--ui-bg-field",
       "floor": "text",
       "light": 5.93,
-      "dark": 5.76,
+      "dark": 5.83,
       "role": "the placeholder"
     },
     {
@@ -2134,7 +2134,7 @@
       "bg": "--ui-bg-field-chrome",
       "floor": "text",
       "light": 14.11,
-      "dark": 12.55,
+      "dark": 16.05,
       "role": "the value, on a chrome ground (surface=\"chrome\")"
     },
     {
@@ -2142,7 +2142,7 @@
       "bg": "--ui-bg-field-chrome",
       "floor": "text",
       "light": 4.87,
-      "dark": 6.1,
+      "dark": 5.23,
       "role": "the placeholder, on a chrome ground"
     },
     {
@@ -2150,7 +2150,7 @@
       "bg": "--ui-bg-field-chrome-disabled",
       "floor": "decorative",
       "light": 1.46,
-      "dark": 2.51,
+      "dark": 2.18,
       "role": "a disabled field's value on a chrome ground"
     },
     {
@@ -2158,7 +2158,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 13.88,
-      "dark": 7.91,
+      "dark": 12.09,
       "role": "the label"
     },
     {
@@ -2166,7 +2166,7 @@
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 5.93,
-      "dark": 4.94,
+      "dark": 7.02,
       "role": "the helper text"
     },
     {
@@ -2174,7 +2174,7 @@
       "bg": "--ui-bg-base",
       "floor": "non-text",
       "light": 5.96,
-      "dark": 4.85,
+      "dark": 12.13,
       "role": "the focus ring"
     },
     {
@@ -2182,7 +2182,7 @@
       "bg": "--ui-bg-field",
       "floor": "non-text",
       "light": 5.94,
-      "dark": 9.07,
+      "dark": 8.98,
       "role": "the invalid border — the boundary that says the control is in error (SC 1.4.11)"
     },
     {
@@ -2190,7 +2190,7 @@
       "bg": "--ui-bg-field",
       "floor": "decorative",
       "light": 1.47,
-      "dark": 1.51
+      "dark": 1.4
     }
   ],
   "Thumbnail": [
@@ -2199,7 +2199,7 @@
       "bg": "--ui-bg-sunken",
       "floor": "non-text",
       "light": 4.87,
-      "dark": 7.11,
+      "dark": 4.67,
       "role": "the remove glyph on its own tile — a graphical object that is the control's only visual channel"
     },
     {
@@ -2207,7 +2207,7 @@
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.22,
-      "dark": 1.44
+      "dark": 1.5
     }
   ],
   "Toast": [
@@ -2216,55 +2216,55 @@
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 15.53,
-      "dark": 11.2,
-      "role": "the title — 15.53:1 light / 11.20:1 dark"
+      "dark": 13.9,
+      "role": "the title — 15.53:1 light / 13.90:1 dark"
     },
     {
       "fg": "--ui-text-muted",
       "bg": "--ui-bg-elevated",
       "floor": "text",
       "light": 5.36,
-      "dark": 5.78,
-      "role": "the description, the Close glyph and the loading spinner — 5.36:1 light / 5.78:1 dark"
+      "dark": 5.68,
+      "role": "the description, the Close glyph and the loading spinner — 5.36:1 light / 5.68:1 dark"
     },
     {
       "fg": "--ui-intent-info-fg",
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.39,
-      "dark": 8.18,
-      "role": "the info glyph — 5.39:1 light / 8.18:1 dark; the glyph is the only channel carrying the type (SC 1.4.11)"
+      "dark": 9.82,
+      "role": "the info glyph — 5.39:1 light / 9.82:1 dark; the glyph is the only channel carrying the type (SC 1.4.11)"
     },
     {
       "fg": "--ui-intent-success-fg",
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.62,
-      "dark": 8.26,
-      "role": "the success glyph — 5.62:1 light / 8.26:1 dark"
+      "dark": 9.91,
+      "role": "the success glyph — 5.62:1 light / 9.91:1 dark"
     },
     {
       "fg": "--ui-intent-warning-fg",
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.48,
-      "dark": 7.23,
-      "role": "the warning glyph — 5.48:1 light / 7.23:1 dark"
+      "dark": 8.67,
+      "role": "the warning glyph — 5.48:1 light / 8.67:1 dark"
     },
     {
       "fg": "--ui-intent-danger-fg",
       "bg": "--ui-bg-elevated",
       "floor": "non-text",
       "light": 5.38,
-      "dark": 8.56,
-      "role": "the danger glyph — 5.38:1 light / 8.56:1 dark"
+      "dark": 6.98,
+      "role": "the danger glyph — 5.38:1 light / 6.98:1 dark"
     },
     {
       "fg": "--ui-bg-elevated",
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 1.11,
-      "dark": 1.17,
+      "dark": 1.24,
       "role": "the toast against the page"
     }
   ],
@@ -2274,15 +2274,15 @@
       "bg": "--ui-bg-emphasis",
       "floor": "text",
       "light": 17.17,
-      "dark": 7.34,
-      "role": "the label on its chip. 17.17:1 light and 7.34:1 dark against a fill that does not move between the schemes — see needsDesign"
+      "dark": 15.53,
+      "role": "the label on its chip. 17.17:1 light and 15.53:1 dark — since the 2026-11-03 warm-ink ramp the chip inverts to paper in dark, so the ink moves WITH its fill instead of against one that stayed put (it was 7.34:1)"
     },
     {
       "fg": "--ui-bg-emphasis",
       "bg": "--ui-bg-base",
       "floor": "decorative",
       "light": 17.17,
-      "dark": 1.62
+      "dark": 16.6
     }
   ]
 }

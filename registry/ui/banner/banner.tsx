@@ -21,7 +21,8 @@ export type BannerVariant = "neutral" | "info" | "success" | "warning" | "danger
  * with a brand, which the raw steps do not.
  *
  * Measured in both schemes — light 4.87 / 4.82 / 5.05 / 5.03 / 4.79:1,
- * dark 7.11 / 5.64 / 5.68 / 4.92 / 5.93:1. All clear AA.
+ * dark 4.67 / 9.04 / 9.09 / 7.93 / 6.48:1 (the 2026-11-03 warm-ink ramp, on
+ * which the neutral ground is the sunken FILL). All clear AA.
  */
 const VARIANT = {
   neutral: "bg-sunken text-ink-muted",
@@ -209,8 +210,8 @@ const BannerRoot = forwardRef<HTMLDivElement, BannerProps>(function Banner(
  * label in the banner's OWN ink, no fill, hover a 10% tint of that ink (the
  * dismiss control's own hover). Every pair is legible on its ground by
  * construction — it is the banner's text pair — 4.87 / 5.05 / 5.03:1 light,
- * 7.11 / 5.68 / 4.92:1 dark. Danger takes --ui-text-on-danger-subtle, the ink
- * Button's own danger variant uses (8.52:1 light, 5.93:1 dark).
+ * 4.67 / 9.09 / 7.93:1 dark. Danger takes --ui-text-on-danger-subtle, the ink
+ * Button's own danger variant uses (8.52:1 light, 9.53:1 dark).
  *
  * Written over Button's `outline` classes in the SAME variant groups
  * (`not-data-disabled:hover:ring-…`), so the merge replaces Button's grey

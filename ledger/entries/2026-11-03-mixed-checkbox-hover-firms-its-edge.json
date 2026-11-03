@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-mixed-checkbox-hover-firms-its-edge",
+  "date": "2026-11-03",
+  "item": "checkbox",
+  "kind": "visual",
+  "summary": "A mixed (indeterminate) Checkbox now has a hover: its edge firms from --ui-border-strong to --ui-text-primary, the dash's own ink — the same one-step firming an unchecked box gets (control → strong). Closes the Audit #9 \"Missing\" row (Paper, Components - Handoff). DERIVED, like every Checkbox hover. The sheet's suggested --ui-bg-hover fill was measured and rejected: it equals --ui-bg-sunken in light (1.00:1) and sits below it in dark, so the box would have receded on hover in one scheme only. Browser test added.",
+  "affects": [
+    "component:checkbox",
+    "state:mixed"
+  ]
+}

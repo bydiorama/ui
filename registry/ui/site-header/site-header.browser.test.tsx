@@ -301,8 +301,9 @@ describe("SiteHeader over media", () => {
     await vi.waitFor(() => expect(bar.hasAttribute("data-over-media")).toBe(false));
     const rest = [...c.querySelectorAll<HTMLElement>('[data-slot="header-item"]')].find((el) => el.textContent === "Work")!;
     await settled(rest);
-    // Affixed, rest steps up to secondary (muted is 3.66:1 on the affix floor in dark).
-    expect(getComputedStyle(rest).color).toBe(probe("--ui-text-secondary"));
+    // Affixed, rest stays muted: 4.75:1 light / 5.38:1 dark on the affix floor
+    // (it stepped to secondary while the old dark ramp put muted at 3.66:1).
+    expect(getComputedStyle(rest).color).toBe(probe("--ui-text-muted"));
     await settled(q(c, "site-header-scrim"));
     expect(getComputedStyle(q(c, "site-header-scrim")).opacity).toBe("0");
   });

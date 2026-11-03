@@ -105,7 +105,7 @@ ImageUpload.Add    label (required)
         fg: "--ui-border-subtle",
         bg: "--ui-bg-base",
         floor: "decorative",
-        why: "The resting dropzone edge, measured 1.47:1 light / 1.48:1 dark. Quiet by design (ADR 0010): the target is identified by its 152px well, its prompt and its icon, not by its hairline — and the two states where the edge DOES carry meaning (drag-over, rejected) are declared above at the 3:1 floor.",
+        why: "The resting dropzone edge, measured 1.47:1 light / 1.34:1 dark. Quiet by design (ADR 0010): the target is identified by its 152px well, its prompt and its icon, not by its hairline — and the two states where the edge DOES carry meaning (drag-over, rejected) are declared above at the 3:1 floor.",
       },
     ],
   },
@@ -119,9 +119,9 @@ ImageUpload.Add    label (required)
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
     "The file row's progress fill is --ui-bg-accent, which measures 1.24:1 against its own track in light — the exact SC 1.4.11 failure --ui-bg-accent-legible was added to fix, and which Progress already ships. Shipped by reusing Progress, so the fill is 3.07:1. This is the fourth control to draw a value with the raw accent; the role exists.",
-    "The Replace / Choose another file pill is outlined in --ui-border-default, 2.14:1 light / 2.03:1 dark. That is the same finding already recorded against Button's outline variant, which now uses --ui-border-control at 3.11:1. Shipped as Button variant=\"outline\" via the actions slot. Remove is Button variant=\"ghost\".",
-    "The busy label is drawn in --ui-text-disabled, 1.94:1 light / 2.63:1 dark. It is live status, not a disabled control, and WCAG exempts the latter only. Shipped in --ui-text-secondary.",
-    "The rejection headline and detail are drawn in --ui-text-secondary and --ui-text-muted on the danger well; the detail measures 4.00:1 in dark. Shipped in --ui-text-on-danger-subtle, the role that exists for prose on a danger tint (8.52 / 5.93).",
+    "The Replace / Choose another file pill is outlined in --ui-border-default, 2.14:1 light / 1.63:1 dark. That is the same finding already recorded against Button's outline variant, which now uses --ui-border-control at 3.11:1. Shipped as Button variant=\"outline\" via the actions slot. Remove is Button variant=\"ghost\".",
+    "The busy label is drawn in --ui-text-disabled, 1.94:1 light / 2.18:1 dark. It is live status, not a disabled control, and WCAG exempts the latter only. Shipped in --ui-text-secondary.",
+    "The rejection headline and detail are drawn in --ui-text-secondary and --ui-text-muted on the danger well; the detail measured 4.00:1 in dark on the old mid-grey ramp, under AA, and measures 5.27:1 on the 2026-11-03 warm-ink ramp. Shipped in --ui-text-on-danger-subtle, the role that exists for prose on a danger tint (8.52 / 9.53).",
     "'browse' is drawn as styled text rather than a control, so the whole component was reachable by pointer only. Shipped as a real button, and underlined — a link identified by colour alone fails 1.4.1 independently of its contrast.",
     "The field label is drawn at weight 550 while Input's is 500. Shipped at Input's, because two fields in one form should not have two label styles. Confirm which is the field-label weight.",
     "No focus treatment is drawn for the dropzone, the browse control, the cancel control or the add tile. All four take the system focus ring.",

@@ -115,3 +115,18 @@ stretch rather than a reclassification: the reason is parity with Card, not
 attachment. Sheet had already left the sm row on 2026-08-25 (`sheet.doc.ts`)
 without the table being updated; it takes md too. In `registry/` today the sm
 row ships on the Switch thumb, Slider thumb, Calendar and Tooltip.
+
+## Amendment — 2026-11-03: dark elevation now ascends from the page
+
+On the warm-ink dark ramp (0008, amended the same day) every dark surface
+sits above the page — page L\* 6, surface 10, elevated 16 — where the
+mid-grey page sat above its own cards. Point 4's figures (`#423E3A` page,
+`#2F2C29` surface) are historical.
+
+Point 3 now resolves the dark shadow ink to the page itself (`#171411`), which
+is already under `SHADOW_INK_MAX_L`. On near-black a shadow barely reads, so
+dark separation is carried by tint and hairline first, as point 6 says it
+should be: elevated measures 1.24:1 on the page and 1.15:1 on a surface. The
+approved boards drew menu and toast shadows heavier than the derivation casts;
+that is recorded as open rather than pinned, because it is a resolver-wide
+question for every dark brand, not a theme-zero value.

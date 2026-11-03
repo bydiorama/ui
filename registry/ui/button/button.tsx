@@ -117,12 +117,18 @@ const VARIANT = {
   // ON --ui-bg-inverse ONLY (#36; Paper, Components - Handoff, "Inverse
   // grounds"). An edge on nothing, like outline, inked in the band's own
   // ink: the page inks outline and ghost carry vanish on the dark band. The
-  // ring is --ui-text-inverse (15.9:1, a conformant control edge); hover and
+  // ring is --ui-text-inverse (15.53:1 in both schemes, a conformant control edge); hover and
   // press fill the band's own -hover and -active steps. Inverse flips light
   // in the dark scheme and this follows it — it is NOT the variant for
   // media grounds, which do not flip.
+  //
+  // FOCUS TAKES THE BAND'S INK TOO (closed 2026-11-03). The library's focus
+  // colour is drawn for the PAGE: on the inverse band it measured 2.88:1 in
+  // light and 1.37:1 in dark (blue-80 on the paper band), so a focused
+  // inverse button had no visible ring in dark. --ui-text-inverse is
+  // 15.53:1 against the band in both schemes and needs no new token.
   inverse:
-    "ring-ink-inverse text-ink-inverse not-data-disabled:hover:bg-inverse-hover not-data-disabled:active:bg-inverse-active",
+    "ring-ink-inverse text-ink-inverse not-data-disabled:hover:bg-inverse-hover not-data-disabled:active:bg-inverse-active focus-visible:outline-ink-inverse",
 } as const satisfies Record<ButtonVariant, string>;
 
 /**

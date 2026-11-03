@@ -466,30 +466,16 @@ function HeaderItem({
         // differ.
         "hover:bg-elevated",
         "data-[current]:text-ink-muted",
-        // ON THE AFFIX BAR THE CURRENT ITEM STEPS UP, and this is a
-        // CONFORMANCE step rather than a stylistic one.
+        // ON THE AFFIX BAR THE CURRENT ITEM STAYS MUTED, as the sheet draws it.
         //
-        // `text-ink-muted` is body text with the least headroom in the whole
-        // bar, and the affix bar's worst ground is not the page — it is
-        // `--ui-bg-affix-floor`, the fill over whatever has scrolled under it.
-        // Muted measures 4.75:1 there in light and 3.66:1 in DARK, under AA,
-        // and NO alpha closes it: 0.96 still measures 4.43:1 and an opaque bar
-        // is 4.94:1, the ceiling this component already had the least headroom
-        // on. Dark's two surfaces sit close together — ADR 0016 point 4,
-        // arriving somewhere new. So the fix is the ink, and it is the ink
-        // ONLY while affixed: on the resting bar muted is measured, approved
-        // and unchanged.
-        //
-        // `secondary` rather than `primary` because RECEDING is the whole
-        // point of the state (you cannot navigate to the page you are on). It
-        // is still a step back from the items around it, and it measures
-        // 11.12:1 light / 5.86:1 dark on the same floor.
-        //
-        // Read off the bar's own `data-affixed` through the named group, not
-        // through a context: a context would make this file the only thing
-        // that could ever answer the question, and a consumer restyling the
-        // current item needs the same hook the component uses.
-        "group-data-[affixed]/header:data-[current]:text-ink-secondary",
+        // It used to step up to secondary while affixed, and that was a
+        // CONFORMANCE step: the affix bar's worst ground is
+        // `--ui-bg-affix-floor`, the fill over whatever has scrolled under it,
+        // and on the old mid-grey dark ramp muted measured 3.66:1 there, under
+        // AA, with no alpha that closed it. On the 2026-11-03 warm-ink ramp it
+        // measures 4.75:1 light and 5.38:1 dark, so the drawn treatment holds
+        // in both schemes and the step is gone. header.doc.ts declares the
+        // pair, so `check:contrast` fails the day either scheme drops it.
         // THE QUIET ITEM (#33, the minimal site header). Ink is the only
         // channel: no fill on hover or press, so the bar never shows a shape
         // that is not its call to action. Rest is MUTED and both hover and the
@@ -497,16 +483,15 @@ function HeaderItem({
         // because a row already at muted has nowhere to recede to. 2.90:1
         // between the two inks, light.
         //
-        // Pinned, rest steps up to SECONDARY for the same reason the default
-        // item's current page does: muted on the affix floor is 3.66:1 in
-        // dark, under AA, and no alpha closes it. Current stays primary, so
+        // Pinned, rest STAYS MUTED: on the affix floor it measures 4.75:1
+        // light and 5.38:1 dark. It stepped up to secondary while the old
+        // mid-grey dark ramp put it at 3.66:1 there. Current stays primary, so
         // current still differs from rest while pinned (and aria-current
         // carries it regardless).
         variant === "quiet" && [
           "min-h-8 px-sm text-label-md",
           "hover:bg-transparent hover:text-ink-primary",
           "text-ink-muted data-[current]:text-ink-primary",
-          "group-data-[affixed]/header:text-ink-secondary group-data-[affixed]/header:hover:text-ink-primary",
           "group-data-[affixed]/header:data-[current]:text-ink-primary",
           // OVER MEDIA (SiteHeader's isOverMedia, through the bar's public
           // `data-over-media` hook): the same two steps in the media family.

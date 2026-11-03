@@ -303,6 +303,17 @@ describe("Button motion and focus are real, not just declared", () => {
     expect(style.outlineWidth).toBe("2px");
     expect(style.outlineColor).not.toBe("rgba(0, 0, 0, 0)");
   });
+
+  test("an inverse button's focus ring takes the band's ink, not the page's focus colour", async () => {
+    // The page focus colour measured 2.88:1 light / 1.37:1 dark on the
+    // inverse band (#36, closed 2026-11-03), so this variant's ring is
+    // --ui-text-inverse — the same ink as its edge and label.
+    const button = mount(<Button variant="inverse">Get in touch</Button>);
+    button.focus();
+    const style = getComputedStyle(button);
+    expect(style.outlineStyle).toBe("solid");
+    expect(style.outlineColor).toBe(style.color);
+  });
 });
 
 /**

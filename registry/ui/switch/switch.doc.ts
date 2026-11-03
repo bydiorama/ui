@@ -74,6 +74,11 @@ Switch
     "labelPlacement and description are CLOSED (2026-11-02, #9): drawn on the #9 Proposals sheet, light and dark. start is the settings row a Switch is most often asked for.",
     "No loading or pending state for a switch whose effect is asynchronous — the commonest real need, and not drawn.",
     "The sheet's thumb shadow is a raw #9EDBF30D; this uses --ui-shadow-sm.",
+    "Thumb travel is CLOSED (2026-11-03, Audit #9 \"Measured\"): 17px instead of translate-x-4, so the ON thumb sits 1px from its edge like the OFF thumb. Asserted in switch.browser.test.tsx.",
+  ],
+
+  needsDesign: [
+    "THUMB IN DARK (Audit #9 \"Measured\", re-measured 2026-11-03 on the warm-ink ramp). The thumb is --ui-bg-surface, which is DARK in dark (#1E1B18): a dark knob on a light track, the inverse of light's white knob on a dark track. It reads (6.56:1 on the off track) but it is not the same object in both schemes. Disabled is the weak case in both: the thumb on the --ui-bg-sunken track is 1.19:1 light / 1.41:1 dark, so a disabled switch's POSITION is barely readable (the state is exempt from 1.4.11, the information is not). Options: a fixed light thumb role in both schemes, or a disabled thumb drawn in --ui-border-default. Belongs with the dedicated track-role question in knownGaps.",
   ],
 
   motion:

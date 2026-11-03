@@ -115,13 +115,13 @@ Tooltip.Provider          — once, at the app root. Renders nothing.
         fg: "--ui-text-on-emphasis",
         bg: "--ui-bg-emphasis",
         floor: "text",
-        role: "the label on its chip. 17.17:1 light and 7.34:1 dark against a fill that does not move between the schemes — see needsDesign",
+        role: "the label on its chip. 17.17:1 light and 15.53:1 dark — since the 2026-11-03 warm-ink ramp the chip inverts to paper in dark, so the ink moves WITH its fill instead of against one that stayed put (it was 7.34:1)",
       },
       {
         fg: "--ui-bg-emphasis",
         bg: "--ui-bg-base",
         floor: "decorative",
-        why: "The chip against the page. 17.17:1 in light and 1.62:1 in DARK, because --ui-bg-emphasis does not move between the schemes and --ui-bg-base does — the same fact that makes this surface unmistakable in light makes it quiet in dark. Declared decorative rather than raised, because SC 1.4.11 covers controls and graphical objects needed to understand content, and a tooltip is neither: it is a text container, nothing about it is operable, and the thing that has to be perceivable is the label, which measures 7.34:1. The boundary is carried by the fill step plus --ui-shadow-sm. It is a real design question all the same and it is in needsDesign, because the argument the sheet makes for this fill is an argument about LIGHT.",
+        why: "The chip against the page. 17.17:1 in light and 16.60:1 in dark — the dark chip is paper (#F6F3F0) on the warm-ink page since 2026-11-03, so the surface is as unmistakable in dark as in light (it was 1.62:1 while --ui-bg-emphasis stayed near-black in both schemes). Declared decorative rather than raised, because SC 1.4.11 covers controls and graphical objects needed to understand content, and a tooltip is neither: it is a text container, nothing about it is operable, and the thing that has to be perceivable is the label, which measures 15.53:1.",
       },
     ],
   },
@@ -138,14 +138,13 @@ Tooltip.Provider          — once, at the app root. Renders nothing.
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "--ui-text-on-emphasis resolves #FFFFFF in light and #a9a9ae in dark while --ui-bg-emphasis is #1D1B19 in both, so the identical chip carries 17.17:1 and then 7.34:1. It passes either way, and it is still an ink moving against a fill that did not. --ui-tool-active-ink aliases the same token and takes the same drop on the nav rail's active tool: one question asked by two components.",
     "The sheet draws a tooltip opening over a DISABLED trigger, and it cannot. A disabled form control receives no pointer events in Chromium and is out of the tab order, so both paths are closed — see knownGaps for what a caller has to do instead. The sheet's row needs redrawing around a wrapper, or the case needs dropping.",
-    "The sheet's case for an emphasis chip is an argument about LIGHT, and the numbers do not carry into dark. Measured: the chip is 17.17:1 against the page in light and 1.62:1 in dark, and against a Menu panel — the surface it exists to be told apart from — 1.24:1 there. It still reads, by size, shape, type and ink, and the fill is doing much less of the work than § The surface claims. The honest options are a hairline that appears only in dark, a dark-scheme value for --ui-bg-emphasis, or accepting that the shape carries it; none of them should be picked by an implementer.",
     "The skip window is 300ms, against Base UI's own default of 400. Tighter suits a row of icon buttons read left to right, and nothing has measured which is better with a real user.",
     "No arrow, and no sheet has ever drawn one for Popover or Menu either. Confirm that this is the system's position rather than three components independently not getting round to it.",
   ],
 
   knownGaps: [
+    "CLOSED 2026-11-03 by the warm-ink dark ramp (ADR 0008 amendment): --ui-bg-emphasis stayed #1D1B19 in both schemes while its ink moved (#FFFFFF light, #a9a9ae dark), so the identical chip carried 17.17:1 and then 7.34:1, and the chip itself measured 1.62:1 against the dark page and 1.24:1 against a Menu panel. On the warm-ink ramp #1D1B19 is the surface itself (1.00:1), so emphasis now INVERTS to paper in dark — #F6F3F0 with #1D1B19 ink: label 15.53:1, chip 16.60:1 on the page and 15.51:1 on a Menu panel. The rule the pin existed for still holds: nothing else in the scheme is a light, borderless fill, so it cannot be mistaken for a menu.",
     "A disabled control cannot show one. `disabled` suppresses mouse events and removes the element from the tab order, so the explanation has to hang off something else: wrap the control in a focusable span you own and put the trigger on that, or say why it is unavailable in the surrounding copy. This is the platform's behaviour, not a decision made here, and it is the reason craft rule 16 stops at 'do not ADD pointer-events: none' — the attribute has already taken what the rule is protecting.",
     "The open delay is not adjustable. Every tooltip in the library waits the same 600ms, and a caller who genuinely wants an instant one has no prop for it. Deliberate for now: timing belongs to @/lib/motion, and the first real need is what should open the question.",
     "Provider is optional and its absence is silent. A subtree without one still works — every tooltip simply waits independently — so nothing fails and a toolbar just feels slow.",

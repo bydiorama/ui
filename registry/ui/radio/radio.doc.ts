@@ -192,7 +192,7 @@ RadioGroup
         fg: "--ui-text-disabled",
         bg: "--ui-bg-sunken",
         floor: "decorative",
-        why: "The dot inside a DISABLED selected control. It survives, because a disabled radio still has to say which option is chosen — and it measures 1.76:1 in light and 3.60:1 in dark, so it is under the graphical floor exactly where the surface scale puts the two values closest. Declared rather than left out, because an unlisted pair is an unchecked pair and this one is easy to change by accident: WCAG exempts disabled controls, and the moment either token moves for another reason this row is the thing that says what it cost.",
+        why: "The dot inside a DISABLED selected control. It survives, because a disabled radio still has to say which option is chosen — and it measures 1.76:1 in light and 1.79:1 in dark, so it is under the graphical floor in both schemes: the surface scale puts the two values close in each (dark cleared it at 3.60:1 until the 2026-11-03 warm-ink ramp made sunken a fill above the surface). Declared rather than left out, because an unlisted pair is an unchecked pair and this one is easy to change by accident: WCAG exempts disabled controls, and the moment either token moves for another reason this row is the thing that says what it cost.",
       },
     ],
   },

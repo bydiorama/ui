@@ -161,7 +161,8 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
         // where `bg-sunken` measured 1.10:1 against the track and the selected
         // tab read as unselected. `bg-selected` steps away from the surface in
         // whichever direction the scheme reads — 1.19 in light, unchanged from
-        // the drawing, and 1.68 in dark instead of 1.10.
+        // the drawing, and 1.19 in dark on the 2026-11-03 warm-ink ramp (1.68
+        // on the old mid-grey one, where bg-sunken measured 1.10).
         "aria-selected:bg-selected aria-selected:text-ink-primary",
         !isDisabled && "cursor-pointer not-aria-selected:hover:text-ink-secondary",
         // `aria-disabled:`, NOT `disabled:`. Base UI's Tab renders

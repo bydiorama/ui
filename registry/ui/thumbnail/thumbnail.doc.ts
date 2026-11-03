@@ -108,7 +108,7 @@ Thumbnail.Group
         fg: "--ui-bg-sunken",
         bg: "--ui-bg-base",
         floor: "decorative",
-        why: "The 1.5px inset hairline, and the well behind the picture — the sheet draws both in the same role. Measured 1.22:1 light / 1.44:1 dark against the page. It is not a boundary anything depends on identifying: the picture itself is what makes a thumbnail visible, and the ring's job is stopping a photograph's own white edge from bleeding into the page. It is in needsDesign, because in a STACKED group the same value means there is no seam between neighbours.",
+        why: "The 1.5px inset hairline, and the well behind the picture — the sheet draws both in the same role. Measured 1.22:1 light / 1.50:1 dark against the page (on the 2026-11-03 warm-ink ramp sunken is a fill above the page in dark, not a recess). It is not a boundary anything depends on identifying: the picture itself is what makes a thumbnail visible, and the ring's job is stopping a photograph's own white edge from bleeding into the page. It is in needsDesign, because in a STACKED group the same value means there is no seam between neighbours.",
       },
     ],
   },

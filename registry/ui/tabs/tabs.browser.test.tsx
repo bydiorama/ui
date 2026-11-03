@@ -254,7 +254,9 @@ describe("The selected tab reads as selected in BOTH schemes", () => {
     const fill = getComputedStyle(selected!).backgroundColor;
     // The selected tab must not paint the track's own colour, and the
     // unselected one must not paint anything. `bg-sunken` failed the first of
-    // these by a hair in dark — 1.10:1, close enough to read as unselected.
+    // these by a hair in dark on the old mid-grey ramp — 1.10:1, close enough
+    // to read as unselected (1.41:1 on the 2026-11-03 warm-ink ramp, where
+    // sunken is a fill above the surface).
     expect(fill).not.toBe(track);
     expect(getComputedStyle(unselected!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
     expect(contrast(fill, track), `${scheme}: selected fill vs track`).toBeGreaterThanOrEqual(1.15);

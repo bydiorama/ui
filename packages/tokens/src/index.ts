@@ -8,7 +8,7 @@ export {
 } from "./contract.ts";
 
 // The curated palette (ADR 0008) and the authored type table (ADR 0009).
-export { RAMPS, BRAND, NEUTRAL, BLUE, ORANGE, LAVENDER, GREEN, RED } from "./palette.ts";
+export { RAMPS, BRAND, NEUTRAL, DARK, BLUE, ORANGE, LAVENDER, GREEN, RED } from "./palette.ts";
 export { TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
 export type {
   BrandableToken,

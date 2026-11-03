@@ -59,9 +59,10 @@ function alphaFor(ink: string, ground: string, target: number): number {
 }
 
 // Theme zero's text-secondary on bg-surface, light and dark — the middle of
-// the five role pairs measured (see the polarity test below).
+// the five role pairs measured (see the polarity test below). Dark is the
+// 2026-11-03 warm-ink ramp; re-solve the table here whenever either moves.
 const LIGHT_PAIR = ["#2F2C29", "#FDFCFB"] as const;
-const DARK_PAIR = ["#e1dedb", "#2F2C29"] as const;
+const DARK_PAIR = ["#D6D1CB", "#1E1B18"] as const;
 
 const ts = FADE_RAMP_LIGHT.map((_, i) => i / (FADE_RAMP_LIGHT.length - 1));
 
@@ -117,10 +118,10 @@ test("the correction is the polarity's, not the pair's — one table serves ever
   // Same role on both sides, theme zero's light and dark values. If a pair
   // ever needs a materially different correction, one table is wrong.
   const pairs = [
-    [["#1D1B19", "#FFFFFF"], ["#F6F3F0", "#423E3A"]], // primary / base
-    [["#2F2C29", "#F6F3F0"], ["#e1dedb", "#373430"]], // secondary / elevated
-    [["#69635D", "#FDFCFB"], ["#B7B0A9", "#2F2C29"]], // muted / surface
-    [["#1D1B19", "#EDE8E3"], ["#F6F3F0", "#282522"]], // primary / sunken
+    [["#1D1B19", "#FFFFFF"], ["#FAF7F3", "#171411"]], // primary / base
+    [["#2F2C29", "#F6F3F0"], ["#D6D1CB", "#2A2724"]], // secondary / elevated
+    [["#69635D", "#FDFCFB"], ["#A69F98", "#1E1B18"]], // muted / surface
+    [["#1D1B19", "#EDE8E3"], ["#FAF7F3", "#383531"]], // primary / sunken
   ] as const;
   for (const [light, dark] of pairs) {
     ts.forEach((t, i) => {

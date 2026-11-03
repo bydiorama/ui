@@ -1,0 +1,53 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "combobox",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3O8K-0",
+    "artboard": "Component --- Combobox",
+    "extracted": "2026-11-02",
+    "how": "get_computed_styles for the declared values (3OJY-0 the row, 3OJZ-0 its label, 3OK0-0 its indicator lane); get_children / get_node_info for the laid-out rects. Row 390 x 46 at the panel's 4px inset; label at (12, 12) 342 x 22; lane at (362, 15) 16 x 16."
+  },
+  "tolerance": 0.5,
+  "note": "The option row, from § Option rows / Rest — Select's row, which the sheet claims character for character, and the row every other row on this sheet (link, action, Try again, status) is drawn on. The law that matters is `track-is-the-sum-of-its-parts`: the fixed 16px trailing lane is what keeps labels aligned whether a row carries a tick, a link arrow or nothing, and the arithmetic only closes if the lane is really there on an EMPTY row.",
+  "cases": [
+    {
+      "name": "combobox-option-row",
+      "axis": "horizontal",
+      "nodes": { "container": "3OJY-0", "children": ["3OJZ-0", "3OK0-0"] },
+      "slots": { "container": "combobox-option", "child": "combobox-option-label|combobox-indicator" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "Neither child has a shape of its own — a line of text and an empty 16px lane — so there is nothing for the row's radius-sm to be concentric with. The row's radius answers to the PANEL's (radius-md over a 4px inset), which is Select's arithmetic and is asserted as a relationship to Select's panel in the contract suite."
+      },
+      "sheet": {
+        "container": {
+          "width": 390,
+          "height": 46,
+          "padding": 12,
+          "border": 0,
+          "radius": 4,
+          "tokens": {
+            "radius": "--ui-radius-sm",
+            "padding": "--ui-space-md",
+            "gap": "--ui-space-sm",
+            "type": "--ui-text-body-md"
+          }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 342, "height": 22, "radius": null },
+          { "width": 16, "height": 16, "radius": null }
+        ],
+        "gaps": { "top": 12, "right": 12, "bottom": 12, "left": 12 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "combobox-option-row",
+      "what": "The sheet's label box is 22px tall; the render's body-md line box is ~21.7px, so the row renders ~45.7px against the sheet's 46.",
+      "why": "Paper rounds a text node's height to whole pixels and Chromium does not. Neither height is asserted: the laws read the four insets and the horizontal arithmetic, and those agree at 12 / 8 / 16 within the 0.5px tolerance."
+    }
+  ]
+}

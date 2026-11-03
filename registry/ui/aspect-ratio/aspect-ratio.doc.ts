@@ -66,7 +66,7 @@ AspectRatio
         fg: "--ui-bg-sunken",
         bg: "--ui-bg-base",
         floor: "decorative",
-        why: "The well behind the media, measured 1.22:1 light / 1.44:1 dark. It is not a boundary anything depends on identifying: once an image has loaded it is invisible, and when one has not the frame communicates nothing that the missing picture does not already communicate. Declared rather than omitted so the number is visible — a well this quiet against the page is worth a designer knowing about, and it is in needsDesign.",
+        why: "The well behind the media, measured 1.22:1 light / 1.50:1 dark (on the 2026-11-03 warm-ink ramp sunken is a fill above the page in dark, not a recess). It is not a boundary anything depends on identifying: once an image has loaded it is invisible, and when one has not the frame communicates nothing that the missing picture does not already communicate. Declared rather than omitted so the number is visible — a well this quiet against the page is worth a designer knowing about, and it is in needsDesign.",
       },
     ],
   },

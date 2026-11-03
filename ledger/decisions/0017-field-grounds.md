@@ -148,3 +148,36 @@ floor re-measures against the new ground. The dark visual baseline of every
 matrix case that draws a page field moves (darwin and linux): `input`,
 `textarea`, `select`, `multiselect`, `date-picker`, `chat-composer`, `card`,
 `modal`, `drawer` and `density`. Not regenerated with this change.
+
+## Amendment — 2026-11-03: on the warm-ink ramp the dark field is a well again
+
+The 2026-10-05 amendment moved the dark page field *above* the surface
+because the field it replaced was a hole: neutral-0, 1.62:1 under its
+`bg-base` Sheet. The warm-ink ramp (0008, amended the same day) puts the page
+low enough that the opposite placement works again, and it is light's own
+rule: the field is all but flush with its page and the hairline identifies
+it. The approved Paper boards draw exactly that, and the value is the drawn
+one.
+
+| Role | Value | Against |
+| --- | --- | --- |
+| `bg-field` | `#120F0C` (`DARK[5]`) | base 1.04 · surface 1.11 · elevated 1.29 · sunken 1.57 |
+| `bg-field-disabled` | `#221F1C` (`DARK[12]`) | field 1.17 |
+| `bg-field-chrome` | `#1E1B18` (`DARK[10]`) | elevated 1.15 (the well) |
+| `bg-field-chrome-disabled` | `#2A2724` (`DARK[16]`) | chrome field 1.15 |
+
+Ink on the page field: text-primary 17.89, placeholder 5.83, text-muted 7.31,
+`border-control` 4.77; `border-subtle` draws its edge at 1.40. (`bg-sunken`
+is a fill above the surface in this scheme — 0008's amendment — so the field
+no longer has a recessed neighbour to collapse onto.)
+
+**Both disabled fills go the other way from their well** — a flat fill, not a
+deeper cut. A disabled field drawn deeper than an enabled one reads as the
+more emphatic of the two.
+
+**What is enforced changed shape, not strength.** The test is now "a dark
+page field is never a hole through its page, and never collapses onto a
+ground": for every seed the field measures at most 1.2 against `bg-base` (the
+1.62 failure) and at least 1.03 against all four grounds. Every seed that
+takes the DERIVED path is still asserted to sit strictly between `surface`
+and `elevated` — the derivation is unchanged; only theme zero pins a well.

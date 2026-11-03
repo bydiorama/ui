@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-header-s-affixed-current-item-and",
+  "date": "2026-11-03",
+  "item": "header",
+  "kind": "visual",
+  "summary": "Header's affixed current item, and SiteHeader's affixed quiet items at rest, keep --ui-text-muted instead of stepping up to --ui-text-secondary. The step was a conformance workaround, not a design: on the old mid-grey dark ramp muted measured 3.66:1 on --ui-bg-affix-floor and no alpha closed it. On the 2026-11-03 warm-ink ramp it measures 4.75:1 light / 5.38:1 dark, so the bar now draws what the sheet draws in both schemes. The contract now audits --ui-text-muted on --ui-bg-affix-floor (replacing the secondary pair); theme zero needs no adjustment, and a brand whose muted ink fails on its own affix floor is now corrected by the audit. Header's needsDesign entry on the step is closed. Visual: the affixed state of Header and SiteHeader, light and dark.",
+  "affects": [
+    "component:header",
+    "component:site-header",
+    "class:group-data-[affixed]/header:data-[current]:text-ink-secondary",
+    "contract:--ui-text-muted/--ui-bg-affix-floor"
+  ]
+}

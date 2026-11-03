@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-switch-thumb-travels-17px-so-the",
+  "date": "2026-11-03",
+  "item": "switch",
+  "kind": "fix",
+  "summary": "Switch's thumb travels 17px instead of translate-x-4 (16). The inner track is 34 (36 less two 1px borders) and the thumb 16, so the OFF thumb sat 1px from its edge and the ON thumb 2px from its own — measured on the Audit #9 sheet (Paper, Components - Handoff). Both now sit 1px in. Off the spacing scale on purpose, commented at the class. switch.browser.test.tsx asserts the symmetry. Visual: every checked Switch moves 1px.",
+  "affects": [
+    "component:switch",
+    "slot:thumb"
+  ]
+}

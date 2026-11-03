@@ -150,7 +150,12 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
           !isDisabled && "group-hover:peer-checked:bg-accent-hover group-hover:peer-checked:border-accent-hover",
           isDisabled && "bg-sunken border-edge-subtle",
           // The thumb is the track's child, so the track carries its travel.
-          "peer-checked:[&>[data-slot=thumb]]:translate-x-4",
+          // 17px, OFF the spacing scale on purpose: the inner track is 34
+          // (36 less two 1px borders) and the thumb 16, so 1px of inset each
+          // side leaves exactly 17 to travel. `translate-x-4` (16) left the
+          // ON thumb 2px from its edge against the OFF thumb's 1 — measured on
+          // the Audit #9 sheet, closed 2026-11-03.
+          "peer-checked:[&>[data-slot=thumb]]:translate-x-[17px]",
           "peer-focus-visible:shadow-(--ui-focus-ring) peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-focus",
         )}
       >

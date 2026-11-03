@@ -147,8 +147,13 @@ describe("Switch paints the designed control", () => {
     const onX = on.thumb.getBoundingClientRect().left - on.track.getBoundingClientRect().left;
 
     expect(onX).toBeGreaterThan(offX);
-    // 36 track - 16 thumb - 2 border - 1 inset = 17px of travel.
+    // 36 track - 16 thumb - 2 border - 1 inset = 17px of travel…
     expect(onX - offX).toBeGreaterThanOrEqual(14);
+    // …and the ON thumb sits exactly as far from its edge as the OFF thumb
+    // from its own (Audit #9: translate-x-4 left it 2px against 1).
+    const trackWidth = on.track.getBoundingClientRect().width;
+    const thumbWidth = on.thumb.getBoundingClientRect().width;
+    expect(trackWidth - (onX + thumbWidth)).toBeCloseTo(offX, 1);
   });
 
   test("cursor communicates operability", () => {

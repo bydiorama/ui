@@ -223,9 +223,11 @@ function TooltipContent({
             // is a one-row Menu, and it teaches the reader that the surface can
             // be clicked — the one thing a tooltip must never imply.
             //
-            // --ui-bg-emphasis is #1D1B19 in BOTH schemes, so the one surface
-            // that must not be mistaken for a menu is the one that does not
-            // move when the surface scale inverts.
+            // --ui-bg-emphasis is #1D1B19 in light and PAPER (#F6F3F0) in
+            // theme zero's dark scheme. It used to hold #1D1B19 in both, which
+            // on the warm-ink dark ramp is the surface itself (1.00:1) — the
+            // chip vanished. The rule is unchanged: the one fill nothing else
+            // in the scheme uses, so it cannot be mistaken for a menu.
             "bg-emphasis text-ink-on-emphasis shadow-sm",
             "text-caption font-body",
             // `scale`, not `transform` — see the identical note in modal.tsx.

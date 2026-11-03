@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-light-text-inverse-muted-is-warm",
+  "date": "2026-11-03",
+  "item": "system",
+  "kind": "token",
+  "summary": "Light --ui-text-inverse-muted is pinned to warm neutral-70 (#B7B0A9) in theme zero instead of the resolver's cool #A7A7A7 — the one cool grey on the warm inverse band (Inverse grounds #36, Derived gap). It clears AA on every inverse step: 8.01:1 on the band, 6.47:1 on its hover, 4.94:1 on its pressed fill. Dark keeps neutral-40 (#69635D). Visual: disabled inverse Buttons and secondary text on inverse bands, light only.",
+  "affects": [
+    "token:--ui-text-inverse-muted",
+    "component:button"
+  ]
+}

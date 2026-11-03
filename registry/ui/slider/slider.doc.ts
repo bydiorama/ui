@@ -109,13 +109,13 @@ Slider
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
     "The fill's ramp measures 1.24:1 and 1.80:1 against the track in light. Shipped AS DRAWN, on the designer's instruction to preserve the gradients: the thumb identifies the control and its ring is floored at 3:1. Still wants a recorded yes — the sheet's Gaps row is 'Derived', not 'Decided'.",
-    "Dark: the empty track (--ui-bg-sunken #282522) on --ui-bg-surface (#2F2C29) measures 1.10:1 — an empty track all but vanishes on a dark surface (1.19:1 in light). The thumb still identifies the control. The fix belongs to the token layer: a track role of at least 1.3:1 on surface in both schemes.",
-    "Dark, disabled: the thumb body (--ui-bg-base) and the disabled fill (--ui-bg-field-chrome-disabled) are both #423E3A, separated only by the 14% ring. Exempt from SC 1.4.11, but it reads as no thumb. Option on the sheet: drop the disabled fill to --ui-bg-sunken.",
     "Balance has no key back to the origin — Home and End go to the poles. The sheet leaves it open (none, or Delete resets).",
     "Inline departs from the Blueprint reference twice, on purpose: a handle at rest (the bar has no other drag affordance) and the accent wash instead of grey (no neutral role pair reaches a visible step on --ui-bg-elevated without a new role). The sheet asks whether a neutral version is wanted.",
   ],
 
   knownGaps: [
+    "CLOSED 2026-11-03 by the warm-ink dark ramp (ADR 0008 amendment): the empty track (--ui-bg-sunken) measured 1.10:1 on --ui-bg-surface in dark and all but vanished. In dark sunken is now a fill above the surface, #383531 on #1E1B18 at 1.41:1 — past the at-least-1.3 the gap asked for. Light is unchanged at 1.19:1.",
+    "CLOSED 2026-11-03 by the warm-ink dark ramp (ADR 0008 amendment): the disabled thumb body (--ui-bg-base #171411) and the disabled fill (--ui-bg-field-chrome-disabled #2A2724) were both #423E3A on the old mid-grey page, and read as no thumb. They now measure 1.24:1 apart.",
     "No tick marks, named steps or vertical orientation. None is drawn.",
     "No typed entry on the inline bar (double-click to edit). Compose a field into valueControl on a track slider instead.",
     "The steppers are plain buttons rather than a NumberField: they change the slider's own value, so the slider stays the single source of it. A caller wanting a typable number field should compose one into valueControl and drive both from the same state.",

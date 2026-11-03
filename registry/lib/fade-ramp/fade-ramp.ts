@@ -24,12 +24,13 @@
  * sRGB, and the perceived lightness of "ink under a veil of ground" does not
  * fall at the same rate in both polarities: at 50% alpha, dark ink on a light
  * ground keeps 46% of its OKLab lightness distance, light ink on a dark
- * ground keeps 53% (3.78:1 against 2.95:1). The same alphas therefore leave a
+ * ground keeps 54% (3.81:1 against 2.95:1). The same alphas therefore leave a
  * longer, dirtier trail in dark. The dark table is the alpha that leaves the
  * SAME perceptual fraction of ink visible as the light table does, solved per
- * stop for text-secondary on bg-surface. The correction is a property of the
- * polarity, not the pair: across five role pairs it agrees to ±0.015, so one
- * table serves every ground. `light-dark()` picks per stop, the same switch
+ * stop for text-secondary on bg-surface — re-solved 2026-11-03 for the
+ * warm-ink dark ramp (#D6D1CB on #1E1B18; it moved by at most 0.006 a stop).
+ * The correction is a property of the polarity, not the pair: across five
+ * role pairs it agrees to ±0.02, so one table serves every ground. `light-dark()` picks per stop, the same switch
  * every colour token in the theme already uses.
  *
  * fade-ramp.test.ts re-derives both tables from the curve and the colour
@@ -44,8 +45,8 @@ export const FADE_RAMP_LIGHT = [
 
 /** The same profile, perceptually matched for light ink on a dark ground. */
 export const FADE_RAMP_DARK = [
-  0, 0.01, 0.028, 0.059, 0.107, 0.175, 0.263, 0.368, 0.483, 0.598, 0.704, 0.796, 0.869, 0.924,
-  0.961, 0.985, 1,
+  0, 0.01, 0.028, 0.06, 0.108, 0.177, 0.267, 0.373, 0.488, 0.604, 0.71, 0.801, 0.873, 0.926,
+  0.963, 0.986, 1,
 ] as const;
 
 /** Where the ramp runs — always TOWARD the pinned edge, whose stop is solid. */

@@ -357,7 +357,10 @@ function SheetPanel({
           // it is doing real work rather than decorating: the panel and the
           // page are both --ui-bg-base, so in light the scrim leaves only a
           // 1.16:1 step between them and a single 0.5px blur does not close it.
-          // Dark reaches 1.61:1 on its own, because that scrim is black at 55%.
+          // Dark reached 1.61:1 on the old mid-grey page; on the 2026-11-03
+          // warm-ink page the same black-at-55% scrim has little left to darken
+          // and the step is 1.08:1, with a shadow inked in the page colour that
+          // barely reads. Open in sheet.doc.ts needsDesign.
           "bg-base text-ink-primary shadow-md",
           "transition-[translate,opacity]", motionStandard,
           SIDE[side].offscreen,

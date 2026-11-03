@@ -206,7 +206,7 @@ Table<Row>
         fg: "--ui-bg-elevated",
         bg: "--ui-bg-surface",
         floor: "decorative",
-        why: "The row divider, which is the mat itself showing between rows that float on it — 1.08:1 light, 1.25:1 dark. It separates rows that are already separated by their content and their lane alignment; a conformant hairline here would draw a grid, which is the thing the sheet is explicitly not doing.",
+        why: "The row divider, which is the mat itself showing between rows that float on it — 1.08:1 light, 1.15:1 dark. It separates rows that are already separated by their content and their lane alignment; a conformant hairline here would draw a grid, which is the thing the sheet is explicitly not doing.",
       },
       {
         fg: "--ui-bg-sunken",

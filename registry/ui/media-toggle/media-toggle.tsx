@@ -55,7 +55,7 @@ const prefersReducedMotion = () =>
  * runs past five seconds — an ambient hero, a background loop (#36).
  *
  * The chrome-control recipe (a fill with no edge, §7b), made round and moved
- * onto the media family: `--ui-bg-media` with `--ui-text-on-media` (15.9:1).
+ * onto the media family: `--ui-bg-media` with `--ui-text-on-media` (15.53:1).
  * Media does not flip with the scheme, so neither does this — it reads the
  * same over the video in light and dark. The caller places it, conventionally
  * bottom-end at space-lg.

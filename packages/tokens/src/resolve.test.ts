@@ -361,6 +361,23 @@ test("the neutral fill stack is ordered by MEASURED contrast, in both schemes", 
   }
 });
 
+test("a hairline separates from the sunken fill it is drawn on, in both schemes", () => {
+  // DotPattern inks its dots in border-subtle on a bg-sunken container, and a
+  // neutral Badge outlines its sunken fill in border-subtle. On the warm-ink
+  // dark ramp the first sunken FILL tried sat at 1.04:1 to the hairline, and the
+  // dots disappeared while every other gate was green. Light measures 1.16.
+  const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  for (const [scheme, t] of [["light", light], ["dark", dark]] as const) {
+    const sunken = flatten(t["--ui-bg-sunken"], t["--ui-bg-base"]);
+    const ratio = contrastRatio(flatten(t["--ui-border-subtle"], sunken), sunken);
+    assert.ok(ratio >= 1.1, `theme zero (${scheme}): border-subtle on bg-sunken measures ${ratio.toFixed(3)}`);
+    // …and DotPattern's STRONG opt-in (border-default) has to read stronger
+    // than that default, or the opt-in is a downgrade.
+    const strong = contrastRatio(flatten(t["--ui-border-default"], sunken), sunken);
+    assert.ok(strong > ratio * 1.05, `theme zero (${scheme}): border-default on bg-sunken (${strong.toFixed(3)}) is not stronger than border-subtle (${ratio.toFixed(3)})`);
+  }
+});
+
 test("an intent ground carries its ink on ANY surface, not only on the page", () => {
   // A derived intent ground used to be a 14% tint, and the audit flattens
   // every pair over `bg-base` — so the measured number was the number you got
@@ -763,31 +780,52 @@ test("each field pair separates on its OWN ground, in both schemes", () => {
 });
 
 /**
- * A DARK PAGE FIELD IS AN INPUT ON THE PANEL, NOT A HOLE THROUGH IT (ADR 0017,
- * amended 2026-10-05; closes #24).
+ * A DARK PAGE FIELD IS AN INPUT ON ITS GROUND, NOT A HOLE THROUGH IT (ADR 0017,
+ * amended 2026-10-05 and 2026-11-03; closes #24).
  *
- * The field was derived as `surface - 0.06` and theme zero pinned it to
- * neutral-0 — the darkest ground in the scheme, 1.62:1 under a `bg-base`
- * Sheet. Every field in a dark form read as an inlay cut through the panel.
- * The rule now is that it sits strictly BETWEEN `surface` and `elevated`, so
- * it equals no ground a field can land on and is darker than none of the
- * panels above `surface`. Light is untouched: there the field is the page.
+ * The failure this exists for: theme zero pinned the field to neutral-0, the
+ * darkest ground in the scheme, 1.62:1 under its `bg-base` Sheet, and every
+ * field in a dark form read as an inlay cut through the panel. The 2026-10-05
+ * amendment answered it by moving the field BETWEEN `surface` and `elevated`,
+ * and that is still where the derivation puts it — asserted below for every
+ * seed that takes the derived path.
+ *
+ * What has to hold for EVERY theme is the depth, not the direction. Theme
+ * zero's warm-ink page is low enough that its field is a shallow well under
+ * the page — 1.05:1, light's own rule of a field flush with its page and the
+ * hairline doing the identifying — which is what the approved boards draw. So
+ * a field may sit under its page, but never deeper than HOLE, and it may never
+ * collapse onto any ground it can land on.
  */
-test("the dark page field sits between surface and elevated, never under every ground", () => {
+const HOLE = 1.2;
+
+test("a dark page field is never a hole through its page, and never collapses onto a ground", () => {
   for (const { name, seed } of ALL_SEEDS) {
-    const pair = resolveThemePair(seed, seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {});
+    const authored = seed === THEME_ZERO;
+    const pair = resolveThemePair(seed, authored ? { authored: ZERO_AUTHORED } : {});
     const d = pair.dark;
-    const L = (token: BrandableToken) => toOklch(d[token])!.L;
-    const [lo, hi] = [L("--ui-bg-surface"), L("--ui-bg-elevated")].sort((a, b) => a - b) as [number, number];
-    const field = L("--ui-bg-field");
+
+    const depth = contrastRatio(d["--ui-bg-field"], d["--ui-bg-base"]);
     assert.ok(
-      field > lo && field < hi,
-      `${name} dark: --ui-bg-field (${d["--ui-bg-field"]}) is outside surface..elevated (${d["--ui-bg-surface"]}..${d["--ui-bg-elevated"]})`,
+      depth <= HOLE,
+      `${name} dark: --ui-bg-field (${d["--ui-bg-field"]}) measures ${depth.toFixed(3)} against its page — a hole, not a well`,
     );
     for (const ground of ["--ui-bg-base", "--ui-bg-surface", "--ui-bg-elevated", "--ui-bg-sunken"] as const) {
       const ratio = contrastRatio(d["--ui-bg-field"], d[ground]);
       assert.ok(ratio >= 1.03, `${name} dark: the field collapses onto ${ground} (${ratio.toFixed(3)})`);
     }
+
+    // The derivation's own placement: strictly between the two panel steps.
+    if (!authored) {
+      const L = (token: BrandableToken) => toOklch(d[token])!.L;
+      const [lo, hi] = [L("--ui-bg-surface"), L("--ui-bg-elevated")].sort((a, b) => a - b) as [number, number];
+      const field = L("--ui-bg-field");
+      assert.ok(
+        field > lo && field < hi,
+        `${name} dark: the derived --ui-bg-field (${d["--ui-bg-field"]}) is outside surface..elevated (${d["--ui-bg-surface"]}..${d["--ui-bg-elevated"]})`,
+      );
+    }
+
     // And light is the page, exactly as before.
     assert.equal(pair.light["--ui-bg-field"], pair.light["--ui-bg-base"], `${name} light: the field moved off the page`);
   }
@@ -888,7 +926,7 @@ test("the focus ring is composed from its own tokens, after authoring", () => {
 test("theme zero's focus ring is unchanged by being composed", () => {
   const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
   assert.equal(light["--ui-focus-ring"], "0 0 0 2px #FFFFFF, 0 0 0 4px #1B6C84");
-  assert.equal(dark["--ui-focus-ring"], "0 0 0 2px #423E3A, 0 0 0 4px #79B8D3");
+  assert.equal(dark["--ui-focus-ring"], "0 0 0 2px #171411, 0 0 0 4px #9EDBF3");
 });
 
 test("an authored --ui-focus-ring is discarded but never silently (review finding I1)", () => {

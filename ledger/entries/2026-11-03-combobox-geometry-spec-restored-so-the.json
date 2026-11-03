@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-combobox-geometry-spec-restored-so-the",
+  "date": "2026-11-03",
+  "item": "combobox",
+  "kind": "fix",
+  "summary": "design/paper/specs/combobox.geometry.json is back in the tree. geometry.browser.test.tsx and the combobox-option-row case were committed without it, so type-check failed (TS2307) and the browser suite's Vite overlay cascaded into ~170 unrelated failures. The spec is the one extracted from Component --- Combobox on 2026-11-02 (it had ended up in a local stash with unrelated demo exports); its values were re-checked against the sheet's option row (padding 12, gap 8, radius-sm, 16px lane). check:design-spec now covers 13 specs.",
+  "affects": [
+    "component:combobox",
+    "spec:combobox.geometry.json"
+  ]
+}

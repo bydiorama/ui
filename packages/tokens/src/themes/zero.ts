@@ -15,13 +15,13 @@
  * brand-author surface.
  */
 
-import { BLUE, GREEN, LAVENDER, NEUTRAL, ORANGE, RED } from "../palette.ts";
+import { BLUE, DARK, GREEN, LAVENDER, NEUTRAL, ORANGE, RED } from "../palette.ts";
 import { flatten } from "../color.ts";
 import type { ResolvedTheme } from "../contract.ts";
 import type { ThemeSeed } from "../seed.ts";
 
 /**
- * An authored dark intent ground, COMPOSITED over the dark page.
+ * An authored dark intent ground, COMPOSITED over the dark surface.
  *
  * The handover writes these as `rgba(...)` literals because a flat Paper file
  * cannot hold a `light-dark()` pair — a transcription convenience, not a
@@ -30,10 +30,14 @@ import type { ThemeSeed } from "../seed.ts";
  * 5.68:1 on the page and 7.79:1 on a card, because the ink's ground depended
  * on what a consumer put the Banner or Badge on. The audit only ever sees the
  * page. Composited here, so the measured number is the number everywhere and
- * the two columns are built the same way. The alpha and the page are both
+ * the two columns are built the same way. The alpha and the ground are both
  * still visible in the call, so the drawn value is not lost.
+ *
+ * Over the SURFACE, not the page, since the 2026-11-03 dark ramp (ADR 0008
+ * amendment): a Badge lives in a Table or a card far more often than on the
+ * bare page, and the approved boards tint over the card.
  */
-const onDarkPage = (tint: string) => flatten(tint, NEUTRAL[20]);
+const onDarkSurface = (tint: string) => flatten(tint, DARK[10]);
 
 export const THEME_ZERO: ThemeSeed = {
   colors: {
@@ -46,16 +50,18 @@ export const THEME_ZERO: ThemeSeed = {
     accent: BLUE[80], // #9EDBF3 — THE brand colour.
   },
 
-  // Authored rather than derived (ADR 0006(b)). The dark ground is the warm
-  // mid-grey neutral-20 — a deliberate identity choice from the handover's
-  // dark portal, not an oversight (ADR 0008).
+  // Authored rather than derived (ADR 0006(b)). The dark scheme is WARM INK
+  // (ADR 0008, amended 2026-11-03): a near-black page carrying more warm tint
+  // than the light ramp, with every surface one clear step above it. It
+  // replaces the mid-grey neutral-20 ground, which inverted elevation — the
+  // page sat lighter than the cards on it.
   dark: {
-    bg: NEUTRAL[20],
-    surface: NEUTRAL[10],
-    muted: NEUTRAL[10],
-    textPrimary: NEUTRAL[95],
-    textMuted: NEUTRAL[70],
-    border: "rgba(246, 243, 240, 0.14)",
+    bg: DARK[6],
+    surface: DARK[10],
+    muted: DARK[10],
+    textPrimary: DARK[97],
+    textMuted: DARK[66],
+    border: DARK[19],
     accent: BLUE[80],
   },
 
@@ -181,6 +187,12 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-inverse": NEUTRAL[0],
     "--ui-bg-inverse-hover": NEUTRAL[10],
     "--ui-bg-inverse-active": NEUTRAL[20],
+    // The inverse band's muted ink, WARM (Inverse grounds #36, Derived gap
+    // closed 2026-11-03). The resolver steps lightness only, so it derived a
+    // neutral #A7A7A7 — the one cool grey on a warm band. neutral-70 sits at
+    // the same lightness and clears AA on every inverse step: 8.01 on the
+    // band, 6.47 on its hover, 4.94 on its pressed fill.
+    "--ui-text-inverse-muted": NEUTRAL[70],
     "--ui-bg-danger-solid": RED[40],
 
     // Borders (ADR 0010)
@@ -219,29 +231,97 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-data-navigational-solid": LAVENDER[60],
   },
 
-  // From the handover's dark portal: ramp-80 inks on translucent ramp-60
-  // grounds, brand blue as both accent and link.
+  // WARM INK (ADR 0008, amended 2026-11-03) — the approved Paper boards
+  // "B4 Draft, tuned" and "Test layout, Guidelines", role for role. Every
+  // neutral is a DARK step; the accent family is unchanged from the handover's
+  // dark portal.
   dark: {
-    // `--ui-bg-field` and `--ui-bg-field-disabled` are NOT pinned in dark
-    // (ADR 0017, amended 2026-10-05). The field was neutral-0, under every
-    // ground in the scheme, and a dark Sheet of fields read as a column of
-    // holes. The resolver now derives it halfway between `surface` and
-    // `elevated` (#33302D here) so it equals no ground a field can land on.
-    // Disabled follows by derivation because neutral-10 — its old pin — is
-    // `surface` itself and measured 1.06 against the new field, under the
-    // 1.1 the pair has to keep.
+    // Inks. The board's own steps, not NEUTRAL's light-scheme values reused:
+    // each one measured against the surfaces it actually lands on.
+    "--ui-text-secondary": DARK[84],
+    "--ui-text-placeholder": DARK[59],
+    "--ui-text-disabled": DARK[38],
+    "--ui-text-on-muted": DARK[97],
+    // Ink on the inverse and emphasis fills, which are PAPER in this scheme.
+    // Pinned to the warm ink rather than left to the resolver's #101014, the
+    // one cool near-black left in a warm palette.
+    "--ui-text-inverse": NEUTRAL[0],
+    "--ui-text-inverse-muted": NEUTRAL[40],
+    // The destructive fill derives to red-40 on this page, which takes LIGHT
+    // ink (5.2:1) — the warm primary rather than the resolver's pure white.
+    "--ui-text-on-danger-solid": DARK[97],
+
+    // Surfaces. Elevation goes UP from the page in dark as it does in light —
+    // the old mid-grey page sat above its own cards.
+    "--ui-bg-elevated": DARK[16],
+    // SUNKEN IS A FILL IN DARK, NOT A RECESS — a departure from the approved
+    // boards, which only drew it on a Table (avatars, neutral badges). Near
+    // black there is no room below the page: a recess the boards' depth
+    // (#14110E) measured 1.03:1 against it, so every page-level use — Skeleton,
+    // Progress track, the neutral Banner, EmptyState's tile, Thumbnail and
+    // AspectRatio placeholders — disappeared. Deep enough to read (L* ~2) it
+    // is a hole through every card. A lighter neutral fill reads on all three
+    // grounds (page 1.50, surface 1.41, elevated 1.22), carries muted ink at
+    // 4.67:1, and agrees with the intent fills, which are lighter than the
+    // page too. It sits one step ABOVE `border-subtle`, not on it: DotPattern
+    // draws its dots in border-subtle on a sunken container, and at the first
+    // fill tried (#33302D, 1.04:1) the dots vanished. 1.12 here, light's 1.16.
+    "--ui-bg-sunken": DARK[22],
+
+    // Fields, per GROUND (ADR 0017, amended 2026-11-03). On the page the field
+    // is a shallow well, 1.04:1 under it, and the hairline does the
+    // identifying — light's own rule, where the field IS the page. The
+    // 2026-10-05 amendment moved the dark field ABOVE the surface because the
+    // old one was a hole: neutral-0 at 1.62:1 under its Sheet. At 1.05:1 that
+    // failure cannot recur, and the approved boards draw the field as a well.
     //
-    // Dark inverts the scale, so a chrome well goes DOWN from a lighter panel
-    // here too — but the panel itself is dark, so the steps are the low end
-    // of the ramp rather than the high end.
-    "--ui-bg-field-chrome": NEUTRAL[10],
-    "--ui-bg-field-chrome-disabled": NEUTRAL[20],
+    // On chrome the well is one panel step down, as in light. Both disabled
+    // fills go the OTHER way from their well — a flat fill, not a deeper cut,
+    // because a disabled field drawn deeper than an enabled one reads as the
+    // more emphatic of the two.
+    "--ui-bg-field": DARK[5],
+    "--ui-bg-field-disabled": DARK[12],
+    "--ui-bg-field-chrome": DARK[10],
+    "--ui-bg-field-chrome-disabled": DARK[16],
+
+    // The interaction ramp. Hover must step PAST `elevated`: the chrome
+    // control rests on `elevated` and hovers on `bg-hover`, so a hover below
+    // the raise reads as the control going dark under the pointer (the fill
+    // stack test). The boards drew hover as a 5% wash, which is that defect on
+    // the one control they did not draw hovered; the opaque steps here keep
+    // the order on every ground.
+    "--ui-bg-hover": DARK[18],
+    "--ui-bg-active": DARK[20],
+    "--ui-bg-selected": DARK[17],
+
+    // Borders (ADR 0010): four opaque steps, measured on the page. Default sits
+    // a step further out than the stack strictly needs (1.84:1, the stack asks
+    // 1.61) so it clears the sunken fill by more than subtle does: DotPattern's
+    // strong opt-in IS border-default on bg-sunken, and at #3E3A36 it measured
+    // 1.08:1 there, fainter than the 1.12:1 default it exists to outdo.
+    "--ui-border-subtle": DARK[19],
+    "--ui-border-default": DARK[28],
+    "--ui-border-control": DARK[53],
+    "--ui-border-strong": DARK[66],
+
+    // Navigation. The rail is one step above the page — the boards' sidebar —
+    // and its current item takes the `elevated` step.
+    "--ui-nav-bg": DARK[9],
+    "--ui-nav-hover-bg": DARK[12],
+    "--ui-nav-active-bg": DARK[16],
+    "--ui-nav-ink-muted": DARK[84],
+    "--ui-nav-active-ink": DARK[97],
+    "--ui-nav-border": DARK[19],
+
     "--ui-gradient-brand": `linear-gradient(in oklab 270deg, ${BLUE[80]} 0%, ${LAVENDER[80]} 50%, ${RED[80]} 100%)`,
     // The slider ramp exactly as the sheet draws it. Pinned in BOTH schemes
     // because the design is the same sweep on either ground.
     "--ui-gradient-accent": `linear-gradient(in oklab 90deg, ${BLUE[80]} 50%, ${BLUE[70]} 100%)`,
-    "--ui-text-link": BLUE[70],
-    "--ui-text-link-hover": BLUE[80],
+    // The brand blue is the link, the focus ring and the accent at once: on a
+    // ground this dark it clears 9.8:1 even on the accent wash, so there is no
+    // reason to step down to blue-70 as the mid-grey page needed.
+    "--ui-text-link": BLUE[80],
+    "--ui-text-link-hover": BLUE[90],
     // Identical to light, and that is the point: the veil over a photograph
     // and the ink on it do not follow the page. Left to derivation, dark would
     // build the scrim from a dark-scheme accent and, worse, `--ui-text-inverse`
@@ -251,45 +331,59 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-bg-media": NEUTRAL[0],
     "--ui-bg-media-floor": "#5c5b59",
     "--ui-text-on-accent": NEUTRAL[0],
-    "--ui-bg-emphasis": NEUTRAL[0],
-    "--ui-bg-emphasis-hover": NEUTRAL[10],
-    "--ui-bg-emphasis-active": NEUTRAL[20],
-    // Inverted, which emphasis above is not. On the dark scheme the field was
-    // neutral-0 when this was decided, so a neutral-0 control was not there
-    // at all; the field has since moved up (ADR 0017 amendment), and a
-    // near-black control on it would still read as a hole, not a button.
+    // EMPHASIS INVERTS IN THIS SCHEME (2026-11-03). It stayed neutral-0 in both
+    // schemes so the tooltip — its one consumer — would never be mistaken for
+    // a menu. On the warm-ink ramp neutral-0 is the surface itself (1.00:1)
+    // and the chip vanished. A paper chip keeps the rule the pin existed for:
+    // nothing else in dark is a light, borderless fill.
+    "--ui-bg-emphasis": NEUTRAL[95],
+    "--ui-bg-emphasis-hover": NEUTRAL[90],
+    "--ui-bg-emphasis-active": NEUTRAL[80],
+    "--ui-text-on-emphasis": NEUTRAL[0],
+    // Inverted, as it always was: the page's own ink used as a fill.
     "--ui-bg-inverse": NEUTRAL[95],
     "--ui-bg-inverse-hover": NEUTRAL[90],
     "--ui-bg-inverse-active": NEUTRAL[80],
     "--ui-bg-accent": BLUE[80],
     "--ui-bg-accent-hover": BLUE[70],
     "--ui-bg-accent-active": BLUE[60],
-    "--ui-bg-accent-subtle": "rgba(158, 219, 243, 0.16)",
-    // The dark counterpart of the pin above: more accent, not less, because
+    // A lighter wash than the mid-grey page needed: on near-black the same
+    // alpha reads twice as blue.
+    "--ui-bg-accent-subtle": "rgba(158, 219, 243, 0.1)",
+    // The dark counterpart of the light pin: more accent, not less, because
     // over a dark page hover reads as lighter. Pinned alongside its light twin
     // so the two cannot drift — a role authored in one scheme and derived in
     // the other is the shape of half the defects this file exists to prevent.
-    "--ui-bg-accent-subtle-hover": "rgba(158, 219, 243, 0.24)",
+    "--ui-bg-accent-subtle-hover": "rgba(158, 219, 243, 0.16)",
     "--ui-bg-accent-legible": BLUE[80],
-    "--ui-border-focus": BLUE[70],
-    "--ui-focus-ring-color": BLUE[70],
+    "--ui-border-focus": BLUE[80],
+    "--ui-focus-ring-color": BLUE[80],
     "--ui-intent-success-fg": GREEN[80],
-    "--ui-intent-success-bg": onDarkPage("rgba(70, 164, 105, 0.18)"),
+    "--ui-intent-success-bg": onDarkSurface("rgba(70, 164, 105, 0.16)"),
     "--ui-intent-warning-fg": ORANGE[80],
-    "--ui-intent-warning-bg": onDarkPage("rgba(204, 128, 67, 0.18)"),
-    "--ui-intent-danger-fg": RED[80],
-    "--ui-intent-danger-bg": onDarkPage("rgba(212, 116, 74, 0.18)"),
+    "--ui-intent-warning-bg": onDarkSurface("rgba(204, 128, 67, 0.16)"),
+    // red-70, not red-80: on near-black red-80 is a pale pink that reads as
+    // neutral text, and the destructive item stopped looking destructive.
+    "--ui-intent-danger-fg": RED[70],
+    "--ui-intent-danger-bg": onDarkSurface("rgba(212, 116, 74, 0.16)"),
+    "--ui-intent-danger-bg-hover": onDarkSurface("rgba(212, 116, 74, 0.24)"),
     // NOT composited: this is a BORDER on a tinted surface, not a ground
     // carrying ink, so nothing measures an ink pair against it and letting the
     // panel beneath show through the edge is the drawn behaviour.
     "--ui-intent-danger-border": "rgba(212, 116, 74, 0.36)",
     "--ui-text-on-danger-subtle": RED[80],
     "--ui-intent-info-fg": BLUE[80],
-    "--ui-intent-info-bg": onDarkPage("rgba(87, 153, 177, 0.18)"),
+    "--ui-intent-info-bg": onDarkSurface("rgba(87, 153, 177, 0.16)"),
     "--ui-data-informational-fg": BLUE[80],
     "--ui-data-commercial-fg": ORANGE[80],
     "--ui-data-transactional-fg": GREEN[80],
     "--ui-data-navigational-fg": LAVENDER[80],
+    // Categorical fills at step 70: the derivation darkened the 60s toward the
+    // page, and on near-black they went muddy beside the brand blue.
+    "--ui-data-informational-solid": BLUE[70],
+    "--ui-data-commercial-solid": ORANGE[70],
+    "--ui-data-transactional-solid": GREEN[70],
+    "--ui-data-navigational-solid": LAVENDER[70],
   },
 };
 

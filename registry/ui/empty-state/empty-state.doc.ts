@@ -116,7 +116,7 @@ EmptyState
         fg: "--ui-bg-sunken",
         bg: "--ui-bg-surface",
         floor: "decorative",
-        why: "The well behind the mark. It separates the glyph from the body and identifies nothing on its own — the title does that — so it is deliberately quiet: 1.19:1 light, 1.10:1 dark.",
+        why: "The well behind the mark. It separates the glyph from the body and identifies nothing on its own — the title does that — so it is deliberately quiet: 1.19:1 light, 1.41:1 dark (on the 2026-11-03 warm-ink ramp sunken is a fill above the surface, so the well reads more in dark than in light).",
       },
     ],
   },

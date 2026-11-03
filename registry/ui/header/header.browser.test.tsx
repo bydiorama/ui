@@ -543,7 +543,7 @@ describe("the bar takes a ground it can be seen against once the page runs under
     expect(bar(c).getBoundingClientRect().height).toBe(48);
   });
 
-  test("the current item steps from muted to secondary, because muted does not clear AA there", async () => {
+  test("the current item keeps its muted ink while affixed — muted clears AA on the affix floor in both schemes", async () => {
     const c = mount(<Affixed />);
     const scroller = c.querySelector<HTMLElement>('[data-testid="scroller"]')!;
 
@@ -554,10 +554,10 @@ describe("the bar takes a ground it can be seen against once the page runs under
     await vi.waitFor(() => expect(bar(c).hasAttribute("data-affixed")).toBe(true));
     await settled(current(c));
 
-    // --ui-text-secondary. Muted measures 3.66:1 on --ui-bg-affix-floor in
-    // dark and no alpha closes it, so the ink is what moves — and only while
-    // affixed. aria-current still carries the state for a screen reader.
-    expect(getComputedStyle(current(c)).color).toBe("rgb(47, 44, 41)");
+    // Still --ui-text-muted: 4.75:1 light / 5.38:1 dark on --ui-bg-affix-floor.
+    // It stepped to secondary while the old dark ramp measured it at 3.66:1
+    // (closed 2026-11-03). aria-current still carries the state.
+    expect(getComputedStyle(current(c)).color).toBe("rgb(105, 99, 93)");
     expect(current(c).getAttribute("aria-current")).toBe("page");
   });
 

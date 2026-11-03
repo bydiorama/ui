@@ -81,7 +81,7 @@ RangeSlider
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "Dark: the ring (--ui-bg-accent-legible = #9EDBF3) is the same colour as the span fill, so over the fill the ring disappears and each thumb is read by its body — #423E3A on #9EDBF3, 7.0:1. Passes; recorded so nobody 'fixes' the ring.",
+    "Dark: the ring (--ui-bg-accent-legible = #9EDBF3) is the same colour as the span fill, so over the fill the ring disappears and each thumb is read by its body — #171411 on #9EDBF3, 12.1:1 (re-measured on the 2026-11-03 warm-ink dark ramp). Passes; recorded so nobody 'fixes' the ring.",
     "Hover on the control as a whole is not drawn for a range — only the moving thumb lifts. Shipped as the hovered or moving thumb lifting alone.",
   ],
 

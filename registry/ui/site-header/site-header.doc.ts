@@ -81,9 +81,9 @@ export const siteHeaderDoc = {
     ],
     target: "Quiet items are 32px tall, the CTA 32px, the menu control and the menu rows 44px — every target clears SC 2.5.8's 24px, and the two touch-only controls clear 2.5.5's 44px.",
     contrastPairs: [
-      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "a quiet item at REST on the page ground, and the menu's rows. 5.93:1 light, 4.94:1 dark" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "a quiet item at REST on the page ground, and the menu's rows. 5.93:1 light, 7.02:1 dark" },
       { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "the wordmark, Menu/Close, and a quiet item hovered or current — 2.90:1 above the rest ink, which is what makes the current page legible as current" },
-      { fg: "--ui-text-secondary", bg: "--ui-bg-affix-floor", floor: "text", role: "a quiet item at rest while the bar is AFFIXED. It steps up from muted because muted measures 3.66:1 on this ground in dark, the same conformance step the default item's current page takes" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-affix-floor", floor: "text", role: "a quiet item at rest while the bar is AFFIXED — muted, as at rest: 4.75:1 light / 5.38:1 dark. It stepped up to secondary while the old mid-grey dark ramp put muted at 3.66:1 here (closed 2026-11-03, with Header's current item)" },
       { fg: "--ui-text-primary", bg: "--ui-bg-affix-floor", floor: "text", role: "the wordmark, Menu and the current item while affixed" },
       { fg: "--ui-text-on-media-muted", bg: "--ui-bg-media-floor", floor: "text", role: "a quiet item at rest OVER MEDIA, measured against the scrim over a white photograph — the bar's worst case, and why the scrim is 72% rather than the sheet's 64%" },
       { fg: "--ui-text-on-media", bg: "--ui-bg-media-floor", floor: "text", role: "the wordmark, Menu and a hovered or current item over media" },

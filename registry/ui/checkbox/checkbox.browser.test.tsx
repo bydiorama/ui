@@ -253,6 +253,17 @@ describe("Every state paints its designed role", () => {
     expect(getComputedStyle(control).borderTopColor).toBe("rgb(105, 99, 93)");
   });
 
+  test("hovering a mixed box firms its edge to the dash's ink (Audit #9)", async () => {
+    const { label, control } = mount(<Checkbox isIndeterminate>Select all</Checkbox>);
+    await settled(control);
+    await userEvent.hover(label);
+    await settled(control);
+    // --ui-text-primary, light: a step past the resting border-strong. A
+    // --ui-bg-hover fill would have measured 1.00:1 against the sunken fill.
+    expect(getComputedStyle(control).borderTopColor).toBe("rgb(29, 27, 25)");
+    expect(getComputedStyle(control).backgroundColor).toBe("rgb(237, 232, 227)");
+  });
+
   test("only the checked and mixed states SHOW a glyph", () => {
     // The check is always in the DOM and revealed by `:checked` (#34), so a
     // static page can show it without a re-render.

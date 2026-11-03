@@ -31,7 +31,7 @@ Button
       type: '"primary" | "secondary" | "outline" | "ghost" | "danger" | "inverse"',
       default: '"primary"',
       notes:
-        "primary is the brand-blue filled action; secondary is the quiet edge (border-subtle); outline is the SAME shape with a CONFORMANT edge (border-control, 3.11:1) — the reason to reach for it over secondary is that something depends on identifying its boundary; ghost has no chrome until hover; danger is the subtle red surface, not a solid red fill; inverse is outline's shape for --ui-bg-inverse bands (a footer, a dark CTA band — #36): ring and label in --ui-text-inverse, hover/press on the band's own -hover/-active, disabled in --ui-text-inverse-muted. It follows the band when the scheme flips; it is not for media grounds. Every type is either a fill with a matching edge or an edge on nothing — a fill with NO edge is not a button here, it is the chrome control (`@/lib/chrome-control`).",
+        "primary is the brand-blue filled action; secondary is the quiet edge (border-subtle); outline is the SAME shape with a CONFORMANT edge (border-control, 3.11:1) — the reason to reach for it over secondary is that something depends on identifying its boundary; ghost has no chrome until hover; danger is the subtle red surface, not a solid red fill; inverse is outline's shape for --ui-bg-inverse bands (a footer, a dark CTA band — #36): ring, label AND focus outline in --ui-text-inverse (the page's focus colour measured 2.88:1 light / 1.37:1 dark on the band, so focus takes the band's ink: 15.53:1 in both), hover/press on the band's own -hover/-active, disabled in --ui-text-inverse-muted. It follows the band when the scheme flips; it is not for media grounds. Every type is either a fill with a matching edge or an edge on nothing — a fill with NO edge is not a button here, it is the chrome control (`@/lib/chrome-control`).",
     },
     size: {
       type: '"lg" | "md" | "sm"',
@@ -119,7 +119,7 @@ Button
       { fg: "--ui-text-inverse", bg: "--ui-bg-inverse", floor: "text", role: "inverse label, and its edge" },
       { fg: "--ui-text-inverse", bg: "--ui-bg-inverse-hover", floor: "text", role: "a hovered inverse label" },
       { fg: "--ui-text-inverse", bg: "--ui-bg-inverse-active", floor: "text", role: "a pressed inverse label" },
-      { fg: "--ui-text-inverse-muted", bg: "--ui-bg-inverse", floor: "decorative", why: "A disabled control is exempt from SC 1.4.3 and 1.4.11; the muted ink still measures 7.14:1 light / 6.70:1 dark.", role: "a disabled inverse label and edge" },
+      { fg: "--ui-text-inverse-muted", bg: "--ui-bg-inverse", floor: "decorative", why: "A disabled control is exempt from SC 1.4.3 and 1.4.11; the muted ink still measures 8.01:1 light / 5.36:1 dark (warm neutral-70 in light since 2026-11-03; it was a cool #A7A7A7).", role: "a disabled inverse label and edge" },
     ],
     hitArea:
       "sm is exactly 24px, the WCAG 2.5.8 floor, at every density — compact cannot go under it. lg is 44px, the recommended touch target, at default and comfortable density only: compact lg is 40px, so a compact screen meant for touch should reach for comfortable instead. md sits between at 32px — pair it with generous surrounding space on touch surfaces.",

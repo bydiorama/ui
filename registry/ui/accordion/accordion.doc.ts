@@ -116,7 +116,7 @@ Accordion                       variant, headingLevel, value/defaultValue, isMul
     "The sheet's leading icon frame carries a raw 8px gap and an 8px radius, both off the token layer and both inert (it holds one 16px glyph and nothing to round). Harmless as drawn, but it means the frame is not the icon lane it appears to be.",
     "The numbered step badge in the Rich Content row is drawn as a 20px --ui-bg-sunken circle and exists nowhere else in the system. It is passed through the icon slot here, so it is the caller's element — if numbered steps recur it wants a name of its own rather than being rebuilt per call site.",
     "No divider between items in the plain variant, and no drawn state for the last item's bottom edge. At gap-xs the rows read as one block; confirm that is intended rather than a missing rule.",
-    "The sheet is light only. Paper cannot hold a light-dark() pair, so the hover ramp was checked against the resolver instead: elevated #F6F3F0 → hover #EDE8E3 in light and #373430 → #3c3936 in dark, which moves one direction in each scheme. A dark half of this sheet would make that legible to a reader rather than to a script.",
+    "The sheet is light only. Paper cannot hold a light-dark() pair, so the hover ramp was checked against the resolver instead: elevated #F6F3F0 → hover #EDE8E3 in light and #2A2724 → #2E2B28 in dark (1.15 → 1.22 against the surface since the 2026-11-03 warm-ink ramp), which moves one direction in each scheme. A dark half of this sheet would make that legible to a reader rather than to a script.",
   ],
 
   knownGaps: [

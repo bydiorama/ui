@@ -81,7 +81,7 @@ DotPattern
         fg: "--ui-border-subtle",
         bg: "--ui-bg-sunken",
         floor: "decorative",
-        why: "The default dot ink against the canvas ground both shipped usages use — 1.21:1 light, 1.53:1 dark, deliberately below any floor and declared decorative on the sheet (Gaps § Contrast). The grid is grain, not information; nothing may depend on seeing it. Declared rather than omitted so the number stays measured in both schemes.",
+        why: "The default dot ink against the canvas ground both shipped usages use — 1.21:1 light, 1.12:1 dark (#302D2A on the #383531 sunken fill, 2026-11-03; the strong opt-in is 1.22:1 there), deliberately below any floor and declared decorative on the sheet (Gaps § Contrast). The grid is grain, not information; nothing may depend on seeing it. Declared rather than omitted so the number stays measured in both schemes.",
       },
       {
         fg: "--ui-border-default",

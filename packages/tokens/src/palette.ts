@@ -37,6 +37,43 @@ export const NEUTRAL = {
   100: "#FFFFFF",
 } as const;
 
+/**
+ * The dark scheme's warm greys (ADR 0008, amended 2026-11-03).
+ *
+ * A SECOND RAMP, NOT A CONTINUATION OF NEUTRAL, and the reason is perceptual:
+ * a tint that reads as warm at NEUTRAL's lightness disappears near black (the
+ * Hunt effect — colourfulness falls with luminance). The previous near-black
+ * candidate, #0B0A09, carried OKLCH chroma 0.003 and read as plain black. These
+ * steps carry ~0.0075 at hue 67, half as much again as NEUTRAL's 0.005, so the
+ * dark scheme stays the same warm material as the light one.
+ *
+ * KEYED BY CIE L*, rounded — a step number IS its lightness, so `DARK[6]` is
+ * L* 6. The grounds sit low and close together (the page is L* 6.5, a card 10,
+ * a menu 16); the inks are the dark scheme's own, not NEUTRAL's light-scheme
+ * steps reused. There is deliberately no step between the field and the page:
+ * near black there is no room for a recessed fill to read (see `bg-sunken`).
+ */
+export const DARK = {
+  5: "#120F0C", // field — a shallow well under the page
+  6: "#171411", // page
+  9: "#1C1916", // navigation rail
+  10: "#1E1B18", // surface
+  12: "#221F1C", // nav hover · disabled field
+  16: "#2A2724", // elevated · nav current
+  17: "#2C2926", // selected
+  18: "#2E2B28", // hover
+  19: "#302D2A", // border-subtle
+  20: "#33302D", // active
+  22: "#383531", // sunken (a FILL in dark — see zero.ts)
+  28: "#45423E", // border-default — also DotPattern's strong dot ink on sunken
+  38: "#5F5A54", // disabled ink
+  53: "#857E77", // border-control
+  59: "#948D86", // placeholder
+  66: "#A69F98", // muted ink · border-strong
+  84: "#D6D1CB", // secondary ink
+  97: "#FAF7F3", // primary ink
+} as const;
+
 export const BLUE = {
   20: "#134553",
   40: "#1B6C84",
@@ -84,6 +121,7 @@ export const RED = {
 
 export const RAMPS = {
   neutral: NEUTRAL,
+  dark: DARK,
   blue: BLUE,
   orange: ORANGE,
   lavender: LAVENDER,

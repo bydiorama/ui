@@ -502,9 +502,9 @@ describe("The rail's own controls", () => {
       </Sidebar>,
     );
     const email = c.querySelector<HTMLElement>('[data-slot="sidebar-profile-email"]')!;
-    // The sheet drew --ui-text-disabled: 2.14:1 in light, 2.51:1 in dark. An
+    // The sheet drew --ui-text-disabled: 2.14:1 in light, 2.56:1 in dark. An
     // address is CONTENT, so WCAG's disabled exemption does not apply.
-    // text-ink-muted measures 5.93 / 4.94. Corrected in Paper.
+    // text-ink-muted measures 5.93 / 6.69. Corrected in Paper.
     expect(getComputedStyle(email).color).toBe("rgb(105, 99, 93)");
   });
 

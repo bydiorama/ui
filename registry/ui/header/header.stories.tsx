@@ -218,9 +218,9 @@ export const CollapsesToMenuButton: Story = {
  * dark ink in them is deliberately the extreme the affix ground is measured
  * against: `--ui-bg-affix-floor` is the fill over exactly this.
  *
- * Watch the CURRENT item ("Library"). It steps from muted to secondary as the
- * bar affixes, and that is a conformance step, not a flourish — muted
- * measures 3.66:1 on the affix ground in dark, and no alpha closes it.
+ * Watch the CURRENT item ("Library"). It keeps its muted ink as the bar
+ * affixes: muted measures 4.75:1 light / 5.38:1 dark on the affix ground. (It
+ * used to step to secondary, while the old dark ramp put it at 3.66:1.)
  */
 export const Affix: Story = {
   render: () => (

@@ -523,8 +523,8 @@ function SidebarItem({
           // does not, because a rail is a persistent map and a bar is a short
           // row you read across. Ink and weight now behave identically across
           // the whole nav family. Muted on the current fill measures 9.64:1
-          // light and 5.42:1 dark, and the fill carries the state at 1.105 /
-          // 1.285 against the rail.
+          // light and 9.79:1 dark, and the fill carries the state at 1.105 /
+          // 1.178 against the rail.
           "data-[current]:bg-nav-active data-[current]:text-ink-nav-muted",
         ],
         // The sheet draws this row in --ui-text-disabled. That is the page's
@@ -564,9 +564,9 @@ export interface SidebarProfileProps extends Omit<HTMLAttributes<HTMLButtonEleme
    * Their address, beneath the name.
    *
    * The sheet draws it in `--ui-text-disabled`, which measures 2.14:1 in light
-   * and 2.51:1 in dark. An address is CONTENT, not a disabled control, so
+   * and 2.56:1 in dark. An address is CONTENT, not a disabled control, so
    * WCAG's disabled exemption does not apply — it ships as `text-ink-muted`
-   * (5.93 / 4.94) and the sheet is corrected.
+   * (5.93 / 6.69) and the sheet is corrected.
    */
   email?: string;
   /** Slot: an Avatar. 32px, and never wrapped (§3). */
@@ -730,7 +730,7 @@ export type SidebarHeadingProps = HTMLAttributes<HTMLParagraphElement>;
  * A standalone group label — the sheet's "Select brand".
  *
  * Drawn in `--ui-text-disabled` (2.14:1); ships as `text-ink-nav-muted`
- * (10.66 / 6.97), which is the rail's own muted step and follows a brand that
+ * (10.66 / 11.53), which is the rail's own muted step and follows a brand that
  * re-skins its nav. Corrected in Paper.
  */
 function SidebarHeading({ children, className, ...rest }: SidebarHeadingProps) {

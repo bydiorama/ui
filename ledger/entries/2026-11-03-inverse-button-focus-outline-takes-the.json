@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-inverse-button-focus-outline-takes-the",
+  "date": "2026-11-03",
+  "item": "button",
+  "kind": "a11y",
+  "summary": "Button variant=\"inverse\" draws its focus outline in --ui-text-inverse, the band's own ink, instead of --ui-border-focus. The page's focus colour measured 2.88:1 against --ui-bg-inverse in light and 1.37:1 in dark (blue-80 on the paper band of the warm-ink dark ramp), so a keyboard-focused inverse button had no visible ring in dark. The band's ink is 15.53:1 in both schemes and needs no new token. Closes the Measured gap on the Inverse grounds sheet (#36) for Button; other controls placed on an inverse band still take the page's focus colour. Browser test added.",
+  "affects": [
+    "component:button",
+    "prop:variant",
+    "token:--ui-border-focus"
+  ]
+}

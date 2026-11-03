@@ -216,6 +216,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           // role, mirroring Button. The checked hover carries both variants,
           // so it outranks the unchecked one by specificity, not by order.
           !isDisabled && state !== "mixed" && "group-hover:border-edge-strong",
+          // Mixed already rests on edge-strong, so it firms one step further,
+          // to the dash's own ink (Audit #9 "Missing", closed 2026-11-03).
+          // A fill step cannot do it: --ui-bg-hover EQUALS --ui-bg-sunken in
+          // light (1.00:1), and in dark every hover/active fill sits BELOW
+          // sunken, so the box would recede on hover in one scheme only.
+          !isDisabled && state === "mixed" && "group-hover:border-ink-primary",
           !isDisabled &&
             state !== "mixed" &&
             "group-hover:peer-checked:bg-accent-hover group-hover:peer-checked:border-accent-hover",

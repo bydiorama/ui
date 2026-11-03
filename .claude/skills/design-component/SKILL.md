@@ -221,9 +221,13 @@ on the wrong ground and hover steps darker while pressed steps lighter, so the
 two states straddle their own background. Both values were correct in
 isolation.
 
-Draw the dark container on `--ui-bg-surface` (`#2F2C29`) over a
-`--ui-bg-base` page, and read the ramp as a sequence — resting → hover →
-pressed must move one direction, in both schemes.
+Draw the dark container on `--ui-bg-surface` (`#1E1B18`) over a
+`--ui-bg-base` page (`#171411`), and read the ramp as a sequence — resting →
+hover → pressed must move one direction, in both schemes. Since the
+2026-11-03 warm-ink ramp every dark step goes UP from the page; the old
+mid-grey page sat above its own cards, which is where the straddling came
+from. Dump the values from the resolver (§ 2) — never copy them from an older
+sheet, whose dark half may still show the mid-grey ramp.
 
 ### 7 · Review, export, hand off
 

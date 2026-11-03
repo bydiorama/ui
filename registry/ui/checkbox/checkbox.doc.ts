@@ -101,6 +101,7 @@ Checkbox
     "No isInvalid / errorText. A required checkbox (terms acceptance) has no designed error treatment yet — the field-level error pattern lives on Input.",
     "No CheckboxGroup. The sheet's nested list uses a 26px indent (18px box + 8px gap), which is a composition concern; grouping, the parent's mixed derivation and group labelling are not componentised yet.",
     "Forced-colors behaviour is reasoned from the markup, not asserted in CI — Playwright can force it, and no test does yet.",
+    "Mixed hover is CLOSED (2026-11-03, Audit #9 \"Missing\"), DERIVED like every Checkbox hover: the edge firms from --ui-border-strong to --ui-text-primary, the dash's own ink — the same one-step firming unchecked gets. The sheet's obvious candidate, a --ui-bg-hover fill, measured 1.00:1 against the mixed --ui-bg-sunken fill in light (the two are the same value) and stepped DOWN in dark, where sunken is a fill above every hover and active fill.",
     "labelPlacement and description are CLOSED (2026-11-02, #9): drawn on the #9 Proposals sheet, light and dark, and approved on the Audit #9 sheet.",
     "The row centres its content (`items-center`), matching the sheet. (A row WITH a description aligns to the label's first line instead — that is the description variant's own drawing.) A label wrapping to several lines therefore centres against the box rather than aligning to its first line; the sheet draws only single-line labels.",
   ],

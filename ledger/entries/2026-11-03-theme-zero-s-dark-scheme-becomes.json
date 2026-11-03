@@ -1,0 +1,43 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-theme-zero-s-dark-scheme-becomes",
+  "date": "2026-11-03",
+  "item": "system",
+  "kind": "token",
+  "summary": "Theme zero's dark scheme becomes WARM INK (ADR 0008, 0016 and 0017 amended). The mid-grey neutral-20 page inverted elevation \u2014 #423E3A sat lighter than the #2F2C29 cards on it \u2014 and primary ink measured 9.59:1 on it. The page is now #171411 (L* 6.5) from a new DARK ramp in palette.ts, keyed by CIE L* and carrying ~0.0075 OKLCH chroma at hue 67, half again NEUTRAL's, because near black a lighter tint disappears and the first near-black candidate read as generic black. Every ground goes up from the page: rail #1C1916, surface #1E1B18, elevated #2A2724; the page field is a shallow well, #120F0C at 1.04:1 under the page with the hairline identifying it. Primary ink 17.18:1 on the page, 16.05:1 on a surface; muted 6.56:1; border-control 4.59:1; intent inks 6.5\u20139.1:1 on grounds composited over the surface. With it: link and focus are blue-80, danger ink red-70, categorical solids step 70, the accent wash 0.10 / 0.16, and --ui-bg-emphasis inverts to paper (#F6F3F0, ink #1D1B19, 15.53:1) because neutral-0 is now the surface itself and the Tooltip chip vanished. Departures from the approved Paper boards: hover / active / selected are opaque steps rather than the drawn 5% wash, so hover still steps past elevated (the chrome control's ramp); and --ui-bg-sunken is a FILL in dark (#383531, above the surface) rather than the drawn recess, because near black a recess measured 1.03:1 on the page and Skeleton, the Progress track, the neutral Banner and the placeholders disappeared \u2014 so avatars and neutral badges now read as chips, not wells. It sits one step above border-subtle so DotPattern's dots still read on it (1.12:1; a new resolve.test.ts assertion holds the pair at 1.1 in both schemes). The Slider's open track gap closes with it (1.41:1 on a surface). --ui-border-default is one step further out than drawn (#45423E) so DotPattern's strong opt-in reads stronger than its default on the sunken fill (1.22 vs 1.12:1). Light is unchanged to the byte (resolved theme diffed before and after); 65 dark roles moved. Paper: https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-10-0 (Round 4 --- B4 Draft, tuned; Round 4 --- Test layout, Guidelines). Every dark visual baseline moves; not regenerated with this change.",
+  "affects": [
+    "item:theme-zero-css",
+    "decision:0008-curated-palette",
+    "decision:0016-elevation",
+    "decision:0017-field-grounds",
+    "token:--ui-bg-base",
+    "token:--ui-bg-surface",
+    "token:--ui-bg-elevated",
+    "token:--ui-bg-sunken",
+    "token:--ui-bg-field",
+    "token:--ui-bg-field-disabled",
+    "token:--ui-bg-field-chrome",
+    "token:--ui-bg-field-chrome-disabled",
+    "token:--ui-bg-hover",
+    "token:--ui-bg-active",
+    "token:--ui-bg-selected",
+    "token:--ui-bg-emphasis",
+    "token:--ui-text-on-emphasis",
+    "token:--ui-text-link",
+    "token:--ui-border-focus",
+    "token:--ui-intent-danger-fg",
+    "token:--ui-nav-bg",
+    "component:tooltip",
+    "component:skeleton",
+    "component:progress",
+    "component:banner",
+    "component:badge",
+    "component:avatar",
+    "component:slider",
+    "token:--ui-border-default",
+    "component:dot-pattern"
+  ],
+  "migration": {
+    "manual": "Re-emit your token CSS (or re-install theme-zero-css). Any local :root override of a dark --ui-bg-* or --ui-border-* value was written against the mid-grey ramp and should be removed rather than carried over: several now invert the order they were written to fix. A consumer that read --ui-bg-emphasis as 'always near-black' must not: in dark it is paper. Nothing in the registry other than Tooltip paints it."
+  }
+}

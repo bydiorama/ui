@@ -485,7 +485,8 @@ export function Calendar({
                       // --ui-border-control, not -default (#9 audit, Paper 3PLD-0): today
                       // is a STATE indicator and -default measured 2.09:1 on the
                       // calendar ground, under SC 1.4.11's 3:1. -control is
-                      // 3.04:1 light / 4.05:1 dark — Checkbox's edge role.
+                      // 3.04:1 light / 4.28:1 dark on the surface — Checkbox's
+                      // edge role (dark re-measured on the 2026-11-03 ramp).
                       "data-[today]:outline data-[today]:outline-edge-control",
                       "aria-disabled:cursor-not-allowed aria-disabled:text-ink-disabled aria-disabled:bg-sunken",
                       "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",

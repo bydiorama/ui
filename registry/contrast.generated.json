@@ -1603,6 +1603,47 @@
       "dark": 3.6
     }
   ],
+  "RangeSlider": [
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 3.07,
+      "dark": 10.07,
+      "role": "each thumb's ring against the track — the thumbs identify the control and mark both ends"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.73,
+      "dark": 7,
+      "role": "each thumb's ring against its own white fill"
+    },
+    {
+      "fg": "--ui-bg-accent",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.24,
+      "dark": 10.07
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the readout"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "the label"
+    }
+  ],
   "Select": [
     {
       "fg": "--ui-text-primary",
@@ -1789,12 +1830,90 @@
       "dark": 1.49
     },
     {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-accent-subtle",
+      "floor": "non-text",
+      "light": 4.79,
+      "dark": 3.37,
+      "role": "the INLINE handle on the filled side of the bar — with no thumb, it is the mark that shows the value"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.36,
+      "dark": 5.67,
+      "role": "the inline handle on the empty side of the bar (and flush against it at 0)"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-accent-subtle-hover",
+      "floor": "non-text",
+      "light": 11.94,
+      "dark": 5.54,
+      "role": "the inline handle on hover and drag, against the hover wash"
+    },
+    {
+      "fg": "--ui-bg-accent-subtle",
+      "bg": "--ui-bg-elevated",
+      "floor": "decorative",
+      "light": 1.12,
+      "dark": 1.47
+    },
+    {
+      "fg": "--ui-border-default",
+      "bg": "--ui-bg-sunken",
+      "floor": "decorative",
+      "light": 1.76,
+      "dark": 2.92
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-accent-subtle",
+      "floor": "text",
+      "light": 11.22,
+      "dark": 5.49,
+      "role": "the inline label over the filled part of the bar"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-accent-subtle-hover",
+      "floor": "text",
+      "light": 9.65,
+      "dark": 4.57,
+      "role": "the inline label over the hover wash — why it is secondary and not muted"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 9.24,
+      "role": "the inline label over the empty part of the bar"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-accent-subtle",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 6.66,
+      "role": "the inline value over the wash (at high values)"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 11.2,
+      "role": "the inline value over the empty bar"
+    },
+    {
       "fg": "--ui-text-primary",
       "bg": "--ui-bg-base",
       "floor": "text",
       "light": 17.17,
       "dark": 9.59,
-      "role": "the value text"
+      "role": "the value text, and the leaning pole"
     },
     {
       "fg": "--ui-text-muted",
@@ -1802,7 +1921,7 @@
       "floor": "text",
       "light": 5.93,
       "dark": 4.94,
-      "role": "the label"
+      "role": "the label, and the pole the value does not lean toward"
     }
   ],
   "Switch": [

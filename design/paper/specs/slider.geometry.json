@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "slider",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-Z-0/3RJD-0",
+    "artboard": "Component --- Slider --- Variants",
+    "extracted": "2026-11-03",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects of 'Slider inline / md / Dot size' and its label and value, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "The inline bar is the one figure in Slider whose spacing is authored by padding rather than by the thumb-inset arithmetic SLIDER_SIZE documents: label and value sit INSIDE a 40px bar, 12px in from each end, 8px apart, centred vertically. It is measured on the content row (slider-content), which is laid over the bar at inset 0 — so its border box IS the bar's. The fill and the 2px handle are absolutely positioned under it and are not part of the figure.",
+  "cases": [
+    {
+      "name": "slider-inline-md",
+      "axis": "horizontal",
+      "nodes": { "container": "3RK0-0", "children": ["3RK3-0", "3RK4-0"] },
+      "slots": { "container": "slider-content", "child": "slider-label|slider-value" },
+      "laws": ["track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "uniform-inset": "Not uniform by design: 12px inline (space-md), and the block inset is whatever centring a 13px line in a 40px field leaves — 11 on the sheet, 11.2 rendered.",
+        "inset-is-declared": "Only the inline sides are padding. The block inset is authored by align-items: center inside h-field-md, so declaring it as padding would make the field height a second author of the same number.",
+        "concentric-radius": "The children are unboxed text with no radius of their own; the bar's radius-md has nothing inside it to be concentric with."
+      },
+      "sheet": {
+        "container": {
+          "width": 494,
+          "height": 40,
+          "padding": { "top": 0, "right": 12, "bottom": 0, "left": 12 },
+          "border": 0,
+          "radius": 8,
+          "tokens": { "height": "--ui-field-md-height", "paddingInline": "--ui-space-md", "radius": "--ui-radius-md", "gap": "--ui-space-sm", "fill": "--ui-bg-elevated" }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 433, "height": 18, "radius": null },
+          { "width": 29, "height": 18, "radius": null }
+        ],
+        "gaps": { "top": 11, "right": 12, "bottom": 11, "left": 12 }
+      }
+    }
+  ]
+}

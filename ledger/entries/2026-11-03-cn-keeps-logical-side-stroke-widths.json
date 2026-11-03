@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-cn-keeps-logical-side-stroke-widths",
+  "date": "2026-11-03",
+  "item": "cn",
+  "kind": "fix",
+  "summary": "cn's tailwind-merge config registered the stroke widths (hairline, thick) for the physical sides only. `border-s-thick` was read as a side COLOUR and deleted by the next border colour in the same list — Slider's inline handle rendered 0px wide with every gate green, found by its browser test. border-w-s and border-w-e are now registered; cn.test pins both. Probed: the cn test fails with the line removed.",
+  "affects": [
+    "item:cn",
+    "item:slider"
+  ]
+}

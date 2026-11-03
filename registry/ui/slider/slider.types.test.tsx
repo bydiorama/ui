@@ -20,6 +20,14 @@ export function Valid() {
         incrementLabel="Larger"
         valueControl={<span>62</span>}
       />
+      {/* Inline: label and value inside the bar, on the field ladder. */}
+      <Slider label="Dot size" variant="inline" defaultValue={12} formatValue={(v) => `${v} px`} />
+      <Slider label="Dot size" variant="inline" size="sm" defaultValue={12} isDisabled />
+      {/* Balance: an origin and two poles. */}
+      <Slider label="Formality" origin={50} startLabel="Casual" endLabel="Formal" formatValue={(v) => (v > 50 ? "Formal" : "Casual")} hasValueText />
+      <Slider label="Temperature" variant="inline" min={-50} max={50} origin={0} defaultValue={-12} />
+      {/* Poles without an origin are endpoint labels: "Small" … "Large". */}
+      <Slider label="Logo size" startLabel="Small" endLabel="Large" defaultValue={62} />
     </>
   );
 }
@@ -46,5 +54,24 @@ export function Invalid() {
   /* Our shape, not Base UI's (formattedValue: string, value, index). */
   /* @ts-expect-error getAriaValueText receives the NUMBER, not a formatted string */
   const h = <Slider label="x" getAriaValueText={(formatted: string) => formatted} />;
-  return [a, b, c, d, e, f, g, h];
+  /* The inline bar sits on the FIELD ladder; xl is a track-only size. */
+  /* @ts-expect-error inline has no xl */
+  const i = <Slider label="x" variant="inline" size="xl" />;
+  /* The inline bar has no lane beside or under it. These are typed `never`
+     on the inline member — omitting them would let the excess-property check
+     wave them through as "a prop some member of the union has". */
+  /* @ts-expect-error inline has no steppers */
+  const j = <Slider label="x" variant="inline" hasSteppers decrementLabel="a" incrementLabel="b" />;
+  /* @ts-expect-error inline has no poles row */
+  const k = <Slider label="x" variant="inline" startLabel="Casual" />;
+  /* @ts-expect-error inline has no value-control slot */
+  const l = <Slider label="x" variant="inline" valueControl={<span />} />;
+  /* formatValue is shown AND announced — it must produce text. */
+  /* @ts-expect-error formatValue must return a string */
+  const m = <Slider label="x" formatValue={(v: number) => v} />;
+  /* @ts-expect-error origin is a value on the scale, not a keyword */
+  const n = <Slider label="x" origin="center" />;
+  /* @ts-expect-error variants are a closed set */
+  const o = <Slider label="x" variant="bar" />;
+  return [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o];
 }

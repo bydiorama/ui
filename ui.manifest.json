@@ -844,7 +844,7 @@
     {
       "name": "slider",
       "type": "ui",
-      "description": "A single-value slider in four track heights (8/16/24/32px) with a gradient fill, optional stepper buttons and a slot for a value control. Pointer capture, keyboard stepping, Home/End, RTL and touch come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature — the value is a number, never an array. The control is padded to a 24px target even when the painted track is 8px, and the fill is --ui-gradient-accent, whose near stop is the audited legible accent so the ramp cannot start below the 3:1 SC 1.4.11 floor.",
+      "description": "A single-value slider in three shapes: a track in four heights (8/16/24/32px) with a gradient fill, optional stepper buttons and a slot for a value control; an inline bar (32/40/48px) with the label and value inside it, for dense panels; and a balance slider whose fill grows from an origin toward the thumb between two named poles. formatValue is shown and announced as one. Pointer capture, keyboard stepping, Home/End, RTL and touch come from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature — the value is a number, never an array. The control is padded to a 24px target even when the painted track is 8px; the thumb carries SC 1.4.11 with a ring floored at 3:1, and its focus ring keys off the input inside it.",
       "files": [
         {
           "path": "registry/ui/slider/slider.tsx",
@@ -862,7 +862,32 @@
       "registryDependencies": [
         "cn",
         "chrome-control",
-        "motion"
+        "motion",
+        "use-controllable-state"
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "range-slider",
+      "type": "ui",
+      "description": "Two thumbs on one track; the fill is the span between them — a filter for 'from what, to what'. Everything visible is Slider's, read from Slider's own geometry table, while three things differ: the value is a readonly [number, number] tuple, each thumb is its own native input with its own required name (startThumbLabel / endThumbLabel), and the thumbs may meet but never cross — a dragged thumb stops at the other rather than pushing it. The readout states both ends with an en dash and is on by default. Base UI Slider underneath (ADR 0012).",
+      "files": [
+        {
+          "path": "registry/ui/range-slider/range-slider.tsx",
+          "target": "ui/range-slider.tsx"
+        },
+        {
+          "path": "registry/ui/range-slider/range-slider.doc.ts",
+          "target": "ui/range-slider.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@1.7.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "use-controllable-state",
+        "slider"
       ],
       "status": "stable"
     },

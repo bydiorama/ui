@@ -146,7 +146,91 @@ export const AnnouncedValue: Story = {
         label="Upload limit"
         defaultValue={24}
         hasValueText
+        formatValue={(v) => `${v} MB`}
         getAriaValueText={(v) => `${v} megabytes`}
+        onValueChange={fn()}
+      />
+    </div>
+  ),
+};
+
+/**
+ * Inline — Paper, "Slider variants · 05". The label and value live inside the
+ * bar; one row per property, stacked 4 apart, so a panel of five settings
+ * costs five field heights. The Halftone group is the sheet's own specimen.
+ */
+export const Inline: Story = {
+  render: () => (
+    <div className="flex w-96 flex-col gap-md">
+      <p className="text-label-md font-body text-ink-primary">Halftone</p>
+      <div className="flex flex-col gap-xs">
+        <Slider label="Dot size" variant="inline" defaultValue={12} max={48} formatValue={(v) => `${v} px`} onValueChange={fn()} />
+        <Slider label="Spacing" variant="inline" defaultValue={28} formatValue={(v) => `${v} px`} onValueChange={fn()} />
+        <Slider label="Screen angle" variant="inline" defaultValue={45} max={90} formatValue={(v) => `${v}°`} onValueChange={fn()} />
+        <Slider label="Contrast" variant="inline" defaultValue={40} formatValue={(v) => (v / 100).toFixed(2)} onValueChange={fn()} />
+        <Slider label="Edge softness" variant="inline" defaultValue={80} formatValue={(v) => (v / 100).toFixed(2)} onValueChange={fn()} />
+      </div>
+    </div>
+  ),
+};
+
+/** The inline sizes and the states the sheet draws for them, in its order. */
+export const InlineStates: Story = {
+  render: () => (
+    <div className="flex w-96 flex-col gap-lg">
+      {(["sm", "md", "lg"] as const).map((size) => (
+        <Slider key={size} label={`Dot size (${size})`} variant="inline" size={size} defaultValue={12} max={48} formatValue={(v) => `${v} px`} onValueChange={fn()} />
+      ))}
+      <Slider label="Minimum" variant="inline" defaultValue={0} max={48} formatValue={(v) => `${v} px`} onValueChange={fn()} />
+      <Slider label="Maximum" variant="inline" defaultValue={48} max={48} formatValue={(v) => `${v} px`} onValueChange={fn()} />
+      <Slider label="Disabled" variant="inline" defaultValue={12} max={48} isDisabled formatValue={(v) => `${v} px`} onValueChange={fn()} />
+      <div className="w-60">
+        <Slider label="Left-to-right taper of the halftone band" variant="inline" defaultValue={62} formatValue={(v) => (v / 100).toFixed(2)} onValueChange={fn()} />
+      </div>
+    </div>
+  ),
+};
+
+const humour = (v: number) =>
+  v >= 80 ? "Playful" : v >= 60 ? "Mostly playful" : v > 40 ? "Balanced" : v > 20 ? "Mostly serious" : "Serious";
+const energy = (v: number) =>
+  v >= 80 ? "Enthusiastic" : v >= 60 ? "Mostly enthusiastic" : v > 40 ? "Balanced" : v > 20 ? "Mostly calm" : "Calm";
+const vocabulary = (v: number) =>
+  v >= 80 ? "Ornate" : v >= 60 ? "Mostly ornate" : v > 40 ? "Balanced" : v > 20 ? "Mostly plain" : "Plain";
+
+/**
+ * Balance — Paper, "Slider variants · 06": the brand-voice sliders of #25.
+ * The fill grows from the origin toward the thumb, the leaning pole lifts to
+ * the primary ink, and the descriptor is both shown and announced.
+ */
+export const Balance: Story = {
+  render: () => (
+    <div className="flex w-96 flex-col gap-xl">
+      <p className="text-label-md font-body text-ink-primary">Brand voice</p>
+      <Slider label="Formality" origin={50} startLabel="Casual" endLabel="Formal" defaultValue={70} hasValueText formatValue={formality} onValueChange={fn()} />
+      <Slider label="Humour" origin={50} startLabel="Serious" endLabel="Playful" defaultValue={30} hasValueText formatValue={humour} onValueChange={fn()} />
+      <Slider label="Energy" origin={50} startLabel="Calm" endLabel="Enthusiastic" defaultValue={50} hasValueText formatValue={energy} onValueChange={fn()} />
+      <Slider label="Vocabulary" origin={50} startLabel="Plain" endLabel="Ornate" defaultValue={10} hasValueText formatValue={vocabulary} onValueChange={fn()} />
+    </div>
+  ),
+};
+
+/** Balance at every track size, disabled, and composed with the inline bar. */
+export const BalanceStates: Story = {
+  render: () => (
+    <div className="flex w-96 flex-col gap-xl">
+      {(["sm", "lg"] as const).map((size) => (
+        <Slider key={size} label={`Formality (${size})`} size={size} origin={50} startLabel="Casual" endLabel="Formal" defaultValue={70} hasValueText formatValue={formality} onValueChange={fn()} />
+      ))}
+      <Slider label="Disabled" origin={50} startLabel="Casual" endLabel="Formal" defaultValue={70} hasValueText formatValue={formality} isDisabled onValueChange={fn()} />
+      <Slider
+        label="Temperature"
+        variant="inline"
+        min={-50}
+        max={50}
+        origin={0}
+        defaultValue={-12}
+        formatValue={(v) => (v < 0 ? `−${Math.abs(v)}` : String(v))}
         onValueChange={fn()}
       />
     </div>
@@ -171,6 +255,8 @@ export const BrandThemed: Story = {
         <div className="flex flex-col gap-lg">
           <Slider label="Logo size" defaultValue={62} hasValueText onValueChange={fn()} />
           <Slider label="Logo size" defaultValue={62} size="sm" isLabelHidden onValueChange={fn()} />
+          <Slider label="Dot size" variant="inline" defaultValue={12} max={48} formatValue={(v) => `${v} px`} onValueChange={fn()} />
+          <Slider label="Formality" origin={50} startLabel="Casual" endLabel="Formal" defaultValue={70} hasValueText formatValue={formality} onValueChange={fn()} />
         </div>
       </div>
     );

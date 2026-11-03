@@ -94,6 +94,12 @@ const twMerge = extendTailwindMerge({
       "border-w-r": [{ "border-r": ["hairline", "thick"] }],
       "border-w-b": [{ "border-b": ["hairline", "thick"] }],
       "border-w-l": [{ "border-l": ["hairline", "thick"] }],
+      // The LOGICAL sides, absent until Slider drew a 2px stroke on the
+      // inline-start side (the inline handle and the origin mark). Without
+      // them `border-s-thick` read as a side COLOUR and the next border colour
+      // in the list deleted it — a 0px handle, with every gate green.
+      "border-w-s": [{ "border-s": ["hairline", "thick"] }],
+      "border-w-e": [{ "border-e": ["hairline", "thick"] }],
       "ring-w": [{ ring: ["hairline", "thick"] }],
       "outline-w": [{ outline: ["hairline", "thick", "focus"] }],
       "outline-offset": [{ "outline-offset": ["focus"] }],

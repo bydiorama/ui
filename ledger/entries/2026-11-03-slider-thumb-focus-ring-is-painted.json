@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-slider-thumb-focus-ring-is-painted",
+  "date": "2026-11-03",
+  "item": "slider",
+  "kind": "a11y",
+  "summary": "Slider's keyboard focus ring was declared and never painted. Base UI focuses the native input[type=range] INSIDE the thumb, never the thumb div, so `focus-visible:shadow-(--ui-focus-ring)` on the div matched nothing — every gate was green because the class resolved and the token existed, and no test had ever focused a slider and looked. The thumb now keys off `has-focus-visible:` (and so does the forced-colors outline), keeping --ui-shadow-sm beneath the ring as the sheet draws it. The same mistake hid the disabled ring: `disabled:` on a div never matches, so it now keys off Base UI's data-disabled. The group also carries aria-disabled when disabled, so its label and value read as parts of a disabled control rather than as low-contrast text. Probed: the browser test fails against the shipped class with no focus colour in the computed shadow. Paper: https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-Z-0 (Component --- Slider --- Revision / Variants / Dark / API, Behaviour, Tokens, Gaps). Consumers with a copied slider.tsx should take the thumb class.",
+  "affects": [
+    "slot:slider-thumb",
+    "prop:isDisabled",
+    "item:image-edit"
+  ]
+}

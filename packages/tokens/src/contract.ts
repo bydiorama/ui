@@ -607,6 +607,11 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // turned out to be invisible on the dark ground.
   ["--ui-border-strong", "--ui-bg-base"],
   ["--ui-border-strong", "--ui-bg-surface"],
+  // Slider's INLINE handle: a 2px border-strong stroke that is the only thing
+  // marking the value on the bar, so it must clear 3:1 against both grounds it
+  // crosses — the accent wash (the filled side) and the bar (the empty side).
+  ["--ui-border-strong", "--ui-bg-accent-subtle"],
+  ["--ui-border-strong", "--ui-bg-elevated"],
   ["--ui-bg-accent-legible", "--ui-bg-sunken"],
   ["--ui-bg-accent-legible", "--ui-bg-base"],
   // The INVALID border on a form field — Input, Select, DatePicker and

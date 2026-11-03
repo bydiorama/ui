@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-03-add-rangeslider",
+  "date": "2026-11-03",
+  "item": "range-slider",
+  "kind": "addition",
+  "summary": "New item range-slider: two thumbs on one track, the fill the flat --ui-bg-accent span between them. Everything visible is Slider's, read from Slider's own SLIDER_SIZE table and thumb class, and the browser test compares the two per size so they cannot drift. Three things differ: the value is a readonly [number, number] tuple; each thumb is its own input named by a REQUIRED startThumbLabel / endThumbLabel (aria-label — an aria-labelledby would outrank it); and the thumbs may meet but never cross (thumbCollisionBehavior none, minStepsBetweenValues). Only the moving or hovered thumb lifts. The readout (on by default) joins formatValue's ends with a spaced en dash and collapses equal ends. Probed: the drag test fails with Base UI's default `push` (end thumb shoved to 1990); the keyboard path cannot see the collision rule at all. Paper: https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-Z-0 (Component --- Slider --- Revision / Variants / Dark / API, Behaviour, Tokens, Gaps).",
+  "affects": [
+    "item:range-slider",
+    "item:slider",
+    "prop:startThumbLabel",
+    "prop:endThumbLabel",
+    "prop:value",
+    "prop:minStepsBetweenValues",
+    "prop:formatValue",
+    "prop:valueControl",
+    "type:RangeSliderValue"
+  ]
+}

@@ -63,6 +63,7 @@ import { Progress } from "@/ui/progress/progress.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
+import { RangeSlider } from "@/ui/range-slider/range-slider.tsx";
 import { CardSorting } from "@/ui/card-sorting/card-sorting.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 import { NavRail } from "@/ui/nav-rail/nav-rail.tsx";
@@ -670,6 +671,30 @@ const CASES: Array<{
           incrementLabel="Larger"
         />
         <Slider label="Disabled" defaultValue={30} isDisabled hasValueText />
+        {/* The two variants of the 2026-11-03 revision. Inline is the only
+            place the label sits INSIDE the fill, and Balance the only fill
+            that does not start at the track's start — both are exactly what
+            a computed-value assertion can pass while the render is wrong. */}
+        <div className="flex flex-col gap-xs">
+          <Slider label="Dot size" variant="inline" defaultValue={12} max={48} formatValue={(v) => `${v} px`} />
+          <Slider label="Contrast" variant="inline" size="sm" defaultValue={40} formatValue={(v) => (v / 100).toFixed(2)} />
+          <Slider label="Temperature" variant="inline" min={-50} max={50} origin={0} defaultValue={-12} formatValue={(v) => (v < 0 ? `−${-v}` : String(v))} />
+        </div>
+        <Slider label="Formality" origin={50} startLabel="Casual" endLabel="Formal" defaultValue={70} hasValueText formatValue={() => "Mostly formal"} />
+        <Slider label="Humour" origin={50} startLabel="Serious" endLabel="Playful" defaultValue={30} hasValueText formatValue={() => "Mostly serious"} />
+      </div>
+    ),
+  },
+  {
+    name: "range-slider",
+    // A span between two thumbs at the default size, the two thumbs meeting,
+    // the full range, and disabled — the four positions a span can be in.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <RangeSlider label="Active years" startThumbLabel="Earliest year" endThumbLabel="Latest year" min={1800} max={2000} defaultValue={[1925, 1972]} formatValue={String} />
+        <RangeSlider label="Thumbs meet" startThumbLabel="Earliest year" endThumbLabel="Latest year" size="sm" min={1800} max={2000} defaultValue={[1950, 1958]} formatValue={String} />
+        <RangeSlider label="Full range" startThumbLabel="Earliest year" endThumbLabel="Latest year" size="lg" min={1800} max={2000} defaultValue={[1800, 2000]} formatValue={String} />
+        <RangeSlider label="Disabled" startThumbLabel="Earliest year" endThumbLabel="Latest year" min={1800} max={2000} defaultValue={[1925, 1972]} formatValue={String} isDisabled />
       </div>
     ),
   },

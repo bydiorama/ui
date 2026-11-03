@@ -123,6 +123,10 @@ test("a stroke width and a stroke colour coexist — border, ring and outline", 
   for (const [width, colour] of [
     ["border-hairline", "border-edge-subtle"],
     ["border-thick", "border-edge-strong"],
+    // Logical sides: Slider's inline handle is `border-s-thick` beside
+    // `border-edge-strong`, and the merger used to delete the width.
+    ["border-s-thick", "border-edge-strong"],
+    ["border-e-hairline", "border-edge-default"],
     ["ring-hairline", "ring-edge-control"],
     ["ring-thick", "ring-edge-focus"],
     ["outline-hairline", "outline-edge-default"],

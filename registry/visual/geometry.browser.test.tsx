@@ -42,6 +42,7 @@ import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
 import { ChatQuestionnaire } from "@/ui/chat-questionnaire/chat-questionnaire.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Combobox } from "@/ui/combobox/combobox.tsx";
+import { Slider } from "@/ui/slider/slider.tsx";
 import { Plus, Microphone, InfoCircle, Close } from "griddy-icons";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
@@ -60,6 +61,7 @@ import chatWidgetSpec from "../../design/paper/specs/chat-widget.geometry.json";
 import chatQuestionnaireSpec from "../../design/paper/specs/chat-questionnaire.geometry.json";
 import sheetSpec from "../../design/paper/specs/sheet.geometry.json";
 import comboboxSpec from "../../design/paper/specs/combobox.geometry.json";
+import sliderSpec from "../../design/paper/specs/slider.geometry.json";
 
 /** A spec case, as far as this file needs to read one. */
 type Spec = {
@@ -101,6 +103,7 @@ const SPECS: Spec[] = [
   chatQuestionnaireSpec as Spec,
   sheetSpec as Spec,
   comboboxSpec as Spec,
+  sliderSpec as Spec,
 ];
 
 /**
@@ -313,6 +316,11 @@ const CASES: Record<string, () => ReactElement> = {
       startAction={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add" icon={<Plus />} />}
       endActions={<Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Dictate" icon={<Microphone />} />}
     />
+  ),
+  // The inline bar's content row: label and value inside a 40px bar, 12px in
+  // from each end. One slider, because `measure` takes every label on screen.
+  "slider-inline-md": () => (
+    <Slider label="Dot size" variant="inline" defaultValue={12} max={48} formatValue={(v) => `${v} px`} />
   ),
   "toast-shell": () => <ToastGeometryCase />,
   "toast-content-row": () => <ToastGeometryCase />,

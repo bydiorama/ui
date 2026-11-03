@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-combobox-an-editable-text-field-with",
+  "date": "2026-11-02",
+  "item": "combobox",
+  "kind": "addition",
+  "summary": "Combobox: an editable text field with a filtered listbox — free text, labelled groups, link rows, async loading/empty/error states and an always-present action row, on Input's control and Select's panel (resolves #17). New exports: `Combobox`, `ComboboxAction`, and the types `ComboboxProps`, `ComboboxItem`, `ComboboxItemGroup`, `ComboboxFilter`, `ComboboxSize`, `ComboboxShape`, `ComboboxSurface`, `ComboboxActionProps`. Focus never leaves the input (aria-activedescendant); the ARIA 1.2 pattern is Base UI's Combobox, as Multiselect's is. Three behaviours the sheet asks for and Base UI does not offer are reached by stepping Base UI's own arrow-key handling, contained to combobox.tsx: Home/End while open, skipping disabled rows (Base UI's combobox lets the arrows land on them), and the highlight following a row's VALUE when results change (Base UI keeps the index, so the highlight slid onto whatever replaced the row). Base UI's resync of the text to the committed label on close is refused, so free text survives a blur. Link rows carry tabIndex -1 — an <a href> in a panel portalled into the field's root was a tab stop, and Tab walked into the list instead of closing it. The listbox is itself the scroller, because axe accepts a non-focusable scrolling region only for a combobox's own popup. Status: experimental. Apps that built the pattern locally (patterns/brand-search) can move onto it.",
+  "affects": ["combobox"],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3O8K-0"
+  }
+}

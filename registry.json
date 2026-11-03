@@ -32,6 +32,18 @@
       ]
     },
     {
+      "name": "fade-ramp",
+      "type": "registry:lib",
+      "description": "The perceptual edge ramp every fade paints or masks with: a Gaussian penumbra (the cumulative normal, mean 0.55, sigma 0.22 of the depth) sampled at seventeen stops, so there is no corner at either end for the eye to read as a stripe, with a second table for dark grounds that leaves the same perceptual fraction of ink visible (light ink under a dark veil stays visible longer at equal alpha; the correction is the polarity's and agrees to ±0.015 across role pairs). paintRamp(direction, ground) builds the painted gradient, switching per stop with light-dark(); maskRamp(direction, depth) builds its complement for mask-image. The tables ship as numbers; fade-ramp.test.ts re-derives them from the curve and the OKLab model.",
+      "files": [
+        {
+          "path": "registry/lib/fade-ramp/fade-ramp.ts",
+          "type": "registry:lib",
+          "target": "lib/fade-ramp.ts"
+        }
+      ]
+    },
+    {
       "name": "chrome-control",
       "type": "registry:lib",
       "description": "The 32px chrome control: a square, softly-rounded button filled with --ui-bg-elevated and carrying no edge. Not a Button variant — every button type is either a fill with a matching edge or an edge on nothing, and this is the one shape that is a fill with no edge at all. It belongs to page chrome (a menu toggle, a back arrow, a calendar's month arrows) rather than to the action vocabulary. Exported as one recipe because it was independently reinvented four times before it had a name.",
@@ -128,9 +140,79 @@
       ]
     },
     {
+      "name": "combobox",
+      "type": "registry:ui",
+      "description": "An editable text field with a filtered listbox: one committed value, free text allowed, options in labelled groups, rows that can be links, async loading/empty/error states, and an action row that is always present. Focus never leaves the input — the highlight is an aria-activedescendant. The field is Input's control and the panel and rows are Select's; the ARIA 1.2 combobox pattern comes from the Base UI behaviour layer (ADR 0012), wrapped so no third-party type reaches a public prop signature.",
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/motion",
+        "@bydiorama/menu-surface",
+        "@bydiorama/fade",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/use-scroll-edges"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/combobox/combobox.tsx",
+          "type": "registry:ui",
+          "target": "ui/combobox.tsx"
+        },
+        {
+          "path": "registry/ui/combobox/combobox.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/combobox.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "media-toggle",
+      "type": "registry:ui",
+      "description": "The pause/play control WCAG 2.2.2 requires for video that plays on its own (#36). A round chrome control on the media family (--ui-bg-media, --ui-text-on-media), so it reads the same over the video in both schemes. Drives the media element it is given and follows its play/pause events; starts paused under prefers-reduced-motion. Both accessible names are required props.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/chrome-control",
+        "@bydiorama/compose-event-handlers",
+        "@bydiorama/use-controllable-state"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/media-toggle/media-toggle.tsx",
+          "type": "registry:ui",
+          "target": "ui/media-toggle.tsx"
+        },
+        {
+          "path": "registry/ui/media-toggle/media-toggle.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/media-toggle.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "theme-zero-css",
+      "type": "registry:file",
+      "description": "Theme zero as a stylesheet: the --ui-* token layer (light and dark, following prefers-color-scheme) plus the Tailwind v4 @theme block that maps every utility the components use onto it. The install path that works without npm (issue #30) — generated from @bydiorama/tokens' toTailwindTheme() and toCss(), the same output Storybook renders against, and kept fresh by `pnpm check:theme-css`. Import it once after `@import \"tailwindcss\";`. A brand theme is not this file: run the emitters (resolveThemePair → toCss) with the brand's seed instead.",
+      "files": [
+        {
+          "path": "registry/themes/theme-zero/theme-zero.css",
+          "type": "registry:file",
+          "target": "~/src/styles/theme-zero.css"
+        }
+      ]
+    },
+    {
       "name": "button",
       "type": "registry:ui",
-      "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy keeps focus but swallows activation (the double-submit guard), unlike isDisabled, which leaves the tab order.",
+      "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy keeps focus but swallows activation (the double-submit guard), unlike isDisabled, which leaves the tab order. `render` makes it a link (or the router's Link) with every state intact; `buttonClassName()` is the same recipe for markup React does not own.",
+      "dependencies": [
+        "@base-ui/react@1.7.0"
+      ],
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion"
@@ -173,6 +255,32 @@
           "path": "registry/ui/header/header.doc.ts",
           "type": "registry:ui",
           "target": "ui/header.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "site-header",
+      "type": "registry:ui",
+      "description": "The SITE header (#33) — a wordmark, a short row of quiet links and one call to action — composed from Header, which stays app chrome. Data-driven (brand, items, cta) rather than compound, because an Astro page cannot compose Header's parts across the island boundary. Below the caller's collapseBelow point the bar keeps two words, the wordmark and a text Menu control, and the menu is a full-screen Sheet from the top with the CTA at its foot; the switch is a scoped media query, so the desktop bar is static-safe HTML. isOverMedia puts the bar on the hero with the media inks and a 64% --ui-bg-media scrim until the page scrolls under it.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/fade-ramp",
+        "@bydiorama/use-is-stuck",
+        "@bydiorama/motion",
+        "@bydiorama/button",
+        "@bydiorama/header",
+        "@bydiorama/sheet"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/site-header/site-header.tsx",
+          "type": "registry:ui",
+          "target": "ui/site-header.tsx"
+        },
+        {
+          "path": "registry/ui/site-header/site-header.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/site-header.doc.ts"
         }
       ]
     },
@@ -395,7 +503,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/button"
       ],
       "files": [
         {
@@ -414,8 +523,16 @@
       "name": "card",
       "type": "registry:ui",
       "description": "A titled surface that groups related controls. Renders a <section> with a real heading at a caller-chosen level, so a card is navigable structure rather than a styled div. Compound: Header (with an actions slot) and Footer, both carrying the unboxed inset while boxed children sit flush. The surface is deliberately identical to Popover's panel.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/motion",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/use-scroll-edges",
+        "@bydiorama/button",
+        "@bydiorama/fade"
       ],
       "files": [
         {
@@ -733,7 +850,7 @@
     {
       "name": "sheet",
       "type": "registry:ui",
-      "description": "A panel anchored to the left or right edge of the viewport, full height, over a scrim — the surface a narrow screen uses for what a wide one keeps docked: the navigation rail, a filter set, a record edited beside the page. Third component on the Base UI behaviour layer, deliberately Modal's shape because the focus trap, scroll lock, Escape and focus restoration are the same problem; only the panel's position differs. Four optional regions — a 48px chrome band, a Title, a Body and a stacked footer — of which only the Body scrolls, so the band and the action row stay put and each gains a hairline once there is content behind it. Three width CAPS on tokens that already existed: sm is the rail's own width and the default, md and lg are Modal's two dialog widths. The two INNER corners are rounded so it reads as a drawer rather than a modal, and there is no side of 'bottom' — that is Drawer, whose contract is the gesture.",
+      "description": "A panel anchored to the left or right edge of the viewport, full height, over a scrim — the surface a narrow screen uses for what a wide one keeps docked: the navigation rail, a filter set, a record edited beside the page. Third component on the Base UI behaviour layer, deliberately Modal's shape because the focus trap, scroll lock, Escape and focus restoration are the same problem; only the panel's position differs. Four optional regions — a 48px chrome band, a Title, a Body and a stacked footer — of which only the Body scrolls, so the band and the action row stay put and each gains a hairline once there is content behind it. Three width CAPS on tokens that already existed: sm is the rail's own width and the default, md and lg are Modal's two dialog widths. A third side, top, is the full-screen variant a site's collapsed menu uses: flush on every edge, uncapped. The two INNER corners are rounded so it reads as a drawer rather than a modal, and there is no side of 'bottom' — that is Drawer, whose contract is the gesture.",
       "dependencies": [
         "@base-ui/react@1.7.0"
       ],
@@ -1009,9 +1126,11 @@
     {
       "name": "fade",
       "type": "registry:ui",
-      "description": "An edge fade — the gradient that dissolves overflowing content into the ground it sits on, signalling continuation: under a pinned header, above a composer bar, at the cut of a truncated preview. One aria-hidden span, absolutely pinned to one edge of the caller's clipping container, painting a two-stop ramp from the container's own bg role at 0% alpha to that role solid, so both stops move together when the ground changes. side (top/bottom/left/right), size (16/32/64 on the spacing scale, md matching ImageOverlay's shipped ramp) and ground (base/surface/elevated/sunken) are the parameters; isVisible is the caller-owned overflow state, toggled by opacity on the motion tokens so nothing reflows. It is paint, never a participant: pointer-events none, no children, no interactive targets in the band, and every faded region pairs with a caller-composed route to the full content. Elsewhere this pattern is a scroll scrim or ScrollShadow; here --ui-scrim already names the modal veil, so the fade keeps its own name.",
+      "description": "An edge fade — the gradient that dissolves overflowing content into the ground it sits on, signalling continuation: under a pinned header, above a composer bar, at the cut of a truncated preview. One aria-hidden span, absolutely pinned to one edge of the caller's clipping container, painting a perceptual ramp (fade-ramp: a Gaussian penumbra with a dark-scheme correction) in the container's own bg role, so there is no start line or stripe for the eye to catch. side (top/bottom/left/right), size (24/48/96 on the spacing scale) and ground (base/surface/elevated/sunken, or affix under a translucent pinned bar, where the ramp ends at the bar's own alpha) are the parameters. isVisible gates it by opacity on the motion tokens; scrollContainer binds it to a scroller, easing it out over the last band-depth of scroll instead of switching off at the end and insetting it off a classic scrollbar. It is paint, never a participant: pointer-events none, no children, no interactive targets in the band, and every faded region pairs with a caller-composed route to the full content. fadeMask is the ground-agnostic complement for containers whose ground is not a role.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/fade-ramp",
+        "@bydiorama/use-scroll-edges"
       ],
       "files": [
         {
@@ -1156,7 +1275,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
-        "@bydiorama/aspect-ratio"
+        "@bydiorama/aspect-ratio",
+        "@bydiorama/fade"
       ],
       "files": [
         {
@@ -1196,6 +1316,18 @@
           "path": "registry/ui/chat-questionnaire/chat-questionnaire.doc.ts",
           "type": "registry:ui",
           "target": "ui/chat-questionnaire.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "static-rendering",
+      "type": "registry:file",
+      "description": "Agent skill: using @bydiorama/ui in Astro, SSR and static-export apps — which components are static-safe, which need a client:* directive, why compound components cannot be composed from .astro files and the wrapper pattern that fixes it, and the install traps (prettier, focus styles, paths outside src/ui). Issue #34.",
+      "files": [
+        {
+          "path": "registry/skills/static-rendering/SKILL.md",
+          "type": "registry:file",
+          "target": ".claude/skills/diorama-static-rendering/SKILL.md"
         }
       ]
     },

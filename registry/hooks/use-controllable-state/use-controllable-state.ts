@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useInsertionEffect, useRef, useState } from "react";
 
 export interface UseControllableStateOptions<T> {
   /** The controlled value. `undefined` means the component owns its state. */
@@ -40,29 +40,37 @@ export function useControllableState<T>({
 
   // Kept in a ref so `setValue` stays referentially stable: it is frequently a
   // dependency of callbacks and effects, and a new identity every render turns
-  // that into a re-render loop.
+  // that into a re-render loop. Synced in an insertion effect rather than
+  // during render, so the hook passes `react-hooks/refs` (issue #35) and runs
+  // before any layout effect or event handler can call `setValue`.
   const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  useInsertionEffect(() => {
+    onChangeRef.current = onChange;
+  });
 
   const wasControlled = useRef(isControlled);
-  if (process.env.NODE_ENV !== "production" && wasControlled.current !== isControlled) {
-    console.error(
-      `A component switched from ${wasControlled.current ? "controlled to uncontrolled" : "uncontrolled to controlled"}. ` +
-        "Decide once: pass `value` for the whole lifetime, or pass none and use the `default*` prop.",
-    );
-    wasControlled.current = isControlled;
-  }
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" && wasControlled.current !== isControlled) {
+      console.error(
+        `A component switched from ${wasControlled.current ? "controlled to uncontrolled" : "uncontrolled to controlled"}. ` +
+          "Decide once: pass `value` for the whole lifetime, or pass none and use the `default*` prop.",
+      );
+      wasControlled.current = isControlled;
+    }
+  }, [isControlled]);
 
-  // Read inside the stable callback below without becoming a dependency of it.
-  const isControlledRef = useRef(isControlled);
-  isControlledRef.current = isControlled;
-
-  const setValue = useCallback((next: T) => {
-    // Only the uncontrolled branch stores anything. Writing here while
-    // controlled is what makes a component drift from its parent.
-    if (!isControlledRef.current) setUncontrolled(next);
-    onChangeRef.current?.(next);
-  }, []);
+  // `isControlled` is a dependency rather than a ref: it changes only when a
+  // caller switches modes, which is already the error warned about above, so
+  // the setter is stable for every correct caller.
+  const setValue = useCallback(
+    (next: T) => {
+      // Only the uncontrolled branch stores anything. Writing here while
+      // controlled is what makes a component drift from its parent.
+      if (!isControlled) setUncontrolled(next);
+      onChangeRef.current?.(next);
+    },
+    [isControlled],
+  );
 
   return [resolved, setValue];
 }

@@ -21,12 +21,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const VARIANTS = ["selected", "unselected", "neutral", "success", "danger", "warning"] as const;
+const VARIANTS = ["selected", "unselected", "neutral", "info", "success", "danger", "warning"] as const;
 const LABELS = {
   selected: "Selected",
   unselected: "Unselected",
   // Categorical data with no intent — the commonest badge in an admin table.
   neutral: "Consulting",
+  // A status with no good or bad in it: in review, scheduled, beta.
+  info: "In review",
   success: "Ready",
   danger: "Failed",
   warning: "Warning",

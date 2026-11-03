@@ -439,7 +439,7 @@ function CardSortingRoot({
         aria-label={label}
         data-slot="card-sorting"
         className={cn("flex list-none flex-col gap-sm", className)}
-        onPointerMove={composeEventHandlers(onConsumerPointerMove, onDragMove)}
+        onPointerMove={(event) => composeEventHandlers(onConsumerPointerMove, onDragMove)(event)}
         onPointerUp={(event) => {
           onConsumerPointerUp?.(event);
           // Ending a drag is cleanup, not optional behaviour: a consumer must

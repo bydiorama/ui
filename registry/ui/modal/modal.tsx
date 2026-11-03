@@ -224,15 +224,16 @@ function ModalSurface({
           // inside its containing block; a viewport cap would have to be one
           // class using `min()`, not two.
           //
-          // radius-xl, the hairline and shadow-md are CARD'S surface, class for
-          // class (#23, the owner's redraw of the confirm dialog): a dialog
+          // radius-lg, the hairline and shadow-md are CARD'S surface, class for
+          // class (#23, the owner's redraw of the confirm dialog; the radius
+          // went back from xl to lg with Card's in #40): a dialog
           // raised over cards should read as the same object as them — same
           // corner, same edge, same lift. The edge is ADR 0010's everyday
           // hairline, a boundary rather than a lift (ADR 0016 point 6), and
           // the shadow is the md step Card and Sheet already carry. The
           // browser test asserts the RELATIONSHIP to Card, so the two cannot
           // drift apart again.
-          "flex w-full min-w-80 flex-col gap-2xl rounded-xl p-lg",
+          "flex w-full min-w-80 flex-col gap-2xl rounded-lg p-lg",
           SIZE[size],
           // bg-surface, not Card's bg-elevated: the scrim already separates
           // the dialog from the page, and the redraw kept the ground.

@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-button-states-hang-off-data-disabled",
+  "date": "2026-11-02",
+  "item": "button",
+  "kind": "breaking",
+  "summary": "Button's hover, press and disabled styles are gated on a `data-disabled` attribute Button stamps itself, not on `:enabled`/`:disabled` — `:enabled` never matches an <a>, so a link-rendered Button had no hover at all (#31). The native disabled attribute is still set on <button>. Same specificity as before.",
+  "affects": [
+    "class:enabled:*→not-data-disabled:*",
+    "class:disabled:*→data-disabled:*"
+  ],
+  "migration": {
+    "manual": "A consumer className that overrides Button's disabled look with `disabled:…` no longer wins; write it as `data-disabled:…` (ChatComposer's send control did exactly this and was updated). Overrides of hover/press written as `enabled:hover:…` should become `not-data-disabled:hover:…`."
+  }
+}

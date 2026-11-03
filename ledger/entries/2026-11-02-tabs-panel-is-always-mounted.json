@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-tabs-panel-is-always-mounted",
+  "date": "2026-11-02",
+  "item": "tabs",
+  "kind": "addition",
+  "summary": "Tabs.Panel takes `isAlwaysMounted`: an unselected panel stays in the DOM (hidden), so static HTML carries every panel's content (#34).",
+  "affects": [
+    "prop:Panel.isAlwaysMounted"
+  ]
+}

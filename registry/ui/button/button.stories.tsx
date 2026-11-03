@@ -247,6 +247,47 @@ export const WithIcons: Story = {
 };
 
 /**
+ * Navigation styled as a button (#31). The `<a>` keeps every state: hover and
+ * press hang off `data-disabled`, not `:enabled`, which no anchor matches.
+ */
+export const AsLink: Story = {
+  render: () => (
+    <div>
+      <Row label="render={<a />}">
+        {(["primary", "secondary", "outline", "ghost"] as const).map((variant) => (
+          <Button key={variant} variant={variant} render={<a href="#contact" />} iconEnd={<Chevron />}>
+            Get in touch
+          </Button>
+        ))}
+      </Row>
+      <Row label="disabled link">
+        <Button isDisabled render={<a href="#contact" />}>Apply</Button>
+      </Row>
+    </div>
+  ),
+};
+
+/**
+ * variant="inverse" on its band (#36) — the footer and dark CTA band. Outline
+ * and ghost carry page inks and vanish here; inverse inks with the band.
+ */
+export const Inverse: Story = {
+  render: () => (
+    <div className="flex flex-col gap-lg rounded-lg bg-inverse p-xl">
+      <p className="text-body-md text-ink-inverse-muted">Studio in Bratislava · usually replies within a day</p>
+      <div className="flex flex-wrap items-center gap-md">
+        {(["lg", "md", "sm"] as const).map((size) => (
+          <Button key={size} variant="inverse" size={size} render={<a href="#contact" />}>
+            Get in touch
+          </Button>
+        ))}
+        <Button variant="inverse" isDisabled>Get in touch</Button>
+      </div>
+    </div>
+  ),
+};
+
+/**
  * THE BRAND-THEME CASE — mandatory per AGENTS.md step 4.
  *
  * The same buttons under theme zero and under a deliberately hostile brand.

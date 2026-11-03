@@ -129,6 +129,13 @@ What feels off at 10% speed is what is subtly wrong at full speed.
     paint the same fill, the answer is a missing token, not a marker bolted on
     the side. The nav family had one fill and grew `--ui-nav-hover-bg` the day
     a 48px rail had no label left to change weight.
+24. **Strokes are solid — never dashed or dotted.** A codified decision
+    (2026-11-02): no dash pattern on a border, outline, divider, underline or
+    SVG stroke, in code or on a sheet. Dashes read as unfinished or as a
+    placeholder; an empty slot is a fill, a drop target is a fill change.
+    Numbered 24 rather than inserted so rule 23 keeps the number code cites.
+    `check:strokes` fails the build on `border-dashed`, `outline-dotted`, a
+    dashed `borderStyle` or any `stroke-dasharray`.
 
 ### Colour
 

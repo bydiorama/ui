@@ -27,6 +27,7 @@ import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Accordion } from "@/ui/accordion/accordion.tsx";
 import { Input } from "@/ui/input/input.tsx";
+import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { chromeControl } from "@/lib/chrome-control";
 import { Header } from "@/ui/header/header.tsx";
 import { EmptyState } from "@/ui/empty-state/empty-state.tsx";
@@ -65,6 +66,9 @@ const CASES: Array<[name: string, ui: ReactElement]> = [
   ["Button icon-only sm", <Button size="sm" isIconOnly aria-label="Search" icon={<Search />} />],
   ["Input lg", <Input label="Query" size="lg" icon={<Search />} iconEnd={<Search />} />],
   ["Input sm", <Input label="Query" size="sm" icon={<Search />} />],
+  // The caller's leading icon plus the component's own clear glyph and
+  // chevron — three marks, all 16, at the smallest field.
+  ["Combobox sm", <Combobox label="Query" size="sm" icon={<Search />} items={[]} defaultInputValue="Jo" />],
   ["Banner", <Banner icon={<InfoCircle />} onDismiss={() => {}} dismissLabel="Dismiss">Message</Banner>],
   [
     // The trigger carries TWO marks at 16px: the caller's icon slot and the

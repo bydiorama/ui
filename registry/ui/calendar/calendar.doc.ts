@@ -83,7 +83,7 @@ Calendar   label (required)
 
   /** Open questions for design. Collected by `pnpm design:gaps`. */
   needsDesign: [
-    "No today state is drawn. The outline is derived — and now carries to the month and year lists too.",
+    "Today is now drawn (Paper, Components - Handoff, Audit #9): a 1px outline in --ui-border-control, which clears 3:1 (3.04:1 light / 4.05:1 dark). It was --ui-border-default at 2.09:1. Carries to the month and year lists.",
     "The month list fills June while its own header reads August, so the sheet does not say whether the fill marks the VISIBLE month or the selected date's month. Shipped as the visible one, mirroring the day grid where the fill is the selection and the outline is today.",
     "The year grid's window is 27 years centred on the visible year, and the header arrows page it a screenful at a time. The sheet draws one static screenful, so the range and the paging step are both derived.",
     "The month and year triggers are 24px tall — SC 2.5.8's floor exactly, because the sheet's header row is 32px overall and a taller trigger would push the arrows out of line.",

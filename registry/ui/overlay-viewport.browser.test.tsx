@@ -26,6 +26,7 @@ import type { ReactElement } from "react";
 import { Button } from "@/ui/button/button.tsx";
 import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.tsx";
+import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { Popover } from "@/ui/popover/popover.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
 
@@ -108,6 +109,13 @@ const CASES: Array<{ name: string; slot: string; ui: ReactElement }> = [
     ui: <Multiselect label="Services" items={MANY_MULTI} />,
   },
   {
+    // Opened by a click on its chevron; a click into the field itself does
+    // not open it, by design.
+    name: "Combobox",
+    slot: "combobox-panel",
+    ui: <Combobox label="Services" items={MANY_MULTI} />,
+  },
+  {
     name: "DatePicker",
     slot: "date-picker-panel",
     // The Calendar card is a fixed 320 × ~390, which is bigger than the space
@@ -141,7 +149,11 @@ describe("an anchored panel never renders outside the viewport", () => {
       const c = mountAt(ui, { bottom: 8, right: 8 });
       // Whatever the component's trigger is — a Select trigger, a Multiselect
       // combobox, a Button — it is the one focusable thing rendered.
-      const trigger = c.querySelector<HTMLElement>("button, [role='combobox']")!;
+      // A Combobox is the exception: its focusable thing is the input, which
+      // does not open on a click by design, so its chevron is the trigger.
+      const trigger =
+        c.querySelector<HTMLElement>("[data-slot='combobox-trigger']") ??
+        c.querySelector<HTMLElement>("button, [role='combobox']")!;
       await userEvent.click(trigger);
 
       const panel = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;

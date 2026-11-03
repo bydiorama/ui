@@ -51,6 +51,15 @@ Checkbox
         "The mixed state. Deliberately has no `default*` counterpart: mixed is a statement about OTHER checkboxes, so a component that owned it would be guessing. Clicking a mixed box reports true and leaves resolving the children to the caller — which is what browsers do natively.",
     },
     isDisabled: { type: "boolean", default: "false", notes: "Sets the `disabled` attribute — never pointer-events-none, which would kill an explaining tooltip." },
+    labelPlacement: {
+      type: '"end" | "start"',
+      default: '"end"',
+      notes: "Which side of the control the label sits on. end is the shipped inline row. start is the SETTINGS ROW: full width, label first, the control pinned to the end in a fixed lane, so a stack of rows forms one column of controls (#9 Proposals sheet, 03). Visual order only (flex-row-reverse): the input stays first in the DOM, so the peer styling and the reading order hold, and in RTL the sides mirror with the text.",
+    },
+    description: {
+      type: "ReactNode",
+      notes: "A line under the label: body-sm in --ui-text-muted (5.93:1 light, 4.94:1 dark), gap-xs below, --ui-text-disabled when disabled. Inside the <label>, so it is part of the hit target; announced as the input's DESCRIPTION (aria-describedby), with the name pinned to the label text (aria-labelledby) so a long description is never read as the name. A caller's own aria-describedby is kept beside it. With a description the row aligns to the top and the control sits on the label's first line.",
+    },
     onCheckedChange: { type: "(isChecked: boolean) => void", notes: "Fires on every change in both modes. The raw onChange is still forwarded and runs after ours (CONVENTIONS §5)." },
   },
 
@@ -92,7 +101,8 @@ Checkbox
     "No isInvalid / errorText. A required checkbox (terms acceptance) has no designed error treatment yet — the field-level error pattern lives on Input.",
     "No CheckboxGroup. The sheet's nested list uses a 26px indent (18px box + 8px gap), which is a composition concern; grouping, the parent's mixed derivation and group labelling are not componentised yet.",
     "Forced-colors behaviour is reasoned from the markup, not asserted in CI — Playwright can force it, and no test does yet.",
-    "The row centres its content (`items-center`), matching the sheet. A label wrapping to several lines therefore centres against the box rather than aligning to its first line; the sheet draws only single-line labels.",
+    "labelPlacement and description are CLOSED (2026-11-02, #9): drawn on the #9 Proposals sheet, light and dark, and approved on the Audit #9 sheet.",
+    "The row centres its content (`items-center`), matching the sheet. (A row WITH a description aligns to the label's first line instead — that is the description variant's own drawing.) A label wrapping to several lines therefore centres against the box rather than aligning to its first line; the sheet draws only single-line labels.",
   ],
 
   motion:

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-card-drops-its-320px-minimum-width",
+  "date": "2026-11-02",
+  "item": "card",
+  "kind": "breaking",
+  "summary": "Card no longer sets min-w-80 (320px). It takes its container's width, so it fits narrow chat columns and minmax(280px, 1fr) grids instead of overflowing them (#10).",
+  "affects": [
+    "class:min-w-80"
+  ],
+  "migration": {
+    "manual": "A call site whose parent was narrower than 320px and relied on the card holding 320 should add className=\"min-w-80\" (or set the width on the layout)."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3P20-0"
+  }
+}

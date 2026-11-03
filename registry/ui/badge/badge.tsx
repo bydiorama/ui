@@ -2,7 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactElement, type ReactNode } fr
 
 import { cn } from "@/lib/cn";
 
-export type BadgeVariant = "selected" | "unselected" | "neutral" | "success" | "warning" | "danger";
+export type BadgeVariant = "selected" | "unselected" | "neutral" | "info" | "success" | "warning" | "danger";
 export type BadgeSize = "md" | "sm";
 /**
  * One vocabulary with Button (§2): `full` is `rounded-full`, `soft` is the
@@ -77,6 +77,14 @@ const VARIANT = {
    * tonal: a CATEGORY is outlined, an INTENT is tinted.
    */
   neutral: "bg-sunken border-edge-subtle text-ink-muted",
+  /**
+   * The fifth intent, so Badge's statuses are exactly Banner's five
+   * (#9 proposals sheet, drawn 2026-11-02). The same two roles Banner info
+   * paints: 4.82:1 light, 5.64:1 dark. Not `selected`, which is also blue:
+   * selected is a CHOICE (accent fill, dark ink), info is a STATUS (tint,
+   * info ink) — the same split as neutral vs unselected.
+   */
+  info: "bg-info-subtle border-transparent text-info",
   success: "bg-success-subtle border-transparent text-success",
   // The sheet's "Warning" row, added to all three sizes. It completes the
   // intent set the token layer already carried — success, warning and danger

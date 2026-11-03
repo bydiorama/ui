@@ -2,7 +2,31 @@
 
 The current film builds the brand workspace from a dot grid, then demonstrates its library, metrics and member interaction. Open any HTML preview directly; fonts and artwork are embedded.
 
-## Current versions
+## Refined cuts (current)
+
+Code builds the UI. A widget types four verbatim excerpts from this repository,
+one block at a time, and each block's commit releases the region of the app it
+describes. Nothing starts before its block has landed. Built for muted social
+feeds; 4:5 portrait is the primary format.
+
+| Cut | Landscape 4:3 | Portrait 4:5 |
+| --- | --- | --- |
+| 6s | [Preview](previews/brand-grid-reveal-refined-6s.html) · [MP4](exports/videos/brand-grid-reveal-refined-6s-light-1600x1200-60fps.mp4) | [Preview](previews/brand-grid-reveal-refined-6s-portrait.html) · [MP4](exports/videos/brand-grid-reveal-refined-6s-light-1080x1350-60fps.mp4) |
+| 9s | [Preview](previews/brand-grid-reveal-refined-9s.html) · [MP4](exports/videos/brand-grid-reveal-refined-9s-light-1600x1200-60fps.mp4) | [Preview](previews/brand-grid-reveal-refined-9s-portrait.html) · [MP4](exports/videos/brand-grid-reveal-refined-9s-light-1080x1350-60fps.mp4) |
+
+Edit `source/refined-timeline.js` for behaviour and `scripts/build-refined.py`
+for the cue sheets, excerpts and layouts. Rebuild:
+
+```sh
+python3 design/motion/brand-grid-reveal/scripts/build-refined.py
+node design/motion/brand-grid-reveal/scripts/validate-refined.mjs
+node design/motion/brand-grid-reveal/scripts/render-refined.mjs 6s
+node design/motion/brand-grid-reveal/scripts/render-refined.mjs 9s
+node design/motion/brand-grid-reveal/scripts/render-refined.mjs 6s portrait
+node design/motion/brand-grid-reveal/scripts/render-refined.mjs 9s portrait
+```
+
+## Earlier versions
 
 | Version | Preview | MP4 | Duration |
 | --- | --- | --- | --- |

@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-cli-help-and-lock-all",
+  "date": "2026-11-02",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The consumer CLI prints real help for every command (`--help`, `help <command>`), explains where --revision comes from, and `lock --all` locks every installed registry item at once (#30). README and the CLI README no longer claim the CLI is on npm, document the theme-zero-css item and the tokens emitter seam, and say the shadcn path is not byte-exact.",
+  "affects": [
+    "tool:cli"
+  ]
+}

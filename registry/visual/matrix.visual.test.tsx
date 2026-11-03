@@ -36,7 +36,9 @@ import { DotPattern } from "@/ui/dot-pattern/dot-pattern.tsx";
 import { Fade } from "@/ui/fade/fade.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
+import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
 import { Banner } from "@/ui/banner/banner.tsx";
+import { SiteHeader } from "@/ui/site-header/site-header.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Calendar } from "@/ui/calendar/calendar.tsx";
 import { Card } from "@/ui/card/card.tsx";
@@ -55,6 +57,7 @@ import { Input } from "@/ui/input/input.tsx";
 import { Menu } from "@/ui/menu/menu.tsx";
 import { Modal } from "@/ui/modal/modal.tsx";
 import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.tsx";
+import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { Popover } from "@/ui/popover/popover.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
@@ -359,6 +362,11 @@ const CASES: Array<{
           <Button shape="soft">Soft corners</Button>
           <Button shape="full">Rounded full</Button>
         </div>
+        {/* inverse on its band (#36), with a link-rendered one (#31). */}
+        <div className="flex items-center gap-md rounded-md bg-inverse p-md">
+          <Button variant="inverse" render={<a href="#contact" />}>Get in touch</Button>
+          <Button variant="inverse" isDisabled>Disabled</Button>
+        </div>
         {/*
           DISABLED, which had no case at all. It is the state a form shows most
           — every secondary action goes inert while it submits — and it shipped
@@ -378,6 +386,16 @@ const CASES: Array<{
     ),
   },
   {
+    name: "media-toggle",
+    ui: (
+      <div className="flex items-end gap-md rounded-md p-md" style={{ backgroundImage: `url("${MEDIA}")`, backgroundSize: "cover" }}>
+        <MediaToggle pauseLabel="Pause background video" playLabel="Play background video" defaultIsPaused={false} />
+        <MediaToggle pauseLabel="Pause background video" playLabel="Play background video" defaultIsPaused />
+        <MediaToggle pauseLabel="Pause background video" playLabel="Play background video" defaultIsPaused={false} size="lg" />
+      </div>
+    ),
+  },
+  {
     name: "badge",
     ui: (
       <div className="flex flex-col gap-md">
@@ -387,7 +405,7 @@ const CASES: Array<{
                 entered this matrix, and `neutral` would have gone the same
                 way — a variant the visual gate never renders is a variant the
                 visual gate cannot defend. */}
-            {(["selected", "unselected", "neutral", "success", "warning", "danger"] as const).map((variant) => (
+            {(["selected", "unselected", "neutral", "info", "success", "warning", "danger"] as const).map((variant) => (
               <Badge key={variant} variant={variant} size={size}>
                 {variant}
               </Badge>
@@ -406,6 +424,20 @@ const CASES: Array<{
             Exports use the template set in Brand profile.
           </Banner>
         ))}
+        {/* Title + action in every intent: the action's role treatment
+            (primary on info, an outline in the banner's own ink elsewhere)
+            is exactly what a computed-style test can pass while the ring
+            reads wrong, so the baseline photographs all five. */}
+        {(["neutral", "info", "success", "warning", "danger"] as const).map((variant) => (
+          <Banner
+            key={`${variant}-rich`}
+            variant={variant}
+            title="Layouts off-grid"
+            action={<Banner.Action>Review layouts</Banner.Action>}
+          >
+            Two layouts drift from the 8pt baseline.
+          </Banner>
+        ))}
       </div>
     ),
   },
@@ -418,6 +450,17 @@ const CASES: Array<{
           <Checkbox defaultIsChecked>Brief A</Checkbox>
           <Checkbox>Brief B</Checkbox>
           <Checkbox isDisabled>Brief C</Checkbox>
+        </div>
+        {/* The settings row (#9): label first, box at the end, a description
+            under the label with the box on its first line. */}
+        <div className="flex w-90 flex-col gap-lg pt-sm">
+          <Checkbox labelPlacement="start" defaultIsChecked>Snap layouts to the baseline grid</Checkbox>
+          <Checkbox labelPlacement="start" description="Quotes and hyphens sit outside the measure.">
+            Keep hanging punctuation
+          </Checkbox>
+          <Checkbox labelPlacement="start" isDisabled description="Unavailable until the licence is renewed.">
+            Embed Univers in exports
+          </Checkbox>
         </div>
       </div>
     ),
@@ -544,6 +587,37 @@ const CASES: Array<{
     ),
   },
   {
+    name: "combobox",
+    // Closed only, as Select's: the panel opens on typing or ArrowDown and
+    // this frame has no interaction. The open panel — rows, groups, status
+    // rows, the action and the fade — is asserted in the contract suite,
+    // largely as relationships to Select's panel. The sheet's § Sizes and
+    // shape and § Field states, beside an Input at the same size.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Input label="Reference" placeholder="Diorama" icon={<Search />} />
+        <Combobox label="Rest, empty" icon={<Search />} placeholder="Search designers and inventors" items={SELECT_ITEMS} />
+        <Combobox label="Filled" icon={<Search />} items={SELECT_ITEMS} defaultValue="guidelines" />
+        <Combobox
+          label="Invalid"
+          icon={<Search />}
+          placeholder="Search designers and inventors"
+          items={SELECT_ITEMS}
+          errorText="Choose a service, or search for one"
+          helperText="Matched against the services index"
+        />
+        <Combobox label="Disabled" icon={<Search />} placeholder="Search designers and inventors" items={SELECT_ITEMS} isDisabled />
+        {(["md", "sm"] as const).map((size) => (
+          <div key={size} className="flex items-end gap-md">
+            <Combobox label={`${size} · soft`} size={size} icon={<Search />} items={SELECT_ITEMS} defaultValue="guidelines" />
+            <Combobox label={`${size} · full`} size={size} shape="full" icon={<Search />} items={SELECT_ITEMS} defaultValue="guidelines" />
+          </div>
+        ))}
+        <Combobox label="lg · full, no chevron" shape="full" hasTrigger={false} icon={<Search />} items={SELECT_ITEMS} defaultValue="guidelines" />
+      </div>
+    ),
+  },
+  {
     name: "switch",
     ui: (
       <div className="flex flex-col gap-md">
@@ -551,6 +625,13 @@ const CASES: Array<{
         <Switch defaultIsChecked>On</Switch>
         <Switch isDisabled>Disabled, off</Switch>
         <Switch isDisabled defaultIsChecked>Disabled, on</Switch>
+        <div className="flex w-90 flex-col gap-lg pt-sm">
+          <Switch labelPlacement="start" defaultIsChecked>Publish to the archive automatically</Switch>
+          <Switch labelPlacement="start" description="Herbert Bayer and Otl Aicher get an email.">
+            Notify the studio
+          </Switch>
+          <Switch description="Sends at 09:00 every weekday.">Daily digest</Switch>
+        </div>
       </div>
     ),
   },
@@ -718,6 +799,49 @@ const CASES: Array<{
           <Avatar name="Mira Vance" size="sm" />
         </Header.End>
       </Header>
+    ),
+  },
+  {
+    name: "site-header",
+    // Three bars: above the collapse point, below it, and on a hero. The
+    // points are set past either edge of any viewport so the layout is the
+    // case's, not the window's; affix is off so nothing pins in the frame.
+    // The hero's pale patch is the bright photograph the scrim exists for.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        {(["10rem", "200rem"] as const).map((point) => (
+          <SiteHeader
+            key={point}
+            affix={false}
+            collapseBelow={point}
+            brand={{ label: "Diorama" }}
+            items={[
+              { label: "Work", href: "#work" },
+              { label: "Studio", href: "#studio", isCurrent: true },
+              { label: "Journal", href: "#journal" },
+            ]}
+            cta={{ label: "Book a call", href: "#contact" }}
+          />
+        ))}
+        <div>
+          <SiteHeader
+            affix={false}
+            isOverMedia
+            collapseBelow="10rem"
+            brand={{ label: "Diorama" }}
+            items={[
+              { label: "Work", href: "#work" },
+              { label: "Studio", href: "#studio", isCurrent: true },
+              { label: "Journal", href: "#journal" },
+            ]}
+            cta={{ label: "Book a call", href: "#contact" }}
+          />
+          <div
+            className="h-30 bg-media"
+            style={{ backgroundImage: "radial-gradient(50% 60% at 60% 0%, #FFFFFF, transparent)" }}
+          />
+        </div>
+      </div>
     ),
   },
   {
@@ -1242,6 +1366,15 @@ const CASES: Array<{
               <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy}</p>
               <Fade ground="base" isVisible={false} />
             </div>
+          </div>
+          {/* The pinned-bar seam: a bar on the affix ground (the page at
+              90%) over running copy, and the band hung below it in the SAME
+              ground. A ramp starting at the page's solid 100% photographed
+              as a bright strip along the bar's edge; this one must not. */}
+          <div className="relative h-32 overflow-clip rounded-md border border-edge-subtle bg-base">
+            <p className="p-md text-body-sm leading-relaxed text-ink-secondary">{copy} {copy}</p>
+            <div className="absolute inset-x-0 top-0 h-12 bg-affix" />
+            <Fade side="top" ground="affix" className="top-12" />
           </div>
         </div>
       );

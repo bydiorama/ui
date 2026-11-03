@@ -163,7 +163,7 @@ export function Calendar({
    * The one date in the grid that is in the tab order (a roving tabindex).
    * A grid of 31 tab stops is what the ARIA pattern exists to avoid.
    */
-  const [focusedDate, setFocusedDate] = useState<Date>(() => startOfDay(selected ?? visible));
+  const [storedFocus, setFocusedDate] = useState<Date>(() => startOfDay(selected ?? visible));
   const shouldFocus = useRef(false);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -171,20 +171,20 @@ export function Calendar({
   const monthIndex = visible.getMonth();
 
   // Keep the focused date inside the visible month when the month changes
-  // underneath it — otherwise the roving tabindex points at nothing.
-  useEffect(() => {
-    setFocusedDate((current) =>
-      current.getFullYear() === year && current.getMonth() === monthIndex
-        ? current
-        : at(year, monthIndex, 1),
-    );
-  }, [year, monthIndex]);
+  // underneath it — otherwise the roving tabindex points at nothing. Derived
+  // during render rather than corrected in an effect: an effect paints one
+  // frame with no tab stop and trips `react-hooks/set-state-in-effect`.
+  const focusedDate =
+    storedFocus.getFullYear() === year && storedFocus.getMonth() === monthIndex
+      ? storedFocus
+      : at(year, monthIndex, 1);
+  const focusedTime = focusedDate.getTime();
 
   useEffect(() => {
     if (!shouldFocus.current) return;
     shouldFocus.current = false;
     gridRef.current?.querySelector<HTMLElement>('[data-slot="calendar-day"][tabindex="0"]')?.focus();
-  }, [focusedDate]);
+  }, [focusedTime]);
 
   const weekdays = useMemo(() => {
     const format = new Intl.DateTimeFormat(undefined, { weekday: "short" });
@@ -482,7 +482,11 @@ export function Calendar({
                       "data-[selected]:bg-accent-subtle data-[selected]:text-ink-primary data-[selected]:font-bold",
                       // Today is marked by an outline, not a fill, so it can
                       // coexist with the selection rather than compete with it.
-                      "data-[today]:outline data-[today]:outline-edge-default",
+                      // --ui-border-control, not -default (#9 audit, Paper 3PLD-0): today
+                      // is a STATE indicator and -default measured 2.09:1 on the
+                      // calendar ground, under SC 1.4.11's 3:1. -control is
+                      // 3.04:1 light / 4.05:1 dark — Checkbox's edge role.
+                      "data-[today]:outline data-[today]:outline-edge-control",
                       "aria-disabled:cursor-not-allowed aria-disabled:text-ink-disabled aria-disabled:bg-sunken",
                       "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
                     )}
@@ -608,7 +612,7 @@ function OptionList({ id, slot, label, columns, options, onSelect, onDismiss }: 
             // accent-on-accent-subtle measures 1.3:1, so that border was
             // decoration the fill already carries.
             "data-[selected]:bg-accent-subtle data-[selected]:text-ink-primary data-[selected]:font-bold",
-            "data-[current]:outline data-[current]:outline-edge-default",
+            "data-[current]:outline data-[current]:outline-edge-control",
             "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
           )}
         >

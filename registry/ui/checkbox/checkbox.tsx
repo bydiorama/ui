@@ -2,6 +2,7 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useId,
   useRef,
   type ChangeEvent,
   type InputHTMLAttributes,
@@ -15,6 +16,7 @@ import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
 export type CheckboxState = "checked" | "unchecked" | "mixed";
+export type CheckboxLabelPlacement = "end" | "start";
 
 /**
  * Box geometry, transcribed from the approved design.
@@ -42,6 +44,24 @@ interface CheckboxOwnProps {
    */
   isIndeterminate?: boolean;
   isDisabled?: boolean;
+  /**
+   * Which side of the control the label sits on. `end` (default) is the
+   * shipped row: control, then label. `start` is the SETTINGS ROW — label
+   * first, the control pinned to the row's end in a fixed lane, the row
+   * full-width — so a stack of rows forms one column of controls (#9). Visual
+   * order only: the input stays first in the DOM, so the peer styling and the
+   * reading order are unchanged, and in RTL the sides mirror with the text.
+   */
+  labelPlacement?: CheckboxLabelPlacement;
+  /**
+   * A line under the label — what the setting does. body-sm in the muted ink,
+   * gap-xs below the label, and part of the hit target (it is inside the
+   * <label>). Announced as the input's DESCRIPTION, not its name: the name is
+   * pinned to the label text with aria-labelledby, so a long description is
+   * not read out as the control's name. With a description the row aligns to
+   * the top and the control sits on the label's first line.
+   */
+  description?: ReactNode;
   /** Fires with the new state on every change, controlled or not. */
   onCheckedChange?: (isChecked: boolean) => void;
 }
@@ -72,6 +92,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
     defaultIsChecked = false,
     isIndeterminate = false,
     isDisabled = false,
+    labelPlacement = "end",
+    description,
     onCheckedChange,
     onChange,
     className,
@@ -79,6 +101,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
   },
   ref,
 ) {
+  const labelId = useId();
+  const descriptionId = useId();
+  const hasDescription = description !== undefined && description !== null && description !== false;
   const [checked, setChecked] = useControllableState({
     ...(isChecked !== undefined ? { value: isChecked } : {}),
     defaultValue: defaultIsChecked,
@@ -114,7 +139,14 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
       data-state={state}
       data-disabled={isDisabled || undefined}
       className={cn(
-        "group inline-flex items-center gap-sm",
+        "group gap-sm",
+        // `start` is the settings row: full width, label first, the control
+        // pinned to the end. Reversed VISUALLY only — the input must stay
+        // before the box in the DOM for every peer-* selector below.
+        labelPlacement === "start" ? "flex w-full flex-row-reverse justify-between" : "inline-flex",
+        // With a description the control sits on the label's FIRST line;
+        // without one the row centres, as the comment below explains.
+        hasDescription ? "items-start" : "items-center",
         // The visible box is 18px and the text line is 17px, so the row would
         // be a 19px target — under the 24px floor of WCAG 2.5.8. The label is
         // the target and it is padded out to 24px; the box stays 18px.
@@ -138,6 +170,15 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
         ref={setRefs}
         type="checkbox"
         data-slot="input"
+        {...(hasDescription
+          ? {
+              // The name stays the label TEXT; the description is announced
+              // after it. Wrapping both in the <label> would otherwise make
+              // the description part of the name.
+              "aria-labelledby": rest["aria-labelledby"] ?? labelId,
+              "aria-describedby": [descriptionId, rest["aria-describedby"]].filter(Boolean).join(" "),
+            }
+          : {})}
         className="peer sr-only"
         checked={checked}
         disabled={isDisabled}
@@ -152,17 +193,32 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           "mt-px flex shrink-0 items-center justify-center rounded-sm border",
           "transition-[background-color,border-color,box-shadow]", motionMicro,
 
-          state === "unchecked" && "bg-surface border-edge-control",
-          state === "checked" && "bg-accent border-accent text-ink-on-accent",
-          state === "mixed" && "bg-sunken border-edge-strong text-ink-primary",
+          // CHECKED IS DRAWN FROM `:checked`, NOT FROM REACT STATE (#34). A
+          // statically rendered page (Astro without `client:*`, SSR before
+          // hydration) still toggles the native input on click, and a box
+          // painted from `data-state` stayed empty while the form submitted
+          // "on". `peer-checked:` follows the input itself, so the control
+          // works with no JavaScript at all. Mixed stays render-time: the
+          // `indeterminate` property has no HTML attribute, so it cannot
+          // exist without JavaScript anyway.
+          state === "mixed"
+            ? "bg-sunken border-edge-strong text-ink-primary"
+            : cn(
+                "bg-surface border-edge-control",
+                !isDisabled && "peer-checked:bg-accent peer-checked:border-accent peer-checked:text-ink-on-accent",
+                // The glyph is always in the DOM and shown by the same
+                // selector, so it appears without a re-render.
+                "[&>svg]:invisible peer-checked:[&>svg]:visible",
+              ),
 
           // Hover is DERIVED — the sheet draws no hover state. Unchecked
           // deepens its edge; the filled states step to the accent's hover
-          // role, mirroring Button.
-          !isDisabled && state === "unchecked" && "group-hover:border-edge-strong",
+          // role, mirroring Button. The checked hover carries both variants,
+          // so it outranks the unchecked one by specificity, not by order.
+          !isDisabled && state !== "mixed" && "group-hover:border-edge-strong",
           !isDisabled &&
-            state === "checked" &&
-            "group-hover:bg-accent-hover group-hover:border-accent-hover",
+            state !== "mixed" &&
+            "group-hover:peer-checked:bg-accent-hover group-hover:peer-checked:border-accent-hover",
 
           isDisabled && "bg-sunken border-edge-subtle text-ink-disabled",
 
@@ -172,19 +228,42 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           "peer-focus-visible:border-edge-focus peer-focus-visible:shadow-(--ui-focus-ring) peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-focus",
         )}
       >
-        {state === "checked" && <Check size={GLYPH_PX} aria-hidden="true" />}
-        {state === "mixed" && <Minus size={GLYPH_PX} aria-hidden="true" />}
+        {state === "mixed" ? (
+          <Minus size={GLYPH_PX} aria-hidden="true" />
+        ) : (
+          <Check size={GLYPH_PX} aria-hidden="true" />
+        )}
       </span>
 
-      <span
-        data-slot="label"
-        className={cn(
-          "text-label-md font-body",
-          isDisabled ? "text-ink-disabled" : "text-ink-primary",
-        )}
-      >
-        {children}
-      </span>
+      {hasDescription ? (
+        <span data-slot="text" className="flex min-w-0 flex-1 flex-col gap-xs">
+          <span
+            id={labelId}
+            data-slot="label"
+            className={cn("text-label-md font-body", isDisabled ? "text-ink-disabled" : "text-ink-primary")}
+          >
+            {children}
+          </span>
+          <span
+            id={descriptionId}
+            data-slot="description"
+            className={cn("text-body-sm font-body", isDisabled ? "text-ink-disabled" : "text-ink-muted")}
+          >
+            {description}
+          </span>
+        </span>
+      ) : (
+        <span
+          data-slot="label"
+          className={cn(
+            "text-label-md font-body",
+            labelPlacement === "start" && "min-w-0 flex-1",
+            isDisabled ? "text-ink-disabled" : "text-ink-primary",
+          )}
+        >
+          {children}
+        </span>
+      )}
     </label>
   );
 });

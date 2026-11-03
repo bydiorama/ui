@@ -160,3 +160,112 @@ describe("Switch paints the designed control", () => {
     expect(getComputedStyle(disabled.label).pointerEvents).not.toBe("none");
   });
 });
+
+describe("On state needs no JavaScript (#34)", () => {
+  test("toggling the native input fills the track and moves the thumb without a React render", () => {
+    const { input, track, thumb } = mount(<Switch>Newsletter</Switch>);
+    track.style.transition = thumb.style.transition = "none";
+    const restFill = getComputedStyle(track).backgroundColor;
+    const restThumb = thumb.getBoundingClientRect().left;
+    input.checked = true;
+    expect(getComputedStyle(track).backgroundColor).not.toBe(restFill);
+    expect(thumb.getBoundingClientRect().left).toBeGreaterThan(restThumb);
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * labelPlacement and description (#9 proposals)
+ * ------------------------------------------------------------------ */
+
+describe("Switch labelPlacement", () => {
+  test("start is the settings row: full width, label first, the control at the END", () => {
+    const host = document.createElement("div");
+    host.style.width = "420px";
+    document.body.appendChild(host);
+    const r = createRoot(host);
+    act(() => r.render(<Switch labelPlacement="start">Snap layouts to the baseline grid</Switch>));
+    const row = host.querySelector<HTMLElement>('[data-slot="switch"]')!.getBoundingClientRect();
+    const label = host.querySelector<HTMLElement>('[data-slot="label"]')!.getBoundingClientRect();
+    const box = host.querySelector<HTMLElement>('[data-slot="track"]')!.getBoundingClientRect();
+    expect(row.width).toBe(420);
+    expect(label.left).toBeLessThan(box.left);
+    expect(box.right).toBeCloseTo(row.right, 0);
+    // Visual order only: the input still precedes the visual control, which
+    // every peer-* selector depends on.
+    const input = host.querySelector('[data-slot="input"]')!;
+    expect(input.compareDocumentPosition(host.querySelector('[data-slot="track"]')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    act(() => r.unmount());
+    host.remove();
+  });
+
+  test("end (default) is unchanged: control first, an inline row", () => {
+    const { label } = mount(<Switch>Publish automatically</Switch>);
+    expect(getComputedStyle(label).display).toBe("inline-flex");
+  });
+});
+
+describe("Switch description", () => {
+  test("named by the label, DESCRIBED by the description, and both are the hit target", async () => {
+    const onCheckedChange = vi.fn();
+    mount(
+      <Switch description="Herbert Bayer and Otl Aicher get an email." onCheckedChange={onCheckedChange}>
+        Notify the studio
+      </Switch>,
+    );
+    const input = document.querySelector<HTMLInputElement>('[data-slot="input"]')!;
+    const labelId = input.getAttribute("aria-labelledby")!;
+    const descriptionId = input.getAttribute("aria-describedby")!;
+    expect(document.getElementById(labelId)!.textContent).toBe("Notify the studio");
+    expect(document.getElementById(descriptionId)!.textContent).toBe("Herbert Bayer and Otl Aicher get an email.");
+    // Clicking the description toggles: it is inside the <label>.
+    await userEvent.click(document.querySelector<HTMLElement>('[data-slot="description"]')!);
+    expect(onCheckedChange).toHaveBeenCalledWith(true);
+  });
+
+  test("a caller's own aria-describedby is kept beside the description", () => {
+    mount(
+      <Switch description="Sends at 09:00." aria-describedby="policy-note">
+        Daily digest
+      </Switch>,
+    );
+    const ids = document.querySelector('[data-slot="input"]')!.getAttribute("aria-describedby")!.split(" ");
+    expect(ids).toContain("policy-note");
+    expect(ids).toHaveLength(2);
+  });
+
+  test("the control sits on the label's FIRST line, not the block's centre", () => {
+    const host = document.createElement("div");
+    host.style.width = "240px";
+    document.body.appendChild(host);
+    const r = createRoot(host);
+    act(() =>
+      r.render(
+        <Switch description="Quotes and hyphens sit outside the measure, as Jan Tschichold set them in 1928.">
+          Keep hanging punctuation
+        </Switch>,
+      ),
+    );
+    const label = host.querySelector<HTMLElement>('[data-slot="label"]')!.getBoundingClientRect();
+    const box = host.querySelector<HTMLElement>('[data-slot="track"]')!.getBoundingClientRect();
+    expect(Math.abs(box.top - label.top)).toBeLessThan(3);
+    act(() => r.unmount());
+    host.remove();
+  });
+
+  test("description is muted, and dims with the row when disabled", () => {
+    const probe = (token: string) => {
+      const p = document.createElement("div");
+      p.style.color = `var(${token})`;
+      document.body.appendChild(p);
+      const v = getComputedStyle(p).color;
+      p.remove();
+      return v;
+    };
+    const { label } = mount(<Switch description="Sends at 09:00.">Daily digest</Switch>);
+    expect(getComputedStyle(label.querySelector('[data-slot="description"]')!).color).toBe(probe("--ui-text-muted"));
+    act(() => root?.unmount());
+    container?.remove();
+    const disabled = mount(<Switch isDisabled description="Unavailable.">Embed Univers</Switch>);
+    expect(getComputedStyle(disabled.label.querySelector('[data-slot="description"]')!).color).toBe(probe("--ui-text-disabled"));
+  });
+});

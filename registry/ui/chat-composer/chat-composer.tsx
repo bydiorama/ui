@@ -586,7 +586,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
                 // bg-elevated measures 1.03:1 and the control disappears
                 // entirely; the drawn value is the one that still reads as a
                 // control. Recorded in needsDesign — the two should agree.
-                className="disabled:bg-sunken disabled:ring-sunken"
+                className="data-disabled:bg-sunken data-disabled:ring-sunken"
                 icon={<ArrowUp />}
               />
             )}

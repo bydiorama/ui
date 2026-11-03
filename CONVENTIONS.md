@@ -113,6 +113,13 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   hairline that must keep its half pixel at DPR 1 is a `ring`, not a
   `border` — Chromium floors borders to device pixels. `check:strokes`
   enforces it.
+- **Strokes are solid.** No dashed, dotted or double lines anywhere — borders,
+  outlines, dividers, underlines, SVG strokes, sheet annotations. A dash
+  pattern reads as "unfinished", "placeholder" or "drop here", and the
+  system has a solid answer for each: an empty slot is a fill, a drop target
+  is a fill change, a pending item is a muted ink. A codified design decision
+  (2026-11-02); `check:strokes` rule B enforces it in components and stories,
+  and the design-component sweep enforces it on Paper sheets.
 - **Shadows for elevation, borders for structure.** A border whose only job is
   depth becomes a layered translucent `--ui-shadow-*`; borders that communicate
   structure or state stay.

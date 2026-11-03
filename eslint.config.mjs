@@ -1,5 +1,6 @@
 // @ts-check
 import tseslint from "typescript-eslint";
+import reactHooks from "eslint-plugin-react-hooks";
 
 /**
  * Boundary rules for distributed source.
@@ -78,6 +79,13 @@ export default tseslint.config(
   {
     files: ["registry/**/*.{ts,tsx}"],
     rules: registryBoundaries,
+  },
+  {
+    // Consumers lint copied source with the current React preset (issue #35):
+    // anything it rejects here, it rejects in every app that installs the item.
+    files: ["registry/**/*.{ts,tsx}"],
+    ignores: ["registry/**/*.test.{ts,tsx}", "registry/**/*.stories.tsx"],
+    ...reactHooks.configs.flat.recommended,
   },
   {
     // Scripts are dependency-free Node, not distributed source.

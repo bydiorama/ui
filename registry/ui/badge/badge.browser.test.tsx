@@ -71,6 +71,8 @@ describe("Badge variants resolve to the designed roles", () => {
     // concept (§2). The sheet drew --ui-bg-active here, an INTERACTION role,
     // which would have made a resting badge the colour of a pressed row.
     ["neutral", "rgb(237, 232, 227)", "rgb(105, 99, 93)"],
+    // Banner info's pair (#9): a STATUS tint, not the selected accent.
+    ["info", "rgb(210, 235, 248)", "rgb(27, 108, 132)"],
     ["success", "rgb(214, 239, 203)", "rgb(36, 110, 65)"],
     ["warning", "rgb(248, 231, 217)", "rgb(143, 84, 38)"],
     // The sheet used --ui-bg-danger-solid as ink; the fixed role is the
@@ -83,31 +85,31 @@ describe("Badge variants resolve to the designed roles", () => {
     expect(style.color).toBe(fg);
   });
 
-  test("the four data variants are four DIFFERENT colours", () => {
+  test("the five data variants are five DIFFERENT colours", () => {
     // Asserted as a difference, not as four separate literals: a copy-paste
     // in the VARIANT map would leave every one of those literal assertions
     // passing while warning painted the success tint. Badge has been here
     // before — its two sizes were pixel-identical while every test passed.
     const fills = new Set<string>();
-    for (const variant of ["neutral", "success", "warning", "danger"] as const) {
+    for (const variant of ["neutral", "info", "success", "warning", "danger"] as const) {
       const { badge } = mount(<Badge variant={variant}>Label</Badge>);
       fills.add(getComputedStyle(badge).backgroundColor);
       act(() => root?.unmount());
       container?.remove();
     }
-    expect(fills.size).toBe(4);
+    expect(fills.size).toBe(5);
 
     // Ink is checked over the intents only: `neutral` deliberately reuses the
     // muted ink `unselected` already carries, because it is the absence of an
     // intent rather than a fourth one.
     const inks = new Set<string>();
-    for (const variant of ["success", "warning", "danger"] as const) {
+    for (const variant of ["info", "success", "warning", "danger"] as const) {
       const { badge } = mount(<Badge variant={variant}>Label</Badge>);
       inks.add(getComputedStyle(badge).color);
       act(() => root?.unmount());
       container?.remove();
     }
-    expect(inks.size).toBe(3);
+    expect(inks.size).toBe(4);
   });
 
   test("neutral carries an EDGE, and differs from unselected by its fill", () => {

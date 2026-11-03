@@ -147,11 +147,11 @@ function PopoverPanel({
           {...forBaseUI<ComponentPropsWithoutRef<typeof BasePopover.Popup>>(rest)}
           data-slot="popover-panel"
           className={cn(
-            // radius-xl (24) with a radius-md (8) boxed child and p-lg (16):
-            // 8 + 16 = 24, concentric exactly (§6). The sheet previously drew
-            // a 32px panel around a 16px well, which was also concentric but
-            // read as too round.
-            "flex min-w-80 flex-col gap-lg rounded-xl p-lg",
+            // radius-lg (16), Card's corner (issue #40). A radius-md (8) boxed
+            // child at p-lg (16) is no longer concentric (§6 would ask for 24);
+            // the 2026-10-29 owner review accepted that — cards, popovers and
+            // dialogs draw at 16 platform-wide, and the 24 read as too round.
+            "flex min-w-80 flex-col gap-lg rounded-lg p-lg",
             // Never larger than the space Base UI measured. Flipping and
             // shifting reposition a panel; they cannot shrink one, so a tall
             // popover on a short window runs off the bottom without this (§7c).

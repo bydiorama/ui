@@ -169,6 +169,20 @@ describe("Input focus indicator is painted, not just declared", () => {
     const invalid = mount(<Input label="Email" errorText="Required" />);
     expect(getComputedStyle(invalid.control).borderColor).not.toBe(restingColor);
   });
+
+  test("aria-invalid set at runtime, with no React render, paints the same edge (#34)", () => {
+    const declared = mount(<Input label="Email" errorText="Required" />);
+    declared.control.style.transition = "none";
+    const invalidColor = getComputedStyle(declared.control).borderColor;
+    act(() => root?.unmount());
+    container?.remove();
+
+    // What a vanilla validation script does on a page that never hydrated.
+    const scripted = mount(<Input label="Email" />);
+    scripted.control.style.transition = "none";
+    scripted.control.querySelector("input")!.setAttribute("aria-invalid", "true");
+    expect(getComputedStyle(scripted.control).borderColor).toBe(invalidColor);
+  });
 });
 
 describe("Input forwarding contract (CONVENTIONS §5)", () => {

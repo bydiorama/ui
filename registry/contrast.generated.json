@@ -164,6 +164,14 @@
       "role": "the neutral badge's hairline on a table row"
     },
     {
+      "fg": "--ui-intent-info-fg",
+      "bg": "--ui-intent-info-bg",
+      "floor": "text",
+      "light": 4.82,
+      "dark": 5.64,
+      "role": "info badge — Banner info's own pair, so Badge's five statuses are Banner's five intents (#9)"
+    },
+    {
       "fg": "--ui-intent-success-fg",
       "bg": "--ui-intent-success-bg",
       "floor": "text",
@@ -228,6 +236,14 @@
       "light": 4.79,
       "dark": 5.93,
       "role": "danger banner ink"
+    },
+    {
+      "fg": "--ui-text-on-danger-subtle",
+      "bg": "--ui-intent-danger-bg",
+      "floor": "text",
+      "light": 8.52,
+      "dark": 5.93,
+      "role": "danger banner action — label and 1.5px ring (Button danger's own ink)"
     }
   ],
   "Button": [
@@ -310,6 +326,38 @@
       "light": 5.93,
       "dark": 4.85,
       "role": "a pressed secondary's edge, the firmest step in ADR 0010's stack"
+    },
+    {
+      "fg": "--ui-text-inverse",
+      "bg": "--ui-bg-inverse",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 17.17,
+      "role": "inverse label, and its edge"
+    },
+    {
+      "fg": "--ui-text-inverse",
+      "bg": "--ui-bg-inverse-hover",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 15.6,
+      "role": "a hovered inverse label"
+    },
+    {
+      "fg": "--ui-text-inverse",
+      "bg": "--ui-bg-inverse-active",
+      "floor": "text",
+      "light": 9.59,
+      "dark": 12.92,
+      "role": "a pressed inverse label"
+    },
+    {
+      "fg": "--ui-text-inverse-muted",
+      "bg": "--ui-bg-inverse",
+      "floor": "decorative",
+      "light": 7.14,
+      "dark": 6.7,
+      "role": "a disabled inverse label and edge"
     }
   ],
   "Calendar": [
@@ -744,6 +792,112 @@
       "light": 17.17,
       "dark": 9.59,
       "role": "the label"
+    }
+  ],
+  "Combobox": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 11.86,
+      "role": "the value"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 5.76,
+      "role": "the placeholder"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field-chrome",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 12.55,
+      "role": "the value on a chrome ground"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "non-text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "the clear glyph on its hover square"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 7.91,
+      "role": "the label"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the focus ring"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 7.33,
+      "role": "the field's error message"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 12.55,
+      "role": "an option, the error status text"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 10.38,
+      "role": "the highlighted option"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.47,
+      "role": "group labels, loading and empty status rows"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-hover",
+      "floor": "non-text",
+      "light": 4.87,
+      "dark": 5.35,
+      "role": "the link arrow and the action's icon on a highlighted row"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 5.8,
+      "dark": 9.6,
+      "role": "the list-error AlertCircle"
+    },
+    {
+      "fg": "--ui-bg-hover",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 1.19,
+      "dark": 1.21,
+      "role": "the highlight fill against the panel"
     }
   ],
   "ContextMenu": [
@@ -1194,6 +1348,32 @@
       "role": "the resting hairline"
     }
   ],
+  "MediaToggle": [
+    {
+      "fg": "--ui-text-on-media",
+      "bg": "--ui-bg-media",
+      "floor": "non-text",
+      "light": 15.53,
+      "dark": 15.53,
+      "role": "the glyph on its disc"
+    },
+    {
+      "fg": "--ui-text-on-media",
+      "bg": "--ui-bg-media-floor",
+      "floor": "non-text",
+      "light": 6.14,
+      "dark": 6.14,
+      "role": "the glyph on the hovered disc"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 4.85,
+      "role": "the focus ring's outer stop"
+    }
+  ],
   "Menu": [
     {
       "fg": "--ui-text-primary",
@@ -1515,6 +1695,64 @@
       "light": 2.63,
       "dark": 2.63,
       "role": "a disabled row"
+    }
+  ],
+  "SiteHeader": [
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 4.94,
+      "role": "a quiet item at REST on the page ground, and the menu's rows. 5.93:1 light, 4.94:1 dark"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 9.59,
+      "role": "the wordmark, Menu/Close, and a quiet item hovered or current — 2.90:1 above the rest ink, which is what makes the current page legible as current"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-affix-floor",
+      "floor": "text",
+      "light": 11.12,
+      "dark": 5.86,
+      "role": "a quiet item at rest while the bar is AFFIXED. It steps up from muted because muted measures 3.66:1 on this ground in dark, the same conformance step the default item's current page takes"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-affix-floor",
+      "floor": "text",
+      "light": 13.76,
+      "dark": 7.11,
+      "role": "the wordmark, Menu and the current item while affixed"
+    },
+    {
+      "fg": "--ui-text-on-media-muted",
+      "bg": "--ui-bg-media-floor",
+      "floor": "text",
+      "light": 4.62,
+      "dark": 4.62,
+      "role": "a quiet item at rest OVER MEDIA, measured against the scrim over a white photograph — the bar's worst case, and why the scrim is 72% rather than the sheet's 64%"
+    },
+    {
+      "fg": "--ui-text-on-media",
+      "bg": "--ui-bg-media-floor",
+      "floor": "text",
+      "light": 6.14,
+      "dark": 6.14,
+      "role": "the wordmark, Menu and a hovered or current item over media"
+    },
+    {
+      "fg": "--ui-text-on-accent",
+      "bg": "--ui-bg-accent",
+      "floor": "text",
+      "light": 11.35,
+      "dark": 11.35,
+      "role": "the CTA's label, in the bar and in the menu — the accent fill does not depend on the ground under it"
     }
   ],
   "Skeleton": [

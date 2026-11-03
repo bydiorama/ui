@@ -204,13 +204,23 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
 
 export interface TabsPanelProps extends HTMLAttributes<HTMLDivElement> {
   value: string;
+  /**
+   * Keeps the panel in the DOM while another tab is selected, hidden with the
+   * `hidden` attribute. Off by default, as before. Turn it on when the
+   * content must exist without JavaScript — a statically rendered page only
+   * ever ships the selected panel otherwise, so the rest is missing from the
+   * HTML search engines read (#34) — or when a panel holds state (a
+   * half-filled form) that must survive switching away.
+   */
+  isAlwaysMounted?: boolean;
 }
 
-function TabsPanel({ value, className, ...rest }: TabsPanelProps) {
+function TabsPanel({ value, isAlwaysMounted = false, className, ...rest }: TabsPanelProps) {
   return (
     <BaseTabs.Panel
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTabs.Panel>>(rest)}
       value={value}
+      keepMounted={isAlwaysMounted}
       data-slot="tabs-panel"
       className={cn("focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none", className)}
     />

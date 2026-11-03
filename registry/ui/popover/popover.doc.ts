@@ -8,7 +8,7 @@ export const popoverDoc = {
 
   anatomy: [
     { part: "trigger", slot: "popover-trigger", notes: "The control that opens it. Pass your own element via `render` — it is never wrapped." },
-    { part: "panel", slot: "popover-panel", notes: "The portalled surface. radius-xl, bg-elevated, a border-subtle hairline and shadow-md. 24 = a boxed child's radius-md (8) + this panel's p-lg (16), concentric exactly." },
+    { part: "panel", slot: "popover-panel", notes: "The portalled surface. radius-lg, bg-elevated, a border-subtle hairline and shadow-md — Card's surface (issue #40). Not concentric with a radius-md boxed child at p-lg; accepted by the 2026-10-29 owner review." },
     { part: "title", slot: "popover-title", notes: "Names the panel for assistive tech via aria-labelledby, automatically." },
     { part: "description", slot: "popover-description", notes: "body-md at the relaxed leading in secondary ink at `medium` weight, per the actions sheet. The sheet drew 600 there, but its only description sits in a destructive confirmation and that emphasis does not generalise. Carries the unboxed inset plus py-xs." },
     { part: "close", slot: "popover-close", notes: "Optional dismiss control. Takes an element via `render`." },

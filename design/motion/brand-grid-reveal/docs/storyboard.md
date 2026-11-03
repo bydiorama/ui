@@ -100,3 +100,49 @@ remain unchanged. All alternative frames/reports/video have distinct filenames.
 Restore the approved 11px Paper Mono, 22px line height, normal tracking and
 20px horizontal code inset. Keep the 2400-line buffer and 220 lines/sec stream.
 Only the alternative preview/video changes; the original version is preserved.
+
+## Revision 10 — refined cuts: code releases the UI
+
+Decisions: muted social feeds first (4:5 portrait, plus 4:3), a 6s and a 9s
+cut, one hero beat (the dot grid becomes the app), interactions cut to the
+metric ticks and the photo-stack expansion, seamless loop through retirement,
+the widget kept at 448 × 304 with real repository excerpts.
+
+What was wrong: the directed cut streamed code at 220 lines/s, so each line was
+on screen for about four frames and could not be read, the widget faded out at
+3s, and the UI build ran on its own timers. Code and UI were two parallel
+animations with nothing connecting them.
+
+How it works now. Four blocks of 5–6 contiguous, verbatim lines (read from the
+repo by `build-refined.py`, so they cannot drift) are typed one at a time, with
+the file path and real line numbers shown. A block's commit is when its last
+line has fully landed; that moment releases one region of the UI:
+
+| Block | Source | Releases |
+| --- | --- | --- |
+| Tokens | `packages/tokens/src/seed.ts` 112–117 (radius scale, `lg` 16) | app frame |
+| Layout | `packages/tokens/src/seed.ts` 75–80 (`SeedChrome`) | header, sidebar, heading, search — the hero cascade |
+| Components | `registry/ui/thumbnail/thumbnail.tsx` 59–64 | brand and library cards |
+| Metrics | `registry/ui/progress/progress.tsx` 63–68 | the three metric tiles |
+
+The active block is full ink with a tinted band that pulses at its commit;
+earlier blocks dim. A block stays on screen until it commits (the next one
+starts ≥ 80ms later), and each block starts after the previous commit, so the
+frame is visibly empty while Layout types: that gap is the breath before the
+hero. Status reads Generating… with the shimmer, then Generated; the widget
+leaves as the photo stack expands, handing attention to the app.
+
+| Cue (s) | 6s | 9s |
+| --- | --- | --- |
+| Block starts | .30 / .83 / 1.27 / 1.80 | .40 / 1.25 / 2.10 / 2.95 |
+| Generated, widget out | 2.45, 2.55 | 4.0, 4.2 |
+| Photo stack expands | 3.25 | 4.5 |
+| Views / Storage / Members tick | 3.7 / 3.9 / 4.1 | 5.3 / 5.6 / 5.9 |
+| Retirement starts | 4.5 | 6.7 |
+
+Cut: Invite press, search focus. The construction machinery (skeleton, trace,
+paint, corner rounding, digit pop, chart morph) is unchanged from the directed
+cut. Portrait follows the Paper 4:5 artboard: app at (32,208) 1144 × 784,
+widget at (480,32) 448 × 242 with a 160px viewport and tighter faders.
+`validate-refined.mjs` asserts the ordering above, that every block is inside
+the clear part of the viewport at its commit, the loop seam and reduced motion.

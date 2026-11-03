@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-input-invalid-edge-reads-aria-invalid",
+  "date": "2026-11-02",
+  "item": "input",
+  "kind": "fix",
+  "summary": "Input's danger edge is drawn from the inner input's aria-invalid (has-aria-invalid:) rather than only from props, so a validation script that sets aria-invalid without a React render paints it too (#34). Focus still wins over the danger edge.",
+  "affects": [
+    "item:input"
+  ]
+}

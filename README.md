@@ -76,34 +76,73 @@ two jobs:
 
 ### Install a component
 
-The primary channel is this registry's own CLI, published as
-[`@bydiorama/ui`](https://www.npmjs.com/package/@bydiorama/ui). From inside
-your app, `add` resolves an item and its registry dependencies, writes their
-source through your own `components.json` aliases and `tsconfig.json` `@/*`
-mapping, locks what it installed into `ui.lock.json` (so drift tracking
-starts at install, not as an afterthought), and prints the npm dependencies
-left for you to install:
+> **Nothing here is on npm yet.** `@bydiorama/ui` (the CLI) and
+> `@bydiorama/tokens` are both unpublished — `npx @bydiorama/ui …` returns
+> E404 (issue #30). The paths below are the ones that work today.
+
+The primary channel is this registry's own CLI, run from a checkout of this
+repo against your app. `add` resolves an item and its registry dependencies,
+writes their source through your own `components.json` aliases and
+`tsconfig.json` `@/*` mapping, locks what it installed into `ui.lock.json`
+(so drift tracking starts at install, not as an afterthought), and prints the
+npm dependencies left for you to install:
 
 ```bash
-npx @bydiorama/ui add button
+# from a bydiorama/ui checkout
+node --experimental-strip-types packages/cli/bin/ui.ts add button \
+  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
 ```
 
 It never overwrites a local edit without `--force`, and never overwrites a
 declared fork at all — the two things a generic registry client cannot
-promise, because it reads no lockfile.
+promise, because it reads no lockfile. `--help` on any command explains its
+flags; `lock --all` records every item already installed some other way.
 
-**Alternative — any shadcn-compatible client.** Every item is also served as
-a plain JSON file with its source embedded (`r/<item>.json`, the open shadcn
-registry schema), so the shadcn CLI works unchanged; nothing shadcn ships
-ends up in the code you receive:
+**Alternative — a shadcn-compatible client, with one caveat.** Every item is
+also served as a plain JSON file with its source embedded (`r/<item>.json`,
+the open shadcn registry schema), so the shadcn CLI installs it:
 
 ```bash
 npx shadcn@latest add https://raw.githubusercontent.com/bydiorama/ui/main/r/button.json
 ```
 
+It is **not byte-exact**: shadcn drops a file's leading comment block (seen on
+`*.doc.ts` and `lib/motion.ts`), so `lock`/`sync` will report those files as
+diverging from the registry. If you want drift tracking, install with the CLI
+above, or reinstall with `add <item> --force` before locking.
+
 Either way the item's source, its registry dependencies (`cn`, motion
 utilities, …), and its token requirements land in your app. From here the
 code is yours.
+
+### Install the tokens
+
+Components style themselves with token utilities (`bg-surface`,
+`text-ink-primary`, …), so the app needs the theme. Theme zero ships as a
+registry item:
+
+```bash
+node --experimental-strip-types packages/cli/bin/ui.ts add theme-zero-css \
+  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+```
+
+and is imported once, after Tailwind:
+
+```css
+@import "tailwindcss";
+@import "./theme-zero.css";
+```
+
+A **brand** theme is not a file — it is the same two emitters run with the
+brand's seed. Until `@bydiorama/tokens` is published, import them by path from
+a checkout; this is the supported interim seam both current consumers use:
+
+```ts
+import { resolveThemePair, toCss, toTailwindTheme } from "../ui/packages/tokens/src/index.ts";
+
+const pair = resolveThemePair(BRAND_SEED);
+const css = [toTailwindTheme(), toCss(pair, { scope: ":root", scheme: "auto" })].join("\n");
+```
 
 ### Use it
 
@@ -122,7 +161,7 @@ import { Button } from "@/ui/button";
 and their combinations — instead of overwriting your edits:
 
 ```bash
-npx @bydiorama/ui sync
+node --experimental-strip-types packages/cli/bin/ui.ts sync --cwd ../my-app --registry-path .
 ```
 
 See the [CLI README](packages/cli/README.md) for the full drift model.

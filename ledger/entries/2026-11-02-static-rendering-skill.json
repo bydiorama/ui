@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-static-rendering-skill",
+  "date": "2026-11-02",
+  "item": "static-rendering",
+  "kind": "addition",
+  "summary": "New product skill diorama-static-rendering: which components are static-safe vs need hydration in Astro/SSR, the compound-component wrapper pattern for .astro, and the install traps (prettier, focus styles in @layer base, paths outside src/ui) (#34).",
+  "affects": [
+    "skill:static-rendering"
+  ]
+}

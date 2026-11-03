@@ -39,6 +39,7 @@
       ],
       "@/lib/menu-surface": ["./registry/lib/menu-surface/menu-surface.ts"],
       "@/lib/motion": ["./registry/lib/motion/motion.ts"],
+      "@/lib/fade-ramp": ["./registry/lib/fade-ramp/fade-ramp.ts"],
       "@/hooks/use-controllable-state": [
         "./registry/hooks/use-controllable-state/use-controllable-state.ts"
       ],
@@ -62,6 +63,8 @@
       "@/ui/skeleton": ["./registry/ui/skeleton/skeleton.tsx"],
       "@/ui/progress": ["./registry/ui/progress/progress.tsx"],
       "@/ui/slider": ["./registry/ui/slider/slider.tsx"],
+      "@/ui/header": ["./registry/ui/header/header.tsx"],
+      "@/ui/sheet": ["./registry/ui/sheet/sheet.tsx"],
       "@/ui/*": ["./registry/ui/*"]
     }
   },

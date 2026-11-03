@@ -677,6 +677,15 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-text-disabled": towardL(colors.textMuted, colors.bg, 0.45),
     "--ui-text-placeholder": towardL(colors.textMuted, colors.bg, 0.3),
     "--ui-text-inverse": readableInkOn(colors.textPrimary, INKS),
+    // The inverse band's second line (#36): stepped 35% toward the band for
+    // hierarchy, then floored for AA against the band's HOVER step — the
+    // lighter of the two grounds it sits on, so the worse case. Same shape
+    // as --ui-text-on-media-muted.
+    "--ui-text-inverse-muted": legibleOn(
+      towardL(readableInkOn(colors.textPrimary, INKS), colors.textPrimary, 0.35),
+      towardL(colors.textPrimary, colors.bg, 0.08),
+      AA_TEXT,
+    ),
     "--ui-text-link": link,
     "--ui-text-link-hover": shiftL(link, up * 0.08),
     "--ui-text-on-accent": readableInkOn(accent, INKS),

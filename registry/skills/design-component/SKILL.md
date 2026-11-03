@@ -247,7 +247,15 @@ find_nodes({ nodeId, filters: [{ styleName: "font-family", styleValue: "system-u
 find_nodes({ nodeId, filters: [{ styleName: "font-family", styleValue: "*Mono*" }] })
 find_nodes({ nodeId, filters: [{ styleName: "font-size",   styleValue: "11px" }] })   // and 10px
 find_nodes({ nodeId, filters: [{ styleName: "border-radius", styleValue: "6px" }] })  // and 2px, 3px
+find_nodes({ nodeId, filters: [{ styleName: "*border*style*", styleValue: "dashed" }] }) // and dotted
 ```
+
+**No dashed or dotted lines, ever** — a codified decision, not a taste call.
+That covers borders, rules, legend swatches and SVG strokes (no
+`stroke-dasharray`). A line that must read as secondary is a lighter role
+(`--ui-border-default` beside a `--ui-text-primary` one), never a dash. The
+search above does not see an SVG's `stroke-dasharray`, so check every SVG you
+wrote by eye at `scale: 2`.
 
 Then `find_nodes` for `box-shadow: *` and check every hit against a resolved
 `--ui-shadow-*` value. Report the counts — "verified 0" is evidence; "looks
@@ -356,6 +364,7 @@ Conventions that come with it:
 | A screenshot of a section that comes back on BLACK | Nothing is wrong. A frame with no fill is transparent, and `get_screenshot` backs transparency with black — so `text-primary` labels look like they have vanished. Screenshot the ARTBOARD to judge colour; sections are for layout |
 | `get_screenshot` returning nothing at all, repeatedly | **Check the active page first.** Paper renders only the page that is open, so every screenshot of a node on any other page comes back empty — including a page YOU were working on a moment ago, because the user (or your own `open_file`) can move the cursor. `get_basic_info` names the active page; `open_file({ pageId })` fixes it in one call. Only once the page is right is the other cause in play: an artboard too tall to render (roughly 3–4k px and up), which is not transient and not worth retrying — capture the sections instead, and say in the handoff that the whole board was never seen in one frame |
 | A node that reads as 0×0, or children all reporting the artboard origin | Same root cause as the blank screenshot when it is page-related: an inactive page measures as nothing. If the page IS active, it is the hug-content limitation in § 8 — not a broken layout. Never "fix" a layout on this evidence |
+| A dashed line to mean "before", "secondary" or "placeholder" | Strokes are solid (a codified decision). Distinguish with a lighter role or a thinner weight; an empty slot is a fill. The Fade sheet's ramp plot was drawn with a dashed "linear" line and had to be redrawn |
 | A gradient that does not appear | Paper takes `background-image: linear-gradient(…)` and ignores `radial-gradient` silently. A fade under a header, or over a clipped block, works and is worth drawing; a dot grid or any repeating pattern does NOT — draw that as an SVG (`<path>` of circles) or clone the real `DotPattern`. Both failures report success |
 | A cloned overlay landing as a thin strip | The source was `position: absolute` inside a phone frame; cloned into a flex column it leaves the flow and the column collapses under it. Set `position: relative` and an explicit width/height on the clone |
 | Cloning a specimen by the layer name that sounds right | Open it first. "Nav Rail Level 2" was an agent-history rail in one place and a collapsed rail in another, and both captions were written before either was looked at |

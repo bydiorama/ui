@@ -233,8 +233,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           isDisabled ? SURFACE[surface].disabled : SURFACE[surface].rest,
           // Hover is DERIVED, not drawn in the sheet: it mirrors Button's
           // secondary variant (subtle → default) so controls behave alike.
-          !isDisabled && !invalid && "hover:border-edge-default",
-          invalid && "border-danger",
+          !isDisabled && "not-has-aria-invalid:hover:border-edge-default",
+          // INVALID IS READ FROM THE INPUT'S `aria-invalid`, not only from
+          // the prop (#34). The input already carries it whenever the field
+          // is invalid, and reading the attribute means a vanilla validation
+          // script on a static page — one that sets aria-invalid with no
+          // React render — paints the same edge. Focus still wins, as it did
+          // over the old render-time class.
+          "has-aria-invalid:not-focus-within:border-danger",
           // The visible focus indicator. Border colour alone would fail
           // SC 1.4.11 against the resting border, so the ring carries it.
           // The ring is a box-shadow, and forced-colors mode forces box-shadow

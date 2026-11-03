@@ -52,7 +52,7 @@ export type SheetFocusTarget = RefObject<HTMLElement | null> | (() => HTMLElemen
 const toBaseFocus = (target: SheetFocusTarget) =>
   typeof target === "function" ? () => target() ?? true : target;
 
-export type SheetSide = "left" | "right";
+export type SheetSide = "left" | "right" | "top";
 export type SheetSize = "sm" | "md" | "lg";
 
 /**
@@ -73,6 +73,13 @@ const SIDE = {
   right: {
     edge: "right-0 rounded-l-lg",
     offscreen: "data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full",
+  },
+  // FULL SCREEN from the top (#33: a site's collapsed menu). Flush against
+  // all four edges, so no corner is rounded and the size cap does not apply
+  // — the merge drops w-4/5, min-w-64 and the max-w step for these.
+  top: {
+    edge: "inset-x-0 top-0 w-full min-w-0 max-w-none rounded-none",
+    offscreen: "data-[starting-style]:-translate-y-full data-[ending-style]:-translate-y-full",
   },
 } as const satisfies Record<SheetSide, { edge: string; offscreen: string }>;
 

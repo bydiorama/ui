@@ -13,6 +13,7 @@ import {
 
 import { cn } from "@/lib/cn";
 import { AspectRatio, type AspectRatioName } from "@/ui/aspect-ratio";
+import { Fade } from "@/ui/fade";
 
 /**
  * The artifact container — the thing the agent hands you to take away.
@@ -121,6 +122,9 @@ const ChatWidgetBody = forwardRef<HTMLDivElement, ChatWidgetBodyProps>(function 
   ref,
 ) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  // The same node, as state: the Fade binds to the element itself, and a ref
+  // mutation would not re-render to hand it over.
+  const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const [isScrollable, setIsScrollable] = useState(false);
 
   const measure = useCallback(() => {
@@ -144,14 +148,23 @@ const ChatWidgetBody = forwardRef<HTMLDivElement, ChatWidgetBodyProps>(function 
     return () => observer.disconnect();
   }, [measure, children]);
 
+  // Stable, so React does not detach and re-attach it every render — with a
+  // state setter inside, an inline callback would set null then the node on
+  // each commit and schedule a render to do it again.
+  const attachScroller = useCallback(
+    (node: HTMLDivElement | null) => {
+      (scrollerRef as { current: HTMLDivElement | null }).current = node;
+      setScroller(node);
+      if (typeof ref === "function") ref(node);
+      else if (ref) (ref as { current: HTMLDivElement | null }).current = node;
+    },
+    [ref],
+  );
+
   return (
     <div data-slot="chat-widget-body-frame" className={cn("relative min-w-0", className)}>
       <div
-        ref={(node) => {
-          (scrollerRef as { current: HTMLDivElement | null }).current = node;
-          if (typeof ref === "function") ref(node);
-          else if (ref) (ref as { current: HTMLDivElement | null }).current = node;
-        }}
+        ref={attachScroller}
         data-slot="chat-widget-body"
         data-scrollable={isScrollable || undefined}
         // `role`, the name and the tab stop are applied TOGETHER or not at all.
@@ -170,11 +183,17 @@ const ChatWidgetBody = forwardRef<HTMLDivElement, ChatWidgetBodyProps>(function 
       </div>
       {isScrollable ? (
         // Decoration over content: it says there is more below, and the
-        // scrollbar and the keyboard path are what let you reach it.
-        <span
-          aria-hidden="true"
+        // scrollbar and the keyboard path are what let you reach it. Fade,
+        // not a hand-rolled two-stop ramp: bound to the scroller it eases
+        // out over the last 48px instead of covering the final message even
+        // when the reader has scrolled to it, and it stays off the scrollbar.
+        <Fade
           data-slot="chat-widget-fade"
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-12 rounded-b-md bg-linear-to-t from-elevated to-transparent"
+          side="bottom"
+          size="md"
+          ground="elevated"
+          scrollContainer={scroller}
+          className="rounded-b-md"
         />
       ) : null}
     </div>

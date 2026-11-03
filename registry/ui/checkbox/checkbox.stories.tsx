@@ -148,3 +148,28 @@ export const BrandThemed: Story = {
     );
   },
 };
+
+/**
+ * The settings row (#9): `labelPlacement="start"` puts the label first and
+ * pins the control to the row's end, and `description` adds a muted line
+ * under the label — announced as the description, not the name. With a
+ * description the control sits on the label's first line.
+ */
+export const SettingsRows: Story = {
+  render: () => (
+    <div className="flex w-90 flex-col gap-lg">
+      <Checkbox labelPlacement="start" defaultIsChecked>
+        Publish to the archive automatically
+      </Checkbox>
+      <Checkbox labelPlacement="start" description="Herbert Bayer and Otl Aicher get an email when a layout is published.">
+        Notify the studio
+      </Checkbox>
+      <Checkbox labelPlacement="start" isDisabled description="Unavailable until the font licence is renewed.">
+        Embed Univers in exports
+      </Checkbox>
+      <Checkbox description="Quotes and hyphens sit outside the measure, as Jan Tschichold set them in 1928.">
+        Keep hanging punctuation
+      </Checkbox>
+    </div>
+  ),
+};

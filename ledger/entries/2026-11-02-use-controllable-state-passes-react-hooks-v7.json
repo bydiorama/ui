@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-use-controllable-state-passes-react-hooks-v7",
+  "date": "2026-11-02",
+  "item": "use-controllable-state",
+  "kind": "fix",
+  "summary": "useControllableState no longer reads or writes refs during render, so it passes eslint-plugin-react-hooks@7 `recommended` (react-hooks/refs) in consumer apps (#35). onChange is synced in an insertion effect; the controlled/uncontrolled switch warning moved to an effect; the setter depends on isControlled instead of a ref, so it is stable for every caller that does not switch modes (which already warns). The library now lints its own registry/ with the same preset, which also moved Calendar's focused-date correction from an effect to render-time derivation, useIsStuck's reset to its cleanup, and three ref-through-helper call sites (DatePicker, MultiSelect, CardSorting) to direct attributes.",
+  "affects": [
+    "hook:useControllableState",
+    "item:calendar",
+    "item:date-picker",
+    "item:multiselect",
+    "item:card-sorting",
+    "hook:use-is-stuck",
+    "hook:use-scroll-edges"
+  ]
+}

@@ -9,7 +9,7 @@ export const modalDoc = {
   anatomy: [
     { part: "trigger", slot: "modal-trigger", notes: "The control that opens it. Pass your own element via `render` — never wrapped." },
     { part: "scrim", slot: "modal-scrim", notes: "The backdrop. Uses --ui-scrim, a scheme-only role: a warm 16% veil in light, a heavier black in dark." },
-    { part: "surface", slot: "modal-surface", notes: "The dialog. Card's surface class for class — radius-xl, a 1px border-subtle hairline and shadow-md — on bg-surface, with p-lg and gap-2xl. Centred, width-capped by size, and scrolls internally." },
+    { part: "surface", slot: "modal-surface", notes: "The dialog. Card's surface class for class — radius-lg (issue #40), a 1px border-subtle hairline and shadow-md — on bg-surface, with p-lg and gap-2xl. Centred, width-capped by size, and scrolls internally." },
     { part: "title", slot: "modal-title", notes: "Card.Header's title: title-sm at the role's own 600, inset by Card's unboxed px-sm. Becomes the dialog's accessible name automatically." },
     { part: "description", slot: "modal-description", notes: "body-md in secondary ink, inset px-sm with the title so the two share a left edge (CONVENTIONS §6). Wired to aria-describedby automatically." },
     { part: "footer", slot: "modal-footer", notes: "The action row, `justify-between` per the sheet." },

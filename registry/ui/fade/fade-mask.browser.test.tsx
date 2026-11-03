@@ -11,6 +11,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 
+import { FADE_RAMP_DARK, FADE_RAMP_LIGHT } from "@/lib/fade-ramp";
 import { fadeMask } from "@/ui/fade/fade.tsx";
 
 let host: HTMLDivElement | null = null;
@@ -97,7 +98,8 @@ describe("fadeMask", () => {
 
   test("the depth scale is the painted band's, not a new one", () => {
     // Same three steps as `Fade`'s size prop, resolved through the spacing
-    // tokens so the two modes cannot drift to different ramp depths.
+    // tokens so the two modes cannot drift to different ramp depths. The
+    // mask reaches opaque exactly AT the depth: its last stop.
     const depths = (["sm", "md", "lg"] as const).map((size) => {
       mount(
         <div data-testid="scroller" style={fadeMask({ sides: { bottom: true }, size })}>
@@ -109,10 +111,34 @@ describe("fadeMask", () => {
       host!.remove();
       return image;
     });
-    // 16 / 32 / 64, the space-lg / 2xl / 4xl steps.
-    expect(depths[0]).toContain("16px");
-    expect(depths[1]).toContain("32px");
-    expect(depths[2]).toContain("64px");
+    expect(depths[0]).toMatch(/rgb\(0, 0, 0\) 24px\)$/);
+    expect(depths[1]).toMatch(/rgb\(0, 0, 0\) 48px\)$/);
+    expect(depths[2]).toMatch(/rgb\(0, 0, 0\) 96px\)$/);
     expect(new Set(depths).size, "three distinct depths").toBe(3);
+  });
+
+  test("the mask is the paint's complement, eased — not a two-stop cut", () => {
+    // Over an opaque ground a masked container must land on the same pixels
+    // a painted band would: content alpha = 1 − ground alpha, stop for stop,
+    // including the dark-scheme table.
+    for (const [scheme, table] of [["light", FADE_RAMP_LIGHT], ["dark", FADE_RAMP_DARK]] as const) {
+      mount(
+        <div data-testid="scroller" style={{ colorScheme: scheme, ...fadeMask({ sides: { bottom: true } }) }}>
+          rows
+        </div>,
+      );
+      const image = getComputedStyle(box()).maskImage;
+      const alphas = [...image.matchAll(/rgba?\(0, 0, 0(?:, ([\d.]+))?\) [\d.]+px/g)].map((m) =>
+        m[1] === undefined ? 1 : Number(m[1]),
+      );
+      expect(alphas, `${scheme}: one stop per table entry`).toHaveLength(table.length);
+      // The mask walks from the edge inward: its k-th stop is the table's
+      // (last − k)-th, complemented. rgba() serialises to two decimals.
+      alphas.forEach((a, k) =>
+        expect(a, `${scheme} stop ${k}`).toBeCloseTo(1 - table[table.length - 1 - k]!, 2),
+      );
+      act(() => root!.unmount());
+      host!.remove();
+    }
   });
 });

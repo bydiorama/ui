@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-fade-ramp-becomes-perceptual",
+  "date": "2026-11-02",
+  "item": "fade",
+  "kind": "visual",
+  "summary": "Fade's two-stop linear ramp is replaced by a perceptual one (new lib item fade-ramp): a Gaussian penumbra sampled at seventeen stops, so there is no corner at either end to read as a stripe or a start line, plus a dark-scheme table that leaves the same perceptual fraction of ink visible as light does (light ink under a dark veil kept 53% of its lightness at 0.5 alpha against 46% in light, so dark trails lingered). Depths move one step to 24/48/96 (sm/md/lg) because the eased ramp's first quarter is under 9% alpha — md 48 covers about what linear 32 did, and dissolves where that one ghosted a single line. fadeMask uses the same profile as the paint's complement. Chosen by rendering six curves at four depths over the shipped copy in both schemes (fade.doc.ts, knownGaps 'Ramp research').",
+  "affects": [
+    "item:fade",
+    "item:fade-ramp",
+    "prop:size",
+    "item:card",
+    "item:combobox",
+    "item:header",
+    "item:chat-widget"
+  ],
+  "migration": {
+    "manual": "Callers that sized a layout around the band's depth (an action slot placed relative to a 32px ramp, a sticky region offset by -32px) re-check against 48px for md, 24px for sm and 96px for lg. To keep an old depth, set --ui-fade-band-depth on the band's style."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2WCF-0"
+  }
+}

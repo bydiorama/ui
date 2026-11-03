@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-fade-binds-to-its-scroll-container",
+  "date": "2026-11-02",
+  "item": "fade",
+  "kind": "addition",
+  "summary": "Fade gains scrollContainer and ground=\"affix\". Bound to a scroller, the band's strength follows how much content runs past its edge, easing out over the last band-depth of scroll instead of popping off at the last pixel; it insets itself off a classic scrollbar (right, left in RTL, or bottom) instead of veiling the track; and it renders hidden until measured, server-side too. The strength is written to the band's own style, so scrolling re-renders nothing. ground=\"affix\" paints in the translucent pinned-bar role, so the ramp starts at the bar's own alpha. useScrollEdges exports the measurement under it as scrollDistances(). Card.Body, Combobox and ChatWidget now bind their fades this way.",
+  "affects": [
+    "item:fade",
+    "prop:scrollContainer",
+    "prop:ground",
+    "item:use-scroll-edges",
+    "item:card",
+    "item:combobox",
+    "item:chat-widget"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2WCF-0"
+  }
+}

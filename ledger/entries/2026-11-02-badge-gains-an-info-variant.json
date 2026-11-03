@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-badge-gains-an-info-variant",
+  "date": "2026-11-02",
+  "item": "badge",
+  "kind": "addition",
+  "summary": "Badge gains variant=\"info\" (--ui-intent-info-bg fill, --ui-intent-info-fg ink, transparent hairline), so Badge's statuses are exactly Banner's five intents (#9). The same pair Banner info paints: 4.82:1 light, 5.64:1 dark. Distinct from `selected`, which is also blue: selected is a choice (accent fill), info a status (tint).",
+  "affects": ["item:badge", "prop:variant"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QW0-0" }
+}

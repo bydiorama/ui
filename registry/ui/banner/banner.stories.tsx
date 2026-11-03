@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
-import { InfoCircle } from "griddy-icons";
+import { AlertCircle, AlertTriangle, CheckCircle, InfoCircle } from "griddy-icons";
 
 import {
   resolveThemePair,
@@ -97,4 +97,81 @@ export const BrandThemed: Story = {
       </div>
     );
   },
+};
+
+/**
+ * Title and action (#9 proposals). The action takes the banner's ROLE —
+ * `Banner.Action` is the filled primary on info and an outline in the
+ * banner's own ink everywhere else (the owner's Audit #9 redesign) — so the
+ * five intents read as one family with one emphasis each.
+ */
+export const TitleAndAction: Story = {
+  render: () => (
+    <div className="flex max-w-180 flex-col gap-md">
+      <Banner
+        icon={<InfoCircle aria-hidden="true" />}
+        title="Template set changed"
+        action={<Banner.Action onClick={fn()}>View profile</Banner.Action>}
+      >
+        Exports now use the template set in the brand profile Wim Crouwel updated this morning.
+      </Banner>
+      <Banner
+        variant="info"
+        icon={<InfoCircle aria-hidden="true" />}
+        title="New shared grid"
+        action={<Banner.Action onClick={fn()}>Open grid</Banner.Action>}
+      >
+        Josef Müller-Brockmann shared “Grid systems” with the Zürich studio.
+      </Banner>
+      <Banner
+        variant="success"
+        icon={<CheckCircle aria-hidden="true" />}
+        title="Published"
+        action={<Banner.Action onClick={fn()}>View in archive</Banner.Action>}
+      >
+        Grid systems is in the archive and visible to every studio.
+      </Banner>
+      <Banner
+        variant="warning"
+        icon={<AlertTriangle aria-hidden="true" />}
+        title="Layouts off-grid"
+        action={<Banner.Action onClick={fn()}>Review layouts</Banner.Action>}
+      >
+        Two layouts drift from the 8pt baseline. Publishing will keep them as they are.
+      </Banner>
+      <Banner
+        variant="danger"
+        icon={<AlertCircle aria-hidden="true" />}
+        title="Export failed"
+        action={<Banner.Action onClick={fn()}>Renew licence</Banner.Action>}
+        onDismiss={fn()}
+        dismissLabel="Dismiss export failure"
+      >
+        The licence for Univers expired on 1 October. Exports will fall back to the body face until it is renewed.
+      </Banner>
+    </div>
+  ),
+};
+
+/**
+ * The same banner in a 360px container: under 480px the action moves under
+ * the message, into the text column, and the dismiss stays on the title's
+ * line. The banner is its own container, so this follows the space it is
+ * given, not the viewport.
+ */
+export const Narrow: Story = {
+  render: () => (
+    <div className="w-90">
+      <Banner
+        variant="warning"
+        icon={<AlertTriangle aria-hidden="true" />}
+        title="Layouts off-grid"
+        action={<Banner.Action onClick={fn()}>Review layouts</Banner.Action>}
+        onDismiss={fn()}
+        dismissLabel="Dismiss layout warning"
+      >
+        Two layouts drift from the 8pt baseline. Publishing will keep them as they are.
+      </Banner>
+    </div>
+  ),
 };

@@ -14,7 +14,8 @@
  *                     locked fork at all.
  *   lock <item...>   Record installed items' current file hashes into the
  *                     consumer's ui.lock.json (first-time setup, or adding a
- *                     newly-installed item).
+ *                     newly-installed item). `--all` instead of names locks
+ *                     every registry item that has files installed.
  *   sync [--json]     Diff every locked item against the registry's current
  *                     content and report status + applicable ledger entries.
  *
@@ -30,7 +31,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { findAtAliasBase, resolveTargetPath } from "../src/target-path.ts";
-import { localRegistrySource, remoteRegistrySource, type RegistrySource } from "../src/registry-source.ts";
+import { listRegistryItems, localRegistrySource, remoteRegistrySource, type RegistrySource } from "../src/registry-source.ts";
 import { localLedgerSource, remoteLedgerSource, type LedgerSource } from "../src/ledger-source.ts";
 import { readLockfile, writeLockfile } from "../src/lockfile.ts";
 import { lockItem } from "../src/lock.ts";
@@ -212,14 +213,28 @@ async function cmdLock(itemNames: string[], flags: Record<string, string | boole
     typeof flags.revision === "string"
       ? flags.revision
       : (() => {
-          throw new Error("--revision <git-sha> is required for `lock` (this CLI does not shell out to git).");
+          throw new Error(
+            "--revision <git-sha> is required for `lock`: the bydiorama/ui commit the installed files came from " +
+              "(the SHA in your registry URL, or `git -C <checkout> rev-parse HEAD`). This CLI does not shell out to git.",
+          );
         })();
   const now = new Date().toISOString();
 
   const lock = await readLockfile(join(cwd, "ui.lock.json"));
   lock.registry = registryLabel;
 
-  for (const itemName of itemNames) {
+  // --all: every published item, silently skipping the ones not installed
+  // here — "not installed" is the expected answer for most of them.
+  const isAll = flags.all === true;
+  const names = isAll
+    ? await listRegistryItems(
+        typeof flags["registry-path"] === "string"
+          ? { registryPath: flags["registry-path"] }
+          : { urlTemplate: registryLabel },
+      )
+    : itemNames;
+
+  for (const itemName of names) {
     const registryItem = await registrySource(itemName);
     if (!registryItem) {
       console.error(`✗ ${itemName}: not found in the registry.`);
@@ -227,7 +242,7 @@ async function cmdLock(itemNames: string[], flags: Record<string, string | boole
     }
     const { locked, divergesFromRegistry } = await lockItem(registryItem, revision, now, readInstalledFile, resolveTargetToPath);
     if (Object.keys(locked.files).length === 0) {
-      console.error(`✗ ${itemName}: no installed files found — is it actually installed in this app?`);
+      if (!isAll) console.error(`✗ ${itemName}: no installed files found — is it actually installed in this app?`);
       continue;
     }
     lock.items[itemName] = locked;
@@ -274,20 +289,83 @@ async function cmdSync(flags: Record<string, string | boolean>) {
   }
 }
 
+const HELP: Record<string, string> = {
+  general: `bydiorama-ui — install and track @bydiorama/ui registry items as source.
+
+Usage: bydiorama-ui <command> [...] [flags]
+
+Commands:
+  add <item...>   Install items and their registry dependencies, then lock them.
+  lock <item...>  Record already-installed items in ui.lock.json (or --all).
+  sync            Report drift for every locked item, with applicable ledger entries.
+
+Flags (all commands):
+  --cwd <path>               Consumer app root (default: the current directory).
+  --registry-path <path>     Read from a local bydiorama/ui checkout instead of the URL.
+  --registry-url <template>  Item URL template containing {name}
+                             (default: components.json "registries").
+
+Run \`bydiorama-ui <command> --help\` for a command's own flags.`,
+  add: `Usage: bydiorama-ui add <item...> [--force] [--revision <sha>]
+
+Writes each item's files through your components.json aliases and tsconfig "@/*",
+installs its registry dependencies, locks what it wrote into ui.lock.json, and
+prints the npm packages left for you to install.
+
+  --force           Overwrite files you have edited locally. A declared fork is
+                    never overwritten.
+  --revision <sha>  The bydiorama/ui commit the files come from, recorded in the
+                    lock. Use the SHA in your registry URL, or
+                    \`git -C <checkout> rev-parse HEAD\` with --registry-path.`,
+  lock: `Usage: bydiorama-ui lock (<item...> | --all) --revision <sha>
+
+Records the current hash of each installed item's files, so \`sync\` can tell an
+upstream change (stale) from your own edit (modified). Use it for items that
+were installed some other way — copied by hand, or with the shadcn CLI.
+
+  --all             Lock every registry item that has files installed here.
+  --revision <sha>  REQUIRED. The bydiorama/ui commit the installed files came
+                    from — the SHA in your registry URL, or
+                    \`git -C <checkout> rev-parse HEAD\` for a local checkout.
+                    This CLI does not shell out to git, so it cannot guess.
+
+Files that differ from the registry at lock time are reported as diverging. If
+you installed with the shadcn CLI, expect that: it drops a file's leading
+comment, so reinstall byte-exact with \`add <item> --force --revision <sha>\`.`,
+  sync: `Usage: bydiorama-ui sync [--json]
+
+Diffs every locked item against the registry and prints its status — current,
+stale, modified, forked, or a combination — with the ledger entries that apply.
+
+  --json  Machine-readable output.`,
+};
+
 async function main() {
-  const { positional, flags } = parseArgs(process.argv.slice(2));
+  const argv = process.argv.slice(2);
+  const wantsHelp = argv.includes("--help") || argv.includes("-h");
+  const { positional, flags } = parseArgs(argv.filter((a) => a !== "-h"));
   const [command, ...rest] = positional;
 
+  if (command === "help" || command === undefined) {
+    console.log(HELP[rest[0] ?? ""] ?? HELP.general);
+    if (command === undefined && !wantsHelp) process.exitCode = 1;
+    return;
+  }
+  if (wantsHelp) {
+    console.log(HELP[command] ?? HELP.general);
+    return;
+  }
+
   if (command === "add") {
-    if (rest.length === 0) throw new Error("Usage: bydiorama-ui add <item...> [--force] [--revision <sha>]");
+    if (rest.length === 0) throw new Error(HELP.add);
     await cmdAdd(rest, flags);
   } else if (command === "lock") {
-    if (rest.length === 0) throw new Error("Usage: bydiorama-ui lock <item...> --revision <sha>");
+    if (rest.length === 0 && !flags.all) throw new Error(HELP.lock);
     await cmdLock(rest, flags);
   } else if (command === "sync") {
     await cmdSync(flags);
   } else {
-    console.error("Usage: bydiorama-ui <add|lock|sync> [...flags]");
+    console.error(HELP.general);
     process.exitCode = 1;
   }
 }

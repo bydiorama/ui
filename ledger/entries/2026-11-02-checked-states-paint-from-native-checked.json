@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-checked-states-paint-from-native-checked",
+  "date": "2026-11-02",
+  "item": "checkbox",
+  "kind": "fix",
+  "summary": "Checkbox, Radio and Switch draw their checked/selected look from the native input's :checked (peer-checked:) rather than from React state, so they work as plain form controls on a statically rendered page and before hydration (#34). The check glyph and radio dot are always in the DOM and revealed by the same selector. Checkbox's indeterminate state is still render-time (it has no HTML attribute).",
+  "affects": [
+    "item:checkbox",
+    "item:radio",
+    "item:switch",
+    "slot:dot"
+  ]
+}

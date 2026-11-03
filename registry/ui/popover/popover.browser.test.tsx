@@ -132,10 +132,10 @@ describe("The panel paints the designed surface", () => {
     await settled(p);
     const style = getComputedStyle(p);
 
-    // `rounded-xl`, `min-w-80` and `p-lg` are numeric or theme-mapped; only a
-    // browser proves the rule actually matched the element. 24 = the Banner's
-    // radius-md (8) + this panel's p-lg (16) — concentric exactly (§6).
-    expect(style.borderRadius).toBe("24px");
+    // `rounded-lg`, `min-w-80` and `p-lg` are numeric or theme-mapped; only a
+    // browser proves the rule actually matched the element. 16 = Card's
+    // corner (#40), deliberately not concentric with a radius-md child.
+    expect(style.borderRadius).toBe("16px");
     expect(style.minWidth).toBe("320px");
     expect(style.padding).toBe("16px");
 

@@ -271,3 +271,36 @@ function contrast(a: string, b: string): number {
   const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
   return (x + 0.05) / (y + 0.05);
 }
+
+describe("Panel isAlwaysMounted (#34)", () => {
+  test("an unselected panel stays in the DOM, hidden, so static HTML carries it", () => {
+    const c = mount(
+      <Tabs defaultValue="a">
+        <Tabs.List>
+          <Tabs.Tab value="a">Overview</Tabs.Tab>
+          <Tabs.Tab value="b">Process</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="a">First</Tabs.Panel>
+        <Tabs.Panel value="b" isAlwaysMounted>Second</Tabs.Panel>
+      </Tabs>,
+    );
+    const panels = [...c.querySelectorAll<HTMLElement>('[data-slot="tabs-panel"]')];
+    const second = panels.find((p) => p.textContent === "Second");
+    expect(second).toBeDefined();
+    expect(second!.hidden).toBe(true);
+  });
+
+  test("by default an unselected panel is not rendered", () => {
+    const c = mount(
+      <Tabs defaultValue="a">
+        <Tabs.List>
+          <Tabs.Tab value="a">Overview</Tabs.Tab>
+          <Tabs.Tab value="b">Process</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="a">First</Tabs.Panel>
+        <Tabs.Panel value="b">Second</Tabs.Panel>
+      </Tabs>,
+    );
+    expect(c.textContent).not.toContain("Second");
+  });
+});

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { ChevronDownSmall } from "griddy-icons";
@@ -12,6 +12,7 @@ import {
 } from "@bydiorama/tokens";
 
 import { chromeControl } from "@/lib/chrome-control";
+import { Header } from "@/ui/header/header.tsx";
 import { Fade, type FadeGround, type FadeSide, type FadeSize } from "./fade.tsx";
 
 const meta = {
@@ -63,9 +64,9 @@ export const Matrix: Story = {
   render: () => {
     const SIDES: FadeSide[] = ["top", "bottom", "left", "right"];
     const SIZES: Array<{ size: FadeSize; label: string }> = [
-      { size: "sm", label: "sm — 16px (space-lg)" },
-      { size: "md", label: "md — 32px (space-2xl) · default" },
-      { size: "lg", label: "lg — 64px (space-4xl)" },
+      { size: "sm", label: "sm — 24px (space-xl)" },
+      { size: "md", label: "md — 48px (space-3xl) · default" },
+      { size: "lg", label: "lg — 96px (1.5 × space-4xl)" },
     ];
     const GROUNDS: Array<{ ground: FadeGround; canvas: string }> = [
       { ground: "base", canvas: "bg-base" },
@@ -73,6 +74,8 @@ export const Matrix: Story = {
       { ground: "elevated", canvas: "bg-elevated" },
       { ground: "sunken", canvas: "bg-sunken" },
     ];
+    // affix is drawn in PinnedBar: it is a translucent ground, meaningful
+    // only under the bar whose alpha it continues.
     const Card = ({ canvas, children }: { canvas?: string; children: React.ReactNode }) => (
       <div
         className={`relative h-36 w-60 shrink-0 overflow-clip rounded-md border border-edge-subtle ${canvas ?? "bg-base"}`}
@@ -126,56 +129,120 @@ export const Matrix: Story = {
  * motion tokens.
  */
 export const States: Story = {
-  render: () => {
-    const ScrollBound = () => {
-      const [atEnd, setAtEnd] = useState(false);
-      return (
-        <div className="relative overflow-clip rounded-md border border-edge-subtle bg-surface">
-          {/* The scroll IS the fade's disclosure route, so it must be
-              keyboard-reachable (SC 2.1.1; axe scrollable-region-focusable):
-              role, name and tabIndex together, while it scrolls. */}
-          <div
-            role="region"
-            aria-label="Case study preview"
-            tabIndex={0}
-            className="h-36 w-60 overflow-y-auto p-lg"
-            onScroll={(event) => {
-              const el = event.currentTarget;
-              setAtEnd(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
-            }}
-          >
-            <p className="text-body-sm text-ink-secondary">{COPY}</p>
-          </div>
-          <Fade isVisible={!atEnd} />
+  render: () => (
+    <div className="flex flex-wrap gap-lg">
+      <div className="flex flex-col gap-xs">
+        <div className="relative h-36 w-60 overflow-clip rounded-md border border-edge-subtle bg-surface">
+          <p className="p-lg text-body-sm text-ink-secondary">{COPY}</p>
+          <Fade />
         </div>
-      );
-    };
-    return (
-      <div className="flex flex-wrap gap-lg">
-        <div className="flex flex-col gap-xs">
-          <div className="relative h-36 w-60 overflow-clip rounded-md border border-edge-subtle bg-surface">
-            <p className="p-lg text-body-sm text-ink-secondary">{COPY}</p>
-            <Fade />
-          </div>
-          <p className="text-caption text-ink-muted">visible — content continues</p>
-        </div>
-        <div className="flex flex-col gap-xs">
-          <div className="relative h-36 w-60 overflow-clip rounded-md border border-edge-subtle bg-surface">
-            <p className="p-lg text-body-sm text-ink-secondary">
-              The letter S arrived where no wire ran — the entire proof. Scrolled flush to the
-              end: nothing continues, so nothing fades.
-            </p>
-            <Fade isVisible={false} />
-          </div>
-          <p className="text-caption text-ink-muted">at the edge — fade hidden</p>
-        </div>
-        <div className="flex flex-col gap-xs">
-          <ScrollBound />
-          <p className="text-caption text-ink-muted">scroll-bound — the caller's wiring</p>
-        </div>
+        <p className="text-caption text-ink-muted">visible — content continues</p>
       </div>
-    );
-  },
+      <div className="flex flex-col gap-xs">
+        <div className="relative h-36 w-60 overflow-clip rounded-md border border-edge-subtle bg-surface">
+          <p className="p-lg text-body-sm text-ink-secondary">
+            The letter S arrived where no wire ran — the entire proof. Scrolled flush to the
+            end: nothing continues, so nothing fades.
+          </p>
+          <Fade isVisible={false} />
+        </div>
+        <p className="text-caption text-ink-muted">at the edge — fade hidden</p>
+      </div>
+      <div className="flex flex-col gap-xs">
+        <Scroller />
+        <p className="text-caption text-ink-muted">bound — scrollContainer</p>
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * A scroller and its bands, bound with `scrollContainer`. The scroll IS the
+ * fade's disclosure route, so it is keyboard-reachable (SC 2.1.1; axe
+ * scrollable-region-focusable): role, name and tabIndex together.
+ */
+function Scroller({ className = "h-36 w-60", children }: { className?: string; children?: ReactNode }) {
+  const [node, setNode] = useState<HTMLDivElement | null>(null);
+  return (
+    <div className="relative overflow-clip rounded-md border border-edge-subtle bg-surface">
+      <div
+        ref={setNode}
+        role="region"
+        aria-label="Case study preview"
+        tabIndex={0}
+        className={`${className} overflow-y-auto p-lg`}
+      >
+        {children ?? <p className="text-body-sm text-ink-secondary">{COPY} {COPY}</p>}
+      </div>
+      <Fade side="top" scrollContainer={node} />
+      <Fade side="bottom" scrollContainer={node} />
+    </div>
+  );
+}
+
+/**
+ * Scroll-linked: both bands bound to the same scroller. At rest the top band
+ * is off and the bottom one full; scroll, and the top arrives as content
+ * passes under it while the bottom eases out over the last 48px — the final
+ * lines are revealed as they arrive, not in a pop at the last pixel. A
+ * classic scrollbar (Windows, or "always show scrollbars" on macOS) stays
+ * clear of both bands.
+ */
+export const ScrollLinked: Story = {
+  render: () => (
+    <div className="flex flex-wrap gap-lg">
+      <Scroller className="h-60 w-80" />
+    </div>
+  ),
+};
+
+/**
+ * Light beside dark, the same ramp. The dark scheme paints its own table:
+ * light ink under a dark veil keeps more of its lightness at the same alpha,
+ * so dark carries more alpha at every inner stop — the two trails read the
+ * same length instead of dark's lingering.
+ */
+export const Schemes: Story = {
+  render: () => (
+    <div className="flex flex-wrap gap-lg">
+      {(["light", "dark"] as const).map((scheme) => (
+        <div key={scheme} style={{ colorScheme: scheme }} className="flex flex-col gap-xs rounded-lg bg-base p-lg">
+          <div className="relative h-54 w-80 overflow-clip rounded-md border border-edge-subtle bg-surface">
+            <p className="p-lg text-body-md text-ink-secondary">{COPY}</p>
+            <Fade ground="surface" size="lg" />
+          </div>
+          <p className="text-caption text-ink-muted">{scheme} — lg, ground surface</p>
+        </div>
+      ))}
+    </div>
+  ),
+};
+
+/**
+ * The pinned-bar pattern Header ships as `affix={{ fade: true }}`. The bar is
+ * the page at 90% with a blur; the band hung below it paints in
+ * `ground="affix"`, so its ramp STARTS at the bar's 90% instead of the page's
+ * solid 100% — no bright strip along the bar's bottom edge.
+ */
+export const PinnedBar: Story = {
+  render: () => (
+    // An unnamed <section>, as the Header's own AffixFade story: a named
+    // region would make the bar's banner landmark a nested one (axe
+    // landmark-banner-is-top-level). The brand link inside is the focusable
+    // content that keeps the scroller keyboard-reachable.
+    <section className="h-80 w-140 max-w-full overflow-y-auto rounded-md border border-edge-subtle bg-base">
+      <Header affix={{ fade: true }}>
+        <Header.Start>
+          <a href="#home" className="text-label-md text-ink-primary">Diorama</a>
+        </Header.Start>
+      </Header>
+      <div className="flex flex-col gap-md px-lg pb-lg">
+        <p className="text-body-md text-ink-secondary">{COPY}</p>
+        <p className="text-body-md text-ink-secondary">{COPY}</p>
+        <p className="text-body-md text-ink-secondary">{COPY}</p>
+      </div>
+    </section>
+  ),
 };
 
 const STRESS_BRAND: ThemeSeed = {

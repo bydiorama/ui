@@ -211,13 +211,22 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
       {isAffixFade && (
         // The variant's whole treatment: the page dissolves under the bar.
         // `top-full` hangs the band below whatever the bar's height is
-        // (className merges over side="top"'s own top-0); ground=base because
-        // what scrolls under the bar is the PAGE, never the bar's translucent
-        // fill; md depth per the sheet's Fade-variant row. Visible only while
-        // affixed — Fade's own opacity transition carries the flip, and the
-        // band is aria-hidden, pointer-events-none paint either way, so it
-        // adds nothing to the banner landmark and steals no clicks.
-        <Fade side="top" ground="base" className="top-full" isVisible={isAffixed} />
+        // (className merges over side="top"'s own top-0); md depth per the
+        // sheet's Fade-variant row. Visible only while affixed — Fade's own
+        // opacity transition carries the flip, and the band is aria-hidden,
+        // pointer-events-none paint either way, so it adds nothing to the
+        // banner landmark and steals no clicks.
+        //
+        // ground=AFFIX, not base — corrected 2026-11-02. The bar is the page
+        // at 90%, so a ramp in the solid page ground started MORE opaque than
+        // the bar it hangs from: content showed through the bar at a tenth
+        // and vanished completely in the strip just under it — a bright seam
+        // along the bar's bottom edge, the one place the variant exists to
+        // make seamless. In the bar's own role the ramp starts at the bar's
+        // alpha with a flat slope, and the two read as one surface. (A
+        // progressive backdrop blur continuing the bar's 8px was measured and
+        // declined: Fade doc, knownGaps "Ramp research".)
+        <Fade side="top" ground="affix" className="top-full" isVisible={isAffixed} />
       )}
     </header>
   );
@@ -242,6 +251,11 @@ export interface HeaderMenuButtonProps extends Omit<ButtonHTMLAttributes<HTMLBut
    * opens: "Open primary navigation".
    */
   label: string;
+  /**
+   * The TEXT form: a visible word ("Menu", "Close") instead of the glyph on a
+   * chrome surface. `label` must then start with that word (SC 2.5.3).
+   */
+  children?: ReactNode;
 }
 
 /**
@@ -260,7 +274,31 @@ export interface HeaderMenuButtonProps extends Omit<ButtonHTMLAttributes<HTMLBut
  * a second source that could disagree with it.
  */
 const HeaderMenuButton = forwardRef<HTMLButtonElement, HeaderMenuButtonProps>(
-  function HeaderMenuButton({ label, className, type = "button", ...rest }, ref) {
+  function HeaderMenuButton({ label, className, type = "button", children, ...rest }, ref) {
+    // TEXT FORM (#33): given children, the control is the word itself — no
+    // surface, label-md, a 44px target — for a site bar where a boxed glyph
+    // would be the only shape besides the CTA. `label` is still the
+    // accessible name and must START with the visible word (SC 2.5.3):
+    // "Menu, site navigation", not "Open navigation".
+    if (children !== undefined) {
+      return (
+        <button
+          ref={ref}
+          type={type}
+          data-slot="header-menu-button"
+          aria-label={label}
+          className={cn(
+            "inline-flex h-11 shrink-0 cursor-pointer items-center rounded-sm px-sm",
+            "text-label-md font-body text-current",
+            "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
+            className,
+          )}
+          {...rest}
+        >
+          {children}
+        </button>
+      );
+    }
     return (
       <button
         ref={ref}
@@ -327,9 +365,18 @@ function HeaderNav({ children, label, className, ...rest }: HeaderNavProps) {
  * branch it is the `type="button"` that stops a nav item submitting a form
  * around it, and on an anchor it is a MIME hint nothing here wants.
  */
+/**
+ * `default` is the app bar's compact control. `quiet` is the SITE header's
+ * item (#33): a larger label, no fill in any state, and ink as the only
+ * channel — muted at rest, primary on hover and on the current page.
+ */
+export type HeaderItemVariant = "default" | "quiet";
+
 export interface HeaderItemProps
   extends Omit<AnchorHTMLAttributes<HTMLElement>, "children" | "href" | "type"> {
   children: ReactNode;
+  /** `quiet` for a marketing bar: label-md, no fill, ink-only states. */
+  variant?: HeaderItemVariant;
   /** Makes the item a link. Without it the item is a button — the sheet draws
    *  two that open menus rather than navigate, and they carry a chevron.
    *
@@ -357,7 +404,17 @@ export interface HeaderItemProps
   render?: ReactElement;
 }
 
-function HeaderItem({ children, href, isCurrent = false, icon, trailing, render, className, ...rest }: HeaderItemProps) {
+function HeaderItem({
+  children,
+  href,
+  isCurrent = false,
+  variant = "default",
+  icon,
+  trailing,
+  render,
+  className,
+  ...rest
+}: HeaderItemProps) {
   const inNav = useContext(InNav);
   const isLink = href !== undefined;
 
@@ -433,6 +490,33 @@ function HeaderItem({ children, href, isCurrent = false, icon, trailing, render,
         // that could ever answer the question, and a consumer restyling the
         // current item needs the same hook the component uses.
         "group-data-[affixed]/header:data-[current]:text-ink-secondary",
+        // THE QUIET ITEM (#33, the minimal site header). Ink is the only
+        // channel: no fill on hover or press, so the bar never shows a shape
+        // that is not its call to action. Rest is MUTED and both hover and the
+        // current page step UP to primary — the inverse of the default item,
+        // because a row already at muted has nowhere to recede to. 2.90:1
+        // between the two inks, light.
+        //
+        // Pinned, rest steps up to SECONDARY for the same reason the default
+        // item's current page does: muted on the affix floor is 3.66:1 in
+        // dark, under AA, and no alpha closes it. Current stays primary, so
+        // current still differs from rest while pinned (and aria-current
+        // carries it regardless).
+        variant === "quiet" && [
+          "min-h-8 px-sm text-label-md",
+          "hover:bg-transparent hover:text-ink-primary",
+          "text-ink-muted data-[current]:text-ink-primary",
+          "group-data-[affixed]/header:text-ink-secondary group-data-[affixed]/header:hover:text-ink-primary",
+          "group-data-[affixed]/header:data-[current]:text-ink-primary",
+          // OVER MEDIA (SiteHeader's isOverMedia, through the bar's public
+          // `data-over-media` hook): the same two steps in the media family.
+          // on-media-muted at rest (11.7:1 on --ui-bg-media), on-media for
+          // hover and current — only 1.33:1 apart, so over media the current
+          // page is carried by aria-current and position (#33, Measured).
+          "group-data-[over-media]/header:text-ink-on-media-muted",
+          "group-data-[over-media]/header:hover:text-ink-on-media",
+          "group-data-[over-media]/header:data-[current]:text-ink-on-media",
+        ],
         "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none",
         className,
       ),

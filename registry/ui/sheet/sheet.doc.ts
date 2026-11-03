@@ -48,9 +48,9 @@ Sheet
       notes: "On Panel. The width CAP, not a width: the panel is 80% of the viewport, floored at 256 and capped here. sm is --ui-nav-width (272), md is --ui-dialog-width-md (416) and lg is --ui-dialog-width-lg (640) — three width tokens that already existed, so a Sheet and a Modal holding the same form are the same width. It defaults to sm because that IS the geometry Sheet shipped before the axis existed; reach for md whenever the panel is not holding the navigation rail.",
     },
     side: {
-      type: '"left" | "right"',
+      type: '"left" | "right" | "top"',
       default: '"left"',
-      notes: "Which edge it slides from. Only the two INNER corners are rounded — a fully rounded panel leaves four slivers of scrim in the screen corners, which reads as a modal rather than a drawer.",
+      notes: "Which edge it slides from. Only the two INNER corners are rounded — a fully rounded panel leaves four slivers of scrim in the screen corners, which reads as a modal rather than a drawer. `top` (#33, a site's collapsed menu) is FULL SCREEN: flush on all four edges, no rounding, no width cap (`size` does not apply), sliding down from above. It is not a bottom sheet turned over — that is Drawer, whose contract is the gesture; `top` has no gesture and is dismissed by Close or Escape like the other sides.",
     },
     initialFocus: {
       type: "RefObject<HTMLElement | null> | (() => HTMLElement | null)",

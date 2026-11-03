@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-banner-gains-title-and-a-role-matched-action",
+  "date": "2026-11-02",
+  "item": "banner",
+  "kind": "addition",
+  "summary": "Banner gains title (a <p> at label-md in the intent ink, not a heading) and an action slot filled with the new Banner.Action, which takes the banner's ROLE per the owner's Audit #9 redesign: Button primary on info; a 1.5px outline plus label in the banner's own ink on neutral, success and warning (4.87/5.05/5.03:1 light, 7.11/5.68/4.92:1 dark); on danger the same outline in --ui-text-on-danger-subtle (8.52/5.93:1). Hover/press are a 10%/15% tint of that ink. A filled accent on every intent was the first proposal and measured 1.22-1.26:1 against the tinted grounds. A banner with a title or an action lays out as a grid whose root is a @container: under 480px the action moves under the message, into the text column, and the dismiss stays on the title's line. A message-only banner is the unchanged single flex row. Banner now depends on Button.",
+  "affects": ["item:banner", "prop:title", "prop:action", "part:Banner.Action", "slot:banner-title", "slot:banner-action", "slot:banner-text"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3Q9J-0" }
+}

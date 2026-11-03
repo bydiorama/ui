@@ -4,7 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
 
-import { Button } from "./button.tsx";
+import { Button, buttonClassName } from "./button.tsx";
 
 /**
  * The keyboard contract, asserted in a REAL browser (CONVENTIONS §10).
@@ -339,24 +339,32 @@ function everyStyleRule(): CSSStyleRule[] {
 
 function declarationsFor(el: Element, state: ":active" | ":hover" | ":disabled"): Map<string, string> {
   const found = new Map<string, string>();
+  // States hang off `data-disabled` now, not `:enabled`/`:disabled` (#31), so
+  // "disabled" is the attribute selector — and only where it is not negated:
+  // every live-state rule carries `:not([data-disabled])` too.
+  const NEGATED = ":not([data-disabled])";
   for (const rule of everyStyleRule()) {
     {
-      if (!rule.selectorText.includes(state)) continue;
-      // Strip the TRAILING pseudo-class chain only. A blanket replaceAll is
-      // wrong and silently so: the compiled class name is
-      // `.enabled\:active\:bg-accent-active:enabled:active`, which contains
-      // the literal ":active" INSIDE the escaped class — removing every
-      // occurrence mangles the selector, nothing matches, and every "declares
-      // no fill" assertion passes vacuously. Probed: primary's pressed fill
-      // read as absent.
-      let base = rule.selectorText;
-      while (
-        base.endsWith(":active") ||
-        base.endsWith(":enabled") ||
-        base.endsWith(":hover") ||
-        base.endsWith(":disabled")
-      ) {
-        base = base.slice(0, base.lastIndexOf(":"));
+      const text = rule.selectorText;
+      if (state === ":disabled") {
+        if (!text.endsWith("[data-disabled]") || text.endsWith(NEGATED)) continue;
+      } else if (!text.includes(state)) continue;
+      // Strip the TRAILING state chain only. A blanket replaceAll is wrong
+      // and silently so: the compiled class name is
+      // `.not-data-disabled\:active\:bg-accent-active:not([data-disabled]):active`,
+      // which contains the literal ":active" INSIDE the escaped class —
+      // removing every occurrence mangles the selector, nothing matches, and
+      // every "declares no fill" assertion passes vacuously. Probed:
+      // primary's pressed fill read as absent.
+      let base = text;
+      for (;;) {
+        if (base.endsWith(":active") || base.endsWith(":hover")) {
+          base = base.slice(0, base.lastIndexOf(":"));
+        } else if (base.endsWith(NEGATED)) {
+          base = base.slice(0, -NEGATED.length);
+        } else if (base.endsWith("[data-disabled]")) {
+          base = base.slice(0, -"[data-disabled]".length);
+        } else break;
       }
       let matches = false;
       try {
@@ -466,5 +474,86 @@ describe("pressing an edge-only Button paints no fill", () => {
     // The sheet's Ghost Hover frame fills with --ui-neutral-95, whose role is
     // --ui-bg-elevated. `bg-hover` is neutral-90 — one step darker than drawn.
     expect(declarationsFor(button, ":hover").get("background-color")).toBe("var(--ui-bg-elevated)");
+  });
+});
+
+describe("Button renders as a link (#31)", () => {
+  test("render swaps the element and keeps the recipe", () => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root!.render(<Button render={<a href="#contact" />}>Get in touch</Button>);
+    });
+    const link = container.querySelector<HTMLAnchorElement>('[data-slot="button"]')!;
+    expect(link.tagName).toBe("A");
+    expect(link.getAttribute("href")).toBe("#contact");
+    expect(link.hasAttribute("type")).toBe(false);
+    expect(link.hasAttribute("disabled")).toBe(false);
+    expect(getComputedStyle(link).textDecorationLine).toBe("none");
+    expect(getComputedStyle(link).cursor).toBe("pointer");
+  });
+
+  test("an anchor still HAS a hover state — the `:enabled` trap", async () => {
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root!.render(<Button render={<a href="#contact" />}>Get in touch</Button>);
+    });
+    const link = container.querySelector<HTMLElement>('[data-slot="button"]')!;
+    // `enabled:hover:` compiled to `:enabled:hover`, which no <a> ever
+    // matches; the declared hover fill was simply absent on links.
+    expect(declarationsFor(link, ":hover").get("background-color")).toBe("var(--ui-bg-accent-hover)");
+    const rest = getComputedStyle(link).backgroundColor;
+    await userEvent.hover(link);
+    // Polled: the fill eases over motionMicro rather than snapping.
+    await expect.poll(() => getComputedStyle(link).backgroundColor).not.toBe(rest);
+  });
+
+  test("a disabled link is announced, leaves the tab order and does not navigate", async () => {
+    const onClick = vi.fn();
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root!.render(
+        <Button isDisabled onClick={onClick} render={<a href="#nowhere" />}>
+          Apply
+        </Button>,
+      );
+    });
+    const link = container.querySelector<HTMLElement>('[data-slot="button"]')!;
+    expect(link.getAttribute("aria-disabled")).toBe("true");
+    expect(link.tabIndex).toBe(-1);
+    expect(link.hasAttribute("data-disabled")).toBe(true);
+    expect(getComputedStyle(link).cursor).toBe("not-allowed");
+    const before = location.hash;
+    link.click();
+    expect(location.hash).toBe(before);
+    expect(onClick).not.toHaveBeenCalled();
+  });
+});
+
+describe("buttonClassName (#31)", () => {
+  test("is the exact recipe Button renders with", () => {
+    const button = mount(<Button variant="outline" size="lg">Explore</Button>);
+    expect(button.className).toBe(buttonClassName({ variant: "outline", size: "lg" }));
+  });
+});
+
+describe("variant=\"inverse\" (#36)", () => {
+  test("inks ring and label with the band's own ink and hovers on its -hover step", () => {
+    const button = mount(<Button variant="inverse">Get in touch</Button>);
+    expect(button.className).toContain("ring-ink-inverse");
+    expect(declarationsFor(button, ":hover").get("background-color")).toBe("var(--ui-bg-inverse-hover)");
+    expect(declarationsFor(button, ":active").get("background-color")).toBe("var(--ui-bg-inverse-active)");
+  });
+
+  test("disabled keeps its shape and steps to the muted inverse ink, not the page chip", () => {
+    const button = mount(<Button variant="inverse" isDisabled>Get in touch</Button>);
+    const declared = declarationsFor(button, ":disabled");
+    expect(declared.get("color")).toBe("var(--ui-text-inverse-muted)");
+    expect([...declared.keys()]).not.toContain("background-color");
   });
 });

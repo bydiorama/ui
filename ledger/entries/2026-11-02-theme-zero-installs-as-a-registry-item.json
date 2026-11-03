@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-theme-zero-installs-as-a-registry-item",
+  "date": "2026-11-02",
+  "item": "theme-zero-css",
+  "kind": "addition",
+  "summary": "New file item `theme-zero-css`: theme zero's token layer plus the Tailwind v4 @theme block, generated from @bydiorama/tokens and kept fresh by `pnpm check:theme-css`. The install path that works while the packages are unpublished (#30).",
+  "affects": [
+    "item:theme-zero-css"
+  ]
+}

@@ -623,7 +623,9 @@ describe("the affix fade variant separates with a ramp instead of an edge", () =
     // chrome-control lesson exists for, one primitive over).
     expect(fade.getAttribute("data-side")).toBe("top");
     expect(fade.getAttribute("data-size")).toBe("md");
-    expect(fade.getAttribute("data-ground")).toBe("base");
+    // The bar's OWN ground, not the page's: the ramp starts at the bar's
+    // 90% so the two meet without the bright seam a solid start left.
+    expect(fade.getAttribute("data-ground")).toBe("affix");
     expect(fade.getAttribute("aria-hidden")).toBe("true");
     expect(getComputedStyle(fade).pointerEvents).toBe("none");
     // Hidden while nothing is scrolled under.
@@ -633,7 +635,9 @@ describe("the affix fade variant separates with a ramp instead of an edge", () =
     const h = bar(c).getBoundingClientRect();
     expect(b.top).toBe(h.bottom);
     expect(b.width).toBe(h.width);
-    expect(b.height).toBe(32);
+    // md on the eased scale: 48px reads about as deep as the old 32px
+    // linear ramp, because the Gaussian's first quarter is near-transparent.
+    expect(b.height).toBe(48);
   });
 
   test("scrolled under: the ramp appears, and the shadow and hairline stay off", async () => {
@@ -647,7 +651,14 @@ describe("the affix fade variant separates with a ramp instead of an edge", () =
 
     // The band is the treatment now.
     expect(getComputedStyle(band(c)).opacity).toBe("1");
-    expect(getComputedStyle(band(c)).backgroundImage).toContain("linear-gradient");
+    const ramp = getComputedStyle(band(c)).backgroundImage;
+    expect(ramp).toContain("linear-gradient");
+    // THE SEAM. The ramp's solid end — at the bar's bottom edge — must be
+    // the bar's own alpha, not the page's 100%: a band more opaque than the
+    // bar it hangs from showed a bright strip exactly where the variant is
+    // meant to be seamless. The last stop computes to the affix ground.
+    // (0.902: the token stores its alpha in eight bits, 230/255.)
+    expect(ramp).toMatch(/\/ 0\.90\d*\) 100%\)$/);
 
     const style = getComputedStyle(bar(c));
     // The bar's own fill and pin are the classic affix state…

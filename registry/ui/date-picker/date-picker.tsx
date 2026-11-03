@@ -230,6 +230,10 @@ export function DatePicker({
                 // Found by the story-a11y project, not by review — which is
                 // the argument for running axe on every story.
                 "aria-label": label,
+                // `ref` and `initialFocus` are set as attributes below, not
+                // here: passing a ref through a function call reads as a
+                // render-time ref access to `react-hooks/refs` (issue #35).
+                //
                 // Land on the DAY, not on "Previous month".
                 //
                 // Base UI's default is the first focusable descendant, which
@@ -237,9 +241,6 @@ export function DatePicker({
                 // the keyboard three Tabs away from the thing it exists to
                 // choose. The grid already knows which day is its roving tab
                 // stop; this hands focus straight to it.
-                ref: panelRef,
-                initialFocus: () =>
-                  panelRef.current?.querySelector<HTMLElement>('[data-slot="calendar-day"][tabindex="0"]') ?? true,
                 className: cn(
                   // No fill, no edge, no radius of its own: the Calendar card
                   // IS the panel. Wrapping one surface in another would draw
@@ -251,6 +252,10 @@ export function DatePicker({
                   "origin-(--transform-origin)",
                 ),
               })}
+              ref={panelRef}
+              initialFocus={() =>
+                panelRef.current?.querySelector<HTMLElement>('[data-slot="calendar-day"][tabindex="0"]') ?? true
+              }
             >
               <Calendar
                 label={label}

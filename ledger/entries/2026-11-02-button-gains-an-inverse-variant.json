@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-button-gains-an-inverse-variant",
+  "date": "2026-11-02",
+  "item": "button",
+  "kind": "addition",
+  "summary": "variant=\"inverse\": outline's shape for --ui-bg-inverse bands (footer, dark CTA band) — ring and label in --ui-text-inverse, hover/press on --ui-bg-inverse-hover/-active, disabled in --ui-text-inverse-muted. Follows the band when the scheme flips; not for media grounds (#36).",
+  "affects": [
+    "prop:variant",
+    "token:--ui-text-inverse",
+    "token:--ui-text-inverse-muted"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0"
+  }
+}

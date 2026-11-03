@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-header-quiet-item-and-text-menu-button",
+  "date": "2026-11-02",
+  "item": "header",
+  "kind": "addition",
+  "summary": "Header.Item gains variant=\"quiet\" (the site bar's item, #33): label-md, 32px, no fill in any state, ink as the only channel — --ui-text-muted at rest, --ui-text-primary on hover and when current (the inverse of the default item, whose current page recedes; a row already at muted has nowhere to recede to). Affixed, rest steps up to secondary for the same 3.66:1-in-dark reason the default current item does. Under a `data-over-media` attribute on the bar it takes the media inks. Header.MenuButton gains a TEXT form: given children it renders the word at label-md in a 44px target with no surface, its label required to start with that word (SC 2.5.3). The default variant and the glyph form are unchanged.",
+  "affects": ["item:header", "part:Header.Item", "prop:variant", "part:Header.MenuButton", "prop:children"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QL1-0" }
+}

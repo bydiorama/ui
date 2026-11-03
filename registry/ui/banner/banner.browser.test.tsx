@@ -128,3 +128,137 @@ describe("Every variant resolves to an intent ROLE, not a palette step", () => {
     expect(glyph.parentElement?.dataset["slot"]).toBe("banner");
   });
 });
+
+/* ------------------------------------------------------------------ *
+ * Title and action (#9 proposals, owner's Audit #9 redesign)
+ * ------------------------------------------------------------------ */
+
+/** The resolved value of a colour role, through the same cascade. */
+function role(token: string) {
+  const probe = document.createElement("div");
+  probe.style.color = `var(${token})`;
+  document.body.appendChild(probe);
+  const value = getComputedStyle(probe).color;
+  probe.remove();
+  return value;
+}
+
+describe("Banner title", () => {
+  test("is a <p> in the intent ink, NOT a heading, above the message", () => {
+    const { banner } = mount(
+      <Banner variant="warning" title="Layouts off-grid">Two layouts drift from the 8pt baseline.</Banner>,
+    );
+    const title = banner.querySelector<HTMLElement>('[data-slot="banner-title"]')!;
+    const message = banner.querySelector<HTMLElement>('[data-slot="banner-message"]')!;
+    expect(title.tagName).toBe("P");
+    expect(banner.querySelector("h1,h2,h3,h4,h5,h6")).toBeNull();
+    expect(getComputedStyle(title).color).toBe(role("--ui-intent-warning-fg"));
+    expect(title.getBoundingClientRect().bottom).toBeLessThanOrEqual(message.getBoundingClientRect().top);
+  });
+
+  test("a message-only banner is the same single flex row it always was", () => {
+    const { banner } = mount(<Banner>Exports use the template.</Banner>);
+    expect(getComputedStyle(banner).display).toBe("flex");
+    expect(banner.querySelector('[data-slot="banner-text"]')).toBeNull();
+  });
+});
+
+describe("Banner.Action takes the banner's role", () => {
+  function actionIn(variant: "neutral" | "info" | "success" | "warning" | "danger") {
+    const { banner } = mount(
+      <Banner variant={variant} title="Title" action={<Banner.Action onClick={vi.fn()}>Act</Banner.Action>}>
+        Message
+      </Banner>,
+    );
+    return banner.querySelector<HTMLElement>('[data-slot="banner-action"]')!;
+  }
+
+  test("info: the filled primary", () => {
+    const action = actionIn("info");
+    const probe = document.createElement("div");
+    probe.style.backgroundColor = "var(--ui-bg-accent)";
+    document.body.appendChild(probe);
+    expect(getComputedStyle(action).backgroundColor).toBe(getComputedStyle(probe).backgroundColor);
+    probe.remove();
+  });
+
+  test.each([
+    ["neutral", "--ui-text-muted"],
+    ["success", "--ui-intent-success-fg"],
+    ["warning", "--ui-intent-warning-fg"],
+    ["danger", "--ui-text-on-danger-subtle"],
+  ] as const)("%s: an outline in its own ink, no fill", async (variant, ink) => {
+    const action = actionIn(variant);
+    const style = getComputedStyle(action);
+    expect(style.color).toBe(role(ink));
+    expect(style.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    // The ring is an inset box-shadow in the same ink — Button's hairline.
+    expect(style.boxShadow).toContain(role(ink));
+    // Hover is a tint of the ink, not Button outline's grey ring.
+    await userEvent.hover(action);
+    await expect.poll(() => getComputedStyle(action).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(action).boxShadow).toContain(role(ink));
+  });
+
+  test("always md (32px), and a real button with its own name", () => {
+    const action = actionIn("warning");
+    expect(action.tagName).toBe("BUTTON");
+    expect(action.getBoundingClientRect().height).toBe(32);
+    expect(action.textContent).toBe("Act");
+  });
+});
+
+describe("Banner layout with an action", () => {
+  function rich(width: number) {
+    const host = document.createElement("div");
+    host.style.width = `${width}px`;
+    document.body.appendChild(host);
+    const r = createRoot(host);
+    act(() =>
+      r.render(
+        <Banner
+          variant="warning"
+          icon={<svg aria-hidden="true" />}
+          title="Layouts off-grid"
+          action={<Banner.Action onClick={vi.fn()}>Review layouts</Banner.Action>}
+          onDismiss={vi.fn()}
+          dismissLabel="Dismiss layout warning"
+        >
+          Two layouts drift from the 8pt baseline. Publishing will keep them as they are.
+        </Banner>,
+      ),
+    );
+    const q = (slot: string) => host.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!.getBoundingClientRect();
+    const cleanup = () => {
+      act(() => r.unmount());
+      host.remove();
+    };
+    return { q, cleanup };
+  }
+
+  test("wide: action beside the text, dismiss after it, both centred on the block", () => {
+    const { q, cleanup } = rich(720);
+    const text = q("banner-text");
+    const action = q("banner-action");
+    const dismiss = q("banner-dismiss");
+    expect(action.left).toBeGreaterThan(text.right);
+    expect(dismiss.left).toBeGreaterThan(action.right);
+    const centre = (r: DOMRect) => r.top + r.height / 2;
+    expect(Math.abs(centre(action) - centre(text))).toBeLessThan(1);
+    cleanup();
+  });
+
+  test("narrow (< 480px): the action drops UNDER the message, in the text column", () => {
+    const { q, cleanup } = rich(360);
+    const text = q("banner-text");
+    const action = q("banner-action");
+    const dismiss = q("banner-dismiss");
+    expect(action.top).toBeGreaterThanOrEqual(text.bottom);
+    expect(action.left).toBeCloseTo(text.left, 0);
+    // At its own width, not stretched across the column.
+    expect(action.width).toBeLessThan(text.width);
+    // The dismiss stays up on the title's line.
+    expect(dismiss.top).toBeLessThan(text.top + 8);
+    cleanup();
+  });
+});

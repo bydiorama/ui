@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-text-inverse-muted-token",
+  "date": "2026-11-02",
+  "item": "system",
+  "kind": "token",
+  "summary": "New brandable role --ui-text-inverse-muted (Tailwind: text-ink-inverse-muted): secondary ink on --ui-bg-inverse, stepped 35% toward the band and floored at AA against --ui-bg-inverse-hover. Theme zero: #A7A7A7 light (7.14:1 on the band) / #55555A dark (6.70:1). Replaces consumers' unaudited color-mix(… 70%, transparent) (#36).",
+  "affects": [
+    "token:--ui-text-inverse-muted"
+  ],
+  "migration": {
+    "manual": "A brand theme regenerated with resolveThemePair gets the role automatically; a hand-written theme must add it."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0"
+  }
+}

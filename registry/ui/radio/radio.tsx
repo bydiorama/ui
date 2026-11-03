@@ -341,18 +341,25 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
           "transition-[background-color,border-color,box-shadow]",
           motionMicro,
 
-          !checked && "bg-surface border-edge-control",
-          checked && "bg-accent border-accent text-ink-on-accent",
+          // SELECTED IS DRAWN FROM `:checked`, NOT FROM REACT STATE (#34).
+          // A statically rendered group still moves its native selection on
+          // click; painting from `checked` left the circle empty until
+          // hydration. The dot is always present and shown the same way.
+          "bg-surface border-edge-control",
+          !disabled && "peer-checked:bg-accent peer-checked:border-accent peer-checked:text-ink-on-accent",
+          "[&>[data-slot=dot]]:invisible peer-checked:[&>[data-slot=dot]]:visible",
 
           // Hover is DERIVED — no sheet draws one for a radio or a checkbox.
           // Unselected deepens its edge; selected steps to the accent's hover
-          // role, so both ramps move one direction.
-          !disabled && !checked && "group-hover:border-edge-strong",
-          !disabled && checked && "group-hover:bg-accent-hover group-hover:border-accent-hover",
+          // role, so both ramps move one direction. The selected hover
+          // carries both variants and outranks the other by specificity.
+          !disabled && "group-hover:border-edge-strong",
+          !disabled && "group-hover:peer-checked:bg-accent-hover group-hover:peer-checked:border-accent-hover",
 
           // Invalid replaces the resting edge rather than adding to it — a
           // second edge on an 18px circle is a smudge. Same role Input uses.
-          !disabled && group.isInvalid && !checked && "border-danger",
+          // A selected circle's peer-checked edge outranks it.
+          !disabled && group.isInvalid && "border-danger",
 
           disabled && "bg-sunken border-edge-subtle text-ink-disabled",
 
@@ -363,7 +370,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
           "peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-focus",
         )}
       >
-        {checked && <span data-slot="dot" className={cn(DOT, "shrink-0 rounded-full bg-current")} />}
+        <span data-slot="dot" className={cn(DOT, "shrink-0 rounded-full bg-current")} />
       </span>
 
       <span data-slot="radio-text" className="flex min-w-0 flex-col gap-xs">

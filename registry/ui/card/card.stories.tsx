@@ -7,6 +7,8 @@ import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Input } from "@/ui/input/input.tsx";
 import { Switch } from "@/ui/switch/switch.tsx";
+import { Edit } from "griddy-icons";
+
 import { Card } from "./card.tsx";
 
 const meta = {
@@ -74,6 +76,36 @@ export const States: Story = {
         <Card.Footer>
           <Button variant="secondary" size="md" onClick={fn()}>Cancel</Button>
           <Button variant="danger" size="md" onClick={fn()}>Delete</Button>
+        </Card.Footer>
+      </Card>
+      {/* Issue #10, from the Card additions handoff. */}
+      <Card surface="outlined">
+        <Card.Header
+          subtitle="Shared with the Zürich studio · edited 3 days ago"
+          actions={<Button variant="secondary" size="md" isIconOnly aria-label="Edit Grid systems" icon={<Edit />} />}
+        >
+          Grid systems
+        </Card.Header>
+        <Card.Body className="max-h-24">
+          <p className="text-body-md text-ink-secondary">
+            Josef Müller-Brockmann, 1961. Modular layouts for posters, books and signage, set on a single
+            baseline. The grid divides the page into fields of equal height, separated by intervals that
+            match the leading, so image and text share one measure.
+          </p>
+        </Card.Body>
+        <Card.Footer>
+          <Button variant="secondary" size="md" onClick={fn()}>Cancel</Button>
+          <Button size="md" onClick={fn()}>Save</Button>
+        </Card.Footer>
+      </Card>
+      <Card collapsible>
+        <Card.Header subtitle="Step 3 of 5 · started 2 min ago">Analysing brand guidelines</Card.Header>
+        <Card.Body>
+          <p className="text-body-md text-ink-secondary">Collected 42 source files · Extracted colour and type tokens</p>
+        </Card.Body>
+        <Card.Footer>
+          <Button variant="secondary" size="md" onClick={fn()}>Dismiss</Button>
+          <Button variant="ghost" size="md" onClick={fn()}>Open full report</Button>
         </Card.Footer>
       </Card>
     </div>

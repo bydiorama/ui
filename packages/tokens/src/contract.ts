@@ -30,6 +30,10 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-disabled",
   "--ui-text-placeholder",
   "--ui-text-inverse",
+  // Secondary ink on an inverse band — footer sublabels, a quiet line under a
+  // dark CTA (#36). Consumers built it from color-mix(…70%, transparent),
+  // which nothing audited; this is floored against the band's hover step.
+  "--ui-text-inverse-muted",
   "--ui-text-link",
   "--ui-text-link-hover",
   "--ui-text-on-accent",
@@ -509,6 +513,8 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   ["--ui-text-inverse", "--ui-bg-inverse"],
   ["--ui-text-inverse", "--ui-bg-inverse-hover"],
   ["--ui-text-inverse", "--ui-bg-inverse-active"],
+  ["--ui-text-inverse-muted", "--ui-bg-inverse"],
+  ["--ui-text-inverse-muted", "--ui-bg-inverse-hover"],
   ["--ui-text-on-accent", "--ui-bg-accent"],
   ["--ui-text-link", "--ui-bg-base"],
   // The open month/year trigger in a Calendar header. `text-link` was audited
@@ -583,6 +589,11 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
  * whose labels are audited as text above.
  */
 export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableToken]> = [
+  // MediaToggle's glyph on its disc, at rest and hovered (#36). The media
+  // family does not flip with the scheme, so both schemes measure the same
+  // pair against a dark disc.
+  ["--ui-text-on-media", "--ui-bg-media"],
+  ["--ui-text-on-media", "--ui-bg-media-floor"],
   ["--ui-border-focus", "--ui-bg-base"],
   // The outline on a lifted CardSorting row, which sits on `elevated` rather
   // than on the page. It is the only thing distinguishing a row the user is

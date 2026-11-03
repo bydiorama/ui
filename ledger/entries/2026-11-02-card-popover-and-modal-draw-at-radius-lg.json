@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-card-popover-and-modal-draw-at-radius-lg",
+  "date": "2026-11-02",
+  "item": "card",
+  "kind": "visual",
+  "summary": "Card, Popover's panel and Modal's surface draw at --ui-radius-lg (16px), not radius-xl (24) — the 2026-10-27/29 owner decision, platform-wide (#40). Modal's radius half of #23 is reversed; its hairline, shadow and title are unchanged. A radius-md boxed child at p-lg is no longer concentric; accepted in review.",
+  "affects": [
+    "item:card",
+    "item:popover",
+    "item:modal",
+    "class:rounded-xl→rounded-lg"
+  ],
+  "migration": {
+    "manual": "Remove any consumer patch that forced [data-slot=card|popover-panel|modal-surface] to --ui-radius-lg (e.g. service-portal's `Registry patch (TEMPORARY)` block)."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3P20-0"
+  }
+}

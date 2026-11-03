@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-button-renders-as-a-link-and-gains-a-class-recipe",
+  "date": "2026-11-02",
+  "item": "button",
+  "kind": "addition",
+  "summary": "Button takes a `render` slot (`render={<a href=…/>}` or the router's Link) so a CTA that navigates is one element with every state intact, and exports `buttonClassName()` — the identical recipe — for markup React does not own, such as .astro templates (#31). On a rendered element isDisabled becomes aria-disabled + tabIndex -1 + a cancelled click.",
+  "affects": [
+    "prop:render",
+    "export:buttonClassName"
+  ]
+}

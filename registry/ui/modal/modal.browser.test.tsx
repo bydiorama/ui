@@ -282,7 +282,7 @@ async function transitionsStartedBy(target: () => Element | null, interaction: (
  * reads as the same object as them.
  *
  * Asserted as a RELATIONSHIP, rendered side by side, never as numbers: pinning
- * "24px" on each would pass while Card and Modal drifted apart, which is the
+ * "16px" on each would pass while Card and Modal drifted apart, which is the
  * only failure that matters here. Every one of these failed before the change:
  * Modal was 16px, had no border at all, carried sm's single shadow layer, and
  * set its title at title-lg / 500.
@@ -313,9 +313,9 @@ describe("Modal wears Card's surface (#23)", () => {
 
     expect(modal.borderTopLeftRadius).toBe(card.borderTopLeftRadius);
     expect(modal.borderBottomRightRadius).toBe(card.borderBottomRightRadius);
-    // The radius-xl step, not radius-lg — a sanity check that the comparison
-    // is not two zeros agreeing.
-    expect(Number.parseFloat(modal.borderTopLeftRadius)).toBeGreaterThan(16);
+    // The radius-lg step (#40) — a sanity check that the comparison is not
+    // two zeros agreeing.
+    expect(modal.borderTopLeftRadius).toBe("16px");
 
     for (const side of ["Top", "Right", "Bottom", "Left"] as const) {
       expect(modal[`border${side}Style`], side).toBe("solid");

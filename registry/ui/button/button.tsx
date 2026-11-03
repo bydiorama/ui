@@ -5,11 +5,12 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
+import { useRender } from "@base-ui/react/use-render";
 
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
-export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "inverse";
 export type ButtonSize = "lg" | "md" | "sm";
 /**
  * `soft` is the DEFAULT, and that is the whole point of this axis.
@@ -65,6 +66,19 @@ const ICON_SIZE = {
 } as const satisfies Record<ButtonSize, string>;
 
 /**
+ * STATE GATING IS AN ATTRIBUTE, NOT `:enabled` (#31).
+ *
+ * Hover and press used to be gated behind `enabled:`. `:enabled` only matches
+ * form controls, so the moment a Button rendered as an `<a>` — every
+ * marketing CTA is navigation — those classes matched nothing and the control
+ * had no hover at all. It looked dead, and failed silently. Button now stamps
+ * `data-disabled` when `isDisabled` is set, on whatever element it renders,
+ * and every state hangs off that: `not-data-disabled:hover:…` for the live
+ * states, `data-disabled:…` for the flattened one. Same specificity as the
+ * pseudo-classes they replace, so ordering is unchanged.
+ */
+
+/**
  * Variants. Hover and active are the designed states, not tints of rest:
  * `secondary` gains presence from BOTH sides — its ink darkens
  * (muted → secondary) as its ring strengthens (subtle → default).
@@ -86,9 +100,9 @@ const ICON_SIZE = {
  */
 const VARIANT = {
   primary:
-    "bg-accent ring-accent text-ink-on-accent enabled:hover:bg-accent-hover enabled:hover:ring-accent-hover enabled:active:bg-accent-active enabled:active:ring-accent-active",
+    "bg-accent ring-accent text-ink-on-accent not-data-disabled:hover:bg-accent-hover not-data-disabled:hover:ring-accent-hover not-data-disabled:active:bg-accent-active not-data-disabled:active:ring-accent-active",
   secondary:
-    "ring-edge-subtle text-ink-muted enabled:hover:ring-edge-default enabled:hover:text-ink-secondary enabled:active:ring-edge-strong enabled:active:text-ink-primary",
+    "ring-edge-subtle text-ink-muted not-data-disabled:hover:ring-edge-default not-data-disabled:hover:text-ink-secondary not-data-disabled:active:ring-edge-strong not-data-disabled:active:text-ink-primary",
   // A CONFORMANT edge, which is the whole reason this type exists next to
   // secondary. DERIVED — the sheet draws no Outline row — and the first
   // attempt used border-default, which measures 2.14:1 against the page and
@@ -96,10 +110,19 @@ const VARIANT = {
   // step ADR 0010 defines for exactly this: an edge something depends on
   // being able to identify. secondary keeps the quiet hairline.
   outline:
-    "ring-edge-control text-ink-secondary enabled:hover:ring-edge-strong enabled:active:text-ink-primary",
-  ghost: "ring-transparent text-ink-secondary enabled:hover:bg-elevated enabled:active:text-ink-primary",
+    "ring-edge-control text-ink-secondary not-data-disabled:hover:ring-edge-strong not-data-disabled:active:text-ink-primary",
+  ghost: "ring-transparent text-ink-secondary not-data-disabled:hover:bg-elevated not-data-disabled:active:text-ink-primary",
   danger:
-    "bg-danger-subtle ring-danger-border text-ink-on-danger-subtle enabled:hover:bg-danger-subtle-hover",
+    "bg-danger-subtle ring-danger-border text-ink-on-danger-subtle not-data-disabled:hover:bg-danger-subtle-hover",
+  // ON --ui-bg-inverse ONLY (#36; Paper, Components - Handoff, "Inverse
+  // grounds"). An edge on nothing, like outline, inked in the band's own
+  // ink: the page inks outline and ghost carry vanish on the dark band. The
+  // ring is --ui-text-inverse (15.9:1, a conformant control edge); hover and
+  // press fill the band's own -hover and -active steps. Inverse flips light
+  // in the dark scheme and this follows it — it is NOT the variant for
+  // media grounds, which do not flip.
+  inverse:
+    "ring-ink-inverse text-ink-inverse not-data-disabled:hover:bg-inverse-hover not-data-disabled:active:bg-inverse-active",
 } as const satisfies Record<ButtonVariant, string>;
 
 /**
@@ -116,13 +139,16 @@ const VARIANT = {
  * keeps its absence of chrome and takes only the disabled ink; its ring stays
  * the `ring-transparent` it rests with.
  */
-const DISABLED_CHIP = "disabled:bg-elevated disabled:text-ink-disabled disabled:ring-elevated";
+const DISABLED_CHIP = "data-disabled:bg-elevated data-disabled:text-ink-disabled data-disabled:ring-elevated";
 const DISABLED = {
   primary: DISABLED_CHIP,
   secondary: DISABLED_CHIP,
   outline: DISABLED_CHIP,
-  ghost: "disabled:text-ink-disabled",
+  ghost: "data-disabled:text-ink-disabled",
   danger: DISABLED_CHIP,
+  // The page's disabled chip is a light slab on the dark band. Inverse keeps
+  // its shape and steps ring and label to the band's muted ink.
+  inverse: "data-disabled:ring-ink-inverse-muted data-disabled:text-ink-inverse-muted",
 } as const satisfies Record<ButtonVariant, string>;
 
 interface ButtonBaseProps
@@ -163,6 +189,17 @@ interface ButtonBaseProps
   icon?: ReactElement;
   /** Slot: rendered after the label. Chevrons, external-link marks. */
   iconEnd?: ReactElement;
+  /**
+   * Slot: renders as this element instead of a `<button>` — pass
+   * `render={<a href="/contact" />}` or `render={<Link href="/contact" />}`
+   * for a call to action that navigates. Passed through, never wrapped (§3):
+   * the button's classes, data attributes and handlers merge onto it.
+   *
+   * On a rendered element `type` is not set, and `isDisabled` cannot use the
+   * native attribute (an `<a>` has none), so it becomes `aria-disabled`,
+   * leaves the tab order and swallows the click instead.
+   */
+  render?: ReactElement;
 }
 
 /**
@@ -185,7 +222,95 @@ interface LabelledProps {
 
 export type ButtonProps = ButtonBaseProps & (IconOnlyProps | LabelledProps);
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(props, ref) {
+export interface ButtonClassNameOptions {
+  variant?: ButtonVariant | undefined;
+  size?: ButtonSize | undefined;
+  shape?: ButtonShape | undefined;
+  isIconOnly?: boolean | undefined;
+  isFullWidth?: boolean | undefined;
+  isBusy?: boolean | undefined;
+  isDisabled?: boolean | undefined;
+  staticTap?: boolean | undefined;
+  className?: string | undefined;
+}
+
+/**
+ * The class recipe Button renders with, for markup React does not own — an
+ * `<a>` in an `.astro` or server template (#31). Pair it with the attributes
+ * the states hang off: `data-disabled` for a disabled control (and
+ * `aria-disabled` on an anchor), and size the icon with an `<svg>` child.
+ * Inside React, prefer `<Button render={…}>`, which sets those for you.
+ */
+export function buttonClassName({
+  variant = "primary",
+  size = "md",
+  shape = "soft",
+  isIconOnly = false,
+  isFullWidth = false,
+  isBusy = false,
+  isDisabled = false,
+  staticTap = false,
+  className,
+}: ButtonClassNameOptions = {}): string {
+  return cn(
+    // no-underline: a rendered `<a>` (#31) must not wear the UA link rule.
+    "inline-flex shrink-0 items-center justify-center ring-inset no-underline",
+    "font-body font-bold leading-flat tracking-tight whitespace-nowrap",
+    // The icon slot is SIZED, at 16px for every button size — which is what
+    // the sheet draws at all four (a 44px lg button and a 24px sm button
+    // both carry a 16px glyph). Without this the slot inherits whatever the
+    // icon library defaults to: griddy's IconBase sets width/height="24" as
+    // attributes, so every icon rendered 50% oversize, and at sm a 24px
+    // glyph exactly filled the 24px button. A CSS rule beats a presentation
+    // attribute, which is why one class is enough.
+    "[&_svg]:size-4 [&_svg]:shrink-0",
+    // A <button> has NO pointer cursor by default — the UA default is the
+    // arrow, and Tailwind's preflight does not add one. Verified in a real
+    // browser: without this the computed cursor is `default`. The pointer
+    // is the only pre-click signal that a thing is clickable, so it is
+    // part of the contract, not decoration.
+    //
+    // BUSY shows `progress`: the pointer would promise a click that is
+    // now swallowed, and not-allowed is disabled's signal, which busy
+    // deliberately is not. `progress` is the platform's own "working, you
+    // can still interact with the page" cursor. Disabled still wins.
+    isBusy && !isDisabled ? "cursor-progress" : "cursor-pointer data-disabled:cursor-not-allowed",
+    // Enumerated properties, never `all` (CONVENTIONS §8). Scale is left
+    // out deliberately: press feedback should snap, not ease.
+    // Custom properties use the PARENS syntax — `duration-(--x)` compiles
+    // to var(--x); the bracket form emits the bare property name, which is
+    // invalid CSS and silently zeroes the transition.
+    "transition-[background-color,box-shadow,color]", motionMicro,
+    // Focus lives on the outline layer so it can never be confused with a
+    // variant's resting ring, and no variant can suppress it. There is
+    // deliberately NO `outline-none` base: it poisons `--tw-outline-style`
+    // with `none`, which `focus-visible:outline-focus` then inherits — a
+    // 2px-wide ring drawn in style:none, i.e. an invisible focus
+    // indicator at a perfect contrast ratio. The UA outline needs no
+    // suppressing: ours overrides it whenever :focus-visible matches.
+    "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
+    // No press-scale while busy: pressing a busy button activates nothing,
+    // and motion that acknowledges a press nobody acted on is a false cue.
+    !staticTap && !isBusy && "not-data-disabled:active:scale-(--ui-press-scale) motion-reduce:active:scale-100",
+    shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
+    isIconOnly ? ICON_SIZE[size] : SIZE[size],
+    VARIANT[variant],
+    isFullWidth && "w-full",
+    // Last, so it wins over every variant's colours by order rather than
+    // by specificity arithmetic.
+    //
+    // Deliberately NOT `pointer-events-none`: the native `disabled`
+    // attribute already blocks activation and removes the control from the
+    // tab order, so suppressing pointer events adds nothing except making
+    // the button unhoverable — which kills the tooltip that would explain
+    // WHY it is disabled. Hover states are gated with `not-data-disabled:` instead.
+    // The treatment is per variant — see DISABLED for why ghost differs.
+    DISABLED[variant],
+    className,
+  );
+}
+
+export const Button = forwardRef<HTMLElement, ButtonProps>(function Button(props, ref) {
   const {
     variant = "primary",
     size = "md",
@@ -202,8 +327,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     type = "button",
     "data-slot": dataSlot = "button",
     onClick,
+    render,
     ...rest
   } = props;
+  const isNative = render === undefined;
 
   // A busy button is still focusable but not ACTIVATABLE (#8). This is a
   // safety invariant, not optional behaviour, so it is an unconditional
@@ -218,87 +345,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   // Enter from any field whose default button this is. The native way to
   // refuse implicit submission is `disabled` on the default button; this gets
   // the same result while keeping focus.
-  const handleClick = isBusy
-    ? (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-      }
-    : onClick;
+  //
+  // A DISABLED RENDERED ELEMENT takes the same path: an `<a>` has no
+  // `disabled` attribute, so cancelling the click is what stops it navigating.
+  const handleClick =
+    isBusy || (!isNative && isDisabled)
+      ? (event: MouseEvent<HTMLButtonElement>) => {
+          event.preventDefault();
+        }
+      : onClick;
 
-  return (
-    <button
-      {...rest}
-      ref={ref}
-      type={type}
-      data-slot={dataSlot}
-      data-variant={variant}
-      data-size={size}
-      disabled={isDisabled}
-      onClick={handleClick}
-      aria-busy={isBusy || undefined}
-      // aria-disabled, because activation is now genuinely unavailable and
-      // aria-busy alone does not say so: on a button, most screen readers do
-      // not announce aria-busy at all. aria-disabled is the attribute AT
-      // reads as "present, focusable, cannot be activated right now" — the
-      // pattern Calendar, Accordion and Menu already use for a control that
-      // must stay reachable. Spread conditionally so a caller's own
-      // aria-disabled survives on a button that is not busy.
-      {...(isBusy ? { "aria-disabled": true as const } : {})}
-      className={cn(
-        "inline-flex shrink-0 items-center justify-center ring-inset",
-        "font-body font-bold leading-flat tracking-tight whitespace-nowrap",
-        // The icon slot is SIZED, at 16px for every button size — which is what
-        // the sheet draws at all four (a 44px lg button and a 24px sm button
-        // both carry a 16px glyph). Without this the slot inherits whatever the
-        // icon library defaults to: griddy's IconBase sets width/height="24" as
-        // attributes, so every icon rendered 50% oversize, and at sm a 24px
-        // glyph exactly filled the 24px button. A CSS rule beats a presentation
-        // attribute, which is why one class is enough.
-        "[&_svg]:size-4 [&_svg]:shrink-0",
-        // A <button> has NO pointer cursor by default — the UA default is the
-        // arrow, and Tailwind's preflight does not add one. Verified in a real
-        // browser: without this the computed cursor is `default`. The pointer
-        // is the only pre-click signal that a thing is clickable, so it is
-        // part of the contract, not decoration.
-        //
-        // BUSY shows `progress`: the pointer would promise a click that is
-        // now swallowed, and not-allowed is disabled's signal, which busy
-        // deliberately is not. `progress` is the platform's own "working, you
-        // can still interact with the page" cursor. Disabled still wins.
-        isBusy && !isDisabled ? "cursor-progress" : "cursor-pointer disabled:cursor-not-allowed",
-        // Enumerated properties, never `all` (CONVENTIONS §8). Scale is left
-        // out deliberately: press feedback should snap, not ease.
-        // Custom properties use the PARENS syntax — `duration-(--x)` compiles
-        // to var(--x); the bracket form emits the bare property name, which is
-        // invalid CSS and silently zeroes the transition.
-        "transition-[background-color,box-shadow,color]", motionMicro,
-        // Focus lives on the outline layer so it can never be confused with a
-        // variant's resting ring, and no variant can suppress it. There is
-        // deliberately NO `outline-none` base: it poisons `--tw-outline-style`
-        // with `none`, which `focus-visible:outline-focus` then inherits — a
-        // 2px-wide ring drawn in style:none, i.e. an invisible focus
-        // indicator at a perfect contrast ratio. The UA outline needs no
-        // suppressing: ours overrides it whenever :focus-visible matches.
-        "focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-edge-focus",
-        // No press-scale while busy: pressing a busy button activates nothing,
-        // and motion that acknowledges a press nobody acted on is a false cue.
-        !staticTap && !isBusy && "enabled:active:scale-(--ui-press-scale) motion-reduce:active:scale-100",
-        shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
-        isIconOnly ? ICON_SIZE[size] : SIZE[size],
-        VARIANT[variant],
-        isFullWidth && "w-full",
-        // Last, so it wins over every variant's colours by order rather than
-        // by specificity arithmetic.
-        //
-        // Deliberately NOT `pointer-events-none`: the native `disabled`
-        // attribute already blocks activation and removes the control from the
-        // tab order, so suppressing pointer events adds nothing except making
-        // the button unhoverable — which kills the tooltip that would explain
-        // WHY it is disabled. Hover states are gated with `enabled:` instead.
-        // The treatment is per variant — see DISABLED for why ghost differs.
-        DISABLED[variant],
-        className,
-      )}
-    >
+  const content = (
+    <>
       {/*
         A spinner REPLACES the leading icon rather than joining it, so the
         button does not change width mid-submit and shift the layout under a
@@ -312,8 +370,48 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {isBusy ? <Spinner /> : icon}
       {!isIconOnly && children}
       {iconEnd}
-    </button>
+    </>
   );
+
+  return useRender({
+    render,
+    defaultTagName: "button",
+    ref,
+    props: {
+      ...rest,
+      // `type` and `disabled` belong to <button>. On a rendered element the
+      // disabled state is announced and enforced by hand instead.
+      ...(isNative ? { type, disabled: isDisabled } : {}),
+      ...(!isNative && isDisabled ? { "aria-disabled": true as const, tabIndex: -1 } : {}),
+      "data-slot": dataSlot,
+      "data-variant": variant,
+      "data-size": size,
+      // What every state selector hangs off — see the note above VARIANT.
+      "data-disabled": isDisabled ? "" : undefined,
+      onClick: handleClick,
+      "aria-busy": isBusy || undefined,
+      // aria-disabled, because activation is now genuinely unavailable and
+      // aria-busy alone does not say so: on a button, most screen readers do
+      // not announce aria-busy at all. aria-disabled is the attribute AT
+      // reads as "present, focusable, cannot be activated right now" — the
+      // pattern Calendar, Accordion and Menu already use for a control that
+      // must stay reachable. Spread conditionally so a caller's own
+      // aria-disabled survives on a button that is not busy.
+      ...(isBusy ? { "aria-disabled": true as const } : {}),
+      className: buttonClassName({
+        variant,
+        size,
+        shape,
+        isIconOnly,
+        isFullWidth,
+        isBusy,
+        isDisabled,
+        staticTap,
+        className,
+      }),
+      children: content,
+    },
+  });
 });
 
 /**

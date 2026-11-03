@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-media-toggle-pause-control-for-ambient-video",
+  "date": "2026-11-02",
+  "item": "media-toggle",
+  "kind": "addition",
+  "summary": "New MediaToggle: the pause/play control WCAG 2.2.2 requires for autoplaying video (#36). A round chrome control on the media family, md 32 / lg 44; drives the media element passed as `target` and follows its play/pause events; starts paused under prefers-reduced-motion. pauseLabel and playLabel are required.",
+  "affects": [
+    "item:media-toggle"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0"
+  }
+}

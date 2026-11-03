@@ -64,6 +64,10 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       "react", "react-dom", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime",
+      // Pre-bundled with the rest of React: left to on-demand optimisation it
+      // loads a SECOND React copy, and the first hook a server-rendered
+      // component calls throws "Invalid hook call" (Fade's SSR test).
+      "react-dom/server",
       "@base-ui/react/accordion",
       "@base-ui/react/popover",
       "@base-ui/react/dialog",
@@ -88,13 +92,14 @@ export default defineConfig({
       ),
       "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
       "@/lib/motion": join(root, "registry/lib/motion/motion.ts"),
+      "@/lib/fade-ramp": join(root, "registry/lib/fade-ramp/fade-ramp.ts"),
       "@/hooks/use-controllable-state": join(
         root,
         "registry/hooks/use-controllable-state/use-controllable-state.ts",
       ),
       "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
       "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
-      ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "fade", "menu", "progress", "skeleton", "slider"),
+      ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider"),
       "@/ui": join(root, "registry/ui"),
       "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
     },

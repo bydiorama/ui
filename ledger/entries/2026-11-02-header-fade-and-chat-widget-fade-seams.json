@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-header-fade-and-chat-widget-fade-seams",
+  "date": "2026-11-02",
+  "item": "header",
+  "kind": "fix",
+  "summary": "Two fades that showed their edges. Header's affix fade variant painted its ramp in the page's solid ground under a bar that is the page at 90%, so the strip just below the bar was MORE opaque than the bar — a bright seam exactly where the variant is meant to be seamless; it now paints in ground=\"affix\" and starts at the bar's alpha. ChatWidget's body hand-rolled a 48px two-stop ramp shown whenever the body could scroll, so it kept covering the last message after the reader had scrolled to it; it is now a Fade bound to the scroller (data-slot chat-widget-fade kept).",
+  "affects": [
+    "item:header",
+    "item:chat-widget",
+    "slot:chat-widget-fade"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2WCF-0"
+  }
+}

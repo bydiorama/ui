@@ -201,7 +201,7 @@ export function Multiselect({
           </BaseCombobox.Value>
         </BaseCombobox.Chips>
 
-        <BaseCombobox.Portal {...forBaseUI<ComponentPropsWithoutRef<typeof BaseCombobox.Portal>>({ container: rootRef })}>
+        <BaseCombobox.Portal container={rootRef}>
           <BaseCombobox.Positioner
             sideOffset={8}
             // Off the viewport edge when Base UI flips or shifts (§7c).

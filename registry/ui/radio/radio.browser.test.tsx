@@ -448,3 +448,18 @@ describe("forwarding (CONVENTIONS §5)", () => {
     expect(inputs[0]!.name).toBe("reviewer");
   });
 });
+
+describe("Selection needs no JavaScript (#34)", () => {
+  test("moving the native selection paints the circle without a React render", () => {
+    const { inputs, controls } = mount(THREE);
+    controls[0]!.style.transition = "none";
+    const rest = getComputedStyle(controls[0]!).backgroundColor;
+    inputs[0]!.checked = true;
+    expect(getComputedStyle(controls[0]!).backgroundColor).not.toBe(rest);
+    const dot = controls[0]!.querySelector<HTMLElement>('[data-slot="dot"]')!;
+    expect(getComputedStyle(dot).visibility).toBe("visible");
+    // The previously selected option let go of its fill, also without React.
+    const other = controls[1]!.querySelector<HTMLElement>('[data-slot="dot"]')!;
+    expect(getComputedStyle(other).visibility).toBe("hidden");
+  });
+});

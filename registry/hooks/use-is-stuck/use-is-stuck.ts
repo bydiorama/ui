@@ -37,17 +37,13 @@ export function useIsStuck(node: HTMLElement | null, offset = 0): boolean {
   const [isStuck, setIsStuck] = useState(false);
 
   useEffect(() => {
-    // RESET, don't just skip. `null` is the caller's off-switch — Header
-    // passes `isAffixEnabled ? node : null` — and a bar switched off WHILE
-    // STUCK must not keep its floating ground with nothing underneath it to
-    // float over. Returning early here leaves the last `true` in state
-    // forever, which is a bar wearing its scrolled treatment at scroll top.
-    // Setting the value it already holds is free: React bails out on an
-    // unchanged state, so this cannot loop.
-    if (!node || typeof IntersectionObserver === "undefined") {
-      setIsStuck(false);
-      return;
-    }
+    // `null` is the caller's off-switch — Header passes
+    // `isAffixEnabled ? node : null`. The RESET for it lives in the cleanup
+    // below, not here: a bar switched off WHILE STUCK must not keep its
+    // floating ground, and the cleanup of the previous node is exactly the
+    // moment it stops being observed. (Resetting in the effect body worked
+    // too, but trips `react-hooks/set-state-in-effect`.)
+    if (!node || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -88,7 +84,12 @@ export function useIsStuck(node: HTMLElement | null, offset = 0): boolean {
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      // Setting the value it already holds is free: React bails out on an
+      // unchanged state, so this cannot loop.
+      setIsStuck(false);
+    };
   }, [node, offset]);
 
   return isStuck;

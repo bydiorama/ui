@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-strokes-are-solid",
+  "date": "2026-11-02",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Codified from design review (Paper comment): no dashed or dotted lines anywhere in the system — borders, outlines, dividers, underlines, SVG strokes, and the annotations on Paper sheets. A dash pattern reads as unfinished, placeholder or drop-here, and the system answers each with a solid treatment (an empty slot is a fill, a drop target a fill change, a secondary line a lighter role). check:strokes gains rule B, failing on dashed/dotted/double utilities (any variant prefix), a dashed or dotted border/outline/text-decoration style value, and any stroke-dasharray, in components AND stories; comments are stripped so a note saying 'never dashed' is not a violation. Probed failing-first with all three spellings. Recorded in CONVENTIONS §6, ui-craft rule 24 and the design-component sweep. The registry had no violations; on Paper the Style Guide's scale end-cap and the Fade sheet's ramp plot were redrawn solid. 26 dashed nodes remain on the _Drafts and _Assets pages, which are explorations rather than contracts, and were left as drawn.",
+  "affects": [
+    "gate:check-strokes",
+    "doc:conventions",
+    "skill:ui-craft",
+    "skill:design-component"
+  ]
+}

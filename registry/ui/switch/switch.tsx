@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useId,
   type ChangeEvent,
   type InputHTMLAttributes,
   type ReactNode,
@@ -9,6 +10,8 @@ import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
+
+export type SwitchLabelPlacement = "end" | "start";
 
 interface SwitchOwnProps {
   /**
@@ -21,6 +24,24 @@ interface SwitchOwnProps {
   isChecked?: boolean;
   defaultIsChecked?: boolean;
   isDisabled?: boolean;
+  /**
+   * Which side of the control the label sits on. `end` (default) is the
+   * shipped row: control, then label. `start` is the SETTINGS ROW — label
+   * first, the control pinned to the row's end in a fixed lane, the row
+   * full-width — so a stack of rows forms one column of controls (#9). Visual
+   * order only: the input stays first in the DOM, so the peer styling and the
+   * reading order are unchanged, and in RTL the sides mirror with the text.
+   */
+  labelPlacement?: SwitchLabelPlacement;
+  /**
+   * A line under the label — what the setting does. body-sm in the muted ink,
+   * gap-xs below the label, and part of the hit target (it is inside the
+   * <label>). Announced as the input's DESCRIPTION, not its name: the name is
+   * pinned to the label text with aria-labelledby, so a long description is
+   * not read out as the control's name. With a description the row aligns to
+   * the top and the control sits on the label's first line.
+   */
+  description?: ReactNode;
   onCheckedChange?: (isChecked: boolean) => void;
 }
 
@@ -47,6 +68,8 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
     isChecked,
     defaultIsChecked = false,
     isDisabled = false,
+    labelPlacement = "end",
+    description,
     onCheckedChange,
     onChange,
     className,
@@ -54,6 +77,9 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
   },
   ref,
 ) {
+  const labelId = useId();
+  const descriptionId = useId();
+  const hasDescription = description !== undefined && description !== null && description !== false;
   const [checked, setChecked] = useControllableState({
     ...(isChecked !== undefined ? { value: isChecked } : {}),
     defaultValue: defaultIsChecked,
@@ -72,7 +98,13 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       className={cn(
         // items-center matches the sheet and keeps the label beside the track
         // rather than at the top of the 24px target (the Checkbox lesson).
-        "group inline-flex min-h-6 items-center gap-sm",
+        "group min-h-6 gap-sm",
+        // `start` is the settings row: full width, label first, the track
+        // pinned to the end in its fixed 36px lane. Reversed VISUALLY only —
+        // the input stays before the track for the peer-* selectors.
+        labelPlacement === "start" ? "flex w-full flex-row-reverse justify-between" : "inline-flex",
+        // With a description the track sits on the label's first line.
+        hasDescription ? "items-start" : "items-center",
         isDisabled ? "cursor-not-allowed" : "cursor-pointer",
         className,
       )}
@@ -83,6 +115,14 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
         type="checkbox"
         role="switch"
         data-slot="input"
+        {...(hasDescription
+          ? {
+              // The name stays the label TEXT; the description is announced
+              // after it rather than read as part of the name.
+              "aria-labelledby": rest["aria-labelledby"] ?? labelId,
+              "aria-describedby": [descriptionId, rest["aria-describedby"]].filter(Boolean).join(" "),
+            }
+          : {})}
         className="peer sr-only"
         checked={checked}
         disabled={isDisabled}
@@ -99,10 +139,18 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
           // role used as a background. `edge-strong` is the same value on a
           // non-text role and clears the 3:1 a control boundary needs — see
           // knownGaps: a dedicated track role is probably the right answer.
-          checked ? "bg-accent-legible border-accent-legible" : "bg-edge-strong border-edge-strong",
-          !isDisabled && !checked && "group-hover:bg-edge-control group-hover:border-edge-control",
-          !isDisabled && checked && "group-hover:bg-accent-hover group-hover:border-accent-hover",
+          //
+          // ON IS DRAWN FROM `:checked`, NOT FROM REACT STATE (#34): a
+          // statically rendered switch still toggles its native input, and
+          // painting from `checked` left it visually off until hydration.
+          "bg-edge-strong border-edge-strong",
+          !isDisabled && "peer-checked:bg-accent-legible peer-checked:border-accent-legible",
+          !isDisabled && "group-hover:bg-edge-control group-hover:border-edge-control",
+          // Both variants, so it outranks the off hover by specificity.
+          !isDisabled && "group-hover:peer-checked:bg-accent-hover group-hover:peer-checked:border-accent-hover",
           isDisabled && "bg-sunken border-edge-subtle",
+          // The thumb is the track's child, so the track carries its travel.
+          "peer-checked:[&>[data-slot=thumb]]:translate-x-4",
           "peer-focus-visible:shadow-(--ui-focus-ring) peer-focus-visible:forced-colors:outline peer-focus-visible:forced-colors:outline-focus",
         )}
       >
@@ -113,21 +161,41 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
             // Travel, not a layout change: transform animates on the compositor
             // and leaves the track's geometry untouched.
             "transition-transform", motionMicro,
-            checked ? "translate-x-4" : "translate-x-px",
+            "translate-x-px",
           )}
         />
       </span>
 
-      <span
-        data-slot="label"
-        className={cn(
-          "text-label-md font-body",
-          isLabelHidden && "sr-only",
-          isDisabled ? "text-ink-disabled" : "text-ink-primary",
-        )}
-      >
-        {children}
-      </span>
+      {hasDescription ? (
+        <span data-slot="text" className={cn("flex min-w-0 flex-1 flex-col gap-xs", isLabelHidden && "sr-only")}>
+          <span
+            id={labelId}
+            data-slot="label"
+            className={cn("text-label-md font-body", isDisabled ? "text-ink-disabled" : "text-ink-primary")}
+          >
+            {children}
+          </span>
+          <span
+            id={descriptionId}
+            data-slot="description"
+            className={cn("text-body-sm font-body", isDisabled ? "text-ink-disabled" : "text-ink-muted")}
+          >
+            {description}
+          </span>
+        </span>
+      ) : (
+        <span
+          data-slot="label"
+          className={cn(
+            "text-label-md font-body",
+            isLabelHidden && "sr-only",
+            labelPlacement === "start" && "min-w-0 flex-1",
+            isDisabled ? "text-ink-disabled" : "text-ink-primary",
+          )}
+        >
+          {children}
+        </span>
+      )}
     </label>
   );
 });

@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-site-header",
+  "date": "2026-11-02",
+  "item": "site-header",
+  "kind": "addition",
+  "summary": "New item SiteHeader (#33, minimal revision): a marketing site's bar composed from Header — a type-only wordmark link, Header.Item variant=\"quiet\" links, and one CTA (Button primary md as an <a>). Data-driven (brand, items, cta) because an Astro page cannot compose Header's parts across the island boundary. Below collapseBelow (a caller length, default 62rem — there is no breakpoint token while #32 is deferred) the bar keeps the wordmark and a text Menu control; the menu is a full-screen Sheet from the top with title-lg rows and the CTA at its foot. The switch is a scoped range media query in a <style>, so the desktop bar is static-safe HTML. isOverMedia: no fill, the media inks and a --ui-bg-media scrim held for 48px then ramped out over 32px on the perceptual dark ramp, until the bar affixes. The scrim is 72% (MEDIA_SCRIM_ALPHA), not the sheet's 64%: --ui-bg-media-floor is defined at 72%, so check:contrast measures the bar's worst case (rest ink 4.62:1, full ink 6.14:1). Shipped in registry/ui rather than registry/blocks so every gate applies.",
+  "affects": ["item:site-header"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QL1-0" }
+}

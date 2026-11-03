@@ -3,7 +3,7 @@
 export const badgeDoc = {
   name: "Badge",
   status: "stable",
-  summary: "A short status or selection label. Six variants, two sizes, pill or rounded, with an optional trailing slot.",
+  summary: "A short status or selection label. Seven variants, two sizes, pill or rounded, with an optional trailing slot.",
 
   anatomy: [
     { part: "root", slot: "badge", notes: "A <span>. Carries data-variant and data-size." },
@@ -19,10 +19,10 @@ Badge
 
   props: {
     variant: {
-      type: '"selected" | "unselected" | "neutral" | "success" | "warning" | "danger"',
+      type: '"selected" | "unselected" | "neutral" | "info" | "success" | "warning" | "danger"',
       default: '"unselected"',
       notes:
-        "selected is the brand fill; unselected is outlined; neutral, success, warning and danger are tinted labels with no border, so a row of them reads as data rather than controls. NEUTRAL is for status data with no intent — an industry, a type, a plan tier — which is the commonest badge in an admin table and had no answer before: `unselected` is a choice state wearing an outline, and tinting a category green teaches nothing when the value never varies. Same two roles as Banner's own neutral (§2 — one vocabulary per concept).",
+        "selected is the brand fill; unselected is outlined; neutral, info, success, warning and danger are tinted labels with no border, so a row of them reads as data rather than controls. NEUTRAL is for status data with no intent — an industry, a type, a plan tier — which is the commonest badge in an admin table and had no answer before: `unselected` is a choice state wearing an outline, and tinting a category green teaches nothing when the value never varies. Same two roles as Banner's own neutral (§2 — one vocabulary per concept).",
     },
     size: {
       type: '"md" | "sm"',
@@ -55,6 +55,7 @@ Badge
       { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "unselected badge ink" },
       { fg: "--ui-text-muted", bg: "--ui-bg-sunken", floor: "text", role: "neutral badge — the same pair Banner's neutral variant declares. The ink is deliberately unchanged by the 2026-08-10 edge: raising the FILL to fix dark would have dropped this pair to 3.86:1, which is why the boundary moved instead" },
       { fg: "--ui-border-subtle", bg: "--ui-bg-surface", floor: "decorative", why: "A chip's boundary against the table row it sits on, not a control edge something depends on identifying — the label inside carries the meaning and clears AA on its own. Declared because it is the channel that makes `neutral` legible in dark at all: 1.434 light, 1.391 dark, against a fill that manages 1.188 and 1.098.", role: "the neutral badge's hairline on a table row" },
+      { fg: "--ui-intent-info-fg", bg: "--ui-intent-info-bg", floor: "text", role: "info badge — Banner info's own pair, so Badge's five statuses are Banner's five intents (#9)" },
       { fg: "--ui-intent-success-fg", bg: "--ui-intent-success-bg", floor: "text", role: "success badge" },
       { fg: "--ui-intent-warning-fg", bg: "--ui-intent-warning-bg", floor: "text", role: "warning badge" },
       { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "danger badge" },

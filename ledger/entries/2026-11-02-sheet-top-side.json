@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-sheet-top-side",
+  "date": "2026-11-02",
+  "item": "sheet",
+  "kind": "addition",
+  "summary": "Sheet.Panel gains side=\"top\": the full-screen variant a site's collapsed menu uses (#33). Flush on all four edges, so no corner is rounded and no width cap applies (size is ignored); it slides down from above on the same motionStandard translate the other sides use. Not a bottom sheet turned over — that is Drawer, whose contract is the gesture.",
+  "affects": ["item:sheet", "prop:side"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QL1-0" }
+}

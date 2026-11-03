@@ -28,6 +28,15 @@ Switch
     defaultIsChecked: { type: "boolean", default: "false" },
     isLabelHidden: { type: "boolean", default: "false", notes: "Visually hides the label without removing it from the accessibility tree." },
     isDisabled: { type: "boolean", default: "false", notes: "Sets the `disabled` attribute — never pointer-events-none, which would kill an explaining tooltip." },
+    labelPlacement: {
+      type: '"end" | "start"',
+      default: '"end"',
+      notes: "Which side of the control the label sits on. end is the shipped inline row. start is the SETTINGS ROW: full width, label first, the control pinned to the end in a fixed lane, so a stack of rows forms one column of controls (#9 Proposals sheet, 03). Visual order only (flex-row-reverse): the input stays first in the DOM, so the peer styling and the reading order hold, and in RTL the sides mirror with the text.",
+    },
+    description: {
+      type: "ReactNode",
+      notes: "A line under the label: body-sm in --ui-text-muted (5.93:1 light, 4.94:1 dark), gap-xs below, --ui-text-disabled when disabled. Inside the <label>, so it is part of the hit target; announced as the input's DESCRIPTION (aria-describedby), with the name pinned to the label text (aria-labelledby) so a long description is never read as the name. A caller's own aria-describedby is kept beside it. With a description the row aligns to the top and the control sits on the label's first line.",
+    },
     onCheckedChange: { type: "(isChecked: boolean) => void", notes: "Fires on every change in both modes. The raw onChange is forwarded and runs after ours (§5)." },
   },
 
@@ -62,6 +71,7 @@ Switch
   knownGaps: [
     "The off track uses `edge-strong` — a border role used as a fill. The sheet used `--ui-text-placeholder`, a TEXT role as a background, which is worse; both are category errors. A dedicated track role is probably the right answer, and Slider will want the same thing. Raised, not decided.",
     "One size. The sheet draws a single 36x20 track.",
+    "labelPlacement and description are CLOSED (2026-11-02, #9): drawn on the #9 Proposals sheet, light and dark. start is the settings row a Switch is most often asked for.",
     "No loading or pending state for a switch whose effect is asynchronous — the commonest real need, and not drawn.",
     "The sheet's thumb shadow is a raw #9EDBF30D; this uses --ui-shadow-sm.",
   ],

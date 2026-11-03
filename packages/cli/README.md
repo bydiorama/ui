@@ -8,8 +8,10 @@ item's source is never told the upstream changed, the lockfile
 ([`PLAN.md`](../../PLAN.md), "Change ledger", part 3), rather than a
 broadcast a consumer has to remember to read.
 
-Published to npm as `@bydiorama/ui` (zero runtime dependencies, Node ≥ 22).
-From inside a consumer app:
+**Not on npm yet** (issue #30): the package is prepared to publish as
+`@bydiorama/ui` (zero runtime dependencies, Node ≥ 22), but `npx @bydiorama/ui`
+returns E404 until it is. Run it from a checkout (below). Once published, from
+inside a consumer app it will be:
 
 ```sh
 npx @bydiorama/ui <command> [...flags]

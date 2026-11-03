@@ -41,6 +41,7 @@ import { ChatProgress } from "@/ui/chat-progress/chat-progress.tsx";
 import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
 import { ChatQuestionnaire } from "@/ui/chat-questionnaire/chat-questionnaire.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
+import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { Plus, Microphone, InfoCircle, Close } from "griddy-icons";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
@@ -58,6 +59,7 @@ import chatProgressSpec from "../../design/paper/specs/chat-progress.geometry.js
 import chatWidgetSpec from "../../design/paper/specs/chat-widget.geometry.json";
 import chatQuestionnaireSpec from "../../design/paper/specs/chat-questionnaire.geometry.json";
 import sheetSpec from "../../design/paper/specs/sheet.geometry.json";
+import comboboxSpec from "../../design/paper/specs/combobox.geometry.json";
 
 /** A spec case, as far as this file needs to read one. */
 type Spec = {
@@ -98,6 +100,7 @@ const SPECS: Spec[] = [
   chatWidgetSpec as Spec,
   chatQuestionnaireSpec as Spec,
   sheetSpec as Spec,
+  comboboxSpec as Spec,
 ];
 
 /**
@@ -322,7 +325,24 @@ const CASES: Record<string, () => ReactElement> = {
       <Tooltip.Content>Licensing and bundling rules</Tooltip.Content>
     </Tooltip>
   ),
+  // ONE row, unselected and not highlighted — the sheet's § Option rows /
+  // Rest, with its own string. Combobox has no open prop (the list opens on
+  // typing or ArrowDown), so the case opens it the way a keyboard user does.
+  "combobox-option-row": () => <OpenCombobox />,
 };
+
+function OpenCombobox() {
+  useEffect(() => {
+    const input = document.querySelector<HTMLInputElement>('[data-slot="combobox-input"]');
+    if (!input) return;
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true }));
+  }, []);
+  // One item and no action: `measure` takes EVERY element in the child slots,
+  // so a second row would join the union and the insets would read as the
+  // list's. (Opening by ArrowDown highlights the row — paint, not geometry.)
+  return <Combobox label="Search the archive" hasTrigger={false} items={[{ value: "gutenberg", label: "Johannes Gutenberg" }]} />;
+}
 
 function AddSheetToast() {
   const manager = useToast();

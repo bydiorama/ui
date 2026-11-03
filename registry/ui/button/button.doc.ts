@@ -28,10 +28,10 @@ Button
 
   props: {
     variant: {
-      type: '"primary" | "secondary" | "outline" | "ghost" | "danger"',
+      type: '"primary" | "secondary" | "outline" | "ghost" | "danger" | "inverse"',
       default: '"primary"',
       notes:
-        "primary is the brand-blue filled action; secondary is the quiet edge (border-subtle); outline is the SAME shape with a CONFORMANT edge (border-control, 3.11:1) — the reason to reach for it over secondary is that something depends on identifying its boundary; ghost has no chrome until hover; danger is the subtle red surface, not a solid red fill. Every type is either a fill with a matching edge or an edge on nothing — a fill with NO edge is not a button here, it is the chrome control (`@/lib/chrome-control`).",
+        "primary is the brand-blue filled action; secondary is the quiet edge (border-subtle); outline is the SAME shape with a CONFORMANT edge (border-control, 3.11:1) — the reason to reach for it over secondary is that something depends on identifying its boundary; ghost has no chrome until hover; danger is the subtle red surface, not a solid red fill; inverse is outline's shape for --ui-bg-inverse bands (a footer, a dark CTA band — #36): ring and label in --ui-text-inverse, hover/press on the band's own -hover/-active, disabled in --ui-text-inverse-muted. It follows the band when the scheme flips; it is not for media grounds. Every type is either a fill with a matching edge or an edge on nothing — a fill with NO edge is not a button here, it is the chrome control (`@/lib/chrome-control`).",
     },
     size: {
       type: '"lg" | "md" | "sm"',
@@ -60,10 +60,15 @@ Button
     staticTap: { type: "boolean", default: "false", notes: "Opts out of the press-scale feedback." },
     icon: { type: "ReactElement", notes: "Slot. Icons come from griddy-icons only. The component sizes the slot at 16px, the size the sheet draws at every control size. Without that the glyph arrives at whatever the icon library defaults to — griddy hard-codes width/height=\"24\" as attributes — which rendered every icon 50% oversize." },
     iconEnd: { type: "ReactElement", notes: "Slot." },
+    render: {
+      type: "ReactElement",
+      notes: "Slot: render as this element instead of a <button> — `render={<a href=\"/contact\" />}` or the app's own `<Link>` — for a call to action that navigates (#31). Classes, data attributes and handlers merge onto it. On a rendered element `type` is not set; `isDisabled` becomes aria-disabled + tabIndex -1 + a cancelled click, because an <a> has no disabled attribute.",
+    },
   },
 
   do: [
     "Give every icon-only button an aria-label describing the action, not the glyph.",
+    "For a CTA that navigates, pass render={<a href=… />} (or the router's Link). In .astro or server templates, put buttonClassName({ variant, size }) on the <a> and add data-disabled/aria-disabled yourself if it can be disabled.",
     "Use isBusy for in-flight submits: it refuses a second activation AND keeps focus on the button for the round trip. It is the whole double-submit guard — migrating from a `loading` prop that implied disabled is a straight rename.",
     "Pass icons as slots so usage is visible at the call site.",
     "Reach for size=\"lg\" on primary page actions — it is the only size at the 44px touch target.",
@@ -74,7 +79,7 @@ Button
     "Do not pair isDisabled with isBusy to stop a double submit — busy already refuses activation, and adding disabled only throws the keyboard user's focus away mid-submit.",
     "Do not rely on a click reaching onClick while busy (to cancel, say). A busy button swallows activation; a cancel action is a separate button.",
     "Do not add pointer-events-none to a disabled control — it blocks the tooltip that explains why it is disabled, and the disabled attribute already prevents activation.",
-    "Do not nest a Link inside a Button, and do not wrap a Button in an <a> — nested interactive elements are invalid HTML and double-announce to screen readers. A `render` slot for link-buttons ships with the behaviour layer; until then, a navigation styled as a button is out of scope for this component.",
+    "Do not nest a Link inside a Button, and do not wrap a Button in an <a> — nested interactive elements are invalid HTML and double-announce to screen readers. For a navigation styled as a button, use `render={<a href=…/>}` (or `buttonClassName()` in markup React does not own) — one element, one role.",
     "Do not add a second filled primary to the same view; the brand fill is the one loudest thing on a screen.",
     "Do not restyle a variant with className to invent a fifth one; add it here instead.",
   ],
@@ -95,7 +100,7 @@ Button
     pressed:
       "PAINTS NO NEW FILL on the edge-on-nothing types. secondary firms its ring (default -> strong) and takes its ink to primary; outline takes its ink to primary; ghost keeps the fill hover already painted and darkens its ink. A pointer press is necessarily also a hover, so :hover's treatment is already applied and :active adding a second, darker fill is what produced a neutral chip on a control the design draws with no fill in any state. primary and danger are FILLS by definition and keep theirs. The ink step is required, not decorative: §8 forbids motion being the only feedback channel, and the press-scale is the motion.",
     disabled:
-      "PER VARIANT. primary, secondary, outline and danger fill and ring with --ui-bg-elevated, which is what the sheet's Disabled frame draws — the control flattens rather than becoming a filled chip. It shipped one step darker (bg-sunken). ghost keeps its absence of chrome — no fill, a transparent ring — and takes only --ui-text-disabled, so an unavailable quiet action stays the quietest thing in its row (#27). Uses the native disabled attribute only; pointer-events are deliberately left alone so a tooltip can still explain why the control is unavailable. Hover and press states are gated behind `enabled:` instead.",
+      "PER VARIANT. primary, secondary, outline and danger fill and ring with --ui-bg-elevated, which is what the sheet's Disabled frame draws — the control flattens rather than becoming a filled chip. It shipped one step darker (bg-sunken). ghost keeps its absence of chrome — no fill, a transparent ring — and takes only --ui-text-disabled, so an unavailable quiet action stays the quietest thing in its row (#27). Uses the native disabled attribute only; pointer-events are deliberately left alone so a tooltip can still explain why the control is unavailable. Hover and press states are gated behind `not-data-disabled:` — Button stamps data-disabled on whatever element it renders, because `:enabled` never matches an <a> and gated every link's hover away (#31).",
     busy:
       "aria-busy=\"true\" plus aria-disabled=\"true\", focusable, in the tab order, activation refused. aria-disabled is deliberate: activation really is unavailable, and aria-busy on a button is silently ignored by most screen readers, so without it AT would present a control that does nothing as operable. The label (\"Saving…\") carries the why. Note for consumers' tests: Playwright treats aria-disabled as not-enabled, so `userEvent.click` on a busy button waits forever — dispatch `.click()` to assert that it refuses.",
     focus:
@@ -111,6 +116,10 @@ Button
       { fg: "--ui-text-secondary", bg: "--ui-bg-elevated", floor: "text", role: "a hovered ghost label, on the fill the sheet's Ghost Hover frame actually draws" },
       { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "a PRESSED ghost label — the ink step that keeps press from being motion alone" },
       { fg: "--ui-border-strong", bg: "--ui-bg-base", floor: "non-text", role: "a pressed secondary's edge, the firmest step in ADR 0010's stack" },
+      { fg: "--ui-text-inverse", bg: "--ui-bg-inverse", floor: "text", role: "inverse label, and its edge" },
+      { fg: "--ui-text-inverse", bg: "--ui-bg-inverse-hover", floor: "text", role: "a hovered inverse label" },
+      { fg: "--ui-text-inverse", bg: "--ui-bg-inverse-active", floor: "text", role: "a pressed inverse label" },
+      { fg: "--ui-text-inverse-muted", bg: "--ui-bg-inverse", floor: "decorative", why: "A disabled control is exempt from SC 1.4.3 and 1.4.11; the muted ink still measures 7.14:1 light / 6.70:1 dark.", role: "a disabled inverse label and edge" },
     ],
     hitArea:
       "sm is exactly 24px, the WCAG 2.5.8 floor, at every density — compact cannot go under it. lg is 44px, the recommended touch target, at default and comfortable density only: compact lg is 40px, so a compact screen meant for touch should reach for comfortable instead. md sits between at 32px — pair it with generous surrounding space on touch surfaces.",
@@ -132,6 +141,7 @@ Button
   motion:
     "Press feedback is scale(--ui-press-scale) with a staticTap opt-out; colour and ring transitions use --ui-duration-fast with --ui-ease-out. Scale is excluded from the transition list so the press snaps. prefers-reduced-motion collapses durations at the token layer and cancels the scale here.",
 
+  designInverse: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0",
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/XK7-0",
 } as const;
 

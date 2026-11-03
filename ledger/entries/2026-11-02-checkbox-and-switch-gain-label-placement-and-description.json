@@ -1,0 +1,10 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-checkbox-and-switch-gain-label-placement-and-description",
+  "date": "2026-11-02",
+  "item": "checkbox",
+  "kind": "addition",
+  "summary": "Checkbox and Switch gain labelPlacement (\"end\" default, \"start\" = the settings row: full width, label first, control pinned to the end) and description (body-sm muted under the label, inside the <label> so it is part of the hit target). The description is announced as the input's description: the name is pinned to the label text with aria-labelledby so a long description is never read as the name, and a caller's own aria-describedby is kept. With a description the row aligns to the top and the control sits on the label's first line; placement is visual only (flex-row-reverse), so the input stays before the control for every peer-* selector and RTL mirrors with the text (#9; approved on the Audit #9 sheet).",
+  "affects": ["item:checkbox", "item:switch", "prop:labelPlacement", "prop:description"],
+  "provenance": { "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QW0-0" }
+}

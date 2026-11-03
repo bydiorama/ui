@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-02-card-gains-surface-subtitle-body-and-collapsible",
+  "date": "2026-11-02",
+  "item": "card",
+  "kind": "addition",
+  "summary": "Card additions from the #10 handoff: `surface=\"outlined\"` (hairline, no shadow), Card.Header `subtitle` (body-sm muted, outside the heading, aria-describedby on the card), Card.Body (a region that scrolls under a bottom Fade when its height is capped — the answer to the footer-divider ask), and `collapsible` / isOpen / onOpenChange (a ghost chevron trigger last in the header actions, named by the title, controlling Card.Body). Card now depends on Button, Fade, motion, use-controllable-state and use-scroll-edges.",
+  "affects": [
+    "prop:surface",
+    "prop:collapsible",
+    "prop:isOpen",
+    "prop:onOpenChange",
+    "prop:Header.subtitle",
+    "part:Card.Body",
+    "slot:card-subtitle",
+    "slot:card-body",
+    "slot:card-trigger"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3P20-0"
+  }
+}

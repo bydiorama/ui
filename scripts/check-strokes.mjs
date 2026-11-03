@@ -23,7 +23,7 @@
 import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { ROOT } from "./lib/manifest.mjs";
-import { classesIn, walk } from "./lib/classes.mjs";
+import { classesIn, stripComments, walk } from "./lib/classes.mjs";
 
 /** File → reason. Same contract as check:controls: one line, one sentence. */
 const ALLOWED = new Map([]);
@@ -66,9 +66,43 @@ for (const file of files) {
   }
 }
 
+/*
+ * RULE B — STROKES ARE SOLID. A codified decision (design review,
+ * 2026-11-02): no dashed or dotted lines anywhere in the system — borders,
+ * outlines, dividers, rules, underlines, or SVG strokes. A dash pattern reads
+ * as "unfinished", "placeholder" or "drop here", and the library has a solid
+ * vocabulary for every one of those states (an empty slot is a fill, not a
+ * dashed box). Stories are checked too: they produce the visual baselines and
+ * the docs a consumer copies from.
+ *
+ * Two spellings, because a dash pattern can be written both ways:
+ *   a utility   border-dashed, outline-dotted, divide-dashed, decoration-dotted
+ *               (any variant prefix — hover:border-dashed is still a dash)
+ *   a value     border-style / borderStyle / outline-style / text-decoration-
+ *               style set to dashed or dotted, and any stroke-dasharray
+ *
+ * Comments are stripped first: a note that says "never dashed" is the rule
+ * being followed, not broken. The DOT GRID is not a line and is not affected.
+ */
+const DASHED_UTILITY = /(?:^|:)(?:border(?:-[xytrbles])?|outline|divide|decoration)-(?:dashed|dotted|double)$/;
+const DASHED_VALUE =
+  /stroke-?dasharray|(?:border|outline|text-decoration|textDecoration|borderTop|borderRight|borderBottom|borderLeft|border-(?:top|right|bottom|left)|outline)-?[sS]tyle["']?\s*[:=]\s*["']?(?:dashed|dotted)/g;
+const allFiles = walk(join(ROOT, "registry"));
+for (const file of allFiles) {
+  const rel = relative(ROOT, file);
+  const source = readFileSync(file, "utf8");
+  for (const cls of classesIn(source)) {
+    if (!DASHED_UTILITY.test(cls)) continue;
+    errors.push(`${rel}: \`${cls}\` draws a dashed or dotted line. Strokes are solid (CONVENTIONS §6).`);
+  }
+  for (const value of stripComments(source).matchAll(DASHED_VALUE)) {
+    errors.push(`${rel}: "${value[0]}" draws a dashed or dotted line. Strokes are solid (CONVENTIONS §6).`);
+  }
+}
+
 if (errors.length) {
-  console.error(`strokes: ${errors.length} literal width(s)\n`);
+  console.error(`strokes: ${errors.length} problem(s) — literal widths or dashed lines\n`);
   for (const e of errors) console.error(`  ✗ ${e}`);
   process.exit(1);
 }
-console.log(`strokes ok — no literal stroke widths across ${files.length} distributed file(s)`);
+console.log(`strokes ok — no literal stroke widths across ${files.length} distributed file(s), no dashed or dotted lines across ${allFiles.length}`);

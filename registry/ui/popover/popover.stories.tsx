@@ -34,7 +34,7 @@ type Story = StoryObj<typeof meta>;
  * The well in the panel is not a bespoke box — it is the Banner component,
  * which is why Banner exists. As a BOXED child it sits flush at the panel's
  * own p-lg; only bare text takes the inset, which Title and Description apply.
- * Its radius-md against the panel's radius-xl and p-lg is concentric: 8+16=24.
+ * Its radius-md against the panel's radius-lg and p-lg is not concentric (8+16≠16); issue #40 accepted that.
  */
 const SheetContent = () => (
   <>

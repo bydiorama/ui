@@ -45,6 +45,11 @@ notice is installed beside it rather than left behind in this file.
   `registry/lib/fx/sheen.css`, `shimmer.css`) were chosen by applying its
   `transitions-polish` rules and mapped onto this system's motion tokens; no
   snippet was copied into the distributed files.
+- **[benjitaylor/skills — Stageshow](https://github.com/benjitaylor/skills/tree/main/stageshow)**
+  — © 2026 Benji Taylor, MIT. `design/motion/library-showcase/` takes its
+  bento, presence and loop rules as direction, and draws its collaborator
+  cursors from the kit's macOS arrow path data (`kit/cursors.tsx`). No other
+  code is reused. Licence: `licenses/benjitaylor-skills.MIT.txt`.
 - **[Aspekta](https://github.com/ivodolenc/aspekta)** — © 2025 Ivo Dolenc,
   SIL Open Font License 1.1. The design system's typeface, redistributed as
   `registry/fonts/aspekta/AspektaVF.woff2` with the OFL text alongside as the

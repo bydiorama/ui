@@ -1,0 +1,114 @@
+<div id="frame">
+<div id="ground"></div>
+<div id="stage">
+  <!-- Every edge sits on the dot lattice: dots at 8 + 16n (design px), gutters one pitch.
+       Block: x 40–1032, y 40–760. Columns 320 wide at x 40 / 376 / 712. -->
+
+  <!-- Column A -->
+  <div class="tabs obj" id="tabs" style="left:40px;top:40px;width:320px;height:32px">
+    <button class="tab" id="tabDay">Day</button>
+    <button class="tab" id="tabWeek">Week</button>
+    <button class="tab" id="tabMonth">Month</button>
+  </div>
+
+  <label class="field obj" id="search" style="left:40px;top:88px;width:320px">
+    <span class="field-icon">{{icon:Search}}</span>
+    <span class="field-text"><span id="typed"></span><span class="caret" id="caret"></span><span class="ph" id="ph">Search the library</span></span>
+  </label>
+
+  <div class="card list obj" id="list" style="left:40px;top:152px;width:320px;height:240px">
+    <div class="row" id="rowTokens"><span class="cb" style="--on:1">{{icon:Check}}</span><span>Tokens</span></div>
+    <div class="row" id="rowComponents"><span class="cb" style="--on:1">{{icon:Check}}</span><span>Components</span></div>
+    <div class="row" id="rowDocs"><span class="cb" id="cbDocs">{{icon:Check}}</span><span>Docs</span></div>
+    <div class="row" id="rowMotion"><span class="cb">{{icon:Check}}</span><span>Motion</span></div>
+    <div class="list-foot">
+      <div class="prog-head"><span class="l">Release 2.4</span><span class="v"><span id="progVal">50</span>%</span></div>
+      <div class="progress"><span class="progress-fill" id="prog"></span></div>
+    </div>
+  </div>
+
+  <div class="obj slot" style="left:40px;top:408px;width:320px;height:32px">
+    <span class="avatars"><span class="av">DR</span><span class="av">WC</span><span class="av">LS</span><span class="av">+5</span></span>
+    <button class="btn btn-secondary btn-md"><span class="btn-icon">{{icon:Plus}}</span><span>Invite</span></button>
+  </div>
+
+  <div class="composer obj" style="left:40px;top:456px;width:320px;height:64px">
+    <span>Ask about a component…</span>
+    <span class="send">{{icon:ArrowUp}}</span>
+  </div>
+
+  <div class="card media obj" style="left:40px;top:536px;width:320px;height:224px">
+    <span class="art"><span class="mtoggle">{{icon:PauseCircle}}</span></span>
+    <span class="media-text"><span class="media-title">Launch film</span><span class="media-sub">0:42 of 1:50</span><span class="media-bar"><i></i></span></span>
+  </div>
+
+  <!-- Column B -->
+  <div class="card setting obj" style="left:376px;top:40px;width:320px;height:80px">
+    <span class="setting-text"><span class="setting-label">Auto-publish</span><span class="setting-desc">Ship when checks pass</span></span>
+    <span class="switch" id="switch"><span class="switch-thumb"></span></span>
+  </div>
+
+  <div class="card slider-card obj" style="left:376px;top:136px;width:320px;height:96px">
+    <div class="slider-head"><span class="l">Opacity</span><span class="v"><span id="sliderVal">40</span>%</span></div>
+    <div class="slider" id="slider">
+      <span class="slider-track"><span class="slider-range" id="sliderRange"></span></span>
+      <span class="slider-thumb" id="sliderThumb"></span>
+    </div>
+  </div>
+
+  <div class="btn-row obj" style="left:376px;top:248px;width:320px;height:48px">
+    <button class="btn btn-secondary btn-lg">Preview</button>
+    <button class="btn btn-primary btn-lg" id="publish">
+      <span class="btn-swap" id="pubIdle">Publish</span>
+      <span class="btn-swap" id="pubBusy"><span class="spinner" id="spin"></span>Publishing</span>
+      <span class="btn-swap" id="pubDone"><span class="btn-icon">{{icon:Check}}</span>Published</span>
+    </button>
+  </div>
+
+  <div class="cal obj" id="cal" style="left:376px;top:312px;height:448px"></div>
+
+  <!-- Column C -->
+  <button class="select obj" id="select" style="left:712px;top:40px;width:320px">
+    <span class="select-val"><span class="sv" id="svWeekly">Weekly</span><span class="sv" id="svMonthly">Monthly</span></span>
+    <span class="select-chev">{{icon:ChevronDown}}</span>
+  </button>
+  <div class="listbox" id="listbox" style="left:712px;top:96px;width:320px">
+    <div class="opt" id="optDaily"><span>Daily</span></div>
+    <div class="opt" id="optWeekly"><span>Weekly</span><span class="opt-check" id="chkWeekly">{{icon:Check}}</span></div>
+    <div class="opt" id="optMonthly"><span>Monthly</span><span class="opt-check" id="chkMonthly">{{icon:Check}}</span></div>
+    <div class="opt" id="optYearly"><span>Yearly</span></div>
+  </div>
+
+  <div class="badges obj" style="left:712px;top:104px;height:32px">
+    <span class="badge success">Ready</span><span class="badge info">In review</span><span class="badge">Draft</span><span class="badge">Archived</span>
+  </div>
+
+  <div class="card obj usage" style="left:712px;top:152px;width:320px;height:112px">
+    <div class="tabs tabs-ghost"><button class="tab" style="--sel:1">Overview</button><button class="tab">Usage</button><button class="tab">Logs</button></div>
+    <div class="slider-head" style="padding:0 0 8px"><span class="l">Build minutes</span><span class="v">1,284</span></div>
+    <div class="progress" style="height:16px"><span class="progress-fill" style="--v:64;background:var(--ui-gradient-brand)"></span></div>
+  </div>
+
+  <div class="card table obj" style="left:712px;top:280px;width:320px;height:480px">
+    <div class="tr th"><span>Member</span><span>Role</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">DR</span>Dieter Rams</span><span class="badge selected">Owner</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">WC</span>Wim Crouwel</span><span class="badge">Editor</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">LS</span>Ladislav Sutnar</span><span class="badge">Editor</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">AF</span>Adrian Frutiger</span><span class="badge">Editor</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">OA</span>Otl Aicher</span><span class="badge">Viewer</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">MV</span>Massimo Vignelli</span><span class="badge">Viewer</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">AA</span>Anni Albers</span><span class="badge">Viewer</span></div>
+    <div class="tr"><span class="who"><span class="av av-sm">KM</span>Karel Martens</span><span class="badge">Viewer</span></div>
+  </div>
+
+  <!-- Toast lands inside the block's bottom-right cell -->
+  <div class="toast" id="toast" style="left:712px;top:648px;width:320px;height:112px">
+    <span class="toast-icon">{{icon:CheckCircle}}</span>
+    <span class="toast-text"><b>Release 2.4 published</b><span>Live in 3 apps</span><button class="btn btn-secondary btn-sm">View release</button></span>
+    <span class="toast-close">{{icon:Close}}</span>
+  </div>
+
+  <div id="cursors"></div>
+</div>
+</div>
+<div id="controls"><button id="play" type="button">Pause</button><input id="scrub" type="range" min="0" max="16" step="0.016667" aria-label="Time"><span id="time"></span></div>

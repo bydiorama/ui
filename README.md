@@ -172,6 +172,7 @@ See the [CLI README](packages/cli/README.md) for the full drift model.
 | --- | --- |
 | [`registry/ui`](registry/ui) | 45 components — controls, overlays, navigation, chat, data display — each with source, docs, stories, browser tests, and type tests |
 | [`registry/lib`](registry/lib), [`registry/hooks`](registry/hooks) | Utilities and hooks, distributed the same source-first way |
+| [`registry/lib/fx`](registry/lib/fx), [`registry/lib/shader`](registry/lib/shader) | The effects layer (ADR 0022): CSS materials applied as `fx(…)` classes, and an optional WebGL runtime for aurora and halo — experimental |
 | [`packages/tokens`](packages/tokens) | `@bydiorama/tokens` — token contract, OKLCH theme resolver, CSS/Tailwind/TS emitters, programmatic contrast |
 | [`packages/cli`](packages/cli) | The consumer-side CLI — owned install channel (`add`), lockfile, drift report |
 | [`apps/storybook`](apps/storybook) | Stories, interaction contracts, story a11y, visual-regression runner |

@@ -77,10 +77,15 @@ export function classesIn(source) {
   );
 }
 
-export function walk(dir, out = []) {
+export function walk(dir, out = [], only = null) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) walk(full, out);
+    if (statSync(full).isDirectory()) walk(full, out, only);
+    // A caller that names its own extensions gets exactly those (the token
+    // gate reads the effects layer's stylesheets this way).
+    else if (only) {
+      if (only.test(entry)) out.push(full);
+    }
     // `.ts` AND `.tsx`. The chrome control is a `.ts` file that is ENTIRELY
     // utility classes, and a `.tsx`-only filter meant none of them had ever
     // been checked — a probe put two nonexistent utilities in it and the gate

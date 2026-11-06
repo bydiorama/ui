@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-effects-skill",
+  "date": "2026-11-06",
+  "item": "effects",
+  "kind": "addition",
+  "summary": "New product skill diorama-effects (experimental): how a consumer app applies the effects layer (ADR 0022) — the class-on-the-root pattern, the setup order (@layer fx after Tailwind and the theme; startShaders() once at the root), which effect answers which job, what the layer already guarantees so an app does not re-solve it (per-brand glass tint, per-pixel contrast guard, reduced motion and transparency, forced colours), the tuning tokens, and the traps already paid for: refraction outside the web stack, halo clipping, sheen on a pale accent, iOS canvas clipping, a stale shader copy covering a Slider thumb.",
+  "affects": [
+    "item:effects",
+    "item:fx",
+    "item:shader"
+  ]
+}

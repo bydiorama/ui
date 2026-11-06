@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-effects-layer-fx",
+  "date": "2026-11-06",
+  "item": "fx",
+  "kind": "addition",
+  "summary": "New item `fx` (experimental, ADR 0022): the effects layer's CSS materials — glass with its edge, inner and specular modifiers, grain, sheen, glow, shimmer and ink — applied as a class on a component's ROOT through the typed fx() helper (`<Card className={fx(\"glass\", \"edge\")}>`) and reaching the part they paint through data-slot, so no component gained a prop. One stylesheet per effect under styles/fx/, imported through fx.css after Tailwind and the theme; every rule sits in `@layer fx`, so an effect outranks a component's utilities while the app's unlayered CSS outranks the effect, and `revert-layer` hands every property back under reduced transparency, reduced motion and forced colours — the component is the floor. Background effects compose in one stack (base.css) on non-inheriting layer variables, keeping a part's own gradient (Slider's track fill, Progress's gradient variant). sweep(element) plays sheen's one-shot pass of light. EFFECTS is the single source of what exists and where it applies; check:fx and fx.browser.test.tsx hold the stylesheets to it. Install: add the item, then `@import \"./fx/fx.css\";` after the theme. Glass needs a theme carrying --ui-bg-glass (see the token entry of the same date).",
+  "affects": [
+    "item:fx",
+    "token:--ui-bg-glass",
+    "slot:slider",
+    "slot:track",
+    "slot:control",
+    "slot:fill",
+    "slot:slider-fill",
+    "slot:slider-track"
+  ]
+}

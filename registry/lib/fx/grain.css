@@ -1,0 +1,38 @@
+/*
+ * grain — film grain blended into a fill, so a flat colour reads as a
+ * material rather than as plastic (ADR 0022).
+ *
+ * A static tile, never animated: grain that changes every frame reads as
+ * flicker, not texture. A tile cannot read a variable, so the AMOUNT is a
+ * choice of tile — `--ui-fx-grain` — with `--ui-fx-grain-amount` the matching
+ * strength for a shader that paints the same part (aurora adds grain to its
+ * own pixels only where `fx-grain` is also set). To make a scope grainier:
+ *
+ *   .poster { --ui-fx-grain: var(--ui-fx-grain-visible); --ui-fx-grain-amount: 0.07; }
+ *
+ * It blends with a FILL (`overlay`, in the stack in base.css). On a part
+ * with no fill it would show as grey haze, so an unfilled Button takes grain
+ * only when it is also glass.
+ */
+
+@layer fx {
+  :root {
+    --ui-fx-grain-subtle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='0.45' intercept='0.275'/%3E%3CfeFuncG type='linear' slope='0.45' intercept='0.275'/%3E%3CfeFuncB type='linear' slope='0.45' intercept='0.275'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --ui-fx-grain-visible: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='1.2' intercept='-0.1'/%3E%3CfeFuncG type='linear' slope='1.2' intercept='-0.1'/%3E%3CfeFuncB type='linear' slope='1.2' intercept='-0.1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --ui-fx-grain: var(--ui-fx-grain-subtle);
+  }
+
+  /* Inherited: a shader canvas inside this root reads it. */
+  .fx-grain {
+    --ui-fx-grain-amount: 0.03;
+  }
+
+  .fx-grain[data-slot="card"],
+  .fx-grain[data-slot="button"]:is([data-variant="primary"], [data-variant="danger"]),
+  .fx-grain.fx-glass[data-slot="button"],
+  .fx-grain[data-slot="switch"] [data-slot="track"],
+  .fx-grain[data-slot="slider"] [data-variant="track"] :is([data-slot="slider-track"], [data-slot="slider-fill"]),
+  .fx-grain[data-slot="progress"] [data-slot="fill"] {
+    --ui-fx-layer-grain: var(--ui-fx-grain);
+  }
+}

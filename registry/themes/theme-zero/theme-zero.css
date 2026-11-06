@@ -35,6 +35,8 @@
   --color-field-chrome-disabled: var(--ui-bg-field-chrome-disabled);
   --color-affix: var(--ui-bg-affix);
   --color-affix-floor: var(--ui-bg-affix-floor);
+  --color-glass: var(--ui-bg-glass);
+  --color-glass-floor: var(--ui-bg-glass-floor);
   --color-muted: var(--ui-bg-muted);
   --color-overlay: var(--ui-bg-overlay);
   --color-hover: var(--ui-bg-hover);
@@ -333,6 +335,8 @@
   --ui-bg-field-chrome-disabled: light-dark(#DAD4CE, #2A2724);
   --ui-bg-affix: light-dark(rgba(255, 255, 255, 0.9), rgba(23, 20, 17, 0.9));
   --ui-bg-affix-floor: light-dark(#e6e6e6, #2e2b29);
+  --ui-bg-glass: light-dark(rgba(253, 252, 251, 0.9), rgba(30, 27, 24, 0.92));
+  --ui-bg-glass-floor: light-dark(#e4e3e2, #383533);
   --ui-bg-muted: light-dark(#EDE8E3, #1E1B18);
   --ui-bg-overlay: light-dark(#DAD4CE, rgba(0, 0, 0, 0.55));
   --ui-bg-hover: light-dark(#EDE8E3, #2E2B28);

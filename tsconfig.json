@@ -40,6 +40,9 @@
       "@/lib/menu-surface": ["./registry/lib/menu-surface/menu-surface.ts"],
       "@/lib/motion": ["./registry/lib/motion/motion.ts"],
       "@/lib/fade-ramp": ["./registry/lib/fade-ramp/fade-ramp.ts"],
+      "@/lib/fx": ["./registry/lib/fx/fx.ts"],
+      "@/lib/shader": ["./registry/lib/shader/shader.ts"],
+      "@/lib/shader-programs": ["./registry/lib/shader/shader-programs.ts"],
       "@/hooks/use-controllable-state": [
         "./registry/hooks/use-controllable-state/use-controllable-state.ts"
       ],

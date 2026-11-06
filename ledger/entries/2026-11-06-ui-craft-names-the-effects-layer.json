@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-ui-craft-names-the-effects-layer",
+  "date": "2026-11-06",
+  "item": "ui-craft",
+  "kind": "addition",
+  "summary": "diorama-ui-craft gains rule 12 (effects are a class on the root, never a prop; one glass surface and one lit action per view) and two Common-mistakes rows: a hand-built translucent panel instead of fx(\"glass\"), whose tint is derived per brand for contrast, and light effects on hover. Points at diorama-effects for the rest.",
+  "affects": [
+    "item:ui-craft",
+    "item:effects"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-slider-root-carries-the-slider-slot",
+  "date": "2026-11-06",
+  "item": "slider",
+  "kind": "breaking",
+  "summary": "Slider's ROOT now carries data-slot=\"slider\", like every other control's, so an effect applied through className can reach its parts (ADR 0022: `fx(\"aurora\")` paints the track fill). The header row above the track, which held that slot name without being documented, is now data-slot=\"slider-header\". Both are in slider.doc.ts's anatomy.",
+  "affects": [
+    "slot:slider",
+    "slot:slider-header"
+  ],
+  "migration": {
+    "manual": "A selector or test that targeted the header row by [data-slot=\"slider\"] — the label and value line above a track Slider — now targets [data-slot=\"slider-header\"]. [data-slot=\"slider\"] now matches the whole control. Copies of slider.tsx: add \"data-slot\": \"slider\" to BaseSlider.Root's props and rename the header row's slot."
+  }
+}

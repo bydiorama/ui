@@ -1,0 +1,57 @@
+/*
+ * ink — display text filled with a slowly turning gradient between two text
+ * roles (ADR 0022). For a hero heading, never for body copy.
+ *
+ * CSS, not a shader: a canvas masked by glyphs needed one font per element
+ * and a measured box per word, and a gradient clipped to the text does the
+ * same job in every browser, before hydration too. The stops default to
+ * `--ui-text-primary` and `--ui-text-link`, two roles the audit holds on the
+ * page; a straight blend between two dark inks stays dark enough, but a blend
+ * between two LIGHT inks on a dark page can dip below both ends, so a
+ * consumer who moves the stops measures the blend, not just the ends.
+ *
+ * One turn per eight loops: ambient, not attention-seeking. Reduced motion
+ * holds the gradient still at its resting angle.
+ */
+
+@property --ui-fx-ink-angle { syntax: "<angle>"; inherits: false; initial-value: 20deg; }
+
+@keyframes ui-fx-ink-turn {
+  to { --ui-fx-ink-angle: 380deg; }
+}
+
+@layer fx {
+  @supports (-webkit-background-clip: text) or (background-clip: text) {
+    .fx-ink {
+      --ui-fx-ink-base: var(--ui-text-primary);
+      --ui-fx-ink-light: var(--ui-text-link);
+      background-image: linear-gradient(
+        var(--ui-fx-ink-angle),
+        var(--ui-fx-ink-base) 0%,
+        var(--ui-fx-ink-light) 45%,
+        var(--ui-fx-ink-base) 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: var(--ui-fx-ink-base);
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fx-ink {
+      animation: ui-fx-ink-turn calc(var(--ui-duration-loop) * 8 / var(--ui-fx-ambient-speed, 1)) linear infinite;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .fx-ink {
+      background-image: revert-layer;
+      -webkit-background-clip: revert-layer;
+      background-clip: revert-layer;
+      -webkit-text-fill-color: revert-layer;
+      color: revert-layer;
+      animation: revert-layer;
+    }
+  }
+}

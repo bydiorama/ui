@@ -334,6 +334,10 @@ export function Slider(props: SliderProps) {
         // read to assistive tech (and to axe) as ordinary text that happens to
         // be grey, rather than as the parts of a control that is off.
         "aria-disabled": isDisabled || undefined,
+        // The ROOT names the component, as every other control's does. An
+        // effect reaches a part from the element `className` lands on (ADR
+        // 0022), and an unslotted root left it guessing from the track.
+        "data-slot": "slider",
         className: cn("flex w-full flex-col gap-sm", className),
       })}
     >
@@ -494,7 +498,7 @@ export function Slider(props: SliderProps) {
   return root(
     <>
       <div
-        data-slot="slider"
+        data-slot="slider-header"
         data-size={size}
         className={cn(
           "flex items-center justify-between gap-sm",

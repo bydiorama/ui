@@ -7,6 +7,13 @@
 /* Token :root block + the @theme inline mapping. Regenerate with `pnpm tokens`. */
 @import "./tokens.generated.css";
 
+/* The effects layer (ADR 0022), imported the way a consumer does: after
+   Tailwind and the theme, so `@layer fx` is ordered after `utilities`. Inert
+   until an element carries an fx-* class; the shader CSS likewise until a
+   story calls startShaders(). */
+@import "../../../registry/lib/fx/fx.css";
+@import "../../../registry/lib/shader/shader.css";
+
 /* Aspekta is the system's only face (ADR 0007/0011). Loaded from the registry
    font item so Storybook renders the typography a consumer actually installs. */
 @font-face {

@@ -41,6 +41,10 @@ notice is installed beside it rather than left behind in this file.
   source, along with its motion tokens. The `ui-demo-page` skill points agents at its
   `transitions-dev`, `transitions-polish` and `transitions-ui-generation`
   skills (verified 2026-10-20). Licence: `licenses/transitions-dev.LICENSE.txt`.
+  The effects layer's timings (`registry/lib/shader/shader.css`,
+  `registry/lib/fx/sheen.css`, `shimmer.css`) were chosen by applying its
+  `transitions-polish` rules and mapped onto this system's motion tokens; no
+  snippet was copied into the distributed files.
 - **[Aspekta](https://github.com/ivodolenc/aspekta)** — © 2025 Ivo Dolenc,
   SIL Open Font License 1.1. The design system's typeface, redistributed as
   `registry/fonts/aspekta/AspektaVF.woff2` with the OFL text alongside as the
@@ -69,7 +73,11 @@ because taking an idea without saying where it came from is its own problem.
   as a compatibility transport (`ledger/decisions/0001`).
 - **[OKLab / OKLCH](https://bottosson.github.io/posts/oklab/)** — Björn
   Ottosson's colour space and published reference transforms, which
-  `packages/tokens/src/color.ts` implements.
+  `packages/tokens/src/color.ts` implements, and whose matrices the shader
+  prelude in `registry/lib/shader/shader-programs.ts` uses in GLSL.
+- **[lowbias32](https://nullprogram.com/blog/2018/07/31/)** — Chris Wellons's
+  integer hash (public domain), the shader prelude's `fx_hash`: stable across
+  GPUs where float hashes are not.
 
 ## Trademarks
 

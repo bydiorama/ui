@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type BrandableToken, type FixedToken } from "./contract.ts";
 import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES } from "./base.ts";
-import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
 import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
@@ -601,6 +601,53 @@ test("the affix floor equals the affix fill composited over the scheme's extreme
         flatten(theme["--ui-bg-affix"]!, scheme === "dark" ? "#ffffff" : "#000000"),
         `${name}/${scheme}: the affix floor is not the affix fill over the scheme's extreme`,
       );
+    }
+  }
+});
+
+/**
+ * The glass pair (ADR 0022): a tint derived per brand, and its floor.
+ *
+ * Three things are pinned. The floor is the tint over the scheme's extreme
+ * plus, in dark, the light the material lays under text — the same
+ * non-circular construction as the affix floor. The tint is the LEAST alpha
+ * that carries the inks: one hundredth less must fail, or the derivation
+ * has drifted to a constant and a high-contrast brand pays for nothing. And
+ * the inks clear AA on the floor with NO help from the audit — an adjustment
+ * against the glass floor would mean the material moved an ink the rest of
+ * the system shows, which is the trade the affix bar refused (contract.ts).
+ */
+test("glass is the surface at the least alpha that carries the inks, and its floor is the worst ground", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const options = seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {};
+    const pair = resolveThemePair(seed, options);
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      const glass = theme["--ui-bg-glass"]!;
+      const alpha = Number(glass.match(/rgba\([^)]*,\s*([\d.]+)\)/)?.[1] ?? 1);
+      assert.ok(alpha >= GLASS_MIN_ALPHA && alpha <= 1, `${name}/${scheme}: glass alpha ${alpha} is outside [${GLASS_MIN_ALPHA}, 1]`);
+      assert.equal(glass, withAlpha(theme["--ui-bg-surface"]!, alpha), `${name}/${scheme}: glass is not the surface at its alpha`);
+
+      const floorAt = (a: number) => {
+        const behind = flatten(withAlpha(theme["--ui-bg-surface"]!, a), scheme === "dark" ? "#ffffff" : "#000000");
+        return scheme === "dark" ? flatten(withAlpha("#ffffff", GLASS_LIGHT_UNDER_TEXT), behind) : behind;
+      };
+      assert.equal(theme["--ui-bg-glass-floor"], floorAt(alpha), `${name}/${scheme}: the glass floor is not the tint over the extreme`);
+
+      const inks = ["--ui-text-primary", "--ui-text-muted"] as const;
+      for (const ink of inks) {
+        const ratio = contrastRatio(theme[ink]!, theme["--ui-bg-glass-floor"]!);
+        assert.ok(ratio >= AA_TEXT, `${name}/${scheme}: ${ink} on the glass floor is ${ratio.toFixed(2)}:1`);
+      }
+      if (alpha > GLASS_MIN_ALPHA && alpha < 1) {
+        const thinner = Math.round((alpha - 0.01) * 100) / 100;
+        assert.ok(
+          inks.some((ink) => contrastRatio(theme[ink]!, floorAt(thinner)) < AA_TEXT),
+          `${name}/${scheme}: glass at ${thinner} would still carry the inks — the alpha is not the least`,
+        );
+      }
+      const moved = pair.adjustments[scheme].filter((a) => a.against === "--ui-bg-glass-floor");
+      assert.deepEqual(moved, [], `${name}/${scheme}: the audit moved an ink to fit glass`);
     }
   }
 });

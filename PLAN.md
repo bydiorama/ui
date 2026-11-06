@@ -222,6 +222,25 @@ What is left is a question for a person, not a task:
       animation is the only case neither CSS nor `motion/mini` covers, and
       nothing in the library asks for it.
 
+### Effects layer (ADR 0022) · **shipped experimental, not yet on a device**
+
+Measured 2026-11-06 with `pnpm check:fx`, `registry/lib/fx/fx.browser.test.tsx`
+and `registry/lib/shader/shader.browser.test.tsx`, in Chromium on SwiftShader.
+
+- [x] `fx` — nine CSS effects, one stylesheet each, in `@layer fx`; every one
+      changes every component it lists and steps aside exactly under forced
+      colours, reduced motion and reduced transparency (asserted per pair).
+- [x] Glass's tint is a resolver token, derived per brand against a floor
+      that counts the material's own light (theme zero: 0.90 / 0.92).
+- [x] `shader` — aurora and halo, optional, one WebGL2 context, server-safe;
+      the guard holds every inked part at its floor on drawn pixels, in both
+      schemes and under the pale-yellow stress brand, and the test proves it
+      can fail.
+- [ ] **On a phone and in Safari.** Two of the lab's worst defects showed only
+      on an iPhone. `experimental` until someone has looked.
+- [ ] **A brand knob.** Which effects a brand turns on, and its ambient speed,
+      are tokens a product sets today, not a seed field the resolver reads.
+
 ## Phase 3 — molecules, blocks and patterns · **not started in code**
 
 `registry/blocks/` does not exist and the manifest carries no `block` items.

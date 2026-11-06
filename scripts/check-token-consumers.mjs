@@ -52,6 +52,8 @@ const ALLOWED = new Map([
   [/^--ui-z-(below|base)$/, "Ends of the stacking scale, for consumer layouts that need to sit under or reset to the page plane. Every floating surface in the library takes a positive role."],
   [/^--ui-hit-area-(min|touch)$/, "WCAG 2.5.8 target sizes for consumer layouts. Inside the library the floor is enforced where sizes are DERIVED — the density modes clamp at 24px (ADR 0020 §4) — rather than read at a call site."],
 
+  ["--ui-bg-glass-floor", "Never painted: the worst ground a glass surface can produce (ADR 0022). The resolver derives the glass alpha against it and check:contrast audits ink on it, the same role --ui-bg-affix-floor plays for the affix bar."],
+
   // ── Open questions already on record, not new ones ──
   [/^--ui-(ease-in|stagger-step|motion-(micro|standard|deliberate|choreographed))$/, "PLAN.md § Motion records it: the curve vocabulary has almost no consumers, and whether it is too big is an open question for a person. Listed here so that question is visible, not settled."],
   [/^--ui-space-(3xl|(stack|inline|inset)-[a-z0-9]+)$/, "ADR 0020 §5: components use the base steps directly; the intent layer is kept for a future brand `rhythm` knob. 3xl is reached only through stack-xl."],
@@ -125,6 +127,13 @@ function themeKeysFor(cls) {
 
 const files = walk(join(ROOT, "registry"))
   .filter((f) => !/\.stories\.tsx$/.test(f));
+
+// The effects layer ships STYLESHEETS (`registry/lib/fx`, `registry/lib/shader`,
+// ADR 0022): a material is CSS because CSS is what works before hydration and
+// in every browser, so its token reads live in `.css`, which `walk` skips.
+// Only registry/lib: the generated theme stylesheet under registry/themes
+// declares every token, and reading it would mark the whole contract consumed.
+for (const f of walk(join(ROOT, "registry/lib"), [], /\.css$/)) files.push(f);
 
 const consumed = new Map(); // token → first file that reads it
 const note = (token, file) => {

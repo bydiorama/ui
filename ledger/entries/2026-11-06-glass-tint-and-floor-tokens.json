@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-glass-tint-and-floor-tokens",
+  "date": "2026-11-06",
+  "item": "system",
+  "kind": "token",
+  "summary": "Two brandable tokens for the effects layer's glass (ADR 0022): --ui-bg-glass, the surface at the LEAST alpha (never below GLASS_MIN_ALPHA, 0.78) at which primary and muted ink clear 4.5:1 over the worst thing that can pass behind it, and --ui-bg-glass-floor, that worst ground — the tint over black in light, over white in dark plus the 0.04 of white light the material lays under text there (GLASS_LIGHT_UNDER_TEXT). Derived per brand and scheme from the inks the theme ships (after an authored map, after the audit), with the same non-circular construction as the affix pair; both inks are audited on the floor (CONTRAST_PAIRS). Theme zero derives 0.90 light / 0.92 dark. Re-emit any brand theme (resolveThemePair → toCss) to get the pair; theme-zero.css is regenerated. Without it, fx glass falls back to the opaque surface.",
+  "affects": [
+    "token:--ui-bg-glass",
+    "token:--ui-bg-glass-floor",
+    "item:theme-zero-css",
+    "item:fx"
+  ]
+}

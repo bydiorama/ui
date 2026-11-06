@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-static-rendering-covers-effects",
+  "date": "2026-11-06",
+  "item": "static-rendering",
+  "kind": "addition",
+  "summary": "diorama-static-rendering: the fx effects are CSS and static-safe on every component; the shader effects need startShaders() in a client <script>, not a hydrated component, and the import is safe on the server. A static page shows the plain fill until it runs, never a gap.",
+  "affects": [
+    "item:static-rendering",
+    "item:shader"
+  ]
+}

@@ -1,0 +1,60 @@
+/*
+ * shimmer — light travelling through a status label while work runs
+ * (ADR 0022). "Generating…", "Uploading 3 of 12".
+ *
+ * `background-clip: text` with a band between two TEXT roles (muted → primary
+ * → muted), so every point of the label is a role the contrast audit already
+ * holds. A 400% band: the highlight spends part of each loop off the label,
+ * so there is a rest between sweeps instead of a band that never leaves.
+ * One loop per `--ui-duration-loop`, the rhythm a working Button's halo
+ * keeps, so the two read as one event.
+ *
+ * Reduced motion: no animation, and the band is parked off the label — the
+ * label reads in plain muted ink, and the words still say work is running
+ * (motion is never the only channel, CONVENTIONS §8). Guarded by @supports:
+ * without background-clip: text the label would vanish.
+ */
+
+@keyframes ui-fx-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+
+@layer fx {
+  @supports (-webkit-background-clip: text) or (background-clip: text) {
+    .fx-shimmer {
+      --ui-fx-shimmer-ink: var(--ui-text-muted);
+      --ui-fx-shimmer-peak: var(--ui-text-primary);
+      color: var(--ui-fx-shimmer-ink);
+      background-image: linear-gradient(
+        100deg,
+        var(--ui-fx-shimmer-ink) 0 40%,
+        var(--ui-fx-shimmer-peak) 50%,
+        var(--ui-fx-shimmer-ink) 60% 100%
+      );
+      background-size: 400% 100%;
+      background-repeat: no-repeat;
+      background-position: 100% 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fx-shimmer {
+      animation: ui-fx-shimmer calc(var(--ui-duration-loop) / var(--ui-fx-ambient-speed, 1)) linear infinite;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .fx-shimmer {
+      background-image: revert-layer;
+      -webkit-background-clip: revert-layer;
+      background-clip: revert-layer;
+      -webkit-text-fill-color: revert-layer;
+      color: revert-layer;
+      animation: revert-layer;
+    }
+  }
+}

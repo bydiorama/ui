@@ -94,6 +94,22 @@ export const BRANDABLE_TOKENS = [
   // under AA, against 5.93:1 on the page it was being judged on.
   // `resolve.test.ts` pins it to the composite so the two cannot drift apart.
   "--ui-bg-affix-floor",
+  // THE GLASS PAIR: the tint of a surface that shows a blurred backdrop
+  // through itself — the effects layer's `glass` material (ADR 0022).
+  //
+  // The same construction as the affix pair, for the same reason: text sits
+  // ON it while anything at all can pass BEHIND it. `--ui-bg-glass` is
+  // `--ui-bg-surface` at an alpha DERIVED per brand and scheme — the least
+  // alpha, never below `GLASS_MIN_ALPHA`, at which primary and muted ink still
+  // clear AA over the floor below. A fixed alpha could not be both glassy for
+  // a high-contrast brand and legible for a low-contrast one.
+  "--ui-bg-glass",
+  // The WORST GROUND glass can produce: the tint over black in light and
+  // over white in dark, plus — in dark — the white light the material lays
+  // under text (`GLASS_LIGHT_UNDER_TEXT`). Light under text is not free: the
+  // glass studio measured muted ink falling from 4.57:1 to 4.02:1 under a 4%
+  // wash at the brand's floor. Never painted; the audit and the gates read it.
+  "--ui-bg-glass-floor",
   "--ui-bg-muted",
   "--ui-bg-overlay",
   "--ui-bg-hover",
@@ -496,6 +512,13 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // theme zero needs no adjustment, and the step is gone (header.doc.ts).
   ["--ui-text-primary", "--ui-bg-affix-floor"],
   ["--ui-text-muted", "--ui-bg-affix-floor"],
+  // Ink on glass, on its FLOOR for the reason the affix pair is (the audit
+  // composites a translucent ground over the page, which is the best case).
+  // The resolver derives the glass alpha so both pass by construction; these
+  // pairs are the guarantee that stays true if an authored ink moves.
+  // Secondary sits between the two in lightness, so it clears where they do.
+  ["--ui-text-primary", "--ui-bg-glass-floor"],
+  ["--ui-text-muted", "--ui-bg-glass-floor"],
   // Second-level nav items. nav-ink and nav-active-ink were already audited;
   // the muted step was not, and Sidebar is the first thing to render it.
   ["--ui-nav-ink-muted", "--ui-nav-bg"],

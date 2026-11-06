@@ -1,0 +1,54 @@
+/*
+ * glow — soft light under a control while it is on (ADR 0022).
+ *
+ * Always a box-shadow, which follows the part's radius. A drop-shadow filter
+ * was tried first: iOS Safari paints a filter's region as a visible
+ * rectangle around the control.
+ *
+ * It composes with the focus ring instead of replacing it. Button's focus
+ * indicator is an outline and its edge an inset ring, so its glow takes
+ * Tailwind's free `--tw-shadow` slot. Switch's track and Checkbox's box draw
+ * their focus ring THROUGH `--tw-shadow` (`shadow-(--ui-focus-ring)`) and
+ * their edge with a border, so their glow takes the free `--tw-ring-shadow`
+ * slot, and the declaration below composes all five slots the way Tailwind
+ * does: the focus ring still shows on a glowing control. Both parts already
+ * transition box-shadow on motionMicro.
+ *
+ * The colour: on a light page, light has to be the LEGIBLE accent to show at
+ * all; on a dark page the bright accent reads.
+ */
+
+@layer fx {
+  :root {
+    --ui-fx-glow: light-dark(
+      color-mix(in oklab, var(--ui-border-focus) 42%, transparent),
+      color-mix(in oklab, var(--ui-bg-accent) 50%, transparent)
+    );
+  }
+
+  .fx-glow[data-slot="button"]:not([data-disabled]) {
+    --tw-shadow: 0 8px 22px -10px var(--ui-fx-glow), 0 2px 8px -3px var(--ui-fx-glow);
+
+    @media (forced-colors: active) {
+      --tw-shadow: revert-layer;
+    }
+  }
+
+  .fx-glow:is([data-slot="switch"], [data-slot="checkbox"]) :is([data-slot="track"], [data-slot="control"]) {
+    box-shadow:
+      var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000),
+      var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+
+    @media (forced-colors: active) {
+      box-shadow: revert-layer;
+    }
+  }
+  .fx-glow:is([data-slot="switch"], [data-slot="checkbox"]):has(input:checked:not(:disabled))
+    :is([data-slot="track"], [data-slot="control"]) {
+    --tw-ring-shadow: 0 0 12px 0 var(--ui-fx-glow);
+
+    @media (forced-colors: active) {
+      --tw-ring-shadow: revert-layer;
+    }
+  }
+}

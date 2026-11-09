@@ -402,6 +402,28 @@ notes. That file feeds the docs site, Storybook and the MCP server from one
 source. Prose that is not in a typed doc file does not exist as far as tooling
 is concerned.
 
+## 12. Effects
+
+Materials, light and ambient motion are a layer over finished components,
+never a feature of one (ADR 0022).
+
+- **An effect is a class on the root**, written with `fx(…)` from
+  `@/lib/fx`: `<Card className={fx("glass", "edge")}>`. Never a prop. The
+  stylesheet reaches the part it paints through `data-slot`, so every
+  component an effect lists needs a `data-slot` on its **root** — which is
+  where `className` lands (§5).
+- **The floor is the component.** Each effect hands every property back
+  (`revert-layer`) under reduced transparency, reduced motion and forced
+  colours, and a shader effect without WebGL or before hydration leaves the
+  part exactly as drawn. Nothing about a component may depend on an effect.
+- **CSS first.** A shader is admitted only if it paints pixels it owns, takes
+  every input from a token, keeps the component as its floor and guards its
+  ink's contrast per pixel. Anything that has to read the page behind it —
+  refraction — fails the first clause.
+- **Where each effect applies is typed**, in `EFFECTS`. `pnpm check:fx`
+  rejects a stylesheet, layer, keyframe or shader input that does not match
+  it; adding an effect is a row there plus one stylesheet.
+
 ---
 
 ## Credit

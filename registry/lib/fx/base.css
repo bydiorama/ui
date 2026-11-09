@@ -1,0 +1,105 @@
+/*
+ * The effects layer — what every CSS effect shares (ADR 0022).
+ *
+ * THE CASCADE. Every rule of the layer sits in `@layer fx`. Imported after
+ * Tailwind, that layer is declared after `utilities`, so an effect wins over
+ * a component's own classes for the few properties it owns, while the app's
+ * UNLAYERED styles still win over the effect. And `revert-layer` inside it
+ * hands a property back to the component — which is how every effect steps
+ * aside for reduced transparency and forced colours.
+ *
+ * WHAT AN EFFECT OWNS. A background IMAGE layer, a backdrop filter, one of
+ * Tailwind's box-shadow slots, and — for the two text effects — the text
+ * fill. Never a component's background colour (except glass, which IS a
+ * fill), never its outline (the focus indicator), never its geometry.
+ *
+ * Tokens are `--ui-fx-*`: overridable at :root or on any scope, like any
+ * component-level variable (CONVENTIONS §6).
+ */
+
+/* ---------------------------------------------------------------- tokens */
+
+@layer fx {
+  :root {
+    /* Light is physically white, never a theme colour — and weaker in dark,
+       where every layer of light costs light ink its contrast. */
+    --ui-fx-light-strong: light-dark(rgb(255 255 255 / 0.63), rgb(255 255 255 / 0.24));
+    --ui-fx-light: light-dark(rgb(255 255 255 / 0.38), rgb(255 255 255 / 0.15));
+    --ui-fx-light-faint: light-dark(rgb(255 255 255 / 0.15), rgb(255 255 255 / 0.04));
+    /* The far edge of a lit surface falls into a little shade. */
+    --ui-fx-shade: light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.3));
+    /* Ambient effects (aurora, ink, shimmer) run at the loop token times this.
+       A brand's motion personality: 0.5 calm, 1 default, 1.7 expressive. */
+    --ui-fx-ambient-speed: 1;
+  }
+}
+
+/* ------------------------------------------------------- the layer stack */
+
+/*
+ * CSS effects compose as background LAYERS in one fixed order, so two
+ * effects on one part never overwrite each other:
+ *
+ *     light (sheen) · sweep (sheen) · specular · grade (glass) · grain · own
+ *
+ * Each effect sets ONLY its own layer variable, on the part it paints. The
+ * variables do not inherit — registered with `inherits: false` — so a
+ * grained Card does not grain the Switch inside it.
+ *
+ * `own` is the part's OWN image, re-stated, because composing a stack
+ * replaces `background-image` wholesale: Slider's track fill and Progress's
+ * gradient variant paint a gradient this way, and without the restatement an
+ * effect would erase it. The part map below is therefore the one place that
+ * knows which parts can be painted and what image each already has. A new
+ * layering effect adds its class to the composer and its variable to the
+ * stack; `pnpm check:fx` fails if either is missing.
+ */
+
+@property --ui-fx-layer-light { syntax: "*"; inherits: false; }
+@property --ui-fx-layer-sweep { syntax: "*"; inherits: false; }
+@property --ui-fx-layer-specular { syntax: "*"; inherits: false; }
+@property --ui-fx-layer-grade { syntax: "*"; inherits: false; }
+@property --ui-fx-layer-grain { syntax: "*"; inherits: false; }
+@property --ui-fx-layer-own { syntax: "*"; inherits: false; }
+
+@layer fx {
+  /* The part map: every part a CSS layer may paint. */
+  :is(.fx-sheen, .fx-grain, .fx-specular):is([data-slot="button"], [data-slot="card"], [data-slot="badge"]),
+  .fx-grain[data-slot="switch"] [data-slot="track"],
+  :is(.fx-sheen, .fx-grain)[data-slot="slider"] [data-variant="track"] [data-slot="slider-fill"],
+  .fx-grain[data-slot="slider"] [data-variant="track"] [data-slot="slider-track"],
+  :is(.fx-sheen, .fx-grain)[data-slot="progress"] [data-slot="fill"] {
+    background-image:
+      var(--ui-fx-layer-light, none), var(--ui-fx-layer-sweep, none), var(--ui-fx-layer-specular, none),
+      var(--ui-fx-layer-grade, none), var(--ui-fx-layer-grain, none), var(--ui-fx-layer-own, none);
+    background-size: 100% 100%, 300% 100%, 100% 100%, 100% 100%, 180px 180px, 100% 100%;
+    background-position: 0 0, var(--ui-fx-sheen-x, 0%) 0, 0 0, 0 0, 0 0, 0 0;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
+    /* Grain blends with the fill under it; light lies on top of both. */
+    background-blend-mode: normal, normal, normal, normal, overlay, normal;
+
+    /* STEPPING ASIDE IS NESTED in the rule it undoes, everywhere in this
+       layer: it then has that rule's exact selector and specificity and
+       cannot drift from it. Written as separate blocks, two step-asides
+       lost to the rules they undid — masked in forced colours, where the
+       browser forces box-shadow anyway — until the browser test read
+       Tailwind's shadow slots instead of the shadow.
+       Forced colours: the system draws the UI, the component's own
+       forced-colours styling stands. */
+    @media (forced-colors: active) {
+      background-image: revert-layer;
+      background-size: revert-layer;
+      background-position: revert-layer;
+      background-repeat: revert-layer;
+      background-blend-mode: revert-layer;
+    }
+  }
+
+  /* Own images. Enabled only: a disabled fill is a flat colour. */
+  [data-slot="slider"]:not([data-disabled]) [data-variant="track"] [data-slot="slider-fill"] {
+    --ui-fx-layer-own: var(--ui-gradient-accent);
+  }
+  [data-slot="progress"][data-variant="gradient"] [data-slot="fill"] {
+    --ui-fx-layer-own: var(--ui-gradient-brand);
+  }
+}

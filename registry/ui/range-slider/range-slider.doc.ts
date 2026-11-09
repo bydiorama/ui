@@ -7,6 +7,8 @@ export const rangeSliderDoc = {
     "Two thumbs on one track; the fill is the span between them. A filter for 'from what, to what' — years, prices, sizes. Everything visible is Slider's — the same track ladder and the same thumb, read from Slider's own geometry table — while three things differ: the value is a pair, each thumb is its own named input, and the thumbs may meet but never cross. Base UI Slider underneath (ADR 0012).",
 
   anatomy: [
+    { part: "root", slot: "range-slider", notes: "The group, and where className lands — named so an effect or a test can reach a part from it (ADR 0022). Before 2026-11-06 this slot named the header row, and the root had none." },
+    { part: "header", slot: "range-slider-header", notes: "The row above the track holding the label and the readout; carries data-size." },
     { part: "label", slot: "slider-label", notes: "Names the GROUP. body-sm, --ui-text-muted." },
     { part: "readout", slot: "slider-value", notes: "Both ends with a spaced en dash — \"1925 – 1972\" — tabular figures, --ui-text-primary. Equal ends collapse to one number. On by default." },
     { part: "control", slot: "slider-control", notes: "Slider's control, character for character: padded to the 24px target at sm/md and inset by half a thumb, so both thumbs' outer edges land on the control's edges at the extremes." },

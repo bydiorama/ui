@@ -45,6 +45,7 @@ to be read, owned and modified downstream.
 | `pnpm check:design-spec` | Fail if a design geometry spec breaks its own laws, or nothing renders it |
 | `pnpm check:strokes` | Fail on a literal stroke width (`border-2`, `ring-[1.5px]` …) — use the scale (ADR 0020 §2) |
 | `pnpm check:type-roles` | Fail on a declared type-role exception naming a part that no longer exists; the roles themselves are enforced in every story at runtime (ADR 0020 §3) |
+| `pnpm check:fx` | Fail if the effects layer drifts from `EFFECTS`, breaks the shader admission rule, leaves `@layer fx`, runs a keyframe under reduced motion, or paints more light under glass text than the resolver's floor counts (ADR 0022) |
 | `pnpm check:token-consumers` | Fail on a contract token that nothing in `registry/` reads, unless it is declared with a reason (ADR 0020) |
 | `pnpm ledger:new` | Scaffold a change-ledger entry |
 | `pnpm type-check` | `tsc --noEmit` **and** the storybook project's own. Run the script, never bare `tsc`: `apps/storybook` has a separate tsconfig, and every `*.stories.tsx` error appears only there |
@@ -67,6 +68,15 @@ These are not style preferences; violating them breaks consumers:
   both.
 - **`griddy-icons` only** for iconography.
 - **Semantic tokens only** for styling — no raw hex, no palette utilities.
+
+## Effects
+
+Glass, grain, sheen, glow, shimmer and ink (`registry/lib/fx`) and the
+optional aurora and halo shaders (`registry/lib/shader`) are applied as a
+class on a component's root — `className={fx("glass")}` — never as a prop
+(CONVENTIONS §12, ADR 0022). Adding or changing one: the row in `EFFECTS`
+first, then its stylesheet, then `pnpm check:fx` and the two browser tests
+beside them. Never admit a shader that reads the page behind it.
 
 ## Adding a component
 

@@ -1,0 +1,39 @@
+/*
+ * sheen — light on the top of a fill, and on demand one pass of light across
+ * it (ADR 0022).
+ *
+ * The pass is a ONE-SHOT, so a keyframe (CONVENTIONS §8): `sweep(element)`
+ * from `@/lib/fx` restarts it, for the moment a value is reached or a save
+ * succeeds. Never on hover — a hover is a high-frequency interaction and gets
+ * the component's own instant state change, nothing more. Enter on the
+ * smooth-out curve (`--ui-ease-spring`): it decelerates as it leaves, so the
+ * light reads as passing rather than as a mechanical scan.
+ *
+ * A known limit, on record in ADR 0022: white light on a PALE accent lifts a
+ * filled Button toward white, and it starts to read as disabled. Sheen wants
+ * a mid-to-dark fill.
+ */
+
+@property --ui-fx-sheen-x { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+
+@keyframes ui-fx-sweep {
+  from { --ui-fx-sheen-x: 0%; }
+  to { --ui-fx-sheen-x: 100%; }
+}
+
+@layer fx {
+  .fx-sheen:is([data-slot="button"], [data-slot="badge"]),
+  .fx-sheen[data-slot="slider"] [data-variant="track"] [data-slot="slider-fill"],
+  .fx-sheen[data-slot="progress"] [data-slot="fill"] {
+    --ui-fx-layer-light: linear-gradient(to bottom, var(--ui-fx-light), transparent 58%);
+    --ui-fx-layer-sweep: linear-gradient(105deg, transparent 42%, var(--ui-fx-light) 50%, transparent 58%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fx-sheen[data-fx-sweep]:is([data-slot="button"], [data-slot="badge"]),
+    .fx-sheen[data-fx-sweep][data-slot="slider"] [data-variant="track"] [data-slot="slider-fill"],
+    .fx-sheen[data-fx-sweep][data-slot="progress"] [data-slot="fill"] {
+      animation: ui-fx-sweep var(--ui-duration-enter) var(--ui-ease-spring) both;
+    }
+  }
+}

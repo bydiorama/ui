@@ -1,0 +1,21 @@
+/*
+ * The effects layer's CSS (ADR 0022). Import once, AFTER Tailwind and the
+ * theme, so `@layer fx` is declared after `utilities`:
+ *
+ *   @import "tailwindcss";
+ *   @import "./theme-zero.css";
+ *   @import "./fx/fx.css";
+ *
+ * One stylesheet per effect, so an app that wants no shimmer deletes a line
+ * here and the file beside it, and nothing else refers to either. base.css
+ * is the one every effect needs. The shader effects (aurora, halo) are not
+ * here: they are the optional `shader` item, with its own shader.css.
+ */
+
+@import "./base.css";
+@import "./glass.css";
+@import "./grain.css";
+@import "./sheen.css";
+@import "./glow.css";
+@import "./shimmer.css";
+@import "./ink.css";

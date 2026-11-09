@@ -87,6 +87,73 @@
       "status": "stable"
     },
     {
+      "name": "fx",
+      "type": "lib",
+      "description": "The effects layer's CSS materials and its vocabulary (ADR 0022): glass (with edge, inner and specular), grain, sheen, glow, shimmer and ink, applied as a class on a component's ROOT through the typed fx() helper — <Card className={fx(\"glass\", \"edge\")}> — and reaching the part they paint through data-slot, so no component grows a prop. One stylesheet per effect under styles/fx/, imported through fx.css after Tailwind and the theme, all inside `@layer fx` so an effect outranks a component's utilities while the app's unlayered CSS still outranks the effect. Glass paints --ui-bg-glass, a tint the resolver derives per brand and scheme so primary and muted ink clear AA over anything behind it (needs a theme emitted with the glass pair — theme zero's stylesheet carries it). The floor of every effect is the component: reduced transparency, forced colours and reduced motion hand each property back with revert-layer. EFFECTS is the single source of what exists, what each is for and where it applies; check:fx holds the stylesheets to it. The two shader effects, aurora and halo, are named here and shipped by the optional `shader` item. sweep(element) plays sheen's one-shot pass of light.",
+      "files": [
+        {
+          "path": "registry/lib/fx/fx.ts",
+          "target": "lib/fx.ts"
+        },
+        {
+          "path": "registry/lib/fx/fx.css",
+          "target": "~/src/styles/fx/fx.css"
+        },
+        {
+          "path": "registry/lib/fx/base.css",
+          "target": "~/src/styles/fx/base.css"
+        },
+        {
+          "path": "registry/lib/fx/glass.css",
+          "target": "~/src/styles/fx/glass.css"
+        },
+        {
+          "path": "registry/lib/fx/grain.css",
+          "target": "~/src/styles/fx/grain.css"
+        },
+        {
+          "path": "registry/lib/fx/sheen.css",
+          "target": "~/src/styles/fx/sheen.css"
+        },
+        {
+          "path": "registry/lib/fx/glow.css",
+          "target": "~/src/styles/fx/glow.css"
+        },
+        {
+          "path": "registry/lib/fx/shimmer.css",
+          "target": "~/src/styles/fx/shimmer.css"
+        },
+        {
+          "path": "registry/lib/fx/ink.css",
+          "target": "~/src/styles/fx/ink.css"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "shader",
+      "type": "lib",
+      "description": "The OPTIONAL shader runtime of the effects layer (ADR 0022): aurora (the brand colour moving through a fill or a ground) and halo (light travelling round a surface that works or listens). startShaders() — server-safe, reference-counted, returns its stop function — finds every .fx-aurora / .fx-halo root, mounts one canvas in the part the effect paints and draws it from tokens read where that part sits, through ONE shared WebGL2 context. A shader is admitted only if it paints pixels it owns, takes every input from a token, keeps the component as its floor and guards the contrast of the ink on its part per pixel; check:fx enforces the first two on the sources. The canvas draws the part's own rounded shape (iOS Safari drops a CSS clip on an animating canvas), covers the border box, sits under the part's content or directly after a track's fill so a Slider's thumb stays on top, and follows the component's own state transitions through registered properties (--ui-fx-on, --ui-fx-halo-strength). State is published on the root as data-fx-aurora / data-fx-halo (live, still, floor, lost, unsupported); reduced motion draws one chosen still frame and the loop sleeps when nothing moves. configureShaders() and sampleShader() exist for stories and contrast tests.",
+      "files": [
+        {
+          "path": "registry/lib/shader/shader.ts",
+          "target": "lib/shader.ts"
+        },
+        {
+          "path": "registry/lib/shader/shader-programs.ts",
+          "target": "lib/shader-programs.ts"
+        },
+        {
+          "path": "registry/lib/shader/shader.css",
+          "target": "~/src/styles/fx/shader.css"
+        }
+      ],
+      "registryDependencies": [
+        "fx"
+      ],
+      "status": "experimental"
+    },
+    {
       "name": "use-controllable-state",
       "type": "hook",
       "description": "The one implementation of the controlled/uncontrolled pattern (CONVENTIONS §4). Returns [value, setValue] with a referentially stable setter; a controlled component never updates its own state, and switching modes mid-life warns in development instead of silently picking a winner.",
@@ -1318,6 +1385,18 @@
         }
       ],
       "status": "stable"
+    },
+    {
+      "name": "effects",
+      "type": "skill",
+      "description": "Agent skill: applying the effects layer in a consumer app (ADR 0022) — glass, grain, sheen, glow, shimmer and ink from `fx`, and the optional aurora and halo shaders from `shader`: the class-on-the-root pattern, setup order (@layer fx after Tailwind and the theme; startShaders() once), which effect for which job, what the layer already guarantees (per-brand glass tint, per-pixel contrast guard, reduced motion/transparency, forced colours) and the traps already paid for (refraction, halo clipping, sheen on pale accents, iOS canvas clipping).",
+      "files": [
+        {
+          "path": "registry/skills/effects/SKILL.md",
+          "target": ".claude/skills/diorama-effects/SKILL.md"
+        }
+      ],
+      "status": "experimental"
     }
   ]
 }

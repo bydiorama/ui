@@ -36,7 +36,13 @@ export type {
 // MEDIA_SCRIM_ALPHA is exported because ImageOverlay PAINTS it (`bg-media/72`)
 // and its browser test asserts the painted value against this constant. The
 // same decision written in two files is a decision that drifts.
-export { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA } from "./resolve.ts";
+// GLASS_LIGHT_UNDER_TEXT for the same reason: @/lib/fx's glass PAINTS that
+// light, the resolver derives the glass floor from it, and check:fx holds
+// the stylesheet to it.
+export {
+  resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA,
+  GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT,
+} from "./resolve.ts";
 export type { Scheme, ResolveOptions, ResolveResult, ResolvedPair, ContrastAdjustment } from "./resolve.ts";
 
 // Non-brandable tokens.

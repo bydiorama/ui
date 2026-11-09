@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-range-slider-root-carries-its-slot",
+  "date": "2026-11-06",
+  "item": "range-slider",
+  "kind": "breaking",
+  "summary": "RangeSlider's ROOT now carries data-slot=\"range-slider\", matching Slider (ADR 0022); the header row that held that slot name is data-slot=\"range-slider-header\". Kept parallel with Slider so the two controls cannot be targeted differently.",
+  "affects": [
+    "slot:range-slider",
+    "slot:range-slider-header"
+  ],
+  "migration": {
+    "manual": "A selector or test that targeted the header row by [data-slot=\"range-slider\"] now targets [data-slot=\"range-slider-header\"]; [data-slot=\"range-slider\"] now matches the whole control."
+  }
+}

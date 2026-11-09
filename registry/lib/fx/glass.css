@@ -1,0 +1,168 @@
+/*
+ * glass — a translucent surface over moving or busy content, and its three
+ * modifiers: edge, inner, specular (ADR 0022).
+ *
+ * A STACK OF LIGHT ON A TINT. The tint is `--ui-bg-glass`: the surface colour
+ * at an alpha the RESOLVER derives per brand and scheme — the least alpha at
+ * which primary and muted ink still clear 4.5:1 over the worst thing that can
+ * pass behind it (`--ui-bg-glass-floor`, audited by check:contrast). Under it,
+ * a blurred, saturated backdrop; over it, light.
+ *
+ * WHY CSS AND NOT A SHADER. Glass that BENDS what is behind it needs to read
+ * the page, and a canvas cannot read the DOM. Two versions of a refraction
+ * shader were built and removed: over real content they fell back to this
+ * anyway. `backdrop-filter: url()` with a displacement map exists in Chromium
+ * only; revisit when another engine ships it.
+ *
+ * LIGHT UNDER TEXT IS NOT FREE. White light only brightens: dark ink on a
+ * light pane gains from it, light ink on a dark pane loses. So the three
+ * layers that can sit under text — wash, grade, bloom — are faint in dark,
+ * and overlapping they come to `GLASS_LIGHT_UNDER_TEXT` (0.04), the value
+ * the resolver builds the dark floor with. fx.browser.test.tsx asserts the
+ * two agree: change one, and the test names the other.
+ *
+ * Reduced transparency → the component's own opaque fill, no blur.
+ * Forced colours → the component, untouched.
+ */
+
+@layer fx {
+  :root {
+    /* Surfaces (Card) blur more than controls: a larger pane over more
+       content needs more smoothing to stay quiet behind its text. */
+    --ui-fx-glass-blur: 24px;
+    --ui-fx-glass-blur-control: 12px;
+    --ui-fx-glass-saturate: 1.6;
+    /* The light that may sit UNDER text — see the header. */
+    --ui-fx-glass-wash: light-dark(rgb(255 255 255 / 0.38), rgb(255 255 255 / 0.02));
+    --ui-fx-glass-grade: light-dark(rgb(255 255 255 / 0.15), rgb(255 255 255 / 0.01));
+    --ui-fx-glass-bloom: light-dark(rgb(255 255 255 / 0.15), rgb(255 255 255 / 0.01));
+  }
+
+  /* ------------------------------------------------------------ glass */
+
+  /* Unfilled Buttons only. On a filled one it would replace the one accent
+     action in the view; on the inverse band it would paint over the band.
+     Each step-aside is nested in the rule it undoes (see base.css). */
+  .fx-glass:is([data-slot="card"], [data-slot="badge"]),
+  .fx-glass[data-slot="button"]:is([data-variant="secondary"], [data-variant="outline"], [data-variant="ghost"]) {
+    /* A theme emitted before the glass pair existed has no tint: fall back
+       to the opaque surface, never to transparent under text. */
+    background-color: var(--ui-bg-glass, var(--ui-bg-surface));
+    -webkit-backdrop-filter: blur(var(--ui-fx-glass-blur-control)) saturate(var(--ui-fx-glass-saturate));
+    backdrop-filter: blur(var(--ui-fx-glass-blur-control)) saturate(var(--ui-fx-glass-saturate));
+    /* The lit top edge, in Tailwind's inset slot; the declaration below
+       composes all five slots the way Tailwind does, so a component's own
+       ring and shadow survive (Badge and Card have no shadow utility to
+       compose them). */
+    --tw-inset-shadow: inset 0 1px 0 0 var(--ui-fx-light);
+    box-shadow:
+      var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000),
+      var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+
+    @media (prefers-reduced-transparency: reduce) {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
+    @media (forced-colors: active) {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+      --tw-inset-shadow: revert-layer;
+      box-shadow: revert-layer;
+    }
+  }
+  .fx-glass[data-slot="card"] {
+    -webkit-backdrop-filter: blur(var(--ui-fx-glass-blur)) saturate(var(--ui-fx-glass-saturate));
+    backdrop-filter: blur(var(--ui-fx-glass-blur)) saturate(var(--ui-fx-glass-saturate));
+
+    @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
+  }
+  /* A ghost Button's hover is a fill (`bg-elevated`), which glass replaces —
+     so the pane lifts halfway to it instead. Pointer hover only. */
+  @media (hover: hover) {
+    .fx-glass[data-slot="button"][data-variant="ghost"]:not([data-disabled]):hover {
+      background-color: color-mix(in srgb, var(--ui-bg-elevated) 50%, var(--ui-bg-glass, var(--ui-bg-surface)));
+
+      @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+        background-color: revert-layer;
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------- edge */
+
+  /* A 1px gradient edge in place of the border, brightest at the top left,
+     a faint lip at the far corner. Drawn by a masked ::after, so it owns no
+     background layer and collides with nothing. Card and Badge: a Button's
+     edge is its ring, which identifies it (CONVENTIONS §7b) and stays. */
+  .fx-edge:is([data-slot="card"], [data-slot="badge"]) {
+    position: relative;
+    border-color: transparent;
+
+    @media (forced-colors: active) {
+      border-color: revert-layer;
+    }
+  }
+  .fx-edge:is([data-slot="card"], [data-slot="badge"])::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      135deg,
+      var(--ui-fx-light-strong) 0%,
+      var(--ui-fx-light) 30%,
+      var(--ui-fx-light-faint) 55%,
+      var(--ui-fx-light) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    /* No content, no box: the pseudo-element is not generated at all. */
+    @media (forced-colors: active) {
+      content: revert-layer;
+      background: revert-layer;
+    }
+  }
+
+  /* ------------------------------------------------------------ inner */
+
+  /* The thickness of a pane: a light line along the top, a hairline of light
+     all round, a bloom inside the rim, a line of shade along the bottom. */
+  .fx-inner:is([data-slot="card"], [data-slot="badge"]),
+  .fx-inner[data-slot="button"]:is([data-variant="secondary"], [data-variant="outline"], [data-variant="ghost"]) {
+    --tw-inset-shadow:
+      inset 0 1px 0 0 var(--ui-fx-light),
+      inset 0 0 0 1px var(--ui-fx-light-faint),
+      inset 0 0 24px 0 var(--ui-fx-glass-bloom),
+      inset 0 -1px 0 0 var(--ui-fx-shade);
+    box-shadow:
+      var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000),
+      var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+
+    @media (forced-colors: active) {
+      --tw-inset-shadow: revert-layer;
+      box-shadow: revert-layer;
+    }
+  }
+
+  /* --------------------------------------------------------- specular */
+
+  /* A broad light across the surface from the top left with a faint return
+     at the far corner, over a grade a shade lighter at the top (a pane
+     catches more light near its top edge). Two layers of the stack, which
+     base.css hands back in forced colours. */
+  .fx-specular:is([data-slot="card"], [data-slot="badge"]),
+  .fx-specular[data-slot="button"]:is([data-variant="secondary"], [data-variant="outline"], [data-variant="ghost"]) {
+    --ui-fx-layer-specular: linear-gradient(118deg, var(--ui-fx-glass-wash) 0%, transparent 44%, var(--ui-fx-glass-grade) 100%);
+    --ui-fx-layer-grade: linear-gradient(to bottom, var(--ui-fx-glass-grade), transparent 55%);
+  }
+}

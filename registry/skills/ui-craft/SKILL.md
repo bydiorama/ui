@@ -179,6 +179,14 @@ What feels off at 10% speed is what is subtly wrong at full speed.
     up. Reach for `backdrop-filter` freely over a translucent ground; the
     thing to still avoid over text is `filter`.
 
+### Effects
+
+12. **Effects are a layer, not a feature.** Glass, grain, sheen, glow,
+    shimmer, ink, aurora and halo are a class on a component's root —
+    `className={fx("glass")}` — never a prop, never a restyle of its parts.
+    One glass surface and one lit action per view; emphasis everywhere is
+    none. The full guide is the `diorama-effects` skill.
+
 ## Common mistakes
 
 | Mistake | Fix |
@@ -195,6 +203,8 @@ What feels off at 10% speed is what is subtly wrong at full speed.
 | Clickable element with the default arrow cursor | `cursor: pointer` — never inherited, always explicit |
 | `pointer-events: none` on a disabled control | The `disabled` attribute + `enabled:` gated hover, so tooltips survive |
 | Asserting interaction in jsdom | A real browser — jsdom doesn't implement implicit activation |
+| Translucent panel built by hand with `bg-surface/70` + `backdrop-blur` | `fx("glass")` — its tint is derived per brand so muted text still clears AA over anything behind it |
+| A shimmer, sweep or glow on hover | Hover gets the component's own instant state change; light marks moments and states |
 | Text soft/blurry after (or during rest between) animations | Layer promotion outlived the motion — clear `will-change`, no resting `transform`/`filter` on text containers |
 
 ## Licence

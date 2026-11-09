@@ -98,7 +98,16 @@ gates to be wrong before the code is.**
 Work through `CONVENTIONS.md` §1–§10 with the file open. The ones that bit:
 
 - Native element first; `type="button"` default; `forwardRef`;
-  `data-slot`/`data-variant`/`data-size` on every part.
+  `data-slot`/`data-variant`/`data-size` on every part — **the root
+  included**, named for the component. Effects (ADR 0022) reach parts from
+  the element `className` lands on; Slider's unslotted root left them
+  guessing from its track, and fixing it later was a breaking slot rename.
+- **Effect support is not a prop.** To let an effect apply to a new
+  component, add the component to the effect's `on` list in
+  `registry/lib/fx/fx.ts`, reach its part from the root's `data-slot` in the
+  effect's stylesheet (or a shader recipe in `lib/shader`), then run
+  `pnpm check:fx`; `fx.browser.test.tsx` fails until the effect visibly
+  changes the part and steps aside exactly.
 - **Forwarding, once the component has more than one DOM node** (§5):
   `className` → the **outermost** node so sizing behaves predictably; `ref` →
   the outermost node **except a form control, whose ref goes to the
@@ -227,6 +236,8 @@ probing.
 | Story/test imports unresolvable | `tsc` resolves from the *importing file*; deps imported by `registry/` live at the workspace root |
 | ESLint scanning build output | Ignore globs need `**/` prefixes; bare `dir/**` matches only at repo root |
 | Grep says a utility is missing from built CSS | Variant-prefixed classes are escaped (`hover\:`, `\(`) — check before "fixing" |
+| A layer injected into a component paints over its siblings | Anything inserted into a part (a shader canvas over a track fill) goes DIRECTLY AFTER the element it decorates, so later siblings — a thumb — still paint above. Appended last, it covered the Slider's thumb; assert with `elementFromPoint` |
+| A step-aside rule that loses | A `@media (forced-colors)` / reduced-transparency override written as its own block can be less specific than the rule it undoes, and then does nothing. NEST it inside that rule (CSS nesting), so it has the same selector by construction |
 | "Enter shows no press animation" | UA applies `:active` for one frame on Enter — browser behaviour; never fake it with JS state |
 | "The weight looks heavier than the design" | Declared weights were identical — root smoothing + `font-synthesis: none` (§6) before touching values |
 | Committing vitest failure screenshots | `__screenshots__/` and `.vitest-attachments/` are gitignored debug artifacts, not baselines |

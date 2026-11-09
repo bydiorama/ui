@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-06-effects-layer-shader",
+  "date": "2026-11-06",
+  "item": "shader",
+  "kind": "addition",
+  "summary": "New OPTIONAL item `shader` (experimental, ADR 0022), depending on `fx`: the aurora and halo effects and the runtime that draws them. startShaders() — server-safe, reference-counted, returning its stop function — mounts one canvas per part an effect paints, on ONE shared WebGL2 context, drawn from tokens read where the part sits. Admitted by rule: a shader paints only pixels it owns, every input is a token, the component is its floor, and the ink on its part keeps its contrast per pixel (the browser test samples drawn pixels in both schemes and under a pale-yellow stress brand, fails on 'no pixel sampled', and proves the measurement can fail with the guard off). The canvas draws the part's own rounded shape and covers its border box (iOS Safari drops a CSS clip on an animating canvas); a track fill's canvas is inserted directly after the fill, so a Slider's thumb stays on top — the regression that prompted it is pinned by a test. State is published as data-fx-aurora / data-fx-halo; reduced motion draws one still frame, and the loop sleeps when nothing moves. Install: add the item, `@import \"./fx/shader.css\";` after fx.css, and call startShaders() once in a client component or script at the app root.",
+  "affects": [
+    "item:shader",
+    "item:fx"
+  ]
+}

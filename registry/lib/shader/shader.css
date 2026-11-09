@@ -1,0 +1,173 @@
+/*
+ * The shader effects' CSS (ADR 0022) — what aurora and halo are made of per
+ * component, and how their canvases sit and change state. Import after
+ * fx/fx.css; the runtime is `startShaders()` from `@/lib/shader`.
+ *
+ * WHEN an aurora is on and WHEN a halo is lit is CSS's business, not the
+ * runtime's: `--ui-fx-on` and `--ui-fx-halo-strength` are registered
+ * properties the canvas inherits and EASES with the component's own motion
+ * tokens, and the runtime reads them only while they transition. So a
+ * Switch's light follows its fill on motionMicro, and a busy Button's halo
+ * comes in on `--ui-duration-enter`, without either knowing about the other.
+ */
+
+@property --ui-fx-on { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --ui-fx-halo-strength { syntax: "<number>"; inherits: true; initial-value: 0; }
+
+@layer fx {
+  /* ------------------------------------------------------------ canvases */
+
+  /* UNDER (default): above the mount's own background, below its content —
+     the runtime makes the mount a stacking context for this. OVER: a sibling
+     placed directly after a fill inside a track, so later siblings (a
+     Slider's thumb) still paint above it.
+     Hidden until the first frame: the part's own fill is the floor. The
+     shader draws the part's rounded shape itself, so nothing here clips the
+     canvas — iOS Safari drops a CSS clip on a canvas while its layer
+     animates, which showed as square corners in every transition. */
+  .ui-fx-canvas {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0;
+    /* Timing by USAGE (transitions.dev polish rules, mapped onto tokens):
+       - the reveal over the floor is a content reveal: enter on smooth-out,
+         which is exactly --ui-ease-spring;
+       - --ui-fx-on follows the control's own fill (motionMicro), so light
+         and fill change together;
+       - a halo going out is a close: faster and quieter than coming in. */
+    transition:
+      opacity var(--ui-duration-enter) var(--ui-ease-spring),
+      --ui-fx-on var(--ui-duration-fast) var(--ui-ease-out),
+      --ui-fx-halo-strength var(--ui-duration-base) var(--ui-ease-out);
+  }
+  .ui-fx-canvas-over {
+    z-index: auto;
+  }
+  /* Forced colours: the system draws the UI; no canvas at all. */
+  @media (forced-colors: active) {
+    .ui-fx-canvas {
+      display: none;
+    }
+  }
+  :is([data-fx-aurora="live"], [data-fx-aurora="still"]) .ui-fx-canvas-aurora,
+  :is([data-fx-halo="live"], [data-fx-halo="still"]) .ui-fx-canvas-halo {
+    opacity: 1;
+  }
+
+  /* -------------------------------------------------------------- aurora */
+
+  /* A control's light follows its state: on only while checked, never while
+     disabled. `data-disabled`, not `aria-disabled`: a busy Button sets
+     aria-disabled (ADR 0021 — activation is unavailable) but is not drawn
+     disabled, and its fill keeps moving while it works. */
+  .fx-aurora:is([data-slot="switch"], [data-slot="checkbox"]):not(:has(input:checked)),
+  .fx-aurora:is([data-disabled], :has(input:disabled)) {
+    --ui-fx-on: 0;
+  }
+
+  /* What each part's aurora is made of, and the ink it keeps contrast with.
+     A GROUND guards the WEAKEST ink placed on it (an empty state's muted
+     description measured 3.6:1 in dark when the ground guarded secondary). */
+  .fx-aurora {
+    --ui-fx-aurora-base: var(--ui-bg-base);
+    --ui-fx-aurora-light: var(--ui-bg-accent);
+    --ui-fx-aurora-guard-ink: var(--ui-text-muted);
+    --ui-fx-aurora-guard: 4.5;
+    --ui-fx-aurora-intensity: 0.7;
+    --ui-fx-aurora-scale: 420px;
+  }
+  /* A ground (an unslotted surface) dissolves toward its edges into the page
+     around it; a component's fill runs to its edge. */
+  .fx-aurora:not([data-slot]) {
+    --ui-fx-aurora-dissolve: 0.22;
+  }
+  .fx-aurora[data-slot="button"] {
+    /* The label sits on it: 4.5:1 with the on-accent ink. */
+    --ui-fx-aurora-base: var(--ui-bg-accent);
+    --ui-fx-aurora-light: var(--ui-bg-accent);
+    --ui-fx-aurora-guard-ink: var(--ui-text-on-accent);
+    --ui-fx-aurora-scale: 56px;
+    --ui-fx-aurora-intensity: 1;
+  }
+  .fx-aurora[data-slot="switch"] {
+    /* The ON track is the state (SC 1.4.11): 3:1 against the page. */
+    --ui-fx-aurora-base: var(--ui-bg-accent-legible);
+    --ui-fx-aurora-light: var(--ui-bg-accent-legible);
+    --ui-fx-aurora-guard-ink: var(--ui-bg-base);
+    --ui-fx-aurora-guard: 3;
+    --ui-fx-aurora-scale: 28px;
+    --ui-fx-aurora-intensity: 1;
+  }
+  .fx-aurora[data-slot="checkbox"] {
+    /* The check glyph sits on it: 3:1, a graphic. */
+    --ui-fx-aurora-base: var(--ui-bg-accent);
+    --ui-fx-aurora-light: var(--ui-bg-accent);
+    --ui-fx-aurora-guard-ink: var(--ui-text-on-accent);
+    --ui-fx-aurora-guard: 3;
+    --ui-fx-aurora-scale: 18px;
+    --ui-fx-aurora-intensity: 1;
+  }
+  .fx-aurora[data-slot="slider"] {
+    /* The thumb's ring carries SC 1.4.11 on a Slider; the fill is a
+       secondary cue (slider.tsx says so), so it needs no guard. */
+    --ui-fx-aurora-base: var(--ui-bg-accent);
+    --ui-fx-aurora-light: var(--ui-bg-accent);
+    --ui-fx-aurora-guard: 0;
+    --ui-fx-aurora-scale: 90px;
+    --ui-fx-aurora-intensity: 1;
+  }
+  .fx-aurora[data-slot="progress"] {
+    /* The fill IS the value: 3:1 against its track. */
+    --ui-fx-aurora-base: var(--ui-bg-accent-legible);
+    --ui-fx-aurora-light: var(--ui-bg-accent-legible);
+    --ui-fx-aurora-guard-ink: var(--ui-bg-sunken);
+    --ui-fx-aurora-guard: 3;
+    --ui-fx-aurora-scale: 90px;
+    --ui-fx-aurora-intensity: 1;
+  }
+
+  /* ---------------------------------------------------------------- halo */
+
+  /* Lit while the surface works (aria-busy) or listens (focus within a
+     field). `data-fx-active` lights it by hand — a field listening for voice
+     — and is searched INSIDE too, because a form control sends native props
+     to its <input>, not to the root that carries the class. */
+  .fx-halo {
+    --ui-fx-halo-light: var(--ui-border-focus);
+    --ui-fx-halo-strength: 0;
+  }
+  .fx-halo:is([aria-busy="true"], [data-fx-active], :has([data-fx-active])),
+  .fx-halo[data-slot="field"]:focus-within {
+    --ui-fx-halo-strength: 1;
+  }
+  /* In while work starts: an emphasis open, enter on smooth-out. On a field
+     it comes in on focus — every Tab press — so quicker, and its exit is
+     quicker still. Never delay an exit. */
+  .fx-halo:is([aria-busy="true"], [data-fx-active], :has([data-fx-active])) .ui-fx-canvas-halo {
+    transition:
+      opacity var(--ui-duration-enter) var(--ui-ease-spring),
+      --ui-fx-halo-strength var(--ui-duration-enter) var(--ui-ease-spring);
+  }
+  .fx-halo[data-slot="field"] .ui-fx-canvas-halo {
+    transition:
+      opacity var(--ui-duration-enter) var(--ui-ease-spring),
+      --ui-fx-halo-strength var(--ui-duration-fast) var(--ui-ease-out);
+  }
+  .fx-halo[data-slot="field"]:focus-within .ui-fx-canvas-halo {
+    transition:
+      opacity var(--ui-duration-enter) var(--ui-ease-spring),
+      --ui-fx-halo-strength var(--ui-duration-base) var(--ui-ease-spring);
+  }
+  /* The floor where the shader is not drawing: a still, soft glow. Never a
+     crisp ring, which would read as the focus indicator. */
+  .fx-halo[data-slot="button"]:is([aria-busy="true"], [data-fx-active]):not([data-fx-halo="live"], [data-fx-halo="still"]) {
+    --tw-shadow: 0 0 18px -2px color-mix(in oklab, var(--ui-fx-halo-light) 42%, transparent);
+
+    /* Nested, so it carries this rule's specificity (see fx/base.css). */
+    @media (forced-colors: active) {
+      --tw-shadow: revert-layer;
+    }
+  }
+}

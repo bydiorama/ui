@@ -92,6 +92,74 @@ export const MEDIA_SCRIM_ALPHA = 0.72;
  */
 export const AFFIX_BG_ALPHA = 0.9;
 
+/**
+ * The least a glass surface's tint may be, whatever the brand's inks allow.
+ *
+ * Contrast is necessary, not sufficient: a card at 50% over a busy photograph
+ * can clear 4.5:1 and still be tiring to read, because the backdrop moves
+ * under the words even blurred. 0.78 is the overlay tint the effects lab
+ * settled on before the per-brand floor existed (ADR 0022). Every brand
+ * measured so far derives ABOVE it — theme zero 0.89 light, 0.91 dark — so
+ * today this is a guard for a brand with unusually strong inks.
+ */
+export const GLASS_MIN_ALPHA = 0.78;
+
+/**
+ * The most white light the glass material may lay UNDER text in the dark
+ * scheme: the specular wash, the top grade and the inner bloom of `@/lib/fx`'s
+ * glass, composited where they overlap. `check:fx` holds fx/glass.css to it.
+ *
+ * Light only brightens. Dark ink on a light pane GAINS from it, so the light
+ * scheme's worst case is no light at all and its wash is free to be bright.
+ * Light ink on a dark pane loses, so this value enters the dark floor: the
+ * effects lab measured muted ink at 4.57:1 → 4.02:1 under a 4% wash at the
+ * floor the pane had without it.
+ */
+export const GLASS_LIGHT_UNDER_TEXT = 0.04;
+
+/**
+ * The glass pair for one scheme: the tint a glass surface wears, and the
+ * worst ground it can produce (see the contract).
+ *
+ * The alpha is DERIVED, the opposite of `AFFIX_BG_ALPHA`'s fixed 0.9: a bar
+ * is chrome and should look the same in every brand, while glass is a
+ * material whose whole point is to be as clear as the brand's inks allow.
+ * Searched between GLASS_MIN_ALPHA and 1 for the least alpha at which both
+ * inks clear AA on the floor, then rounded UP to a hundredth so the shipped
+ * value is never the boundary. If even an opaque surface cannot carry the
+ * inks, the alpha is 1 and `auditContrast` moves the ink, as for any ground.
+ *
+ * The floor is built over an ABSOLUTE extreme, never over an ink: the inks
+ * are audited against it, so a floor built from them would be circular (the
+ * affix floor's lesson, pinned in resolve.test.ts).
+ */
+function glassPair(
+  surface: string,
+  inks: readonly string[],
+  scheme: Scheme,
+): { "--ui-bg-glass": string; "--ui-bg-glass-floor": string } {
+  const dark = scheme === "dark";
+  const floorAt = (alpha: number) => {
+    const behind = flatten(withAlpha(surface, alpha), dark ? "#ffffff" : "#000000");
+    return dark ? flatten(withAlpha("#ffffff", GLASS_LIGHT_UNDER_TEXT), behind) : behind;
+  };
+  const clears = (alpha: number) => inks.every((ink) => contrastRatio(ink, floorAt(alpha)) >= AA_TEXT);
+
+  let alpha = 1;
+  if (clears(GLASS_MIN_ALPHA)) alpha = GLASS_MIN_ALPHA;
+  else if (clears(1)) {
+    let lo = GLASS_MIN_ALPHA;
+    let hi = 1;
+    for (let i = 0; i < 20; i++) {
+      const mid = (lo + hi) / 2;
+      if (clears(mid)) hi = mid;
+      else lo = mid;
+    }
+    alpha = Math.min(1, Math.ceil(hi * 100) / 100);
+  }
+  return { "--ui-bg-glass": withAlpha(surface, alpha), "--ui-bg-glass-floor": floorAt(alpha) };
+}
+
 const SHADOW_SCALE = {
   none: 0,
   subtle: 0.6,
@@ -758,6 +826,9 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-media-floor": scrimFloor,
     "--ui-bg-affix": affixBg,
     "--ui-bg-affix-floor": affixFloor,
+    // Recomputed in `resolveTheme` once an authored map has landed, so an
+    // authored surface or ink is the one the alpha is derived from.
+    ...glassPair(colors.surface, [colors.textPrimary, colors.textMuted], dark ? "dark" : "light"),
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),
@@ -1013,7 +1084,22 @@ export function resolveTheme(seed: ThemeSeed, options: ResolveOptions = {}): Res
   const theme = options.authored
     ? { ...derive(seed, colors), ...options.authored }
     : derive(seed, colors);
+  // Glass is derived from the inks it carries, so it is derived from the
+  // inks the theme SHIPS: after an authored map has landed (theme zero
+  // authors its surface and its inks) and after the audit, which only ever
+  // moves an ink AWAY from its ground. Derived before the audit too, so the
+  // audit holds a pair that exists; that value is never thinner than the
+  // final one, so the audit has nothing to move for glass unless even an
+  // opaque surface cannot carry the ink — then it moves the ink, as for any
+  // ground, and the alpha stays 1.
+  const deriveGlass = () =>
+    Object.assign(
+      theme,
+      glassPair(theme["--ui-bg-surface"], [theme["--ui-text-primary"], theme["--ui-text-muted"]], scheme),
+    );
+  deriveGlass();
   const adjustments = auditContrast(theme);
+  deriveGlass();
 
   // `--ui-focus-ring` is DERIVED-ONLY (ADR 0020 §2): it always gets
   // recomposed below, from its own colour/width/offset, so it can never

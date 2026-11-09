@@ -126,11 +126,13 @@ export function RangeSlider({
         "aria-labelledby": labelId,
         // The group is disabled, not only its inputs — see Slider.
         "aria-disabled": isDisabled || undefined,
+        // The root names the component — see Slider (ADR 0022).
+        "data-slot": "range-slider",
         className: cn("flex w-full flex-col gap-sm", className),
       })}
     >
       <div
-        data-slot="range-slider"
+        data-slot="range-slider-header"
         data-size={size}
         className={cn(
           "flex items-center justify-between gap-sm",

@@ -1,9 +1,8 @@
 # Charts, diagrams and knowledge graphs — implementation plan
 
-**Status:** proposal, 2026-11-09. Nothing is built and nothing is drawn yet.
-**Blocks nothing.** Section 8 lists seven decisions that only a person can
-make. The first one is whether this work goes ahead at all, given that
-`PLAN.md` asks for build order to follow real consumer call sites.
+**Status:** accepted direction, 2026-11-09. Nothing is built and nothing is
+drawn yet. The seven decisions in §8 were answered on 2026-11-09: **go, charts
+first**. Phase V0 (ADRs, spike, Paper) comes next.
 
 This document has two jobs:
 
@@ -201,7 +200,7 @@ type GraphTypes = Record<string, {
 | `graphology` (+ selected `graphology-*`) | MIT | graph algorithms: neighbourhoods, shortest path, Louvain communities, ForceAtlas2 | a dependency of `network`, never in a signature. The ForceAtlas2 package has had no release since 2022. |
 | `data-navigator` | MIT | keyboard and screen-reader navigation over any renderer (SVG, Canvas, WebGL) | **candidate** for `useChartNavigation` / `useGraphNavigation`. Evaluate in V1 against writing our own. |
 | `d3-sankey` | BSD-3 | Sankey layout | **no release since 2019**. It is small, so vendor and own it when Sankey is built (P2). |
-| WebGL renderer: build on `lib/shader`'s single context, **or** wrap `sigma` (MIT, v4) or `cosmos.gl` (MIT, GPU force layout) | — | the WebGL tier | a separate optional entry point (§8) |
+| WebGL renderer: **our own, on `lib/shader`'s single WebGL2 context** (§8.7) | — | the WebGL tier | a separate optional entry point; no new dependency |
 
 We do **not** need `d3-selection`, `d3-transition` or `d3-zoom`. React owns
 the DOM. Transitions are CSS. Pan and zoom is a small transform in `lib/viz`
@@ -322,7 +321,7 @@ ones then become aliases.
 
 | Group | Tokens | Derivation |
 |---|---|---|
-| Categorical | `--ui-data-cat-{1…8}-{solid,bg,fg}` | **Curated, never derived from the accent** (ADR 0006(a)). Steps 40 of the five ramps give 4–5 usable hues: red is reserved for `danger`. **Eight need new hues, so ADR 0008 needs an amendment and a Paper round.** |
+| Categorical | `--ui-data-cat-{1…8}-{solid,bg,fg}` (**8 slots, decided in §8.2**) | **Curated, never derived from the accent** (ADR 0006(a)). Steps 40 of the five ramps give 4–5 usable hues: red is reserved for `danger`. **The remaining 3–4 hues are new, so ADR 0008 needs an amendment and a Paper round.** |
 | Sequential | `--ui-data-seq-{1…7}` | Derived from the accent: OKLCH lightness monotonic, hue fixed. Ordered data may carry the brand. |
 | Diverging | `--ui-data-div-{neg-3…pos-3}` | Two curated hues, with a neutral midpoint from the warm-grey ramp |
 | Structural | `--ui-data-grid`, `--ui-data-axis`, `--ui-data-label`, `--ui-data-dimmed-opacity`, `--ui-data-highlight` | Aliases of existing ink and border roles where they fit. `check:token-consumers` asks for a real consumer. |
@@ -370,7 +369,7 @@ PLAN.md's Phase 3 list.
 | P1 | `Diagram.Group` (compound and nested nodes, collapse) | Subflows; the group collapses to a single node. |
 | P1 | `Diagram.Minimap`, `Diagram.Legend` | |
 | P1 | `MindMap` preset | Radial tree layout, expand and collapse. |
-| P2 | **Editing**: drag nodes, connect ports, reconnect, delete, undo hooks | A different product from a viewer. **Decide whether we need it (§8) before building any of it.** It is where a wrapped behaviour layer (React Flow / xyflow, MIT) earns its place, the way Base UI did for overlays (ADR 0012). |
+| — | **Editing**: drag nodes, connect ports, reconnect, delete, undo hooks | **Out of scope: viewer only (§8.6).** If a product asks for it later, that is a new decision, and React Flow / xyflow (MIT) as a wrapped behaviour layer is the first option to evaluate (ADR 0012). |
 
 ### 4.3 Networks and knowledge graphs (nodes are glyphs, data is explored)
 
@@ -381,7 +380,7 @@ PLAN.md's Phase 3 list.
 | P1 | `KnowledgeGraphExplorer` **block**: Network + search (`Combobox`) + type filter (legend as checkboxes) + detail panel (`Sheet` / `Drawer`) + exploration history (breadcrumb) + `onExpandRequest` | The "beyond charts" target. It is a *block*, composed of components, not a bigger component. |
 | P1 | Path and relation queries in the view: highlight the shortest path between two nodes, show only one predicate | Algorithms from graphology, behind `lib/viz`. |
 | P2 | Clustering: community colouring, collapsing a cluster to a "combo" node, **semantic zoom** (labels by zoom level and importance) | |
-| P2 | WebGL tier (≥ ~30k nodes) | Build on `lib/shader` or wrap sigma; decided in §8. |
+| P2 | WebGL tier (≥ ~30k nodes) | Built on `lib/shader` (§8.7). The V0 spike sets the threshold. |
 | P2 | Edge bundling, time-sliced graphs (a graph at time *t*, with a slider) | Research-grade; only with a consumer. |
 
 ---
@@ -504,36 +503,20 @@ semantic zoom, time-sliced graphs. Each needs a consumer before it starts.
 
 ---
 
-## 8. Decisions for a person
+## 8. Decisions
 
-1. **Go or no-go, and which family first.** The answer depends on consumers.
-   Our suggestion: charts P0 → Diagram viewer → Network. Charts unlock
-   StatTiles, which is already planned. Diagram has the widest product use.
-   Network has the steepest a11y and performance work.
-2. **The categorical palette.** How many slots (we suggest 6–8, with a
-   documented "more than 8 → group into *Other*" rule), and which new hues.
-   This is a Paper round plus an ADR 0008 amendment.
-3. **Dashes.** Keep CONVENTIONS' solid-strokes rule for data marks, with the
-   answers in §3.7 (our suggestion), or carve out a scoped exception by ADR.
-4. **ADR 0002 amendment.** Admit "layout and scale mathematics" (d3 modules,
-   dagre, graphology) as infrastructure.
-5. **elkjs.** Its licence is EPL-2.0 OR GPL-3.0-or-later, which is copyleft
-   either way. Our suggestion: do not use it. Use `@dagrejs/dagre` or `d3-dag`
-   (both MIT), and accept simpler edge routing. Reopen this only through
-   formal licence review, and only if a product needs ports and orthogonal
-   routing.
-6. **Diagram editing.** Viewer only (our suggestion until a product asks), or
-   an editor. If an editor, evaluate React Flow / xyflow (MIT) as a wrapped
-   behaviour layer under ADR 0012's rules, against building on our viewport.
-7. **WebGL tier.** There are three options:
-   - build on `lib/shader`'s single WebGL2 context (one context per page,
-     inks from tokens, already guarded)
-   - wrap Sigma (MIT). v4.0 was released today (2026-11-09), so give it time
-     to settle.
-   - wrap cosmos.gl (MIT, GPU force layout)
+Answered by the maintainer on 2026-11-09. Each answer still needs its ADR or
+amendment before code depends on it. That work is Phase V0.
 
-   Never use Cosmograph, the product built on cosmos.gl: it is CC-BY-NC.
-   Decide after the V0 spike.
+| # | Decision | Answer | What follows |
+|---|---|---|---|
+| 1 | Go or no-go, and which family first | **Go: charts first**, then the Diagram viewer, then networks | Phase V0 starts. The demand item in V0 still has to name the first consumer screen, so V2's exit has a real adopter. |
+| 2 | Categorical palette size | **8 numbered slots** | `--ui-data-cat-{1…8}`. The five ramps give only 4–5 usable hues, so this needs **3–4 new hues**, a Paper round and an ADR 0008 amendment. With eight slots, the ΔE / colour-vision-deficiency floor (§3.8) becomes the gate that matters most: it has to be met at all eight. The doc still recommends a 5–6 series limit in practice (Atlassian does the same), with slots 7–8 for the cases that really need them. |
+| 3 | Dashed strokes in charts | **Keep the solid-strokes rule** | The solid answers in §3.7 become the contract. No ADR is needed: CONVENTIONS already says this. |
+| 4 | Dependency policy | **Astryx-style: amend ADR 0002** | Own components on wrapped maths modules: `d3-array`, `d3-scale` and `d3-shape` first; `d3-hierarchy`, `d3-force`, `@dagrejs/dagre` / `d3-dag` and `graphology` later. Recharts is **not** wrapped (shadcn/ui's route), because its types and design would become part of our API (§9.5). `check:boundaries` is extended to the new packages. |
+| 5 | elkjs | **MIT only** | Layered layout on `@dagrejs/dagre` or `d3-dag`, picked by the V0 spike. Simpler edge routing is accepted. elkjs is reopened only through formal licence review. |
+| 6 | Diagram editing | **Viewer only** | No drag-to-connect, no ports, no undo. React Flow / xyflow stays a reference. Editing is a new decision when a product asks for it. |
+| 7 | WebGL tier | **Build on `lib/shader`** | One WebGL2 context per page, inks read from tokens, the same admission rule and guards as ADR 0022. Sigma and cosmos.gl stay references for techniques (instanced nodes, GPU force simulation), not dependencies. The V0 spike still measures *where* the tier starts, and the tier stays `experimental` until it has been seen on an iPhone. |
 
 ---
 
@@ -605,3 +588,27 @@ Check them against the real numbers before anyone budgets with them.
 | Public-sector style guides | [ONS service manual](https://service-manual.ons.gov.uk/data-visualisation); [UK Analysis Function](https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-charts/); [Urban Institute](https://urbaninstitute.github.io/graphics-styleguide/) |
 | Colour | [Datawrapper: colours for style guides](https://blog.datawrapper.de/colors-for-data-vis-style-guides/); [Okabe-Ito](https://jfly.uni-koeln.de/color/) (a colour-blind-safe set to test our hues against); Viridis and ColorBrewer for sequential and diverging ramps |
 | Graph UX | [Cambridge Intelligence blog](https://cambridge-intelligence.com/blog/) (combos, progressive disclosure, time-based graphs); [greadability.js](https://github.com/rpgove/greadability) (MIT: crossings and angular-resolution metrics, a possible layout-quality test); Holten 2006 and Holten & van Wijk 2009 on edge bundling |
+
+### 9.5 How two other design systems ship charts
+
+This was asked while deciding §8.4. Both were checked from source on
+2026-11-09.
+
+| | **shadcn/ui** | **Astryx** (Meta) |
+|---|---|---|
+| What ships | One copied file, `chart.tsx` (~370 lines) | `@astryxdesign/charts`, a "config-model data visualization library (d3-based)"; separately, `@astryxdesign/vega`, a Vega / Vega-Lite wrapper |
+| Engine | **Recharts** (3.8 in its own app), imported as `RechartsPrimitive` | Its own components on **`d3-array`, `d3-scale`, `d3-shape`** |
+| What the consumer writes | Recharts directly (`<BarChart>`, `<XAxis>`, `<Bar>`) inside shadcn's `ChartContainer` / `ChartTooltipContent` / `ChartLegendContent` | Astryx's own chart components |
+| Theming | A `ChartConfig` object maps each series to a colour per theme, written to `--color-<key>` CSS variables; base palette `--chart-1…5` | Astryx theme and tokens (StyleX) |
+| Types in the public API | **Recharts' types**, e.g. `React.ComponentProps<typeof RechartsPrimitive.Tooltip>` | Its own |
+| Maturity | Stable, widely used | **Canary only** (`0.7.12-canary`); no stable release; MIT |
+
+**What this means for us.** shadcn/ui's model is the fastest start, but it
+breaks two of our ADRs directly. Recharts' types are in the props, so
+ADR 0012 fails. Recharts' design opinions (axis rendering, tooltip behaviour,
+animation model) become ours, so ADR 0002 fails. It also ties server
+rendering and the keyboard model (§3.6) to what Recharts can do. Astryx has
+made exactly the trade this plan makes: own components, d3 for the maths
+only. It is the closer model, and one more sign that §8.4 is the right
+direction. Its chart package has not reached a stable release, though, so we
+can learn from it but should not depend on it.

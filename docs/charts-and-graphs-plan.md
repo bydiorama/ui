@@ -1,0 +1,607 @@
+# Charts, diagrams and knowledge graphs — implementation plan
+
+**Status:** proposal, 2026-11-09. Nothing is built and nothing is drawn yet.
+**Blocks nothing.** Section 8 lists seven decisions that only a person can
+make. The first one is whether this work goes ahead at all, given that
+`PLAN.md` asks for build order to follow real consumer call sites.
+
+This document has two jobs:
+
+1. Plan a data-visualisation layer that goes beyond classic charts. It also
+   covers node-link diagrams and explorable knowledge graphs.
+2. Record the outside references we looked at, and say which of them we may
+   **depend on**, which we may only **learn from**, and which we may not use
+   at all.
+
+When this work moves into code, `PLAN.md` gets a section for it and this file
+becomes the history, the same way `design/paper/sheet-implementation-plan.md`
+did.
+
+---
+
+## 1. Scope: three families, one layer
+
+"Graph" means two different things. The plan keeps them apart, because the
+data, the rendering and the keyboard model are all different:
+
+| Family | What it shows | Data shape | Typical size | Nodes are… | Renderer floor |
+|---|---|---|---|---|---|
+| **Charts** | Quantities on scales: bar, line, area, scatter, heatmap | rows × fields | 10 – 10k marks | marks | SVG |
+| **Diagrams** | Structure people read: flows, pipelines, org charts, dependency trees, mind maps, state machines | nodes + edges, usually a DAG or a tree | 5 – 500 nodes | **UI** (cards, badges, avatars) | SVG edges + HTML nodes |
+| **Networks / knowledge graphs** | Relations people *explore*: entities, typed predicates, clusters, paths | typed nodes + typed edges (a property graph, or RDF triples) | 100 – 100k+ nodes | glyphs (circle, icon, label) | SVG ≤ ~2k, then Canvas, then WebGL |
+
+The three share a lot:
+
+- tokens
+- scales and formatting
+- the viewport (pan and zoom)
+- selection and focus
+- legend and tooltip
+- the accessible-alternative pattern
+
+So these are three surfaces on one layer, not three libraries. Section 3
+describes that layer.
+
+---
+
+## 2. What this repo has already decided for us
+
+Most of the hard choices are already settled by ADRs and gates. A charting
+layer that ignores them will fail `pnpm verify` or a review. The table maps
+each rule to what it means for charts and graphs:
+
+| Rule | Where it lives | What it means here |
+|---|---|---|
+| Built from scratch; no third-party component library or design language | ADR 0002 | **No Recharts, Nivo, ECharts, Victory, MUI X, Tremor or G6 as components.** They ship component code *and* visual opinions. We may still depend on **maths and layout** modules (scales, shapes, force, hierarchy, layered layout). This needs a short amendment to 0002, which adds a fourth "infrastructure" row: *layout and scale mathematics*. |
+| A behaviour library is wrapped; its types never appear in a public signature | ADR 0012, `check:boundaries` | `d3-*`, `graphology`, `dagre`, `elkjs` and any WebGL renderer are imported only by implementation files. Public props use our own `GraphNode`, `GraphEdge` and `ScaleSpec` types. Extend `check:boundaries` to these packages. |
+| No data layer, no fetching, no stores | CONVENTIONS §9 | Data arrives as props. Knowledge-graph expansion is a callback (`onExpandRequest(nodeId)`). The consumer fetches and passes the new nodes back. |
+| Semantic tokens only | AGENTS.md, CONVENTIONS §6 | Series colours, grid, axis and edge inks must be **contract tokens**. Today the contract has only four categorical hues (§3.8). |
+| **Strokes are solid**: no dashed or dotted lines anywhere | CONVENTIONS §6, `check:strokes` rule B | This clashes with three charting habits: dashed gridlines, dashed forecasts, and dashed series as a non-colour channel. Section 3.7 proposes solid answers. If design disagrees, it needs an ADR. |
+| Stroke widths come from the scale | ADR 0020 §2 | Line series, edges, axes and focus rings use `--ui-stroke-*`. A thick edge for a strong relation is `-thick`, never `stroke-width="3"`. |
+| No monospace face; numbers align with `tabular-nums` | ADR 0011 | Tick labels, data labels and tooltips use `tabular-nums`. **Check that Aspekta ships `tnum`** (ADR 0011 already asks for this) before an axis depends on it. |
+| A type role is a composite | ADR 0020 §3, `check:type-roles` | Tick labels, axis titles, data labels and node labels each need a role. A 10px tick label in SVG is a new role or a declared exception. It is not an arbitrary `font-size`. |
+| Motion comes from tokens, CSS first, reduced motion at the token layer | ADR 0005 / 0018, `check:motion` | Data transitions use `--ui-duration-*`. With reduced motion, a force layout **settles off-screen and paints once**. It never animates. |
+| A pointer gesture needs a keyboard path | `check:gestures` | Pan, zoom, node drag and lasso all need keyboard equivalents, or the gate fails. |
+| Every portalled surface has a z role | CONVENTIONS §7a, `check:overlays` | The chart tooltip is a Tooltip or Popover with a **virtual anchor** at `--ui-z-tooltip`. A graph's detail panel is a `Sheet` or `Drawer`. |
+| A shader is admitted only if it owns its pixels, reads tokens and keeps the component as its floor | ADR 0022, `check:fx` | This is the template for the **WebGL tier**: optional, server-safe, inks read from tokens, and the SVG or list view as its floor (§3.2). |
+| Static and server rendering works | `static-rendering` skill | Charts render as **static SVG on the server** and hydrate only for interaction. A chart with no interaction ships no JavaScript beyond what layout needs. |
+| Visual baselines in both schemes, on two platforms | AGENTS.md § Visual regression | Layouts must be **deterministic**: seeded force layout, a fixed tick count. A layout that moves between runs makes the visual gate useless. |
+| Contrast is measured, never typed | `check:contrast`, `*.doc.ts` `contrastPairs` | Every mark against its ground is a **non-text** pair (3:1, SC 1.4.11). Labels on marks are text pairs. |
+
+---
+
+## 3. Architecture
+
+### 3.1 Layers
+
+```
+@bydiorama/tokens      --ui-data-* (categorical, sequential, diverging, structural)
+                       --ui-graph-* (node, edge, selection, dimmed)
+        │
+registry/lib/viz       scales · ticks · number/date formatting (Intl, never an i18n runtime)
+                       layout adapters (layered, tree, force, radial)
+                       viewport maths (pan/zoom transform, fit, clamp)
+                       a11y helpers (description builder, data-table model, live announcer)
+                       useChartNavigation / useGraphNavigation (roving focus over marks/nodes)
+        │
+registry/ui/chart      Chart (compound): Root · Plot · XAxis · YAxis · Grid · Bar · Line ·
+                       Area · Point · Rule · Legend · Tooltip · Table
+registry/ui/sparkline  inline, label-less trend
+registry/ui/meter      single value against a range (pairs with Progress)
+registry/ui/diagram    Diagram (compound): Root · Viewport · Node · Edge · Group ·
+                       Controls · Minimap · Legend
+registry/ui/network    Network (compound) on the Canvas / WebGL tier
+        │
+registry/blocks/       StatTiles · ChartCard · KnowledgeGraphExplorer · LineageView
+                       (Phase 3 blocks; these do not exist yet, see PLAN.md)
+```
+
+There are **two layers of API on purpose**:
+
+- The compound primitives (`Chart.*`, `Diagram.*`) cover customisation.
+  CONVENTIONS §3 asks for composition, not a pile of props.
+- A few **presets** (`BarChart`, `LineChart`) are thin compositions of those
+  primitives, for the common case. A preset that starts growing props becomes
+  a block or goes back to being a composition.
+
+### 3.2 Rendering tiers and the admission rule
+
+| Tier | When | Server-render | Forced colours | A11y tree | Cost |
+|---|---|---|---|---|---|
+| **SVG** (default) | Every chart; diagrams; networks ≤ ~2k elements | ✅ static markup | ✅ CSS system colours | marks can be focusable | DOM grows with marks |
+| **Canvas 2D** | Dense scatter or heatmap; networks ~2k – ~30k | ❌ → server sends the SVG/list floor | ❌ → falls back to the floor | a parallel hidden structure | one paint surface |
+| **WebGL** (optional) | Networks above ~30k, or a GPU force layout | ❌ | ❌ | same as Canvas | a context, shaders, GPU memory |
+
+The thresholds are **guesses until the Phase V0 spike measures them** in the
+pinned Chromium and on a mid-range phone.
+
+A tier above SVG is admitted on the same terms as a shader under ADR 0022:
+
+1. It paints only pixels it owns.
+2. Every ink comes from a token, read with `getComputedStyle` on the root
+   where the chart sits (as `lib/shader` already does). It is re-read on a
+   scheme or theme change.
+3. Its **floor is complete**. Without the tier (no WebGL, before hydration,
+   forced colours) the user still gets every fact, from the SVG render or an
+   accessible list and table.
+4. It is **optional**: a separate entry point, so its dependency is never
+   installed for a consumer who does not use it.
+
+### 3.3 Data model
+
+**Charts** take rows plus accessors. They never take a library's series
+format:
+
+```ts
+<Chart data={rows} label="Revenue by month" description="Rose 18% from January to June.">
+  <Chart.XAxis field="month" scale="band" />
+  <Chart.YAxis field="revenue" format={{ style: "currency", currency: "EUR", notation: "compact" }} />
+  <Chart.Grid axis="y" />
+  <Chart.Bar field="revenue" series="informational" />
+  <Chart.Tooltip />
+  <Chart.Legend />
+</Chart>
+```
+
+- `format` is an `Intl.NumberFormat` / `Intl.DateTimeFormat` options object, or
+  a function. **No d3-format specifiers in a public prop**, because that would
+  leak a dependency's mini-language into the API.
+- Every user-visible string is a prop (`label`, `description`, axis titles,
+  legend names). There is no i18n runtime.
+
+**Graphs** take one neutral, serialisable shape. It is our own type. It is not
+graphology's, React Flow's or Cytoscape's:
+
+```ts
+type GraphNode<D = unknown> = {
+  id: string;
+  label: string;            // required: the accessible name
+  type?: string;            // a key into `types` → colour, glyph and shape tokens
+  position?: { x: number; y: number }; // given → no layout for this node (pinned)
+  parentId?: string;        // grouping / compound nodes
+  data?: D;                 // opaque; handed back in callbacks and render slots
+};
+type GraphEdge<D = unknown> = {
+  id: string;
+  source: string;
+  target: string;
+  label?: string;           // the predicate in a knowledge graph ("works_at")
+  type?: string;
+  isDirected?: boolean;     // default true
+  weight?: number;          // drives the stroke step, never a raw width
+  data?: D;
+};
+type GraphTypes = Record<string, {
+  label: string;            // "Person", "Organisation": legend and announcements
+  tone: DataTone;           // a categorical token key, never a colour
+  glyph?: ReactElement;     // a griddy-icons slot
+}>;
+```
+
+- **Knowledge graphs are typed graphs.** RDF, JSON-LD or Neo4j results are
+  turned into this shape by a **recipe in the docs**, not by a parser in the
+  registry (no data layer).
+- **Exploration is consumer-driven.** `onExpandRequest(node)` asks for
+  neighbours. The consumer fetches them and appends to `nodes` and `edges`.
+  The layout runs **incrementally**, with nodes that already exist pinned, so
+  the picture does not jump.
+
+### 3.4 Dependencies (proposal; each is behind a wrapper)
+
+| Package | Licence | Used for | Ships to the consumer as |
+|---|---|---|---|
+| `d3-scale`, `d3-array`, `d3-time`, `d3-interpolate` | ISC | scales, ticks, extents, binning | a dependency of `lib/viz` |
+| `d3-shape` | ISC | line, area, arc and stack generators; curves | a dependency of `chart` |
+| `d3-delaunay` | ISC | Voronoi hit-testing, so every point gets a ≥ 24px target (SC 2.5.8) | a dependency of `chart` |
+| `d3-hierarchy` | ISC | tree, cluster, treemap, partition, pack | a dependency of `diagram` |
+| `d3-force` | ISC | force-directed layout (deterministic with a seeded `randomSource`) | a dependency of `network` |
+| `@dagrejs/dagre` | MIT | layered (Sugiyama) layout for flows and DAGs. Use the maintained `@dagrejs` fork: plain `dagre` stopped at 0.8.5 in 2019. | a dependency of `diagram` |
+| `d3-dag` | MIT | the alternative layered engine (Sugiyama, Zherebko, grid), and the MIT answer to elkjs | spike against dagre in V0, then keep one |
+| `elkjs` | **EPL-2.0 OR GPL-3.0-or-later** | best layered layout, ports, orthogonal routing | **avoid**: copyleft, outside our licence set (§8) |
+| `graphology` (+ selected `graphology-*`) | MIT | graph algorithms: neighbourhoods, shortest path, Louvain communities, ForceAtlas2 | a dependency of `network`, never in a signature. The ForceAtlas2 package has had no release since 2022. |
+| `data-navigator` | MIT | keyboard and screen-reader navigation over any renderer (SVG, Canvas, WebGL) | **candidate** for `useChartNavigation` / `useGraphNavigation`. Evaluate in V1 against writing our own. |
+| `d3-sankey` | BSD-3 | Sankey layout | **no release since 2019**. It is small, so vendor and own it when Sankey is built (P2). |
+| WebGL renderer: build on `lib/shader`'s single context, **or** wrap `sigma` (MIT, v4) or `cosmos.gl` (MIT, GPU force layout) | — | the WebGL tier | a separate optional entry point (§8) |
+
+We do **not** need `d3-selection`, `d3-transition` or `d3-zoom`. React owns
+the DOM. Transitions are CSS. Pan and zoom is a small transform in `lib/viz`
+that we own, because it must also have a keyboard path (`check:gestures`) and
+must respect our motion tokens. d3-zoom's behaviour could be borrowed, but its
+event model and DOM ownership fight React.
+
+### 3.5 Layout: where it runs, and how it stays deterministic
+
+| Layout | Engine | Runs | Determinism |
+|---|---|---|---|
+| Chart scales and ticks | d3-scale | sync, server and client | pure |
+| Tree / radial tree / treemap | d3-hierarchy | sync, server and client | pure |
+| Layered (flows, DAGs) | dagre (elkjs if admitted) | sync up to ~300 nodes, otherwise in a worker | pure given node sizes |
+| Force | d3-force or ForceAtlas2 | a worker above ~500 nodes; *n* ticks synchronously for SSR and tests | seeded `randomSource` and a fixed tick count |
+| Given `position` | none | anywhere | pure |
+
+**Diagram nodes are real UI, so their sizes are measured.** That needs the
+DOM, which in turn rules out an *automatically laid-out* diagram on the
+server. There are three honest options, which are not exclusive:
+
+1. The consumer passes positions (from a saved layout, or computed on their
+   server). The diagram is then a pure server render.
+2. The consumer passes a size hint per node type. The server lays out with the
+   hint, and the client corrects after measuring.
+3. Client-only layout, with a `Skeleton` floor.
+
+The doc file has to say which of these applies. It must not hide it.
+
+Workers in source-distributed code use `new Worker(new URL("./layout.worker.ts", import.meta.url), { type: "module" })`.
+Vite, Next and Astro all bundle that. A consumer on an unusual bundler gets
+the synchronous path, so the worker is an optimisation, never a requirement.
+
+### 3.6 Accessibility model
+
+There are two parts:
+
+- an **alternative** that holds all the information
+- a **keyboard path** through the graphic itself
+
+The second does not replace the first.
+
+**Charts**
+
+- The root is `role="figure"`, with `aria-labelledby` (title) and
+  `aria-describedby` (the `description` prop: the takeaway, written by a
+  person). The SVG inside is `role="img"`, or `role="graphics-document"` when
+  it is interactive.
+- `Chart.Table` renders the same data through our `Table` component. It is
+  either visible behind a toggle, or visually hidden. **It is required unless
+  `description` already says everything**, and the type allows that only for a
+  `Sparkline`.
+- Keyboard: **one tab stop** for the plot.
+  - ←/→ move along a series; ↑/↓ change series; Home/End go to the ends.
+  - Enter fires `onSelect`; Esc leaves the plot.
+  - Each move is announced through a polite live region, built from `label`,
+    the x value, the series name and the formatted y value.
+- The pointer target is the Voronoi cell, not the 4px dot. The **focus ring**
+  is drawn around the mark with `outline-focus` stroke tokens.
+- Series are never told apart by colour alone. Use:
+  - **direct labels at the line end** (preferred)
+  - marker **shape** (circle, square, triangle, diamond)
+  - **hatching** for areas and bars in forced colours (solid hatch lines, so
+    the solid-strokes rule holds)
+- Forced colours: marks fall back to `CanvasText`, `Highlight` and
+  `GrayText`, with shape and hatch carrying the series. This is tested next to
+  `focus-forced-colors.browser.test.tsx`.
+
+**Graphs**
+
+- The alternative is an **adjacency list**: each node is a list item ("Ada
+  Lovelace, Person. 3 relations: *collaborated with* Charles Babbage, …"), and
+  each relation is a link that moves focus to that node. For trees it is a
+  `role="tree"`.
+- Keyboard: one tab stop for the canvas.
+  - Arrows move to the **nearest node in that direction** (spatial
+    navigation).
+  - `Tab` inside the canvas cycles the focused node's **relations**.
+  - Enter selects; `Space` toggles expansion.
+  - `+`/`-`/`0` zoom in, zoom out and fit. Arrow keys with a modifier pan.
+  - Every move is announced, with the relation name: "*works at* → Diorama,
+    Organisation".
+- The viewport **follows focus**, so the focused node is always in view. This
+  covers SC 2.4.11 for an element that can otherwise be panned off-screen.
+- Selection, focus and "dimmed because outside the focused neighbourhood" are
+  three states, and each has a non-colour cue: ring, weight, opacity plus
+  label.
+
+### 3.7 Interaction, motion and the strokes question
+
+- **Tooltip.** A Popover at `--ui-z-tooltip` anchored to a virtual rect at the
+  mark. It follows focus as well as the pointer. Its content is a slot, and
+  its default layout uses the type roles.
+- **Crosshair, brush and zoom** on charts come later (Phase V2+). Each needs a
+  keyboard path before it ships.
+- **Data transitions.** Bars and lines retarget with CSS transitions on
+  `transform` and `d` where supported, using `--ui-duration-standard`. A full
+  data replace cross-fades. Under reduced motion, the data swaps instantly.
+- **Force layout.** The simulation runs off-screen to "alpha < threshold"
+  before the first paint. Live "wobble" is an opt-in, and it is off under
+  reduced motion.
+- **Dashes.** The solid answers, consistent with the rule's own reasoning:
+
+  | Habit | Solid answer |
+  |---|---|
+  | Dashed gridlines | Hairline gridlines in `--ui-data-grid` (low-contrast, decorative), y-axis only by default |
+  | Dashed forecast or projection | The same line in **muted ink** plus a lighter confidence band. The rule already says "a pending item is a muted ink", and a forecast *is* pending. |
+  | Dashed target or threshold | A solid `Chart.Rule` with a direct label |
+  | Dashed series to separate lines | Direct labels and marker shapes |
+  | Dashed "inferred" edge in a knowledge graph | Muted ink, a `-hairline` stroke, and the word "inferred" in the edge's accessible name |
+
+### 3.8 Tokens to add
+
+Today's contract has `--ui-data-{informational|commercial|transactional|navigational}-{fg|bg|solid}`.
+These are four *named* categories that come from one product's search-intent
+domain (ADR 0006(a)). A general layer needs **ordinal slots**. The four named
+ones then become aliases.
+
+| Group | Tokens | Derivation |
+|---|---|---|
+| Categorical | `--ui-data-cat-{1…8}-{solid,bg,fg}` | **Curated, never derived from the accent** (ADR 0006(a)). Steps 40 of the five ramps give 4–5 usable hues: red is reserved for `danger`. **Eight need new hues, so ADR 0008 needs an amendment and a Paper round.** |
+| Sequential | `--ui-data-seq-{1…7}` | Derived from the accent: OKLCH lightness monotonic, hue fixed. Ordered data may carry the brand. |
+| Diverging | `--ui-data-div-{neg-3…pos-3}` | Two curated hues, with a neutral midpoint from the warm-grey ramp |
+| Structural | `--ui-data-grid`, `--ui-data-axis`, `--ui-data-label`, `--ui-data-dimmed-opacity`, `--ui-data-highlight` | Aliases of existing ink and border roles where they fit. `check:token-consumers` asks for a real consumer. |
+| Graph | `--ui-graph-edge`, `--ui-graph-edge-active`, `--ui-graph-node-ring`, `--ui-graph-canvas` | Aliases first. `--ui-graph-canvas` probably *is* the `DotPattern` ground. |
+
+New checks belong in the resolver's audit, so they run for every brand theme
+and the stress brand:
+
+- every categorical solid ≥ 3:1 against `bg-base` and `bg-surface`, in both
+  schemes (this is already how `legibleOn` works)
+- adjacent categorical slots are **apart by OKLCH ΔE ≥ a set floor**, under
+  normal vision *and* simulated deuteranopia, protanopia and tritanopia (the
+  Machado 2009 matrices, as a pure Node test)
+- the sequential ramp's lightness is strictly monotonic
+
+---
+
+## 4. Component inventory and priorities
+
+Priority follows how much each item **unlocks**, not how impressive it is.
+A sparkline and a stat tile have a named home already: `StatTiles` is on
+PLAN.md's Phase 3 list.
+
+### 4.1 Charts
+
+| Pri | Item | Notes |
+|---|---|---|
+| **P0** | `Sparkline` | Inline, no axes. The one chart where `description` can replace the table. Proves tokens, SSR and determinism at the smallest size. |
+| **P0** | `Meter` | One value against a range or a target, linear and radial. Overlaps "Progress Indicator Circular" in TODO.md, so settle together whether that is one component. |
+| **P0** | `Chart` primitives + `BarChart` (vertical, horizontal, grouped, stacked) | The bar is the workhorse. It proves axes, band scales, legend, tooltip, keyboard and table. |
+| **P0** | `LineChart` / `AreaChart` (incl. stacked area) | Time scales, curves, direct labels, markers, forecast in muted ink. |
+| P1 | `ScatterPlot` (+ bubble) | Voronoi hit-testing; the first chart to need the Canvas tier when dense. |
+| P1 | `Heatmap` / calendar heatmap | Sequential tokens; cell labels need the contrast check. |
+| P1 | `Donut` | Only for parts of a whole with ≤ 5 parts. The doc's *don't* list says "prefer a bar". |
+| P1 | `Histogram`, `BoxPlot` | Binning through d3-array. |
+| P2 | `Sankey`, `Treemap`, `Sunburst` | Flow and hierarchy charts. Treemap and sunburst share `d3-hierarchy` with Diagram. |
+| P2 | `Timeline` / `Gantt` | Very close to Diagram (bars with dependency edges). Decide which family owns it. |
+| P2 | `ChartCard` block | Title, value, delta, chart and "view as table". The StatTiles neighbour. |
+
+### 4.2 Diagrams (node-link, nodes are UI)
+
+| Pri | Item | Notes |
+|---|---|---|
+| **P0** | `Diagram` viewer: Root, Viewport, Node (slot for any content), Edge (straight, curved, orthogonal; arrow marker; label), Controls (zoom, fit; `chrome-control`), layered and tree layouts | Read-only, with pan, zoom, select and keyboard. Covers pipelines, lineage, org charts, dependency graphs and state machines. |
+| P1 | `Diagram.Group` (compound and nested nodes, collapse) | Subflows; the group collapses to a single node. |
+| P1 | `Diagram.Minimap`, `Diagram.Legend` | |
+| P1 | `MindMap` preset | Radial tree layout, expand and collapse. |
+| P2 | **Editing**: drag nodes, connect ports, reconnect, delete, undo hooks | A different product from a viewer. **Decide whether we need it (§8) before building any of it.** It is where a wrapped behaviour layer (React Flow / xyflow, MIT) earns its place, the way Base UI did for overlays (ADR 0012). |
+
+### 4.3 Networks and knowledge graphs (nodes are glyphs, data is explored)
+
+| Pri | Item | Notes |
+|---|---|---|
+| **P0** | `Network` on SVG: force and radial layouts, typed nodes (tone + glyph), typed and labelled edges, focus + neighbourhood dimming, adjacency-list alternative | ≤ ~2k elements. Proves the graph keyboard model and the incremental layout. |
+| P1 | Canvas tier for `Network` | Same API, a different renderer, same floor. |
+| P1 | `KnowledgeGraphExplorer` **block**: Network + search (`Combobox`) + type filter (legend as checkboxes) + detail panel (`Sheet` / `Drawer`) + exploration history (breadcrumb) + `onExpandRequest` | The "beyond charts" target. It is a *block*, composed of components, not a bigger component. |
+| P1 | Path and relation queries in the view: highlight the shortest path between two nodes, show only one predicate | Algorithms from graphology, behind `lib/viz`. |
+| P2 | Clustering: community colouring, collapsing a cluster to a "combo" node, **semantic zoom** (labels by zoom level and importance) | |
+| P2 | WebGL tier (≥ ~30k nodes) | Build on `lib/shader` or wrap sigma; decided in §8. |
+| P2 | Edge bundling, time-sliced graphs (a graph at time *t*, with a slider) | Research-grade; only with a consumer. |
+
+---
+
+## 5. Phases
+
+Each phase ends on gates, not on a date, as every phase in `PLAN.md` does.
+
+### Phase V0 — decide, measure, draw · *small*
+
+- [ ] **Demand.** Name the products and screens that need each family and
+      count them, as PLAN.md did for Skeleton and Toast. If no family has a
+      consumer, stop here and keep this file as reference.
+- [ ] **ADR 0023 — data-visualisation layer.** Covers the dependency policy
+      (the ADR 0002 amendment), the tier admission rule (§3.2), the data
+      model (§3.3) and the a11y contract (§3.6).
+- [ ] **ADR 0008 amendment — data palette.** Covers how many categorical
+      slots, the new hues, and the ΔE / CVD floor (§3.8).
+- [ ] **Spike, thrown away afterwards.** Render 500 / 2k / 10k / 50k nodes in
+      SVG, Canvas 2D and WebGL in the pinned Chromium and on a phone, and
+      measure frame time while panning. The tier thresholds in §3.2 are then
+      measured instead of guessed.
+- [ ] Confirm Aspekta's `tnum` (ADR 0011 item 5).
+- [ ] **Paper.** Use the `design-component` skill. Sheets for chart anatomy
+      (axis, tick, grid, legend, tooltip, focus), the Sparkline/Meter/Bar/Line
+      set, and a diagram sheet (node, edge, arrow, label, group, controls).
+      Both schemes, and the stress brand.
+
+**Exit:** both ADRs accepted, the spike's numbers written into §3.2, and the
+P0 sheets approved.
+
+### Phase V1 — foundations + the smallest charts · *medium*
+
+- [ ] Tokens (§3.8) in the contract and resolver, with the ΔE / CVD /
+      monotonic checks as Node tests. `check:contrast` pairs for every mark.
+- [ ] `registry/lib/viz`: scales, ticks, `Intl` formatting, the description
+      builder, the data-table model, `useChartNavigation`, the live announcer.
+- [ ] `Sparkline`, `Meter`. Both get the standard five files (`.tsx`,
+      `.doc.ts`, `.stories.tsx`, `.browser.test.tsx`, `.types.test.tsx`),
+      visual baselines in both schemes, and the brand-theme story.
+- [ ] Extend `check:boundaries` to the viz dependencies, and
+      `check:dependencies` to declare them per item.
+
+**Exit:** `pnpm verify` green; SSR output of both components snapshot-tested
+with no hydration needed; forced-colours test passing.
+
+### Phase V2 — the chart workhorses · *large*
+
+- [ ] `Chart` primitives; `BarChart`, `LineChart`, `AreaChart` presets.
+- [ ] `Chart.Tooltip` (virtual-anchor Popover), `Chart.Legend` (toggling a
+      series is a checkbox, with its semantics), `Chart.Table`.
+- [ ] The keyboard contract tested in Playwright; live-region announcements
+      asserted.
+- [ ] Geometry specs in `design/paper/specs/` for the axis and legend.
+- [ ] `StatTiles` / `ChartCard` as the first blocks. This is also the first
+      use of `registry/blocks/`.
+
+**Exit:** a consumer screen replaces its current charting with these, as
+PLAN.md's "ship what the consumer renders" requires.
+
+### Phase V3 — Diagram viewer · *large*
+
+- [ ] Viewport (pan and zoom transform, fit, follow focus, keyboard path).
+- [ ] Node slot (HTML layer) + edge layer (SVG) under one transform.
+      `DotPattern` as the canvas ground.
+- [ ] Layered layout through dagre; tree and radial through d3-hierarchy;
+      `positions` passthrough; size hints for SSR.
+- [ ] Graph keyboard model, adjacency-list alternative, edge labels.
+- [ ] `Diagram.Group`, `Controls`, `Minimap`, `Legend`.
+
+**Exit:** a pipeline or lineage view and an org chart render in both schemes
+from the same component. Every node is reachable by keyboard with its
+relations announced.
+
+### Phase V4 — Networks and the knowledge-graph explorer · *large*
+
+- [ ] `Network` on SVG with force layout (seeded, worker above the threshold,
+      incremental with pinned nodes).
+- [ ] Canvas tier behind the admission rule.
+- [ ] `KnowledgeGraphExplorer` block: search, type filter, detail panel,
+      history, `onExpandRequest`, path highlight.
+- [ ] Docs recipes: Neo4j / Cypher result → `GraphNode[]`; RDF / JSON-LD →
+      `GraphNode[]`.
+
+**Exit:** a 5k-node typed graph is explorable by keyboard and screen reader
+on a mid-range phone, and the visual gate is stable across runs.
+
+### Phase V5 — on demand only
+
+The P2 rows from §4: editing, WebGL, Sankey, Treemap, Gantt, clustering,
+semantic zoom, time-sliced graphs. Each needs a consumer before it starts.
+
+---
+
+## 6. New gates and tests this work needs
+
+| Gate / test | Catches |
+|---|---|
+| `check:boundaries` extended | a `d3`, `graphology`, `dagre` or renderer type in an exported signature |
+| Palette tests (Node) | categorical slots that are too close, normally or under CVD; a non-monotonic sequential ramp; a mark under 3:1 against its ground |
+| `viz-determinism.browser.test.tsx` | a layout or tick set that differs between two renders of the same data (this would make the visual gate useless) |
+| `viz-ssr.test.ts` | a chart that throws on the server, or whose server SVG differs from the first client render (a hydration mismatch) |
+| `viz-keyboard.browser.test.tsx` | every mark or node reachable; announcements contain label, value and relation; focus never leaves the viewport |
+| `viz-forced-colors.browser.test.tsx` | a series told apart only by colour once forced colours strips it |
+| Story rule | every chart story renders with `Chart.Table` reachable, or with a `description` that the type says is enough |
+
+---
+
+## 7. Risks
+
+| Risk | Mitigation |
+|---|---|
+| The work starts with no consumer, and TODO.md's drawing order sets the build order again | V0's first item is demand; V2's exit is a consumer adoption |
+| The data palette turns into a brand fight (categorical vs brand colours) | ADR 0006(a) already settled it: distinguishability wins. Only the sequential ramp follows the brand. |
+| Diagram auto-layout cannot render on the server | Say so in the doc, and offer positions or size hints (§3.5) |
+| An editor is requested half-way through a viewer | The editor is its own decision (§8) with its own behaviour layer. The viewer's API does not grow to fake it. |
+| An a11y alternative that is technically present but useless (a 5,000-row table) | For large data, the table is paginated and the description is required; for networks, the adjacency list is filtered by the current view |
+| WebGL quality on iOS Safari (the effects layer found its worst defects there) | The WebGL tier stays `experimental` until it has been seen on a device, like `lib/shader` |
+| A dependency's licence changes, or it is abandoned | Every dependency is behind `lib/viz`, so a swap touches one folder |
+
+---
+
+## 8. Decisions for a person
+
+1. **Go or no-go, and which family first.** The answer depends on consumers.
+   Our suggestion: charts P0 → Diagram viewer → Network. Charts unlock
+   StatTiles, which is already planned. Diagram has the widest product use.
+   Network has the steepest a11y and performance work.
+2. **The categorical palette.** How many slots (we suggest 6–8, with a
+   documented "more than 8 → group into *Other*" rule), and which new hues.
+   This is a Paper round plus an ADR 0008 amendment.
+3. **Dashes.** Keep CONVENTIONS' solid-strokes rule for data marks, with the
+   answers in §3.7 (our suggestion), or carve out a scoped exception by ADR.
+4. **ADR 0002 amendment.** Admit "layout and scale mathematics" (d3 modules,
+   dagre, graphology) as infrastructure.
+5. **elkjs.** Its licence is EPL-2.0 OR GPL-3.0-or-later, which is copyleft
+   either way. Our suggestion: do not use it. Use `@dagrejs/dagre` or `d3-dag`
+   (both MIT), and accept simpler edge routing. Reopen this only through
+   formal licence review, and only if a product needs ports and orthogonal
+   routing.
+6. **Diagram editing.** Viewer only (our suggestion until a product asks), or
+   an editor. If an editor, evaluate React Flow / xyflow (MIT) as a wrapped
+   behaviour layer under ADR 0012's rules, against building on our viewport.
+7. **WebGL tier.** There are three options:
+   - build on `lib/shader`'s single WebGL2 context (one context per page,
+     inks from tokens, already guarded)
+   - wrap Sigma (MIT). v4.0 was released today (2026-11-09), so give it time
+     to settle.
+   - wrap cosmos.gl (MIT, GPU force layout)
+
+   Never use Cosmograph, the product built on cosmos.gl: it is CC-BY-NC.
+   Decide after the V0 spike.
+
+---
+
+## 9. References
+
+Section 9 is filled in from the research pass below. Each entry is marked:
+
+- **Depend**: may become a wrapped dependency
+- **Learn**: an API, interaction or a11y reference only; no code or design is
+  copied (ADR 0002)
+- **Avoid**: a licence or paid-tier risk
+
+**About these figures.** Versions and dates come from npm registry queries
+made on 2026-11-09. Licences were checked against each project's LICENSE file
+and vendor pages. Bundle sizes are rough estimates and were **not** measured.
+Check them against the real numbers before anyone budgets with them.
+
+### 9.1 Maths and layout (candidate dependencies)
+
+| Reference | Licence | Latest | Mark | Why |
+|---|---|---|---|---|
+| [d3 modules](https://d3js.org): scale, shape, array, hierarchy, delaunay, force | ISC | patch releases Nov 2026 | **Depend** | Pure functions, server-safe, tree-shakeable. We render the JSX. |
+| [@dagrejs/dagre](https://github.com/dagrejs/dagre) | MIT | 3.1.3 (Oct 2026) | **Depend** | Layered layout. The old `dagre` package is dead. |
+| [d3-dag](https://github.com/erikbrinkman/d3-dag) | MIT | 1.3.0 (Nov 2026) | **Depend** (spike) | MIT alternative to ELK |
+| [graphology](https://graphology.github.io) | MIT | 0.26.0 (Jan 2025) | **Depend** | Graph model and algorithms. Stable, but releases are slow. |
+| [Data Navigator](https://github.com/cmudig/data-navigator) | MIT | 3.3.1 (Nov 2026) | **Depend** (evaluate) | Renderer-agnostic keyboard and screen-reader navigation. It is exactly our §3.6 problem. |
+| [visx](https://airbnb.io/visx) | MIT | 4.0.0 (Jun 2026) | Learn | The closest architecture to ours: unstyled React primitives over d3 |
+| [elkjs](https://github.com/kieler/elkjs) | EPL-2.0 / GPL-3.0 | 0.12.1 | **Avoid** | Copyleft |
+| [WebCola](https://github.com/tgdwyer/WebCola) | MIT | 3.4.0 (2019) | Learn | Constraint-layout ideas. Unmaintained. |
+
+### 9.2 Chart libraries (API, a11y and theming references; no code or design copied)
+
+| Reference | Licence | Mark | What to learn |
+|---|---|---|---|
+| [Recharts v3](https://recharts.org) | MIT | Learn | Composable `<Chart><Axis/><Bar/></Chart>` API; its `accessibilityLayer` keyboard default |
+| [MUI X Charts](https://mui.com/x/react-charts) | MIT + **Pro/Premium** | Learn | Composition API, and how open-core splits features (Sankey, zoom and heatmap are paid) |
+| [Observable Plot](https://observablehq.com/plot) | ISC | Learn | Mark/scale grammar and sensible defaults |
+| [Vega-Lite](https://vega.github.io/vega-lite) / [AntV G2](https://g2.antv.antgroup.com) | BSD-3 / MIT | Learn | Grammar of graphics, declarative specs |
+| [Swift Charts](https://developer.apple.com/documentation/charts) | Apple | Learn | The cleanest mark-based API; `AXChartDescriptor` and Audio Graphs for a11y |
+| [Visa Chart Components](https://github.com/visa/visa-chart-components) | MIT | Learn | **The best open a11y reference:** keyboard navigation, data tables, texture fills |
+| [Highcharts accessibility module](https://www.highcharts.com/docs/accessibility/accessibility-module) | Commercial | Learn (docs only) | The most complete written a11y behaviour for charts |
+| [ECharts](https://echarts.apache.org) | Apache-2.0 | Learn | Server-side SVG strings; "decal" pattern fills for colour-blind safety |
+| [Carbon Charts](https://charts.carbondesignsystem.com) | Apache-2.0 | Learn | How a design system ties charts to its tokens |
+| [Tremor](https://tremor.so) | Apache-2.0 | Learn | Copy-paste distribution like ours. The npm package has been frozen since Jan 2025. |
+| [Nivo](https://nivo.rocks), [Victory](https://nearform.com/open-source/victory), [Unovis](https://unovis.dev), [LayerCake](https://layercake.graphics) | MIT / Apache-2.0 | Learn | Nivo: server-side rendering (`@nivo/static`), though releases have slowed. Unovis: a framework-agnostic core with a graph component. LayerCake: layered SVG, Canvas and HTML in one coordinate system. |
+| [AG Charts](https://www.ag-grid.com/charts) | MIT + **Enterprise** | Avoid as a dependency | Canvas-only, open-core. Its canvas keyboard a11y is still worth studying. |
+| [Polaris Viz](https://github.com/Shopify/polaris-viz) | MIT **+ Shopify rider** | **Avoid** | The licence restricts use outside Shopify apps. Stale. |
+| [Chart.js](https://www.chartjs.org) | MIT | Avoid | Canvas-only, no server rendering, weak a11y |
+
+### 9.3 Graph and knowledge-graph renderers
+
+| Reference | Licence | Mark | What to learn |
+|---|---|---|---|
+| [React Flow / xyflow](https://reactflow.dev) | MIT (+ Pro subscription for examples and support) | **Learn** for the viewer; **candidate behaviour layer** for an editor (§8.6) | HTML nodes over SVG edges under one transform (the model §4.2 uses); server rendering when node sizes are given |
+| [Sigma.js v4](https://www.sigmajs.org) | MIT | Candidate for the WebGL tier | WebGL rendering of large graphs on graphology; semantic zoom |
+| [cosmos.gl](https://openjsf.org/blog/introducing-cosmos-gl) | MIT (OpenJS) | Candidate for the WebGL tier | GPU force simulation for 100k+ nodes. **Cosmograph, built on it, is CC-BY-NC: avoid.** |
+| [Cytoscape.js](https://js.cytoscape.org) | MIT | Learn | Mature graph-analysis API and a large layout catalogue |
+| [AntV G6 v5](https://g6.antv.antgroup.com) | MIT | Learn | Behaviours (combos, lasso, expand), and many layouts in one place |
+| [Reagraph](https://reagraph.dev), [react-force-graph](https://github.com/vasturiano/react-force-graph), [vis-network](https://github.com/visjs/vis-network) | Apache-2.0 / MIT | Learn | React-first knowledge-graph UX; quick force-graph prototypes |
+| [KeyLines / ReGraph](https://cambridge-intelligence.com/regraph/), [Ogma](https://linkurious.com/ogma/), [yFiles](https://www.yfiles.com) | Commercial | Learn (public docs and demos only) | The best knowledge-graph UX available: combos, time bar, progressive disclosure. yFiles is the benchmark for layout quality. |
+| [Neo4j NVL / Bloom](https://neo4j.com/docs/nvl/current/), [Graphistry](https://www.graphistry.com), Kumu, Obsidian graph view, Linkurious | Proprietary / SaaS | **Avoid**; UX reference only | NVL's licence allows it only with Neo4j products. Obsidian's local/global graph is a good model for "neighbourhood vs whole". |
+
+### 9.4 Design and accessibility guidance
+
+| Topic | Sources |
+|---|---|
+| Chart a11y | [Chartability](https://medium.com/visumd/chartability-how-accessible-is-my-chart-fe547c2fc62b) (use it as the review checklist for every chart PR); [WAI complex images](https://www.w3.org/WAI/tutorials/images/complex/); [Graphics ARIA](https://www.w3.org/TR/graphics-aria-1.0/) (`graphics-document`, `graphics-object`, `graphics-symbol`) |
+| Design-system dataviz | [Carbon](https://carbondesignsystem.com/data-visualization/getting-started/); [Atlassian](https://atlassian.design/foundations/color/data-visualization-color) (`chart.categorical.1–8`, and a 5–6 colour limit in practice, which supports §8.2); [Salesforce Lightning](https://www.lightningdesignsystem.com/guidelines/charts/); [Material](https://m2.material.io/design/communication/data-visualization.html) |
+| Public-sector style guides | [ONS service manual](https://service-manual.ons.gov.uk/data-visualisation); [UK Analysis Function](https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-charts/); [Urban Institute](https://urbaninstitute.github.io/graphics-styleguide/) |
+| Colour | [Datawrapper: colours for style guides](https://blog.datawrapper.de/colors-for-data-vis-style-guides/); [Okabe-Ito](https://jfly.uni-koeln.de/color/) (a colour-blind-safe set to test our hues against); Viridis and ColorBrewer for sequential and diverging ramps |
+| Graph UX | [Cambridge Intelligence blog](https://cambridge-intelligence.com/blog/) (combos, progressive disclosure, time-based graphs); [greadability.js](https://github.com/rpgove/greadability) (MIT: crossings and angular-resolution metrics, a possible layout-quality test); Holten 2006 and Holten & van Wijk 2009 on edge bundling |

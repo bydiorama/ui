@@ -864,6 +864,7 @@
       "type": "registry:ui",
       "description": "Bars (grouped or stacked), lines and areas on a nice-tick value axis, in a figure that always carries its title, a person-written takeaway, a shape-and-colour legend for two or more series, and a view-as-table toggle backed by Table. The plot is one tab stop: arrow keys walk categories and series, each move is announced politely, and a tooltip follows the pointer and the keyboard. BarChart, LineChart and AreaChart are thin presets over Chart with Chart.Bars / .Lines / .Areas / .Rule children. Eight ordinal slots, never cycled; solid strokes only.",
       "dependencies": [
+        "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [

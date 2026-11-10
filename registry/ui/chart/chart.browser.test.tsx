@@ -459,3 +459,42 @@ describe("Hovering a legend entry dims the other series (Bar sheet: Interaction)
     expect(opacities(all)).toEqual(["1", "0.32"]);
   });
 });
+
+describe("The tooltip is on the overlay layer", () => {
+  test("fixed on --ui-z-tooltip, inside the chart's own figure, and not cut by a clipping parent", async () => {
+    // A 60px clipping box. Focus scrolls it so the plot's top is at the top
+    // of the box; the card, 16px into the plot and ~70px tall, ends past the
+    // clip — where an absolutely positioned card would have been cut.
+    const { q } = await mount(
+      <div style={{ height: 60, overflow: "hidden" }}>{bars()}</div>,
+      // Narrower than the test frame (414px): the positioner measures the real
+      // window now, and a chart wider than it would shift the card to fit.
+      400,
+    );
+    await userEvent.keyboard("{Tab}{Tab}{End}");
+    await expect.poll(() => q("chart-tooltip")).toBeTruthy();
+    const card = q("chart-tooltip");
+    const positioner = card.parentElement!;
+    expect(getComputedStyle(positioner).position).toBe("fixed");
+    const probe = document.createElement("div");
+    probe.style.zIndex = "var(--ui-z-tooltip)";
+    probe.style.position = "relative";
+    document.body.appendChild(probe);
+    expect(getComputedStyle(positioner).zIndex).toBe(getComputedStyle(probe).zIndex);
+    probe.remove();
+    // Portalled into the figure, so a brand scope on any ancestor still reaches it.
+    expect(q("chart").contains(card)).toBe(true);
+    // The last band sits right of centre, so the card opens to its LEFT.
+    const band = q("chart-highlight").getBoundingClientRect();
+    const box = card.getBoundingClientRect();
+    expect(Math.round(band.left - box.right)).toBe(8);
+    // The card reaches past the clipping box…
+    expect(box.bottom).toBeGreaterThan(q("chart").parentElement!.getBoundingClientRect().bottom);
+    // …and is painted there: hit-testing a point below the clip finds it, not
+    // whatever is behind. (The card ignores the pointer by design; switched on
+    // for this probe only, since elementFromPoint skips pointer-events: none.)
+    card.style.pointerEvents = "auto";
+    const hit = document.elementFromPoint(box.left + box.width / 2, box.bottom - 4);
+    expect(card.contains(hit) || hit === card).toBe(true);
+  });
+});

@@ -24,7 +24,7 @@ export const chartDoc = {
     { part: "highlight", slot: "chart-highlight", notes: "Bars: the hovered or focused band in bg-hover, under the marks." },
     { part: "crosshair", slot: "chart-crosshair", notes: "Lines and areas: a 1px border-default rule at the category, with each series' ringed marker on it." },
     { part: "focus ring", slot: "chart-focus-ring", notes: "Keyboard only: 2px border-focus, 2px off the bar (radius 6) or around the point." },
-    { part: "tooltip", slot: "chart-tooltip", notes: "bg-elevated, border-subtle, shadow-md, radius-md, 8/12 inset. The category in label-sm 600, then key · name (400, muted) · value (600, primary, tabular). Follows the pointer and the keyboard. aria-hidden: the announcer speaks." },
+    { part: "tooltip", slot: "chart-tooltip", notes: "bg-elevated, border-subtle, shadow-md, radius-md, 8/12 inset. The category in label-sm 600, then key · name (400, muted) · value (600, primary, tabular). Follows the pointer and the keyboard. aria-hidden: the announcer speaks. Positioned by the behaviour layer against a virtual anchor (the band, or the crosshair), fixed on the --ui-z-tooltip layer so a clipping ancestor cannot cut it, portalled into the chart's own figure so a brand theme still reaches it, and capped to the space the positioner measured." },
     { part: "x axis", slot: "chart-x-axis", notes: "Category ticks, centred in their band; on lines the first and last align to the plot edges. Thinned so labels never collide." },
     { part: "row value", slot: "chart-value", notes: "Horizontal bars: the value 8px past each bar's tip, label-sm 600, primary, tabular. Outside the bar on either side of zero." },
     { part: "table", slot: "chart-table", notes: "The data through Table (size sm): the category column, then one numeric column per series." },
@@ -111,7 +111,6 @@ BarChart orientation="horizontal"   series must be a one-element tuple, never st
   knownGaps: [
     "Forced-colours fills for slots 3–8 (135°, cross, horizontal, vertical, grid, outline) extend the anatomy sheet's two; confirmed by the maintainer on 2026-11-10 and not yet drawn back onto the sheet.",
     "Forced colours: bars and legend keys are hatched; lines and areas still rely on marker shape alone, since a hatched stroke is not drawn on any sheet.",
-    "The tooltip is positioned inside the chart, not on the shared overlay layer (`--ui-z-tooltip`) the plan describes; it cannot escape a clipping ancestor.",
     "Ticks, legend names and tooltip names are label-sm at weight 400, declared as type-role deviations until the sheet's proposed data-tick role exists.",
     "The anatomy specimen paints series 2 in --ui-data-div-neg-2, a token that does not exist; this follows the Bar sheet's slot 2.",
     "The proposed --ui-data-grid / -axis / -label / -highlight roles are not added: they alias border-subtle, border-default, text-muted and bg-hover, and ADR 0023 §5 keeps aliases out until a chart needs a value none has.",

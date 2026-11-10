@@ -17,7 +17,9 @@ import {
   type PointerEvent,
   type ReactNode,
   type Ref,
+  type RefObject,
 } from "react";
+import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { ChartTable } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
@@ -551,6 +553,17 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   const [isFocused, setIsFocused] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const plotRef = useRef<HTMLDivElement>(null);
+  // The figure, kept as state so the tooltip can portal into it, and handed
+  // on to the caller's ref.
+  const [frame, setFrame] = useState<HTMLElement | null>(null);
+  const frameRef = useCallback(
+    (node: HTMLElement | null) => {
+      setFrame(node);
+      if (typeof ref === "function") ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref],
+  );
 
   // Measure the plot column; the server and the first client render use
   // DEFAULT_WIDTH, so the markup agrees until the browser knows better.
@@ -708,7 +721,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
 
   return (
     <figure
-      ref={ref}
+      ref={frameRef}
       data-slot="chart"
       data-layout={layout}
       aria-labelledby={titleId}
@@ -899,7 +912,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                 )}
 
                 {/* Horizontal rows print every value at the tip; a tooltip would repeat it. */}
-                {active && !isHorizontal && <ChartTooltip ctx={ctx} index={active.index} />}
+                {active && !isHorizontal && <ChartTooltip ctx={ctx} index={active.index} plot={plotRef} frame={frame} />}
               </div>
 
               {!isHorizontal && (
@@ -1020,38 +1033,76 @@ function FocusRing({ ctx, active }: { ctx: ChartContextValue; active: Active }) 
  * live region has already said the focused value, and reading the whole card
  * on every move would bury it.
  */
-function ChartTooltip({ ctx, index }: { ctx: ChartContextValue; index: number }) {
-  const { x, width, plotWidth, series, stacks, categories, format, bandWidth, layout } = ctx;
+function ChartTooltip({
+  ctx,
+  index,
+  plot,
+  frame,
+}: {
+  ctx: ChartContextValue;
+  index: number;
+  plot: RefObject<HTMLDivElement | null>;
+  frame: HTMLElement | null;
+}) {
+  const { x, plotWidth, series, stacks, categories, format, bandWidth, layout, height } = ctx;
   const cx = x(index);
-  const reach = layout === "band" ? bandWidth / 2 + 8 : 16;
-  const onRight = cx < plotWidth / 2;
+  const isBand = layout === "band";
+  // The anchor is the hovered band (bars) or the crosshair (lines), measured
+  // from the plot at the moment the positioner asks, so it follows scrolling.
+  const anchor = {
+    getBoundingClientRect: () => {
+      const r = plot.current?.getBoundingClientRect() ?? new DOMRect();
+      return isBand
+        ? new DOMRect(r.left + bandWidth * index, r.top, bandWidth, height)
+        : new DOMRect(r.left + cx, r.top, 0, height);
+    },
+  };
   return (
-    <div
-      data-slot="chart-tooltip"
-      aria-hidden="true"
-      style={onRight ? { insetInlineStart: round(cx + reach) } : { insetInlineEnd: round(width - cx + reach) }}
-      className="pointer-events-none absolute top-lg flex w-max flex-col gap-xs rounded-md border border-edge-subtle bg-elevated px-md py-sm shadow-md"
-    >
-      <span data-slot="chart-tooltip-title" className="font-body text-label-sm text-ink-primary">
-        {categories[index]}
-      </span>
-      {series.map((s, si) => {
-        const v = stacks ? stacks[si]![index]!.y1 - stacks[si]![index]!.y0 : s.values[index]!;
-        return (
-          <span key={s.key} data-slot="chart-tooltip-row" className="flex items-center gap-sm">
-            <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
-              <path d={markerPath(s.shape, 4, 4, 4)} className={FILL[s.slot]} />
-            </svg>
-            <span data-slot="chart-tooltip-label" className="flex-1 font-body font-regular text-label-sm text-ink-muted">
-              {s.label}
+    <BaseTooltip.Root open>
+      {/* Portalled into the chart's own figure: theme tokens are inherited, so
+          a card on document.body would leave a brand scope and paint theme
+          zero. `fixed` is what lets it escape a clipping ancestor all the same. */}
+      <BaseTooltip.Portal {...(frame ? { container: frame } : {})}>
+        <BaseTooltip.Positioner
+          anchor={anchor}
+          positionMethod="fixed"
+          // Beside the band, on the side with more room, 16px down from its
+          // top — where the anatomy sheet draws it. It flips at the window edge.
+          side={cx < plotWidth / 2 ? "right" : "left"}
+          align="start"
+          sideOffset={isBand ? 8 : 16}
+          alignOffset={16}
+          collisionPadding={8}
+          className="pointer-events-none z-(--ui-z-tooltip)"
+        >
+          <BaseTooltip.Popup
+            data-slot="chart-tooltip"
+            aria-hidden="true"
+            className="flex max-h-(--available-height) max-w-(--available-width) w-max flex-col gap-xs overflow-hidden rounded-md border border-edge-subtle bg-elevated px-md py-sm shadow-md"
+          >
+            <span data-slot="chart-tooltip-title" className="font-body text-label-sm text-ink-primary">
+              {categories[index]}
             </span>
-            <span data-slot="chart-tooltip-value" className="ps-md font-body text-label-sm tabular-nums text-ink-primary">
-              {Number.isFinite(v) ? format(v) : "—"}
-            </span>
-          </span>
-        );
-      })}
-    </div>
+            {series.map((s, si) => {
+              const v = stacks ? stacks[si]![index]!.y1 - stacks[si]![index]!.y0 : s.values[index]!;
+              return (
+                <span key={s.key} data-slot="chart-tooltip-row" className="flex items-center gap-sm">
+                  <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
+                    <path d={markerPath(s.shape, 4, 4, 4)} className={FILL[s.slot]} />
+                  </svg>
+                  <span data-slot="chart-tooltip-label" className="flex-1 font-body font-regular text-label-sm text-ink-muted">
+                    {s.label}
+                  </span>
+                  <span data-slot="chart-tooltip-value" className="ps-md font-body text-label-sm tabular-nums text-ink-primary">
+                    {Number.isFinite(v) ? format(v) : "—"}
+                  </span>
+                </span>
+              );
+            })}
+          </BaseTooltip.Popup>
+        </BaseTooltip.Positioner>
+      </BaseTooltip.Portal>
+    </BaseTooltip.Root>
   );
 }
 

@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-10-chart-tooltip-on-the-overlay-layer",
+  "date": "2026-11-10",
+  "item": "chart",
+  "kind": "fix",
+  "summary": "Chart: the tooltip is positioned by the behaviour layer against a virtual anchor (the band or the crosshair), fixed on --ui-z-tooltip and portalled into the chart's figure, so a clipping ancestor no longer cuts it",
+  "affects": [
+    "item:chart"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XRL-0"
+  }
+}

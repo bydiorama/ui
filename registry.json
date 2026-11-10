@@ -860,6 +860,53 @@
       ]
     },
     {
+      "name": "chart",
+      "type": "registry:ui",
+      "description": "Bars (grouped or stacked), lines and areas on a nice-tick value axis, in a figure that always carries its title, a person-written takeaway, a shape-and-colour legend for two or more series, and a view-as-table toggle backed by Table. The plot is one tab stop: arrow keys walk categories and series, each move is announced politely, and a tooltip follows the pointer and the keyboard. BarChart, LineChart and AreaChart are thin presets over Chart with Chart.Bars / .Lines / .Areas / .Rule children. Eight ordinal slots, never cycled; solid strokes only.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/viz",
+        "@bydiorama/button",
+        "@bydiorama/table"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/chart/chart.tsx",
+          "type": "registry:ui",
+          "target": "ui/chart.tsx"
+        },
+        {
+          "path": "registry/ui/chart/chart.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/chart.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "meter",
+      "type": "registry:ui",
+      "description": "One value against a range — a gauge, not a task. An 8px bar or the sheet's 80px ring with role=meter, the clamped value and an aria-valuetext equal to the printed reading. Warning and danger states require their own words (the type enforces it), a target is a solid rule that requires its label, and no reading requires emptyText rather than an invented zero. Server-safe; ships no handlers.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/viz"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/meter/meter.tsx",
+          "type": "registry:ui",
+          "target": "ui/meter.tsx"
+        },
+        {
+          "path": "registry/ui/meter/meter.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/meter.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "progress",
       "type": "registry:ui",
       "description": "A determinate progress bar with an optional label and percentage, in two track heights (16/8px). A div with role=progressbar and the three ARIA value attributes, because unlike a checkbox or a button a progress bar has no native behaviour to inherit. The value is clamped and the clamped value is what is announced.",

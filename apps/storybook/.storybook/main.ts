@@ -78,7 +78,7 @@ const config: StorybookConfig = {
         ),
         "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
         "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
-        ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider"),
+        ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider", "table"),
         "@/ui": join(root, "registry/ui"),
         "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
       },

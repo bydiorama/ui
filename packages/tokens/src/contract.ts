@@ -646,6 +646,9 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // than on the page. It is the only thing distinguishing a row the user is
   // holding from one they are not, so 3:1 is the floor it has to clear.
   ["--ui-border-focus", "--ui-bg-elevated"],
+  // Chart's keyboard ring around a bar or a point, drawn on the card the
+  // chart sits on. A plot's focused value is marked by nothing else.
+  ["--ui-border-focus", "--ui-bg-surface"],
   ["--ui-focus-ring-color", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-surface"],
@@ -661,6 +664,11 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   ["--ui-border-strong", "--ui-bg-elevated"],
   ["--ui-bg-accent-legible", "--ui-bg-sunken"],
   ["--ui-bg-accent-legible", "--ui-bg-base"],
+  // Meter's warning and danger fills on its sunken track. The words carry the
+  // state (statusText is required), but the fill is still the only thing that
+  // shows HOW FAR the reading is, so it must clear 3:1 against the well.
+  ["--ui-intent-warning-fg", "--ui-bg-sunken"],
+  ["--ui-intent-danger-fg", "--ui-bg-sunken"],
   // The INVALID border on a form field — Input, Select, DatePicker and
   // Textarea all draw it, and none of them had ever declared it, so the one
   // boundary in this library whose whole job is to say "this control is in

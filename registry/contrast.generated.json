@@ -462,6 +462,88 @@
       "role": "the outline on a lifted or dragging row"
     }
   ],
+  "Chart": [
+    {
+      "fg": "--ui-data-cat-1-solid",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 3.09,
+      "dark": 4.83,
+      "role": "a mark on the chart surface (slots 2–8 are pinned in the contract)"
+    },
+    {
+      "fg": "--ui-border-default",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 2.09,
+      "dark": 1.72,
+      "role": "the baseline and crosshair: the ticks carry the scale"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 1.43,
+      "dark": 1.25,
+      "role": "gridlines"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "a rule (target, threshold)"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 5.81,
+      "dark": 11.33,
+      "role": "the keyboard focus ring"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 16.05,
+      "role": "title, direct labels, rule labels"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "description, ticks, empty message"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 13.54,
+      "dark": 11.3,
+      "role": "legend names"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 13.9,
+      "role": "tooltip category and values"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.68,
+      "role": "tooltip series names"
+    }
+  ],
   "ChatComposer": [
     {
       "fg": "--ui-text-primary",
@@ -1406,6 +1488,56 @@
       "light": 1.43,
       "dark": 1.25,
       "role": "the panel edge"
+    }
+  ],
+  "Meter": [
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 3.07,
+      "dark": 8.06,
+      "role": "the fill against its track"
+    },
+    {
+      "fg": "--ui-intent-warning-fg",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 4.98,
+      "dark": 7.12,
+      "role": "the warning fill against its track"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-sunken",
+      "floor": "non-text",
+      "light": 4.88,
+      "dark": 5.73,
+      "role": "the danger fill against its track"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "the target rule on a card"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 16.05,
+      "role": "the value"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "the label, target label and empty text"
     }
   ],
   "Modal": [

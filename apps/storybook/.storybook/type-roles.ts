@@ -48,6 +48,9 @@ export const TYPE_ROLE_EXCEPTIONS: Record<string, Partial<Record<Attribute, stri
     leading: "The profile is a rail row like the items below it, at the same leading-normal, so the rail keeps the sheet's heights.",
   },
   "chat-message-bubble": { leading: "The sender's voice is set tighter (1.35) than the receiver's 1.55 — the pair's signature at the same size." },
+  "chart-tick": { weight: "Ticks are 12/16 at 400 (Chart Anatomy sheet): the scale recedes so the marks and the 600 values carry the weight. The sheet proposes a data-tick role; until it exists this is the declared difference." },
+  "chart-legend-label": { weight: "Legend names sit at the ticks' 400, one step under the 600 title, so the key reads as reference rather than as a heading (Chart Anatomy sheet)." },
+  "chart-tooltip-label": { weight: "A tooltip row's series name is 400 beside its 600 value, so the number is what the eye lands on (Chart Anatomy sheet)." },
   textarea: { leading: "The box is rows × leading, and the sheet's 128px is drawn at leading-snug at every size." },
 };
 

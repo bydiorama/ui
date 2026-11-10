@@ -60,6 +60,8 @@ import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.
 import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { Popover } from "@/ui/popover/popover.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
+import { BarChart, Chart } from "@/ui/chart/chart.tsx";
+import { Meter } from "@/ui/meter/meter.tsx";
 import { Sparkline } from "@/ui/sparkline/sparkline.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
@@ -633,6 +635,47 @@ const CASES: Array<{
             Notify the studio
           </Switch>
           <Switch description="Sends at 09:00 every weekday.">Daily digest</Switch>
+        </div>
+      </div>
+    ),
+  },
+  {
+    name: "chart",
+    // Stacked bars (the segment gap and the outer-only radius) and lines with
+    // direct labels, a rule and a missing value. Grouped bars and stacked
+    // areas are pinned by computed geometry in the contract test instead: four
+    // charts overflow the 900px capture. Static: no hover or focus.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <BarChart size="sm" isStacked label="Stacked" description="Output rose to 575 in 1972." x="year" xLabel="Year"
+          data={[{ year: 1968, p: 140, b: 100, s: 70 }, { year: 1969, p: 180, b: 80, s: 80 }, { year: 1970, p: 100, b: 130, s: 50 }, { year: 1971, p: 160, b: 95, s: 100 }, { year: 1972, p: 120, b: 115, s: 75 }]}
+          series={[{ key: "p", label: "Posters" }, { key: "b", label: "Books" }, { key: "s", label: "Signage" }]} />
+        <Chart size="sm" label="Lines and a target" description="Posters approached the target." x="year" xLabel="Year"
+          data={[{ year: 1967, p: 140, s: 250 }, { year: 1968, p: 172, s: 220 }, { year: 1969, p: null, s: 180 }, { year: 1970, p: 225, s: 120 }, { year: 1971, p: 250, s: 92 }, { year: 1972, p: 310, s: 60 }]}
+          series={[{ key: "p", label: "Posters" }, { key: "s", label: "Signage", slot: 3 }]}>
+          <Chart.Lines />
+          <Chart.Rule value={340} label="Target 340" />
+        </Chart>
+      </div>
+    ),
+  },
+  {
+    name: "meter",
+    // The three tones, a target in the second half (the label ENDS at the
+    // rule), the empty and loading states whose height must hold, and the
+    // ring in its resting and warning states. On bg-surface, the card the
+    // sheet draws them on.
+    ui: (
+      <div className="flex w-96 flex-col gap-lg rounded-md bg-surface p-lg">
+        <Meter label="Paper stock" value={68} />
+        <Meter label="Ink reserve" value={84} status="warning" statusText="near limit" />
+        <Meter label="Press hours" value={96} status="danger" statusText="over limit" />
+        <Meter label="Sheets bound" value={62} target={75} targetText="Target 75%" />
+        <Meter label="Paper stock" value={null} emptyText="No reading yet" />
+        <Meter label="Paper stock" value={0} isLoading />
+        <div className="flex gap-lg">
+          <Meter label="Paper stock" value={68} shape="radial" />
+          <Meter label="Ink" value={84} shape="radial" status="warning" statusText="near limit" />
         </div>
       </div>
     ),
@@ -1731,6 +1774,17 @@ describe("visual baselines", () => {
               `the ${el.scrollWidth - el.clientWidth}px past the edge will be CROPPED out of the ` +
               `baseline, and every future run will compare the crop against itself`,
           ).toBeLessThanOrEqual(el.clientWidth);
+          // The same failure DOWNWARDS. The iframe is 900px tall, and a frame
+          // whose bottom falls past it is captured at its full height with
+          // everything below the fold painted blank — the first chart baseline
+          // was 1397px tall and empty from 900 down, and the width check above
+          // passed it. A tall case is split, or its content shortened.
+          const bottom = Math.ceil(el.getBoundingClientRect().bottom);
+          expect(
+            bottom,
+            `${name}: the frame ends at ${bottom}px in a ${window.innerHeight}px viewport — ` +
+              `everything below ${window.innerHeight}px will be captured BLANK`,
+          ).toBeLessThanOrEqual(window.innerHeight);
         }
 
         await expect(page.elementLocator(el)).toMatchScreenshot(`${name}-${scheme}`, {

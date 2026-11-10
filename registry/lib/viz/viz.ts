@@ -180,6 +180,32 @@ function flipY(path: string, axis: number): string {
     );
 }
 
+/** `value` as a fraction of `[min, max]`, clamped into 0…1. A zero-width range is 0. */
+export function ratioOf(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value) || max <= min) return 0;
+  return Math.min(1, Math.max(0, (value - min) / (max - min)));
+}
+
+/**
+ * A circular arc that starts at 12 o'clock and runs clockwise through
+ * `ratio` of the full turn — the radial meter's fill. Empty at 0; at 1 the
+ * circle is drawn as two half arcs, because a single SVG arc whose start and
+ * end coincide draws nothing at all.
+ */
+export function arcPath(cx: number, cy: number, r: number, ratio: number): string {
+  const t = Math.min(1, Math.max(0, ratio));
+  if (t === 0) return "";
+  const top = `M${round(cx)} ${round(cy - r)}`;
+  const rr = round(r);
+  if (t === 1) {
+    return `${top}A${rr} ${rr} 0 1 1 ${round(cx)} ${round(cy + r)}A${rr} ${rr} 0 1 1 ${round(cx)} ${round(cy - r)}`;
+  }
+  const angle = t * 2 * Math.PI;
+  const x = cx + r * Math.sin(angle);
+  const y = cy - r * Math.cos(angle);
+  return `${top}A${rr} ${rr} 0 ${t > 0.5 ? 1 : 0} 1 ${round(x)} ${round(y)}`;
+}
+
 /**
  * Format a number for a person, through `Intl` and nothing else (ADR 0023 §1:
  * no d3-format specifier in a public prop). `locale` undefined means the
@@ -187,4 +213,209 @@ function flipY(path: string, axis: number): string {
  */
 export function formatNumber(value: number, options?: Intl.NumberFormatOptions, locale?: string): string {
   return new Intl.NumberFormat(locale, options).format(value);
+}
+
+/* ── V2: axes, bands, stacks and markers ─────────────────────────────────── */
+
+/** The steps a tick interval may take, per decade. 4 is in the set because
+ *  the Line sheet's stacked area reads 0 · 400 · 800, and 5 alone would make
+ *  it 0 · 500 · 1000 with a third of the plot empty. */
+const NICE_STEPS = [1, 2, 2.5, 4, 5, 10] as const;
+
+/** The smallest nice step at or above `raw`. */
+export function niceStep(raw: number): number {
+  if (!(raw > 0) || !Number.isFinite(raw)) return 1;
+  const decade = 10 ** Math.floor(Math.log10(raw));
+  for (const m of NICE_STEPS) {
+    const step = Number((m * decade).toPrecision(12));
+    if (step >= raw * (1 - 1e-9)) return step;
+  }
+  return 10 * decade;
+}
+
+/** The next nice step strictly above `step`. */
+function nextNiceStep(step: number): number {
+  return niceStep(step * 1.000001);
+}
+
+export interface ValueAxis {
+  /** The drawn domain, from the first tick to the last. */
+  readonly domain: Domain;
+  /** `intervals + 1` evenly spaced ticks, zero always among them. */
+  readonly ticks: readonly number[];
+}
+
+/**
+ * A value axis with a FIXED number of intervals (the anatomy sheet: "fixed
+ * count of five" ticks), on nice steps, that always contains zero — a bar's
+ * length is its value, and a line chart on the same frame reads alike. The
+ * step grows until the data fits, so a negative minimum costs resolution, not
+ * a sixth tick.
+ */
+export function valueAxis(values: readonly number[], intervals: number): ValueAxis {
+  const n = Math.max(1, Math.round(intervals));
+  const ext = extent(values);
+  const lo = Math.min(0, ext?.[0] ?? 0);
+  const hi = Math.max(0, ext?.[1] ?? 0);
+  if (lo === hi) {
+    const ticks = Array.from({ length: n + 1 }, (_, i) => i);
+    return { domain: [0, n], ticks };
+  }
+  let step = niceStep((hi - lo) / n);
+  let start = Math.floor(lo / step) * step;
+  for (let guard = 0; start + step * n < hi && guard < 32; guard++) {
+    step = nextNiceStep(step);
+    start = Math.floor(lo / step) * step;
+  }
+  const ticks = Array.from({ length: n + 1 }, (_, i) => Number((start + i * step).toPrecision(12)));
+  return { domain: [ticks[0]!, ticks[n]!], ticks };
+}
+
+/**
+ * Bars in one band, side by side (grouped) and centred: each at most
+ * `maxWidth` (the sheet's 24px), `gap` apart (the 2px surface gap), and the
+ * group no wider than `fill` of the band so neighbouring groups stay apart.
+ * Returns each bar's left edge and the shared width.
+ */
+export function groupedBars(
+  bandStart: number,
+  bandWidth: number,
+  count: number,
+  { maxWidth = 24, gap = 2, fill = 0.8 }: { maxWidth?: number; gap?: number; fill?: number } = {},
+): { readonly xs: readonly number[]; readonly width: number } {
+  const n = Math.max(1, count);
+  const room = bandWidth * fill - gap * (n - 1);
+  const width = Math.max(1, Math.min(maxWidth, room / n));
+  const group = width * n + gap * (n - 1);
+  const left = bandStart + (bandWidth - group) / 2;
+  return { xs: Array.from({ length: n }, (_, i) => round(left + i * (width + gap))), width: round(width) };
+}
+
+/**
+ * Evenly spaced x positions for `count` categories across `width`, inset at
+ * both ends so an end marker is not cut by the plot's edge (the Line sheet
+ * insets 8px). One category sits in the middle.
+ */
+export function pointPositions(count: number, width: number, inset = 8): number[] {
+  if (count <= 0) return [];
+  if (count === 1) return [round(width / 2)];
+  const x = linearScale([0, count - 1], [inset, width - inset]);
+  return Array.from({ length: count }, (_, i) => round(x(i)));
+}
+
+/**
+ * Which category labels an axis can print without collision: every `stride`th
+ * one, always the first and the last. `minGap` is the space one label needs.
+ */
+export function labelIndices(count: number, width: number, minGap = 56): number[] {
+  if (count <= 0) return [];
+  if (count === 1) return [0];
+  const fit = Math.max(2, Math.floor(width / minGap) + 1);
+  if (count <= fit) return Array.from({ length: count }, (_, i) => i);
+  const stride = Math.ceil((count - 1) / (fit - 1));
+  const out: number[] = [];
+  for (let i = 0; i < count - 1; i += stride) out.push(i);
+  // Drop a penultimate label that would crowd the last one.
+  if (out.length > 1 && count - 1 - out[out.length - 1]! < stride / 2) out.pop();
+  out.push(count - 1);
+  return out;
+}
+
+export interface StackedValue {
+  /** The segment's lower edge, in data units. */
+  readonly y0: number;
+  /** Its upper edge. `y1 - y0` is the value. */
+  readonly y1: number;
+}
+
+/**
+ * Stack series on each other, per category, in series order. Positive values
+ * stack up from zero and negative values down from it, so a negative segment
+ * never hides inside a positive one. A non-finite value is a zero-height
+ * segment: it keeps its place, so the series above do not shift.
+ */
+export function stackSeries(series: readonly (readonly number[])[]): StackedValue[][] {
+  const length = Math.max(0, ...series.map((s) => s.length));
+  const up = new Array<number>(length).fill(0);
+  const down = new Array<number>(length).fill(0);
+  return series.map((values) =>
+    Array.from({ length }, (_, i) => {
+      const v = values[i];
+      if (v === undefined || !Number.isFinite(v)) return { y0: up[i]!, y1: up[i]! };
+      if (v >= 0) {
+        const y0 = up[i]!;
+        up[i] = y0 + v;
+        return { y0, y1: up[i]! };
+      }
+      const y0 = down[i]!;
+      down[i] = y0 + v;
+      return { y0, y1: down[i]! };
+    }),
+  );
+}
+
+/**
+ * The shape that tells a series apart without its colour (ADR 0023 §4), in
+ * slot order. The sheets draw the first three; 4–8 are the plan's diamond and
+ * then shapes chosen to stay distinct at 8px.
+ */
+export const MARKER_SHAPES = [
+  "circle", "square", "triangle", "diamond", "triangle-down", "plus", "hexagon", "pentagon",
+] as const;
+export type MarkerShape = (typeof MARKER_SHAPES)[number];
+
+/**
+ * A filled marker of half-size `r`, centred on (cx, cy), as a path. At r=4 the
+ * circle, square and triangle are the Line sheet's 8px end markers; at r=6
+ * they are the surface ring drawn under them.
+ */
+export function markerPath(shape: MarkerShape, cx: number, cy: number, r: number): string {
+  const p = (pts: readonly (readonly [number, number])[]) =>
+    pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${round(cx + x)} ${round(cy + y)}`).join("") + "Z";
+  switch (shape) {
+    case "circle":
+      return `M${round(cx - r)} ${round(cy)}a${round(r)} ${round(r)} 0 1 0 ${round(2 * r)} 0a${round(r)} ${round(r)} 0 1 0 ${round(-2 * r)} 0Z`;
+    case "square":
+      return p([[-r, -r], [r, -r], [r, r], [-r, r]]);
+    case "triangle":
+      return p([[0, -1.25 * r], [1.25 * r, r], [-1.25 * r, r]]);
+    case "triangle-down":
+      return p([[-1.25 * r, -r], [1.25 * r, -r], [0, 1.25 * r]]);
+    case "diamond":
+      return p([[0, -1.3 * r], [1.3 * r, 0], [0, 1.3 * r], [-1.3 * r, 0]]);
+    case "plus": {
+      const a = r * 0.4;
+      return p([[-a, -r], [a, -r], [a, -a], [r, -a], [r, a], [a, a], [a, r], [-a, r], [-a, a], [-r, a], [-r, -a], [-a, -a]]);
+    }
+    case "hexagon":
+      return p(Array.from({ length: 6 }, (_, i) => {
+        const t = (Math.PI / 3) * i;
+        return [1.1 * r * Math.cos(t), 1.1 * r * Math.sin(t)] as const;
+      }));
+    case "pentagon":
+      return p(Array.from({ length: 5 }, (_, i) => {
+        const t = -Math.PI / 2 + ((2 * Math.PI) / 5) * i;
+        return [1.15 * r * Math.cos(t), 1.15 * r * Math.sin(t)] as const;
+      }));
+  }
+}
+
+/**
+ * A bar from the zero line to `valueY`, its data end rounded whichever side of
+ * zero it falls: up for a positive value, down for a negative one.
+ */
+export function barPath(x: number, width: number, valueY: number, zeroY: number, radius: number): string {
+  if (valueY <= zeroY) return columnPath(x, width, valueY, zeroY, radius);
+  return flipY(columnPath(x, width, 2 * zeroY - valueY, zeroY, radius), zeroY);
+}
+
+/**
+ * The region between two polylines over the same x positions — a stacked
+ * area's segment. `top` runs left to right, `bottom` is walked back, so the
+ * path closes without crossing itself. Empty for fewer than two points.
+ */
+export function bandPath(top: readonly Point[], bottom: readonly Point[]): string {
+  if (top.length < 2 || bottom.length !== top.length) return "";
+  const back = [...bottom].reverse().map((p) => `L${round(p.x)} ${round(p.y)}`).join("");
+  return `${linePath(top)}${back}Z`;
 }

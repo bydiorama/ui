@@ -24,6 +24,7 @@ export function Valid() {
         <Chart.Bars />
         <Chart.Rule value={200} label="Target 200" />
       </Chart>
+      <BarChart orientation="horizontal" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />
     </>
   );
 }
@@ -43,5 +44,9 @@ export function Invalid() {
   const f = <BarChart label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} format=",.0f" />;
   /* @ts-expect-error the table's first column needs a header */
   const g = <BarChart label="Work" description="Rose." data={rows} x="year" series={[{ key: "posters", label: "Posters" }]} />;
-  return [a, b, c, d, e, f, g];
+  /* @ts-expect-error horizontal bars take exactly one series — grouped rows are not designed */
+  const h = <BarChart orientation="horizontal" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }, { key: "books", label: "Books" }]} />;
+  /* @ts-expect-error horizontal bars never stack */
+  const i = <BarChart orientation="horizontal" isStacked label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />;
+  return [a, b, c, d, e, f, g, h, i];
 }

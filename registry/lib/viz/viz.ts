@@ -410,6 +410,26 @@ export function barPath(x: number, width: number, valueY: number, zeroY: number,
 }
 
 /**
+ * A horizontal bar from `zeroX` to `valueX`, `height` tall from `y`, its DATA
+ * end rounded and the axis end square — `barPath` turned on its side, for the
+ * Bar sheet's ranked rows. Negative values grow left and round their left end.
+ * The radius is clamped to half the height and to the length.
+ */
+export function rowBarPath(y: number, height: number, valueX: number, zeroX: number, radius: number): string {
+  const length = Math.abs(valueX - zeroX);
+  if (length <= 0 || height <= 0) return "";
+  const r = round(Math.max(0, Math.min(radius, height / 2, length)));
+  const z = round(zeroX);
+  const y0 = round(y);
+  const y1 = round(y + height);
+  if (r === 0) return `M${z} ${y0}H${round(valueX)}V${y1}H${z}Z`;
+  if (valueX > zeroX) {
+    return `M${z} ${y0}H${round(valueX - r)}a${r} ${r} 0 0 1 ${r} ${r}V${round(y + height - r)}a${r} ${r} 0 0 1 -${r} ${r}H${z}Z`;
+  }
+  return `M${z} ${y0}H${round(valueX + r)}a${r} ${r} 0 0 0 -${r} ${r}V${round(y + height - r)}a${r} ${r} 0 0 0 ${r} ${r}H${z}Z`;
+}
+
+/**
  * The region between two polylines over the same x positions — a stacked
  * area's segment. `top` runs left to right, `bottom` is walked back, so the
  * path closes without crossing itself. Empty for fewer than two points.

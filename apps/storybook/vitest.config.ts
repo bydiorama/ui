@@ -2,6 +2,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "vitest/config";
+import type { BrowserCommand } from "vitest/node";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import react from "@vitejs/plugin-react";
@@ -24,12 +25,27 @@ function uiItems(...names: string[]): Record<string, string> {
   );
 }
 
+/**
+ * Turns Chromium's forced-colours emulation on or off for the test page.
+ *
+ * Before this, forced colours could only be checked by finding a matching
+ * `@media (forced-colors: active)` rule in the stylesheet, which proves the
+ * rule exists and nothing about what it paints. With the media emulated,
+ * `getComputedStyle` answers in forced colours, so a test can read the
+ * resolved value. Callers must turn it off again in `afterEach`.
+ * Declared for tests in `registry/test/browser-commands.d.ts`.
+ */
+const setForcedColors: BrowserCommand<[active: boolean]> = async (ctx, active) => {
+  await ctx.page.emulateMedia({ forcedColors: active ? "active" : "none" });
+};
+
 /** A fresh provider per project — vitest cannot share one factory instance. */
 const browser = () => ({
   enabled: true as const,
   provider: playwright(),
   headless: true,
   instances: [{ browser: "chromium" as const }],
+  commands: { setForcedColors },
 });
 
 /**

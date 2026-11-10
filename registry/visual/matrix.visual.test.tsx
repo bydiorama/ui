@@ -641,12 +641,12 @@ const CASES: Array<{
   },
   {
     name: "chart",
-    // Stacked bars (the segment gap and the outer-only radius) and lines with
-    // direct labels, a rule and a missing value. Grouped bars and stacked
+    // Stacked bars (the segment gap and the outer-only radius), lines with
+    // direct labels, a rule and a missing value, and ranked horizontal rows. Grouped bars and stacked
     // areas are pinned by computed geometry in the contract test instead: four
     // charts overflow the 900px capture. Static: no hover or focus.
     ui: (
-      <div className="flex flex-col gap-lg">
+      <div className="flex flex-col gap-sm">
         <BarChart size="sm" isStacked label="Stacked" description="Output rose to 575 in 1972." x="year" xLabel="Year"
           data={[{ year: 1968, p: 140, b: 100, s: 70 }, { year: 1969, p: 180, b: 80, s: 80 }, { year: 1970, p: 100, b: 130, s: 50 }, { year: 1971, p: 160, b: 95, s: 100 }, { year: 1972, p: 120, b: 115, s: 75 }]}
           series={[{ key: "p", label: "Posters" }, { key: "b", label: "Books" }, { key: "s", label: "Signage" }]} />
@@ -656,6 +656,10 @@ const CASES: Array<{
           <Chart.Lines />
           <Chart.Rule value={340} label="Target 340" />
         </Chart>
+        <BarChart orientation="horizontal" label="Ranked" description="Müller-Brockmann made the most." x="who" xLabel="Designer"
+          // A `who` field, not `name`: check:visual-coverage reads name fields here as case names.
+          data={[{ who: "Josef Müller-Brockmann", n: 342 }, { who: "Otl Aicher", n: 135 }]}
+          series={[{ key: "n", label: "Posters" }]} />
       </div>
     ),
   },

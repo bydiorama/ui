@@ -34,6 +34,14 @@ const STUDIOS = [
   { year: 1972, posters: 310, books: 205, signage: 60 },
 ];
 
+/** The Bar sheet's horizontal specimen, longest name first. */
+const RANKED = [
+  { name: "Josef Müller-Brockmann", posters: 342 },
+  { name: "Massimo Vignelli", posters: 270 },
+  { name: "Adrian Frutiger", posters: 198 },
+  { name: "Otl Aicher", posters: 135 },
+];
+
 const TWO = [
   { key: "posters", label: "Posters" },
   { key: "books", label: "Books" },
@@ -54,11 +62,20 @@ export const Playground: Story = {
   ),
 };
 
-/** Mirrors the Bar and Line sheets: vertical, grouped, stacked; lines, rule, stacked area. */
+/** Mirrors the Bar and Line sheets: vertical, horizontal, grouped, stacked; lines, rule, stacked area. */
 export const Matrix: Story = {
   render: () => (
     <div style={{ maxWidth: 1120 }} className="grid grid-cols-2 gap-xl">
       <BarChart size="sm" label="Vertical" description="Posters peaked in 1972." data={STUDIOS} x="year" xLabel="Year" series={[TWO[0]]} />
+      <BarChart
+        orientation="horizontal"
+        label="Horizontal"
+        description="Müller-Brockmann made the most."
+        data={RANKED}
+        x="name"
+        xLabel="Designer"
+        series={[{ key: "posters", label: "Posters" }]}
+      />
       <BarChart size="sm" label="Grouped" description="Signage overtook both in 1969." data={STUDIOS} x="year" xLabel="Year" series={[...THREE]} />
       <BarChart size="sm" isStacked label="Stacked" description="Output rose to 575 pieces in 1972." data={STUDIOS} x="year" xLabel="Year" series={[...THREE]} />
       <LineChart size="sm" label="End labels and marker shapes" description="Signage fell as posters rose." data={STUDIOS} x="year" xLabel="Year" series={[...THREE]} />

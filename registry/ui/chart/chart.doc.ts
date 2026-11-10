@@ -12,11 +12,11 @@ export const chartDoc = {
     { part: "description", slot: "chart-description", notes: "body-sm, muted. The `description` prop: the takeaway a person wrote, not a restatement of the axes." },
     { part: "table toggle", slot: "chart-table-toggle", notes: "Button secondary md, icon-only (ChartTable), aria-pressed. Swaps the plot for the table." },
     { part: "legend", slot: "chart-legend", notes: "Only for two or more series. An 8px key in the series' marker SHAPE and slot colour, then the name in label-sm 400, secondary ink." },
-    { part: "y axis", slot: "chart-y-axis", notes: "32px column of ticks, label-sm 400, muted, tabular figures, right-aligned and centred on their gridlines." },
+    { part: "y axis", slot: "chart-y-axis", notes: "32px column of ticks, label-sm 400, muted, tabular figures, right-aligned and centred on their gridlines. Horizontal bars: a 168px lane of category names instead, one per row, truncated (the table holds the full name)." },
     { part: "plot", slot: "chart-plot", notes: "The one tab stop. 240px (md) or 160px (sm) tall; holds the SVG, the empty message and the tooltip." },
     { part: "grid", slot: "chart-grid", notes: "One solid 1px line per tick above zero, border-subtle." },
     { part: "baseline", slot: "chart-baseline", notes: "The zero line, border-default — one role stronger than the grid." },
-    { part: "bar", slot: "chart-bar", notes: "At most 24px, 2px apart in a group, radius-sm at the data end and square at the baseline. Stacked: one column, 2px surface gaps, only the outer segment rounds." },
+    { part: "bar", slot: "chart-bar", notes: "At most 24px, 2px apart in a group, radius-sm at the data end and square at the baseline. Stacked: one column, 2px surface gaps, only the outer segment rounds. Horizontal: 24px rows 16px apart on a nice 0-based domain, no grid, no baseline. Forced colours: slot 1 solid CanvasText, slots 2–8 a hatch pattern in system colours inside a 1px CanvasText outline." },
     { part: "line", slot: "chart-line", notes: "stroke-thick (2px), round caps and joins, solid. A missing value breaks the line." },
     { part: "area", slot: "chart-area", notes: "The slot's -bg wash under its line; stacked areas are bands between cumulative lines." },
     { part: "direct label", slot: "chart-direct-label", notes: "label-sm 600 primary, 16px right of a ringed end marker, in a 96px lane. Up to four series." },
@@ -26,6 +26,7 @@ export const chartDoc = {
     { part: "focus ring", slot: "chart-focus-ring", notes: "Keyboard only: 2px border-focus, 2px off the bar (radius 6) or around the point." },
     { part: "tooltip", slot: "chart-tooltip", notes: "bg-elevated, border-subtle, shadow-md, radius-md, 8/12 inset. The category in label-sm 600, then key · name (400, muted) · value (600, primary, tabular). Follows the pointer and the keyboard. aria-hidden: the announcer speaks." },
     { part: "x axis", slot: "chart-x-axis", notes: "Category ticks, centred in their band; on lines the first and last align to the plot edges. Thinned so labels never collide." },
+    { part: "row value", slot: "chart-value", notes: "Horizontal bars: the value 8px past each bar's tip, label-sm 600, primary, tabular. Outside the bar on either side of zero." },
     { part: "table", slot: "chart-table", notes: "The data through Table (size sm): the category column, then one numeric column per series." },
     { part: "announcer", slot: "chart-announcer", notes: "A polite live region: \"category, series, value\" on every keyboard move." },
   ],
@@ -33,9 +34,11 @@ export const chartDoc = {
   composition: `
 Chart                         label · description · data · x · xLabel · series
 ├─ Chart.Bars | Chart.Lines | Chart.Areas     the marks (direct children)
+│    Chart.Bars orientation="horizontal"      ranked rows: one series, alone
 └─ Chart.Rule                 value · label — a solid, labelled threshold
 
 BarChart / LineChart / AreaChart   = Chart with one mark, same props
+BarChart orientation="horizontal"   series must be a one-element tuple, never stacked
   `.trim(),
 
   props: {
@@ -51,6 +54,7 @@ BarChart / LineChart / AreaChart   = Chart with one mark, same props
     locale: { type: "string", notes: "Pass it when the server and the reader may differ, or the server's digits hydrate into the client's." },
     isLoading: { type: "boolean", default: "false", notes: "Skeleton columns in bg-sunken, no axis text, aria-busy; the frame keeps its height." },
     emptyText: { type: "string", notes: "Shown over a baseline-only plot when `data` is empty." },
+    orientation: { type: '"vertical" | "horizontal"', default: '"vertical"', notes: "BarChart and Chart.Bars. Horizontal is the Bar sheet's ranked rows: names left, value at each tip, no axis or tooltip. The type takes exactly one series and no isStacked; Chart.Bars throws if given more, a rule or a second mark, because grouped and stacked rows are not designed." },
     tableLabel: { type: "string", default: '"View as table"', notes: "The toggle's accessible name." },
   },
 
@@ -73,6 +77,7 @@ BarChart / LineChart / AreaChart   = Chart with one mark, same props
       { key: "Tab", does: "Enters the plot (one stop) and focuses the first value, announcing it." },
       { key: "← / →", does: "Previous / next category." },
       { key: "↑ / ↓", does: "Next / previous series at the same category." },
+      { key: "↓ / ↑ (horizontal)", does: "Next / previous row. ← / → do nothing: there is one series." },
       { key: "Home / End", does: "First / last category." },
       { key: "Escape", does: "Clears the focused value and its tooltip; focus stays on the plot." },
     ],
@@ -98,13 +103,14 @@ BarChart / LineChart / AreaChart   = Chart with one mark, same props
 
   needsDesign: [
     "Marker shapes for slots 4–8 (diamond, triangle-down, plus, hexagon, pentagon): the sheets draw circle, square and triangle only.",
-    "Horizontal bars: drawn on the Bar sheet (value at the tip, no axis) and not built.",
+    "Grouped and stacked horizontal bars, and long category names on a narrow frame (the 168px lane is fixed).",
     "Forecast as muted ink over a confidence band: drawn on the Line sheet; the band needs its own role (sheet Gaps: Missing).",
     "Focus on a stacked bar: the ring wraps the segment, not the column (sheet Gaps: Absent).",
   ],
 
   knownGaps: [
-    "Forced colours: marks are not yet hatched; series 2+ in forced colours are told apart by marker shape (lines) only. The anatomy sheet draws solid 45° hatching.",
+    "Forced-colours fills for slots 3–8 (135°, cross, horizontal, vertical, grid, outline) extend the anatomy sheet's two; confirmed by the maintainer on 2026-11-10 and not yet drawn back onto the sheet.",
+    "Forced colours: bars and legend keys are hatched; lines and areas still rely on marker shape alone, since a hatched stroke is not drawn on any sheet.",
     "The tooltip is positioned inside the chart, not on the shared overlay layer (`--ui-z-tooltip`) the plan describes; it cannot escape a clipping ancestor.",
     "Ticks, legend names and tooltip names are label-sm at weight 400, declared as type-role deviations until the sheet's proposed data-tick role exists.",
     "The anatomy specimen paints series 2 in --ui-data-div-neg-2, a token that does not exist; this follows the Bar sheet's slot 2.",

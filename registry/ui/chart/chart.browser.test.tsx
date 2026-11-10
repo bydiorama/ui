@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "vitest";
-import { userEvent } from "vitest/browser";
+import { commands, userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { act } from "react";
@@ -273,5 +273,165 @@ describe("Chart forwards per §5", () => {
     expect(node).toBe(el);
     expect(el.classList.contains("max-w-xl")).toBe(true);
     expect(el.dataset.testid).toBe("c");
+  });
+});
+
+/** The Bar sheet's horizontal specimen: four designers, ranked. */
+const RANKED = [
+  { name: "Josef Müller-Brockmann", posters: 342 },
+  { name: "Massimo Vignelli", posters: 270 },
+  { name: "Adrian Frutiger", posters: 198 },
+  { name: "Otl Aicher", posters: 135 },
+];
+const rows = () => (
+  <BarChart
+    orientation="horizontal"
+    label="Posters by designer"
+    description="Müller-Brockmann made the most."
+    data={RANKED}
+    x="name"
+    xLabel="Designer"
+    series={[{ key: "posters", label: "Posters" }]}
+  />
+);
+
+describe("Horizontal bars are the Bar sheet's ranked rows", () => {
+  test("a 168px name lane, 24px bars 16px apart, the value at each tip, no axis", async () => {
+    const { q, all } = await mount(rows());
+    const names = all("chart-tick");
+    expect(names.map((n) => n.textContent)).toEqual(RANKED.map((r) => r.name));
+    expect(q("chart-y-axis").getBoundingClientRect().width).toBe(168);
+    const barBoxes = all("chart-bar").map((b) => b.getBoundingClientRect());
+    expect(barBoxes.map((b) => b.height)).toEqual([24, 24, 24, 24]);
+    expect(barBoxes.slice(1).map((b, i) => b.top - barBoxes[i]!.top)).toEqual([40, 40, 40]);
+    // Each name centres on its bar.
+    names.forEach((n, i) => {
+      const r = n.getBoundingClientRect();
+      expect(r.top + r.height / 2).toBe(barBoxes[i]!.top + 12);
+    });
+    // Bars share one scale, longest first, all from the same start.
+    expect(new Set(barBoxes.map((b) => b.left)).size).toBe(1);
+    expect(barBoxes.map((b) => b.width)).toEqual([...barBoxes.map((b) => b.width)].sort((a, b) => b - a));
+    // The value: label-sm 600 in primary ink, 8px past the tip.
+    const values = all("chart-value");
+    expect(values.map((v) => v.textContent)).toEqual(["342", "270", "198", "135"]);
+    const v = getComputedStyle(values[0]!);
+    expect(v.fill).toBe(tokenColor("--ui-text-primary"));
+    expect(v.fontWeight).toBe("600");
+    expect(Math.round(values[0]!.getBoundingClientRect().left - barBoxes[0]!.right)).toBe(8);
+    // The longest value stays inside the plot.
+    expect(values[0]!.getBoundingClientRect().right).toBeLessThanOrEqual(q("chart-plot").getBoundingClientRect().right);
+    // No grid, no baseline, no x axis, no legend: the rows carry it all.
+    for (const slot of ["chart-grid", "chart-baseline", "chart-x-axis", "chart-legend"]) expect(all(slot)).toHaveLength(0);
+  });
+
+  test("↓ ↑ walk the rows, Home and End jump; the band and ring follow, no tooltip", async () => {
+    const { q } = await mount(rows());
+    await userEvent.keyboard("{Tab}{Tab}");
+    await expect.poll(() => q("chart-announcer").textContent).toBe("Josef Müller-Brockmann, Posters, 342");
+    const said = async (keys: string, text: string) => {
+      await userEvent.keyboard(keys);
+      await expect.poll(() => q("chart-announcer").textContent).toBe(text);
+    };
+    await said("{ArrowDown}", "Massimo Vignelli, Posters, 270");
+    await said("{ArrowRight}", "Massimo Vignelli, Posters, 270");
+    await said("{End}", "Otl Aicher, Posters, 135");
+    await said("{ArrowUp}", "Adrian Frutiger, Posters, 198");
+    await said("{Home}", "Josef Müller-Brockmann, Posters, 342");
+    const band = q("chart-highlight").getBoundingClientRect();
+    const bar = q("chart-bar").getBoundingClientRect();
+    expect(band.top).toBe(bar.top - 8);
+    expect(band.height).toBe(40);
+    const ring = q("chart-focus-ring").getBoundingClientRect();
+    expect(ring.height).toBeGreaterThan(bar.height);
+    expect(q("chart-tooltip")).toBeUndefined();
+  });
+
+  test("a negative value grows left from zero, its value on the outside", async () => {
+    const { all } = await mount(
+      <BarChart
+        orientation="horizontal"
+        label="Change"
+        description="Aicher fell."
+        data={[{ name: "Vignelli", change: 60 }, { name: "Aicher", change: -40 }]}
+        x="name"
+        xLabel="Designer"
+        series={[{ key: "change", label: "Change" }]}
+      />,
+    );
+    const [up, down] = all("chart-bar").map((b) => b.getBoundingClientRect());
+    expect(Math.round(down!.right)).toBe(Math.round(up!.left));
+    const [, label] = all("chart-value");
+    expect(label!.getBoundingClientRect().right).toBeLessThan(down!.left);
+  });
+
+  test("more than one series, stacking or a rule is refused", () => {
+    expect(() =>
+      renderToString(
+        <Chart label="x" description="y" data={PRINTED} x="year" xLabel="Year" series={TWO}>
+          <Chart.Bars orientation="horizontal" />
+        </Chart>,
+      ),
+    ).toThrow(/one series/);
+  });
+
+  test("loading reserves four rows of sunken marks", async () => {
+    const { q, all } = await mount(
+      <BarChart orientation="horizontal" isLoading label="x" description="y" data={[] as typeof RANKED} x="name" xLabel="Designer" series={[{ key: "posters", label: "Posters" }]} />,
+    );
+    expect(q("chart-skeleton").children).toHaveLength(4);
+    expect(q("chart-plot").getBoundingClientRect().height).toBe(4 * 40 - 16 + 1);
+    expect(all("chart-tick")).toHaveLength(0);
+  });
+});
+
+describe("Forced colours keep series apart without colour", () => {
+  afterEach(async () => {
+    await commands.setForcedColors(false);
+  });
+
+  test("slot 1 is solid system ink, slot 2 the sheet's 45° hatch inside an outline", async () => {
+    const { all } = await mount(bars());
+    // Read before emulating: in forced colours the probe's own colour is forced too.
+    const slot1 = tokenColor("--ui-data-cat-1-solid");
+    await commands.setForcedColors(true);
+    expect(matchMedia("(forced-colors: active)").matches).toBe(true);
+    const [posters, books] = all("chart-series");
+    const ink = getComputedStyle(posters!.querySelector("path")!);
+    const hatch = getComputedStyle(books!.querySelector("path")!);
+    // CanvasText resolves to a real colour, not the slot's.
+    expect(ink.fill).not.toBe(slot1);
+    expect(ink.fill).toMatch(/^rgb/);
+    expect(hatch.fill).toMatch(/^url\("?#.+-2"?\)$/);
+    expect(hatch.stroke).toBe(ink.fill);
+    // The pattern exists and is the 45° family: lines rising left to right.
+    const id = hatch.fill.match(/#([^")]+)/)![1]!;
+    const pattern = document.getElementById(id)!;
+    expect(pattern.tagName.toLowerCase()).toBe("pattern");
+    expect(pattern.querySelector("path")!.getAttribute("d")).toContain("l6-6");
+  });
+
+  test("the legend keys wear the same fills as their marks", async () => {
+    const { all } = await mount(bars());
+    await commands.setForcedColors(true);
+    const keys = all("chart-legend-item").map((li) => getComputedStyle(li.querySelector("path")!).fill);
+    const marks = all("chart-series").map((g) => getComputedStyle(g.querySelector("path")!).fill);
+    expect(keys).toEqual(marks);
+  });
+
+  test("all eight slots get eight different fills", async () => {
+    const data = [{ c: "a", s1: 1, s2: 2, s3: 3, s4: 4, s5: 5, s6: 6, s7: 7, s8: 8 }];
+    const series = (["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"] as const).map((key) => ({ key, label: key }));
+    const { all } = await mount(<BarChart label="x" description="y" data={data} x="c" xLabel="C" series={series} />);
+    await commands.setForcedColors(true);
+    const fills = all("chart-series").map((g) => getComputedStyle(g.querySelector("path")!).fill);
+    const patterns = fills.slice(1).map((f) => document.getElementById(f.match(/#([^")]+)/)![1]!)!.innerHTML);
+    expect(new Set(fills).size).toBe(8);
+    expect(new Set(patterns).size).toBe(7);
+  });
+
+  test("out of forced colours, the slot colours are untouched", async () => {
+    const { all } = await mount(bars());
+    expect(getComputedStyle(all("chart-series")[1]!.querySelector("path")!).fill).toBe(tokenColor("--ui-data-cat-2-solid"));
   });
 });

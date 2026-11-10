@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { MARKER_SHAPES, arcPath, bandPath, barPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis } from "./viz.ts";
+import { MARKER_SHAPES, arcPath, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis } from "./viz.ts";
 
 const BOX = { width: 160, height: 40, inset: { top: 6, right: 8, bottom: 6, left: 2 } } as const;
 
@@ -143,4 +143,14 @@ test("barPath rounds the data end on either side of zero; bandPath closes a stac
     "M0 10L10 5L10 15L0 20Z",
   );
   assert.equal(bandPath([{ x: 0, y: 1 }], [{ x: 0, y: 2 }]), "");
+});
+
+test("rowBarPath is the Bar sheet's horizontal row: 24 tall, data end rounded", () => {
+  // The sheet's first row: 264 wide, 24 tall, radius 4 on the right only.
+  assert.equal(rowBarPath(0, 24, 264, 0, 4), "M0 0H260a4 4 0 0 1 4 4V20a4 4 0 0 1 -4 4H0Z");
+  // A negative value grows left from zero and rounds its LEFT end.
+  assert.equal(rowBarPath(0, 24, 60, 100, 4), "M100 0H64a4 4 0 0 0 -4 4V20a4 4 0 0 0 4 4H100Z");
+  // A bar shorter than the radius never draws a corner bigger than itself.
+  assert.match(rowBarPath(0, 24, 2, 0, 4), /^M0 0H0a2 2/);
+  assert.equal(rowBarPath(0, 24, 50, 50, 4), "");
 });

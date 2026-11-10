@@ -11,6 +11,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type HTMLAttributes,
   type KeyboardEvent,
   type PointerEvent,
@@ -32,6 +33,7 @@ import {
   markerPath,
   pointPositions,
   round,
+  rowBarPath,
   stackSeries,
   valueAxis,
   type MarkerShape,
@@ -97,6 +99,67 @@ const MAX_DIRECT_LABELS = 4;
 /** Skeleton column heights while loading, as fractions of the plot. */
 const SKELETON = [0.35, 0.55, 0.65, 0.45, 0.8, 0.6] as const;
 
+/** The Bar sheet's horizontal rows: a 168px name lane, 24px bars 16px apart. */
+const NAME_LANE = 168;
+const ROW_HEIGHT = 24;
+const ROW_GAP = 16;
+const ROW_PITCH = ROW_HEIGHT + ROW_GAP;
+/** Kept clear right of the plot so the longest bar's value never clips. */
+const VALUE_LANE = 56;
+/** A row's value sits this far past its bar's end (sheet: gap 8). */
+const VALUE_OFFSET = 8;
+
+/**
+ * Forced colours take every slot colour away, so each slot gets its own fill
+ * instead: slot 1 solid system ink, slot 2 the anatomy sheet's solid 45°
+ * hatch, and 3–8 the rest of the family (135°, cross, horizontal, vertical,
+ * grid, outline) so no two series ever share one. A 6px pitch, as drawn.
+ */
+const HATCH = {
+  2: "M-1 1l2-2M0 6l6-6M5 7l2-2",
+  3: "M-1 5l2 2M0 0l6 6M5 -1l2 2",
+  4: "M-1 1l2-2M0 6l6-6M5 7l2-2M-1 5l2 2M0 0l6 6M5 -1l2 2",
+  5: "M0 3H6",
+  6: "M3 0V6",
+  7: "M0 3H6M3 0V6",
+  8: "",
+} as const satisfies Record<Exclude<ChartSlot, 1>, string>;
+
+/**
+ * The classes and custom property that put a slot's forced-colours fill on a
+ * mark. `forced-color-adjust: none` keeps the UA from flattening the pattern
+ * back to one ink — the fills it sets are system colours, so they still follow
+ * the reader's theme.
+ */
+function forcedFill(slot: ChartSlot, hatchId: string): { className: string; style?: CSSProperties } {
+  if (slot === 1) return { className: "forced-color-adjust-none forced-colors:fill-[CanvasText]" };
+  return {
+    className: "forced-color-adjust-none forced-colors:fill-(--chart-hatch) forced-colors:stroke-[CanvasText]",
+    style: { "--chart-hatch": `url(#${hatchId}-${slot})` } as CSSProperties,
+  };
+}
+
+/** The patterns `forcedFill` points at. Painted only through forced colours. */
+function HatchDefs({ id }: { id: string }) {
+  return (
+    <defs>
+      {(Object.keys(HATCH) as `${Exclude<ChartSlot, 1>}`[]).map((slot) => (
+        <pattern
+          key={slot}
+          id={`${id}-${slot}`}
+          width={6}
+          height={6}
+          patternUnits="userSpaceOnUse"
+          className="forced-color-adjust-none"
+        >
+          <rect width={6} height={6} className="fill-[Canvas]" />
+          {HATCH[slot] && <path d={HATCH[slot]} fill="none" strokeWidth={1} className="stroke-[CanvasText]" />}
+        </pattern>
+      ))}
+    </defs>
+  );
+}
+
 interface ResolvedSeries {
   key: string;
   label: string;
@@ -115,6 +178,12 @@ interface ChartContextValue {
   series: ResolvedSeries[];
   stacks: StackedValue[][] | null;
   layout: "band" | "point";
+  /** Horizontal bars: categories run down the rows, values across. */
+  isHorizontal: boolean;
+  /** Horizontal only: a value's x position. */
+  valueX: (value: number) => number;
+  /** Prefix of this chart's forced-colours pattern ids. */
+  hatchId: string;
   /** The SVG's full width: the plot plus any direct-label lane. */
   width: number;
   plotWidth: number;
@@ -141,6 +210,13 @@ function useChart(part: string): ChartContextValue {
  *  marks and the focus ring, so the ring can never miss its bar. */
 function barGeometry(ctx: ChartContextValue, i: number, s: number): { x: number; width: number; top: number; bottom: number } | null {
   const { series, stacks, bandWidth, y } = ctx;
+  if (ctx.isHorizontal) {
+    const value = series[s]?.values[i];
+    if (value === undefined || !Number.isFinite(value)) return null;
+    const a = ctx.valueX(0);
+    const b = ctx.valueX(value);
+    return { x: Math.min(a, b), width: Math.abs(b - a), top: i * ROW_PITCH, bottom: i * ROW_PITCH + ROW_HEIGHT };
+  }
   const bandStart = ctx.x(i) - bandWidth / 2;
   const zero = y(0);
   if (stacks) {
@@ -158,15 +234,63 @@ function barGeometry(ctx: ChartContextValue, i: number, s: number): { x: number;
 
 /* ── Marks ─────────────────────────────────────────────────────────────── */
 
+export interface ChartBarsProps {
+  /**
+   * `horizontal` is the Bar sheet's ranked rows: names on the left, the value
+   * at each bar's tip, no axis. One series only, never stacked — grouped and
+   * stacked horizontal bars are not designed.
+   */
+  orientation?: "vertical" | "horizontal";
+}
+
 /** Columns: grouped side by side, or stacked when the chart is `isStacked`. */
-function Bars() {
+function Bars({ orientation = "vertical" }: ChartBarsProps) {
   const ctx = useChart("Bars");
-  const { series, stacks, categories, y } = ctx;
+  const { series, stacks, categories, y, hatchId } = ctx;
   const zero = y(0);
+  if (orientation === "horizontal") {
+    const s = series[0]!;
+    const forced = forcedFill(s.slot, hatchId);
+    return (
+      <g data-slot="chart-bars">
+        <g data-slot="chart-series" data-series={s.key} className={cn(FILL[s.slot], forced.className)} style={forced.style}>
+          {s.values.map((v, i) => {
+            if (!Number.isFinite(v)) return null;
+            const top = i * ROW_PITCH;
+            return <path key={i} data-slot="chart-bar" d={rowBarPath(top, ROW_HEIGHT, ctx.valueX(v), ctx.valueX(0), BAR_RADIUS)} />;
+          })}
+        </g>
+        {s.values.map((v, i) => {
+          if (!Number.isFinite(v)) return null;
+          const end = ctx.valueX(v);
+          const isNegative = v < 0;
+          return (
+            <text
+              key={i}
+              data-slot="chart-value"
+              x={round(end + (isNegative ? -VALUE_OFFSET : VALUE_OFFSET))}
+              y={i * ROW_PITCH + ROW_HEIGHT / 2}
+              dominantBaseline="central"
+              textAnchor={isNegative ? "end" : "start"}
+              className="fill-ink-primary font-body text-label-sm tabular-nums"
+            >
+              {ctx.format(v)}
+            </text>
+          );
+        })}
+      </g>
+    );
+  }
   return (
     <g data-slot="chart-bars">
       {series.map((s, si) => (
-        <g key={s.key} data-slot="chart-series" data-series={s.key} className={FILL[s.slot]}>
+        <g
+          key={s.key}
+          data-slot="chart-series"
+          data-series={s.key}
+          className={cn(FILL[s.slot], forcedFill(s.slot, hatchId).className)}
+          style={forcedFill(s.slot, hatchId).style}
+        >
           {categories.map((_, i) => {
             const g = barGeometry(ctx, i, si);
             if (!g) return null;
@@ -434,11 +558,19 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     return (v: number) => nf.format(v);
   }, [locale, formatOptions]);
 
+  const hatchId = useId();
   const marks = Children.toArray(children);
-  const layout: "band" | "point" = marks.some((c) => isValidElement(c) && c.type === Bars) ? "band" : "point";
+  const barsMark = marks.find((c) => isValidElement<ChartBarsProps>(c) && c.type === Bars);
+  const layout: "band" | "point" = barsMark ? "band" : "point";
+  const isHorizontal = isValidElement<ChartBarsProps>(barsMark) && barsMark.props.orientation === "horizontal";
   const ruleValues = marks.flatMap((c) =>
     isValidElement<ChartRuleProps>(c) && c.type === Rule ? [c.props.value] : [],
   );
+  if (isHorizontal && (seriesProp.length !== 1 || isStacked || ruleValues.length > 0 || marks.length > 1)) {
+    throw new Error(
+      "<Chart.Bars orientation=\"horizontal\"> draws one series on its own: no stacking, no second mark, no rule. Grouped and stacked horizontal bars are not designed yet.",
+    );
+  }
 
   const categories = useMemo(() => data.map((row) => String(row[xKey])), [data, xKey]);
   const series: ResolvedSeries[] = useMemo(
@@ -460,14 +592,21 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   );
   const stacks = useMemo(() => (isStacked ? stackSeries(series.map((s) => s.values)) : null), [isStacked, series]);
 
-  const { height, intervals } = SIZE[size];
+  const count = categories.length;
+  const { intervals } = SIZE[size];
+  // Horizontal rows set their own height: the sheet's 24px bars, 16px apart.
+  // Loading and empty reserve four rows, so the frame does not collapse.
+  const rows = isLoading || count === 0 ? 4 : count;
+  const height = isHorizontal ? rows * ROW_PITCH - ROW_GAP : SIZE[size].height;
   const axisValues = stacks ? stacks.flat().flatMap((v) => [v.y0, v.y1]) : series.flatMap((s) => s.values);
   const axis = valueAxis([...axisValues, ...ruleValues], intervals);
   const y = linearScale(axis.domain, [height, 0]);
 
   const hasDirectLabels = layout === "point" && !isStacked && series.length <= MAX_DIRECT_LABELS;
   const plotWidth = Math.max(0, width - (hasDirectLabels ? LABEL_LANE : 0));
-  const count = categories.length;
+  // The value axis runs across, on the same nice domain a column chart would
+  // use; the lane on the right keeps the longest value's label inside.
+  const valueX = linearScale(axis.domain, [0, Math.max(0, plotWidth - VALUE_LANE)]);
   const bandWidth = count > 0 ? plotWidth / count : plotWidth;
   const points = pointPositions(count, plotWidth);
   const xAt = (i: number) => (layout === "band" ? bandWidth * i + bandWidth / 2 : (points[i] ?? 0));
@@ -477,7 +616,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   const active = isFocused ? focus : hover !== null ? { index: hover, series: 0 } : null;
 
   const ctx: ChartContextValue = {
-    categories, series, stacks, layout, width, plotWidth, height, y, x: xAt, bandWidth,
+    categories, series, stacks, layout, isHorizontal, valueX, hatchId, width, plotWidth, height, y, x: xAt, bandWidth,
     hasDirectLabels, active, isFocused, format,
   };
 
@@ -499,11 +638,20 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     if (!isInteractive) return;
     const cur = focus ?? { index: 0, series: 0 };
     const last = count - 1;
+    const forward = () => ({ ...cur, index: Math.min(last, cur.index + 1) });
+    const back = () => ({ ...cur, index: Math.max(0, cur.index - 1) });
+    // Categories follow the axis they sit on: across for columns and lines,
+    // down for horizontal rows (whose single series leaves ←/→ nothing to do).
+    const arrows: Record<string, () => Active | null> = isHorizontal
+      ? { ArrowDown: forward, ArrowUp: back, ArrowRight: () => cur, ArrowLeft: () => cur }
+      : {
+          ArrowRight: forward,
+          ArrowLeft: back,
+          ArrowUp: () => ({ ...cur, series: Math.min(series.length - 1, cur.series + 1) }),
+          ArrowDown: () => ({ ...cur, series: Math.max(0, cur.series - 1) }),
+        };
     const keys: Record<string, () => Active | null> = {
-      ArrowRight: () => ({ ...cur, index: Math.min(last, cur.index + 1) }),
-      ArrowLeft: () => ({ ...cur, index: Math.max(0, cur.index - 1) }),
-      ArrowUp: () => ({ ...cur, series: Math.min(series.length - 1, cur.series + 1) }),
-      ArrowDown: () => ({ ...cur, series: Math.max(0, cur.series - 1) }),
+      ...arrows,
       Home: () => ({ ...cur, index: 0 }),
       End: () => ({ ...cur, index: last }),
       Escape: () => null,
@@ -523,6 +671,12 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     if (!isInteractive) return;
     const rect = event.currentTarget.getBoundingClientRect();
     const px = event.clientX - rect.left;
+    if (isHorizontal) {
+      // The whole row pitch is the target, gap included, so the pointer never
+      // falls between rows into nothing.
+      const row = Math.floor((event.clientY - rect.top + ROW_GAP / 2) / ROW_PITCH);
+      return setHover(Math.max(0, Math.min(count - 1, row)));
+    }
     if (px > plotWidth) return setHover(null);
     let index = 0;
     if (layout === "band") index = Math.floor(px / bandWidth);
@@ -582,7 +736,11 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
               {series.map((s) => (
                 <li key={s.key} data-slot="chart-legend-item" className="flex items-center gap-xs">
                   <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
-                    <path d={markerPath(s.shape, 4, 4, 4)} className={FILL[s.slot]} />
+                    <path
+                      d={markerPath(s.shape, 4, 4, 4)}
+                      className={cn(FILL[s.slot], forcedFill(s.slot, hatchId).className)}
+                      style={forcedFill(s.slot, hatchId).style}
+                    />
                   </svg>
                   <span data-slot="chart-legend-label" className="font-body font-regular text-label-sm text-ink-secondary">
                     {s.label}
@@ -593,6 +751,22 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
           )}
 
           <div data-slot="chart-plot-row" className="flex gap-sm">
+            {isHorizontal ? (
+              <div data-slot="chart-y-axis" aria-hidden="true" style={{ width: NAME_LANE }} className="relative shrink-0">
+                {!isLoading &&
+                  categories.map((c, i) => (
+                    <span
+                      key={i}
+                      data-slot="chart-tick"
+                      // pt-sm on the plot column: each name centres on its 24px bar.
+                      style={{ top: i * ROW_PITCH + 8, height: ROW_HEIGHT }}
+                      className="absolute inset-x-0 flex items-center font-body font-regular text-label-sm text-ink-muted"
+                    >
+                      <span className="truncate">{c}</span>
+                    </span>
+                  ))}
+              </div>
+            ) : (
             <div data-slot="chart-y-axis" aria-hidden="true" className="relative w-8 shrink-0">
               {!isLoading &&
                 !isEmpty &&
@@ -609,6 +783,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                   </span>
                 ))}
             </div>
+            )}
 
             <div className="relative flex min-w-0 flex-1 flex-col gap-sm pt-sm">
               <div
@@ -639,11 +814,17 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                     viewBox={`0 0 ${width} ${height + 1}`}
                     className="block overflow-visible"
                   >
+                    <HatchDefs id={hatchId} />
                     {isLoading ? (
-                      <Skeleton width={plotWidth} height={height} />
+                      isHorizontal ? (
+                        <RowSkeleton width={Math.max(0, plotWidth - VALUE_LANE)} rows={rows} />
+                      ) : (
+                        <Skeleton width={plotWidth} height={height} />
+                      )
                     ) : (
                       <>
                         {!isEmpty &&
+                          !isHorizontal &&
                           axis.ticks.slice(1).map((t) => (
                             <path
                               key={t}
@@ -653,7 +834,17 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                               style={GRID_STROKE}
                             />
                           ))}
-                        {active && layout === "band" && (
+                        {active && isHorizontal && (
+                          <rect
+                            data-slot="chart-highlight"
+                            x={0}
+                            y={active.index * ROW_PITCH - ROW_GAP / 2}
+                            width={plotWidth}
+                            height={ROW_PITCH}
+                            className="fill-hover"
+                          />
+                        )}
+                        {active && layout === "band" && !isHorizontal && (
                           <rect
                             data-slot="chart-highlight"
                             x={round(bandWidth * active.index)}
@@ -664,12 +855,14 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                           />
                         )}
                         {!isEmpty && children}
-                        <path
-                          data-slot="chart-baseline"
-                          d={`M0 ${round(y(0)) + 0.5}H${plotWidth}`}
-                          className="stroke-edge-default"
-                          style={GRID_STROKE}
-                        />
+                        {!isHorizontal && (
+                          <path
+                            data-slot="chart-baseline"
+                            d={`M0 ${round(y(0)) + 0.5}H${plotWidth}`}
+                            className="stroke-edge-default"
+                            style={GRID_STROKE}
+                          />
+                        )}
                         {active && layout === "point" && <Crosshair {...ctx} index={active.index} />}
                         {active && isFocused && <FocusRing ctx={ctx} active={active} />}
                       </>
@@ -687,9 +880,11 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                   </p>
                 )}
 
-                {active && <ChartTooltip ctx={ctx} index={active.index} />}
+                {/* Horizontal rows print every value at the tip; a tooltip would repeat it. */}
+                {active && !isHorizontal && <ChartTooltip ctx={ctx} index={active.index} />}
               </div>
 
+              {!isHorizontal && (
               <div data-slot="chart-x-axis" aria-hidden="true" style={{ width: plotWidth }} className="relative h-4">
                 {!isLoading &&
                   tickIndices.map((i) => {
@@ -712,6 +907,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                     );
                   })}
               </div>
+              )}
             </div>
           </div>
         </>
@@ -734,6 +930,17 @@ function Skeleton({ width, height }: { width: number; height: number }) {
         return <path key={i} d={barPath(xs[0]!, w, height * (1 - h), height, BAR_RADIUS)} className="fill-sunken" />;
       })}
       <path d={`M0 ${height + 0.5}H${width}`} className="stroke-edge-default" style={GRID_STROKE} />
+    </g>
+  );
+}
+
+/** Horizontal rows while loading: the same sunken marks, turned on their side. */
+function RowSkeleton({ width, rows }: { width: number; rows: number }) {
+  return (
+    <g data-slot="chart-skeleton">
+      {Array.from({ length: rows }, (_, i) => (
+        <path key={i} d={rowBarPath(i * ROW_PITCH, ROW_HEIGHT, width * SKELETON[i % SKELETON.length]!, 0, BAR_RADIUS)} className="fill-sunken" />
+      ))}
     </g>
   );
 }
@@ -871,11 +1078,22 @@ function ChartDataTable({
 /** Compound chart: `<Chart>` with `Chart.Bars`, `.Lines`, `.Areas`, `.Rule` as children. */
 export const Chart = Object.assign(ChartRoot, { Bars, Lines, Areas, Rule });
 
-/** Grouped (or, with `isStacked`, stacked) vertical bars. */
-export function BarChart<Row>(props: Omit<ChartProps<Row>, "children">) {
+/**
+ * BarChart's props. Horizontal is the Bar sheet's ranked rows, and the type
+ * holds its limits: exactly one series, never stacked.
+ */
+export type BarChartProps<Row> = Omit<ChartProps<Row>, "children"> &
+  (
+    | { orientation?: "vertical" }
+    | { orientation: "horizontal"; series: readonly [ChartSeries<Row>]; isStacked?: false }
+  );
+
+/** Grouped (or, with `isStacked`, stacked) vertical bars; or, with
+ *  `orientation="horizontal"`, one series as ranked rows. */
+export function BarChart<Row>({ orientation = "vertical", ...props }: BarChartProps<Row>) {
   return (
     <Chart {...(props as ChartProps<Row>)}>
-      <Chart.Bars />
+      <Chart.Bars orientation={orientation} />
     </Chart>
   );
 }

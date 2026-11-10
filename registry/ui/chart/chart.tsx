@@ -193,6 +193,8 @@ interface ChartContextValue {
   x: (index: number) => number;
   bandWidth: number;
   hasDirectLabels: boolean;
+  /** The series whose legend entry the pointer is on; the others dim. */
+  emphasis: string | null;
   active: Active | null;
   isFocused: boolean;
   format: (value: number) => string;
@@ -230,6 +232,15 @@ function barGeometry(ctx: ChartContextValue, i: number, s: number): { x: number;
   const { xs, width } = groupedBars(bandStart, bandWidth, series.length, { gap: MARK_GAP });
   const vy = y(value);
   return { x: xs[s]!, width, top: Math.min(vy, zero), bottom: Math.max(vy, zero) };
+}
+
+/**
+ * The Bar sheet's legend hover: every series but the one under the pointer
+ * drops to 0.32, so a reader can pick one out of a crowd. Instant, like every
+ * other data change here.
+ */
+function dim(ctx: ChartContextValue, key: string): string | undefined {
+  return ctx.emphasis !== null && ctx.emphasis !== key ? "opacity-32" : undefined;
 }
 
 /* ── Marks ─────────────────────────────────────────────────────────────── */
@@ -288,7 +299,7 @@ function Bars({ orientation = "vertical" }: ChartBarsProps) {
           key={s.key}
           data-slot="chart-series"
           data-series={s.key}
-          className={cn(FILL[s.slot], forcedFill(s.slot, hatchId).className)}
+          className={cn(FILL[s.slot], forcedFill(s.slot, hatchId).className, dim(ctx, s.key))}
           style={forcedFill(s.slot, hatchId).style}
         >
           {categories.map((_, i) => {
@@ -359,7 +370,7 @@ function SeriesLines({ series, values }: { series: ResolvedSeries[]; values: (s:
         const parts = runs(vals, x, y);
         const last = parts.at(-1)?.at(-1);
         return (
-          <g key={s.key} data-slot="chart-series" data-series={s.key}>
+          <g key={s.key} data-slot="chart-series" data-series={s.key} className={dim(ctx, s.key)}>
             {parts.map((pts, ri) => (
               <path
                 key={ri}
@@ -410,10 +421,10 @@ function Areas() {
         if (stacks) {
           const top = stacks[si]!.map((v, i) => ({ x: x(i), y: y(v.y1) }));
           const bottom = stacks[si]!.map((v, i) => ({ x: x(i), y: y(v.y0) }));
-          return <path key={s.key} data-slot="chart-area" d={bandPath(top, bottom)} className={WASH[s.slot]} />;
+          return <path key={s.key} data-slot="chart-area" d={bandPath(top, bottom)} className={cn(WASH[s.slot], dim(ctx, s.key))} />;
         }
         return runs(s.values, x, y).map((pts, ri) => (
-          <path key={`${s.key}-${ri}`} data-slot="chart-area" d={areaPath(pts, y(0))} className={WASH[s.slot]} />
+          <path key={`${s.key}-${ri}`} data-slot="chart-area" d={areaPath(pts, y(0))} className={cn(WASH[s.slot], dim(ctx, s.key))} />
         ));
       })}
       <Lines />
@@ -535,6 +546,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   const [isTable, setIsTable] = useState(false);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const [hover, setHover] = useState<number | null>(null);
+  const [emphasis, setEmphasis] = useState<string | null>(null);
   const [focus, setFocus] = useState<Active | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -617,7 +629,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
 
   const ctx: ChartContextValue = {
     categories, series, stacks, layout, isHorizontal, valueX, hatchId, width, plotWidth, height, y, x: xAt, bandWidth,
-    hasDirectLabels, active, isFocused, format,
+    hasDirectLabels, active, isFocused, format, emphasis,
   };
 
   const announce = useCallback(
@@ -734,7 +746,13 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
           {series.length > 1 && (
             <ul data-slot="chart-legend" className="flex flex-wrap gap-lg">
               {series.map((s) => (
-                <li key={s.key} data-slot="chart-legend-item" className="flex items-center gap-xs">
+                <li
+                  key={s.key}
+                  data-slot="chart-legend-item"
+                  onPointerEnter={() => setEmphasis(s.key)}
+                  onPointerLeave={() => setEmphasis(null)}
+                  className="flex items-center gap-xs"
+                >
                   <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
                     <path
                       d={markerPath(s.shape, 4, 4, 4)}

@@ -435,3 +435,27 @@ describe("Forced colours keep series apart without colour", () => {
     expect(getComputedStyle(all("chart-series")[1]!.querySelector("path")!).fill).toBe(tokenColor("--ui-data-cat-2-solid"));
   });
 });
+
+describe("Hovering a legend entry dims the other series (Bar sheet: Interaction)", () => {
+  const opacities = (all: (slot: string) => (SVGElement & HTMLElement)[]) =>
+    all("chart-series").map((g) => getComputedStyle(g).opacity);
+
+  test("bars: the others drop to 0.32, the hovered one stays whole, leaving restores", async () => {
+    const { all } = await mount(bars());
+    expect(opacities(all)).toEqual(["1", "1"]);
+    const [, books] = all("chart-legend-item");
+    await userEvent.hover(books!);
+    await expect.poll(() => opacities(all)).toEqual(["0.32", "1"]);
+    await userEvent.unhover(books!);
+    await expect.poll(() => opacities(all)).toEqual(["1", "1"]);
+  });
+
+  test("lines and their washes dim together", async () => {
+    const { all } = await mount(
+      <AreaChart label="x" description="y" data={PRINTED} x="year" xLabel="Year" series={TWO} />,
+    );
+    await userEvent.hover(all("chart-legend-item")[0]!);
+    await expect.poll(() => all("chart-area").map((a) => getComputedStyle(a).opacity)).toEqual(["1", "0.32"]);
+    expect(opacities(all)).toEqual(["1", "0.32"]);
+  });
+});

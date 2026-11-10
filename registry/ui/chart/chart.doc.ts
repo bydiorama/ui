@@ -11,7 +11,7 @@ export const chartDoc = {
     { part: "title", slot: "chart-title", notes: "label-md, primary. The `label` prop." },
     { part: "description", slot: "chart-description", notes: "body-sm, muted. The `description` prop: the takeaway a person wrote, not a restatement of the axes." },
     { part: "table toggle", slot: "chart-table-toggle", notes: "Button secondary md, icon-only (ChartTable), aria-pressed. Swaps the plot for the table." },
-    { part: "legend", slot: "chart-legend", notes: "Only for two or more series. An 8px key in the series' marker SHAPE and slot colour, then the name in label-sm 400, secondary ink." },
+    { part: "legend", slot: "chart-legend", notes: "Only for two or more series. An 8px key in the series' marker SHAPE and slot colour, then the name in label-sm 400, secondary ink. Hovering an entry dims every other series' marks to 0.32 (the Bar sheet's Interaction row), instantly." },
     { part: "y axis", slot: "chart-y-axis", notes: "32px column of ticks, label-sm 400, muted, tabular figures, right-aligned and centred on their gridlines. Horizontal bars: a 168px lane of category names instead, one per row, truncated (the table holds the full name)." },
     { part: "plot", slot: "chart-plot", notes: "The one tab stop. 240px (md) or 160px (sm) tall; holds the SVG, the empty message and the tooltip." },
     { part: "grid", slot: "chart-grid", notes: "One solid 1px line per tick above zero, border-subtle." },
@@ -119,6 +119,8 @@ BarChart orientation="horizontal"   series must be a one-element tuple, never st
     "Light-scheme marks on the hover band fall to about 2.6:1 (sheet Gaps: Measured); the tooltip and the focus ring carry the value then.",
     "No time scale: categories are labels in data order, equally spaced. Uneven dates need a time axis.",
     "Enter does not select yet: there is no onSelect.",
+    "Legend emphasis is pointer-only, as drawn: the legend is not focusable, and keyboard series focus (↑/↓) does not dim the others. Dimmed marks fall below 3:1 by design; the emphasised series is the one being read.",
+    "The plan's legend toggle (hiding a series, with checkbox semantics) is not drawn and not built.",
     "Direct labels are not nudged apart when lines converge (sheet Gaps: Absent).",
   ],
 

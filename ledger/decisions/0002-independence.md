@@ -34,3 +34,17 @@ prop signature.** That is what keeps it swappable rather than load-bearing.
   otherwise would be theatre.
 - Reviewers and agents may reject any change that introduces a third-party
   component or visual style, citing this record.
+
+## Amendment — 2026-11-10: layout and scale mathematics
+
+A fourth infrastructure row, for the data-visualisation layer (ADR 0023):
+
+| Kind | Examples | Why it is acceptable |
+|---|---|---|
+| Layout and scale mathematics | `d3-scale`, `d3-shape`, `d3-array`; later `d3-hierarchy`, `d3-force`, `@dagrejs/dagre`, `graphology` | Pure functions that turn numbers into numbers and path strings. They render nothing and carry no visual opinion; React and our tokens draw every mark |
+
+The same rule as behaviour mechanics applies: these modules are imported only
+by implementation files under `registry/lib/viz` and the chart components,
+never appear in a public signature, and `check:boundaries` enforces both.
+Chart *component* libraries — Recharts, Nivo, ECharts, Victory, Tremor — stay
+outside this row: they ship components and a design.

@@ -40,6 +40,7 @@
       "@/lib/menu-surface": ["./registry/lib/menu-surface/menu-surface.ts"],
       "@/lib/motion": ["./registry/lib/motion/motion.ts"],
       "@/lib/fade-ramp": ["./registry/lib/fade-ramp/fade-ramp.ts"],
+      "@/lib/viz": ["./registry/lib/viz/viz.ts"],
       "@/lib/fx": ["./registry/lib/fx/fx.ts"],
       "@/lib/shader": ["./registry/lib/shader/shader.ts"],
       "@/lib/shader-programs": ["./registry/lib/shader/shader-programs.ts"],

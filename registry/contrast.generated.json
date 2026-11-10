@@ -1924,6 +1924,24 @@
       "role": "the label, and the pole the value does not lean toward"
     }
   ],
+  "Sparkline": [
+    {
+      "fg": "--ui-data-cat-1-solid",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 3.09,
+      "dark": 4.83,
+      "role": "the line, dot and columns on a card (every slot 1–8 is audited on base and surface in NONTEXT_CONTRAST_PAIRS)"
+    },
+    {
+      "fg": "--ui-data-cat-1-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.17,
+      "dark": 5.17,
+      "role": "the same marks on the page"
+    }
+  ],
   "Switch": [
     {
       "fg": "--ui-bg-accent-legible",

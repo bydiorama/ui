@@ -60,6 +60,7 @@ import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.
 import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { Popover } from "@/ui/popover/popover.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
+import { Sparkline } from "@/ui/sparkline/sparkline.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
@@ -644,6 +645,25 @@ const CASES: Array<{
         <Progress label="Usage" value={62} isLabelHidden />
         <Progress label="Usage" value={62} size="sm" hasValueText />
         <Progress label="Complete" value={100} size="sm" isLabelHidden />
+      </div>
+    ),
+  },
+  {
+    name: "sparkline",
+    // The three forms on the card they are drawn on, both sizes, a second and
+    // a last slot (the eighth is the one nobody looks at), and the two data
+    // states whose box must not collapse. On bg-surface because the end
+    // marker's ring is painted in that role.
+    ui: (
+      <div className="flex flex-col gap-lg rounded-md bg-surface p-lg">
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Line" description="Rose." />
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Area" description="Rose." variant="area" series={2} />
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Column" description="Rose." variant="column" series={8} />
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Small" description="Rose." size="sm" series={5} />
+        <div className="flex gap-lg">
+          <Sparkline data={[]} label="Loading" description="Loading." isLoading />
+          <Sparkline data={[42]} label="One point" description="One reading." />
+        </div>
       </div>
     ),
   },

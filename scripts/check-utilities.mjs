@@ -68,6 +68,12 @@ const NAMESPACES = [
   // (`from-0%`, `to-90%`) starts with a digit and is waved through below as a
   // built-in, exactly as `ring-1` and `p-0` are.
   [/^(?:from|via|to)-(.+)$/, "--color-"],
+  // SVG paint. Absent until Sparkline, the first component to draw its marks
+  // as SVG shapes rather than boxes — so a `stroke-data-cat-9-solid` typo
+  // would have emitted nothing and drawn an invisible line. Widths are never
+  // utilities here: a stroke width is `var(--ui-stroke-*)` in a style object
+  // (check:strokes), so everything after the prefix is a colour.
+  [/^(?:fill|stroke)-(.+)$/, "--color-"],
   [/^text-ink-(.+)$/, "--color-ink-"],
   [/^text-(button-.+|body-.+|title-.+|display-.+|label-.+|caption)$/, "--text-"],
   [/^ring-(.+)$/, "--color-"],

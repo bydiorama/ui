@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-10-adr-0023-accepts-the-data-visualisation",
+  "date": "2026-11-10",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0023 accepts the data-visualisation layer: own chart components on pure maths (ADR 0002 gains a 'layout and scale mathematics' row), SVG as the floor for any Canvas or WebGL tier, data as props, a required description and table alternative, ordinal data slots, solid strokes, deterministic output, and the Paper effect variants as opt-in fx classes.",
+  "affects": [
+    "item:viz",
+    "item:sparkline"
+  ]
+}

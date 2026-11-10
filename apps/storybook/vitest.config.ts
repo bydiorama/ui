@@ -93,6 +93,7 @@ export default defineConfig({
       "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
       "@/lib/motion": join(root, "registry/lib/motion/motion.ts"),
       "@/lib/fade-ramp": join(root, "registry/lib/fade-ramp/fade-ramp.ts"),
+      "@/lib/viz": join(root, "registry/lib/viz/viz.ts"),
       "@/lib/fx": join(root, "registry/lib/fx/fx.ts"),
       "@/lib/shader-programs": join(root, "registry/lib/shader/shader-programs.ts"),
       "@/lib/shader": join(root, "registry/lib/shader/shader.ts"),

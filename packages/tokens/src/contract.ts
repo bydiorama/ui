@@ -271,6 +271,35 @@ export const BRANDABLE_TOKENS = [
   "--ui-data-navigational-bg",
   "--ui-data-navigational-solid",
 
+  // Categorical data, ORDINAL slots (ADR 0023, ADR 0008 amendment 2026-11-10).
+  // Charts assign series to slots in fixed order and never cycle; the four
+  // named roles above are one product's vocabulary and stay as they are.
+  // Slots 1-8 are the vivid set drawn on the Paper Charts page.
+  "--ui-data-cat-1-fg",
+  "--ui-data-cat-1-bg",
+  "--ui-data-cat-1-solid",
+  "--ui-data-cat-2-fg",
+  "--ui-data-cat-2-bg",
+  "--ui-data-cat-2-solid",
+  "--ui-data-cat-3-fg",
+  "--ui-data-cat-3-bg",
+  "--ui-data-cat-3-solid",
+  "--ui-data-cat-4-fg",
+  "--ui-data-cat-4-bg",
+  "--ui-data-cat-4-solid",
+  "--ui-data-cat-5-fg",
+  "--ui-data-cat-5-bg",
+  "--ui-data-cat-5-solid",
+  "--ui-data-cat-6-fg",
+  "--ui-data-cat-6-bg",
+  "--ui-data-cat-6-solid",
+  "--ui-data-cat-7-fg",
+  "--ui-data-cat-7-bg",
+  "--ui-data-cat-7-solid",
+  "--ui-data-cat-8-fg",
+  "--ui-data-cat-8-bg",
+  "--ui-data-cat-8-solid",
+
   // Shape
   "--ui-radius-sm",
   "--ui-radius-md",
@@ -703,4 +732,25 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   ["--ui-intent-success-fg", "--ui-bg-elevated"],
   ["--ui-intent-warning-fg", "--ui-bg-elevated"],
   ["--ui-intent-danger-fg", "--ui-bg-elevated"],
+  // Every categorical data mark against both grounds a chart is drawn on
+  // (ADR 0023). A bar, a line or a sparkline is a graphical object whose
+  // colour IS the series, so each slot is held to SC 1.4.11 on the page and
+  // on a card. Eight slots, sixteen pairs: an unlisted slot is an unchecked
+  // slot, and the eighth is the one nobody looks at.
+  ["--ui-data-cat-1-solid", "--ui-bg-base"],
+  ["--ui-data-cat-1-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-2-solid", "--ui-bg-base"],
+  ["--ui-data-cat-2-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-3-solid", "--ui-bg-base"],
+  ["--ui-data-cat-3-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-4-solid", "--ui-bg-base"],
+  ["--ui-data-cat-4-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-5-solid", "--ui-bg-base"],
+  ["--ui-data-cat-5-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-6-solid", "--ui-bg-base"],
+  ["--ui-data-cat-6-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-7-solid", "--ui-bg-base"],
+  ["--ui-data-cat-7-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-8-solid", "--ui-bg-base"],
+  ["--ui-data-cat-8-solid", "--ui-bg-surface"],
 ] as const;

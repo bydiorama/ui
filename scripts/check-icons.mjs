@@ -28,6 +28,12 @@ const ALLOWED_RAW_SVG = new Map([
       "not a glyph. There is nothing here griddy-icons could supply, and CSS cannot " +
       "tile a circle without an image (the sheet records the shader→SVG decision).",
   ],
+  [
+    "registry/ui/sparkline/sparkline.tsx",
+    "the component IS a data plot — paths and dots computed from the `data` prop " +
+      "(ADR 0023), not a glyph. No icon set can draw a series, and the SVG is " +
+      "aria-hidden behind a role=img root that carries the name and description.",
+  ],
 ]);
 
 const manifest = readManifest();

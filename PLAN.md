@@ -255,13 +255,196 @@ application of the same pattern. That is the right order.
 
 Its exit gate is untouched:
 
-- [ ] **Docs site.** No `apps/docs`. `apps/` holds `registry/visual` and
-      `storybook` only.
-- [ ] **`llms.txt` and per-page markdown.** Absent. The plan rates this tertiary
-      — sequence it behind the site, not in front of it.
+- [ ] **Docs site.** No `apps/site`. `apps/` holds `registry/visual` and
+      `storybook` only. Briefed and sequenced on 2026-11-11 — see
+      [Docs site](#docs-site--uibydioramacom--briefed-not-started) below.
+- [ ] **`llms.txt` and per-page markdown.** Absent. The plan rated this
+      tertiary and sequenced it behind the site. The 2026-11-11 research
+      moves the **per-page Markdown** half up: it is what agents actually
+      request (93–94% of agent traffic on hosted docs), while `llms.txt`
+      itself is a small and falling share. Both are generated from the same
+      data as the pages, so they ship with S2, not after it.
 - [x] **MCP.** Reachable now via the public registry, which is what §4.5 item 2
       actually asked for. Per-component doc data (`*.doc.ts`, item 3) exists and
       feeds `design:gaps` and the contrast gate; it has no site consuming it yet.
+
+### Docs site — ui.bydiorama.com · **briefed, not started**
+
+The brief, the benchmark behind it and its sources are in
+[`docs/site-design-brief.md`](docs/site-design-brief.md). This section carries
+only the build order and what closes each step. All six decisions in the brief's
+§9 were accepted on 2026-11-11 and the lasting three are ADR 0024 (Astro 7 with custom
+chrome, ADR 0011 kept pending a CodeBlock specimen, the registry moved to
+`ui.bydiorama.com/r/`, the CLI published, a later listing in the shadcn
+directory, `experimental` items shown with a badge).
+
+Measured on 2026-11-11, the starting point:
+
+| | |
+|---|---:|
+| `ui` items in the manifest | 52 |
+| — with a `*.doc.ts` | 52 |
+| — with a stories file | 52 |
+| Manifest fields that could group them | 0 — there is no `category` |
+| Doc fields the page template needs and no doc has | `lead`, `usage`, `keyboard`, a rendering class |
+| Components the `static-rendering` skill classifies | 45 of 52 |
+| `registry.json` beside the items in `r/` | no — it is at the repo root, which the shadcn MCP server and directory do not accept |
+| Files naming `raw.githubusercontent.com`, outside this file and the brief | 7 |
+| `https://ui.bydiorama.com/` | resolves through Cloudflare, answers **403** |
+
+Reproduce with `node -e` over `ui.manifest.json`, `ls registry/ui/*/*.doc.ts`,
+`grep -rl raw.githubusercontent.com` and `curl -I https://ui.bydiorama.com`.
+
+The site **is consumer #2** for the purposes of this file. It installs
+nothing — it imports registry source in place — so it does not unlock the
+ledger's consumption gates in [Change ledger](#change-ledger). It does unlock
+something the portal never could: every component rendered in public under a
+theme switch, on every push.
+
+#### S0 — decisions and data · unblocks everything, no UI
+
+- [x] Settle the six decisions in the brief's §9 (2026-11-11, all as
+      recommended). 1, 3 and 4 are recorded in one record, ADR 0024:
+      they are a framework choice, a public address and a public npm name.
+- [ ] Find out why `ui.bydiorama.com` answers 403 and who owns the record.
+- [ ] **`category` in the manifest**, validated by `check:manifest` against a
+      closed list. A grouping that lives only in the site is prose.
+- [ ] **Four doc fields**, typed, with a gate each so they cannot be skipped:
+      `lead` (one public sentence), `usage` (a snippet compiled by
+      `type-check`), `keyboard` (interactive components only), and the
+      rendering class that today is a table in the `static-rendering` skill.
+      Generate the skill's table from the field once it exists.
+- [ ] Classify the 7 components the skill does not cover: combobox,
+      media-toggle, site-header, sparkline, chart, meter, range-slider.
+- [ ] **A doc-data build step**: one generated JSON per item joining the doc,
+      the manifest entry, the registry file list, the contrast pairs and the
+      item's ledger entries. The site, the `.md` twins and `llms.txt` all read
+      this and nothing else. `--check` mode joins `pnpm verify`.
+
+**Closes when:** `pnpm verify` is green with the new fields required on all
+52 docs, and the doc-data step produces 52 files from a cold clone.
+
+#### S1 — the components the site needs · design first
+
+Five items from `TODO.md`'s undrawn list finally have a consumer: **CodeBlock,
+Callout, Color tiles, Type scale and Type styles**. Each goes through
+`design-component` and then `add-component` like any other; the site does not
+get a private shortcut.
+
+- [ ] **CodeBlock specimen in Paper before anything else**: a forty-line
+      file, a diff and a shell command, set in Aspekta on `bg-sunken`, both
+      schemes. This is the test of ADR 0011 on the page type that needs
+      monospace most. Readable: the ADR stands. Not readable: amend it for
+      code blocks only, with an OFL face, before S2 is designed around it.
+- [ ] Syntax colours as contract tokens, with their pairs in
+      `check:contrast`.
+- [ ] The composition trees in `*.doc.ts` are box-drawing text that only
+      aligns in monospace. Redraw as a nested list, or change the field to
+      structured data. Decide with the specimen.
+- [ ] Site patterns, drawn on the Patterns page: preview frame with its
+      control bar, props table, gallery tile, file tree, search dialog. Built
+      in `apps/site` first and promoted to the registry only when a second
+      surface wants one.
+- [ ] Page designs in Paper: home, gallery, component page, example page,
+      theme playground. Both schemes, 320 and 1280.
+
+**Closes when:** the five components ship with all five files each, and the
+five page designs are exported to `design/paper/`.
+
+#### S2 — registry, gallery and component pages · **the first public release**
+
+- [ ] `apps/site`: Astro 7, static output, the same `@/ui` aliases as
+      Storybook, the theme-zero stylesheet, Aspekta from the font item.
+- [ ] **The registry at `/r/`**: the items, a `registry.json` beside them
+      with no file `content`, `Access-Control-Allow-Origin: *`, revalidating
+      cache headers. `packages/cli/src/registry-source.ts` and the other
+      six files move to the new address; the GitHub path keeps
+      working.
+- [ ] Chrome from the library: `SiteHeader`, `Sidebar`, `Tabs`, `Combobox`.
+- [ ] **Gallery**: 52 live tiles by category, filterable, with site-wide
+      scheme, density and brand controls. Needs one `Thumbnail` specimen per
+      component and a `check:` gate that fails when one is missing.
+- [ ] **Component page template** over the doc data, thirteen sections in the
+      brief's order. Examples are plain exported components that a story and
+      the page both import — not `composeStories`, which is documented for
+      test runners only.
+- [ ] A `.md` twin of every page, `llms.txt` and `llms-full.txt`.
+- [ ] Search on Pagefind's JS API behind our own dialog.
+- [ ] Deploy on Cloudflare Workers Static Assets with a preview per pull
+      request. `ui.manifest.json`'s `homepage` becomes the site.
+- [ ] Publish `@bydiorama/ui` to npm (decision 4). The site may not print an
+      install command that needs a checkout of this repo.
+
+Gates added to CI in this step, each a script and not a review habit:
+
+| Gate | Fails when |
+|---|---|
+| `check:site-source` | `apps/site` holds a copy of a registry component, or a code sample that is not read from a type-checked file |
+| `check:site-data` | the doc data, `registry.json` or the ledger feed is stale at build |
+| site a11y | axe finds a violation on any generated page, either scheme |
+| site links | an internal link or anchor does not resolve |
+| site budget | JavaScript on a component page before interaction exceeds the budget set from the first measured page |
+| registry smoke | `shadcn add --dry-run` against the preview deployment fails for a sample of items |
+
+**Closes when:** all 52 component pages build from data with no hand-written
+page, the six gates are green, a fresh agent given only the URL installs
+Button into an empty Vite app, and Core Web Vitals on the deployed gallery
+meet LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1.
+
+#### S3 — theme playground and tokens
+
+- [ ] `/theme/`: the resolver running in the browser, seed controls bounded
+      by `SEED_BOUNDS`, live measured contrast, copy seed, copy CSS, a
+      shareable URL fragment, presets.
+- [ ] `/tokens/`: generated from the contract, each token listing its
+      consumers from `check:token-consumers`.
+- [ ] Brand control on every preview reads the playground's current seed.
+- [ ] `/effects/`.
+
+**Closes when:** a seed pasted from the playground into a consumer resolves
+to byte-identical CSS, asserted by a test.
+
+#### S4 — examples
+
+This is where the rest of Phase 3 lands, and it is gated by Phase 3's own
+work, not by the site.
+
+- [ ] `registry/blocks/` and `block` items in the manifest, starting with the
+      patterns already drawn: index page, app header, gallery body, sidebar
+      shell.
+- [ ] Example page: iframe preview on a standalone route, viewport switcher,
+      file tree, install line. No install line until the block is in the
+      manifest.
+- [ ] `/charts/` when the visualisation layer leaves `experimental`.
+
+**Closes when:** every block in the manifest has a page, and every example
+page without a block says so.
+
+#### S5 — changelog, status and upkeep
+
+- [ ] `/changelog/` from the ledger, filterable, with a feed.
+- [ ] `/status/` generated at build. **The Status table at the top of this
+      file moves there** and this file links to it; a number that is
+      generated on every push cannot go five times out of date.
+- [ ] Frozen registry snapshots at `/r/<tag>/`.
+- [ ] Storybook published at `/storybook/` for deep links.
+- [ ] Cookieless EU analytics with three events: search used, code copied,
+      install copied. Review after 30 days and re-order the component page if
+      the data disagrees with the brief.
+- [ ] Apply to the shadcn directory after 30 days of the registry answering
+      at its new address without a failed health check of our own.
+- [ ] Feeds Phase 5: the scheduled doc-drift sweep has a concrete target at
+      last — the deployed site against the repo.
+
+**Closes when:** `README.md` and this file carry no hand-typed count that the
+status page also shows.
+
+#### What this plan deliberately leaves out
+
+Versioned docs, localisation, a hosted MCP endpoint, "Open in v0" (it does
+not support `cssVars` or namespaced registries, so it cannot represent this
+library), an in-browser editor and a blog. Each has a reason in the brief's
+§7; none is a quiet omission.
 
 ### Consumer-reported gaps · **all five closed**
 

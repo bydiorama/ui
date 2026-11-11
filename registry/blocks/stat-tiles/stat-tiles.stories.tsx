@@ -73,6 +73,21 @@ export const States: Story = {
   ),
 };
 
+/** The sheet's narrow row: a 720px panel wraps two by two with the
+ *  sparklines beside the text; a 343px phone drops them under. */
+export const NarrowRow: Story = {
+  render: () => (
+    <div className="flex flex-col gap-xl">
+      <div style={{ width: 720 }}>
+        <SheetRow />
+      </div>
+      <div style={{ width: 343 }}>
+        <SheetRow />
+      </div>
+    </div>
+  ),
+};
+
 const STRESS_BRAND: ThemeSeed = {
   colors: {
     bg: "#fffdf5", surface: "#ffffff", muted: "#f4ecd8",

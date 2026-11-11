@@ -244,13 +244,14 @@ Table<Row>
   ],
 
   knownGaps: [
+    "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",
     "The row fill, the divider and the first row's corners live on the CELLS, not the row. A consumer styling the table-row slot with a background paints behind the cells and sees nothing; reach for the table-cell slot instead.",
     "With `rows` empty and no `empty` passed, the body is one blank row at the lane widths. That is deliberate — the frame never collapses — but it says nothing, so pass an EmptyState.",
     "A selected row is distinguished by its wash and by its checked box, and by nothing else. There is no leading edge or marker; a consumer who needs one adds it to a cell through the table-cell slot.",
     "Table sorts and filters nothing. `onSortChange` reports the intent; ordering the rows is the caller's.",
     "Row selection has no shift-click range. The checkbox and the row press each toggle one row.",
     "The row press has no keyboard counterpart of its own — the checkbox inside the row is that path. There is no way to activate a row from the keyboard without moving to its checkbox first.",
-    "Under the default `fixed` layout a table still fits its container by squeezing, because `w-full` makes the lanes add up to it — `minWidth` or `layout=\"auto\"` is what makes it scroll instead. What no longer happens is the frame CLIPPING the overflow away, which is what it used to do: columns past the edge disappeared with no affordance at all.",
+    "Under the default `fixed` layout a table still fits its container by squeezing, because `w-full` makes the lanes add up to it — `minWidth` or `layout=\"auto\"` is what makes it scroll instead. What no longer happens is the frame CLIPPING the overflow away, which is what it used to do: columns past the edge disappeared with no affordance at all. When the declared widths alone exceed the frame, the flexing column gets 0px and its text paints over its neighbour — the charts V2 stand-in screen hit this at 320px. Nothing warns; set `minWidth` to the declared lanes plus what the primary column needs.",
     "Column widths are px numbers. Percentages and fr units are not supported — the lane system exists so the header, the rows, the skeleton and the empty state agree, and mixed units make that agreement conditional on the container. `layout=\"auto\"` is the escape hatch, and it trades exactly that agreement away: the lanes will move when the data arrives.",
     "No column-priority hiding and no card/stacked view. The two other standard responsive strategies are compositions rather than props — a caller narrows `columns` at a breakpoint, or renders something else entirely below one.",
     "`isLoading` wins over `empty`. There is no state that shows both.",

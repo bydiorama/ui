@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-stattiles-narrow-row",
+  "date": "2026-11-11",
+  "item": "stat-tiles",
+  "kind": "addition",
+  "summary": "StatTiles wraps as the sheet's new Narrow row section draws it. The row is a container: one line only while each tile gets 280px (four from 1120px, three from 840px), else two by two with the hairlines following the wrap and a third tile spanning the second row. Each tile is a container too: under 220px of content its sparkline drops 16px under the change line. Replaces tiles shrinking side by side until their text wrapped.",
+  "affects": [
+    "item:stat-tiles"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0"
+  }
+}

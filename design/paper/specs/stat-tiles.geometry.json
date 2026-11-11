@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "stat-tiles",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0",
+    "artboard": "Chart --- Stat tiles and Chart card",
+    "extracted": "2026-11-11",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "One figure: the first tile of the sheet's row — label, figure and change line stacked in a text column, the sparkline at the end aligned to its foot. The sheet nests the three text parts in a column frame; the code places them as <dt>/<dd> cells of a two-column grid with the trend spanning all three rows, because a <dl> may not wrap its term and descriptions in an extra element per pair beyond the one <div>. The union of the parts is the same box either way, and that union is what the laws read. Measured on the FIRST tile, which carries no start hairline; one tile only, because `measure` takes every matching slot on screen.",
+  "cases": [
+    {
+      "name": "stat-tile",
+      "axis": "horizontal",
+      "nodes": { "container": "44AF-0", "children": ["44AH-0", "44AI-0", "44AJ-0", "44AP-0"] },
+      "slots": { "container": "stat-tile", "child": "stat-label|stat-value|stat-delta-row|stat-trend" },
+      "laws": ["uniform-inset", "inset-is-declared"],
+      "lawsNotDeclared": {
+        "concentric-radius": "A tile has no corner of its own: the row's frame carries radius-md and clips nothing, and the tiles are separated by hairlines, not shaped.",
+        "track-is-the-sum-of-its-parts": "The trend is pushed to the tile's end (space-between on the sheet, a minmax(0,1fr) text column in code), so the slack between the text and the sparkline is free space, not a part — the track is wider than its parts by design."
+      },
+      "sheet": {
+        "container": {
+          "width": 286.75,
+          "height": 118,
+          "padding": 24,
+          "border": 0,
+          "radius": null,
+          "tokens": {
+            "padding": "--ui-space-xl",
+            "gap": "--ui-space-lg",
+            "border": "--ui-border-subtle"
+          }
+        },
+        "gap": 16,
+        "children": [
+          { "width": 84, "height": 16, "radius": null },
+          { "width": 84, "height": 30, "radius": null },
+          { "width": 84, "height": 16, "radius": null },
+          { "width": 120, "height": 32, "radius": null }
+        ],
+        "gaps": { "top": 24, "right": 24, "bottom": 24, "left": 24 }
+      }
+    }
+  ]
+}

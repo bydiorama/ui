@@ -1,8 +1,10 @@
 # Charts, diagrams and knowledge graphs — implementation plan
 
-**Status:** accepted direction, 2026-11-09. Nothing is built and nothing is
-drawn yet. The seven decisions in §8 were answered on 2026-11-09: **go, charts
-first**. Phase V0 (ADRs, spike, Paper) comes next.
+**Status:** accepted direction, 2026-11-09; charts V0–V2 built by 2026-11-11
+on branch `charts`. V0's spike is still open (it gates V4, not charts), and
+V2's exit — a product screen adopting these — is not met: the stand-in screen
+in §5 ("V2 stand-in") is the closest this repository can get on its own.
+The seven decisions in §8 were answered on 2026-11-09: **go, charts first**.
 
 This document has two jobs:
 
@@ -391,20 +393,24 @@ Each phase ends on gates, not on a date, as every phase in `PLAN.md` does.
 
 ### Phase V0 — decide, measure, draw · *small*
 
-- [ ] **Demand.** Name the products and screens that need each family and
-      count them, as PLAN.md did for Skeleton and Toast. If no family has a
-      consumer, stop here and keep this file as reference.
-- [ ] **ADR 0023 — data-visualisation layer.** Covers the dependency policy
+- [x] **Demand** (charts only, 2026-11-11). The service portal's Market
+      intelligence section is the one consumer: five Recharts call sites and
+      six hand-drawn bar strips, mapped part by part in "V2 stand-in" below.
+      Diagrams and networks still have no named consumer.
+- [x] **ADR 0023 — data-visualisation layer.** Covers the dependency policy
       (the ADR 0002 amendment), the tier admission rule (§3.2), the data
       model (§3.3) and the a11y contract (§3.6).
-- [ ] **ADR 0008 amendment — data palette.** Covers how many categorical
+- [x] **ADR 0008 amendment — data palette.** Covers how many categorical
       slots, the new hues, and the ΔE / CVD floor (§3.8).
 - [ ] **Spike, thrown away afterwards.** Render 500 / 2k / 10k / 50k nodes in
       SVG, Canvas 2D and WebGL in the pinned Chromium and on a phone, and
       measure frame time while panning. The tier thresholds in §3.2 are then
       measured instead of guessed.
-- [ ] Confirm Aspekta's `tnum` (ADR 0011 item 5).
-- [ ] **Paper.** Use the `design-component` skill. Sheets for chart anatomy
+- [x] Confirm Aspekta's `tnum` (ADR 0011 item 5). **It has none** (checked
+      2026-11-11): its digits are proportional, 367–602 units, so
+      `tabular-nums` is a no-op. Filed against the face as ADR 0011 directs;
+      pinned by `registry/fonts/aspekta/aspekta.test.ts`.
+- [x] **Paper.** Use the `design-component` skill. Sheets for chart anatomy
       (axis, tick, grid, legend, tooltip, focus), the Sparkline/Meter/Bar/Line
       set, and a diagram sheet (node, edge, arrow, label, group, controls).
       Both schemes, and the stress brand.
@@ -414,11 +420,11 @@ P0 sheets approved.
 
 ### Phase V1 — foundations + the smallest charts · *medium*
 
-- [ ] Tokens (§3.8) in the contract and resolver, with the ΔE / CVD /
+- [x] Tokens (§3.8) in the contract and resolver, with the ΔE / CVD /
       monotonic checks as Node tests. `check:contrast` pairs for every mark.
-- [ ] `registry/lib/viz`: scales, ticks, `Intl` formatting, the description
+- [x] `registry/lib/viz`: scales, ticks, `Intl` formatting, the description
       builder, the data-table model, `useChartNavigation`, the live announcer.
-- [ ] `Sparkline`, `Meter`. Both get the standard five files (`.tsx`,
+- [x] `Sparkline`, `Meter`. Both get the standard five files (`.tsx`,
       `.doc.ts`, `.stories.tsx`, `.browser.test.tsx`, `.types.test.tsx`),
       visual baselines in both schemes, and the brand-theme story.
 - [ ] Extend `check:boundaries` to the viz dependencies, and
@@ -429,17 +435,50 @@ with no hydration needed; forced-colours test passing.
 
 ### Phase V2 — the chart workhorses · *large*
 
-- [ ] `Chart` primitives; `BarChart`, `LineChart`, `AreaChart` presets.
-- [ ] `Chart.Tooltip` (virtual-anchor Popover), `Chart.Legend` (toggling a
+- [x] `Chart` primitives; `BarChart`, `LineChart`, `AreaChart` presets.
+- [x] `Chart.Tooltip` (virtual-anchor Popover), `Chart.Legend` (toggling a
       series is a checkbox, with its semantics), `Chart.Table`.
-- [ ] The keyboard contract tested in Playwright; live-region announcements
+- [x] The keyboard contract tested in Playwright; live-region announcements
       asserted.
-- [ ] Geometry specs in `design/paper/specs/` for the axis and legend.
-- [ ] `StatTiles` / `ChartCard` as the first blocks. This is also the first
+- [x] Geometry specs in `design/paper/specs/` for the axis and legend
+      (`chart-plot-row` holds the y-axis column, `chart-plot-column` the
+      x-axis row, `chart-legend-entry` the legend).
+- [x] `StatTiles` / `ChartCard` as the first blocks. This is also the first
       use of `registry/blocks/`.
+- [ ] Linux visual baselines for chart, chart-card and stat-tiles (the
+      "Generate visual baselines" workflow; needs the branch pushed).
 
 **Exit:** a consumer screen replaces its current charting with these, as
 PLAN.md's "ship what the consumer renders" requires.
+
+#### V2 stand-in — the portal's Market intelligence, rebuilt (2026-11-11)
+
+No product screen can adopt these yet, so
+`registry/screens/market-intelligence/market-intelligence.stories.tsx`
+rebuilds the charted parts of the portal's Market intelligence section from
+library parts only, on placeholder data. It is a story, under the axe pass,
+and ships to no one. It does **not** close the exit above; it is the
+rehearsal that makes the real migration a mapping exercise.
+
+| Portal call site | Library part | Gap it leaves |
+|---|---|---|
+| Overview count tiles (three hand-rolled boxes) | `StatTiles` | — |
+| `SosTrendCard` (headline share over a smoothed line, event annotation) | `ChartCard` + `xScale="time"`, `Chart.Rule` for a target | **A vertical event marker** ("Repositioned" on a month): `Chart.Rule` is horizontal only. Not drawn. |
+| `SosAreaChart` (four overlapping gradient areas) | `LineChart`, four series, legend toggles | By choice, not a gap: overlapping fades go muddy (ChartCard doc). |
+| Brand share column (`div` bars in the table) | `BarChart orientation="horizontal"` | **A bar inside a table cell**: ranked rows are a whole chart, not a cell. |
+| `TrendSparkline` in the keyword table (50×20) | `Sparkline size="sm"` + a shared `domain` | **A row-height sparkline**: the smallest drawn size is 120×32. |
+| `TrendDistributionBar` (one stacked status strip) | ranked `BarChart` rows | **A part-of-whole strip in status colours**: no component; status inks are reserved and charts use data slots. |
+| CEP / intent strips (100% stacked per category) | stacked `BarChart` | **A 100% stack**: stacking is absolute only. |
+| Market map / landscape quadrant | — | **Scatter** (P1 in §4.1). |
+| Percentage-point changes ("+2.1pp") | `StatDelta` | **Percentage points**: `Intl` has no pp unit, so a change of share prints as a relative %. |
+
+Found and fixed by building it: direct labels painting past the frame, a rule
+label crossed by its own line, and sparklines in a column exaggerating flat
+series, and ChartCard's head showing a stale change while loading. Checked
+at 320px and 200% zoom, three more: category names running together on the
+x axis, a fixed name lane leaving horizontal bars 8px, and Table's hidden
+text scrolling the page sideways (ledger, 2026-11-11). Found and left to the portal: its headings set
+`font-medium` over roles whose weight is 600, which the type-role gate refuses.
 
 ### Phase V3 — Diagram viewer · *large*
 

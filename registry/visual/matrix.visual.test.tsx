@@ -63,6 +63,8 @@ import { Progress } from "@/ui/progress/progress.tsx";
 import { BarChart, Chart } from "@/ui/chart/chart.tsx";
 import { Meter } from "@/ui/meter/meter.tsx";
 import { Sparkline } from "@/ui/sparkline/sparkline.tsx";
+import { StatTiles } from "@/blocks/stat-tiles/stat-tiles.tsx";
+import { ChartCard } from "@/blocks/chart-card/chart-card.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
@@ -211,6 +213,12 @@ function mount(
 async function stable(el: Element) {
   await act(async () => {
     await document.fonts.ready;
+    // Two frames for ResizeObserver: a chart renders at its 640px server width
+    // until the observer reports the frame, and chart-card measured 729px in a
+    // 560px frame on two runs in three without this wait.
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  });
+  await act(async () => {
     const running = el.getAnimations({ subtree: true });
     const finite: Animation[] = [];
     for (const animation of running) {
@@ -644,7 +652,9 @@ const CASES: Array<{
     // Stacked bars (the segment gap and the outer-only radius), lines with
     // direct labels, a rule and a missing value, and ranked horizontal rows. Grouped bars and stacked
     // areas are pinned by computed geometry in the contract test instead: four
-    // charts overflow the 900px capture. Static: no hover or focus.
+    // charts overflow the 900px capture. The ranked chart is ONE row since the
+    // legend grew to its 24px target band; the row gap is pinned by geometry.
+    // Static: no hover or focus.
     ui: (
       <div className="flex flex-col gap-sm">
         <BarChart size="sm" isStacked label="Stacked" description="Output rose to 575 in 1972." x="year" xLabel="Year"
@@ -658,9 +668,44 @@ const CASES: Array<{
         </Chart>
         <BarChart orientation="horizontal" label="Ranked" description="Müller-Brockmann made the most." x="who" xLabel="Designer"
           // A `who` field, not `name`: check:visual-coverage reads name fields here as case names.
-          data={[{ who: "Josef Müller-Brockmann", n: 342 }, { who: "Otl Aicher", n: 135 }]}
+          data={[{ who: "Josef Müller-Brockmann", n: 342 }]}
           series={[{ key: "n", label: "Posters" }]} />
       </div>
+    ),
+  },
+  {
+    name: "stat-tiles",
+    // Blocks. The sheet's four-tile row in a 560px frame: under 1120px it
+    // wraps two by two (sheet: Narrow row), so this pins the hairlines
+    // following the wrap, sparklines kept beside the text at a 279px tile,
+    // a good and a bad change and a flat one. Then the data states, whose
+    // height must match a loaded tile.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <StatTiles aria-label="Printing">
+          <StatTiles.Tile label="Posters printed" value="1,284" delta={{ change: 0.12, comparison: "vs 1971" }}
+            trend={<Sparkline size="sm" data={[9, 12, 10.5, 15, 13.5, 18, 16.5, 21, 19, 23, 21.5, 25]} label="Posters" description="Rose." />} />
+          <StatTiles.Tile label="Books bound" value="862" delta={{ change: -0.04, comparison: "vs 1971" }}
+            trend={<Sparkline size="sm" data={[25, 21.5, 23, 19, 21, 16.5, 18, 13.5, 15, 10.5, 12, 9]} label="Books" description="Fell." />} />
+          <StatTiles.Tile label="Ink cost" value="€3,410" delta={{ change: 0.09, comparison: "vs 1971", polarity: "down-is-good" }} />
+          <StatTiles.Tile label="Presses running" value="6" delta={{ change: 0, comparison: "vs 1971" }} />
+        </StatTiles>
+        <StatTiles>
+          <StatTiles.Tile label="Books bound" value={null} />
+          <StatTiles.Tile label="Sheets cut" value={null} isLoading />
+        </StatTiles>
+      </div>
+    ),
+  },
+  {
+    name: "chart-card",
+    // The sheet's card: the figure and change under the title, the fading
+    // area below, and the description NOT printed.
+    ui: (
+      <ChartCard size="sm" label="Posters printed" description="Output rose every year after 1951." value="2,370"
+        delta={{ change: 0.18, comparison: "vs 1951–1956" }} x="year" xLabel="Year"
+        data={[{ year: 1951, n: 210 }, { year: 1953, n: 260 }, { year: 1955, n: 240 }, { year: 1957, n: 330 }, { year: 1959, n: 390 }, { year: 1961, n: 470 }]}
+        series={[{ key: "n", label: "Posters" }]} />
     ),
   },
   {

@@ -73,6 +73,7 @@ parts of that plan code now depends on into rules.
   `lib/viz` V1 imports none: a linear scale and a polyline are a few lines of
   arithmetic, and a dependency is admitted when a chart needs more than that
   (band scales, time ticks, curves), not before.
-- Open: Aspekta's `tnum` (ADR 0011) must be confirmed before an axis relies on
-  it; the glow variant needs a series-coloured `--ui-data-glow` because
+- Answered 2026-11-11: Aspekta has no `tnum` (ADR 0011 item 5); axis ticks
+  and tooltip values are right-aligned proportional figures until the face
+  ships it. Open: the glow variant needs a series-coloured `--ui-data-glow` because
   `--ui-fx-glow` follows the accent (Paper sheet, Gaps).

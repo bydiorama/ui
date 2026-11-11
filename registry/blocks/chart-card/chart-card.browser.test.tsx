@@ -55,6 +55,25 @@ const card = (extra: Partial<{ children: ReactElement }> = {}) => (
   />
 );
 
+describe("ChartCard loading", () => {
+  test("the head shows the tile's skeletons, not a stale change, and keeps its height", async () => {
+    // The stand-in screen's loading story printed "25% vs Dec 1971" beside an
+    // em dash: the head had no loading state of its own.
+    const loaded = await mount(card());
+    const height = loaded.q("chart-headline").getBoundingClientRect().height;
+    act(() => root?.unmount());
+    container?.remove();
+    const { q, container: c } = await mount(
+      <ChartCard label="Printed work by year" description="d" value="—" delta={{ change: 0.18, comparison: "vs 1951–1956" }} data={[]} x="year" xLabel="Year" series={ONE} isLoading />,
+    );
+    const head = q("chart-headline");
+    expect(head.textContent).toBe("");
+    expect(c.querySelector('[data-slot="stat-delta"]')).toBeNull();
+    expect(head.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(2);
+    expect(head.getBoundingClientRect().height).toBeCloseTo(height, 0);
+  });
+});
+
 describe("ChartCard is the Chart with the tile's figure in its head", () => {
   test("title, then the figure and change; the description is hidden but still describes", async () => {
     const { q } = await mount(card());

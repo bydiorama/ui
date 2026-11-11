@@ -79,6 +79,7 @@ Meter
   ],
 
   knownGaps: [
+    "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",
     "The target rule is border-strong, where the sheet draws text-primary: an ink role used as a fill is the wrong-category signal (add-component §2), and border-strong is the line role already audited at 3:1 on the page and the card.",
     "Meter vs Progress Indicator Circular (TODO.md) is not settled; the sheet's Gaps row records it as a Conflict.",
     "On the stress brand the track is 1.12:1 on white, so the end of the range is near invisible; the printed reading has to stay (sheet, Measured).",

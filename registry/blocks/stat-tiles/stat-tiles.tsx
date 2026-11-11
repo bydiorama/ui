@@ -1,3 +1,4 @@
+import { Children, createContext, isValidElement, useContext } from "react";
 import type { HTMLAttributes, ReactElement, ReactNode, Ref } from "react";
 import { Minus, TrendDown, TrendUp } from "griddy-icons";
 
@@ -95,6 +96,38 @@ export function StatDelta({
 
 /* ── Tile ──────────────────────────────────────────────────────────────── */
 
+/*
+ * The narrow row (sheet: "Narrow row"). A tile with a sparkline needs 280px
+ * — 2 × 24 inset, 84px of text, 16px, the 120px trend — so the row is one
+ * line only while every tile gets that: four from 1120px, three from 840px.
+ * Below, two by two. The ROW's width decides, read as a container query, so
+ * a row in a 720px panel wraps on a wide screen too.
+ *
+ * Each tile is told its place in the row, because the hairlines follow the
+ * wrap: a start-side line on the second column, a top line on the second row.
+ * Literal class strings, per row length, so Tailwind sees whole names.
+ */
+const PLACE: Record<number, readonly string[]> = {
+  1: ["basis-full"],
+  2: ["basis-1/2", "basis-1/2 border-s"],
+  3: [
+    "basis-1/2 @min-[840px]:basis-1/3",
+    "basis-1/2 border-s @min-[840px]:basis-1/3",
+    // The odd one out spans the second row rather than leave a hole.
+    "basis-full border-t @min-[840px]:basis-1/3 @min-[840px]:border-t-0 @min-[840px]:border-s",
+  ],
+  4: [
+    "basis-1/2 @min-[1120px]:basis-1/4",
+    "basis-1/2 border-s @min-[1120px]:basis-1/4",
+    "basis-1/2 border-t @min-[1120px]:basis-1/4 @min-[1120px]:border-t-0 @min-[1120px]:border-s",
+    "basis-1/2 border-s border-t @min-[1120px]:basis-1/4 @min-[1120px]:border-t-0",
+  ],
+};
+
+/** A tile's place in its row: [index, count]. Outside a row, a lone tile. */
+const TilePlace = createContext<readonly [number, number]>([0, 1]);
+
+
 interface StatTileOwnProps {
   /** Required — what is measured ("Posters printed"). Stays printed while loading. */
   label: string;
@@ -127,6 +160,8 @@ export type StatTileProps = StatTileOwnProps & Omit<HTMLAttributes<HTMLDivElemen
  */
 function StatTile({ label, value, delta, trend, isLoading = false, emptyText = "No reading yet", className, ref, ...rest }: StatTileProps) {
   const isEmpty = !isLoading && value === null;
+  const [index, count] = useContext(TilePlace);
+  const place = PLACE[Math.min(Math.max(count, 1), 4)]![Math.min(index, 3)] ?? "";
   return (
     <div
       ref={ref}
@@ -135,10 +170,13 @@ function StatTile({ label, value, delta, trend, isLoading = false, emptyText = "
       className={cn(
         // Two columns: the text, and the trend aligned to its foot. A grid
         // rather than nested flex because a <div> in a <dl> may hold only
-        // <dt> and <dd> — the trend has to be a sibling of the figure.
-        "grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] content-start items-end gap-x-lg gap-y-xs p-xl",
-        // The hairline between tiles, never boxes around each one.
-        "border-s border-edge-subtle first:border-s-0",
+        // <dt> and <dd> — the trend has to be a sibling of the figure. The
+        // tile is a container too, so the trend can move under the text when
+        // the tile is narrower than its 280px (see the trend below).
+        "@container grid min-w-0 grow-0 grid-cols-[minmax(0,1fr)_auto] content-start items-end gap-y-xs p-xl",
+        // The hairlines between tiles, never boxes around each one.
+        "border-edge-subtle",
+        place,
         className,
       )}
       {...rest}
@@ -169,7 +207,16 @@ function StatTile({ label, value, delta, trend, isLoading = false, emptyText = "
         </dd>
       ) : null}
       {trend && !isLoading && !isEmpty && (
-        <dd data-slot="stat-trend" className="col-start-2 row-span-3 row-start-1 self-end">
+        // Beside the text from 220px of content — the sheet's 84px text
+        // column, 16px, the 120px trend: 16px off the text, its foot on the
+        // change line's. (The row's 280px per tile is that plus the insets
+        // and some slack; a tile in a row that just fits keeps it beside.)
+        // Narrower, it drops under the change line, 4 + 12 = 16px clear,
+        // and the text takes the whole width.
+        <dd
+          data-slot="stat-trend"
+          className="col-start-1 row-start-4 mt-md justify-self-start @min-[220px]:col-start-2 @min-[220px]:row-span-3 @min-[220px]:row-start-1 @min-[220px]:mt-0 @min-[220px]:ms-lg @min-[220px]:self-end"
+        >
           {trend}
         </dd>
       )}
@@ -199,10 +246,16 @@ function StatTilesRoot({ children, className, ref, ...rest }: StatTilesProps) {
     <dl
       ref={ref}
       data-slot="stat-tiles"
-      className={cn("flex min-w-0 rounded-md border border-edge-subtle bg-surface", className)}
+      className={cn("@container flex min-w-0 flex-wrap rounded-md border border-edge-subtle bg-surface", className)}
       {...rest}
     >
-      {children}
+      {Children.toArray(children)
+        .filter(isValidElement)
+        .map((child, i, tiles) => (
+          <TilePlace.Provider key={child.key ?? i} value={[i, tiles.length]}>
+            {child}
+          </TilePlace.Provider>
+        ))}
     </dl>
   );
 }
@@ -216,13 +269,24 @@ export interface StatFigureProps {
   /** The formatted figure ("2,370"). */
   value: string;
   delta?: StatDeltaProps;
+  /** The tile's own skeletons (96×24 and 72×12) in the figure's 30px row, so
+   *  a loading card neither prints a stale change nor jumps when data lands. */
+  isLoading?: boolean;
 }
 
 /**
  * A figure and its change on one baseline, 12px apart — the tile's own
  * parts at the tile's sizes, laid out in a row for a chart head.
  */
-export function StatFigure({ value, delta }: StatFigureProps) {
+export function StatFigure({ value, delta, isLoading = false }: StatFigureProps) {
+  if (isLoading) {
+    return (
+      <div data-slot="stat-figure" className="flex h-7.5 items-center gap-x-md">
+        <Skeleton className="h-6 w-24" />
+        {delta && <Skeleton className="h-3 w-18" />}
+      </div>
+    );
+  }
   return (
     <div data-slot="stat-figure" className="flex flex-wrap items-baseline gap-x-md">
       <span data-slot="stat-value" className="font-body text-figure tabular-nums text-ink-primary">

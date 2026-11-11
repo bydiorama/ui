@@ -26,6 +26,7 @@ Sparkline
 ├─ variant?       line | area | column
 ├─ series?        1…8 — the categorical slot
 ├─ size?          md (160×40) | sm (120×32)
+├─ domain?        [min, max] — share one across a column of sparklines
 ├─ hasEndMarker?  default true (line, area)
 └─ isLoading?
   `.trim(),
@@ -38,6 +39,7 @@ Sparkline
     series: { type: "1 | 2 | 3 | 4 | 5 | 6 | 7 | 8", default: "1", notes: "The ordinal data slot (--ui-data-cat-N). Use the slot this series has in the full chart it summarises, so colour keeps meaning one thing across a screen. Not `slot`: that is a global HTML attribute." },
     size: { type: '"md" | "sm"', default: '"md"', notes: "160×40 and 120×32, the two sizes the sheet draws. Fixed, not fluid: a stretched sparkline exaggerates its own slope." },
     hasEndMarker: { type: "boolean", default: "true", notes: "The ringed dot on the latest value. On by default because a trend that does not mark where it ends does not say where it is now. Ignored for columns." },
+    domain: { type: "readonly [number, number]", notes: "Line and area: the value range the height spans. Default is the series' own min–max, which stretches any wobble to full height — right alone, wrong in a column of sparklines, where a flat 12 ↔ 13 draws like a crash beside a real one. Pass ONE domain to every sparkline in the column — only when the rows share a unit (an index, a share); raw volumes of very different sizes would flatten every small row, and those want their own range. Widened to hold every value, so it never clips. Columns ignore it: they stand on zero." },
     isLoading: { type: "boolean", default: "false", notes: "Reserves the box with a sunken skeleton and sets aria-busy. The name and description stay, so a screen reader is not handed a nameless busy image." },
   },
 

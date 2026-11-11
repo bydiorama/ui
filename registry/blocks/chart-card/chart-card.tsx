@@ -31,7 +31,7 @@ export type ChartCardProps<Row> = ChartCardOwnProps & Omit<ChartProps<Row>, "chi
  */
 export function ChartCard<Row>({ value, delta, children, ...props }: ChartCardProps<Row>) {
   return (
-    <Chart {...(props as ChartProps<Row>)} data-block="chart-card" headline={<StatFigure value={value} {...(delta ? { delta } : {})} />}>
+    <Chart {...(props as ChartProps<Row>)} data-block="chart-card" headline={<StatFigure value={value} isLoading={props.isLoading ?? false} {...(delta ? { delta } : {})} />}>
       {children ?? <Chart.Areas wash="fade" />}
     </Chart>
   );

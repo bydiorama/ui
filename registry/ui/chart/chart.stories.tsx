@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { fn } from "storybook/test";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
@@ -132,6 +133,26 @@ const STRESS_BRAND: ThemeSeed = {
     bg: "#fffdf5", surface: "#ffffff", muted: "#f4ecd8",
     textPrimary: "#1a1400", textMuted: "#6b5d3f",
     border: "rgba(26, 20, 0, 0.12)", accent: "#ffe066",
+  },
+};
+
+/** Uneven years on a time axis, and a point a click or Enter selects. */
+export const TimeAndSelect: Story = {
+  render: () => {
+    const rows = [1951, 1953, 1955, 1959, 1961, 1967].map((y, i) => ({ when: new Date(Date.UTC(y, 0, 1)), n: [210, 260, 240, 330, 390, 470][i]! }));
+    return (
+      <AreaChart
+        xScale="time"
+        wash="fade"
+        label="Posters printed"
+        description="Output rose in every gap after 1955."
+        data={rows}
+        x="when"
+        xLabel="Year"
+        series={[{ key: "n", label: "Posters" }]}
+        onSelect={fn()}
+      />
+    );
   },
 };
 

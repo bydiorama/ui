@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-chart-legend-toggles-series",
+  "date": "2026-11-11",
+  "item": "chart",
+  "kind": "addition",
+  "summary": "Chart's legend toggles series, as the Bar sheet's new Legend toggle section draws it. Each entry is a native checkbox in a 24px label (checked is shown) with bg-hover on hover and the focus ring on the label. A hidden series leaves the marks, tooltip and keyboard and the group closes up; the value axis keeps every series' domain so the rest do not move; the table still lists it. A hidden key is outlined and its name muted; the last shown series is aria-disabled. Each entry is a tab stop before the plot. The sheet's toggle drawing first padded entries 6px on the belief that the legend gap was 12px; it is 16px, so entries are padded space-sm (8px) and the anatomy specimen's legend band grows to 24px (frame 409 → 417; chart.geometry.json follows).",
+  "affects": [
+    "item:chart"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XRL-0"
+  }
+}

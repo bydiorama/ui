@@ -57,5 +57,9 @@ export function Invalid() {
   const j = <AreaChart isStacked wash="fade" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />;
   /* @ts-expect-error the wash is flat or fade, nothing else */
   const k = <Chart.Areas wash="gradient" />;
-  return [a, b, c, d, e, f, g, h, i, j, k];
+  /* @ts-expect-error onSelect hands back the caller's own row type — a field the rows lack is an error */
+  const l = <BarChart label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} onSelect={(s) => s.row.prints} />;
+  /* @ts-expect-error a bar is a category: the time axis is for lines and areas */
+  const m = <BarChart xScale="time" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />;
+  return [a, b, c, d, e, f, g, h, i, j, k, l, m];
 }

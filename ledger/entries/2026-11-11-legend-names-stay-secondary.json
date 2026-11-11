@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-legend-names-stay-secondary",
+  "date": "2026-11-11",
+  "item": "chart",
+  "kind": "fix",
+  "summary": "Legend name ink decided as built: text-secondary. The Bar and Line sheets drew legend names in --ui-data-label (an alias of text-muted), which left the legend toggle no step to mark a hidden series. The sheets' legend specimens (light, dark and stress brand) now draw secondary, the Bar sheet's Gaps row reads Decided and its Legend toggle row Built, and the Anatomy token map splits 'Title and legend names' (which said primary) into Title, primary, and Legend names, secondary. Ticks and category labels stay on --ui-data-label. No code change.",
+  "affects": [
+    "item:chart"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XRL-0"
+  }
+}

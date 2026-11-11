@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-chart-labels-stay-inside-the-frame",
+  "date": "2026-11-11",
+  "item": "chart",
+  "kind": "fix",
+  "summary": "Two label collisions found by the market-intelligence stand-in screen. A direct label longer than the 96px lane (a domain such as muller-brockmann.example) painted past the chart's frame onto the card beside it; now, when any series name measures wider than the lane's 80px, the chart drops every direct label and end marker and the plot takes the lane back — the legend (two or more series) or the title (one) already names every line. And a Rule's label, always above the rule's end, was crossed by a line ending a little over its own target; it now sits under the rule (data-placement=\"below\") when a shown line runs through its place above and the place below is clear and inside the plot, decided from the data so the server draws the same side.",
+  "affects": [
+    "item:chart",
+    "slot:chart-direct-label",
+    "slot:chart-rule-label"
+  ]
+}

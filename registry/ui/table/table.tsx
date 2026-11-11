@@ -427,12 +427,18 @@ export function Table<Row>({
 
         role/aria/tabIndex are applied together or not at all: a named region
         that cannot be reached is as useless as a reachable one with no name.
+
+        `relative`, because a clip is not a containing block. Visually hidden
+        text (`sr-only`, here and in every cell a consumer writes) is absolutely
+        positioned, so without it the text is placed against the page — past the
+        clip — and the PAGE scrolls sideways at 320px. Found by the charts V2
+        stand-in screen's "Not ranked" cell: 33px of page scroll.
       */}
       <div
         ref={clip}
         data-slot="table-body-clip"
         data-scrollable={isScrollable || undefined}
-        className="overflow-x-auto rounded-(--ui-table-body-radius)"
+        className="relative overflow-x-auto rounded-(--ui-table-body-radius)"
         {...(isScrollable ? { role: "region", "aria-labelledby": captionId, tabIndex: 0 } : {})}
       >
         <table

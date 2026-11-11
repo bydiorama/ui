@@ -8,7 +8,8 @@ export const statTilesDoc = {
 
   anatomy: [
     { part: "root", slot: "stat-tiles", notes: "A <dl>. bg-surface, border-subtle hairline, radius-md, one frame for the whole row. className lands here." },
-    { part: "tile", slot: "stat-tile", notes: "A <div> grouping the term and its descriptions. 24px inset; a start-side hairline between tiles, none on the first. Two columns: the text, and the trend aligned to the foot. aria-busy while loading." },
+    { part: "tile", slot: "stat-tile", notes: "A <div> grouping the term and its descriptions. 24px inset; hairlines between tiles that follow the wrap — a start-side line on every column after the first, a top line on the second row. Two columns: the text, and the trend aligned to the foot. aria-busy while loading." },
+    { part: "narrow row", slot: "stat-tiles", notes: "One line only while each tile gets 280px: four tiles from 1120px of row, three from 840px. Below, two by two; a third tile spans the second row. Under 220px of tile content the trend drops under the change line, 16px clear, and the text takes the full width (sheet: Narrow row)." },
     { part: "label", slot: "stat-label", notes: "<dt>. label-sm at 400, muted. Stays printed while loading." },
     { part: "value", slot: "stat-value", notes: "<dd>. The `figure` role — 24/30 at 600, tracking-tight — with tabular figures, primary. A 30px row, so a skeleton holds its height." },
     { part: "change line", slot: "stat-delta", notes: "16px TrendUp / TrendDown / Minus glyph, 4px gap, the change in label-sm 600 in success or danger ink, the comparison in label-sm 400 muted. A zero change is the Minus glyph and \"No change vs …\", all muted." },
@@ -70,12 +71,12 @@ StatDelta / StatFigure        the change line, and figure + change in a row (Cha
   },
 
   needsDesign: [
-    "The narrow row: below 560px the sheet describes a two-by-two wrap with the dividers following, and does not draw it (sheet Gaps: Derived).",
-    "Forced colours: both intent inks become CanvasText, so good and bad read the same; the glyph and the words carry the rest. Described, not drawn (sheet Gaps: Derived).",
+        "Forced colours: both intent inks become CanvasText, so good and bad read the same; the glyph and the words carry the rest. Described, not drawn (sheet Gaps: Derived).",
   ],
 
   knownGaps: [
-    "The narrow two-by-two wrap is not built: tiles shrink side by side and their text wraps.",
+    "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",
+    "The row's thresholds are container queries on the row itself (four across from 1120px, three from 840px), so they hold in any panel; the tile's sparkline moves under the text below 220px of tile content, which is read from the tile. A label longer than the sheet's 84px text column still wraps in a tile that keeps its sparkline beside it.",
     "The good/bad judgement is colour only for a screen reader: the direction is spoken (\"Up 12%\") and the polarity is not. A reader who needs it reads the label.",
     "Label, comparison and empty text are label-sm at 400, declared as type-role deviations as Chart's ticks are.",
   ],

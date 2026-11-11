@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { MARKER_SHAPES, arcPath, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis } from "./viz.ts";
+import { MARKER_SHAPES, arcPath, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
 
 const BOX = { width: 160, height: 40, inset: { top: 6, right: 8, bottom: 6, left: 2 } } as const;
 
@@ -153,4 +153,53 @@ test("rowBarPath is the Bar sheet's horizontal row: 24 tall, data end rounded", 
   // A bar shorter than the radius never draws a corner bigger than itself.
   assert.match(rowBarPath(0, 24, 2, 0, 4), /^M0 0H0a2 2/);
   assert.equal(rowBarPath(0, 24, 50, 50, 4), "");
+});
+
+const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+test("timeTicks: whole UTC years, the finest step that fits", () => {
+  const t = timeTicks([Date.UTC(1951, 0, 1), Date.UTC(1975, 6, 1)], 6);
+  assert.equal(t.unit, "year");
+  assert.equal(t.step, 5);
+  assert.deepEqual(t.ticks.map((k) => iso(k.value)), ["1955-01-01", "1960-01-01", "1965-01-01", "1970-01-01", "1975-01-01"]);
+});
+
+test("timeTicks: months for a year of data, aligned to the step", () => {
+  const t = timeTicks([Date.UTC(1972, 0, 15), Date.UTC(1972, 11, 20)], 4);
+  assert.equal(t.unit, "month");
+  assert.equal(t.step, 3);
+  assert.deepEqual(t.ticks.map((k) => iso(k.value)), ["1972-04-01", "1972-07-01", "1972-10-01"]);
+});
+
+test("timeTicks: days, and weeks start on a Monday", () => {
+  const days = timeTicks([Date.UTC(1972, 2, 1), Date.UTC(1972, 2, 4)], 10);
+  assert.deepEqual([days.unit, days.step], ["day", 1]);
+  assert.equal(days.ticks.length, 4);
+  const weeks = timeTicks([Date.UTC(1972, 2, 1), Date.UTC(1972, 2, 29)], 5);
+  assert.deepEqual([weeks.unit, weeks.step], ["day", 7]);
+  for (const k of weeks.ticks) assert.equal(new Date(k.value).getUTCDay(), 1, `${iso(k.value)} is a Monday`);
+});
+
+test("timeTicks never exceeds the budget, and every tick lies inside the domain", () => {
+  for (const [a, b, n] of [[Date.UTC(1440, 0, 1), Date.UTC(1972, 0, 1), 6], [Date.UTC(1972, 0, 1), Date.UTC(1972, 0, 2), 2], [Date.UTC(1900, 5, 3), Date.UTC(1999, 8, 9), 9]] as const) {
+    const t = timeTicks([a, b], n);
+    assert.ok(t.ticks.length <= n, `${t.ticks.length} ticks for a budget of ${n}`);
+    for (const k of t.ticks) assert.ok(k.value >= a && k.value <= b);
+  }
+});
+
+test("tick and point formats are UTC, so server and browser print the same date", () => {
+  for (const unit of ["day", "month", "year"] as const) assert.equal(tickDateFormat(unit).timeZone, "UTC");
+  assert.deepEqual(pointDateFormat([Date.UTC(1957, 0, 1), Date.UTC(1961, 0, 1)]), { year: "numeric", timeZone: "UTC" });
+  assert.deepEqual(pointDateFormat([Date.UTC(1957, 2, 1), Date.UTC(1957, 5, 1)]), { month: "short", year: "numeric", timeZone: "UTC" });
+  assert.deepEqual(pointDateFormat([Date.UTC(1957, 2, 4)]), { dateStyle: "medium", timeZone: "UTC" });
+  assert.equal(pointDateFormat([Date.UTC(1957, 2, 4, 9, 30)]).timeStyle, "short");
+});
+
+test("timePositions spaces points by time, not by index", () => {
+  const xs = timePositions([Date.UTC(1950, 0, 1), Date.UTC(1951, 0, 1), Date.UTC(1960, 0, 1)], 116);
+  assert.equal(xs[0], 8);
+  assert.equal(xs[2], 108);
+  assert.ok(Math.abs(xs[1]! - 18) < 0.05, `one year of ten lands a tenth of the way: ${xs[1]}`);
+  assert.deepEqual(timePositions([5], 100), [50]);
 });

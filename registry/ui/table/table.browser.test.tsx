@@ -800,6 +800,24 @@ describe("the frame scrolls rather than swallowing its right-hand columns", () =
     expect(clip.getAttribute("role")).toBeNull();
   });
 
+  test("visually hidden text in a scrolled-off cell stays inside the clip, not the page", async () => {
+    // The charts V2 stand-in screen: a "Not ranked" sr-only label in the last
+    // column of a scrolling table was positioned against the page, past the
+    // clip, and the PAGE scrolled 33px sideways at 320px.
+    const { clip } = mount(
+      <Table
+        {...base}
+        minWidth={1600}
+        columns={[...COLUMNS, { key: "note", header: "Note", width: 96, cell: () => <span className="sr-only">Not ranked</span> }]}
+      />,
+    );
+    container!.style.width = "300px";
+    await measured();
+    const hidden = clip.querySelector<HTMLElement>(".sr-only")!;
+    expect(clip.contains(hidden.offsetParent) || hidden.offsetParent === clip).toBe(true);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
+  });
+
   test("scrolling did not cost the rounded corners", () => {
     const { clip } = mount(<Table {...base} />);
     // `overflow-x: auto` clips at the border box exactly as `overflow: clip`

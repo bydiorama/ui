@@ -26,6 +26,13 @@ one. Specifically:
    for data tables; if it does not, that is a gap to file against the face, not
    a reason to reintroduce a mono stack.
 
+   *Checked 2026-11-11: it does not.* AspektaVF has no `tnum` and its default
+   digits are proportional (367–602 units); `ss09`/`ss10` are shape
+   alternates, not tabular figures. Filed against the face as this item
+   directs. `tabular-nums` stays in source, a no-op until the face ships the
+   feature; every component that relies on it lists the gap, and
+   `registry/fonts/aspekta/aspekta.test.ts` fails the day that changes.
+
 ## Enforcement
 
 `pnpm check:licensing` already reads every `font-family` in distributed source.

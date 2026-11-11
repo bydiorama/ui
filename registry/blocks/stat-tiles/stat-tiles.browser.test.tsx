@@ -185,6 +185,66 @@ describe("StatTiles' data states keep the tile", () => {
   });
 });
 
+describe("The narrow row (sheet: Narrow row)", () => {
+  const rows = (tiles: HTMLElement[]) => tiles.map((t) => Math.round(t.getBoundingClientRect().top));
+  const lines = (t: HTMLElement) => {
+    const cs = getComputedStyle(t);
+    return [cs.borderLeftWidth, cs.borderTopWidth];
+  };
+
+  test("four across only from 1120px: the sheet's row is one line at 1152", async () => {
+    const { all } = await mount(<Row />, 1152);
+    expect(new Set(rows(all("stat-tile"))).size).toBe(1);
+  });
+
+  test("below it, two by two, and the hairlines follow the wrap", async () => {
+    const { all } = await mount(<Row />, 720);
+    const tiles = all("stat-tile");
+    const [a, b, c, d] = rows(tiles);
+    expect([a === b, c === d, c! > a!]).toEqual([true, true, true]);
+    // A start line on the second column, a top line on the second row.
+    expect(tiles.map(lines)).toEqual([["0px", "0px"], ["1px", "0px"], ["0px", "1px"], ["1px", "1px"]]);
+    expect(getComputedStyle(tiles[3]!).borderTopColor).toBe(tokenColor("--ui-border-subtle"));
+  });
+
+  test("three tiles: one row from 840px; under it the third spans the second row", async () => {
+    const Three = () => (
+      <StatTiles>
+        <StatTiles.Tile label="a" value="1" />
+        <StatTiles.Tile label="b" value="2" />
+        <StatTiles.Tile label="c" value="3" />
+      </StatTiles>
+    );
+    const wide = await mount(<Three />, 880);
+    expect(new Set(rows(wide.all("stat-tile"))).size).toBe(1);
+    act(() => root?.unmount());
+    container?.remove();
+    const narrow = await mount(<Three />, 720);
+    const [, , third] = narrow.all("stat-tile");
+    expect(Math.round(third!.getBoundingClientRect().width)).toBe(718); // the frame less its two 1px borders
+    expect(lines(third!)).toEqual(["0px", "1px"]);
+  });
+
+  test("a tile under 220px of content drops its sparkline under the change line, 16px clear", async () => {
+    const { q, container: c } = await mount(<Row />, 343);
+    const trend = c.querySelector('[data-testid="trend"]')!.getBoundingClientRect();
+    const tile = q("stat-tile").getBoundingClientRect();
+    const delta = q("stat-delta-row").getBoundingClientRect();
+    expect(Math.round(trend.top - delta.bottom)).toBe(16);
+    expect(Math.round(trend.left - tile.left)).toBe(24);
+    // The text takes the whole width: no empty column beside it.
+    expect(Math.round(delta.width)).toBe(Math.round(tile.width - 48));
+  });
+
+  test("at 720 a tile keeps its sparkline beside the text", async () => {
+    const { q, container: c } = await mount(<Row />, 720);
+    const trend = c.querySelector('[data-testid="trend"]')!.getBoundingClientRect();
+    const delta = q("stat-delta-row").getBoundingClientRect();
+    expect(Math.round(delta.bottom - trend.bottom)).toBe(0);
+    expect(trend.left).toBeGreaterThan(delta.left);
+  });
+});
+
 describe("Forwarding", () => {
   test("className, ref and attributes land on the root and on each tile", async () => {
     const rootRef = createRef<HTMLDListElement>();

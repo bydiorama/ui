@@ -64,6 +64,7 @@ ChartCard                     value · delta? · label · description · data ·
   ],
 
   knownGaps: [
+    "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",
     "A sighted reader does not see the description. That was chosen; the figure is the card's summary instead.",
   ],
 

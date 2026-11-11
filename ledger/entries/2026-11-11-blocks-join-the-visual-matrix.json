@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-blocks-join-the-visual-matrix",
+  "date": "2026-11-11",
+  "item": "stat-tiles",
+  "kind": "fix",
+  "summary": "check:visual-coverage counted manifest items of type ui only, so StatTiles and ChartCard shipped with no visual case. The gate now requires a case for every ui and block item, and both blocks have one, in both schemes. StatTiles' case is laid out at widths the sheet draws: below ~290px a tile with a sparkline wraps its label and change line, which is the unbuilt narrow row and now a recorded known gap. Also adds stat-tiles.geometry.json (the tile's uniform 24px inset) to the geometry gate.",
+  "affects": [
+    "item:stat-tiles",
+    "item:chart-card"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0"
+  }
+}

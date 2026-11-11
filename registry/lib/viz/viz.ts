@@ -439,3 +439,108 @@ export function bandPath(top: readonly Point[], bottom: readonly Point[]): strin
   const back = [...bottom].reverse().map((p) => `L${round(p.x)} ${round(p.y)}`).join("");
   return `${linePath(top)}${back}Z`;
 }
+
+/* ── Time ─────────────────────────────────────────────────────────────── */
+
+/** The calendar unit a set of time ticks steps by. */
+export type TimeUnit = "day" | "month" | "year";
+
+export interface TimeTick {
+  /** Milliseconds since the epoch, at a UTC unit boundary. */
+  readonly value: number;
+}
+
+export interface TimeTicks {
+  readonly unit: TimeUnit;
+  /** How many units each tick steps: 1, 2, 5 years; 3 months; 7 days. */
+  readonly step: number;
+  readonly ticks: readonly TimeTick[];
+}
+
+const DAY = 86_400_000;
+/** Candidate steps, finest first. Weeks start on Monday (epoch day 4 is a Monday). */
+const TIME_STEPS: ReadonlyArray<readonly [TimeUnit, number]> = [
+  ["day", 1], ["day", 2], ["day", 7], ["day", 14],
+  ["month", 1], ["month", 2], ["month", 3], ["month", 6],
+  ["year", 1], ["year", 2], ["year", 5], ["year", 10], ["year", 20], ["year", 50], ["year", 100],
+];
+
+function* stepsFrom(start: number, end: number, unit: TimeUnit, step: number): Generator<number> {
+  const d = new Date(start);
+  if (unit === "year") {
+    let y = Math.ceil(d.getUTCFullYear() / step) * step;
+    if (Date.UTC(y, 0, 1) < start) y += step;
+    for (; Date.UTC(y, 0, 1) <= end; y += step) yield Date.UTC(y, 0, 1);
+  } else if (unit === "month") {
+    let m = d.getUTCFullYear() * 12 + d.getUTCMonth();
+    m = Math.ceil(m / step) * step;
+    if (Date.UTC(Math.floor(m / 12), m % 12, 1) < start) m += step;
+    for (; Date.UTC(Math.floor(m / 12), m % 12, 1) <= end; m += step) yield Date.UTC(Math.floor(m / 12), m % 12, 1);
+  } else {
+    // Days count from the epoch; a 7- or 14-day step is anchored on Mondays.
+    const offset = step >= 7 ? 4 : 0;
+    let n = Math.ceil((start / DAY - offset) / step) * step + offset;
+    for (; n * DAY <= end; n += step) yield n * DAY;
+  }
+}
+
+/**
+ * Tick positions for a time axis: the finest calendar step (days, months,
+ * years) that puts at most `maxTicks` ticks inside `[start, end]`, every tick
+ * on a UTC boundary. UTC, not local time, so the server and the reader's
+ * browser place the same ticks: a local midnight is a different instant in
+ * every time zone, and the markup would not agree.
+ *
+ * Sub-day data (hours, minutes) is not covered: the finest step is one day.
+ */
+export function timeTicks(domain: Domain, maxTicks: number): TimeTicks {
+  const [start, end] = domain;
+  const limit = Math.max(1, Math.floor(maxTicks));
+  for (const [unit, step] of TIME_STEPS) {
+    const ticks: TimeTick[] = [];
+    for (const value of stepsFrom(start, end, unit, step)) {
+      ticks.push({ value });
+      if (ticks.length > limit) break;
+    }
+    if (ticks.length <= limit) return { unit, step, ticks };
+  }
+  // A span longer than a hundred steps of a hundred years: the coarsest step.
+  const [unit, step] = TIME_STEPS[TIME_STEPS.length - 1]!;
+  return { unit, step, ticks: [...stepsFrom(start, end, unit, step)].map((value) => ({ value })) };
+}
+
+/** `Intl.DateTimeFormat` options for a tick at this unit. Always UTC. */
+export function tickDateFormat(unit: TimeUnit): Intl.DateTimeFormatOptions {
+  if (unit === "year") return { year: "numeric", timeZone: "UTC" };
+  if (unit === "month") return { month: "short", year: "numeric", timeZone: "UTC" };
+  return { month: "short", day: "numeric", timeZone: "UTC" };
+}
+
+/**
+ * The coarsest date format that tells every point apart: yearly data reads
+ * "1957", monthly "Mar 1957", daily "Mar 4, 1957", anything finer adds the
+ * time. Used for the table, the tooltip and the announcement, where a reader
+ * needs the point's own date rather than the nearest tick's.
+ */
+export function pointDateFormat(values: readonly number[]): Intl.DateTimeFormatOptions {
+  const ds = values.filter(Number.isFinite).map((v) => new Date(v));
+  const midnight = ds.every((d) => d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0 && d.getUTCMilliseconds() === 0);
+  if (!midnight) return { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" };
+  if (ds.every((d) => d.getUTCMonth() === 0 && d.getUTCDate() === 1)) return { year: "numeric", timeZone: "UTC" };
+  if (ds.every((d) => d.getUTCDate() === 1)) return { month: "short", year: "numeric", timeZone: "UTC" };
+  return { dateStyle: "medium", timeZone: "UTC" };
+}
+
+/**
+ * x positions for points at the given times, proportional to time and inset
+ * at both ends like `pointPositions`. One point, or all at one instant, sits
+ * in the middle.
+ */
+export function timePositions(values: readonly number[], width: number, inset = 8): number[] {
+  if (values.length === 0) return [];
+  const first = values[0]!;
+  const last = values[values.length - 1]!;
+  if (values.length === 1 || last === first) return values.map(() => round(width / 2));
+  const x = linearScale([first, last], [inset, width - inset]);
+  return values.map((v) => round(x(v)));
+}

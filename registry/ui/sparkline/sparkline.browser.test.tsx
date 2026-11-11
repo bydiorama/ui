@@ -156,6 +156,31 @@ describe("Sparkline paints the designed marks", () => {
     expect(q("sparkline-marker-ring")).toBeNull();
     expect(q("sparkline-line")).toBeNull();
   });
+
+  test("a shared domain keeps a flat series flat beside a steep one", () => {
+    // The service-portal stand-in screen: in a column of keyword trends, a
+    // 12 ↔ 13 wobble stretched to its own min–max drew like a crash.
+    const height = (data: number[], domain?: readonly [number, number]) => {
+      const { q } = mount(<Sparkline size="sm" data={data} label="x" description="y" {...(domain ? { domain } : {})} />);
+      const box = q<SVGPathElement>("sparkline-line")!.getBBox().height;
+      act(() => root?.unmount());
+      container?.remove();
+      return box;
+    };
+    const flat = [12, 13, 12, 13, 12, 13];
+    const steep = [6, 8, 10, 12, 16, 18];
+    // Alone, each spans the full plot — the default, for a sparkline read alone.
+    expect(height(flat)).toBeCloseTo(height(steep), 0);
+    // On one domain, the flat one's slope is a twelfth of the steep one's.
+    expect(height(flat, [0, 18]) / height(steep, [0, 18])).toBeCloseTo(1 / 12, 1);
+  });
+
+  test("a domain narrower than the data is widened, never clipped", () => {
+    const { q } = mount(<Sparkline size="sm" data={[0, 50, 100]} label="x" description="y" domain={[40, 60]} />);
+    const box = q<SVGPathElement>("sparkline-line")!.getBBox();
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(32);
+  });
 });
 
 describe("Sparkline renders the same on the server", () => {

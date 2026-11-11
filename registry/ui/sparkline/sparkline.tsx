@@ -1,7 +1,7 @@
 import { forwardRef, useId, type HTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
-import { areaPath, columns, linePath, seriesPoints, type PlotBox } from "@/lib/viz";
+import { areaPath, columns, extent, linePath, seriesPoints, type Domain, type PlotBox } from "@/lib/viz";
 
 /**
  * The eight ordinal categorical slots (ADR 0023). A series takes a slot in
@@ -83,6 +83,16 @@ interface SparklineOwnProps {
   hasEndMarker?: boolean;
   /** Reserves the box with a skeleton fill, so a row of tiles never jumps. */
   isLoading?: boolean;
+  /**
+   * The value range the box's height spans, for line and area. Default: the
+   * series' own min to max, which stretches any wobble to the full height —
+   * right for one sparkline read alone, wrong for a COLUMN of them, where a
+   * flat 12 ↔ 13 would draw like a crash beside a real one. Pass one domain
+   * to every sparkline in the column so their slopes compare. It is widened
+   * to hold every value, so a too-narrow domain never clips the line.
+   * Columns ignore it: they stand on zero by construction.
+   */
+  domain?: readonly [number, number];
 }
 
 export interface SparklineProps
@@ -110,6 +120,7 @@ export const Sparkline = forwardRef<HTMLDivElement, SparklineProps>(function Spa
     size = "md",
     hasEndMarker = true,
     isLoading = false,
+    domain,
     className,
     ...rest
   },
@@ -157,6 +168,7 @@ export const Sparkline = forwardRef<HTMLDivElement, SparklineProps>(function Spa
               series={series}
               hasArea={variant === "area"}
               hasEndMarker={hasEndMarker}
+              {...(domain ? { domain } : {})}
             />
           )}
         </svg>
@@ -172,6 +184,7 @@ function Trend({
   series,
   hasArea,
   hasEndMarker,
+  domain,
 }: {
   data: readonly number[];
   width: number;
@@ -179,8 +192,12 @@ function Trend({
   series: DataSeries;
   hasArea: boolean;
   hasEndMarker: boolean;
+  domain?: readonly [number, number];
 }) {
-  const points = seriesPoints(data, plotBox(width, height));
+  const own = extent(data);
+  const span: Domain | undefined =
+    domain && own ? [Math.min(domain[0], own[0]), Math.max(domain[1], own[1])] : undefined;
+  const points = seriesPoints(data, plotBox(width, height), span);
   if (points.length === 0) return null;
   const last = points[points.length - 1]!;
 

@@ -51,7 +51,7 @@ const THREE = [...TWO, { key: "signage", label: "Signage" }] as const;
 export const Playground: Story = {
   render: () => (
     <BarChart
-      style={{ maxWidth: 784 }}
+      style={{ maxWidth: 774 }}
       label="Printed work by year"
       description="Posters led books in every year and peaked in 1972."
       data={PRINTED}

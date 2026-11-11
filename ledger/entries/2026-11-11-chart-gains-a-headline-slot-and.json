@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-chart-gains-a-headline-slot-and",
+  "date": "2026-11-11",
+  "item": "chart",
+  "kind": "addition",
+  "summary": "Chart gains a headline slot and a fading area. headline: an element under the title (ChartCard's figure and change); when present the description is visually hidden and stays the accessible description. Chart.Areas / AreaChart wash=\"fade\": the slot's solid colour at 28% at the top of the area, clear at the baseline (the Line sheet's Fading area); overlaid areas only — the AreaChart type refuses it with isStacked, and Chart.Areas draws stacked bands flat.",
+  "affects": [
+    "item:chart",
+    "prop:headline",
+    "prop:wash",
+    "slot:chart-headline"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0"
+  }
+}

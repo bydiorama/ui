@@ -9,7 +9,8 @@ export const chartDoc = {
   anatomy: [
     { part: "root", slot: "chart", notes: "A <figure> named by the title and described by the takeaway. bg-surface, border-subtle, radius-md, 24px inset, 16px between parts. className lands here." },
     { part: "title", slot: "chart-title", notes: "label-md, primary. The `label` prop." },
-    { part: "description", slot: "chart-description", notes: "body-sm, muted. The `description` prop: the takeaway a person wrote, not a restatement of the axes." },
+    { part: "description", slot: "chart-description", notes: "body-sm, muted. The `description` prop: the takeaway a person wrote, not a restatement of the axes. Visually hidden (still the accessible description) when a `headline` is passed." },
+    { part: "headline", slot: "chart-headline", notes: "Optional, under the title, 4px down: an element the caller passes — ChartCard's figure and change. Takes the description's printed place." },
     { part: "table toggle", slot: "chart-table-toggle", notes: "Button secondary md, icon-only (ChartTable), aria-pressed. Swaps the plot for the table." },
     { part: "legend", slot: "chart-legend", notes: "Only for two or more series. An 8px key in the series' marker SHAPE and slot colour, then the name in label-sm 400, secondary ink. Hovering an entry dims every other series' marks to 0.32 (the Bar sheet's Interaction row), instantly." },
     { part: "y axis", slot: "chart-y-axis", notes: "32px column of ticks, label-sm 400, muted, tabular figures, right-aligned and centred on their gridlines. Horizontal bars: a 168px lane of category names instead, one per row, truncated (the table holds the full name)." },
@@ -18,7 +19,7 @@ export const chartDoc = {
     { part: "baseline", slot: "chart-baseline", notes: "The zero line, border-default — one role stronger than the grid." },
     { part: "bar", slot: "chart-bar", notes: "At most 24px, 2px apart in a group, radius-sm at the data end and square at the baseline. Stacked: one column, 2px surface gaps, only the outer segment rounds. Horizontal: 24px rows 16px apart on a nice 0-based domain, no grid, no baseline. Forced colours: slot 1 solid CanvasText, slots 2–8 a hatch pattern in system colours inside a 1px CanvasText outline." },
     { part: "line", slot: "chart-line", notes: "stroke-thick (2px), round caps and joins, solid. A missing value breaks the line." },
-    { part: "area", slot: "chart-area", notes: "The slot's -bg wash under its line; stacked areas are bands between cumulative lines." },
+    { part: "area", slot: "chart-area", notes: "The slot's -bg wash under its line; stacked areas are bands between cumulative lines. `wash=\"fade\"` (overlaid areas only) is the Line sheet's fading area instead: the slot's solid colour at 28% at the top of the area, clear at the baseline." },
     { part: "direct label", slot: "chart-direct-label", notes: "label-sm 600 primary, 16px right of a ringed end marker, in a 96px lane. Up to four series." },
     { part: "rule", slot: "chart-rule", notes: "A solid 1px border-strong line at a value, with its required label above its end. The Line sheet sets the label in the direct-label lane; it moved above the rule so it cannot collide with a line ending near the same value." },
     { part: "highlight", slot: "chart-highlight", notes: "Bars: the hovered or focused band in bg-hover, under the marks." },
@@ -56,6 +57,8 @@ BarChart orientation="horizontal"   series must be a one-element tuple, never st
     emptyText: { type: "string", notes: "Shown over a baseline-only plot when `data` is empty." },
     orientation: { type: '"vertical" | "horizontal"', default: '"vertical"', notes: "BarChart and Chart.Bars. Horizontal is the Bar sheet's ranked rows: names left, value at each tip, no axis or tooltip. The type takes exactly one series and no isStacked; Chart.Bars throws if given more, a rule or a second mark, because grouped and stacked rows are not designed." },
     tableLabel: { type: "string", default: '"View as table"', notes: "The toggle's accessible name." },
+    headline: { type: "ReactNode", notes: "A figure and its change under the title (ChartCard passes StatFigure). The description stops being printed and stays the accessible description — decided 2026-11-11 on the Stat tiles and Chart card sheet, because a printed sentence and a figure compete for the same glance." },
+    wash: { type: '"flat" | "fade"', default: '"flat"', notes: "AreaChart and Chart.Areas. `fade` grades the wash to clear at the baseline so the line reads first. The AreaChart type refuses it with isStacked; Chart.Areas draws stacked bands flat whatever it is given." },
   },
 
   do: [
@@ -115,6 +118,7 @@ BarChart orientation="horizontal"   series must be a one-element tuple, never st
     "The anatomy specimen paints series 2 in --ui-data-div-neg-2, a token that does not exist; this follows the Bar sheet's slot 2.",
     "The proposed --ui-data-grid / -axis / -label / -highlight roles are not added: they alias border-subtle, border-default, text-muted and bg-hover, and ADR 0023 §5 keeps aliases out until a chart needs a value none has.",
     "The area wash is the slot's -bg role (14% alpha); the sheet draws 10%.",
+    "The fading wash's 28% is a constant in the component, not a token: it is the slot's own solid colour at an opacity, as the Line sheet draws it. In forced colours it relies on the line and marker, like every area.",
     "Light-scheme marks on the hover band fall to about 2.6:1 (sheet Gaps: Measured); the tooltip and the focus ring carry the value then.",
     "No time scale: categories are labels in data order, equally spaced. Uneven dates need a time axis.",
     "Enter does not select yet: there is no onSelect.",

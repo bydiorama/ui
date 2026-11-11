@@ -1,0 +1,81 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "chart",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0",
+    "artboard": "Chart --- Anatomy",
+    "extracted": "2026-11-10",
+    "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
+  },
+  "tolerance": 0.5,
+  "note": "Two figures: the frame (head, legend, plot row stacked inside a 24px inset) and the plot row (the 32px tick column, an 8px gap, and the plot column that takes the rest). Extracting the plot row found the sheet's one defect: the specimen frame was typed 784 wide around a plot drawn at 684, so the plot column hugged its SVG and left 10px of the row unfilled — `track-is-the-sum-of-its-parts` read 734 against parts adding to 724. The code's plot column is `flex-1` and always fills. Fixed in Paper by setting the frame to 774, the width the plot's own arithmetic implies (684 + 8 + 32 + 2 × 24 + 2 × 1); every inner value is unchanged. The legend item (8px key, 4px gap, label) has no case: `measure` selects every matching slot on screen and a legend only exists with two series, so the union would always span both items.",
+  "cases": [
+    {
+      "name": "chart-frame",
+      "axis": "vertical",
+      "nodes": { "container": "3XEQ-0", "children": ["3XER-0", "3XEY-0", "3XF5-0"] },
+      "slots": { "container": "chart", "child": "chart-head|chart-legend|chart-plot-row" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "The frame's children are an unshaped header, a legend and a plot row — none has a corner for the 8px frame radius to be concentric with."
+      },
+      "sheet": {
+        "container": {
+          "width": 774,
+          "height": 409,
+          "padding": 24,
+          "border": 1,
+          "radius": 8,
+          "tokens": {
+            "radius": "--ui-radius-md",
+            "padding": "--ui-space-xl",
+            "gap": "--ui-space-lg",
+            "fill": "--ui-bg-surface",
+            "border": "--ui-border-subtle"
+          }
+        },
+        "gap": 16,
+        "children": [
+          { "width": 724, "height": 38, "radius": null },
+          { "width": 724, "height": 16, "radius": null },
+          { "width": 724, "height": 273, "radius": null }
+        ],
+        "gaps": { "top": 25, "right": 25, "bottom": 25, "left": 25 }
+      }
+    },
+    {
+      "name": "chart-plot-row",
+      "axis": "horizontal",
+      "nodes": { "container": "3XF5-0", "children": ["3XF6-0", "3XFC-0"] },
+      "slots": { "container": "chart-plot-row", "child": "chart-y-axis|chart-plot-column" },
+      "laws": ["uniform-inset", "inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "lawsNotDeclared": {
+        "concentric-radius": "The plot row is an invisible track with no fill or border, so it has no radius to be concentric with."
+      },
+      "sheet": {
+        "container": {
+          "width": 724,
+          "height": 273,
+          "padding": 0,
+          "border": 0,
+          "radius": null,
+          "tokens": { "gap": "--ui-space-sm" }
+        },
+        "gap": 8,
+        "children": [
+          { "width": 32, "height": 256, "radius": null },
+          { "width": 684, "height": 273, "radius": null }
+        ],
+        "gaps": { "top": 0, "right": 0, "bottom": 0, "left": 0 }
+      }
+    }
+  ],
+  "deviations": [
+    {
+      "case": "chart-plot-row",
+      "what": "The sheet's tick column is 256 tall beside a 273 plot column; the render's tick column stretches to the row's full height.",
+      "why": "On the sheet the column is typed to the plot's height and the ticks are spaced inside it; in code the ticks are absolutely positioned at y(t), so the column's own height carries nothing and stretching is the default. Neither height is asserted — the union of the two children is the full row on both sides, which is what the laws read."
+    }
+  ]
+}

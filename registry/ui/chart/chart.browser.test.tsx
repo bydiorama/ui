@@ -33,8 +33,8 @@ let container: HTMLDivElement | null = null;
 let root: Root | null = null;
 
 /** Mounted so the plot is the anatomy sheet's 684px SVG: 684 + an 8px gap +
- *  the 32px tick column + 2 × 24px inset + 2 × 1px border = 774. (The sheet's
- *  frame is 784 and its plot does not stretch to fill the last 10px.) */
+ *  the 32px tick column + 2 × 24px inset + 2 × 1px border = 774 — the sheet's
+ *  own frame width (chart.geometry.json). */
 async function mount(ui: ReactElement, width = 774) {
   container = document.createElement("div");
   container.style.width = `${width}px`;
@@ -236,6 +236,61 @@ describe("Lines, areas and rules", () => {
     const { all } = await mount(<AreaChart isStacked size="sm" label="x" description="y" data={rows} x="year" xLabel="Year" series={three} />);
     expect(all("chart-area")).toHaveLength(3);
     expect(getComputedStyle(all("chart-area")[0]!).fill).toBe(tokenColor("--ui-data-cat-1-bg"));
+  });
+});
+
+describe("The fading wash and the headline (Stat tiles and Chart card sheet)", () => {
+  const one = [{ key: "posters" as const, label: "Posters" }];
+
+  test("wash=fade grades the slot's own solid colour from 28% to clear", async () => {
+    const { q, all } = await mount(<AreaChart wash="fade" label="x" description="y" data={PRINTED} x="year" xLabel="Year" series={one} />);
+    expect(q("chart-areas").getAttribute("data-wash")).toBe("fade");
+    const area = all("chart-area")[0]!;
+    const id = area.getAttribute("fill")!.match(/^url\(#(.+)\)$/)![1]!;
+    const gradient = document.getElementById(id)!;
+    expect(gradient.tagName.toLowerCase()).toBe("lineargradient");
+    // Top to bottom, so it fades towards the baseline, not across it.
+    expect([gradient.getAttribute("x2"), gradient.getAttribute("y2")]).toEqual(["0", "1"]);
+    const [top, bottom] = [...gradient.querySelectorAll("stop")].map((st) => getComputedStyle(st));
+    expect(top!.stopColor).toBe(tokenColor("--ui-data-cat-1-solid"));
+    expect(top!.stopOpacity).toBe("0.28");
+    expect(bottom!.stopColor).toBe(tokenColor("--ui-data-cat-1-solid"));
+    expect(bottom!.stopOpacity).toBe("0");
+    // The flat wash role is NOT also painted underneath.
+    expect(getComputedStyle(area).fill).not.toBe(tokenColor("--ui-data-cat-1-bg"));
+  });
+
+  test("the flat wash stays the default, and stacked bands stay flat whatever they are given", async () => {
+    const { all, q } = await mount(
+      <Chart isStacked label="x" description="y" data={PRINTED} x="year" xLabel="Year" series={TWO}>
+        <Chart.Areas wash="fade" />
+      </Chart>,
+    );
+    expect(q("chart-areas").getAttribute("data-wash")).toBe("flat");
+    expect(getComputedStyle(all("chart-area")[0]!).fill).toBe(tokenColor("--ui-data-cat-1-bg"));
+  });
+
+  test("a headline takes the description's printed place; the description stays the accessible one", async () => {
+    const { q } = await mount(
+      <AreaChart headline={<span data-testid="figure">2,370</span>} label="Printed work" description="Doubled since 1957." data={PRINTED} x="year" xLabel="Year" series={one} />,
+    );
+    const description = q("chart-description");
+    // Still the figure's description…
+    expect(q("chart").getAttribute("aria-describedby")).toBe(description.id);
+    expect(description.textContent).toBe("Doubled since 1957.");
+    // …but painted nowhere: clipped to a 1px box.
+    expect(description.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    // The headline sits 4px under the title, where the description was.
+    const title = q("chart-title").getBoundingClientRect();
+    const headline = q("chart-headline");
+    expect(headline.getBoundingClientRect().top - title.bottom).toBe(0);
+    expect(getComputedStyle(headline).paddingTop).toBe("4px");
+  });
+
+  test("without a headline, the description is printed as before", async () => {
+    const { q } = await mount(bars());
+    expect(q("chart-description").getBoundingClientRect().width).toBeGreaterThan(100);
+    expect(q("chart-headline")).toBeUndefined();
   });
 });
 

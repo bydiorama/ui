@@ -1,5 +1,5 @@
 /** Compile-time contract tests. `tsc --noEmit` is the runner. */
-import { BarChart, Chart, LineChart } from "./chart.tsx";
+import { AreaChart, BarChart, Chart, LineChart } from "./chart.tsx";
 
 const rows = [{ year: 1967, posters: 140, books: 105 }];
 
@@ -25,6 +25,11 @@ export function Valid() {
         <Chart.Rule value={200} label="Target 200" />
       </Chart>
       <BarChart orientation="horizontal" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />
+      <AreaChart wash="fade" headline={<span>140</span>} label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />
+      <AreaChart isStacked wash="flat" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />
+      <Chart label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]}>
+        <Chart.Areas wash="fade" />
+      </Chart>
     </>
   );
 }
@@ -48,5 +53,9 @@ export function Invalid() {
   const h = <BarChart orientation="horizontal" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }, { key: "books", label: "Books" }]} />;
   /* @ts-expect-error horizontal bars never stack */
   const i = <BarChart orientation="horizontal" isStacked label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />;
-  return [a, b, c, d, e, f, g, h, i];
+  /* @ts-expect-error a fading wash vanishes at each seam of a stacked band */
+  const j = <AreaChart isStacked wash="fade" label="Work" description="Rose." data={rows} x="year" xLabel="Year" series={[{ key: "posters", label: "Posters" }]} />;
+  /* @ts-expect-error the wash is flat or fade, nothing else */
+  const k = <Chart.Areas wash="gradient" />;
+  return [a, b, c, d, e, f, g, h, i, j, k];
 }

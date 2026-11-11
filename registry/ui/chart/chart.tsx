@@ -77,6 +77,10 @@ const WASH = {
   5: "fill-data-cat-5-bg", 6: "fill-data-cat-6-bg", 7: "fill-data-cat-7-bg", 8: "fill-data-cat-8-bg",
 } as const satisfies Record<ChartSlot, string>;
 
+/** A fading wash's opacity under the line; it falls to clear at the
+ *  baseline (Line sheet, "Fading area"). */
+const FADE_TOP = 0.28;
+
 /** Plot height and tick intervals per size: the Anatomy sheet's 240px with
  *  five ticks, and the Line sheet's 160px with three. */
 const SIZE = {
@@ -412,22 +416,53 @@ function Lines() {
   return <SeriesLines series={ctx.series} values={(s, si) => (ctx.stacks ? ctx.stacks[si]!.map((v) => v.y1) : s.values)} />;
 }
 
+export interface ChartAreasProps {
+  /**
+   * `flat` (default) is the slot's own wash role. `fade` is the Line sheet's
+   * fading area: the series colour at 28% under the line, clear at the
+   * baseline, so the eye reads the line and not the slab. Stacked bands are
+   * always flat — a fade on a band would vanish where it meets the next one.
+   */
+  wash?: "flat" | "fade";
+}
+
 /** A wash under each line — stacked bands when the chart is `isStacked` —
  *  then the lines on top, as the Line sheet layers them. */
-function Areas() {
+function Areas({ wash = "flat" }: ChartAreasProps) {
   const ctx = useChart("Areas");
-  const { series, stacks, x, y } = ctx;
+  const { series, stacks, x, y, hatchId } = ctx;
+  const isFade = wash === "fade" && !stacks;
   return (
-    <g data-slot="chart-areas">
+    <g data-slot="chart-areas" data-wash={isFade ? "fade" : "flat"}>
+      {isFade && (
+        <defs>
+          {series.map((s) => (
+            <linearGradient key={s.key} id={`${hatchId}-fade-${s.slot}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style={{ stopColor: `var(--ui-data-cat-${s.slot}-solid)`, stopOpacity: FADE_TOP }} />
+              <stop offset="1" style={{ stopColor: `var(--ui-data-cat-${s.slot}-solid)`, stopOpacity: 0 }} />
+            </linearGradient>
+          ))}
+        </defs>
+      )}
       {series.map((s, si) => {
         if (stacks) {
           const top = stacks[si]!.map((v, i) => ({ x: x(i), y: y(v.y1) }));
           const bottom = stacks[si]!.map((v, i) => ({ x: x(i), y: y(v.y0) }));
           return <path key={s.key} data-slot="chart-area" d={bandPath(top, bottom)} className={cn(WASH[s.slot], dim(ctx, s.key))} />;
         }
-        return runs(s.values, x, y).map((pts, ri) => (
-          <path key={`${s.key}-${ri}`} data-slot="chart-area" d={areaPath(pts, y(0))} className={cn(WASH[s.slot], dim(ctx, s.key))} />
-        ));
+        return runs(s.values, x, y).map((pts, ri) =>
+          isFade ? (
+            <path
+              key={`${s.key}-${ri}`}
+              data-slot="chart-area"
+              d={areaPath(pts, y(0))}
+              fill={`url(#${hatchId}-fade-${s.slot})`}
+              className={dim(ctx, s.key)}
+            />
+          ) : (
+            <path key={`${s.key}-${ri}`} data-slot="chart-area" d={areaPath(pts, y(0))} className={cn(WASH[s.slot], dim(ctx, s.key))} />
+          ),
+        );
       })}
       <Lines />
     </g>
@@ -485,6 +520,14 @@ interface ChartOwnProps<Row> {
   label: string;
   /** Required — the takeaway a person wrote ("Posters led books every year"). */
   description: string;
+  /**
+   * A headline under the title — a figure and its change, as ChartCard
+   * passes it. When present it takes the description's PRINTED place: the
+   * description is still rendered and still the figure's accessible
+   * description, but visually hidden (Stat tiles and Chart card sheet,
+   * decided 2026-11-11). An element, never a string.
+   */
+  headline?: ReactNode;
   /** Stack the series instead of grouping or overlaying them. */
   isStacked?: boolean;
   size?: ChartSize;
@@ -524,6 +567,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     series: seriesProp,
     label,
     description,
+    headline,
     isStacked = false,
     size = "md",
     format: formatOptions,
@@ -735,9 +779,18 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
           <span id={titleId} data-slot="chart-title" className="font-body text-label-md text-ink-primary">
             {label}
           </span>
-          <p id={descriptionId} data-slot="chart-description" className="font-body text-body-sm text-ink-muted">
+          <p
+            id={descriptionId}
+            data-slot="chart-description"
+            className={cn("font-body text-body-sm text-ink-muted", headline != null && "sr-only")}
+          >
             {description}
           </p>
+          {headline != null && (
+            <div data-slot="chart-headline" className="pt-xs">
+              {headline}
+            </div>
+          )}
         </div>
         <Button
           data-slot="chart-table-toggle"
@@ -816,7 +869,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
             </div>
             )}
 
-            <div className="relative flex min-w-0 flex-1 flex-col gap-sm pt-sm">
+            <div data-slot="chart-plot-column" className="relative flex min-w-0 flex-1 flex-col gap-sm pt-sm">
               <div
                 ref={plotRef}
                 data-slot="chart-plot"
@@ -1176,11 +1229,16 @@ export function LineChart<Row>(props: Omit<ChartProps<Row>, "children">) {
   );
 }
 
+/** AreaChart's props. A fading wash is for overlaid areas only: the type
+ *  refuses it on stacked bands, where it would vanish at each seam. */
+export type AreaChartProps<Row> = Omit<ChartProps<Row>, "children"> &
+  ({ isStacked?: false; wash?: "flat" | "fade" } | { isStacked: true; wash?: "flat" });
+
 /** Washes under lines; with `isStacked`, stacked bands. */
-export function AreaChart<Row>(props: Omit<ChartProps<Row>, "children">) {
+export function AreaChart<Row>({ wash, ...props }: AreaChartProps<Row>) {
   return (
     <Chart {...(props as ChartProps<Row>)}>
-      <Chart.Areas />
+      <Chart.Areas wash={wash ?? "flat"} />
     </Chart>
   );
 }

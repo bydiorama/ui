@@ -107,7 +107,7 @@ function* walk(dir) {
 const errors = [];
 let anchored = 0;
 
-for (const file of walk(join(ROOT, "registry/ui"))) {
+for (const file of ["registry/ui", "registry/blocks"].flatMap((d) => [...walk(join(ROOT, d))])) {
   if (!file.endsWith(".tsx")) continue;
   if (/\.(test|stories)\.tsx$/.test(file)) continue;
   const rel = relative(ROOT, file);
@@ -177,7 +177,7 @@ function openingTag(source, from) {
 
 let portalled = 0;
 
-for (const file of walk(join(ROOT, "registry/ui"))) {
+for (const file of ["registry/ui", "registry/blocks"].flatMap((d) => [...walk(join(ROOT, d))])) {
   if (!file.endsWith(".tsx")) continue;
   if (/\.(test|stories)\.tsx$/.test(file)) continue;
   const rel = relative(ROOT, file);

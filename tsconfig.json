@@ -70,7 +70,15 @@
       "@/ui/slider": ["./registry/ui/slider/slider.tsx"],
       "@/ui/header": ["./registry/ui/header/header.tsx"],
       "@/ui/sheet": ["./registry/ui/sheet/sheet.tsx"],
-      "@/ui/*": ["./registry/ui/*"]
+      "@/ui/chart": ["./registry/ui/chart/chart.tsx"],
+      "@/components/blocks/stat-tiles": ["./registry/blocks/stat-tiles/stat-tiles.tsx"],
+      "@/ui/*": ["./registry/ui/*"],
+      // Blocks (Phase 3) install to `components/blocks/<name>.tsx`: every
+      // shadcn components.json already declares the `components` alias, so a
+      // consumer adds nothing. This is the folder form tests and stories use;
+      // a distributed file that imports a block needs a consumer-form entry
+      // (`@/components/blocks/<name>`) above it, as `@/ui/*` does.
+      "@/blocks/*": ["./registry/blocks/*"]
     }
   },
   "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx", "registry/**/*.ts", "registry/**/*.tsx"],

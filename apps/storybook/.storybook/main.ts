@@ -78,8 +78,12 @@ const config: StorybookConfig = {
         ),
         "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
         "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
-        ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider", "table"),
+        ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider", "table"),
         "@/ui": join(root, "registry/ui"),
+        // A block imported BY another distributed file, in the consumer's
+        // form (`components/blocks/<name>.tsx` is the install target).
+        "@/components/blocks/stat-tiles": join(root, "registry/blocks/stat-tiles/stat-tiles.tsx"),
+        "@/blocks": join(root, "registry/blocks"),
         "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
       },
     },

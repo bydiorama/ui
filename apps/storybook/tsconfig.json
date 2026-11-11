@@ -40,7 +40,10 @@
       "@/ui/slider": ["../../registry/ui/slider/slider.tsx"],
       "@/ui/header": ["../../registry/ui/header/header.tsx"],
       "@/ui/sheet": ["../../registry/ui/sheet/sheet.tsx"],
-      "@/ui/*": ["../../registry/ui/*"]
+      "@/ui/chart": ["../../registry/ui/chart/chart.tsx"],
+      "@/components/blocks/stat-tiles": ["../../registry/blocks/stat-tiles/stat-tiles.tsx"],
+      "@/ui/*": ["../../registry/ui/*"],
+      "@/blocks/*": ["../../registry/blocks/*"]
     }
   },
   "include": [

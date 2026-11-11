@@ -186,7 +186,7 @@ let documented = 0;
 
 // ---------------------------------------------------------------- source rules
 
-for (const dir of ["registry/ui", "registry/lib", "registry/hooks"]) {
+for (const dir of ["registry/ui", "registry/blocks", "registry/lib", "registry/hooks"]) {
   for (const file of walk(join(ROOT, dir))) {
     if (!/\.tsx?$/.test(file)) continue;
     if (/\.(test|stories|doc)\.tsx?$/.test(file)) continue;
@@ -238,8 +238,8 @@ for (const dir of ["registry/ui", "registry/lib", "registry/hooks"]) {
 
 // ------------------------------------------------------------ documented rules
 
-for (const name of readdirSync(join(ROOT, "registry/ui"))) {
-  const dir = join(ROOT, "registry/ui", name);
+for (const [root, name] of ["registry/ui", "registry/blocks"].flatMap((r) => readdirSync(join(ROOT, r)).map((n) => [r, n]))) {
+  const dir = join(ROOT, root, name);
   if (!statSync(dir).isDirectory() || name === "__screenshots__") continue;
 
   const impl = join(dir, `${name}.tsx`);

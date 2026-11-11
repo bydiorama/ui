@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-stattiles-experimental-the-first-block-headline",
+  "date": "2026-11-11",
+  "item": "stat-tiles",
+  "kind": "addition",
+  "summary": "StatTiles (experimental), the first block: headline numbers in one surface frame with hairlines between tiles. Label, figure at text-figure, a change line (TrendUp / TrendDown / Minus, success or danger ink by polarity, a muted comparison), and an optional Sparkline element. A <dl>; loading, no-value and no-comparison states. Installs to components/blocks/, which every components.json already maps. Exports StatDelta and StatFigure.",
+  "affects": [
+    "item:stat-tiles"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0"
+  }
+}

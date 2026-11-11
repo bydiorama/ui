@@ -2434,5 +2434,89 @@
       "light": 17.17,
       "dark": 16.6
     }
+  ],
+  "ChartCard": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 16.05,
+      "role": "title and figure"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "comparison"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 6.06,
+      "dark": 11.43,
+      "role": "a good change"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.8,
+      "dark": 8.06,
+      "role": "a bad change"
+    },
+    {
+      "fg": "--ui-data-cat-1-solid",
+      "bg": "--ui-bg-surface",
+      "floor": "non-text",
+      "light": 3.09,
+      "dark": 4.83,
+      "role": "the line over the fading wash"
+    }
+  ],
+  "StatTiles": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 16.05,
+      "role": "the figure"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "label, comparison, empty state, the flat change"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 6.06,
+      "dark": 11.43,
+      "role": "a good change and its glyph"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.8,
+      "dark": 8.06,
+      "role": "a bad change and its glyph"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 1.43,
+      "dark": 1.25,
+      "role": "the frame and the hairlines between tiles"
+    }
   ]
 }

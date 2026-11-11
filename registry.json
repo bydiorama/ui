@@ -887,6 +887,51 @@
       ]
     },
     {
+      "name": "stat-tiles",
+      "type": "registry:block",
+      "description": "The first block: a row of headline numbers in one surface frame, tiles separated by hairlines. Each tile is a label, a figure at the fixed --ui-text-figure role, a change line whose glyph says which way and whose colour says whether that is good (polarity: up-is-good by default, down-is-good for costs), and an optional Sparkline element. A <dl>; loading, no-value and no-comparison states keep the tile. Formats and computes nothing. Also exports StatDelta and StatFigure, the change line and a figure-plus-change row.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/skeleton"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/stat-tiles/stat-tiles.tsx",
+          "type": "registry:block",
+          "target": "components/blocks/stat-tiles.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-tiles/stat-tiles.doc.ts",
+          "type": "registry:block",
+          "target": "components/blocks/stat-tiles.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "chart-card",
+      "type": "registry:block",
+      "description": "The Chart frame with a stat tile's figure and change under its title, so the card says how much, and whether that is good, before the plot is read. The description stays required and stays the chart's accessible description; it is no longer printed. By default one fading area (Chart.Areas wash=\"fade\"); any Chart mark goes in as children. Below the head it is the Chart, untouched.",
+      "registryDependencies": [
+        "@bydiorama/chart",
+        "@bydiorama/stat-tiles"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/chart-card/chart-card.tsx",
+          "type": "registry:block",
+          "target": "components/blocks/chart-card.tsx"
+        },
+        {
+          "path": "registry/blocks/chart-card/chart-card.doc.ts",
+          "type": "registry:block",
+          "target": "components/blocks/chart-card.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "meter",
       "type": "registry:ui",
       "description": "One value against a range — a gauge, not a task. An 8px bar or the sheet's 80px ring with role=meter, the clamped value and an aria-valuetext equal to the printed reading. Warning and danger states require their own words (the type enforces it), a target is a solid rule that requires its label, and no reading requires emptyText rather than an invented zero. Server-safe; ships no handlers.",

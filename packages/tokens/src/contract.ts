@@ -346,6 +346,7 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-caption",
   "--ui-text-button-lg",
   "--ui-text-button-sm",
+  "--ui-text-figure",
   // Each role's weight, leading and tracking (ADR 0020 §3). The table in
   // `TYPE_ROLES` is the source of truth; these make it reach the page, and
   // the Tailwind emitter hangs them on the size utility as v4 companions, so
@@ -363,6 +364,7 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-caption-weight", "--ui-text-caption-leading", "--ui-text-caption-tracking",
   "--ui-text-button-lg-weight", "--ui-text-button-lg-leading", "--ui-text-button-lg-tracking",
   "--ui-text-button-sm-weight", "--ui-text-button-sm-leading", "--ui-text-button-sm-tracking",
+  "--ui-text-figure-weight", "--ui-text-figure-leading", "--ui-text-figure-tracking",
   // The weight ladder and the trackings, brandable so an explicit
   // `font-medium` or `tracking-tight` follows the brand's face too: a static
   // face has no 450/550 cut, and a face with its own spacing wants no −0.02em.

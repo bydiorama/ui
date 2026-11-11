@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-a-fixed-type-role-for-headline",
+  "date": "2026-11-11",
+  "item": "system",
+  "kind": "token",
+  "summary": "A fixed type role for headline numbers, --ui-text-figure: 24/30 at 600, tracking-tight (with -weight, -leading, -tracking companions), emitted as text-figure. Fixed, not fluid: title-lg computes about 17px on a phone inside a stat tile that does not shrink. Decided on the Stat tiles and Chart card sheet (2026-11-11). The Tailwind emitter now takes its type sizes from TYPE_ROLES itself rather than a name pattern, which had minted --color-ink-figure, a colour whose value is 1.5rem. theme-zero.css is regenerated.",
+  "affects": [
+    "token:--ui-text-figure",
+    "token:--ui-text-figure-weight",
+    "token:--ui-text-figure-leading",
+    "token:--ui-text-figure-tracking",
+    "item:theme-zero-css",
+    "item:cn"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0"
+  }
+}

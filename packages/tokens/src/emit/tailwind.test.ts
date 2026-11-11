@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import { toTailwindTheme } from "./tailwind.ts";
 import { BRANDABLE_TOKENS } from "../contract.ts";
+import { TYPE_ROLES } from "../resolve.ts";
 
 /**
  * Two contract tokens must never collapse to one utility name.
@@ -55,4 +56,13 @@ test("a type role is a composite: size plus weight, leading and tracking compani
   // neither namespace may claim them.
   assert.doesNotMatch(theme, /--text-body-md-weight:/, "a font size of 400");
   assert.doesNotMatch(theme, /--color-ink-body-md-weight:/, "a colour of 400");
+});
+
+test("every role in the type table is a size, never an ink", () => {
+  const theme = toTailwindTheme();
+  for (const token of Object.keys(TYPE_ROLES)) {
+    const role = token.replace(/^--ui-text-/, "");
+    assert.match(theme, new RegExp(`--text-${role}: var\\(${token}\\);`), `${role} is not a size`);
+    assert.doesNotMatch(theme, new RegExp(`--color-ink-${role}:`), `${role} became a colour`);
+  }
 });

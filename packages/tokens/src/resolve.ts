@@ -328,6 +328,11 @@ export const TYPE_ROLES = {
   "--ui-text-caption": { px: 12, leading: 1.35, weight: 600, tracking: "-0.02em" },
   "--ui-text-button-lg": { px: 16, leading: 1, weight: 600, tracking: "-0.02em" },
   "--ui-text-button-sm": { px: 12, leading: 1, weight: 600, tracking: "-0.02em" },
+  // A headline number in a fixed-width surface — a stat tile, a chart
+  // card's figure (Stat tiles and Chart card sheet, 2026-11-11). FIXED, not
+  // fluid: title-lg shrinks to ~17px on a phone inside a tile that does not
+  // shrink. 24/30 at 600; components add `tabular-nums` themselves.
+  "--ui-text-figure": { px: 24, leading: 1.25, weight: 600, tracking: "-0.02em" },
 } as const;
 
 /** Roles that scale with the viewport. Body and below stay fixed, because

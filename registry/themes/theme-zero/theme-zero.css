@@ -173,6 +173,10 @@
   --text-button-sm--font-weight: var(--ui-text-button-sm-weight);
   --text-button-sm--line-height: var(--ui-text-button-sm-leading);
   --text-button-sm--letter-spacing: var(--ui-text-button-sm-tracking);
+  --text-figure: var(--ui-text-figure);
+  --text-figure--font-weight: var(--ui-text-figure-weight);
+  --text-figure--line-height: var(--ui-text-figure-leading);
+  --text-figure--letter-spacing: var(--ui-text-figure-tracking);
 
   /* radius namespace. */
   --radius-sm: var(--ui-radius-sm);
@@ -471,6 +475,7 @@
   --ui-text-caption: 0.75rem;
   --ui-text-button-lg: 1rem;
   --ui-text-button-sm: 0.75rem;
+  --ui-text-figure: 1.5rem;
   --ui-text-display-lg-weight: 500;
   --ui-text-display-lg-leading: 1.35;
   --ui-text-display-lg-tracking: -0.02em;
@@ -510,6 +515,9 @@
   --ui-text-button-sm-weight: 600;
   --ui-text-button-sm-leading: 1;
   --ui-text-button-sm-tracking: -0.02em;
+  --ui-text-figure-weight: 600;
+  --ui-text-figure-leading: 1.25;
+  --ui-text-figure-tracking: -0.02em;
   --ui-weight-regular: 400;
   --ui-weight-book: 450;
   --ui-weight-medium: 500;

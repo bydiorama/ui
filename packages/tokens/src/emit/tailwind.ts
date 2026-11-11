@@ -16,6 +16,7 @@
  */
 
 import { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS, type BrandableToken } from "../contract.ts";
+import { TYPE_ROLES } from "../resolve.ts";
 
 /** Dimension/composite tokens whose prefixes collide with colour families.
  *  Mapping these into `--color-*` would mint utilities like `bg-nav-width` —
@@ -79,14 +80,12 @@ function utilityName(token: BrandableToken): string | null {
   return null;
 }
 
-/** Anchored at BOTH ends: the role attribute tokens share the prefix, and
- *  an open-ended pattern swept `--ui-text-body-md-weight` into the size
- *  namespace as `--text-body-md-weight`, a font size of 400. */
-const TYPE_SIZE_ROLES = new Set<string>(
-  BRANDABLE_TOKENS.filter((t) =>
-    /^--ui-text-(?:(?:display|title|body|label|button)-(?:lg|md|sm)|caption)$/.test(t),
-  ),
-);
+/** The type table's own keys, not a name pattern. A pattern anchored at
+ *  both ends kept `--ui-text-body-md-weight` out of the size namespace, but
+ *  it also had to be edited for every role whose name broke it: the first
+ *  one that did (`--ui-text-figure`) was emitted as `--color-ink-figure`, a
+ *  colour whose value is 1.5rem. */
+const TYPE_SIZE_ROLES = new Set<string>(Object.keys(TYPE_ROLES));
 
 const TYPE_ATTRIBUTES = /^--ui-text-.+-(weight|leading|tracking)$/;
 

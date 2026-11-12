@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { MARKER_SHAPES, arcPath, bins, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
+import { MARKER_SHAPES, arcPath, bins, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerKeyPath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
 
 const BOX = { width: 160, height: 40, inset: { top: 6, right: 8, bottom: 6, left: 2 } } as const;
 
@@ -222,4 +222,25 @@ test("bins: nice edges, every value counted once, the maximum in the last bin", 
   assert.equal(exact.reduce((n, x) => n + x.count, 0), 3);
   assert.deepEqual(bins([], 4), []);
   assert.deepEqual(bins([5, 5], 4).map((x) => x.count), [2]);
+});
+
+test("a key marker fills its box on its longer side and never leaves it", () => {
+  // The legend and tooltip keys are 8px svgs that clip. markerPath(shape, 4, 4, 4)
+  // put the triangle at -1…9 and the diamond at -1.2…9.2, so five of the eight
+  // shapes lost their points.
+  const extent = (d: string) => {
+    const n = [...d.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])] as const);
+    const xs = n.map(([x]) => x), ys = n.map(([, y]) => y);
+    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] as const;
+  };
+  for (const shape of MARKER_SHAPES.filter((s) => s !== "circle")) {
+    for (const inset of [0, 0.75]) {
+      const [x0, y0, x1, y1] = extent(markerKeyPath(shape, 8, inset));
+      assert.ok(x0 >= inset - 0.01 && y0 >= inset - 0.01 && x1 <= 8 - inset + 0.01 && y1 <= 8 - inset + 0.01, `${shape} at inset ${inset}: ${x0},${y0} … ${x1},${y1}`);
+      assert.ok(Math.abs(Math.max(x1 - x0, y1 - y0) - (8 - 2 * inset)) <= 0.02, `${shape} does not fill its box`);
+    }
+  }
+  assert.equal(markerKeyPath("circle", 8), "M0 4a4 4 0 1 0 8 0a4 4 0 1 0 -8 0Z");
+  // The triangle keeps the end marker's proportions, centred in the box.
+  assert.equal(markerKeyPath("triangle", 8), "M4 0.4L8 7.6L0 7.6Z");
 });

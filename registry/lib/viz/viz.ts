@@ -374,39 +374,83 @@ export const MARKER_SHAPES = [
 export type MarkerShape = (typeof MARKER_SHAPES)[number];
 
 /**
- * A filled marker of half-size `r`, centred on (cx, cy), as a path. At r=4 the
- * circle, square and triangle are the Line sheet's 8px end markers; at r=6
- * they are the surface ring drawn under them.
+ * The polygon corners of a marker of half-size `r` around (0, 0), or `null`
+ * for the circle, which is an arc rather than a polygon.
  */
-export function markerPath(shape: MarkerShape, cx: number, cy: number, r: number): string {
-  const p = (pts: readonly (readonly [number, number])[]) =>
-    pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${round(cx + x)} ${round(cy + y)}`).join("") + "Z";
+function markerPoints(shape: MarkerShape, r: number): (readonly [number, number])[] | null {
   switch (shape) {
     case "circle":
-      return `M${round(cx - r)} ${round(cy)}a${round(r)} ${round(r)} 0 1 0 ${round(2 * r)} 0a${round(r)} ${round(r)} 0 1 0 ${round(-2 * r)} 0Z`;
+      return null;
     case "square":
-      return p([[-r, -r], [r, -r], [r, r], [-r, r]]);
+      return [[-r, -r], [r, -r], [r, r], [-r, r]];
     case "triangle":
-      return p([[0, -1.25 * r], [1.25 * r, r], [-1.25 * r, r]]);
+      return [[0, -1.25 * r], [1.25 * r, r], [-1.25 * r, r]];
     case "triangle-down":
-      return p([[-1.25 * r, -r], [1.25 * r, -r], [0, 1.25 * r]]);
+      return [[-1.25 * r, -r], [1.25 * r, -r], [0, 1.25 * r]];
     case "diamond":
-      return p([[0, -1.3 * r], [1.3 * r, 0], [0, 1.3 * r], [-1.3 * r, 0]]);
+      return [[0, -1.3 * r], [1.3 * r, 0], [0, 1.3 * r], [-1.3 * r, 0]];
     case "plus": {
       const a = r * 0.4;
-      return p([[-a, -r], [a, -r], [a, -a], [r, -a], [r, a], [a, a], [a, r], [-a, r], [-a, a], [-r, a], [-r, -a], [-a, -a]]);
+      return [[-a, -r], [a, -r], [a, -a], [r, -a], [r, a], [a, a], [a, r], [-a, r], [-a, a], [-r, a], [-r, -a], [-a, -a]];
     }
     case "hexagon":
-      return p(Array.from({ length: 6 }, (_, i) => {
+      return Array.from({ length: 6 }, (_, i) => {
         const t = (Math.PI / 3) * i;
         return [1.1 * r * Math.cos(t), 1.1 * r * Math.sin(t)] as const;
-      }));
+      });
     case "pentagon":
-      return p(Array.from({ length: 5 }, (_, i) => {
+      return Array.from({ length: 5 }, (_, i) => {
         const t = -Math.PI / 2 + ((2 * Math.PI) / 5) * i;
         return [1.15 * r * Math.cos(t), 1.15 * r * Math.sin(t)] as const;
-      }));
+      });
   }
+}
+
+const polygon = (pts: readonly (readonly [number, number])[], cx: number, cy: number) =>
+  pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${round(cx + x)} ${round(cy + y)}`).join("") + "Z";
+
+const circle = (cx: number, cy: number, r: number) =>
+  `M${round(cx - r)} ${round(cy)}a${round(r)} ${round(r)} 0 1 0 ${round(2 * r)} 0a${round(r)} ${round(r)} 0 1 0 ${round(-2 * r)} 0Z`;
+
+/**
+ * A filled marker of half-size `r`, centred on (cx, cy), as a path. At r=4 the
+ * circle, square and triangle are the Line sheet's 8px end markers.
+ *
+ * The 2px surface ring is NOT this path at r + 2: scaling a shape moves each
+ * edge by r's ratio, not by 2px, so a scaled triangle's slants sat 1.21px off
+ * and a plus's arms 0.8px. The ring is this same path, stroked (`RING_GAP`).
+ */
+export function markerPath(shape: MarkerShape, cx: number, cy: number, r: number): string {
+  const pts = markerPoints(shape, r);
+  return pts ? polygon(pts, cx, cy) : circle(cx, cy, r);
+}
+
+/**
+ * The surface gap a ring keeps around a mark (dataviz spec: "a 2px surface
+ * ring on overlapping marks"). Drawn as a stroke of twice this width on the
+ * mark's own outline, mitred, so every edge — slant, arm or arc — sits exactly
+ * this far inside the ring's outer edge.
+ */
+export const RING_GAP = 2;
+
+/**
+ * A marker that fills a `size` box (a legend or tooltip key), keeping `inset`
+ * clear on every side for a stroke. Not `markerPath(shape, size / 2, …)`: the
+ * triangle, diamond, hexagon and pentagon reach past r, and the key's svg
+ * clips whatever leaves its box. Each shape is scaled to its own extent and
+ * centred on its bounding box — the Line sheet's 8px keys.
+ */
+export function markerKeyPath(shape: MarkerShape, size: number, inset = 0): string {
+  const room = size - 2 * inset;
+  const unit = markerPoints(shape, 1);
+  if (!unit) return circle(size / 2, size / 2, room / 2);
+  const xs = unit.map(([x]) => x);
+  const ys = unit.map(([, y]) => y);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const k = room / Math.max(x1 - x0, y1 - y0);
+  const cx = size / 2 - ((x0 + x1) / 2) * k;
+  const cy = size / 2 - ((y0 + y1) / 2) * k;
+  return polygon(unit.map(([x, y]) => [x * k, y * k] as const), cx, cy);
 }
 
 /**

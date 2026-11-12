@@ -73,7 +73,7 @@ Sparkline
   },
 
   needsDesign: [
-    "The xs size (64×20) for a trend inside a table row: the library's reading of the stand-in screen's keyword column. The sheet draws 160×40 and 120×32 only; at 20px the end marker's 6px ring leaves an 8px band for the line, which may want a smaller marker.",
+    "The xs size (64×20) for a trend inside a table row: the library's reading of the stand-in screen's keyword column. The sheet draws 160×40 and 120×32 only; at 20px the end marker's 6px ring leaves an 8px band for the line, which may want a smaller marker. Drawn from code on the Rules, shares, dots and bins sheet (Gaps: Derived).",
   ],
 
   knownGaps: [

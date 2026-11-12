@@ -1099,3 +1099,75 @@ describe("A scatter whose values never reach zero", () => {
     expect(container!.querySelector('[data-slot="chart-y-axis"] [data-slot="chart-tick"]')!.textContent).not.toBe("0");
   });
 });
+
+describe("Every marker shape fits its 8px key (legend and tooltip)", () => {
+  // Eight series, so the legend and the tooltip draw all eight shapes.
+  const KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
+  const DATA = [1957, 1961, 1964].map((year, i) => Object.fromEntries([["year", year], ...KEYS.map((k, j) => [k, 10 + i * 3 + j * 5])]));
+  const EIGHT = KEYS.map((key) => ({ key, label: key.toUpperCase() }));
+  const outside = (svgs: SVGSVGElement[]) =>
+    svgs.flatMap((svg) => {
+      const b = svg.querySelector("path")!.getBBox();
+      // An svg's overflow is hidden, so anything past its 8px box is cut off.
+      expect(getComputedStyle(svg).overflow).toBe("hidden");
+      const r2 = (n: number) => Math.round(n * 100) / 100;
+      const [x0, y0, x1, y1] = [r2(b.x), r2(b.y), r2(b.x + b.width), r2(b.y + b.height)];
+      return x0 < 0 || y0 < 0 || x1 > 8 || y1 > 8 ? [`${svg.querySelector("path")!.getAttribute("d")} → ${x0},${y0} … ${x1},${y1}`] : [];
+    });
+
+  test("no legend key is drawn past its box", async () => {
+    const { all } = await mount(<LineChart label="x" description="y" data={DATA} x="year" xLabel="Year" series={EIGHT} />);
+    const keys = all("chart-legend-key") as unknown as SVGSVGElement[];
+    expect(keys).toHaveLength(8);
+    expect(outside(keys)).toEqual([]);
+  });
+
+  test("a hidden series' outlined key stays inside its box: inset by half the stroke, round-joined", async () => {
+    const { all } = await mount(<LineChart label="x" description="y" data={DATA} x="year" xLabel="Year" series={EIGHT} />);
+    // Hide every shape but the circle (one series must stay shown).
+    for (const entry of all("chart-legend-item").slice(1)) await userEvent.click(entry);
+    await expect.poll(() => all("chart-legend-item").filter((e) => e.querySelector("input")!.checked).length).toBe(1);
+    const keys = (all("chart-legend-key") as unknown as SVGSVGElement[]).slice(1);
+    const hairline = parseFloat(getComputedStyle(keys[0]!.querySelector("path")!).strokeWidth);
+    for (const svg of keys) {
+      const path = svg.querySelector("path")!;
+      const s = getComputedStyle(path);
+      expect(s.fill).toBe("none");
+      // A mitred join reaches past the inset at an acute corner; a round one
+      // reaches exactly half the stroke, which the inset already leaves clear.
+      expect(s.strokeLinejoin).toBe("round");
+      const b = path.getBBox();
+      const half = hairline / 2;
+      expect(b.x).toBeGreaterThanOrEqual(half - 0.01);
+      expect(b.y).toBeGreaterThanOrEqual(half - 0.01);
+      expect(b.x + b.width).toBeLessThanOrEqual(8 - half + 0.01);
+      expect(b.y + b.height).toBeLessThanOrEqual(8 - half + 0.01);
+    }
+  });
+
+  test("no tooltip key is drawn past its box", async () => {
+    const { q } = await mount(<LineChart label="x" description="y" data={DATA} x="year" xLabel="Year" series={EIGHT} />, 400);
+    await userEvent.hover(q("chart-plot"));
+    await expect.poll(() => q("chart-tooltip")).toBeTruthy();
+    const keys = [...q("chart-tooltip").querySelectorAll<SVGSVGElement>('[data-slot="chart-tooltip-row"] > svg')];
+    expect(keys).toHaveLength(8);
+    expect(outside(keys)).toEqual([]);
+  });
+
+  test("every ring is its mark's own outline, stroked 2px clear in the surface", async () => {
+    // The ring was the shape scaled from r 4 to r 6, which is 2px only where
+    // an edge sits r from the centre: the triangle's slants were 1.21px, the
+    // plus's arms 0.8px. A stroke on the mark's outline is 2px on every edge.
+    // Hovered, so the crosshair rings a marker on all eight lines.
+    const { q, all } = await mount(<LineChart label="x" description="y" data={DATA} x="year" xLabel="Year" series={EIGHT} />);
+    await userEvent.hover(q("chart-plot"));
+    await expect.poll(() => all("chart-marker-ring").length).toBe(8);
+    const rings = all("chart-marker-ring");
+    const surface = tokenColor("--ui-bg-surface");
+    for (const ring of rings) {
+      expect(ring.getAttribute("d")).toBe(ring.nextElementSibling!.getAttribute("d"));
+      const s = getComputedStyle(ring);
+      expect([s.fill, s.stroke, s.strokeWidth, s.strokeLinejoin]).toEqual([surface, surface, "4px", "miter"]);
+    }
+  });
+});

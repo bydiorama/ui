@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-type-roles-the-explorer-s-relation",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Type roles: the explorer's relation verb, its 'N of M shown' line and the type filter's counts are recorded as weight exceptions in apps/storybook/.storybook/type-roles.ts, alongside Network's edge label and Diagram's node parts; the stale network-detail-meta entry, which named a part that never shipped, is removed.",
+  "affects": [
+    "gate:check:type-roles",
+    "slot:knowledge-graph-explorer-verb",
+    "slot:knowledge-graph-explorer-shown",
+    "slot:knowledge-graph-explorer-count"
+  ]
+}

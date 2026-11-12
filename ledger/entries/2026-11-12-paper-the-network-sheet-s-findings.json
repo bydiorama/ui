@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-paper-the-network-sheet-s-findings",
+  "date": "2026-11-12",
+  "item": "network",
+  "kind": "fix",
+  "summary": "Paper: the Network sheet's findings from /review-ui are fixed on the sheet. Dimmed nodes and edges keep their labels in muted ink (they measured 2.8:1 for node names and 1.79:1 for edge labels when the whole mark faded); only fills, rings and strokes recede. The inferred 'colleague of' edge is muted ink at hairline weight with no arrowhead, since the relation is symmetric (plan §3.7). The '+12' expand chip moves clear of the focus ring it overlapped. Arrowheads stop 26px from a node's centre whether it is focused or not, so focus no longer moves them. Network now ships from this sheet and its colour pairs are in network.doc.ts a11y.contrastPairs.",
+  "affects": [
+    "item:network"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/469R-0"
+  }
+}

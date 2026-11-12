@@ -15,12 +15,12 @@ what the library ships today, not against the plan's assumptions.
 |---|---|
 | `lib/viz`: scales, nice ticks (`valueAxis`, now with `zero: false`), time positions, `bins()`, formatting, descriptions, table model | `d3-*` dependencies: none have been needed yet. Every scale, tick and bin is our own code. |
 | `Sparkline` (md, sm, xs), `Meter`, `StatTiles`, `ChartCard` | `Heatmap` (blocked on the sequential ramp), `Donut`, `BoxPlot` |
-| `Chart` primitives: Bars, Lines, Areas, Dots, Rule (horizontal and vertical); presets `BarChart`, `LineChart`, `AreaChart`, `ScatterPlot`, `Histogram`; percent stacks; linear and time x scales; one-tab-stop keyboard, live announcer, table view | **V3** Diagram viewer and **V4** Network / knowledge-graph explorer. Neither has started. |
-| Tier thresholds measured (plan §3.2): SVG ≤ ~2k, Canvas 2D ~2k–~20k, WebGL above | Canvas and WebGL tiers themselves |
+| `Chart` primitives: Bars, Lines, Areas, Dots, Rule (horizontal and vertical); presets `BarChart`, `LineChart`, `AreaChart`, `ScatterPlot`, `Histogram`; percent stacks; linear and time x scales; one-tab-stop keyboard, live announcer, table view | ~~**V3** Diagram viewer and **V4** Network / knowledge-graph explorer. Neither has started.~~ Both built 2026-11-12 (`Diagram`, `Network`, `NetworkCanvas`, `KnowledgeGraphExplorer`); see the plan's V3 and V4 status. |
+| Tier thresholds measured (plan §3.2): SVG ≤ ~2k, Canvas 2D ~2k–~20k, WebGL above | ~~Canvas~~ (built for Network, 2026-11-12) and WebGL tiers themselves |
 
-That last row decides most of what follows: **seven of the ten V5 items
-extend V3 or V4, which do not exist.** They cannot start before those phases,
-however strong the demand.
+That last row decided most of what follows when this was written: **seven of
+the ten V5 items extend V3 or V4.** Both now exist (2026-11-12), so those seven
+are no longer blocked on a phase. Each still needs a consumer before it starts.
 
 ## The candidates
 

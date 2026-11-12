@@ -850,6 +850,109 @@
       "status": "experimental"
     },
     {
+      "name": "graph",
+      "type": "lib",
+      "description": "The graph maths layer (ADR 0023): the neutral GraphNode and GraphEdge shape Diagram and Network take, and pure, deterministic functions over it — a layered (Sugiyama-style) layout, a tidy tree, a radial tree, a seeded and incremental force layout with pinned nodes, adjacency, hop distances and breadth-first shortest paths, edge geometry that lands the arrow tip on a node's frame (box) or 26px from its centre (circle), and the pan-and-zoom maths: fit, zoom about a point, the least pan that keeps a box in view, and nearest-node-in-a-direction for arrow keys. Our own code, no dependencies: dagre, d3-hierarchy and d3-force were the plan's candidates and stay behind check:boundaries should a consumer need what these do not do.",
+      "files": [
+        {
+          "path": "registry/lib/graph/graph.ts",
+          "target": "lib/graph.ts"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "use-graph-viewport",
+      "type": "hook",
+      "description": "Pan and zoom for a drawn graph, in place of d3-zoom: a drag on the ground pans (after 4px, so a click is still a click), pinch or Ctrl/⌘ + wheel zooms about the pointer while a plain wheel is left to the page, and the view follows the content — fitting when the frame is measured and when the drawing grows — until someone takes it over. Every gesture has a key, returned as onKeyDown for the component to call first: + and - zoom, 0 fits, Shift + an arrow pans. One transform, returned as a style, moves the HTML nodes and the SVG edges together.",
+      "files": [
+        {
+          "path": "registry/hooks/use-graph-viewport/use-graph-viewport.ts",
+          "target": "hooks/use-graph-viewport.ts"
+        }
+      ],
+      "registryDependencies": [
+        "graph"
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "diagram",
+      "type": "ui",
+      "description": "A read-only node-link viewer for pipelines, lineage, org charts and dependency graphs, where every node is real UI: an HTML node layer and an SVG edge layer under one pan-and-zoom transform, on DotPattern over bg-base. Layered, tree and radial layouts, or the caller's positions; laid out against a size hint on the server and re-laid out once the nodes are measured. Straight, curved and orthogonal edges with the sheet's arrow tip on the target's frame, labels on canvas pills, inferred edges in muted ink on a thinner stroke and named in words. Diagram.Group collapses members into one node that carries their edges; Diagram.Controls (zoom, fit), Diagram.Minimap and Diagram.Legend are overlays. The figure has a title, a takeaway, an adjacency-list view and a polite announcer; the drawing is one tab stop — arrows to the nearest node, Tab through the focused node's relations, Enter selects, Space opens and closes a group — and the viewport follows focus.",
+      "files": [
+        {
+          "path": "registry/ui/diagram/diagram.tsx",
+          "target": "ui/diagram.tsx"
+        },
+        {
+          "path": "registry/ui/diagram/diagram.doc.ts",
+          "target": "ui/diagram.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "graph",
+        "chrome-control",
+        "use-controllable-state",
+        "use-graph-viewport",
+        "button",
+        "dot-pattern"
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "network",
+      "type": "ui",
+      "description": "A network of typed entities people explore — a knowledge graph, a social or citation network — where nodes are glyphs: a disc in the type's categorical wash and ring with its glyph, a name on a canvas pill below. SVG, with a seeded force layout (or radial round a root) that runs in a module worker above 500 nodes and grows incrementally, pinning every node already drawn so appending neighbours never reshuffles the picture. Selection activates a node's relations and dims everything outside its neighbourhood; a highlight path does the same along a path; inferred edges are muted, thinner, headless and named. A \"+N\" chip and the Plus key ask onExpandRequest for hidden neighbours. The keyboard model is the Network sheet's — rings of hops from the selection, Up and Down round a ring, Right and Left onto a relation and across it — with a polite announcer and an adjacency table one toggle away. A `renderer` (NetworkCanvas) is admitted above 2,000 elements, with the table as its floor before hydration and in forced colours.",
+      "files": [
+        {
+          "path": "registry/ui/network/network.tsx",
+          "target": "ui/network.tsx"
+        },
+        {
+          "path": "registry/ui/network/network-layout.worker.ts",
+          "target": "ui/network-layout.worker.ts"
+        },
+        {
+          "path": "registry/ui/network/network.doc.ts",
+          "target": "ui/network.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "graph",
+        "chrome-control",
+        "use-controllable-state",
+        "use-graph-viewport",
+        "button",
+        "dot-pattern",
+        "table"
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "network-canvas",
+      "type": "ui",
+      "description": "Network's Canvas 2D tier for roughly 2,000 to 20,000 elements (plan §3.2): pass it as renderer={NetworkCanvas} and Network admits it above its canvasThreshold. One device-pixel canvas paints the SVG tier's marks — edges through Path2D from the same path data — in inks read through the cascade, so a brand scope and dark mode both apply. It only paints: the keyboard, the announcer, hit-testing and the table stay with Network, which shows the table instead before hydration and in forced colours. No glyphs; labels from half scale up.",
+      "files": [
+        {
+          "path": "registry/ui/network/network-canvas.tsx",
+          "target": "ui/network-canvas.tsx"
+        }
+      ],
+      "registryDependencies": [
+        "network"
+      ],
+      "status": "experimental"
+    },
+    {
       "name": "stat-tiles",
       "type": "block",
       "description": "The first block: a row of headline numbers in one surface frame, tiles separated by hairlines. Each tile is a label, a figure at the fixed --ui-text-figure role, a change line whose glyph says which way and whose colour says whether that is good (polarity: up-is-good by default, down-is-good for costs), and an optional Sparkline element. A <dl>; loading, no-value and no-comparison states keep the tile. Formats and computes nothing. Also exports StatDelta and StatFigure, the change line and a figure-plus-change row.",
@@ -889,6 +992,35 @@
       "registryDependencies": [
         "chart",
         "stat-tiles"
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "knowledge-graph-explorer",
+      "type": "block",
+      "description": "Explore a knowledge graph a neighbourhood at a time (Network sheet, the explorer): a Combobox search over the loaded entities grouped by type, a type filter of Checkboxes with swatches and counts, \"7 of 1,284 shown\", a history breadcrumb that goes back, Network with its head kept for assistive tech, and a 320px detail panel — the type chip, name and description, relations and the relations linked from elsewhere as rows that walk to the neighbour, and Expand neighbours, which calls onExpandRequest. A jump that lands more than one hop from the previous step highlights the shortest path between them. A composition of components, not a bigger component.",
+      "files": [
+        {
+          "path": "registry/blocks/knowledge-graph-explorer/knowledge-graph-explorer.tsx",
+          "target": "components/blocks/knowledge-graph-explorer.tsx"
+        },
+        {
+          "path": "registry/blocks/knowledge-graph-explorer/knowledge-graph-explorer.doc.ts",
+          "target": "components/blocks/knowledge-graph-explorer.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "graph",
+        "chrome-control",
+        "use-controllable-state",
+        "button",
+        "checkbox",
+        "combobox",
+        "network"
       ],
       "status": "experimental"
     },

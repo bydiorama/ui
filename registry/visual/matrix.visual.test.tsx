@@ -20,7 +20,7 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
-import { ChevronDown, Colors, ExpandSidebar, Home, Image, Inbox, InfoCircle, Search, UsersGroup } from "griddy-icons";
+import { Building, ChevronDown, Colors, ExpandSidebar, FileText, Home, Image, Inbox, InfoCircle, LocationPin, Search, User, UsersGroup } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
@@ -65,6 +65,11 @@ import { Meter } from "@/ui/meter/meter.tsx";
 import { Sparkline } from "@/ui/sparkline/sparkline.tsx";
 import { StatTiles } from "@/blocks/stat-tiles/stat-tiles.tsx";
 import { ChartCard } from "@/blocks/chart-card/chart-card.tsx";
+import { KnowledgeGraphExplorer } from "@/blocks/knowledge-graph-explorer/knowledge-graph-explorer.tsx";
+import { Diagram } from "@/ui/diagram/diagram.tsx";
+import { Network, type NetworkType } from "@/ui/network/network.tsx";
+// Relative: the "@/ui/network" alias would swallow "@/ui/network/network-canvas.tsx".
+import { NetworkCanvas } from "../ui/network/network-canvas.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
@@ -163,10 +168,11 @@ function mount(
   ui: ReactElement | ((portalContainer: HTMLDivElement) => ReactElement),
   scheme: (typeof SCHEMES)[number],
   isOverlay = false,
+  width = 560,
 ) {
   container = document.createElement("div");
   Object.assign(container.style, toStyleObject(PAIR)[scheme] as unknown as Record<string, string>, {
-    width: "560px",
+    width: `${width}px`,
     padding: "24px",
     colorScheme: scheme,
   });
@@ -314,10 +320,56 @@ const QUESTIONNAIRE_OPTIONS: ChatQuestionnaireOption[] = [
   { id: "other", label: "Other — tell me in your own words…", isHandoff: true },
 ];
 
+/** Diagram's pipeline and Network's neighbourhood: the two sheets' own data. */
+const GRAPH_PIPELINE = [
+  { id: "brief", label: "Brief", description: "Muriel Cooper" },
+  { id: "grid", label: "Grid system", description: "Josef Müller-Brockmann" },
+  { id: "layout", label: "Layout", description: "Jan Tschichold" },
+  { id: "proof", label: "Proof", description: "Wim Crouwel", parentId: "print" },
+  { id: "press", label: "Press", description: "Ottmar Mergenthaler", parentId: "print" },
+];
+const GRAPH_PIPELINE_EDGES = [
+  { id: "e1", source: "brief", target: "grid", label: "informs" },
+  { id: "e2", source: "brief", target: "layout", label: "informs" },
+  { id: "e3", source: "grid", target: "proof", isInferred: true },
+  { id: "e4", source: "layout", target: "proof", label: "approved" },
+  { id: "e5", source: "proof", target: "press" },
+];
+const GRAPH_TYPES: Record<string, NetworkType> = {
+  person: { label: "Person", slot: 1, glyph: <User /> },
+  organisation: { label: "Organisation", slot: 2, glyph: <Building /> },
+  work: { label: "Work", slot: 3, glyph: <FileText /> },
+  place: { label: "Place", slot: 4, glyph: <LocationPin /> },
+};
+const GRAPH_PEOPLE = [
+  { id: "aicher", label: "Otl Aicher", type: "person", description: "Graphic designer, 1922 to 1991. Ulm and Rotis." },
+  { id: "pictograms", label: "Munich pictograms", type: "work" },
+  { id: "hfg", label: "HfG Ulm", type: "organisation" },
+  { id: "rotis", label: "Rotis", type: "place" },
+  { id: "bill", label: "Max Bill", type: "person" },
+  { id: "brockmann", label: "Josef Müller-Brockmann", type: "person" },
+  { id: "zurich", label: "Zürich", type: "place" },
+];
+const GRAPH_PEOPLE_EDGES = [
+  { id: "r1", source: "aicher", target: "pictograms", label: "designed" },
+  { id: "r2", source: "aicher", target: "hfg", label: "co-founded" },
+  { id: "r3", source: "aicher", target: "rotis", label: "lived in" },
+  { id: "r4", source: "aicher", target: "bill", label: "colleague of", isInferred: true },
+  { id: "r5", source: "bill", target: "hfg", label: "co-founded" },
+  { id: "r6", source: "bill", target: "zurich", label: "worked in" },
+  { id: "r7", source: "brockmann", target: "zurich", label: "worked in" },
+];
+
 const CASES: Array<{
   name: string;
   ui: ReactElement | ((portalContainer: HTMLDivElement) => ReactElement);
   isOverlay?: boolean;
+  /**
+   * The frame's width, when 560 cannot show the case's own arrangement. Only
+   * a block whose layout is side by side earns it; the iframe is 800 wide, so
+   * that is the ceiling.
+   */
+  width?: number;
 }> = [
   {
     /*
@@ -706,6 +758,48 @@ const CASES: Array<{
         delta={{ change: 0.18, comparison: "vs 1951–1956" }} x="year" xLabel="Year"
         data={[{ year: 1951, n: 210 }, { year: 1953, n: 260 }, { year: 1955, n: 240 }, { year: 1957, n: 330 }, { year: 1959, n: 390 }, { year: 1961, n: 470 }]}
         series={[{ key: "n", label: "Posters" }]} />
+    ),
+  },
+  {
+    name: "diagram",
+    // The sheet's pipeline: an open group, a labelled and an inferred edge,
+    // a selected node whose edges turn active, and the legend over the ground.
+    ui: (
+      <Diagram label="Print run" description="Every layout passes a proof." nodes={GRAPH_PIPELINE} edges={GRAPH_PIPELINE_EDGES} defaultSelected="layout" height={420}>
+        <Diagram.Group id="print" label="Print run" />
+        <Diagram.Legend />
+        <Diagram.Controls />
+      </Diagram>
+    ),
+  },
+  {
+    name: "network",
+    // The Network sheet's neighbourhood: typed glyph nodes, Aicher selected
+    // (his relations active, outsiders dimmed), an inferred edge, a +N chip.
+    ui: (
+      <Network label="Otl Aicher's circle" description="HfG Ulm links most of it." nodes={GRAPH_PEOPLE} edges={GRAPH_PEOPLE_EDGES} types={GRAPH_TYPES}
+        defaultSelected="aicher" hiddenNeighbours={{ hfg: 12 }} onExpandRequest={() => {}} height={400}>
+        <Network.Controls />
+      </Network>
+    ),
+  },
+  {
+    name: "network-canvas",
+    // The same graph through the Canvas tier, admitted at any size here, so
+    // the canvas's inks can be compared with the SVG case's in both schemes.
+    ui: (
+      <Network label="Otl Aicher's circle" description="HfG Ulm links most of it." nodes={GRAPH_PEOPLE} edges={GRAPH_PEOPLE_EDGES} types={GRAPH_TYPES}
+        defaultSelected="aicher" renderer={NetworkCanvas} canvasThreshold={0} height={400} />
+    ),
+  },
+  {
+    name: "knowledge-graph-explorer",
+    // Side by side is the block: 800, the iframe's width, so the panel keeps
+    // its 320 and the canvas still has room.
+    width: 800,
+    ui: (
+      <KnowledgeGraphExplorer label="Otl Aicher's circle" description="HfG Ulm links most of it." nodes={GRAPH_PEOPLE} edges={GRAPH_PEOPLE_EDGES} types={GRAPH_TYPES}
+        total={1284} defaultSelected="aicher" hiddenNeighbours={{ hfg: 12, aicher: 3 }} onExpandRequest={() => {}} height={360} />
     ),
   },
   {
@@ -1789,9 +1883,9 @@ const CASES: Array<{
 
 describe("visual baselines", () => {
   for (const scheme of SCHEMES) {
-    for (const { name, ui, isOverlay } of CASES) {
+    for (const { name, ui, isOverlay, width } of CASES) {
       test(`${name} — ${scheme}`, async () => {
-        const el = mount(ui, scheme, isOverlay);
+        const el = mount(ui, scheme, isOverlay, width);
         await stable(el);
 
         /*

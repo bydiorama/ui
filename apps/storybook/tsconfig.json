@@ -17,6 +17,7 @@
       "@/lib/motion": ["../../registry/lib/motion/motion.ts"],
       "@/lib/fade-ramp": ["../../registry/lib/fade-ramp/fade-ramp.ts"],
       "@/lib/viz": ["../../registry/lib/viz/viz.ts"],
+      "@/lib/graph": ["../../registry/lib/graph/graph.ts"],
       "@/lib/fx": ["../../registry/lib/fx/fx.ts"],
       "@/lib/shader": ["../../registry/lib/shader/shader.ts"],
       "@/lib/shader-programs": ["../../registry/lib/shader/shader-programs.ts"],
@@ -25,6 +26,7 @@
       ],
       "@/hooks/use-is-stuck": ["../../registry/hooks/use-is-stuck/use-is-stuck.ts"],
       "@/hooks/use-scroll-edges": ["../../registry/hooks/use-scroll-edges/use-scroll-edges.ts"],
+      "@/hooks/use-graph-viewport": ["../../registry/hooks/use-graph-viewport/use-graph-viewport.ts"],
       // See the note in the root tsconfig: a distributed file imports the
       // consumer's path, so the specific entries sit above the wildcard.
       "@/ui/aspect-ratio": ["../../registry/ui/aspect-ratio/aspect-ratio.tsx"],
@@ -41,6 +43,10 @@
       "@/ui/header": ["../../registry/ui/header/header.tsx"],
       "@/ui/sheet": ["../../registry/ui/sheet/sheet.tsx"],
       "@/ui/chart": ["../../registry/ui/chart/chart.tsx"],
+      "@/ui/combobox": ["../../registry/ui/combobox/combobox.tsx"],
+      "@/ui/dot-pattern": ["../../registry/ui/dot-pattern/dot-pattern.tsx"],
+      "@/ui/diagram": ["../../registry/ui/diagram/diagram.tsx"],
+      "@/ui/network": ["../../registry/ui/network/network.tsx"],
       "@/components/blocks/stat-tiles": ["../../registry/blocks/stat-tiles/stat-tiles.tsx"],
       "@/ui/*": ["../../registry/ui/*"],
       "@/blocks/*": ["../../registry/blocks/*"]

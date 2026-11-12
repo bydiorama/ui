@@ -34,7 +34,9 @@ import {
   labelIndices,
   linePath,
   linearScale,
+  markerKeyPath,
   markerPath,
+  RING_GAP,
   pointPositions,
   pointDateFormat,
   tickDateFormat,
@@ -424,11 +426,20 @@ function runs(values: readonly number[], x: (i: number) => number, y: (v: number
   return out;
 }
 
+/**
+ * The 2px surface ring under a mark: the mark's own outline, filled and
+ * stroked in the surface at twice the gap, mitred. A stroke offsets every edge
+ * by the same distance, which scaling the shape (the old r + 2) did not.
+ */
+function Ring({ d }: { d: string }) {
+  return <path data-slot="chart-marker-ring" d={d} className="fill-surface stroke-surface" strokeWidth={2 * RING_GAP} strokeLinejoin="miter" />;
+}
+
 /** The ringed marker the Line sheet draws at a line's end and at the crosshair. */
 function Marker({ shape, slot, cx, cy }: { shape: MarkerShape; slot: ChartSlot; cx: number; cy: number }) {
   return (
     <>
-      <path d={markerPath(shape, cx, cy, 6)} className="fill-surface" />
+      <Ring d={markerPath(shape, cx, cy, 4)} />
       <path d={markerPath(shape, cx, cy, 4)} className={FILL[slot]} />
     </>
   );
@@ -582,7 +593,7 @@ function DotsMark() {
               const r = radii?.[i] ?? 4;
               return (
                 <g key={i} data-slot="chart-dot">
-                  <path d={markerPath(radii ? "circle" : s.shape, cx, cy, r + 2)} className="fill-surface" />
+                  <Ring d={markerPath(radii ? "circle" : s.shape, cx, cy, r)} />
                   <path
                     d={markerPath(radii ? "circle" : s.shape, cx, cy, r)}
                     className={cn(FILL[s.slot], forced.className)}
@@ -1369,17 +1380,22 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                       <svg data-slot="chart-legend-key" aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
                         {isShown ? (
                           <path
-                            d={markerPath(s.shape, 4, 4, 4)}
+                            d={markerKeyPath(s.shape, 8)}
                             className={cn(FILL[s.slot], forcedFill(s.slot, hatchId).className)}
                             style={forcedFill(s.slot, hatchId).style}
                           />
                         ) : (
                           // The same shape, outlined: a 1.5px stroke drawn
-                          // inside the 8px key, so off reads as the key emptied.
+                          // inside the 8px key (0.75px clear on each side for
+                          // its outer half), so off reads as the key emptied.
+                          // Round joins, as the Bar sheet draws them: a mitred
+                          // corner reaches past that 0.75px at an acute point
+                          // (0.47px past the box at the triangle's apex).
                           <path
-                            d={markerPath(s.shape, 4, 4, 3.25)}
+                            d={markerKeyPath(s.shape, 8, 0.75)}
                             className={cn("fill-none forced-colors:stroke-[CanvasText]", STROKE[s.slot])}
                             style={{ strokeWidth: "var(--ui-stroke-hairline)" }}
+                            strokeLinejoin="round"
                           />
                         )}
                       </svg>
@@ -1717,7 +1733,7 @@ function ChartTooltip({
               return (
                 <span key={s.key} data-slot="chart-tooltip-row" className="flex items-center gap-sm">
                   <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
-                    <path d={markerPath(s.shape, 4, 4, 4)} className={FILL[s.slot]} />
+                    <path d={markerKeyPath(s.shape, 8)} className={FILL[s.slot]} />
                   </svg>
                   <span data-slot="chart-tooltip-label" className="flex-1 font-body font-regular text-label-sm text-ink-muted">
                     {s.label}

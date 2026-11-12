@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-check-boundaries-covers-the-data-visualisation",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "addition",
+  "summary": "check:boundaries covers the data-visualisation packages (ADR 0023): d3-*, @dagrejs, dagre, elkjs, graphology and its family, data-navigator and the graph renderers may be imported only by registry/lib/viz and the chart, sparkline, meter, diagram and network implementation files, and no name they bind may appear in an exported type. None is installed; the rule stands before the first import, as rule 2 did. check:dependencies already refuses an undeclared one per item, probed with d3-hierarchy in lib/viz. Closes the V1 item in docs/charts-and-graphs-plan.md.",
+  "affects": [
+    "gate:check:boundaries",
+    "gate:check:dependencies"
+  ]
+}

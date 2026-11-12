@@ -1,0 +1,25 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-network-v4-an-entity-graph-on",
+  "date": "2026-11-12",
+  "item": "network",
+  "kind": "addition",
+  "summary": "Network (V4): an entity graph on SVG. Seeded force or radial layout, incremental — nodes already placed stay pinned while new ones are appended, and node.position fixes one — with the layout moved to a worker above workerThreshold (500 elements) and identical to the main thread's. Types take data-cat slots 1–8 in order and a ninth folds into Other; each node is a base disc, its wash, a hairline ring in the slot's solid and an optional glyph. Keyboard: Up and Down go round the ring of the focused node's hop distance, Right and Left step onto and along its relations, Plus expands a node with hidden neighbours, Home, End, Tab, Enter and Escape as the sheet says, with every step announced. A '+N' chip asks onExpandRequest for more; a table view shows every relation and replaces the drawing before hydration and in forced colours.",
+  "affects": [
+    "component:network",
+    "slot:network-node",
+    "slot:network-edge",
+    "slot:network-label",
+    "slot:network-edge-label",
+    "slot:network-expand",
+    "slot:network-table",
+    "prop:renderer",
+    "prop:workerThreshold",
+    "prop:canvasThreshold",
+    "prop:onExpandRequest",
+    "prop:hiddenNeighbours"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/469R-0"
+  }
+}

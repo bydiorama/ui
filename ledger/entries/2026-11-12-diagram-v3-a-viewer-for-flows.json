@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-diagram-v3-a-viewer-for-flows",
+  "date": "2026-11-12",
+  "item": "diagram",
+  "kind": "addition",
+  "summary": "Diagram (V3): a viewer for flows and hierarchies on lib/graph. HTML nodes over SVG edges under one transform on a DotPattern ground; layered, tree and radial layouts or your own positions, with a size hint so server markup lays out; Diagram.Group draws round its members and collapses to one node that carries their edges; Diagram.Controls, Minimap and Legend. Keyboard: arrows move to the nearest node in that direction, Tab walks a node's relations, Enter selects or follows, Space opens and closes a group, Escape clears; a visually hidden adjacency list names every relation. Edge labels, inferred edges muted at hairline and called inferred in words, and a highlighted path that dims the rest. The selected node's description takes primary ink, since muted ink fell to under 4.5:1 on a pale brand's selected fill.",
+  "affects": [
+    "component:diagram",
+    "slot:diagram-node",
+    "slot:diagram-edge",
+    "slot:diagram-node-description",
+    "slot:diagram-group",
+    "slot:diagram-minimap",
+    "slot:diagram-legend"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3YCS-0"
+  }
+}

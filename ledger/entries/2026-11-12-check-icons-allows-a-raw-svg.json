@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-check-icons-allows-a-raw-svg",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "fix",
+  "summary": "check:icons allows a raw svg in diagram.tsx and network.tsx, each with its reason: the edge layer and the node discs are data geometry drawn from lib/graph paths, not icons, and every glyph inside them is still a griddy export.",
+  "affects": [
+    "gate:check:icons"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-paper-p1-chart-parts-drawn-from",
+  "date": "2026-11-12",
+  "item": "chart",
+  "kind": "fix",
+  "summary": "Paper: a new 'Chart --- Rules, shares, dots and bins' sheet draws the P1 parts no sheet had (event rule, 100% stack, scatter with quadrant rules, bubbles, histogram, marker shapes 1–8, Sparkline xs), copied from the shipped components with colours mapped back to tokens, each badged Derived until a designer approves it. The Bar sheet gains 'Focus in a group': grouped, stacked and histogram marks sit 2px apart, so the focus ring 2px off a mark lands on its neighbour at 1.0–1.9:1 light and 1.9–2.9:1 dark; a 6px surface halo under the ring is proposed, not built. The Heatmap sheet's focus ring moves inside the cell (inset 2px focus ink, then a 2px surface gap), since an outside ring spilled onto neighbouring cells. The Anatomy sheet's series 2 now paints --ui-data-cat-2-solid, closing chart.doc.ts's stale --ui-data-div-neg-2 known gap; Paper's cat-1..8 bg/fg tokens are re-pushed from the repo. chart.doc.ts and sparkline.doc.ts needsDesign rows now point at the new sheet.",
+  "affects": [
+    "item:chart",
+    "item:sparkline"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/46I3-0"
+  }
+}

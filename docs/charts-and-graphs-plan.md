@@ -471,8 +471,8 @@ P0 sheets approved.
 - [x] `Sparkline`, `Meter`. Both get the standard five files (`.tsx`,
       `.doc.ts`, `.stories.tsx`, `.browser.test.tsx`, `.types.test.tsx`),
       visual baselines in both schemes, and the brand-theme story.
-- [ ] Extend `check:boundaries` to the viz dependencies, and
-      `check:dependencies` to declare them per item.
+- [x] Extend `check:boundaries` to the viz dependencies, and
+      `check:dependencies` to declare them per item (2026-11-12).
 
 **Exit:** `pnpm verify` green; SSR output of both components snapshot-tested
 with no hydration needed; forced-colours test passing.
@@ -527,30 +527,69 @@ text scrolling the page sideways (ledger, 2026-11-11). Found and left to the por
 
 ### Phase V3 — Diagram viewer · *large*
 
-- [ ] Viewport (pan and zoom transform, fit, follow focus, keyboard path).
-- [ ] Node slot (HTML layer) + edge layer (SVG) under one transform.
+- [x] Viewport (pan and zoom transform, fit, follow focus, keyboard path):
+      `useGraphViewport`, shared with Network.
+- [x] Node slot (HTML layer) + edge layer (SVG) under one transform.
       `DotPattern` as the canvas ground.
-- [ ] Layered layout through dagre; tree and radial through d3-hierarchy;
+- [x] ~~Layered layout through dagre; tree and radial through d3-hierarchy~~
+      Layered, tree and radial layouts **in `lib/graph`, our own code**;
       `positions` passthrough; size hints for SSR.
-- [ ] Graph keyboard model, adjacency-list alternative, edge labels.
-- [ ] `Diagram.Group`, `Controls`, `Minimap`, `Legend`.
+- [x] Graph keyboard model, adjacency-list alternative, edge labels.
+- [x] `Diagram.Group`, `Controls`, `Minimap`, `Legend`.
 
 **Exit:** a pipeline or lineage view and an org chart render in both schemes
 from the same component. Every node is reachable by keyboard with its
-relations announced.
+relations announced. **Met 2026-11-12**: the Playground (a pipeline) and
+OrgChart stories render from one `Diagram`, with visual baselines in both
+schemes. The contract test reaches every node by arrow key and asserts that
+a node's announcement lists its relations ("2 relations: Brief informs Grid
+system; Brief informs Layout"). The second half is asserted on one node and
+holds for all of them by construction, since every node's announcement is
+built the same way.
+
+**Dependencies, decided while building V3.** §3.4 proposed dagre for layered
+layout and d3-hierarchy for trees. Neither was admitted. A read-only viewer
+needs only a narrow part of each: longest-path ranks with four barycentre
+sweeps, a tidy tree, and rings by depth. Written in `lib/graph`, that is a few
+hundred lines with no dependency. It is deterministic by construction and
+writes the same rounded numbers on the server and the client. It also keeps
+the precedent `lib/viz` set, which owns its scales and bins. The cost is
+simpler edge-crossing reduction than dagre's. `check:boundaries` still names
+those packages, so admitting one later replaces what is behind `lib/graph`
+without touching any public type.
 
 ### Phase V4 — Networks and the knowledge-graph explorer · *large*
 
-- [ ] `Network` on SVG with force layout (seeded, worker above the threshold,
-      incremental with pinned nodes).
-- [ ] Canvas tier behind the admission rule.
-- [ ] `KnowledgeGraphExplorer` block: search, type filter, detail panel,
+- [x] `Network` on SVG with force layout (seeded, worker above the threshold,
+      incremental with pinned nodes). The force layout is our own too
+      (`lib/graph` `forceLayout`, a uniform grid for repulsion), not d3-force,
+      for the reason given under V3. The worker answers with exactly the main
+      thread's positions, and a test holds it to that.
+- [x] Canvas tier behind the admission rule: `NetworkCanvas`, passed as
+      `renderer` and admitted above `canvasThreshold` (2,000 elements). It
+      only paints. The keyboard, announcements, hit-testing and the table stay
+      with Network, and before hydration and in forced colours the table
+      replaces the canvas.
+- [x] `KnowledgeGraphExplorer` block: search, type filter, detail panel,
       history, `onExpandRequest`, path highlight.
-- [ ] Docs recipes: Neo4j / Cypher result → `GraphNode[]`; RDF / JSON-LD →
-      `GraphNode[]`.
+- [x] Docs recipes: Neo4j / Cypher result → `GraphNode[]`; RDF / JSON-LD →
+      `GraphNode[]`, in [`graph-data-recipes.md`](./graph-data-recipes.md).
+      Each mapping there was type-checked and run on fixtures.
 
 **Exit:** a 5k-node typed graph is explorable by keyboard and screen reader
-on a mid-range phone, and the visual gate is stable across runs.
+on a mid-range phone, and the visual gate is stable across runs. **Not met
+yet (2026-11-12).**
+- The visual gate is stable: the new cases pass on repeated runs.
+- Keyboard and screen reader are tested at 7–27 nodes and the canvas at
+  2,000. Nothing has been tried at 5,000.
+- Laying out 5,000 nodes and 6,250 edges takes about 4 s on a desktop M-series
+  CPU, in the worker and off the main thread. Even so, a mid-range phone is
+  likely to take several times longer before the first drawing.
+- Still to do:
+  - try it on a real phone;
+  - decide whether a large graph is drawn after a cheap first layout and then
+    refined, or arrives with positions computed on the server;
+  - filter the table view by what is in view (today it lists every relation).
 
 ### Phase V5 — on demand only
 

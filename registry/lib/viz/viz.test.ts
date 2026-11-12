@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { MARKER_SHAPES, arcPath, bins, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
+import { MARKER_SHAPES, arcPath, bins, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerKeyPath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
 
 const BOX = { width: 160, height: 40, inset: { top: 6, right: 8, bottom: 6, left: 2 } } as const;
 
@@ -128,9 +128,35 @@ test("stackSeries stacks up from zero, negatives down, holes keep their place", 
 });
 
 test("markerPath draws the sheet's end markers", () => {
-  assert.equal(markerPath("square", 360, 78, 4), "M356 74L364 74L364 82L356 82Z");
-  assert.equal(markerPath("triangle", 360, 136, 4), "M360 131L365 140L355 140Z");
+  assert.equal(markerPath("square", 360, 78, 4), "M356.46 74.46L363.54 74.46L363.54 81.54L356.46 81.54Z");
+  assert.equal(markerPath("triangle", 360, 136, 4), "M360 129.66L365.28 139.17L354.72 139.17Z");
   for (const shape of MARKER_SHAPES) assert.match(markerPath(shape, 10, 10, 4), /^M.*Z$/);
+});
+
+/** The polygon a markerPath draws, back out of its path string. */
+function vertices(d: string): [number, number][] {
+  return [...d.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+}
+
+test("every marker shape weighs the same as the circle and sits on its point", () => {
+  // Measured before the fix at r 4: square +27%, diamond +8%, triangle -10%,
+  // plus -19%, and the triangle's centroid 1px below the data point.
+  const r = 10;
+  const circle = Math.PI * r * r;
+  for (const shape of MARKER_SHAPES) {
+    if (shape === "circle") continue;
+    const pts = vertices(markerPath(shape, 0, 0, r));
+    let a = 0, cx = 0, cy = 0;
+    pts.forEach(([x0, y0], i) => {
+      const [x1, y1] = pts[(i + 1) % pts.length]!;
+      const c = x0 * y1 - x1 * y0;
+      a += c; cx += (x0 + x1) * c; cy += (y0 + y1) * c;
+    });
+    a /= 2;
+    // Paths are rounded to 2 places, so allow that much and no more.
+    assert.ok(Math.abs(Math.abs(a) / circle - 1) < 0.005, `${shape}: area ${Math.abs(a).toFixed(1)} vs ${circle.toFixed(1)}`);
+    assert.ok(Math.abs(cx / (6 * a)) < 0.02 && Math.abs(cy / (6 * a)) < 0.02, `${shape}: centroid off the point`);
+  }
 });
 
 test("barPath rounds the data end on either side of zero; bandPath closes a stack", () => {
@@ -222,4 +248,25 @@ test("bins: nice edges, every value counted once, the maximum in the last bin", 
   assert.equal(exact.reduce((n, x) => n + x.count, 0), 3);
   assert.deepEqual(bins([], 4), []);
   assert.deepEqual(bins([5, 5], 4).map((x) => x.count), [2]);
+});
+
+test("a key marker fills its box on its longer side and never leaves it", () => {
+  // The legend and tooltip keys are 8px svgs that clip. markerPath(shape, 4, 4, 4)
+  // put the triangle at -1…9 and the diamond at -1.2…9.2, so five of the eight
+  // shapes lost their points.
+  const extent = (d: string) => {
+    const n = [...d.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])] as const);
+    const xs = n.map(([x]) => x), ys = n.map(([, y]) => y);
+    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] as const;
+  };
+  for (const shape of MARKER_SHAPES.filter((s) => s !== "circle")) {
+    for (const inset of [0, 0.75]) {
+      const [x0, y0, x1, y1] = extent(markerKeyPath(shape, 8, inset));
+      assert.ok(x0 >= inset - 0.01 && y0 >= inset - 0.01 && x1 <= 8 - inset + 0.01 && y1 <= 8 - inset + 0.01, `${shape} at inset ${inset}: ${x0},${y0} … ${x1},${y1}`);
+      assert.ok(Math.abs(Math.max(x1 - x0, y1 - y0) - (8 - 2 * inset)) <= 0.02, `${shape} does not fill its box`);
+    }
+  }
+  assert.equal(markerKeyPath("circle", 8), "M0 4a4 4 0 1 0 8 0a4 4 0 1 0 -8 0Z");
+  // The triangle keeps the end marker's proportions, centred in the box.
+  assert.equal(markerKeyPath("triangle", 8), "M4 0.4L8 7.6L0 7.6Z");
 });

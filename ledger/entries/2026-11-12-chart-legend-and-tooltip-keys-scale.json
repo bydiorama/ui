@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chart-legend-and-tooltip-keys-scale",
+  "date": "2026-11-12",
+  "item": "chart",
+  "kind": "visual",
+  "summary": "Chart: legend and tooltip keys scale each marker shape to fill its 8px box (lib/viz `markerKeyPath`), so the triangle, diamond, triangle-down, hexagon and pentagon no longer lose their points to the key's clipping svg. The 2px surface ring under end, crosshair and scatter markers is now the mark's own outline stroked 4px in the surface, mitred (`RING_GAP`), instead of the shape scaled to r 6, which left the triangle's slants at 1.21px and the plus's arms at 0.8px. A hidden series' outlined key is inset by half its stroke and round-joined, since a mitred apex reached 0.47px past the box. Found by /review-ui; the Marker shapes section, the Line sheet and the Bar sheet's keys were redrawn to match.",
+  "affects": [
+    "component:chart",
+    "export:markerKeyPath",
+    "export:RING_GAP",
+    "slot:chart-legend-key",
+    "slot:chart-marker-ring"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/46KS-0"
+  }
+}

@@ -181,8 +181,10 @@ Three ideas carry the design:
 
 1. **Show the thing, then the proof.** Every component page leads with the
    live component and ends with its measured facts.
-2. **Brand it in front of the reader.** The theme playground is the home
-   page's second screen, and every preview on the site can be re-themed.
+2. **Brand it in front of the reader.** The home page's gallery re-themes
+   every tile from the scheme, density and brand controls above it, and every
+   preview on the site can be re-themed. The full theme playground lives at
+   `/theme/`.
    A component that only looks right in Diorama's colours is not finished
    (`AGENTS.md`); the site demonstrates that rule on itself.
 3. **Honest status.** Experimental items, declared gaps and known limits are
@@ -250,19 +252,25 @@ it gains one, because a category that lives only in the site would be prose
 
 Purpose: in one screen, say what this is and let the reader touch it.
 
-1. **Lead.** One sentence, the install command with a copy button, two
-   actions: *Browse components* and *Read the docs*.
-2. **A live composition**, not a screenshot: a small working screen built from
-   six to eight components, with scheme, density and brand controls beside
-   it. Changing the accent re-themes the whole composition.
-3. **Three proof tiles** with generated numbers: components and their status
-   split, measured contrast pairs, browser tests. Each links to `/status/`.
-4. **How it is distributed**: three steps (add, own, sync), with the real
-   commands.
-5. **Gallery strip**: a row of live component tiles leading to
-   `/components/`.
-6. **For agents**: where `llms.txt`, the `.md` routes, the registry and the
-   skills live.
+1. **Lead.** The positioning line, then what the reader gets (how many
+   components, distributed as source, built to take a brand), then the
+   install command with a copy button. There are no action buttons: the
+   gallery directly below is the next step, and the header carries *Docs*.
+2. **The gallery**: a grid of live component tiles (nine in the design), each
+   named with its category. Scheme, density, brand and effects controls sit
+   above it, and changing them re-themes every tile. This is where the reader
+   touches the product. An *All components* link leads to `/components/`.
+3. **Footer facts**: one generated line with the component count, the
+   measured contrast pairs and the browser tests. Links to *Status*,
+   *Tokens* and *For agents* sit beside it.
+
+Cut on purpose (decided 2026-11-12, keeping Home v2): a separate live
+composition, proof tiles, an add/own/sync strip and a *For agents* block.
+Each has a home elsewhere:
+- The composition is covered by the examples.
+- The proof numbers are on `/status/`.
+- Distribution is covered in the docs (CLI and sync).
+- Agent routes are on the docs agents page.
 
 No carousel, no testimonial block, no animated hero that does not show the
 product.
@@ -353,8 +361,41 @@ shared.
 - **Output**: copy the seed as JSON, copy the resolved CSS, and a link that
   encodes the seed in the URL fragment so a theme can be shared without a
   server.
-- **Presets**: theme zero, the stress theme used in stories, and two or three
-  deliberately different brands.
+- **Presets**: *Zero* (theme zero), *Stress* (the stress theme used in
+  stories), *Graphite*, *Hockney* and *Moss*. Graphite and Hockney are
+  seeded below and were run through `resolveThemePair`. With no authored
+  map, every light pair clears its threshold.
+
+  | Seed | Graphite (light · dark) | Hockney (light · dark) |
+  | --- | --- | --- |
+  | bg | `#F3F3F2` · `#1E1E1E` | `#FFFFFF` · `#0E1620` |
+  | surface | `#F8F8F7` · `#252525` | `#FAEBE6` · `#15202C` |
+  | muted | `#E7E7E6` · `#2B2B2B` | `#F5DED7` · `#1C2836` |
+  | textPrimary | `#3B3B3A` · `#D4D4D3` | `#1D1D1F` · `#F2F1EE` |
+  | textMuted | `#6A6A69` · `#9A9A99` | `#6E6E73` · `#A3A9B1` |
+  | border | `#D9D9D8` · `#3A3A3A` | `#E6E3E1` · `#2A3644` |
+  | accent | `#585857` · `#C4C4C3` | `#1672C4` · `#5CB8F0` |
+  | radius sm/md/lg/xl/2xl | 4/6/12/16/24 | 6/12/20/28/36 |
+  | shadow | `none` | `subtle` |
+
+  *Graphite* is pencil on paper. It has no chroma and a deliberately
+  narrow tonal range: body text is 10.1 : 1 rather than Zero's 17 : 1, there
+  is no pure black, and it has no shadows. *Hockney* is a minimal white
+  page with one pool blue and the stucco pink of the house as its surface,
+  from *A Bigger Splash*. Its radii are larger and its shadows subtle. The
+  white label on the blue measures 4.95 : 1.
+
+  The pink is the *surface*, not just `muted`, because the stage and the
+  wells derive from it. With a white surface, the derived elevated
+  (`#F5F5F5`) and sunken (`#F2F2F2`) measured 1.01 : 1 against a pink stage,
+  so avatars, progress tracks and neutral badges disappeared. With the pink
+  surface, the stage is `bg-elevated` `#FFF2EE`, the same role as on Zero.
+  The wells are `#EDDED9` at 1.20 : 1 (Zero manages 1.10), and the secondary
+  button's ring is 3.27 : 1.
+
+  The Hockney board draws Button and Input with `shape="full"`. That is a
+  prop, not a seed knob, so a preset cannot choose it today. If Hockney
+  should ship pill-shaped controls, the seed needs a control-shape knob.
 
 The resolver runs in the browser; it is a pure function in
 `@bydiorama/tokens`. No backend.

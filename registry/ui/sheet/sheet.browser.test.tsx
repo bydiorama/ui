@@ -116,10 +116,11 @@ describe("Sheet is a dialog, and Base UI provides the behaviour", () => {
     expect(panel()!.contains(document.activeElement)).toBe(true);
 
     await userEvent.keyboard("{Escape}");
-    await new Promise((r) => setTimeout(r, 250));
     // Focus falling to <body> is the classic hand-rolled-drawer failure, and
-    // it strands a keyboard user at the top of the page.
-    expect(document.activeElement).toBe(t);
+    // it strands a keyboard user at the top of the page. It returns when the
+    // panel has LEFT, so wait for that rather than a constant a loaded suite
+    // can outrun.
+    await vi.waitFor(() => expect(document.activeElement).toBe(t), { timeout: 2000 });
   });
 
   test("isDismissable={false} refuses Escape but NOT the close control", async () => {
@@ -136,7 +137,10 @@ describe("Sheet is a dialog, and Base UI provides the behaviour", () => {
     expect(panel()).not.toBeNull();
 
     await userEvent.click(document.querySelector<HTMLElement>('[data-slot="sheet-close"]')!);
-    await new Promise((r) => setTimeout(r, 250));
+    // Wait for the panel to LEAVE, not for a fixed 250ms: it unmounts when its
+    // exit transition ends, and under a full suite's load that can be later
+    // than any constant — the close had worked, the clock had not run out.
+    await vi.waitFor(() => expect(panel()).toBeNull(), { timeout: 2000 });
     // A panel that cannot be closed at all is worse than one that can be
     // dismissed by accident.
     expect(panel()).toBeNull();

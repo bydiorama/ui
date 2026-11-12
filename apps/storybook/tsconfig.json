@@ -47,6 +47,9 @@
       "@/ui/dot-pattern": ["../../registry/ui/dot-pattern/dot-pattern.tsx"],
       "@/ui/diagram": ["../../registry/ui/diagram/diagram.tsx"],
       "@/ui/network": ["../../registry/ui/network/network.tsx"],
+      "@/ui/status-matrix": ["../../registry/ui/status-matrix/status-matrix.tsx"],
+      "@/ui/popover": ["../../registry/ui/popover/popover.tsx"],
+      "@/ui/chat-widget": ["../../registry/ui/chat-widget/chat-widget.tsx"],
       "@/components/blocks/stat-tiles": ["../../registry/blocks/stat-tiles/stat-tiles.tsx"],
       "@/ui/*": ["../../registry/ui/*"],
       "@/blocks/*": ["../../registry/blocks/*"]

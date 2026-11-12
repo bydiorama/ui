@@ -141,8 +141,9 @@ describe("Drawer is a dialog, and Base UI provides the behaviour", () => {
     await settled(panel()!);
     expect(panel()!.contains(document.activeElement)).toBe(true);
     await userEvent.keyboard("{Escape}");
-    await rest();
-    expect(document.activeElement).toBe(t);
+    // Focus returns when the panel has LEFT, after its exit transition — wait
+    // for that, not for a constant a loaded suite can outrun.
+    await vi.waitFor(() => expect(document.activeElement).toBe(t), { timeout: 2000 });
   });
 
   test("isDismissable={false} refuses Escape but NOT the close control", async () => {
@@ -153,8 +154,10 @@ describe("Drawer is a dialog, and Base UI provides the behaviour", () => {
     await rest();
     expect(panel()).not.toBeNull();
     await userEvent.click(document.querySelector<HTMLElement>('[data-slot="drawer-close"]')!);
-    await rest();
-    expect(panel()).toBeNull();
+    // Wait for the panel to LEAVE, not for a fixed rest: it unmounts when its
+    // exit transition ends, and under a full suite's load that can be later
+    // than any constant — the close had worked, the clock had not run out.
+    await vi.waitFor(() => expect(panel()).toBeNull(), { timeout: 2000 });
   });
 });
 

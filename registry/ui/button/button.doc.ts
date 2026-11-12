@@ -97,6 +97,8 @@ Button
     ],
     pointer:
       "cursor: pointer is set explicitly. A <button> has no pointer cursor by default — the UA default is the arrow and Tailwind's preflight adds nothing — so omitting it silently costs the only pre-click affordance. Disabled shows not-allowed.",
+    hover:
+      "Each type's own step: primary and danger deepen their fill, secondary and outline firm their edge, inverse fills the band's -hover step. ghost FILLS — with the sheet's --ui-bg-elevated on the page, and with --ui-bg-hover inside any ancestor that paints bg-elevated (a card, a dock, a panel), because there the sheet's fill is the ground's own colour and the hover vanished. The surface declares its ground by painting it; no prop. The token test holds bg-hover a step past bg-elevated in every seed and both schemes.",
     pressed:
       "PAINTS NO NEW FILL on the edge-on-nothing types. secondary firms its ring (default -> strong) and takes its ink to primary; outline takes its ink to primary; ghost keeps the fill hover already painted and darkens its ink. A pointer press is necessarily also a hover, so :hover's treatment is already applied and :active adding a second, darker fill is what produced a neutral chip on a control the design draws with no fill in any state. primary and danger are FILLS by definition and keep theirs. The ink step is required, not decorative: §8 forbids motion being the only feedback channel, and the press-scale is the motion.",
     disabled:
@@ -115,6 +117,8 @@ Button
       { fg: "--ui-border-focus", bg: "--ui-bg-base", floor: "non-text", role: "the focus ring" },
       { fg: "--ui-text-secondary", bg: "--ui-bg-elevated", floor: "text", role: "a hovered ghost label, on the fill the sheet's Ghost Hover frame actually draws" },
       { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "a PRESSED ghost label — the ink step that keeps press from being motion alone" },
+      { fg: "--ui-text-secondary", bg: "--ui-bg-hover", floor: "text", role: "a hovered ghost label inside an elevated surface" },
+      { fg: "--ui-text-primary", bg: "--ui-bg-hover", floor: "text", role: "a pressed ghost label inside an elevated surface" },
       { fg: "--ui-border-strong", bg: "--ui-bg-base", floor: "non-text", role: "a pressed secondary's edge, the firmest step in ADR 0010's stack" },
       { fg: "--ui-text-inverse", bg: "--ui-bg-inverse", floor: "text", role: "inverse label, and its edge" },
       { fg: "--ui-text-inverse", bg: "--ui-bg-inverse-hover", floor: "text", role: "a hovered inverse label" },

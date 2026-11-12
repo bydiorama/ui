@@ -85,6 +85,10 @@ export default defineConfig({
       // component calls throws "Invalid hook call" (Fade's SSR test).
       "react-dom/server",
       "@base-ui/react/accordion",
+      // Chat Progress, Chat Tasks and Chat Sources disclose with Collapsible;
+      // Chat Sources renders its marker through useRender.
+      "@base-ui/react/collapsible",
+      "@base-ui/react/use-render",
       "@base-ui/react/popover",
       "@base-ui/react/dialog",
       "@base-ui/react/combobox",
@@ -122,7 +126,7 @@ export default defineConfig({
       "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
       "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
       "@/hooks/use-graph-viewport": join(root, "registry/hooks/use-graph-viewport/use-graph-viewport.ts"),
-      ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "combobox", "diagram", "dot-pattern", "fade", "header", "menu", "network", "progress", "sheet", "skeleton", "slider", "table"),
+      ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "combobox", "diagram", "dot-pattern", "fade", "header", "menu", "network", "progress", "sheet", "skeleton", "slider", "table", "status-matrix", "popover", "chat-widget"),
       "@/ui": join(root, "registry/ui"),
       "@/components/blocks/stat-tiles": join(root, "registry/blocks/stat-tiles/stat-tiles.tsx"),
       "@/blocks": join(root, "registry/blocks"),

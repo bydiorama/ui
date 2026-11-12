@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chatprogress-typing-presence",
+  "date": "2026-11-12",
+  "item": "chat-progress",
+  "kind": "addition",
+  "summary": "ChatProgress gains form=\"typing\": PEOPLE's presence, the sheet's Gaps row made real. One line — the Typing matrix at 16px in muted ink (a person, never the agent's accent), gap-sm, then a caption line in which `who` truncates and the verb never does, so the longest name gives way first. It is not progress and never competes for the turn's live edge: it is placed on the composer's top edge, never in the thread. The type refuses every run prop on it — clock, receipt, Stop, Retry, failure, disclosure, icon — and requires `who`. Placing it on the composer is the caller's for now; ChatComposer has no slot for it.",
+  "affects": [
+    "item:chat-progress",
+    "item:status-matrix",
+    "token:--ui-text-muted",
+    "token:--ui-text-caption",
+    "token:--ui-space-sm"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3Z89-0"
+  }
+}

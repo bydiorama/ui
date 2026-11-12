@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chattasks-the-plan",
+  "date": "2026-11-12",
+  "item": "chat-tasks",
+  "kind": "addition",
+  "summary": "ChatTasks: the plan the agent works to, written, ticked off and revised in place. A chat-widget card with a disclosure header; proposed plans show numbered rows with Run / Change it and a per-row drop; running, complete and stopped plans show six row statuses (done, current, pending, needsYou, failed, skipped) and fold to a header whose glyph is the plan's status. The current task holds StatusMatrix Working's key frame — the plan never moves.",
+  "affects": [
+    "item:chat-tasks",
+    "item:chat-widget",
+    "item:status-matrix",
+    "item:badge",
+    "token:--ui-bg-hover",
+    "token:--ui-bg-accent-legible",
+    "token:--ui-intent-success-fg",
+    "token:--ui-intent-danger-fg"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3ZRD-0"
+  }
+}

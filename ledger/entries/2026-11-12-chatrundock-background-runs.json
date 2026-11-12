@@ -1,0 +1,28 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chatrundock-background-runs",
+  "date": "2026-11-12",
+  "item": "chat-run-dock",
+  "kind": "addition",
+  "summary": "ChatRunDock and ChatRunMark: background runs that outlive their turn. The dock sits behind the composer's pill (bg-elevated, radius-lg, inset space-xl), one 32px row per run with a 14px StatusMatrix (Progress when measured, Working otherwise), name, truncating activity, a 40px tabular clock and a named Stop; the mark is the run's line in the thread — started, finished with an action, failed with Retry, or stopped. A named region, never a toast. The rows' matrices hold while the thread has a live edge (`isHeld`), and even when the thread is idle only the FIRST row moves — one live matrix per region, however many runs.",
+  "affects": [
+    "item:chat-run-dock",
+    "item:status-matrix",
+    "item:button",
+    "token:--ui-bg-elevated",
+    "token:--ui-bg-base",
+    "token:--ui-radius-lg",
+    "token:--ui-space-xs",
+    "token:--ui-space-sm",
+    "token:--ui-space-md",
+    "token:--ui-space-xl",
+    "token:--ui-text-secondary",
+    "token:--ui-text-muted",
+    "token:--ui-bg-accent-legible",
+    "token:--ui-intent-success-fg",
+    "token:--ui-intent-danger-fg"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3Z89-0"
+  }
+}

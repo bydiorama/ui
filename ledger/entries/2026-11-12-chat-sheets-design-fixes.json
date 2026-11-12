@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chat-sheets-design-fixes",
+  "date": "2026-11-12",
+  "item": "chat-progress",
+  "kind": "fix",
+  "summary": "Paper: design fixes pushed back into the chat sheets in Paper, so the sheets match what ships. Chat Progress: the dock's Stop layers are SquareRounded (griddy's Stop hard-codes black and check:licensing rejects it), the dock inset is calc(100% - --ui-space-xl × 2) rather than a raw 48px, the thread marks' glyphs are 16px (the root's metrics, as the caption says), the finished action layer is named Button / secondary / md as drawn, the precedence table's quiet dock row is the dock's own box (14px matrix, radius-lg, p-xs), the reasoning fade is --ui-bg-base rather than #FFFFFF, and the dock annotation states the one-moving-row rule. Chat Sources: the focus ring is var(--ui-bg-base) 2px + var(--ui-focus-ring-color) 4px rather than raw hex; the library card glyph is PdfFile as in the list; the folded discs are the first three distinct kinds in list order (Globe, PdfFile, FileText) and the '+3 more' card draws all three hidden kinds; the gathering row draws a held 14px Working Status matrix where the retired ring spinner stood. The preview panels' shadow already equals --ui-shadow-md's light value — Paper has no shadow token type — so it stays. Rich Turn (dark): the Tasks header gains its chevron, the running task loses a hover fill nothing could cause, and the dock and composer Stop glyphs are SquareRounded. The matching needsDesign notes are removed from the chat-run-dock, chat-sources, chat-progress and chat-tasks docs.",
+  "affects": [
+    "item:chat-progress",
+    "item:chat-run-dock",
+    "item:chat-sources",
+    "item:chat-tasks",
+    "item:chat-composer",
+    "token:--ui-focus-ring-color",
+    "token:--ui-bg-base",
+    "token:--ui-space-xl"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3Z89-0"
+  }
+}

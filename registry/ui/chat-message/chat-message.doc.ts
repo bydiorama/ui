@@ -10,10 +10,9 @@ export const chatMessageDoc = {
     { part: "sender root", slot: "chat-message", notes: "data-role=\"sender\", data-status. Column, items-end, gap-xs. Declares --ui-chat-message-bubble-max-width (75%)." },
     { part: "bubble", slot: "chat-message-bubble", notes: "bg-elevated, radius-lg, no tail, no border, no avatar and no timestamp inside. px-lg py-md at md, px-md py-sm at sm. body 400 at leading-normal in text-ink-primary." },
     { part: "attachments", slot: "chat-message-attachments", notes: "Inside the bubble, above the text, gap-xs — a Thumbnail.Group. Sent tiles carry no remove control: the message is gone." },
-    { part: "status", slot: "chat-message-status", notes: "The caption under the bubble, and the ONLY channel carrying delivery state — the bubble's fill never moves. text-ink-muted while sending, medium text-danger when failed." },
+    { part: "status", slot: "chat-message-status", notes: "The caption under the bubble, and the ONLY channel carrying delivery state — the bubble's fill never moves. text-ink-muted while sending or queued, medium text-danger when failed." },
     { part: "receiver root", slot: "chat-message", notes: "data-role=\"receiver\", data-streaming. group/chat-message — named, so a message nested inside a widget cannot reveal its parent's actions." },
     { part: "body", slot: "chat-message-body", notes: "No container. body 400 at leading-relaxed (155%) — the looser leading is the receiver's signature and the reason it needs none. Rich blocks stack at gap-lg, which IS --ui-space-stack-md." },
-    { part: "caret", slot: "chat-message-caret", notes: "8x15 block at radius 2 in text-ink-primary, drawn only while streaming. Static, not blinking: the text arriving is already the motion." },
     { part: "error", slot: "chat-message-error", notes: "The failure block INSIDE the message, under whatever partial answer arrived — bg-danger-subtle, radius-md, px-md py-sm, body-sm in text-ink-on-danger-subtle, with a danger·sm Retry. role=\"status\", announced politely." },
     { part: "actions", slot: "chat-message-actions", notes: "The ghost icon row, revealed on message hover AND on focus-within, forced visible on a device with no hover. Withheld entirely while streaming." },
     { part: "meta", slot: "chat-message-meta", notes: "Caption in text-ink-muted at the trailing end of the actions row — agent name and relative time. Appears with the row." },
@@ -24,7 +23,8 @@ ChatMessage.Sender     size? attachments? status? statusText? onRetryAction? ret
 └─ (bubble)            attachments above the text, both inside
 
 ChatMessage.Receiver   size? isStreaming? actions? meta? isActionsVisible? errorText? onRetryAction? retryLabel?
-├─ (body)              children, plus the caret while streaming
+├─ (body)              children
+│  └─ while streaming:  <ChatProgress form="streaming" label="Writing"/> as the last child — the turn's one mark
 ├─ (error)             errorText + a danger·sm Retry
 └─ (actions)           actions … meta
    └─ actions:         <Button variant="ghost" size="sm" isIconOnly aria-label="Copy" icon={<Copy/>}/> x N
@@ -41,9 +41,9 @@ ChatMessage.Receiver   size? isStreaming? actions? meta? isActionsVisible? error
       default: "75%",
       notes: "The bubble's share of the column. A property rather than a prop because the sheet's rule is about the COLUMN — 75% at 640, 85% once it narrows — and a component cannot see that: the assistant sidebar is 308px inside a 1440px window, so no viewport breakpoint describes it. Set it where the column is chosen.",
     },
-    status: { type: '"sent" | "sending" | "failed"', default: '"sent"', notes: "Sender only. `statusText` is REQUIRED by the type for the other two: the caption is the only channel carrying the state, so a sending bubble with no caption has no state at all." },
+    status: { type: '"sent" | "sending" | "queued" | "failed"', default: '"sent"', notes: "Sender only. `statusText` is REQUIRED by the type for every state but sent: the caption is the only channel carrying the state, so a sending bubble with no caption has no state at all. `queued` is a turn sent while the agent is still running the last one — muted like sending, never danger ink (\"Queued — runs after this turn\" on the sheet). No indicator starts for it until the running turn settles: the live edge stays where it was." },
     attachments: { type: "ReactNode", notes: "Sender only. A Thumbnail.Group above the text, inside the bubble. Never wrapped (§3)." },
-    isStreaming: { type: "boolean", default: "false", notes: "Receiver only. Draws the caret and WITHHOLDS the actions row — copying or rating half an answer is worse than waiting, and rendering the row hidden would put six tab stops in front of an unfinished answer." },
+    isStreaming: { type: "boolean", default: "false", notes: "Receiver only. WITHHOLDS the actions row — copying or rating half an answer is worse than waiting, and rendering the row hidden would put six tab stops in front of an unfinished answer. It draws nothing itself: the Streaming status row (ChatProgress form=\"streaming\") is the caller's last child, so the same matrix runs from the turn's first second to its last." },
     actions: { type: "ReactNode", notes: "Receiver only. Button ghost · sm · isIconOnly at the call site. A slot, because which actions a product offers is the product's." },
     isActionsVisible: { type: "boolean", default: "false", notes: "Keeps the row visible instead of revealing it on hover. The sheet asks for this on touch and on the latest message — both are facts about the THREAD, which only the thread knows." },
     errorText: { type: "string", notes: "Receiver only. The failure block inside the message. Never a toast: the error belongs to the turn that produced it." },
@@ -53,12 +53,15 @@ ChatMessage.Receiver   size? isStreaming? actions? meta? isActionsVisible? error
   do: [
     "Set --ui-chat-message-bubble-max-width to 85% wherever the column is narrow — the sidebar and the phone — and leave it at 75% on the page.",
     "Drive isStreaming from the stream and let the component withhold the actions row; do not conditionally render the row yourself.",
+    "While streaming, put a ChatProgress form=\"streaming\" row as the receiver's last child — and swap it for nothing when the answer settles. It is the turn's one mark.",
+    "Mark a turn sent during a running one as queued, and start no indicator for it until the running turn settles.",
     "Pass errorText for a stopped generation, so the failure stays attached to the turn instead of floating off as a toast.",
     "Keep the partial answer when a generation fails. The failure block says the answer above is kept, and deleting it makes that a lie.",
   ],
 
   dont: [
     "Do not give the receiver a bubble, an avatar or a border. The asymmetry is the design, and it is what keeps a long answer readable.",
+    "Do not add a caret or a second moving mark beside the Streaming row: one turn, one mark.",
     "Do not put a timestamp inside the sender bubble — time lives in the meta line and in a hover tooltip.",
     "Do not render a remove control on a sent attachment. The message has gone; the control would promise something it cannot do.",
     "Do not reveal the actions row with hover alone if you add your own — the component pairs hover with focus-within and with a no-hover fallback, and dropping either strands a keyboard or a touch user.",
@@ -75,7 +78,7 @@ ChatMessage.Receiver   size? isStreaming? actions? meta? isActionsVisible? error
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "the sender's message inside the bubble" },
       { fg: "--ui-text-primary", bg: "--ui-bg-base", floor: "text", role: "the receiver's answer, which sits on the page with no container" },
-      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "the meta line and the \"Sending…\" caption" },
+      { fg: "--ui-text-muted", bg: "--ui-bg-base", floor: "text", role: "the meta line and the \"Sending…\" and \"Queued\" captions" },
       { fg: "--ui-intent-danger-fg", bg: "--ui-bg-base", floor: "text", role: "the sender's failure caption" },
       { fg: "--ui-text-on-danger-subtle", bg: "--ui-intent-danger-bg", floor: "text", role: "the receiver's failure block and its Retry label" },
       { fg: "--ui-bg-elevated", bg: "--ui-bg-base", floor: "decorative", role: "the bubble against the page", why: "the bubble's fill is a GROUPING cue, not information: which voice is speaking is carried by the alignment, the leading and the presence of an actions row, all of which survive at any contrast. It is the same argument ADR 0010 makes for a surface step, and the reason the sheet gives the receiver no container at all" },
@@ -89,7 +92,7 @@ ChatMessage.Receiver   size? isStreaming? actions? meta? isActionsVisible? error
   },
 
   motion:
-    "One transition: the receiver's actions row fades in on hover or focus-within at duration-fast / ease-out (motionMicro), which is the sheet's 120ms exactly. Nothing else moves — the streaming caret is deliberately static, because the text arriving is already the motion and a second animation for the same fact is noise. Collapses under prefers-reduced-motion at the token layer.",
+    "One transition: the receiver's actions row fades in on hover or focus-within at duration-fast / ease-out (motionMicro), which is the sheet's 120ms exactly. Nothing else here moves. The first release drew a static block caret while streaming; the Chat status behaviour sheet (40P0-0) drops it for the Streaming matrix in a status row under the text — ChatProgress, composed by the caller, on StatusMatrix's one clock — so a turn keeps one mark from its first second to its last. Collapses under prefers-reduced-motion at the token layer.",
 
   needsDesign: [
     "The sheet draws the word \"retry\" inside the sender's failure caption. A word in a caption cannot be tabbed to or announced, so it ships as a real Button beside the caption — the sheet should be redrawn to match, and it has been.",
@@ -101,7 +104,8 @@ ChatMessage.Receiver   size? isStreaming? actions? meta? isActionsVisible? error
   ],
 
   knownGaps: [
-    "The caret is placed after the children rather than inside the last text node, so a receiver whose children are block elements gets it on its own line — which is what the sheet draws, but not what a real token stream looks like.",
+    "BREAKING since the first release: the `chat-message-caret` part is gone. A consumer that relied on isStreaming to draw the caret now gets no mark until it composes the Streaming row.",
+    "The receiver does not render the Streaming row itself: its words (\"Writing\") are the product's, and the row is ChatProgress's. Composition is the contract, asserted in the browser test.",
     "There is no grouping of consecutive turns: the thread's spacing (space-stack-lg between exchanges) belongs to whatever lays the messages out, and this component does not provide it.",
     "The sender's hover tooltip carrying the timestamp is named in the parts table and not built — it is a Tooltip at the call site.",
     "The file chip drawn for a non-image attachment is shared with Chat Composer and exists nowhere as a component; it is passed in as a slot child today.",

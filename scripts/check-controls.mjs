@@ -33,6 +33,10 @@ import { ROOT } from "./lib/manifest.mjs";
  */
 const ALLOWED = new Map([
   [
+    "registry/ui/chat-sources/chat-sources.tsx",
+    "The citation marker is a word-sized pill INSIDE a sentence: 16px tall, centred on the line with a 2px lead, inheriting the paragraph's flow. Every Button size is a standalone control with its own height, padding and ink; and while the answer streams the marker must be a natively disabled <button> so the inert numeral is exempt as an inactive control.",
+  ],
+  [
     "registry/ui/banner/banner.tsx",
     "The dismiss inherits the banner's INTENT ink (text-current) so it reads correctly on all five variants. Every Button variant sets its own colour, which would break exactly that.",
   ],

@@ -13,6 +13,7 @@ export function Valid() {
       <ChatMessage.Sender size="sm">Hello</ChatMessage.Sender>
       <ChatMessage.Sender status="sent">Hello</ChatMessage.Sender>
       <ChatMessage.Sender status="sending" statusText="Sending…">Hello</ChatMessage.Sender>
+      <ChatMessage.Sender status="queued" statusText="Queued — runs after this turn">Hello</ChatMessage.Sender>
       <ChatMessage.Sender status="failed" statusText="Not sent" retryLabel="Retry" onRetryAction={() => {}}>
         Hello
       </ChatMessage.Sender>
@@ -41,6 +42,8 @@ export function Invalid() {
           at all. A type, not a doc note. */}
       {/* @ts-expect-error statusText is required once status leaves "sent" */}
       <ChatMessage.Sender status="sending">Hello</ChatMessage.Sender>
+      {/* @ts-expect-error a queued turn says so in words, like every other state */}
+      <ChatMessage.Sender status="queued">Hello</ChatMessage.Sender>
 
       {/* @ts-expect-error statusText is required for failed too */}
       <ChatMessage.Sender status="failed">Hello</ChatMessage.Sender>

@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chatsources-citations-and-sources",
+  "date": "2026-11-12",
+  "item": "chat-sources",
+  "kind": "addition",
+  "summary": "ChatSources: inline citation markers, a hover/focus preview anchored to each, and a sources block under the answer — folded to kind discs and a count, open to numbered link rows, or led by source cards. Numbers are list positions shared through ChatSources.Provider; a working StatusMatrix while sources gather; a disabled marker while the answer streams. The marker is allowlisted in check:controls as an inline pill no Button size describes.",
+  "affects": [
+    "item:chat-sources",
+    "item:popover",
+    "item:status-matrix",
+    "item:button",
+    "item:motion",
+    "token:--ui-bg-elevated",
+    "token:--ui-bg-base",
+    "token:--ui-bg-sunken",
+    "token:--ui-bg-hover",
+    "token:--ui-bg-accent-subtle",
+    "token:--ui-bg-accent-subtle-hover",
+    "token:--ui-text-primary",
+    "token:--ui-text-secondary",
+    "token:--ui-text-muted",
+    "token:--ui-text-link",
+    "token:--ui-text-link-hover",
+    "token:--ui-text-disabled",
+    "token:--ui-border-focus",
+    "token:--ui-duration-fast",
+    "token:--ui-ease-out"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3ZK8-0"
+  }
+}

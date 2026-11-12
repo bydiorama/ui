@@ -18,11 +18,15 @@ export type SparklineVariant = "line" | "area" | "column";
  * tile's value. A sparkline sizes like a word, not like a panel, so these are
  * fixed rather than fluid — a stretched sparkline exaggerates its own slope.
  */
-export type SparklineSize = "md" | "sm";
+export type SparklineSize = "md" | "sm" | "xs";
 
 const SIZE = {
   md: { width: 160, height: 40, box: "h-10 w-40" },
   sm: { width: 120, height: 32, box: "h-8 w-30" },
+  // A table row's trend (the stand-in screen's keyword column): 64×20 sits
+  // inside a 40px `sm` Table row with its padding, beside a 13px figure.
+  // The library's own reading — no sheet draws it yet (needsDesign).
+  xs: { width: 64, height: 20, box: "h-5 w-16" },
 } as const satisfies Record<SparklineSize, { width: number; height: number; box: string }>;
 
 /**

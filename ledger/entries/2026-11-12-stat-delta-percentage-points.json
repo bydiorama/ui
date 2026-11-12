@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-stat-delta-percentage-points",
+  "date": "2026-11-12",
+  "item": "stat-tiles",
+  "kind": "addition",
+  "summary": "StatDelta takes `unit=\"points\"` for a change of share: it prints \"+2.1 pp\" (the suffix aria-hidden) and reads \"percentage points\" to assistive technology, instead of formatting the change as a relative percent. `pointsSuffix` and `pointsLabel` localise it.",
+  "affects": [
+    "prop:StatDelta.unit",
+    "prop:StatDelta.pointsSuffix",
+    "prop:StatDelta.pointsLabel"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

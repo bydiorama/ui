@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-docs-graph-data-recipes-md-maps",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Docs: graph-data-recipes.md maps a Neo4j driver result and RDF (flattened JSON-LD, or any RDF/JS quads) into GraphNode and GraphEdge, with the Cypher and SPARQL that fill hiddenNeighbours for the explorer, and how to mark inferred relations. Dependency-free; each mapping was extracted, type-checked under the repo's settings and run on fixtures, which caught one exactOptionalPropertyTypes slip. The plan's V3 and V4 items are ticked, with the decision to write layered, tree, radial and force layouts in lib/graph instead of admitting dagre, d3-hierarchy or d3-force, and V4's exit recorded as not yet met: nothing tried at 5,000 nodes or on a phone, the layout measured at about 4 s for 5,000 on a desktop CPU.",
+  "affects": [
+    "item:graph",
+    "item:network",
+    "item:knowledge-graph-explorer"
+  ]
+}

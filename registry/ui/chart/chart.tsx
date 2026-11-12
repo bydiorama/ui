@@ -27,13 +27,16 @@ import { cn } from "@/lib/cn";
 import {
   MARKER_SHAPES,
   areaPath,
+  bins as binValues,
   bandPath,
   barPath,
   groupedBars,
   labelIndices,
   linePath,
   linearScale,
+  markerKeyPath,
   markerPath,
+  RING_GAP,
   pointPositions,
   pointDateFormat,
   tickDateFormat,
@@ -205,6 +208,8 @@ interface ChartContextValue {
   layout: "band" | "point";
   /** Horizontal bars: categories run down the rows, values across. */
   isHorizontal: boolean;
+  /** Histogram bars: each fills its band, 2px apart. */
+  isAdjacent: boolean;
   /** Horizontal only: a value's x position. */
   valueX: (value: number) => number;
   /** Prefix of this chart's forced-colours pattern ids. */
@@ -223,6 +228,18 @@ interface ChartContextValue {
   active: Active | null;
   isFocused: boolean;
   format: (value: number) => string;
+  /** A 100% stack: marks and the value axis read SHARES (0–1). */
+  isPercent: boolean;
+  /** A share as the axis prints it ("42%"). */
+  formatShare: (share: number) => string;
+  /** Where `Chart.Rule at` sits on the category, time or linear axis, or null. */
+  xOf: (at: string | Date | number) => number | null;
+  /** A scatter: dots placed by x AND y, no crosshair, no direct labels. */
+  isScatter: boolean;
+  /** Bubble radii per row (Chart.Dots areaKey), or null for plain dots. */
+  radii: number[] | null;
+  /** The bubble's own measure, for the tooltip and announcement. */
+  area: { label: string; values: number[] } | null;
 }
 
 const ChartContext = createContext<ChartContextValue | null>(null);
@@ -254,6 +271,10 @@ function barGeometry(ctx: ChartContextValue, i: number, s: number): { x: number;
   }
   const value = series[s]?.values[i];
   if (value === undefined || !Number.isFinite(value)) return null;
+  if (ctx.isAdjacent) {
+    const vy = y(value);
+    return { x: round(bandStart + MARK_GAP / 2), width: round(Math.max(1, bandWidth - MARK_GAP)), top: Math.min(vy, zero), bottom: Math.max(vy, zero) };
+  }
   const { xs, width } = groupedBars(bandStart, bandWidth, series.length, { gap: MARK_GAP });
   const vy = y(value);
   return { x: xs[s]!, width, top: Math.min(vy, zero), bottom: Math.max(vy, zero) };
@@ -268,6 +289,31 @@ function dim(ctx: ChartContextValue, key: string): string | undefined {
   return ctx.emphasis !== null && ctx.emphasis !== key ? "opacity-32" : undefined;
 }
 
+/** Each value as its share of its category's total; a category that sums to
+ *  zero has no shares, so its marks are empty rather than NaN. */
+function shares(values: readonly (readonly number[])[]): number[][] {
+  const count = values[0]?.length ?? 0;
+  const totals = Array.from({ length: count }, (_, i) =>
+    values.reduce((sum, v) => sum + (Number.isFinite(v[i]!) ? v[i]! : 0), 0),
+  );
+  return values.map((v) => v.map((x, i) => (totals[i]! > 0 && Number.isFinite(x) ? x / totals[i]! : Number.NaN)));
+}
+
+/** A value as the tooltip and the announcement say it: the stack's own
+ *  segment, and in a percent stack its share first, then the value. */
+function valueText(ctx: ChartContextValue, si: number, index: number): string {
+  const s = ctx.series[si]!;
+  const raw = s.values[index]!;
+  if (!Number.isFinite(raw)) return "—";
+  if (ctx.isPercent && ctx.stacks) {
+    const seg = ctx.stacks[si]![index]!;
+    return `${ctx.formatShare(seg.y1 - seg.y0)} (${ctx.format(raw)})`;
+  }
+  const a = ctx.area?.values[index];
+  if (ctx.area && a !== undefined && Number.isFinite(a)) return `${ctx.format(raw)}, ${ctx.area.label} ${ctx.format(a)}`;
+  return ctx.format(raw);
+}
+
 /* ── Marks ─────────────────────────────────────────────────────────────── */
 
 export interface ChartBarsProps {
@@ -277,6 +323,12 @@ export interface ChartBarsProps {
    * stacked horizontal bars are not designed.
    */
   orientation?: "vertical" | "horizontal";
+  /**
+   * Each bar fills its band, 2px from the next: a histogram, whose bins share
+   * their edges, so a gap between them would claim values nobody excluded.
+   * One series, vertical only.
+   */
+  isAdjacent?: boolean;
 }
 
 /** Columns: grouped side by side, or stacked when the chart is `isStacked`. */
@@ -374,11 +426,20 @@ function runs(values: readonly number[], x: (i: number) => number, y: (v: number
   return out;
 }
 
+/**
+ * The 2px surface ring under a mark: the mark's own outline, filled and
+ * stroked in the surface at twice the gap, mitred. A stroke offsets every edge
+ * by the same distance, which scaling the shape (the old r + 2) did not.
+ */
+function Ring({ d }: { d: string }) {
+  return <path data-slot="chart-marker-ring" d={d} className="fill-surface stroke-surface" strokeWidth={2 * RING_GAP} strokeLinejoin="miter" />;
+}
+
 /** The ringed marker the Line sheet draws at a line's end and at the crosshair. */
 function Marker({ shape, slot, cx, cy }: { shape: MarkerShape; slot: ChartSlot; cx: number; cy: number }) {
   return (
     <>
-      <path d={markerPath(shape, cx, cy, 6)} className="fill-surface" />
+      <Ring d={markerPath(shape, cx, cy, 4)} />
       <path d={markerPath(shape, cx, cy, 4)} className={FILL[slot]} />
     </>
   );
@@ -488,12 +549,90 @@ function Areas({ wash = "flat" }: ChartAreasProps) {
   );
 }
 
-export interface ChartRuleProps {
-  /** Where the rule crosses the value axis. It is included in the axis domain. */
-  value: number;
-  /** Required — a rule with no words is a line nobody can read ("Target 340"). */
-  label: string;
+/** Bubble radii: the smallest dot is the 4px marker, the largest 16px, and
+ *  the AREA follows the value (radius by square root), so a bubble twice the
+ *  value looks twice the size, not four times. */
+const BUBBLE_MIN = 4;
+const BUBBLE_MAX = 16;
+
+export type ChartDotsProps =
+  | { areaKey?: never; areaLabel?: never }
+  | {
+      /**
+       * A third measure, read from each row, drawn as the dot's AREA — a
+       * bubble chart. Zero or less draws the smallest dot.
+       */
+      areaKey: string;
+      /** Required with areaKey: the measure's name in the tooltip, the
+       *  announcement and the table ("Searches"). */
+      areaLabel: string;
+    };
+
+/**
+ * A dot per row per series, placed by x and y: a scatter plot, or with
+ * `areaKey` a bubble chart. Each wears its slot's marker shape inside a 2px
+ * ring of the surface, so overlapping dots stay apart (dataviz: the surface
+ * ring on overlapping marks).
+ */
+// Its props (`areaKey`, `areaLabel`) are read by the root, which sizes the
+// bubbles and the table column; the mark itself takes nothing.
+const Dots = DotsMark as (props: ChartDotsProps) => ReturnType<typeof DotsMark>;
+function DotsMark() {
+  const ctx = useChart("Dots");
+  const { series, x, y, radii, hatchId } = ctx;
+  return (
+    <g data-slot="chart-dots">
+      {series.map((s) => {
+        const forced = forcedFill(s.slot, hatchId);
+        return (
+          <g key={s.key} data-slot="chart-series" data-series={s.key} className={dim(ctx, s.key)}>
+            {s.values.map((v, i) => {
+              if (!Number.isFinite(v)) return null;
+              const cx = x(i);
+              const cy = y(v);
+              const r = radii?.[i] ?? 4;
+              return (
+                <g key={i} data-slot="chart-dot">
+                  <Ring d={markerPath(radii ? "circle" : s.shape, cx, cy, r)} />
+                  <path
+                    d={markerPath(radii ? "circle" : s.shape, cx, cy, r)}
+                    className={cn(FILL[s.slot], forced.className)}
+                    style={forced.style}
+                    fillOpacity={radii ? 0.85 : undefined}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        );
+      })}
+    </g>
+  );
 }
+
+/**
+ * A rule crosses ONE axis: `value` draws it across the plot at a value (a
+ * target, a threshold); `at` draws it down the plot at a category or a date
+ * (an event: "Repositioned", a launch). Never both.
+ */
+export type ChartRuleProps =
+  | {
+      /** Where the rule crosses the value axis. It is included in the axis domain. */
+      value: number;
+      at?: never;
+      /** Required — a rule with no words is a line nobody can read ("Target 340"). */
+      label: string;
+    }
+  | {
+      /**
+       * Where the rule crosses the x axis: a category's name, a `Date` on a
+       * time axis, or a number on a linear one (inside the axis). Drawn top to
+       * bottom, labelled at its top. With a value rule it quarters a scatter.
+       */
+      at: string | Date | number;
+      value?: never;
+      label: string;
+    };
 
 /** The narrowest average a label-sm glyph runs in Aspekta, near 6px: a name
  *  longer than the lane at THIS width cannot fit whatever its letters. */
@@ -535,8 +674,10 @@ function linesCross(ctx: ChartContextValue, x0: number, x1: number, top: number,
  * a series that ends just over its own target — the label moves under the
  * rule instead, if that place is clear.
  */
-function Rule({ value, label }: ChartRuleProps) {
+function Rule(props: ChartRuleProps) {
   const ctx = useChart("Rule");
+  if (props.at !== undefined) return <EventRule at={props.at} label={props.label} />;
+  const { value, label } = props;
   const { y, plotWidth } = ctx;
   const ry = round(y(value)) + 0.5;
   const x0 = plotWidth - label.length * RULE_GLYPH;
@@ -558,6 +699,42 @@ function Rule({ value, label }: ChartRuleProps) {
   );
 }
 
+/**
+ * A rule DOWN the plot, at a category or a date: the stand-in screen's event
+ * marker ("Repositioned" on a month), which a horizontal rule could not say.
+ * Solid, as every rule here. Its label sits at the plot's top, beside the
+ * line on the side with room, so it never overhangs the frame.
+ */
+function EventRule({ at, label }: { at: string | Date | number; label: string }) {
+  const ctx = useChart("Rule");
+  const x = ctx.xOf(at);
+  if (x === null) {
+    throw new Error(
+      `<Chart.Rule at> must name a category on the x axis, or a Date between the first and last rows on a time axis; got ${at instanceof Date ? at.toISOString() : JSON.stringify(at)}.`,
+    );
+  }
+  const rx = round(x) + 0.5;
+  const isEnd = rx + LABEL_GAP + label.length * RULE_GLYPH > ctx.plotWidth;
+  return (
+    <g data-slot="chart-rule" data-axis="x">
+      <path d={`M${rx} 0V${ctx.height}`} className="stroke-edge-strong" style={GRID_STROKE} />
+      <text
+        data-slot="chart-rule-label"
+        data-placement={isEnd ? "start" : "end"}
+        x={isEnd ? rx - LABEL_GAP : rx + LABEL_GAP}
+        y={12}
+        textAnchor={isEnd ? "end" : "start"}
+        className="fill-ink-primary font-body text-label-sm"
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
+/** Space between an event rule and its label (space-xs + the stroke). */
+const LABEL_GAP = 6;
+
 const LINE_STROKE = { strokeWidth: "var(--ui-stroke-thick)" } as const;
 const GRID_STROKE = { strokeWidth: "var(--ui-stroke-default)" } as const;
 const FOCUS_STROKE = { strokeWidth: "var(--ui-stroke-thick)" } as const;
@@ -574,9 +751,14 @@ interface ChartOwnProps<Row> {
    * labels, equally spaced in data order. `time`: its values are `Date`s, in
    * ascending order, and each point sits at its date — 1951, 1953 and 1961
    * are not equally far apart. Ticks fall on whole UTC years, months or days.
-   * Lines and areas only: a bar is a category.
+   * `linear`: its values are numbers, and each point sits at its value on a
+   * nice axis that need not reach zero — a scatter (`Chart.Dots`). Rows are
+   * placed in x order whatever order they arrive in.
+   * Lines, areas and dots only: a bar is a category.
    */
-  xScale?: "category" | "time";
+  xScale?: "category" | "time" | "linear";
+  /** `Intl.NumberFormat` options for a linear x axis's ticks and values. */
+  xFormat?: Intl.NumberFormatOptions;
   /** Required — the x axis's name, used as the first column of the table. */
   xLabel: string;
   /** One to eight series. A ninth is never a generated colour: fold it into "Other". */
@@ -593,8 +775,14 @@ interface ChartOwnProps<Row> {
    * decided 2026-11-11). An element, never a string.
    */
   headline?: ReactNode;
-  /** Stack the series instead of grouping or overlaying them. */
-  isStacked?: boolean;
+  /**
+   * Stack the series instead of grouping or overlaying them. `{ isPercent:
+   * true }` stacks each category to 100%: the marks show shares, the value
+   * axis runs 0–100%, and the tooltip and announcement give the share AND the
+   * value. The table keeps the values. Shares of negatives mean nothing, so a
+   * percent stack refuses them.
+   */
+  isStacked?: boolean | { isPercent: boolean };
   size?: ChartSize;
   /** `Intl.NumberFormat` options for values and ticks. Never a format string. */
   format?: Intl.NumberFormatOptions;
@@ -613,7 +801,7 @@ interface ChartOwnProps<Row> {
    * filters a table. Without it, Enter and clicks do nothing.
    */
   onSelect?: (selection: ChartSelection<Row>) => void;
-  /** The marks: `Chart.Bars`, `Chart.Lines`, `Chart.Areas`, `Chart.Rule`. */
+  /** The marks: `Chart.Bars`, `Chart.Lines`, `Chart.Areas`, `Chart.Dots`, `Chart.Rule`. */
   children: ReactNode;
   ref?: Ref<HTMLElement>;
 }
@@ -636,6 +824,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     data,
     x: xKey,
     xScale = "category",
+    xFormat,
     xLabel,
     series: seriesProp,
     label,
@@ -665,7 +854,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   const descriptionId = useId();
   const [isTable, setIsTable] = useState(false);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
-  const [hover, setHover] = useState<number | null>(null);
+  const [hover, setHover] = useState<Active | null>(null);
   const [emphasis, setEmphasis] = useState<string | null>(null);
   const [focus, setFocus] = useState<Active | null>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -706,14 +895,22 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     const nf = new Intl.NumberFormat(locale, formatOptions);
     return (v: number) => nf.format(v);
   }, [locale, formatOptions]);
+  const formatShare = useMemo(() => {
+    const nf = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 });
+    return (v: number) => nf.format(v);
+  }, [locale]);
 
   const hatchId = useId();
   const marks = Children.toArray(children);
   const barsMark = marks.find((c) => isValidElement<ChartBarsProps>(c) && c.type === Bars);
   const layout: "band" | "point" = barsMark ? "band" : "point";
   const isHorizontal = isValidElement<ChartBarsProps>(barsMark) && barsMark.props.orientation === "horizontal";
+  const isAdjacent = isValidElement<ChartBarsProps>(barsMark) && barsMark.props.isAdjacent === true;
+  if (isAdjacent && (isHorizontal || seriesProp.length !== 1 || isStacked)) {
+    throw new Error("<Chart.Bars isAdjacent> draws one series of vertical bars that touch, as a histogram's bins do: no second series, no stacking, no horizontal rows.");
+  }
   const ruleValues = marks.flatMap((c) =>
-    isValidElement<ChartRuleProps>(c) && c.type === Rule ? [c.props.value] : [],
+    isValidElement<ChartRuleProps>(c) && c.type === Rule && typeof c.props.value === "number" ? [c.props.value] : [],
   );
   if (isHorizontal && (seriesProp.length !== 1 || isStacked || ruleValues.length > 0 || marks.length > 1)) {
     throw new Error(
@@ -725,27 +922,69 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   if (isTime && barsMark) {
     throw new Error('<Chart xScale="time"> places points by date, and a bar is a category. Use Chart.Lines or Chart.Areas, or a category axis for bars.');
   }
+  const isLinear = xScale === "linear";
+  if (isLinear && barsMark) {
+    throw new Error('<Chart xScale="linear"> places points by value, and a bar is a category. Use Chart.Dots or Chart.Lines, or a category axis for bars.');
+  }
+  const dotsMark = marks.find((c) => isValidElement<ChartDotsProps>(c) && c.type === Dots);
+  const isScatter = dotsMark !== undefined;
+  if (isScatter && (barsMark || isStacked)) {
+    throw new Error("<Chart.Dots> places each value at its own x and y: it does not share a plot with bars, and it is never stacked.");
+  }
+  // Read off the child once, as primitives: an element's props object is not
+  // ours, so nothing below depends on it staying the same object.
+  const dotsProps = isValidElement<ChartDotsProps>(dotsMark) ? dotsMark.props : null;
+  const areaKey: string | null = dotsProps?.areaKey ?? null;
+  const areaLabel: string | null = dotsProps?.areaLabel ?? null;
+  // A linear axis takes rows in any order and places them by x; everything
+  // below works on the sorted rows, and `sourceIndex` maps back for onSelect.
+  const order = useMemo(() => {
+    if (!isLinear) return null;
+    const xs = data.map((row, i) => {
+      const v = Number(row[xKey] as unknown);
+      if (!Number.isFinite(v)) {
+        throw new Error(`<Chart xScale="linear"> needs a finite number in every row's "${xKey}"; row ${i} has ${String(row[xKey])}.`);
+      }
+      return v;
+    });
+    return xs.map((_, i) => i).sort((a, b) => xs[a]! - xs[b]! || a - b);
+  }, [isLinear, data, xKey]);
+  const rows = useMemo(() => (order ? order.map((i) => data[i]!) : data), [order, data]);
+  const sourceIndex = (i: number) => (order ? order[i]! : i);
+  const xNums = useMemo(() => (isLinear ? rows.map((row) => Number(row[xKey] as unknown)) : []), [isLinear, rows, xKey]);
+  const formatX = useMemo(() => {
+    const nf = new Intl.NumberFormat(locale, xFormat);
+    return (v: number) => nf.format(v);
+  }, [locale, xFormat]);
   // Milliseconds per row on a time axis; empty on a category axis.
   const times = useMemo(() => {
     if (!isTime) return [];
-    return data.map((row, i) => {
+    return rows.map((row, i) => {
       const v = row[xKey] as unknown;
       if (!(v instanceof Date) || Number.isNaN(v.getTime())) {
         throw new Error(`<Chart xScale="time"> needs a Date in every row's "${xKey}"; row ${i} has ${String(v)}. Parse dates before passing them: the chart never guesses a string's format.`);
       }
       return v.getTime();
     });
-  }, [isTime, data, xKey]);
+  }, [isTime, rows, xKey]);
   if (times.some((t, i) => i > 0 && t < times[i - 1]!)) {
     throw new Error(`<Chart xScale="time"> needs rows in ascending date order; the line is drawn in data order, so it would double back.`);
   }
+  // What the table's first column prints for each row.
+  const xTexts = useMemo(() => {
+    if (isLinear) return xNums.map(formatX);
+    return null;
+  }, [isLinear, xNums, formatX]);
   const categories = useMemo(() => {
-    if (!isTime) return data.map((row) => String(row[xKey]));
+    // A linear x is a number with no name of its own, so the tooltip and the
+    // announcement say what it measures: "Share 42%".
+    if (isLinear) return xNums.map((v) => `${xLabel} ${formatX(v)}`);
+    if (!isTime) return rows.map((row) => String(row[xKey]));
     // The point's OWN date for the table, tooltip and announcement: yearly
     // data reads "1957", not "Jan 1, 1957".
     const df = new Intl.DateTimeFormat(locale, pointDateFormat(times));
     return times.map((t) => df.format(t));
-  }, [isTime, data, xKey, times, locale]);
+  }, [isTime, isLinear, xNums, formatX, xLabel, rows, xKey, times, locale]);
   const allSeries: ResolvedSeries[] = useMemo(
     () =>
       seriesProp.map((s, i) => {
@@ -755,13 +994,13 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
           label: s.label,
           slot,
           shape: MARKER_SHAPES[slot - 1]!,
-          values: data.map((row) => {
+          values: rows.map((row) => {
             const v = row[s.key];
             return typeof v === "number" ? v : v == null || v === "" ? Number.NaN : Number(v);
           }),
         };
       }),
-    [seriesProp, data],
+    [seriesProp, rows],
   );
   // The legend toggle (Bar sheet, "Legend toggle"): a hidden series leaves the
   // marks, the tooltip and the keyboard; the table still lists every series.
@@ -771,19 +1010,35 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     const shown = allSeries.filter((s) => !hidden.includes(s.key));
     return shown.length > 0 ? shown : allSeries;
   }, [allSeries, hidden]);
-  const stacks = useMemo(() => (isStacked ? stackSeries(series.map((s) => s.values)) : null), [isStacked, series]);
+  const isPercent = typeof isStacked === "object" && isStacked.isPercent;
+  if (isPercent && allSeries.some((s) => s.values.some((v) => v < 0))) {
+    throw new Error("<Chart isStacked={{ isPercent: true }}> stacks each category to 100%, and a negative value has no share of a whole. Stack the values instead.");
+  }
+  const stacks = useMemo(
+    () => (isStacked ? stackSeries(isPercent ? shares(series.map((s) => s.values)) : series.map((s) => s.values)) : null),
+    [isStacked, isPercent, series],
+  );
   // The value axis is read off EVERY series, shown or not: hiding one must not
-  // rescale the ones that stay, or the bars a reader is comparing jump.
-  const allStacks = useMemo(() => (isStacked ? stackSeries(allSeries.map((s) => s.values)) : null), [isStacked, allSeries]);
+  // rescale the ones that stay, or the bars a reader is comparing jump. A
+  // percent stack's axis is the whole, 0–100%, whatever is shown.
+  const allStacks = useMemo(() => (isStacked && !isPercent ? stackSeries(allSeries.map((s) => s.values)) : null), [isStacked, isPercent, allSeries]);
+
+  // Plain computation, not a memo: the context below is rebuilt every render
+  // anyway, and the key comes off a child element the compiler cannot trust.
+  const areaValues = areaKey ? rows.map((row) => Number((row as Record<string, unknown>)[areaKey])) : null;
+  const areaMax = areaValues ? Math.max(0, ...areaValues.filter(Number.isFinite)) : 0;
+  const radii = areaValues
+    ? areaValues.map((v) => (areaMax > 0 && v > 0 ? round(BUBBLE_MIN + Math.sqrt(v / areaMax) * (BUBBLE_MAX - BUBBLE_MIN)) : BUBBLE_MIN))
+    : null;
 
   const count = categories.length;
   const { intervals } = SIZE[size];
   // Horizontal rows set their own height: the sheet's 24px bars, 16px apart.
   // Loading and empty reserve four rows, so the frame does not collapse.
-  const rows = isLoading || count === 0 ? 4 : count;
-  const height = isHorizontal ? rows * ROW_PITCH - ROW_GAP : SIZE[size].height;
-  const axisValues = allStacks ? allStacks.flat().flatMap((v) => [v.y0, v.y1]) : allSeries.flatMap((s) => s.values);
-  const axis = valueAxis([...axisValues, ...ruleValues], intervals);
+  const rowCount = isLoading || count === 0 ? 4 : count;
+  const height = isHorizontal ? rowCount * ROW_PITCH - ROW_GAP : SIZE[size].height;
+  const axisValues = isPercent ? [0, 1] : allStacks ? allStacks.flat().flatMap((v) => [v.y0, v.y1]) : allSeries.flatMap((s) => s.values);
+  const axis = valueAxis([...axisValues, ...ruleValues], intervals, { zero: !isScatter });
   const y = linearScale(axis.domain, [height, 0]);
 
   // A direct label is a convenience: the legend (two or more series) or the
@@ -799,6 +1054,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   const plainlyTooLong = series.some((s) => s.label.length * GLYPH_MIN > LABEL_LANE - LABEL_OFFSET);
   const hasDirectLabels =
     layout === "point" &&
+    !isScatter &&
     !isStacked &&
     series.length <= MAX_DIRECT_LABELS &&
     !plainlyTooLong &&
@@ -808,16 +1064,41 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   // use; the lane on the right keeps the longest value's label inside.
   const valueX = linearScale(axis.domain, [0, Math.max(0, plotWidth - VALUE_LANE)]);
   const bandWidth = count > 0 ? plotWidth / count : plotWidth;
-  const points = isTime ? timePositions(times, plotWidth) : pointPositions(count, plotWidth);
+  // A linear x axis: nice ticks that need not reach zero, about one per 96px.
+  const ruleXs = marks.flatMap((c) =>
+    isValidElement<ChartRuleProps>(c) && c.type === Rule && typeof c.props.at === "number" ? [c.props.at] : [],
+  );
+  const xAxis = isLinear ? valueAxis([...xNums, ...ruleXs], Math.max(2, Math.min(6, Math.floor(plotWidth / 96))), { zero: false }) : null;
+  const xLin = xAxis ? linearScale(xAxis.domain, [8, Math.max(8, plotWidth - 8)]) : null;
+  const points = xLin ? xNums.map((v) => round(xLin(v))) : isTime ? timePositions(times, plotWidth) : pointPositions(count, plotWidth);
   const xAt = (i: number) => (layout === "band" ? bandWidth * i + bandWidth / 2 : (points[i] ?? 0));
 
   const isEmpty = !isLoading && count === 0;
   const isInteractive = !isLoading && !isEmpty;
-  const active = isFocused ? focus : hover !== null ? { index: hover, series: 0 } : null;
+  const active = isFocused ? focus : hover;
+
+  const xOf = (at: string | Date | number): number | null => {
+    if (xAxis && xLin) {
+      if (typeof at !== "number" || at < xAxis.domain[0] || at > xAxis.domain[1]) return null;
+      return xLin(at);
+    }
+    if (typeof at === "number") return null;
+    if (isTime) {
+      const first = times[0];
+      const last = times[times.length - 1];
+      if (!(at instanceof Date) || first === undefined || last === undefined) return null;
+      const t = at.getTime();
+      if (!(t >= first && t <= last)) return null;
+      return timePositions([first, t, last], plotWidth)[1] ?? null;
+    }
+    const i = categories.indexOf(String(at));
+    return i < 0 || at instanceof Date ? null : xAt(i);
+  };
 
   const ctx: ChartContextValue = {
-    categories, series, stacks, layout, isHorizontal, valueX, hatchId, width, plotWidth, height, y, x: xAt, bandWidth,
-    hasDirectLabels, active, isFocused, format, emphasis,
+    categories, series, stacks, layout, isHorizontal, isAdjacent, valueX, hatchId, width, plotWidth, height, y, x: xAt, bandWidth,
+    hasDirectLabels, active, isFocused, format, emphasis, isPercent, formatShare, xOf, isScatter, radii,
+    area: areaKey && areaLabel && areaValues ? { label: areaLabel, values: areaValues } : null,
   };
 
   // Measure the direct labels against their lane. `width` re-runs it when a
@@ -832,14 +1113,9 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     }
   }, [hasDirectLabels, labelKey, width]);
 
-  const announce = useCallback(
-    (a: Active) => {
-      const s = series[a.series]!;
-      const v = stacks ? stacks[a.series]![a.index]!.y1 - stacks[a.series]![a.index]!.y0 : s.values[a.index]!;
-      setAnnouncement(`${categories[a.index]}, ${s.label}, ${Number.isFinite(v) ? format(v) : "—"}`);
-    },
-    [series, stacks, categories, format],
-  );
+  const announce = (a: Active) => {
+    setAnnouncement(`${categories[a.index]}, ${series[a.series]!.label}, ${valueText(ctx, a.series, a.index)}`);
+  };
 
   const move = (next: Active) => {
     setFocus(next);
@@ -871,7 +1147,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     if (onSelect && (event.key === "Enter" || event.key === " ")) {
       event.preventDefault();
       // The first Enter on a freshly focused plot selects the point it shows.
-      onSelect({ index: cur.index, row: data[cur.index]!, series: series[cur.series]!.key });
+      onSelect({ index: sourceIndex(cur.index), row: rows[cur.index]!, series: series[cur.series]!.key });
       return;
     }
     const handler = keys[event.key];
@@ -924,15 +1200,43 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     if (focus && focus.series >= remaining) setFocus({ ...focus, series: remaining - 1 });
   };
 
+  /** A scatter's pointer target: the nearest dot in BOTH axes, within 24px,
+   *  so a reader points at a dot rather than at a column of them. */
+  const dotAt = (event: { clientX: number; clientY: number; currentTarget: HTMLDivElement }): Active | null => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const px = event.clientX - rect.left;
+    const py = event.clientY - rect.top;
+    let best: Active | null = null;
+    let bestD = 24 * 24;
+    series.forEach((s, si) =>
+      s.values.forEach((v, i) => {
+        if (!Number.isFinite(v)) return;
+        const d = (xAt(i) - px) ** 2 + (y(v) - py) ** 2;
+        if (d < bestD) {
+          bestD = d;
+          best = { index: i, series: si };
+        }
+      }),
+    );
+    return best;
+  };
+
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     if (!isInteractive) return;
-    setHover(indexAt(event));
+    if (isScatter) return setHover(dotAt(event));
+    const index = indexAt(event);
+    setHover(index === null ? null : { index, series: 0 });
   };
 
   const onClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (isScatter) {
+      const dot = dotAt(event);
+      if (dot && onSelect) onSelect({ index: sourceIndex(dot.index), row: rows[dot.index]!, series: series[dot.series]!.key });
+      return;
+    }
     const index = indexAt(event);
     if (index === null || !onSelect) return;
-    onSelect({ index, row: data[index]!, series: series.length === 1 ? series[0]!.key : null });
+    onSelect({ index: sourceIndex(index), row: rows[index]!, series: series.length === 1 ? series[0]!.key : null });
   };
 
   // Category names thin out rather than run together. The floor is the old
@@ -949,17 +1253,23 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
 
   // Measure the category ticks: the guess undercounts wide letters.
   useEffect(() => {
-    if (isTime || isHorizontal) return;
+    if (isTime || isLinear || isHorizontal) return;
     const ticks = plotRef.current?.parentElement?.querySelectorAll<HTMLElement>('[data-slot="chart-x-axis"] [data-slot="chart-tick"]') ?? [];
     const widest = [...ticks].reduce((w, t) => Math.max(w, t.getBoundingClientRect().width), 0);
     if (widest === 0) return;
     const px = Math.ceil(widest) + TICK_GAP;
     if (px > tickSpacing) setTickNeed({ key: categoryKey, px });
-  }, [isTime, isHorizontal, categoryKey, plotWidth, tickSpacing]);
+  }, [isTime, isLinear, isHorizontal, categoryKey, plotWidth, tickSpacing]);
   // One list of ticks for both axes: a category axis labels some of its
   // categories; a time axis labels calendar boundaries, which need not be data
   // points at all. A label near an end is pinned to it, so it never overhangs.
   const xTicks: Array<{ key: string; x: number; label: string; edge: "start" | "end" | null }> = (() => {
+    if (xAxis && xLin) {
+      return xAxis.ticks.map((t) => {
+        const x = round(xLin(t));
+        return { key: String(t), x, label: formatX(t), edge: x < 24 ? "start" : x > plotWidth - 24 ? "end" : null };
+      });
+    }
     const first = times[0];
     const last = times[times.length - 1];
     if (isTime && first !== undefined && last !== undefined && last > first) {
@@ -1022,7 +1332,14 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
       </div>
 
       {isTable ? (
-        <ChartDataTable caption={label} xLabel={xLabel} categories={categories} series={allSeries} format={format} />
+        <ChartDataTable
+          caption={label}
+          xLabel={xLabel}
+          categories={xTexts ?? categories}
+          series={allSeries}
+          format={format}
+          area={ctx.area}
+        />
       ) : (
         <>
           {allSeries.length > 1 && (
@@ -1063,17 +1380,22 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                       <svg data-slot="chart-legend-key" aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
                         {isShown ? (
                           <path
-                            d={markerPath(s.shape, 4, 4, 4)}
+                            d={markerKeyPath(s.shape, 8)}
                             className={cn(FILL[s.slot], forcedFill(s.slot, hatchId).className)}
                             style={forcedFill(s.slot, hatchId).style}
                           />
                         ) : (
                           // The same shape, outlined: a 1.5px stroke drawn
-                          // inside the 8px key, so off reads as the key emptied.
+                          // inside the 8px key (0.75px clear on each side for
+                          // its outer half), so off reads as the key emptied.
+                          // Round joins, as the Bar sheet draws them: a mitred
+                          // corner reaches past that 0.75px at an acute point
+                          // (0.47px past the box at the triangle's apex).
                           <path
-                            d={markerPath(s.shape, 4, 4, 3.25)}
+                            d={markerKeyPath(s.shape, 8, 0.75)}
                             className={cn("fill-none forced-colors:stroke-[CanvasText]", STROKE[s.slot])}
                             style={{ strokeWidth: "var(--ui-stroke-hairline)" }}
+                            strokeLinejoin="round"
                           />
                         )}
                       </svg>
@@ -1123,7 +1445,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                     style={{ top: round(y(t)) }}
                     className="absolute end-0 font-body font-regular text-label-sm whitespace-nowrap tabular-nums text-ink-muted"
                   >
-                    {format(t)}
+                    {isPercent ? formatShare(t) : format(t)}
                   </span>
                 ))}
             </div>
@@ -1165,7 +1487,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                     <HatchDefs id={hatchId} />
                     {isLoading ? (
                       isHorizontal ? (
-                        <RowSkeleton width={Math.max(0, plotWidth - VALUE_LANE)} rows={rows} />
+                        <RowSkeleton width={Math.max(0, plotWidth - VALUE_LANE)} rows={rowCount} />
                       ) : (
                         <Skeleton width={plotWidth} height={height} />
                       )
@@ -1206,12 +1528,14 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                         {!isHorizontal && (
                           <path
                             data-slot="chart-baseline"
-                            d={`M0 ${round(y(0)) + 0.5}H${plotWidth}`}
+                            // A scatter's axis need not reach zero: then the
+                            // baseline is the plot's floor, not a line off it.
+                            d={`M0 ${round(axis.domain[0] <= 0 && axis.domain[1] >= 0 ? y(0) : height) + 0.5}H${plotWidth}`}
                             className="stroke-edge-default"
                             style={GRID_STROKE}
                           />
                         )}
-                        {active && layout === "point" && <Crosshair {...ctx} index={active.index} />}
+                        {active && layout === "point" && !isScatter && <Crosshair {...ctx} index={active.index} />}
                         {active && isFocused && <FocusRing ctx={ctx} active={active} />}
                       </>
                     )}
@@ -1336,7 +1660,8 @@ function FocusRing({ ctx, active }: { ctx: ChartContextValue; active: Active }) 
       data-slot="chart-focus-ring"
       cx={round(ctx.x(active.index))}
       cy={round(ctx.y(v))}
-      r={9}
+      // 2px off the mark's ring: 4 + 2 + 3 for a dot, the bubble's own radius + 5.
+      r={ctx.radii ? ctx.radii[active.index]! + 5 : 9}
       fill="none"
       className="stroke-edge-focus"
       style={FOCUS_STROKE}
@@ -1360,14 +1685,19 @@ function ChartTooltip({
   plot: RefObject<HTMLDivElement | null>;
   frame: HTMLElement | null;
 }) {
-  const { x, plotWidth, series, stacks, categories, format, bandWidth, layout, height } = ctx;
+  const { x, plotWidth, series: allShown, categories, bandWidth, layout, height } = ctx;
   const cx = x(index);
+  // A scatter's dot is one series' reading: the tooltip names that one.
+  const pick = ctx.active?.series ?? 0;
+  const series = allShown.map((s, si) => ({ s, si })).filter(({ si }) => !ctx.isScatter || si === pick);
+  const cy = ctx.isScatter ? ctx.y(allShown[pick]?.values[index] ?? 0) : 0;
   const isBand = layout === "band";
   // The anchor is the hovered band (bars) or the crosshair (lines), measured
   // from the plot at the moment the positioner asks, so it follows scrolling.
   const anchor = {
     getBoundingClientRect: () => {
       const r = plot.current?.getBoundingClientRect() ?? new DOMRect();
+      if (ctx.isScatter) return new DOMRect(r.left + cx, r.top + cy - 8, 0, 16);
       return isBand
         ? new DOMRect(r.left + bandWidth * index, r.top, bandWidth, height)
         : new DOMRect(r.left + cx, r.top, 0, height);
@@ -1399,18 +1729,17 @@ function ChartTooltip({
             <span data-slot="chart-tooltip-title" className="font-body text-label-sm text-ink-primary">
               {categories[index]}
             </span>
-            {series.map((s, si) => {
-              const v = stacks ? stacks[si]![index]!.y1 - stacks[si]![index]!.y0 : s.values[index]!;
+            {series.map(({ s, si }) => {
               return (
                 <span key={s.key} data-slot="chart-tooltip-row" className="flex items-center gap-sm">
                   <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
-                    <path d={markerPath(s.shape, 4, 4, 4)} className={FILL[s.slot]} />
+                    <path d={markerKeyPath(s.shape, 8)} className={FILL[s.slot]} />
                   </svg>
                   <span data-slot="chart-tooltip-label" className="flex-1 font-body font-regular text-label-sm text-ink-muted">
                     {s.label}
                   </span>
                   <span data-slot="chart-tooltip-value" className="ps-md font-body text-label-sm tabular-nums text-ink-primary">
-                    {Number.isFinite(v) ? format(v) : "—"}
+                    {valueText(ctx, si, index)}
                   </span>
                 </span>
               );
@@ -1435,14 +1764,25 @@ function ChartDataTable({
   categories,
   series,
   format,
+  area,
 }: {
   caption: string;
   xLabel: string;
   categories: string[];
   series: ResolvedSeries[];
   format: (v: number) => string;
+  area: { label: string; values: number[] } | null;
 }) {
   const rows: TableRow[] = categories.map((c, i) => ({ id: `${i}`, category: c, values: series.map((s) => s.values[i]!) }));
+  const areaColumn: TableColumn<TableRow>[] = area
+    ? [{
+        key: "__area",
+        header: area.label,
+        isNumeric: true,
+        align: "end" as const,
+        cell: (r: TableRow) => (Number.isFinite(area.values[Number(r.id)]!) ? format(area.values[Number(r.id)]!) : "—"),
+      }]
+    : [];
   const columns: TableColumn<TableRow>[] = [
     { key: "category", header: xLabel, isPrimary: true, cell: (r) => r.category },
     ...series.map((s, si) => ({
@@ -1452,6 +1792,7 @@ function ChartDataTable({
       align: "end" as const,
       cell: (r: TableRow) => (Number.isFinite(r.values[si]!) ? format(r.values[si]!) : "—"),
     })),
+    ...areaColumn,
   ];
   return (
     <div data-slot="chart-table">
@@ -1461,7 +1802,7 @@ function ChartDataTable({
 }
 
 /** Compound chart: `<Chart>` with `Chart.Bars`, `.Lines`, `.Areas`, `.Rule` as children. */
-export const Chart = Object.assign(ChartRoot, { Bars, Lines, Areas, Rule });
+export const Chart = Object.assign(ChartRoot, { Bars, Lines, Areas, Dots, Rule });
 
 /**
  * BarChart's props. Horizontal is the Bar sheet's ranked rows, and the type
@@ -1498,13 +1839,60 @@ export function LineChart<Row>(props: Omit<ChartProps<Row>, "children">) {
 /** AreaChart's props. A fading wash is for overlaid areas only: the type
  *  refuses it on stacked bands, where it would vanish at each seam. */
 export type AreaChartProps<Row> = Omit<ChartProps<Row>, "children"> &
-  ({ isStacked?: false; wash?: "flat" | "fade" } | { isStacked: true; wash?: "flat" });
+  ({ isStacked?: false; wash?: "flat" | "fade" } | { isStacked: true | { isPercent: boolean }; wash?: "flat" });
 
 /** Washes under lines; with `isStacked`, stacked bands. */
 export function AreaChart<Row>({ wash, ...props }: AreaChartProps<Row>) {
   return (
     <Chart {...(props as ChartProps<Row>)}>
       <Chart.Areas wash={wash ?? "flat"} />
+    </Chart>
+  );
+}
+
+/**
+ * ScatterPlot's props: a linear x axis, and with `areaKey` a bubble chart.
+ * One to eight series, each a set of readings at its own x and y.
+ */
+export type ScatterPlotProps<Row> = Omit<ChartProps<Row>, "children" | "xScale" | "isStacked"> & ChartDotsProps;
+
+/** Dots placed by x and y — the market map's quadrant, or a correlation.
+ *  Add `Chart.Rule` children through `Chart` + `Chart.Dots` to quarter it. */
+export function ScatterPlot<Row>({ areaKey, areaLabel, ...props }: ScatterPlotProps<Row>) {
+  return (
+    <Chart {...(props as ChartProps<Row>)} xScale="linear">
+      {areaKey !== undefined && areaLabel !== undefined ? <Chart.Dots areaKey={areaKey} areaLabel={areaLabel} /> : <Chart.Dots />}
+    </Chart>
+  );
+}
+
+export type HistogramProps = Omit<
+  ChartProps<{ bin: string; count: number }>,
+  "children" | "data" | "x" | "series" | "xScale" | "isStacked" | "onSelect"
+> & {
+  /** The raw readings. Binned on nice edges; non-finite values are dropped. */
+  values: readonly number[];
+  /** About how many bins. Default 10; the edges stay nice, so the count may differ by one or two. */
+  binCount?: number;
+  /** The count's name in the legend-less title row, the table and every announcement. Default "Count". */
+  countLabel?: string;
+  /** `Intl.NumberFormat` options for the bin edges ("€10–€20"). */
+  binFormat?: Intl.NumberFormatOptions;
+};
+
+/**
+ * A distribution: readings binned on nice edges and counted, drawn as bars
+ * that touch. Each bin is a category named by its range ("10–20"), so the
+ * table, the tooltip and the keyboard read it like any bar chart.
+ */
+export function Histogram({ values, binCount = 10, countLabel = "Count", binFormat, locale, ...props }: HistogramProps) {
+  const data = useMemo(() => {
+    const nf = new Intl.NumberFormat(locale, binFormat);
+    return binValues(values, binCount).map((b) => ({ bin: `${nf.format(b.x0)}\u2013${nf.format(b.x1)}`, count: b.count }));
+  }, [values, binCount, binFormat, locale]);
+  return (
+    <Chart {...props} {...(locale ? { locale } : {})} data={data} x="bin" series={[{ key: "count", label: countLabel }]}>
+      <Chart.Bars isAdjacent />
     </Chart>
   );
 }

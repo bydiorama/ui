@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-knowledgegraphexplorer-block-v4-search-by-name",
+  "date": "2026-11-12",
+  "item": "knowledge-graph-explorer",
+  "kind": "addition",
+  "summary": "KnowledgeGraphExplorer block (V4): search by name grouped by type, a type filter with counts, 'N of M shown', a history of the way you came, Network in the middle and a detail panel with the entity's relations and the ones linking to it, each a step to its neighbour. Expand neighbours asks onExpandRequest and the graph grows in place. A jump of more than one hop highlights the shortest path between the two. The history nav is named after the explorer and the panel is a named group, so two explorers on a page keep their landmarks apart.",
+  "affects": [
+    "item:knowledge-graph-explorer",
+    "slot:knowledge-graph-explorer-history",
+    "slot:knowledge-graph-explorer-detail",
+    "slot:knowledge-graph-explorer-relation",
+    "prop:detailsLabel"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/469R-0"
+  }
+}

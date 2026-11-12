@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-networkcanvas-network-s-canvas-2d-tier",
+  "date": "2026-11-12",
+  "item": "network-canvas",
+  "kind": "addition",
+  "summary": "NetworkCanvas: Network's Canvas 2D tier for about 2,000 to 20,000 elements, passed as renderer and admitted only above canvasThreshold. It paints the SVG tier's marks at device-pixel resolution from the same path data, resolving every ink through the cascade so brand scopes and dark mode apply, and draws names from half scale up. Keyboard, announcements, hit-testing and the table stay with Network, which shows the table instead of the canvas before hydration and in forced colours. Glyphs and edge labels are not drawn at this density.",
+  "affects": [
+    "component:network-canvas",
+    "slot:network-canvas"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/469R-0"
+  }
+}

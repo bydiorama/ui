@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-sparkline-xs-for-table-rows",
+  "date": "2026-11-12",
+  "item": "sparkline",
+  "kind": "addition",
+  "summary": "Sparkline size=\"xs\" is 64×20, for a trend inside a table row (the stand-in's keyword table). Every mark stays inside the box. The size is not drawn on the Paper sheet yet: recorded in needsDesign.",
+  "affects": [
+    "prop:size"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

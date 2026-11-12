@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-lib-graph-the-shared-geometry-behind",
+  "date": "2026-11-12",
+  "item": "graph",
+  "kind": "addition",
+  "summary": "lib/graph: the shared geometry behind Diagram and Network, with no dependency. Layered (longest-path ranks, four barycentre sweeps, a deterministic order), tree, radial and seeded force layouts; adjacency, hop distances, shortest path; fit, zoom-at-point and ensure-visible for a viewport; nearest-node-in-direction for arrow keys; edges that land on a box's frame or stop 26px short of a circle, with the sheets' l-8-4v8Z head. Every layout is deterministic for the same input and seed, and an empty graph lays out to nothing. Our own code rather than dagre, d3-hierarchy or d3-force: the needs are narrow, determinism and SSR size hints are easier to guarantee, and check:boundaries keeps the door open if a library is ever warranted.",
+  "affects": [
+    "item:graph",
+    "export:layeredLayout",
+    "export:treeLayout",
+    "export:radialLayout",
+    "export:forceLayout",
+    "export:shortestPath",
+    "export:boxEdge",
+    "export:circleEdge",
+    "export:fitView",
+    "export:zoomAt",
+    "export:ensureVisible",
+    "export:nearestInDirection"
+  ]
+}

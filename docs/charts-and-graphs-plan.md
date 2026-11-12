@@ -109,12 +109,53 @@ There are **two layers of API on purpose**:
 
 | Tier | When | Server-render | Forced colours | A11y tree | Cost |
 |---|---|---|---|---|---|
-| **SVG** (default) | Every chart; diagrams; networks ≤ ~2k elements | ✅ static markup | ✅ CSS system colours | marks can be focusable | DOM grows with marks |
-| **Canvas 2D** | Dense scatter or heatmap; networks ~2k – ~30k | ❌ → server sends the SVG/list floor | ❌ → falls back to the floor | a parallel hidden structure | one paint surface |
-| **WebGL** (optional) | Networks above ~30k, or a GPU force layout | ❌ | ❌ | same as Canvas | a context, shaders, GPU memory |
+| **SVG** (default) | Every chart; diagrams; networks ≤ ~2k elements (measured) | ✅ static markup | ✅ CSS system colours | marks can be focusable | DOM grows with marks |
+| **Canvas 2D** | Dense scatter or heatmap; networks ~2k – ~20k (measured) | ❌ → server sends the SVG/list floor | ❌ → falls back to the floor | a parallel hidden structure | one paint surface |
+| **WebGL** (optional) | Networks above ~20k, or a GPU force layout | ❌ | ❌ | same as Canvas | a context, shaders, GPU memory |
 
-The thresholds are **guesses until the Phase V0 spike measures them** in the
-pinned Chromium and on a mid-range phone.
+The thresholds were **measured by the Phase V0 spike** (2026-11-12) in the
+pinned Chromium (Playwright 1.62.1, Chromium 151), headed on an Apple-silicon
+Mac's GPU at a 2× device pixel ratio, 1280×800, nodes as 4px circles with
+1.5 edges per node. Each case ran 90 frames; the table gives the median frame
+time and, in brackets, the 95th percentile, in ms. **No phone was available**:
+the "4× CPU" columns use Chromium's CPU throttling as the mid-range-phone
+stand-in, which slows script and layout but not the GPU, so they flatter
+Canvas 2D and WebGL. The tier stays `experimental` until it has been seen on
+a real phone, as §8.7 already says.
+
+| Nodes | SVG pan | SVG restyle every node | Canvas 2D redraw | WebGL redraw | | SVG pan, 4× CPU | SVG restyle, 4× CPU | Canvas 2D, 4× CPU | WebGL, 4× CPU |
+|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|
+| 500 | 8.3 (9.1) | 8.3 (9.0) | 8.3 (9.3) | 8.3 (9.2) | | 8.3 (9.2) | 8.3 (9.1) | 8.3 (9.2) | 8.3 (9.3) |
+| 2,000 | 8.3 (9.1) | 8.3 (8.9) | 8.3 (9.2) | 8.3 (9.3) | | 8.3 (9.2) | 8.3 (9.3) | 8.3 (9.1) | 8.3 (9.2) |
+| 3,000 | | 8.3 (10.1) | | | | | **16.5 (18.2)** | | |
+| 5,000 | | 8.3 (10.2) | | | | | **33.0 (40.7)** | | |
+| 10,000 | 8.3 (9.2) | **24.8 (25.8)** | 8.3 (9.2) | 8.3 (9.3) | | 8.3 (9.2) | **91.8 (100.2)** | 8.3 (16.5) | 8.3 (9.3) |
+| 20,000 | 8.4 (16.6) | | 8.3 (10.7) | | | 9.8 (18.5) | | **16.7 (25.0)** | |
+| 30,000 | 9.3 (17.7) | | 8.4 (16.7) | | | 8.7 (18.2) | | **25.6 (40.9)** | |
+| 50,000 | 16.7 (33.3) | **375 (392)** | 8.4 (17.5) | 8.3 (9.1) | | 25.4 (41.7) | over 60 s | **42.3 (58.6)** | 8.3 (10.3) |
+
+8.3 ms is the display's 120 Hz refresh: those cases had headroom left over.
+The budget the thresholds hold to is 60 fps (16.7 ms) at 4× CPU.
+
+What the numbers say:
+
+- **A pan alone does not separate the tiers.** Translating one SVG group is
+  composited, and holds to 30k nodes. The SVG cost appears when every mark is
+  restyled, which focus with neighbourhood dimming, hover and filtering all
+  do. **That is the number the SVG ceiling follows: about 2k elements**, with
+  the budget gone at 3k on the throttled CPU. The guess of ~2k stands.
+- **Canvas 2D redraws everything each frame** and runs out at about 20k on
+  the throttled CPU: it meets the budget at 20k and misses it at 30k. The
+  guess of ~30k was too high, so the Canvas ceiling and the WebGL floor move
+  to **~20k**.
+- **WebGL held a full redraw of 50k at the refresh rate** on both CPUs.
+  Its floor is set by Canvas's ceiling, not by its own cost.
+- **Headless Chromium paints in software** (SwiftShader). There, Canvas 2D
+  took 91 ms a frame at 500 nodes. A test that measures a tier must run
+  headed or on a GPU runner, or it measures the wrong thing.
+
+The spike code was thrown away, as planned. It was a single HTML page with
+seeded random graphs and a Playwright runner, run outside the repository.
 
 A tier above SVG is admitted on the same terms as a shader under ADR 0022:
 
@@ -355,10 +396,10 @@ PLAN.md's Phase 3 list.
 | **P0** | `Meter` | One value against a range or a target, linear and radial. Overlaps "Progress Indicator Circular" in TODO.md, so settle together whether that is one component. |
 | **P0** | `Chart` primitives + `BarChart` (vertical, horizontal, grouped, stacked) | The bar is the workhorse. It proves axes, band scales, legend, tooltip, keyboard and table. |
 | **P0** | `LineChart` / `AreaChart` (incl. stacked area) | Time scales, curves, direct labels, markers, forecast in muted ink. |
-| P1 | `ScatterPlot` (+ bubble) | Voronoi hit-testing; the first chart to need the Canvas tier when dense. |
-| P1 | `Heatmap` / calendar heatmap | Sequential tokens; cell labels need the contrast check. |
-| P1 | `Donut` | Only for parts of a whole with ≤ 5 parts. The doc's *don't* list says "prefer a bar". |
-| P1 | `Histogram`, `BoxPlot` | Binning through d3-array. |
+| P1 | `ScatterPlot` (+ bubble) | **Built 2026-11-12** (`xScale="linear"`, `Chart.Dots`, `areaKey` for bubbles). Hit-testing is nearest-dot within 24px, not Voronoi, so no `d3-delaunay` yet. SVG only: a dense scatter needs the Canvas tier, which is not built. |
+| P1 | `Heatmap` / calendar heatmap | **Not built.** Needs the `--ui-data-seq-{1…7}` ramp first: contract, resolver derivation, `ZERO_AUTHORED` pins in both schemes, the monotonic-lightness test, and contrast pairs for cell labels, then a Paper round. That is a token change with its own review, so it was left out of the chart PR rather than squeezed in. |
+| P1 | `Donut` | Only for parts of a whole with ≤ 5 parts. The doc's *don't* list says "prefer a bar". **Not built**: the 100% stack (`isStacked={{ isPercent: true }}`) covers the stand-in's part-of-whole cases. |
+| P1 | `Histogram`, `BoxPlot` | **Histogram built 2026-11-12**, binning with `lib/viz`'s own `bins()` (nice edges, last bin inclusive), so no `d3-array`. **BoxPlot not built**: no consumer asks for one. |
 | P2 | `Sankey`, `Treemap`, `Sunburst` | Flow and hierarchy charts. Treemap and sunburst share `d3-hierarchy` with Diagram. |
 | P2 | `Timeline` / `Gantt` | Very close to Diagram (bars with dependency edges). Decide which family owns it. |
 | P2 | `ChartCard` block | Title, value, delta, chart and "view as table". The StatTiles neighbour. |
@@ -382,7 +423,7 @@ PLAN.md's Phase 3 list.
 | P1 | `KnowledgeGraphExplorer` **block**: Network + search (`Combobox`) + type filter (legend as checkboxes) + detail panel (`Sheet` / `Drawer`) + exploration history (breadcrumb) + `onExpandRequest` | The "beyond charts" target. It is a *block*, composed of components, not a bigger component. |
 | P1 | Path and relation queries in the view: highlight the shortest path between two nodes, show only one predicate | Algorithms from graphology, behind `lib/viz`. |
 | P2 | Clustering: community colouring, collapsing a cluster to a "combo" node, **semantic zoom** (labels by zoom level and importance) | |
-| P2 | WebGL tier (≥ ~30k nodes) | Built on `lib/shader` (§8.7). The V0 spike sets the threshold. |
+| P2 | WebGL tier (≥ ~20k nodes) | Built on `lib/shader` (§8.7). Threshold measured by the V0 spike (§3.2). |
 | P2 | Edge bundling, time-sliced graphs (a graph at time *t*, with a slider) | Research-grade; only with a consumer. |
 
 ---
@@ -402,10 +443,13 @@ Each phase ends on gates, not on a date, as every phase in `PLAN.md` does.
       model (§3.3) and the a11y contract (§3.6).
 - [x] **ADR 0008 amendment — data palette.** Covers how many categorical
       slots, the new hues, and the ΔE / CVD floor (§3.8).
-- [ ] **Spike, thrown away afterwards.** Render 500 / 2k / 10k / 50k nodes in
-      SVG, Canvas 2D and WebGL in the pinned Chromium and on a phone, and
-      measure frame time while panning. The tier thresholds in §3.2 are then
-      measured instead of guessed.
+- [x] **Spike, thrown away afterwards** (2026-11-12). Rendered 500 / 2k /
+      10k / 50k nodes (plus 3k, 5k, 20k, 30k to bracket the limits) in SVG,
+      Canvas 2D and WebGL in the pinned Chromium, and measured frame time
+      while panning and while restyling every node. Results and method are in
+      §3.2: SVG ≤ ~2k, Canvas 2D ~2k – ~20k, WebGL above that. **Not done on
+      a phone**: none was available, so a 4× CPU throttle stands in, and the
+      phone measurement stays open on the WebGL tier's `experimental` flag.
 - [x] Confirm Aspekta's `tnum` (ADR 0011 item 5). **It has none** (checked
       2026-11-11): its digits are proportional, 367–602 units, so
       `tabular-nums` is a no-op. Filed against the face as ADR 0011 directs;
@@ -427,8 +471,8 @@ P0 sheets approved.
 - [x] `Sparkline`, `Meter`. Both get the standard five files (`.tsx`,
       `.doc.ts`, `.stories.tsx`, `.browser.test.tsx`, `.types.test.tsx`),
       visual baselines in both schemes, and the brand-theme story.
-- [ ] Extend `check:boundaries` to the viz dependencies, and
-      `check:dependencies` to declare them per item.
+- [x] Extend `check:boundaries` to the viz dependencies, and
+      `check:dependencies` to declare them per item (2026-11-12).
 
 **Exit:** `pnpm verify` green; SSR output of both components snapshot-tested
 with no hydration needed; forced-colours test passing.
@@ -445,8 +489,9 @@ with no hydration needed; forced-colours test passing.
       x-axis row, `chart-legend-entry` the legend).
 - [x] `StatTiles` / `ChartCard` as the first blocks. This is also the first
       use of `registry/blocks/`.
-- [ ] Linux visual baselines for chart, chart-card and stat-tiles (the
-      "Generate visual baselines" workflow; needs the branch pushed).
+- [x] Linux visual baselines for chart, chart-card and stat-tiles.
+      Regenerated with the rest of the matrix on `ci/green-main`
+      (bydiorama/ui#44).
 
 **Exit:** a consumer screen replaces its current charting with these, as
 PLAN.md's "ship what the consumer renders" requires.
@@ -463,14 +508,14 @@ rehearsal that makes the real migration a mapping exercise.
 | Portal call site | Library part | Gap it leaves |
 |---|---|---|
 | Overview count tiles (three hand-rolled boxes) | `StatTiles` | — |
-| `SosTrendCard` (headline share over a smoothed line, event annotation) | `ChartCard` + `xScale="time"`, `Chart.Rule` for a target | **A vertical event marker** ("Repositioned" on a month): `Chart.Rule` is horizontal only. Not drawn. |
+| `SosTrendCard` (headline share over a smoothed line, event annotation) | `ChartCard` + `xScale="time"`, `Chart.Rule` for a target | ~~A vertical event marker~~ **Closed 2026-11-12**: `Chart.Rule at={date}` draws a vertical rule with its label at the top of the plot. |
 | `SosAreaChart` (four overlapping gradient areas) | `LineChart`, four series, legend toggles | By choice, not a gap: overlapping fades go muddy (ChartCard doc). |
 | Brand share column (`div` bars in the table) | `BarChart orientation="horizontal"` | **A bar inside a table cell**: ranked rows are a whole chart, not a cell. |
-| `TrendSparkline` in the keyword table (50×20) | `Sparkline size="sm"` + a shared `domain` | **A row-height sparkline**: the smallest drawn size is 120×32. |
+| `TrendSparkline` in the keyword table (50×20) | `Sparkline size="sm"` + a shared `domain` | ~~A row-height sparkline~~ **Closed 2026-11-12**: `Sparkline size="xs"` is 64×20. Its size is not yet drawn in Paper (doc `needsDesign`). |
 | `TrendDistributionBar` (one stacked status strip) | ranked `BarChart` rows | **A part-of-whole strip in status colours**: no component; status inks are reserved and charts use data slots. |
-| CEP / intent strips (100% stacked per category) | stacked `BarChart` | **A 100% stack**: stacking is absolute only. |
-| Market map / landscape quadrant | — | **Scatter** (P1 in §4.1). |
-| Percentage-point changes ("+2.1pp") | `StatDelta` | **Percentage points**: `Intl` has no pp unit, so a change of share prints as a relative %. |
+| CEP / intent strips (100% stacked per category) | stacked `BarChart` | ~~A 100% stack~~ **Closed 2026-11-12**: `isStacked={{ isPercent: true }}`. The axis reads 0–100%, and the tooltip and announcer say "60% (120)". |
+| Market map / landscape quadrant | — | ~~Scatter~~ **Closed 2026-11-12**: `ScatterPlot`, with quadrant lines as `Chart.Rule at` + `Chart.Rule value`. Bubbles via `areaKey`. |
+| Percentage-point changes ("+2.1pp") | `StatDelta` | ~~Percentage points~~ **Closed 2026-11-12**: `StatDelta unit="points"` prints "+2.1 pp" and reads "percentage points". |
 
 Found and fixed by building it: direct labels painting past the frame, a rule
 label crossed by its own line, and sparklines in a column exaggerating flat
@@ -482,35 +527,77 @@ text scrolling the page sideways (ledger, 2026-11-11). Found and left to the por
 
 ### Phase V3 — Diagram viewer · *large*
 
-- [ ] Viewport (pan and zoom transform, fit, follow focus, keyboard path).
-- [ ] Node slot (HTML layer) + edge layer (SVG) under one transform.
+- [x] Viewport (pan and zoom transform, fit, follow focus, keyboard path):
+      `useGraphViewport`, shared with Network.
+- [x] Node slot (HTML layer) + edge layer (SVG) under one transform.
       `DotPattern` as the canvas ground.
-- [ ] Layered layout through dagre; tree and radial through d3-hierarchy;
+- [x] ~~Layered layout through dagre; tree and radial through d3-hierarchy~~
+      Layered, tree and radial layouts **in `lib/graph`, our own code**;
       `positions` passthrough; size hints for SSR.
-- [ ] Graph keyboard model, adjacency-list alternative, edge labels.
-- [ ] `Diagram.Group`, `Controls`, `Minimap`, `Legend`.
+- [x] Graph keyboard model, adjacency-list alternative, edge labels.
+- [x] `Diagram.Group`, `Controls`, `Minimap`, `Legend`.
 
 **Exit:** a pipeline or lineage view and an org chart render in both schemes
 from the same component. Every node is reachable by keyboard with its
-relations announced.
+relations announced. **Met 2026-11-12**: the Playground (a pipeline) and
+OrgChart stories render from one `Diagram`, with visual baselines in both
+schemes. The contract test reaches every node by arrow key and asserts that
+a node's announcement lists its relations ("2 relations: Brief informs Grid
+system; Brief informs Layout"). The second half is asserted on one node and
+holds for all of them by construction, since every node's announcement is
+built the same way.
+
+**Dependencies, decided while building V3.** §3.4 proposed dagre for layered
+layout and d3-hierarchy for trees. Neither was admitted. A read-only viewer
+needs only a narrow part of each: longest-path ranks with four barycentre
+sweeps, a tidy tree, and rings by depth. Written in `lib/graph`, that is a few
+hundred lines with no dependency. It is deterministic by construction and
+writes the same rounded numbers on the server and the client. It also keeps
+the precedent `lib/viz` set, which owns its scales and bins. The cost is
+simpler edge-crossing reduction than dagre's. `check:boundaries` still names
+those packages, so admitting one later replaces what is behind `lib/graph`
+without touching any public type.
 
 ### Phase V4 — Networks and the knowledge-graph explorer · *large*
 
-- [ ] `Network` on SVG with force layout (seeded, worker above the threshold,
-      incremental with pinned nodes).
-- [ ] Canvas tier behind the admission rule.
-- [ ] `KnowledgeGraphExplorer` block: search, type filter, detail panel,
+- [x] `Network` on SVG with force layout (seeded, worker above the threshold,
+      incremental with pinned nodes). The force layout is our own too
+      (`lib/graph` `forceLayout`, a uniform grid for repulsion), not d3-force,
+      for the reason given under V3. The worker answers with exactly the main
+      thread's positions, and a test holds it to that.
+- [x] Canvas tier behind the admission rule: `NetworkCanvas`, passed as
+      `renderer` and admitted above `canvasThreshold` (2,000 elements). It
+      only paints. The keyboard, announcements, hit-testing and the table stay
+      with Network, and before hydration and in forced colours the table
+      replaces the canvas.
+- [x] `KnowledgeGraphExplorer` block: search, type filter, detail panel,
       history, `onExpandRequest`, path highlight.
-- [ ] Docs recipes: Neo4j / Cypher result → `GraphNode[]`; RDF / JSON-LD →
-      `GraphNode[]`.
+- [x] Docs recipes: Neo4j / Cypher result → `GraphNode[]`; RDF / JSON-LD →
+      `GraphNode[]`, in [`graph-data-recipes.md`](./graph-data-recipes.md).
+      Each mapping there was type-checked and run on fixtures.
 
 **Exit:** a 5k-node typed graph is explorable by keyboard and screen reader
-on a mid-range phone, and the visual gate is stable across runs.
+on a mid-range phone, and the visual gate is stable across runs. **Not met
+yet (2026-11-12).**
+- The visual gate is stable: the new cases pass on repeated runs.
+- Keyboard and screen reader are tested at 7–27 nodes and the canvas at
+  2,000. Nothing has been tried at 5,000.
+- Laying out 5,000 nodes and 6,250 edges takes about 4 s on a desktop M-series
+  CPU, in the worker and off the main thread. Even so, a mid-range phone is
+  likely to take several times longer before the first drawing.
+- Still to do:
+  - try it on a real phone;
+  - decide whether a large graph is drawn after a cheap first layout and then
+    refined, or arrives with positions computed on the server;
+  - filter the table view by what is in view (today it lists every relation).
 
 ### Phase V5 — on demand only
 
 The P2 rows from §4: editing, WebGL, Sankey, Treemap, Gantt, clustering,
 semantic zoom, time-sliced graphs. Each needs a consumer before it starts.
+[`charts-v5-extensions.md`](./charts-v5-extensions.md) checks each one
+against what has been built so far: what it needs, what it depends on, the hard
+part, and a recommended order (2026-11-12).
 
 ---
 

@@ -1066,6 +1066,88 @@
       "role": "the field's resting edge"
     }
   ],
+  "Diagram": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 16.05,
+      "role": "title, node labels"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "description, node descriptions, group titles"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "edge labels on the canvas"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-selected",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 13.54,
+      "role": "the selected node's label and description — muted ink falls under 4.5:1 on a pale brand's selected fill, so the description steps up to primary there"
+    },
+    {
+      "fg": "--ui-border-control",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.11,
+      "dark": 4.59,
+      "role": "an edge on the canvas"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "an inferred edge"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 17.17,
+      "dark": 17.18,
+      "role": "an active edge"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 12.13,
+      "role": "the keyboard focus ring"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "a node's ring"
+    },
+    {
+      "fg": "--ui-border-default",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 2.14,
+      "dark": 1.84,
+      "role": "a group's edge"
+    }
+  ],
   "DotPattern": [
     {
       "fg": "--ui-border-subtle",
@@ -1624,6 +1706,136 @@
       "light": 2.63,
       "dark": 2.8,
       "role": "a disabled row's glyph"
+    }
+  ],
+  "Network": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 17.18,
+      "role": "node labels on their canvas pill"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "edge labels, dimmed node labels"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "description"
+    },
+    {
+      "fg": "--ui-border-control",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.11,
+      "dark": 4.59,
+      "role": "an edge, the Other ring"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "an inferred edge"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 17.17,
+      "dark": 17.18,
+      "role": "an active edge, the selected ring"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 12.13,
+      "role": "the keyboard focus ring"
+    },
+    {
+      "fg": "--ui-border-control",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.11,
+      "dark": 4.59,
+      "role": "the expand chip's edge"
+    },
+    {
+      "fg": "--ui-data-cat-1-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.17,
+      "dark": 5.17,
+      "role": "a slot-1 node's ring on the canvas"
+    },
+    {
+      "fg": "--ui-data-cat-2-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.18,
+      "dark": 5.65,
+      "role": "a slot-2 node's ring on the canvas"
+    },
+    {
+      "fg": "--ui-data-cat-3-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.34,
+      "dark": 5.7,
+      "role": "a slot-3 node's ring on the canvas"
+    },
+    {
+      "fg": "--ui-data-cat-4-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.41,
+      "dark": 6.33,
+      "role": "a slot-4 node's ring on the canvas"
+    },
+    {
+      "fg": "--ui-data-cat-5-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.7,
+      "dark": 5.47,
+      "role": "a slot-5 node's ring on the canvas"
+    },
+    {
+      "fg": "--ui-data-cat-6-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 4.09,
+      "dark": 5.77,
+      "role": "a slot-6 node's ring on the canvas"
+    },
+    {
+      "fg": "--ui-data-cat-7-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 6.4,
+      "dark": 6.27,
+      "role": "a slot-7 node's ring on the canvas"
+    },
+    {
+      "fg": "--ui-data-cat-8-solid",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 6.11,
+      "dark": 4.21,
+      "role": "a slot-8 node's ring on the canvas"
     }
   ],
   "Popover": [
@@ -2475,6 +2687,32 @@
       "light": 3.09,
       "dark": 4.83,
       "role": "the line over the fading wash"
+    }
+  ],
+  "KnowledgeGraphExplorer": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 16.76,
+      "dark": 16.05,
+      "role": "names, current history step, relation names"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-surface",
+      "floor": "text",
+      "light": 5.78,
+      "dark": 6.56,
+      "role": "counts, verbs, earlier history steps, \"shown\""
+    },
+    {
+      "fg": "--ui-data-cat-1-solid",
+      "bg": "--ui-bg-surface",
+      "floor": "decorative",
+      "light": 3.09,
+      "dark": 4.83,
+      "role": "a type swatch"
     }
   ],
   "StatTiles": [

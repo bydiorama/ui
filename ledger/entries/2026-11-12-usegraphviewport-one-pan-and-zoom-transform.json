@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-usegraphviewport-one-pan-and-zoom-transform",
+  "date": "2026-11-12",
+  "item": "use-graph-viewport",
+  "kind": "addition",
+  "summary": "useGraphViewport: one pan-and-zoom transform for an HTML node layer and an SVG edge layer — wheel and trackpad-pinch zoom at the pointer, drag to pan, zoom-in, zoom-out and fit actions (Diagram and Network bind them to +, - and 0), fit on first layout until the reader takes over, and follow-focus that brings a focused node into view with a 24px margin (SC 2.4.11). Scale clamps to 0.25–2 by default. Shared by Diagram and Network.",
+  "affects": [
+    "item:use-graph-viewport",
+    "export:useGraphViewport"
+  ]
+}

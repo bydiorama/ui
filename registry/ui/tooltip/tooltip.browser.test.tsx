@@ -297,10 +297,14 @@ describe("timing comes from lib/motion, not from a call site", () => {
     expect(chip()!.textContent).toContain("First");
 
     // Well inside the skip window, and well under the open delay: without the
-    // provider this assertion is the one that fails.
+    // provider this assertion is the one that fails. Polled, not slept: a
+    // fixed 80ms read on a slow CI runner caught the chip between the first
+    // closing and the second opening. The timeout is half the open delay, so
+    // a chip that waited out the delay still fails it.
     await userEvent.hover(second!);
-    await new Promise((r) => setTimeout(r, Math.min(HOVER_INTENT_SKIP_MS / 3, 80)));
-    expect(chip()!.textContent).toContain("Second");
+    await expect
+      .poll(() => chip()?.textContent ?? "", { timeout: Math.min(HOVER_INTENT_SKIP_MS, HOVER_INTENT_DELAY_MS / 2), interval: 10 })
+      .toContain("Second");
   });
 
   test("only ONE tooltip is open at a time, whatever the callers ask for", async () => {

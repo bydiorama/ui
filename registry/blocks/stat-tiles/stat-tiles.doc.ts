@@ -29,11 +29,12 @@ StatDelta / StatFigure        the change line, and figure + change in a row (Cha
   props: {
     label: { type: "string", required: true, notes: "Tile. What is measured. Printed while loading so the frame still says what is coming." },
     value: { type: "string | null", required: true, notes: "Tile. Already formatted (\"€3,410\"). `null` is no reading yet: an em dash and `emptyText`, never a fake 0." },
-    delta: { type: "{ change; comparison; polarity?; format?; locale?; upLabel?; downLabel?; flatLabel? }", notes: "Tile. `change` is signed and, with the default percent format, a fraction (0.12). It prints unsigned — the glyph carries the sign. `comparison` is required: a change with no baseline cannot be read. Omit the whole object for a tile with no comparison; no line is drawn." },
+    delta: { type: "{ change; comparison; polarity?; unit?; format?; pointsSuffix?; pointsLabel?; locale?; upLabel?; downLabel?; flatLabel? }", notes: "Tile. `change` is signed and, with the default percent format, a fraction (0.12). It prints unsigned — the glyph carries the sign. `comparison` is required: a change with no baseline cannot be read. Omit the whole object for a tile with no comparison; no line is drawn." },
     polarity: { type: '"up-is-good" | "down-is-good"', default: '"up-is-good"', notes: "Inside delta. The block reads direction from the sign and cannot know whether a rise is welcome; a cost sets down-is-good. Changes colour only, never the glyph." },
     trend: { type: "ReactElement", notes: "Tile. A Sparkline size=\"sm\". An element, so the block draws no chart of its own and the sparkline keeps its own accessible label." },
     isLoading: { type: "boolean", default: "false", notes: "Tile. The figure and change become bg-sunken skeletons (96×24, 72×12); the label stays." },
     emptyText: { type: "string", default: '"No reading yet"', notes: "Tile. Under the dash when value is null." },
+    unit: { type: '"percent" | "points"', default: '"percent"', notes: "Inside delta. `points` is a change of a share, printed \"2.1 pp\" and spoken \"2.1 percentage points\" (pointsSuffix / pointsLabel): a share from 40% to 42% rose two points, not 5%, and Intl has no unit for it. `change` stays a fraction (0.021). The pp suffix is the library's own reading; no sheet draws it." },
     upLabel: { type: "string", default: '"Up"', notes: "Inside delta. Spoken before the change, since the glyph is aria-hidden. With downLabel and flatLabel, the block's only strings." },
   },
 

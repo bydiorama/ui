@@ -211,3 +211,16 @@ describe("Sparkline forwards per §5", () => {
     expect(el.dataset.testid).toBe("spark");
   });
 });
+
+describe("xs fits a table row", () => {
+  test("64×20, and every mark stays inside the box", () => {
+    const { root, q } = mount(<Sparkline size="xs" label="Searches" description="Flat." data={[3, 9, 4, 12, 7]} />);
+    const r = root.getBoundingClientRect();
+    expect([r.width, r.height]).toEqual([64, 20]);
+    const line = q<SVGPathElement>("sparkline-line")!.getBBox();
+    expect(line.x).toBeGreaterThanOrEqual(0);
+    expect(line.y).toBeGreaterThanOrEqual(0);
+    expect(line.x + line.width).toBeLessThanOrEqual(64);
+    expect(line.y + line.height).toBeLessThanOrEqual(20);
+  });
+});

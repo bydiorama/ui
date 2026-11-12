@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-10-chart-bars-lines-and-areas-in",
+  "date": "2026-11-10",
+  "item": "chart",
+  "kind": "addition",
+  "summary": "Chart: bars, lines and areas in a figure with a takeaway, legend, one-tab-stop keyboard navigation, announcements and a table view; BarChart, LineChart and AreaChart presets",
+  "affects": [
+    "item:chart",
+    "item:viz"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

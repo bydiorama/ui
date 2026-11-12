@@ -44,6 +44,18 @@
       ]
     },
     {
+      "name": "viz",
+      "type": "registry:lib",
+      "description": "The data-visualisation maths layer (ADR 0023): pure functions that turn numbers into numbers and SVG path strings — extent, a linear scale that draws a flat series as a level line, evenly spaced series points inside a plot's insets, line and area paths, columns that always stand on zero with their data end rounded and negatives hanging below it, and Intl number formatting. Every coordinate is rounded to two decimals so server and client write identical paths. Imports no maths module yet; d3 modules are admitted behind this file when a chart needs band or time scales, and never reach a public signature.",
+      "files": [
+        {
+          "path": "registry/lib/viz/viz.ts",
+          "type": "registry:lib",
+          "target": "lib/viz.ts"
+        }
+      ]
+    },
+    {
       "name": "chrome-control",
       "type": "registry:lib",
       "description": "The 32px chrome control: a square, softly-rounded button filled with --ui-bg-elevated and carrying no edge. Not a Button variant — every button type is either a fill with a matching edge or an edge on nothing, and this is the one shape that is a fill with no edge at all. It belongs to page chrome (a menu toggle, a back arrow, a calendar's month arrows) rather than to the action vocabulary. Exported as one recipe because it was independently reinvented four times before it had a name.",
@@ -823,6 +835,120 @@
           "path": "registry/ui/switch/switch.doc.ts",
           "type": "registry:ui",
           "target": "ui/switch.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "sparkline",
+      "type": "registry:ui",
+      "description": "An inline, axis-free trend in one of the eight categorical data slots — line, area or columns, at the sheet's 160×40 or 120×32. One image to assistive technology (role=img), named by a required label and described by a required, person-written description: the one chart allowed to ship without a data table (ADR 0023 §4). Server-safe and deterministic; ships no handlers.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/viz"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/sparkline/sparkline.tsx",
+          "type": "registry:ui",
+          "target": "ui/sparkline.tsx"
+        },
+        {
+          "path": "registry/ui/sparkline/sparkline.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/sparkline.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "description": "Bars (grouped or stacked), lines and areas on a nice-tick value axis, in a figure that always carries its title, a person-written takeaway, a shape-and-colour legend for two or more series, and a view-as-table toggle backed by Table. The plot is one tab stop: arrow keys walk categories and series, each move is announced politely, and a tooltip follows the pointer and the keyboard. BarChart, LineChart and AreaChart are thin presets over Chart with Chart.Bars / .Lines / .Areas / .Rule children. Eight ordinal slots, never cycled; solid strokes only.",
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/viz",
+        "@bydiorama/button",
+        "@bydiorama/table"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/chart/chart.tsx",
+          "type": "registry:ui",
+          "target": "ui/chart.tsx"
+        },
+        {
+          "path": "registry/ui/chart/chart.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/chart.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "stat-tiles",
+      "type": "registry:block",
+      "description": "The first block: a row of headline numbers in one surface frame, tiles separated by hairlines. Each tile is a label, a figure at the fixed --ui-text-figure role, a change line whose glyph says which way and whose colour says whether that is good (polarity: up-is-good by default, down-is-good for costs), and an optional Sparkline element. A <dl>; loading, no-value and no-comparison states keep the tile. Formats and computes nothing. Also exports StatDelta and StatFigure, the change line and a figure-plus-change row.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/skeleton"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/stat-tiles/stat-tiles.tsx",
+          "type": "registry:block",
+          "target": "components/blocks/stat-tiles.tsx"
+        },
+        {
+          "path": "registry/blocks/stat-tiles/stat-tiles.doc.ts",
+          "type": "registry:block",
+          "target": "components/blocks/stat-tiles.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "chart-card",
+      "type": "registry:block",
+      "description": "The Chart frame with a stat tile's figure and change under its title, so the card says how much, and whether that is good, before the plot is read. The description stays required and stays the chart's accessible description; it is no longer printed. By default one fading area (Chart.Areas wash=\"fade\"); any Chart mark goes in as children. Below the head it is the Chart, untouched.",
+      "registryDependencies": [
+        "@bydiorama/chart",
+        "@bydiorama/stat-tiles"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/chart-card/chart-card.tsx",
+          "type": "registry:block",
+          "target": "components/blocks/chart-card.tsx"
+        },
+        {
+          "path": "registry/blocks/chart-card/chart-card.doc.ts",
+          "type": "registry:block",
+          "target": "components/blocks/chart-card.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "meter",
+      "type": "registry:ui",
+      "description": "One value against a range — a gauge, not a task. An 8px bar or the sheet's 80px ring with role=meter, the clamped value and an aria-valuetext equal to the printed reading. Warning and danger states require their own words (the type enforces it), a target is a solid rule that requires its label, and no reading requires emptyText rather than an invented zero. Server-safe; ships no handlers.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/viz"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/meter/meter.tsx",
+          "type": "registry:ui",
+          "target": "ui/meter.tsx"
+        },
+        {
+          "path": "registry/ui/meter/meter.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/meter.doc.ts"
         }
       ]
     },

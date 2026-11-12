@@ -43,6 +43,8 @@ import { ChatQuestionnaire } from "@/ui/chat-questionnaire/chat-questionnaire.ts
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
+import { BarChart } from "@/ui/chart/chart.tsx";
+import { StatTiles } from "@/blocks/stat-tiles/stat-tiles.tsx";
 import { Plus, Microphone, InfoCircle, Close } from "griddy-icons";
 
 // The laws, and the spec, are the SAME artefacts the node-side gate reads.
@@ -62,6 +64,8 @@ import chatQuestionnaireSpec from "../../design/paper/specs/chat-questionnaire.g
 import sheetSpec from "../../design/paper/specs/sheet.geometry.json";
 import comboboxSpec from "../../design/paper/specs/combobox.geometry.json";
 import sliderSpec from "../../design/paper/specs/slider.geometry.json";
+import chartSpec from "../../design/paper/specs/chart.geometry.json";
+import statTilesSpec from "../../design/paper/specs/stat-tiles.geometry.json";
 
 /** A spec case, as far as this file needs to read one. */
 type Spec = {
@@ -104,6 +108,8 @@ const SPECS: Spec[] = [
   sheetSpec as Spec,
   comboboxSpec as Spec,
   sliderSpec as Spec,
+  chartSpec as Spec,
+  statTilesSpec as Spec,
 ];
 
 /**
@@ -337,7 +343,53 @@ const CASES: Record<string, () => ReactElement> = {
   // Rest, with its own string. Combobox has no open prop (the list opens on
   // typing or ArrowDown), so the case opens it the way a keyboard user does.
   "combobox-option-row": () => <OpenCombobox />,
+  // The anatomy sheet's specimen: two series, so the legend renders and the
+  // frame stacks all three of its parts. One chart, because `measure` takes
+  // every matching slot on screen.
+  "chart-frame": () => <ChartSpecimen />,
+  "chart-plot-row": () => <ChartSpecimen />,
+  "chart-plot-column": () => <ChartSpecimen />,
+  // The Legend toggle sheet's "Shown" entry, with its own string: the first
+  // entry is Books, and `measure` reads the first container it finds.
+  "chart-legend-entry": () => (
+    <BarChart label="Printed" description="Books and posters." x="year" xLabel="Year"
+      data={[{ year: 1957, books: 80, posters: 120 }]}
+      series={[{ key: "books", label: "Books" }, { key: "posters", label: "Posters" }]} />
+  ),
+  // The sheet's first tile: no start hairline, and the trend as a 120×32 box
+  // (a Sparkline at size sm). ONE tile, because `measure` unions every
+  // matching slot on screen.
+  "stat-tile": () => (
+    <StatTiles>
+      <StatTiles.Tile
+        label="Posters printed"
+        value="1,284"
+        delta={{ change: 0.12, comparison: "vs 1971" }}
+        trend={<svg aria-hidden="true" width="120" height="32" />}
+      />
+    </StatTiles>
+  ),
 };
+
+function ChartSpecimen() {
+  return (
+    <BarChart
+      label="Printed work by year"
+      description="Posters led books in every year and peaked in 1972."
+      data={[
+        { year: 1957, posters: 120, books: 80 },
+        { year: 1964, posters: 240, books: 130 },
+        { year: 1972, posters: 320, books: 220 },
+      ]}
+      x="year"
+      xLabel="Year"
+      series={[
+        { key: "posters", label: "Posters" },
+        { key: "books", label: "Books" },
+      ]}
+    />
+  );
+}
 
 function OpenCombobox() {
   useEffect(() => {
@@ -408,6 +460,18 @@ async function settled(element: Element) {
   await Promise.all(element.getAnimations().map((a) => a.finished.catch(() => undefined)));
 }
 
+/**
+ * Two frames for a ResizeObserver to report, then its re-render. A component
+ * that sizes a part from its own measured width — Chart draws its x-axis row
+ * at the plot's width — renders the server default first, and is measured at
+ * that default otherwise: the plot column read a 640px tick row in a 390px
+ * track. The first case to need it was chart-plot-column.
+ */
+async function laidOut() {
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await act(async () => {});
+}
+
 /** `getComputedStyle` returns the USED width — which is the one the laws want. */
 const px = (value: string) => Number.parseFloat(value) || 0;
 
@@ -422,7 +486,10 @@ function measure(containerSlot: string, childSlot: string, axis: "horizontal" | 
     .split("|")
     .map((slot) => `[data-slot="${slot}"]`)
     .join(", ");
-  const kids = Array.from(document.querySelectorAll<HTMLElement>(childSelector));
+  // Children are looked for INSIDE the container. A document-wide query put
+  // every matching slot on screen into the union, so a part that repeats — a
+  // legend entry, an accordion row — could only be measured alone.
+  const kids = Array.from(el.querySelectorAll<HTMLElement>(childSelector));
   if (!kids.length) throw new Error(`no [data-slot="${childSlot}"] on screen`);
 
   const cs = getComputedStyle(el);
@@ -468,6 +535,7 @@ for (const spec of SPECS) {
 
       test(`${c.name}: obeys its declared laws`, async () => {
         mount(CASES[c.name]!());
+        await laidOut();
         const el = document.querySelector(`[data-slot="${c.slots.container}"]`);
         if (el) await settled(el);
         const figure = measure(c.slots.container, c.slots.child, c.axis);
@@ -477,6 +545,7 @@ for (const spec of SPECS) {
 
       test(`${c.name}: insets match the sheet's own`, async () => {
         mount(CASES[c.name]!());
+        await laidOut();
         const el = document.querySelector(`[data-slot="${c.slots.container}"]`);
         if (el) await settled(el);
         const figure = measure(c.slots.container, c.slots.child, c.axis);

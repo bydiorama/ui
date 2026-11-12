@@ -60,6 +60,11 @@ import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.
 import { Combobox } from "@/ui/combobox/combobox.tsx";
 import { Popover } from "@/ui/popover/popover.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
+import { BarChart, Chart } from "@/ui/chart/chart.tsx";
+import { Meter } from "@/ui/meter/meter.tsx";
+import { Sparkline } from "@/ui/sparkline/sparkline.tsx";
+import { StatTiles } from "@/blocks/stat-tiles/stat-tiles.tsx";
+import { ChartCard } from "@/blocks/chart-card/chart-card.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
 import { Sheet } from "@/ui/sheet/sheet.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
@@ -208,6 +213,12 @@ function mount(
 async function stable(el: Element) {
   await act(async () => {
     await document.fonts.ready;
+    // Two frames for ResizeObserver: a chart renders at its 640px server width
+    // until the observer reports the frame, and chart-card measured 729px in a
+    // 560px frame on two runs in three without this wait.
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  });
+  await act(async () => {
     const running = el.getAnimations({ subtree: true });
     const finite: Animation[] = [];
     for (const animation of running) {
@@ -637,6 +648,88 @@ const CASES: Array<{
     ),
   },
   {
+    name: "chart",
+    // Stacked bars (the segment gap and the outer-only radius), lines with
+    // direct labels, a rule and a missing value, and ranked horizontal rows. Grouped bars and stacked
+    // areas are pinned by computed geometry in the contract test instead: four
+    // charts overflow the 900px capture. The ranked chart is ONE row since the
+    // legend grew to its 24px target band; the row gap is pinned by geometry.
+    // Static: no hover or focus.
+    ui: (
+      <div className="flex flex-col gap-sm">
+        <BarChart size="sm" isStacked label="Stacked" description="Output rose to 575 in 1972." x="year" xLabel="Year"
+          data={[{ year: 1968, p: 140, b: 100, s: 70 }, { year: 1969, p: 180, b: 80, s: 80 }, { year: 1970, p: 100, b: 130, s: 50 }, { year: 1971, p: 160, b: 95, s: 100 }, { year: 1972, p: 120, b: 115, s: 75 }]}
+          series={[{ key: "p", label: "Posters" }, { key: "b", label: "Books" }, { key: "s", label: "Signage" }]} />
+        <Chart size="sm" label="Lines and a target" description="Posters approached the target." x="year" xLabel="Year"
+          data={[{ year: 1967, p: 140, s: 250 }, { year: 1968, p: 172, s: 220 }, { year: 1969, p: null, s: 180 }, { year: 1970, p: 225, s: 120 }, { year: 1971, p: 250, s: 92 }, { year: 1972, p: 310, s: 60 }]}
+          series={[{ key: "p", label: "Posters" }, { key: "s", label: "Signage", slot: 3 }]}>
+          <Chart.Lines />
+          <Chart.Rule value={340} label="Target 340" />
+        </Chart>
+        <BarChart orientation="horizontal" label="Ranked" description="Müller-Brockmann made the most." x="who" xLabel="Designer"
+          // A `who` field, not `name`: check:visual-coverage reads name fields here as case names.
+          data={[{ who: "Josef Müller-Brockmann", n: 342 }]}
+          series={[{ key: "n", label: "Posters" }]} />
+      </div>
+    ),
+  },
+  {
+    name: "stat-tiles",
+    // Blocks. The sheet's four-tile row in a 560px frame: under 1120px it
+    // wraps two by two (sheet: Narrow row), so this pins the hairlines
+    // following the wrap, sparklines kept beside the text at a 279px tile,
+    // a good and a bad change and a flat one. Then the data states, whose
+    // height must match a loaded tile.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <StatTiles aria-label="Printing">
+          <StatTiles.Tile label="Posters printed" value="1,284" delta={{ change: 0.12, comparison: "vs 1971" }}
+            trend={<Sparkline size="sm" data={[9, 12, 10.5, 15, 13.5, 18, 16.5, 21, 19, 23, 21.5, 25]} label="Posters" description="Rose." />} />
+          <StatTiles.Tile label="Books bound" value="862" delta={{ change: -0.04, comparison: "vs 1971" }}
+            trend={<Sparkline size="sm" data={[25, 21.5, 23, 19, 21, 16.5, 18, 13.5, 15, 10.5, 12, 9]} label="Books" description="Fell." />} />
+          <StatTiles.Tile label="Ink cost" value="€3,410" delta={{ change: 0.09, comparison: "vs 1971", polarity: "down-is-good" }} />
+          <StatTiles.Tile label="Presses running" value="6" delta={{ change: 0, comparison: "vs 1971" }} />
+        </StatTiles>
+        <StatTiles>
+          <StatTiles.Tile label="Books bound" value={null} />
+          <StatTiles.Tile label="Sheets cut" value={null} isLoading />
+        </StatTiles>
+      </div>
+    ),
+  },
+  {
+    name: "chart-card",
+    // The sheet's card: the figure and change under the title, the fading
+    // area below, and the description NOT printed.
+    ui: (
+      <ChartCard size="sm" label="Posters printed" description="Output rose every year after 1951." value="2,370"
+        delta={{ change: 0.18, comparison: "vs 1951–1956" }} x="year" xLabel="Year"
+        data={[{ year: 1951, n: 210 }, { year: 1953, n: 260 }, { year: 1955, n: 240 }, { year: 1957, n: 330 }, { year: 1959, n: 390 }, { year: 1961, n: 470 }]}
+        series={[{ key: "n", label: "Posters" }]} />
+    ),
+  },
+  {
+    name: "meter",
+    // The three tones, a target in the second half (the label ENDS at the
+    // rule), the empty and loading states whose height must hold, and the
+    // ring in its resting and warning states. On bg-surface, the card the
+    // sheet draws them on.
+    ui: (
+      <div className="flex w-96 flex-col gap-lg rounded-md bg-surface p-lg">
+        <Meter label="Paper stock" value={68} />
+        <Meter label="Ink reserve" value={84} status="warning" statusText="near limit" />
+        <Meter label="Press hours" value={96} status="danger" statusText="over limit" />
+        <Meter label="Sheets bound" value={62} target={75} targetText="Target 75%" />
+        <Meter label="Paper stock" value={null} emptyText="No reading yet" />
+        <Meter label="Paper stock" value={0} isLoading />
+        <div className="flex gap-lg">
+          <Meter label="Paper stock" value={68} shape="radial" />
+          <Meter label="Ink" value={84} shape="radial" status="warning" statusText="near limit" />
+        </div>
+      </div>
+    ),
+  },
+  {
     name: "progress",
     ui: (
       <div className="flex flex-col gap-lg">
@@ -644,6 +737,25 @@ const CASES: Array<{
         <Progress label="Usage" value={62} isLabelHidden />
         <Progress label="Usage" value={62} size="sm" hasValueText />
         <Progress label="Complete" value={100} size="sm" isLabelHidden />
+      </div>
+    ),
+  },
+  {
+    name: "sparkline",
+    // The three forms on the card they are drawn on, both sizes, a second and
+    // a last slot (the eighth is the one nobody looks at), and the two data
+    // states whose box must not collapse. On bg-surface because the end
+    // marker's ring is painted in that role.
+    ui: (
+      <div className="flex flex-col gap-lg rounded-md bg-surface p-lg">
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Line" description="Rose." />
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Area" description="Rose." variant="area" series={2} />
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Column" description="Rose." variant="column" series={8} />
+        <Sparkline data={[12, 16, 14, 20, 18, 24, 22, 28, 25, 30, 28, 32]} label="Small" description="Rose." size="sm" series={5} />
+        <div className="flex gap-lg">
+          <Sparkline data={[]} label="Loading" description="Loading." isLoading />
+          <Sparkline data={[42]} label="One point" description="One reading." />
+        </div>
       </div>
     ),
   },
@@ -1711,6 +1823,17 @@ describe("visual baselines", () => {
               `the ${el.scrollWidth - el.clientWidth}px past the edge will be CROPPED out of the ` +
               `baseline, and every future run will compare the crop against itself`,
           ).toBeLessThanOrEqual(el.clientWidth);
+          // The same failure DOWNWARDS. The iframe is 900px tall, and a frame
+          // whose bottom falls past it is captured at its full height with
+          // everything below the fold painted blank — the first chart baseline
+          // was 1397px tall and empty from 900 down, and the width check above
+          // passed it. A tall case is split, or its content shortened.
+          const bottom = Math.ceil(el.getBoundingClientRect().bottom);
+          expect(
+            bottom,
+            `${name}: the frame ends at ${bottom}px in a ${window.innerHeight}px viewport — ` +
+              `everything below ${window.innerHeight}px will be captured BLANK`,
+          ).toBeLessThanOrEqual(window.innerHeight);
         }
 
         await expect(page.elementLocator(el)).toMatchScreenshot(`${name}-${scheme}`, {

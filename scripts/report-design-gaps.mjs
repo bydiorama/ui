@@ -28,7 +28,7 @@ function* walk(dir) {
 const gaps = [];
 let docs = 0;
 
-for (const file of walk(join(ROOT, "registry/ui"))) {
+for (const file of ["registry/ui", "registry/blocks"].flatMap((d) => [...walk(join(ROOT, d))])) {
   if (!file.endsWith(".doc.ts")) continue;
   const module = await import(pathToFileURL(file).href);
   const doc = Object.values(module).find((v) => v && typeof v === "object" && "name" in v);

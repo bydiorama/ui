@@ -35,6 +35,16 @@ test("two type roles still merge — the last one wins", () => {
   assert.ok(has(result, "text-label-sm"));
 });
 
+test("the figure role is a size: it merges with sizes and keeps the colour", () => {
+  // The first role outside the size-name pattern since caption; without its
+  // name in cn's font-size group, the merger read it as a colour and
+  // deleted `text-ink-primary` beside it.
+  const kept = cn("text-figure", "text-ink-primary");
+  assert.ok(has(kept, "text-figure") && has(kept, "text-ink-primary"), `one was dropped: ${kept}`);
+  const merged = cn("text-label-sm", "text-figure");
+  assert.ok(!has(merged, "text-label-sm"), `both sizes survived: ${merged}`);
+});
+
 test("two leadings merge, including the custom step", () => {
   const result = cn("leading-flat", "leading-snug");
   assert.ok(!has(result, "leading-flat"), `both leadings survived: ${result}`);

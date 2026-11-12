@@ -115,3 +115,35 @@ same date.
 
 **Unchanged:** point 5's first bullet, and the light scheme — the resolved
 light theme was diffed before and after and no value moved. 65 dark roles did.
+
+## Amendment — 2026-11-10: chart slots leave the ramps
+
+**Amends point 3 for charts only.** The four named data roles stay on the
+ramps' step 40. The eight ORDINAL slots charts assign series to,
+`--ui-data-cat-{1…8}-{solid,bg,fg}` (ADR 0023), do not.
+
+The five ramps give four or five usable hues once red is reserved for
+`danger`, and their step 40 misses the 0.10 OKLCH chroma floor a categorical
+mark needs to be told apart from its neighbour. Eight slots therefore need
+hues the ramps do not have. They were drawn and approved on the Paper Charts
+page (*Data viz --- Palette*,
+https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0) as two
+curated rows — light and dark — at gamut-max chroma inside a shared
+lightness band, ordered so adjacent slots separate under protan and deutan.
+
+What holds them, rather than this paragraph:
+
+- `DATA_CAT_HUES` / `DATA_CAT_HUES_DARK` in `resolve.ts`; the row is chosen by
+  the ground's lightness, not the scheme flag. Theme zero pins both rows in
+  `ZERO_AUTHORED`.
+- `NONTEXT_CONTRAST_PAIRS`: every slot ≥ 3:1 on `bg-base` and `bg-surface`,
+  in every theme and both schemes. Theme zero light measures 3.09–3.26:1 for
+  slots 1–3; dark 4.83:1 or better.
+- `resolve.test.ts`: adjacent slots ≥ 15 OKLab ΔE×100 under normal vision and
+  ≥ 6 under Machado (2009) protan and deutan, for every stress brand. At
+  theme zero the worst adjacent pair is 9.0 (deutan) light and 8.5 dark — in
+  the band that is legal only with secondary encoding, which ADR 0023 §4
+  requires of every chart anyway.
+
+Ordinal slots never derive from the accent; 0006(a) stands. Only a future
+sequential ramp may carry the brand.

@@ -1112,3 +1112,81 @@ test("every density step is 4px on the grid, and nothing goes under the 24px flo
   assert.equal(heightPx(d["--ui-control-lg-height"]) - heightPx(c["--ui-control-lg-height"]), DENSITY_STEP_PX);
   assert.equal(heightPx(CONTROL_SIZES.comfortable["--ui-field-lg-height"]) - heightPx(d["--ui-field-lg-height"]), DENSITY_STEP_PX);
 });
+
+// ── Categorical data slots (ADR 0023) ───────────────────────────────────────
+//
+// A categorical palette has one job: two series side by side must look like
+// two series. That is computable, so it is computed — OKLab ΔE ×100 between
+// ADJACENT slots, under normal vision and under Machado, Oliveira & Fernandes
+// (2009) protan and deutan simulation at severity 1.0. The floors are the
+// dataviz method's: 15 for normal vision is a hard floor; 6 under CVD is the
+// floor that is legal only WITH secondary encoding (direct labels, gaps,
+// marker shape), which the chart a11y contract requires anyway (ADR 0023 §4).
+
+const MACHADO = {
+  protan: [[0.152286, 1.052583, -0.204868], [0.114503, 0.786281, 0.099216], [-0.003882, -0.048116, 1.051998]],
+  deutan: [[0.367322, 0.860646, -0.227968], [0.280085, 0.672501, 0.047413], [-0.01182, 0.04294, 0.968881]],
+} as const;
+
+function linearRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [0, 2, 4].map((i) => {
+    const c = parseInt(h.slice(i, i + 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  }) as [number, number, number];
+}
+
+function oklab([r, g, b]: readonly [number, number, number]): [number, number, number] {
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  return [
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  ];
+}
+
+function simulate(rgb: [number, number, number], matrix: readonly (readonly number[])[]): [number, number, number] {
+  return matrix.map((row) => Math.min(1, Math.max(0, row[0]! * rgb[0] + row[1]! * rgb[1] + row[2]! * rgb[2]))) as [number, number, number];
+}
+
+function deltaE(a: string, b: string, matrix?: readonly (readonly number[])[]): number {
+  const la = oklab(matrix ? simulate(linearRgb(a), matrix) : linearRgb(a));
+  const lb = oklab(matrix ? simulate(linearRgb(b), matrix) : linearRgb(b));
+  return Math.hypot(la[0] - lb[0], la[1] - lb[1], la[2] - lb[2]) * 100;
+}
+
+const CAT_SLOTS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
+const catSolid = (i: number) => `--ui-data-cat-${i}-solid` as BrandableToken;
+
+test("adjacent categorical slots stay apart, normally and under protan/deutan", () => {
+  const zero = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  const themes = [
+    ...ALL_SEEDS.flatMap(({ name, seed }) =>
+      (["light", "dark"] as const).map((scheme) => ({ label: `${name} (${scheme})`, theme: resolveTheme(seed, { scheme }).theme })),
+    ),
+    { label: "theme zero authored (light)", theme: zero.light },
+    { label: "theme zero authored (dark)", theme: zero.dark },
+  ];
+  for (const { label, theme } of themes) {
+    for (const i of CAT_SLOTS.slice(0, -1)) {
+      const a = flatten(theme[catSolid(i)], theme["--ui-bg-base"]);
+      const b = flatten(theme[catSolid(i + 1)], theme["--ui-bg-base"]);
+      const normal = deltaE(a, b);
+      assert.ok(normal >= 15, `${label}: slots ${i}/${i + 1} ΔE ${normal.toFixed(1)} under normal vision (floor 15)`);
+      for (const kind of ["protan", "deutan"] as const) {
+        const cvd = deltaE(a, b, MACHADO[kind]);
+        assert.ok(cvd >= 6, `${label}: slots ${i}/${i + 1} ΔE ${cvd.toFixed(1)} under ${kind} (floor 6)`);
+      }
+    }
+  }
+});
+
+test("categorical slots are distinct tokens in fixed order — no slot repeats another", () => {
+  const { light, dark } = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  for (const theme of [light, dark]) {
+    const solids = CAT_SLOTS.map((i) => theme[catSolid(i)].toUpperCase());
+    assert.equal(new Set(solids).size, 8, `two slots resolved to the same mark: ${solids.join(", ")}`);
+  }
+});

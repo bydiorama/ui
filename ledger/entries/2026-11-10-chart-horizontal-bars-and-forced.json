@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-10-chart-horizontal-bars-and-forced",
+  "date": "2026-11-10",
+  "item": "chart",
+  "kind": "addition",
+  "summary": "Chart: horizontal bars (orientation on BarChart and Chart.Bars, one series as ranked rows) and forced-colours fills for bars and legend keys — slot 1 solid, slots 2–8 distinct system-colour hatches",
+  "affects": [
+    "item:chart",
+    "item:viz"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XRL-0"
+  }
+}

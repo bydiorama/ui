@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-charts-v2-stand-in-consumer-screen",
+  "date": "2026-11-11",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Charts V2 has no product screen to adopt it yet, so registry/screens/market-intelligence rebuilds the charted parts of the service portal's Market intelligence section (Overview, Share of search, Categories) from library parts only, on placeholder data, as Storybook stories under the axe pass. It maps every Recharts call site the portal has to a library part or a recorded gap (docs/charts-and-graphs-plan.md, 'V2 stand-in'), and surfaced three defects now fixed: direct labels painting past the frame, a rule label crossed by its line, and sparklines in a column exaggerating flat series. The plan's axis geometry case is added (chart-plot-column), and the geometry test now waits for a ResizeObserver re-render before measuring. The stand-in does not close V2's exit; a real screen adopting these does.",
+  "affects": [
+    "item:chart",
+    "item:sparkline",
+    "item:stat-tiles",
+    "item:chart-card"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

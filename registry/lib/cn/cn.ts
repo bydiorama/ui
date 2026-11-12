@@ -73,7 +73,7 @@ const twMerge = extendTailwindMerge({
       // The type roles (--text-* namespace in the emitted theme). They must
       // sit in `font-size` — see the conflict override above.
       "font-size": [
-        { text: [(value: string) => /^(display|title|body|label|button)-(lg|md|sm)$/.test(value) || value === "caption"] },
+        { text: [(value: string) => /^(display|title|body|label|button)-(lg|md|sm)$/.test(value) || value === "caption" || value === "figure"] },
       ],
       // The ink roles. Namespaced `ink-*` precisely so this rule can be a
       // prefix match instead of a list that drifts.

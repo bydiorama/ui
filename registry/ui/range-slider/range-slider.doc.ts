@@ -88,6 +88,7 @@ RangeSlider
   ],
 
   knownGaps: [
+    "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",
     "No histogram over the track (the price-filter pattern) and no tick marks. Neither is drawn.",
     "No steppers: two pairs of −/+ beside one track has no drawn layout.",
     "No inline variant — the bar has room for one value.",

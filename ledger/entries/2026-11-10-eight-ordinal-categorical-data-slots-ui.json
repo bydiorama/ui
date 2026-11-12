@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-10-eight-ordinal-categorical-data-slots-ui",
+  "date": "2026-11-10",
+  "item": "system",
+  "kind": "token",
+  "summary": "Eight ordinal categorical data slots, --ui-data-cat-{1…8}-{solid,bg,fg}: the vivid palette from the Paper Charts page, curated in a light and a dark row (ADR 0008 amendment 2026-11-10). Every solid is a non-text pair on bg-base and bg-surface; adjacent slots are held to ΔE ≥ 15 normally and ≥ 6 under protan/deutan in every stress brand. The four named data roles are unchanged.",
+  "affects": [
+    "item:theme-zero-css",
+    "token:--ui-data-cat-1-solid"
+  ]
+}

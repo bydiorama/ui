@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-legend-entry-gets-a-geometry-case",
+  "date": "2026-11-11",
+  "item": "chart",
+  "kind": "fix",
+  "summary": "The legend entry joins chart.geometry.json as case chart-legend-entry, extracted from the Legend toggle sheet's Shown entry: 62×24, insets 4 block and 8 inline, an 8px key 4px from the name. To make it measurable the geometry test now looks for a case's children inside its container rather than across the document, which a legend (two entries at least) had made impossible; every existing case still passes. The entry moves from a fixed 24px height to 4px block padding with a 24px floor, so its inset is declared rather than produced by centring, and the key carries data-slot=\"chart-legend-key\".",
+  "affects": [
+    "item:chart"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XRL-0"
+  }
+}

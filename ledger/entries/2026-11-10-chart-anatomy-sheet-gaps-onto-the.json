@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-10-chart-anatomy-sheet-gaps-onto-the",
+  "date": "2026-11-10",
+  "item": "chart",
+  "kind": "fix",
+  "summary": "Paper: the Chart anatomy sheet's legend and tooltip rows used an off-scale 6px gap, corrected to --ui-space-xs (legend) and --ui-space-sm (tooltip rows); and its specimen frame was typed 784 wide around a 684px plot, leaving 10px of the plot row unfilled, now 774 so the row is the sum of its parts. Both now match the shipped component, whose frame and plot row geometry is extracted into design/paper/specs/chart.geometry.json and asserted in the geometry browser test.",
+  "affects": [
+    "item:chart"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

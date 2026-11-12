@@ -20,7 +20,7 @@
 const ROLES = [
   "display-lg", "display-md", "title-lg", "title-md", "title-sm",
   "body-lg", "body-md", "body-sm", "label-md", "label-sm", "caption",
-  "button-lg", "button-sm",
+  "button-lg", "button-sm", "figure",
 ] as const;
 
 type Attribute = "weight" | "leading" | "tracking";
@@ -48,6 +48,12 @@ export const TYPE_ROLE_EXCEPTIONS: Record<string, Partial<Record<Attribute, stri
     leading: "The profile is a rail row like the items below it, at the same leading-normal, so the rail keeps the sheet's heights.",
   },
   "chat-message-bubble": { leading: "The sender's voice is set tighter (1.35) than the receiver's 1.55 — the pair's signature at the same size." },
+  "chart-tick": { weight: "Ticks are 12/16 at 400 (Chart Anatomy sheet): the scale recedes so the marks and the 600 values carry the weight. The sheet proposes a data-tick role; until it exists this is the declared difference." },
+  "chart-legend-label": { weight: "Legend names sit at the ticks' 400, one step under the 600 title, so the key reads as reference rather than as a heading (Chart Anatomy sheet)." },
+  "chart-tooltip-label": { weight: "A tooltip row's series name is 400 beside its 600 value, so the number is what the eye lands on (Chart Anatomy sheet)." },
+  "stat-label": { weight: "A tile's label is label-sm at 400, muted, so the 600 figure under it is what the eye lands on (Stat tiles and Chart card sheet)." },
+  "stat-comparison": { weight: "The comparison (\"vs 1971\") is 400 beside the change's 600: the change is the reading, the comparison its reference." },
+  "stat-empty": { weight: "\"No reading yet\" sits where the change line would, at the comparison's 400." },
   textarea: { leading: "The box is rows × leading, and the sheet's 128px is drawn at leading-snug at every size." },
 };
 

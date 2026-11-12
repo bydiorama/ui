@@ -241,11 +241,31 @@ and `registry/lib/shader/shader.browser.test.tsx`, in Chromium on SwiftShader.
 - [ ] **A brand knob.** Which effects a brand turns on, and its ambient speed,
       are tokens a product sets today, not a seed field the resolver reads.
 
-## Phase 3 — molecules, blocks and patterns · **not started in code**
+### Charts layer (ADR 0023) · **V0–V2 built, V2 exit not met**
 
-`registry/blocks/` does not exist and the manifest carries no `block` items.
-None of the named molecules are built: FormField / FieldGrid / FormActions,
-DataTable, DetailHeader / DetailRail, StatusBadge, StatTiles, WizardLayout,
+The working plan is `docs/charts-and-graphs-plan.md`; this is its summary, as
+that file asked for once the work moved into code (branch `charts`,
+2026-11-11).
+
+- [x] V0: ADR 0023, the ADR 0008 data-palette amendment, the Paper sheets.
+      Aspekta's `tnum` checked: **absent** — `tabular-nums` is a no-op until
+      the face ships it (ADR 0011 item 5; `registry/fonts/aspekta/aspekta.test.ts`).
+- [ ] V0: the renderer spike. It gates the Canvas/WebGL tiers (V4), not charts.
+- [x] V1: eight data slots, `lib/viz`, Sparkline, Meter.
+- [x] V2: Chart with Bar, Line and Area, legend toggles, tooltip, table,
+      keyboard and announcer, time axis; StatTiles and ChartCard, the first
+      blocks; geometry for frame, plot row, plot column and legend entry.
+- [ ] V2: Linux visual baselines for chart, chart-card and stat-tiles.
+- [ ] **V2 exit: a product screen adopts these.** The service portal's Market
+      intelligence section is the candidate. A stand-in rebuilt from library
+      parts (`registry/screens/market-intelligence`) maps every one of its
+      chart call sites and lists the seven parts it would still miss.
+
+## Phase 3 — molecules, blocks and patterns · **started: two blocks**
+
+`registry/blocks/` exists with StatTiles and ChartCard (charts V2). The rest of
+the named molecules are not built: FormField / FieldGrid / FormActions,
+DataTable, DetailHeader / DetailRail, StatusBadge, WizardLayout,
 ChipSelect, ConfirmDeleteModal, EmptyState patterns.
 
 Design is ahead of code here — `design/paper/README.md` already carries the

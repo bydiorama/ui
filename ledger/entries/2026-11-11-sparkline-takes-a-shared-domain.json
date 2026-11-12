@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-sparkline-takes-a-shared-domain",
+  "date": "2026-11-11",
+  "item": "sparkline",
+  "kind": "addition",
+  "summary": "Sparkline takes an optional `domain` for line and area. By default each sparkline stretches its own min to max over the full height, which is right for one read alone and wrong for a column of them: in the stand-in screen's keyword table, a flat 12 ↔ 13 drew like a crash beside a real rise. Pass one domain to every sparkline in the column so their slopes compare. It is widened to hold every value, so it never clips; columns ignore it, as they stand on zero.",
+  "affects": [
+    "item:sparkline",
+    "prop:domain"
+  ]
+}

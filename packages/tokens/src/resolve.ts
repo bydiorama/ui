@@ -55,6 +55,40 @@ const DATA_HUES = {
 } as const;
 
 /**
+ * The eight ORDINAL categorical slots charts assign series to, in this order
+ * and never cycled (ADR 0023). Curated like `DATA_HUES`, but deliberately NOT
+ * on the brand ramps: the ramps' step 40 gives four or five usable hues and
+ * misses the 0.10 OKLCH chroma floor a categorical mark needs to be told
+ * apart, so these are gamut-max chroma at a shared lightness band (ADR 0008,
+ * amendment 2026-11-10). Order is chosen so ADJACENT slots stay apart under
+ * protan and deutan simulation — the palette test measures it.
+ *
+ * Drawn and approved on the Paper Charts page ("Data viz --- Palette").
+ */
+export const DATA_CAT_HUES = [
+  "#099DC4", // 1 cyan
+  "#DB7605", // 2 orange
+  "#837CFE", // 3 violet
+  "#01A056", // 4 green
+  "#C35BCB", // 5 magenta
+  "#018D82", // 6 teal
+  "#5C6402", // 7 olive
+  "#B82164", // 8 raspberry
+] as const;
+
+/**
+ * The same eight hues re-toned for a dark page — the dark column of the Paper
+ * Charts page. A dark ground is chosen by its LIGHTNESS, not by the scheme
+ * flag, so a dark brand identity in its light scheme gets these too. Kept as
+ * a second curated row rather than derived: lifting the light olive to 3:1 on
+ * near-black lands it on top of the teal beside it (ΔE 13.9, under the 15
+ * floor the palette test holds every theme to).
+ */
+export const DATA_CAT_HUES_DARK = [
+  "#0993BD", "#D57704", "#8281FE", "#02AE65", "#CB63D3", "#06A295", "#929F01", "#D4407B",
+] as const;
+
+/**
  * How opaque the media SCRIM is at full strength — the alpha `--ui-bg-media`
  * is painted at when it veils a picture rather than sitting behind one.
  *
@@ -294,6 +328,11 @@ export const TYPE_ROLES = {
   "--ui-text-caption": { px: 12, leading: 1.35, weight: 600, tracking: "-0.02em" },
   "--ui-text-button-lg": { px: 16, leading: 1, weight: 600, tracking: "-0.02em" },
   "--ui-text-button-sm": { px: 12, leading: 1, weight: 600, tracking: "-0.02em" },
+  // A headline number in a fixed-width surface — a stat tile, a chart
+  // card's figure (Stat tiles and Chart card sheet, 2026-11-11). FIXED, not
+  // fluid: title-lg shrinks to ~17px on a phone inside a tile that does not
+  // shrink. 24/30 at 600; components add `tabular-nums` themselves.
+  "--ui-text-figure": { px: 24, leading: 1.25, weight: 600, tracking: "-0.02em" },
 } as const;
 
 /** Roles that scale with the viewport. Body and below stay fixed, because
@@ -419,6 +458,8 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   // because that is what a reader means by a dark page.
   const up = dark ? 1 : -1;
   const accent = colors.accent;
+  // The chart slots' curated row for this ground (ADR 0023).
+  const catHues = dark ? DATA_CAT_HUES_DARK : DATA_CAT_HUES;
 
   // The strongest filled action (primary button, checked box, tooltip).
   //
@@ -928,6 +969,33 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-data-navigational-fg": legibleOn(DATA_HUES.navigational, colors.bg),
     "--ui-data-navigational-bg": withAlpha(DATA_HUES.navigational, 0.14),
     "--ui-data-navigational-solid": legibleOn(DATA_HUES.navigational, colors.bg, 3),
+
+    // Categorical data, ordinal slots (ADR 0023). Same recipe as the named
+    // roles: the mark at 3:1 (SC 1.4.11), the ink at AA, the wash at 14%.
+    "--ui-data-cat-1-fg": legibleOn(catHues[0], colors.bg),
+    "--ui-data-cat-1-bg": withAlpha(catHues[0], 0.14),
+    "--ui-data-cat-1-solid": legibleOn(catHues[0], colors.bg, 3),
+    "--ui-data-cat-2-fg": legibleOn(catHues[1], colors.bg),
+    "--ui-data-cat-2-bg": withAlpha(catHues[1], 0.14),
+    "--ui-data-cat-2-solid": legibleOn(catHues[1], colors.bg, 3),
+    "--ui-data-cat-3-fg": legibleOn(catHues[2], colors.bg),
+    "--ui-data-cat-3-bg": withAlpha(catHues[2], 0.14),
+    "--ui-data-cat-3-solid": legibleOn(catHues[2], colors.bg, 3),
+    "--ui-data-cat-4-fg": legibleOn(catHues[3], colors.bg),
+    "--ui-data-cat-4-bg": withAlpha(catHues[3], 0.14),
+    "--ui-data-cat-4-solid": legibleOn(catHues[3], colors.bg, 3),
+    "--ui-data-cat-5-fg": legibleOn(catHues[4], colors.bg),
+    "--ui-data-cat-5-bg": withAlpha(catHues[4], 0.14),
+    "--ui-data-cat-5-solid": legibleOn(catHues[4], colors.bg, 3),
+    "--ui-data-cat-6-fg": legibleOn(catHues[5], colors.bg),
+    "--ui-data-cat-6-bg": withAlpha(catHues[5], 0.14),
+    "--ui-data-cat-6-solid": legibleOn(catHues[5], colors.bg, 3),
+    "--ui-data-cat-7-fg": legibleOn(catHues[6], colors.bg),
+    "--ui-data-cat-7-bg": withAlpha(catHues[6], 0.14),
+    "--ui-data-cat-7-solid": legibleOn(catHues[6], colors.bg, 3),
+    "--ui-data-cat-8-fg": legibleOn(catHues[7], colors.bg),
+    "--ui-data-cat-8-bg": withAlpha(catHues[7], 0.14),
+    "--ui-data-cat-8-solid": legibleOn(catHues[7], colors.bg, 3),
 
     // Shape
     "--ui-radius-sm": px(radius.sm),

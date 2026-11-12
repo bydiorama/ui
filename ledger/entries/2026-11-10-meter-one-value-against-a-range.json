@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-10-meter-one-value-against-a-range",
+  "date": "2026-11-10",
+  "item": "meter",
+  "kind": "addition",
+  "summary": "Meter: one value against a range — an 8px bar or an 80px ring, role=meter, status and target that require their own words",
+  "affects": [
+    "item:meter",
+    "item:viz",
+    "token:--ui-intent-warning-fg",
+    "token:--ui-intent-danger-fg"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XK9-0"
+  }
+}

@@ -28,6 +28,25 @@ const ALLOWED_RAW_SVG = new Map([
       "not a glyph. There is nothing here griddy-icons could supply, and CSS cannot " +
       "tile a circle without an image (the sheet records the shader→SVG decision).",
   ],
+  [
+    "registry/ui/chart/chart.tsx",
+    "the component IS a data plot — bars, lines, areas, gridlines and marker " +
+      "shapes computed from the data prop (ADR 0023), not glyphs. Its one icon, " +
+      "the table toggle's, comes from griddy-icons. The plot SVG is aria-hidden; " +
+      "the figure, the announcer and the table carry the values.",
+  ],
+  [
+    "registry/ui/meter/meter.tsx",
+    "the radial shape IS a data plot — an arc computed from the value prop " +
+      "(ADR 0023), not a glyph. The SVG is aria-hidden; the role=meter element " +
+      "around it carries the name and the value.",
+  ],
+  [
+    "registry/ui/sparkline/sparkline.tsx",
+    "the component IS a data plot — paths and dots computed from the `data` prop " +
+      "(ADR 0023), not a glyph. No icon set can draw a series, and the SVG is " +
+      "aria-hidden behind a role=img root that carries the name and description.",
+  ],
 ]);
 
 const manifest = readManifest();

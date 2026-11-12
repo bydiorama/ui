@@ -271,6 +271,35 @@ export const BRANDABLE_TOKENS = [
   "--ui-data-navigational-bg",
   "--ui-data-navigational-solid",
 
+  // Categorical data, ORDINAL slots (ADR 0023, ADR 0008 amendment 2026-11-10).
+  // Charts assign series to slots in fixed order and never cycle; the four
+  // named roles above are one product's vocabulary and stay as they are.
+  // Slots 1-8 are the vivid set drawn on the Paper Charts page.
+  "--ui-data-cat-1-fg",
+  "--ui-data-cat-1-bg",
+  "--ui-data-cat-1-solid",
+  "--ui-data-cat-2-fg",
+  "--ui-data-cat-2-bg",
+  "--ui-data-cat-2-solid",
+  "--ui-data-cat-3-fg",
+  "--ui-data-cat-3-bg",
+  "--ui-data-cat-3-solid",
+  "--ui-data-cat-4-fg",
+  "--ui-data-cat-4-bg",
+  "--ui-data-cat-4-solid",
+  "--ui-data-cat-5-fg",
+  "--ui-data-cat-5-bg",
+  "--ui-data-cat-5-solid",
+  "--ui-data-cat-6-fg",
+  "--ui-data-cat-6-bg",
+  "--ui-data-cat-6-solid",
+  "--ui-data-cat-7-fg",
+  "--ui-data-cat-7-bg",
+  "--ui-data-cat-7-solid",
+  "--ui-data-cat-8-fg",
+  "--ui-data-cat-8-bg",
+  "--ui-data-cat-8-solid",
+
   // Shape
   "--ui-radius-sm",
   "--ui-radius-md",
@@ -317,6 +346,7 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-caption",
   "--ui-text-button-lg",
   "--ui-text-button-sm",
+  "--ui-text-figure",
   // Each role's weight, leading and tracking (ADR 0020 §3). The table in
   // `TYPE_ROLES` is the source of truth; these make it reach the page, and
   // the Tailwind emitter hangs them on the size utility as v4 companions, so
@@ -334,6 +364,7 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-caption-weight", "--ui-text-caption-leading", "--ui-text-caption-tracking",
   "--ui-text-button-lg-weight", "--ui-text-button-lg-leading", "--ui-text-button-lg-tracking",
   "--ui-text-button-sm-weight", "--ui-text-button-sm-leading", "--ui-text-button-sm-tracking",
+  "--ui-text-figure-weight", "--ui-text-figure-leading", "--ui-text-figure-tracking",
   // The weight ladder and the trackings, brandable so an explicit
   // `font-medium` or `tracking-tight` follows the brand's face too: a static
   // face has no 450/550 cut, and a face with its own spacing wants no −0.02em.
@@ -617,6 +648,9 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // than on the page. It is the only thing distinguishing a row the user is
   // holding from one they are not, so 3:1 is the floor it has to clear.
   ["--ui-border-focus", "--ui-bg-elevated"],
+  // Chart's keyboard ring around a bar or a point, drawn on the card the
+  // chart sits on. A plot's focused value is marked by nothing else.
+  ["--ui-border-focus", "--ui-bg-surface"],
   ["--ui-focus-ring-color", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-base"],
   ["--ui-border-control", "--ui-bg-surface"],
@@ -632,6 +666,11 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   ["--ui-border-strong", "--ui-bg-elevated"],
   ["--ui-bg-accent-legible", "--ui-bg-sunken"],
   ["--ui-bg-accent-legible", "--ui-bg-base"],
+  // Meter's warning and danger fills on its sunken track. The words carry the
+  // state (statusText is required), but the fill is still the only thing that
+  // shows HOW FAR the reading is, so it must clear 3:1 against the well.
+  ["--ui-intent-warning-fg", "--ui-bg-sunken"],
+  ["--ui-intent-danger-fg", "--ui-bg-sunken"],
   // The INVALID border on a form field — Input, Select, DatePicker and
   // Textarea all draw it, and none of them had ever declared it, so the one
   // boundary in this library whose whole job is to say "this control is in
@@ -703,4 +742,25 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   ["--ui-intent-success-fg", "--ui-bg-elevated"],
   ["--ui-intent-warning-fg", "--ui-bg-elevated"],
   ["--ui-intent-danger-fg", "--ui-bg-elevated"],
+  // Every categorical data mark against both grounds a chart is drawn on
+  // (ADR 0023). A bar, a line or a sparkline is a graphical object whose
+  // colour IS the series, so each slot is held to SC 1.4.11 on the page and
+  // on a card. Eight slots, sixteen pairs: an unlisted slot is an unchecked
+  // slot, and the eighth is the one nobody looks at.
+  ["--ui-data-cat-1-solid", "--ui-bg-base"],
+  ["--ui-data-cat-1-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-2-solid", "--ui-bg-base"],
+  ["--ui-data-cat-2-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-3-solid", "--ui-bg-base"],
+  ["--ui-data-cat-3-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-4-solid", "--ui-bg-base"],
+  ["--ui-data-cat-4-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-5-solid", "--ui-bg-base"],
+  ["--ui-data-cat-5-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-6-solid", "--ui-bg-base"],
+  ["--ui-data-cat-6-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-7-solid", "--ui-bg-base"],
+  ["--ui-data-cat-7-solid", "--ui-bg-surface"],
+  ["--ui-data-cat-8-solid", "--ui-bg-base"],
+  ["--ui-data-cat-8-solid", "--ui-bg-surface"],
 ] as const;

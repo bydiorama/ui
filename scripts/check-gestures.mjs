@@ -95,7 +95,7 @@ const errors = [];
 let scanned = 0;
 let withGestures = 0;
 
-for (const dir of ["registry/ui", "registry/lib", "registry/hooks"]) {
+for (const dir of ["registry/ui", "registry/blocks", "registry/lib", "registry/hooks"]) {
   for (const file of walk(join(ROOT, dir))) {
     // `.ts` as well as `.tsx`: a hook is where a gesture most naturally lives,
     // and a `.tsx`-only filter is how check:utilities missed the chrome

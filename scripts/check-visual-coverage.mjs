@@ -13,7 +13,12 @@ const manifest = JSON.parse(readFileSync(join(ROOT, "ui.manifest.json"), "utf8")
 const source = readFileSync(join(ROOT, "registry/visual/matrix.visual.test.tsx"), "utf8");
 const casesSource = source.slice(source.indexOf("const CASES"), source.indexOf('describe("visual baselines"'));
 
-const components = manifest.items.filter((item) => item.type === "ui").map((item) => item.name);
+// Blocks too: a block is a composition, and a composition is exactly where a
+// part's spacing, divider or alignment goes wrong while every part's own
+// baseline stays green. StatTiles and ChartCard shipped without a case because
+// this line read `type === "ui"` alone.
+const VISUAL_TYPES = new Set(["ui", "block"]);
+const components = manifest.items.filter((item) => VISUAL_TYPES.has(item.type)).map((item) => item.name);
 
 /**
  * Cases that are not one component: a MODE drawn across several. Each needs
@@ -36,7 +41,7 @@ if (source.indexOf("const CASES") === -1 || source.indexOf('describe("visual bas
 }
 if (duplicates.length) errors.push(`duplicate visual cases: ${[...new Set(duplicates)].join(", ")}`);
 if (missing.length) errors.push(`manifest components without a visual case: ${missing.join(", ")}`);
-if (unknown.length) errors.push(`visual cases not present as manifest UI items: ${unknown.join(", ")}`);
+if (unknown.length) errors.push(`visual cases not present as manifest UI or block items: ${unknown.join(", ")}`);
 if (staleSystem.length) errors.push(`SYSTEM_CASES lists cases the matrix no longer has: ${staleSystem.join(", ")}`);
 
 if (errors.length) {

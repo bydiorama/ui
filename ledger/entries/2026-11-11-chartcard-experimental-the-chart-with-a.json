@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-chartcard-experimental-the-chart-with-a",
+  "date": "2026-11-11",
+  "item": "chart-card",
+  "kind": "addition",
+  "summary": "ChartCard (experimental): the Chart with a stat tile's figure and change under its title, by default over one fading area. The description stays required and stays the accessible description, but is not printed — decided 2026-11-11. Any Chart mark goes in as children.",
+  "affects": [
+    "item:chart-card"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0"
+  }
+}

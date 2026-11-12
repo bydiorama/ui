@@ -40,6 +40,7 @@
       "@/lib/menu-surface": ["./registry/lib/menu-surface/menu-surface.ts"],
       "@/lib/motion": ["./registry/lib/motion/motion.ts"],
       "@/lib/fade-ramp": ["./registry/lib/fade-ramp/fade-ramp.ts"],
+      "@/lib/viz": ["./registry/lib/viz/viz.ts"],
       "@/lib/fx": ["./registry/lib/fx/fx.ts"],
       "@/lib/shader": ["./registry/lib/shader/shader.ts"],
       "@/lib/shader-programs": ["./registry/lib/shader/shader-programs.ts"],
@@ -60,6 +61,7 @@
       "@/ui/fade": ["./registry/ui/fade/fade.tsx"],
       "@/ui/badge": ["./registry/ui/badge/badge.tsx"],
       "@/ui/button": ["./registry/ui/button/button.tsx"],
+      "@/ui/table": ["./registry/ui/table/table.tsx"],
       "@/ui/calendar": ["./registry/ui/calendar/calendar.tsx"],
       "@/ui/checkbox": ["./registry/ui/checkbox/checkbox.tsx"],
       "@/ui/menu": ["./registry/ui/menu/menu.tsx"],
@@ -68,7 +70,15 @@
       "@/ui/slider": ["./registry/ui/slider/slider.tsx"],
       "@/ui/header": ["./registry/ui/header/header.tsx"],
       "@/ui/sheet": ["./registry/ui/sheet/sheet.tsx"],
-      "@/ui/*": ["./registry/ui/*"]
+      "@/ui/chart": ["./registry/ui/chart/chart.tsx"],
+      "@/components/blocks/stat-tiles": ["./registry/blocks/stat-tiles/stat-tiles.tsx"],
+      "@/ui/*": ["./registry/ui/*"],
+      // Blocks (Phase 3) install to `components/blocks/<name>.tsx`: every
+      // shadcn components.json already declares the `components` alias, so a
+      // consumer adds nothing. This is the folder form tests and stories use;
+      // a distributed file that imports a block needs a consumer-form entry
+      // (`@/components/blocks/<name>`) above it, as `@/ui/*` does.
+      "@/blocks/*": ["./registry/blocks/*"]
     }
   },
   "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx", "registry/**/*.ts", "registry/**/*.tsx"],

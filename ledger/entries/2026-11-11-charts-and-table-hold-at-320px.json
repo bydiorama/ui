@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-charts-and-table-hold-at-320px",
+  "date": "2026-11-11",
+  "item": "chart",
+  "kind": "fix",
+  "summary": "Three failures found by checking the market-intelligence stand-in screen at 320px against the better-layout reflow rule. Category names on a chart's x axis ran together (\"PostersTypographyWayfinding…\"): the axis now spaces its labels by the widest name plus 8px, guessed from the character count so the server agrees and corrected by measurement after paint, and a name thinned away is still in the tooltip, the announcement and the table view. A horizontal bar chart's fixed 168px name lane left the bars 8px: the lane is now capped at 40% of the row, which only binds below a 420px row, and a truncated name carries its full text as a title. And Table's scroll clip was not a containing block, so visually hidden text in a cell (the screen's \"Not ranked\") was placed against the page and scrolled it 33px sideways; the clip is now relative. Table's knownGaps also records that a fixed table whose declared lanes exceed its frame gives the flexing column 0px — the screen now sets minWidth.",
+  "affects": [
+    "item:chart",
+    "item:table",
+    "slot:chart-x-axis",
+    "slot:chart-y-axis",
+    "slot:table-body-clip"
+  ]
+}

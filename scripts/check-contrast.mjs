@@ -48,10 +48,15 @@ function measure(scheme, fg, bg) {
 
 function docFiles() {
   const out = [];
-  const uiDir = join(ROOT, "registry/ui");
-  for (const dir of readdirSync(uiDir)) {
-    const file = join(uiDir, dir, `${dir}.doc.ts`);
-    if (existsSync(file)) out.push(file);
+  // Components and blocks both declare contrast pairs in their docs; a
+  // block walked past here would ship pairs nobody measured.
+  for (const root of ["registry/ui", "registry/blocks"]) {
+    const base = join(ROOT, root);
+    if (!existsSync(base)) continue;
+    for (const dir of readdirSync(base)) {
+      const file = join(base, dir, `${dir}.doc.ts`);
+      if (existsSync(file)) out.push(file);
+    }
   }
   return out;
 }

@@ -2,6 +2,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "vitest/config";
+import type { BrowserCommand } from "vitest/node";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import react from "@vitejs/plugin-react";
@@ -24,12 +25,27 @@ function uiItems(...names: string[]): Record<string, string> {
   );
 }
 
+/**
+ * Turns Chromium's forced-colours emulation on or off for the test page.
+ *
+ * Before this, forced colours could only be checked by finding a matching
+ * `@media (forced-colors: active)` rule in the stylesheet, which proves the
+ * rule exists and nothing about what it paints. With the media emulated,
+ * `getComputedStyle` answers in forced colours, so a test can read the
+ * resolved value. Callers must turn it off again in `afterEach`.
+ * Declared for tests in `registry/test/browser-commands.d.ts`.
+ */
+const setForcedColors: BrowserCommand<[active: boolean]> = async (ctx, active) => {
+  await ctx.page.emulateMedia({ forcedColors: active ? "active" : "none" });
+};
+
 /** A fresh provider per project — vitest cannot share one factory instance. */
 const browser = () => ({
   enabled: true as const,
   provider: playwright(),
   headless: true,
   instances: [{ browser: "chromium" as const }],
+  commands: { setForcedColors },
 });
 
 /**
@@ -78,6 +94,7 @@ export default defineConfig({
       "@base-ui/react/slider",
       "@base-ui/react/tabs",
       "@base-ui/react/toast",
+      "@base-ui/react/tooltip",
       "griddy-icons",
       "clsx", "tailwind-merge",
     ],
@@ -93,6 +110,7 @@ export default defineConfig({
       "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
       "@/lib/motion": join(root, "registry/lib/motion/motion.ts"),
       "@/lib/fade-ramp": join(root, "registry/lib/fade-ramp/fade-ramp.ts"),
+      "@/lib/viz": join(root, "registry/lib/viz/viz.ts"),
       "@/lib/fx": join(root, "registry/lib/fx/fx.ts"),
       "@/lib/shader-programs": join(root, "registry/lib/shader/shader-programs.ts"),
       "@/lib/shader": join(root, "registry/lib/shader/shader.ts"),
@@ -102,8 +120,10 @@ export default defineConfig({
       ),
       "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
       "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
-      ...uiItems("aspect-ratio", "badge", "button", "calendar", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider"),
+      ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider", "table"),
       "@/ui": join(root, "registry/ui"),
+      "@/components/blocks/stat-tiles": join(root, "registry/blocks/stat-tiles/stat-tiles.tsx"),
+      "@/blocks": join(root, "registry/blocks"),
       "@bydiorama/tokens": join(root, "packages/tokens/src/index.ts"),
     },
   },

@@ -14,9 +14,19 @@ import { join } from "node:path";
 import { ROOT } from "./lib/manifest.mjs";
 import { classesIn, stripComments, walk } from "./lib/classes.mjs";
 
-const { toTailwindTheme } = await import(
+const { toTailwindTheme, TYPE_ROLES } = await import(
   join(ROOT, "packages/tokens/src/index.ts")
 );
+
+/**
+ * The type sizes, from the type table itself. This was a name pattern
+ * (`body-…`, `title-…`, `caption`) until `--ui-text-figure`, the first role
+ * outside it: the pattern missed `text-figure`, the ink-intent fallback at
+ * the end of the table caught it, and the gate demanded `--color-figure` —
+ * a correct utility rejected because the list of roles lived here twice.
+ */
+const TYPE_SIZE_NAMES = Object.keys(TYPE_ROLES).map((t) => t.replace(/^--ui-text-/, ""));
+const TYPE_SIZE = new RegExp(`^text-(${TYPE_SIZE_NAMES.join("|")})$`);
 
 const declared = new Set(
   [...toTailwindTheme().matchAll(/^\s*(--[\w-]+):/gm)].map((m) => m[1]),
@@ -68,8 +78,14 @@ const NAMESPACES = [
   // (`from-0%`, `to-90%`) starts with a digit and is waved through below as a
   // built-in, exactly as `ring-1` and `p-0` are.
   [/^(?:from|via|to)-(.+)$/, "--color-"],
+  // SVG paint. Absent until Sparkline, the first component to draw its marks
+  // as SVG shapes rather than boxes — so a `stroke-data-cat-9-solid` typo
+  // would have emitted nothing and drawn an invisible line. Widths are never
+  // utilities here: a stroke width is `var(--ui-stroke-*)` in a style object
+  // (check:strokes), so everything after the prefix is a colour.
+  [/^(?:fill|stroke)-(.+)$/, "--color-"],
   [/^text-ink-(.+)$/, "--color-ink-"],
-  [/^text-(button-.+|body-.+|title-.+|display-.+|label-.+|caption)$/, "--text-"],
+  [TYPE_SIZE, "--text-"],
   [/^ring-(.+)$/, "--color-"],
   // Border COLOUR (widths/styles are numeric or keywords, filtered below).
   // Absent until Input arrived, because Button draws its resting edge with a
@@ -113,7 +129,11 @@ const NAMESPACES = [
     // `inset-x`/`inset-y` come BEFORE `inset`: alternation is left-to-right,
     // so a bare `inset` would match first and look up `--spacing-y-0`. Sheet
     // was the first component to want `inset-y-0` and reported it as missing.
-    /^(?:gap|gap-x|gap-y|p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|space-x|space-y|size|w|h|min-w|min-h|max-w|max-h|inset-x|inset-y|inset|top|bottom|left|right|start|end|translate-x|translate-y|scroll-m|scroll-p)-(.+)$/,
+    // `gap-x`/`gap-y` before `gap`, for the reason `inset-x` precedes
+    // `inset`: given `gap-x-lg`, a bare `gap` matches first, the capture
+    // takes `x-lg` and the gate demands `--spacing-x-lg`. StatTiles is the
+    // first to set the two axes of a grid gap apart.
+    /^(?:gap-x|gap-y|gap|p|px|py|pt|pb|pl|pr|ps|pe|m|mx|my|mt|mb|ml|mr|ms|me|space-x|space-y|size|w|h|min-w|min-h|max-w|max-h|inset-x|inset-y|inset|top|bottom|left|right|start|end|translate-x|translate-y|scroll-m|scroll-p)-(.+)$/,
     "--spacing-",
   ],
   [/^rounded(?:-[trbl]{1,2})?-(.+)$/, "--radius-"],

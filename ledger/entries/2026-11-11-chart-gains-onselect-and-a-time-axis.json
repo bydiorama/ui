@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-chart-gains-onselect-and-a-time-axis",
+  "date": "2026-11-11",
+  "item": "chart",
+  "kind": "addition",
+  "summary": "Chart gains onSelect and xScale=\"time\". onSelect fires on Enter or Space on the focused point (with its series key) and on a click on a category (series null when the band holds several); the plot takes cursor-pointer only when it is set, and the chart keeps and draws no selected state because no sheet draws one. xScale=\"time\" places line and area points at their Dates (ascending, parsed by the caller), with ticks on whole UTC years, months or days from new lib/viz helpers (timeTicks, timePositions, tickDateFormat, pointDateFormat); the table, tooltip and announcement print each point's own date. BarChart refuses the time axis in its type; Chart throws on a non-Date, unsorted rows or bars on a time axis.",
+  "affects": [
+    "item:chart",
+    "item:viz"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

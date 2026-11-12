@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-11-aspekta-has-no-tabular-figures",
+  "date": "2026-11-11",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0011 item 5 checked: Aspekta ships no `tnum` feature and its default digits are proportional (367–602 units), so `font-variant-numeric: tabular-nums` is a no-op wherever the library uses it. Figures still right-align on their last digit; they do not line up digit by digit, and a figure that changes in place (tooltip, meter reading, slider readout) changes width. Filed against the face as ADR 0011 directs, not answered with a second family. Chart, ChartCard, StatTiles, Meter, Table and RangeSlider list the gap; registry/fonts/aspekta/aspekta.test.ts pins the measurement and fails when a font update adds the feature. No code or visual change.",
+  "affects": [
+    "item:chart",
+    "item:chart-card",
+    "item:stat-tiles",
+    "item:meter",
+    "item:table",
+    "item:range-slider"
+  ]
+}

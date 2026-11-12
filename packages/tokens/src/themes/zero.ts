@@ -229,6 +229,16 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-data-navigational-fg": LAVENDER[40],
     "--ui-data-navigational-bg": LAVENDER[90],
     "--ui-data-navigational-solid": LAVENDER[60],
+    // Ordinal chart slots (ADR 0023): the vivid set from the Paper Charts
+    // page. Pinned so the approved marks are the audit's input, not its output.
+    "--ui-data-cat-1-solid": "#099DC4",
+    "--ui-data-cat-2-solid": "#DB7605",
+    "--ui-data-cat-3-solid": "#837CFE",
+    "--ui-data-cat-4-solid": "#01A056",
+    "--ui-data-cat-5-solid": "#C35BCB",
+    "--ui-data-cat-6-solid": "#018D82",
+    "--ui-data-cat-7-solid": "#5C6402",
+    "--ui-data-cat-8-solid": "#B82164",
   },
 
   // WARM INK (ADR 0008, amended 2026-11-03) — the approved Paper boards
@@ -384,6 +394,16 @@ export const ZERO_AUTHORED: { light: Partial<ResolvedTheme>; dark: Partial<Resol
     "--ui-data-commercial-solid": ORANGE[70],
     "--ui-data-transactional-solid": GREEN[70],
     "--ui-data-navigational-solid": LAVENDER[70],
+    // The vivid dark steps drawn on the Paper Charts page: the same hues,
+    // re-toned for the warm-ink surface (4.83:1 or better for slots 1-3).
+    "--ui-data-cat-1-solid": "#0993BD",
+    "--ui-data-cat-2-solid": "#D57704",
+    "--ui-data-cat-3-solid": "#8281FE",
+    "--ui-data-cat-4-solid": "#02AE65",
+    "--ui-data-cat-5-solid": "#CB63D3",
+    "--ui-data-cat-6-solid": "#06A295",
+    "--ui-data-cat-7-solid": "#929F01",
+    "--ui-data-cat-8-solid": "#D4407B",
   },
 };
 

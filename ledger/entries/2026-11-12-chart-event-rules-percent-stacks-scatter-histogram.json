@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chart-event-rules-percent-stacks-scatter-histogram",
+  "date": "2026-11-12",
+  "item": "chart",
+  "kind": "addition",
+  "summary": "Chart grows the P1 forms the V2 stand-in asked for. Chart.Rule takes `at` (a category, date or number) and draws a vertical event rule labelled at the top of the plot. `isStacked={{ isPercent: true }}` normalises each category to 100% (the axis reads 0–100%; the tooltip and announcer say \"60% (120)\"; negatives throw). `xScale=\"linear\"` gives a numeric x axis, and Chart.Dots draws markers in a 2px surface ring, with `areaKey`/`areaLabel` for bubbles. New presets ScatterPlot and Histogram (bins from lib/viz, adjacent bars). Scatter hit-testing is nearest-dot within 24px; the baseline is clamped to the plot floor when zero is outside the y domain. Not yet drawn in Paper: recorded in the doc's needsDesign.",
+  "affects": [
+    "prop:Rule.at",
+    "prop:isStacked",
+    "prop:xScale",
+    "prop:xFormat",
+    "slot:Chart.Dots",
+    "prop:Bars.isAdjacent",
+    "export:ScatterPlot",
+    "export:Histogram"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

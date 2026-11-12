@@ -25,7 +25,7 @@ Sparkline
 ├─ description    string (required) — the takeaway, in words
 ├─ variant?       line | area | column
 ├─ series?        1…8 — the categorical slot
-├─ size?          md (160×40) | sm (120×32)
+├─ size?          md (160×40) | sm (120×32) | xs (64×20)
 ├─ domain?        [min, max] — share one across a column of sparklines
 ├─ hasEndMarker?  default true (line, area)
 └─ isLoading?
@@ -37,7 +37,7 @@ Sparkline
     description: { type: "string", required: true, notes: "Required by the type, because it is what replaces the data table every other chart must ship. Write the takeaway a reader should leave with ('Rose 12% since January, peaking in October'), not 'a sparkline'." },
     variant: { type: '"line" | "area" | "column"', default: '"line"', notes: "All three are on the sheet. Columns stand on ZERO, never on the minimum: a column's length is its value." },
     series: { type: "1 | 2 | 3 | 4 | 5 | 6 | 7 | 8", default: "1", notes: "The ordinal data slot (--ui-data-cat-N). Use the slot this series has in the full chart it summarises, so colour keeps meaning one thing across a screen. Not `slot`: that is a global HTML attribute." },
-    size: { type: '"md" | "sm"', default: '"md"', notes: "160×40 and 120×32, the two sizes the sheet draws. Fixed, not fluid: a stretched sparkline exaggerates its own slope." },
+    size: { type: '"md" | "sm" | "xs"', default: '"md"', notes: "160×40 and 120×32, the two sizes the sheet draws, and xs 64×20 for a table row's trend (the library's own reading; see needsDesign). Fixed, not fluid: a stretched sparkline exaggerates its own slope." },
     hasEndMarker: { type: "boolean", default: "true", notes: "The ringed dot on the latest value. On by default because a trend that does not mark where it ends does not say where it is now. Ignored for columns." },
     domain: { type: "readonly [number, number]", notes: "Line and area: the value range the height spans. Default is the series' own min–max, which stretches any wobble to full height — right alone, wrong in a column of sparklines, where a flat 12 ↔ 13 draws like a crash beside a real one. Pass ONE domain to every sparkline in the column — only when the rows share a unit (an index, a share); raw volumes of very different sizes would flatten every small row, and those want their own range. Widened to hold every value, so it never clips. Columns ignore it: they stand on zero." },
     isLoading: { type: "boolean", default: "false", notes: "Reserves the box with a sunken skeleton and sets aria-busy. The name and description stay, so a screen reader is not handed a nameless busy image." },
@@ -71,6 +71,10 @@ Sparkline
     ref: "root (an HTMLDivElement)",
     rest: "root — every HTML attribute except role and children, which the component owns",
   },
+
+  needsDesign: [
+    "The xs size (64×20) for a trend inside a table row: the library's reading of the stand-in screen's keyword column. The sheet draws 160×40 and 120×32 only; at 20px the end marker's 6px ring leaves an 8px band for the line, which may want a smaller marker.",
+  ],
 
   knownGaps: [
     "The marker ring is painted bg-surface, as drawn. On bg-base (the page) it shows as a faint disc in light; a ground-following ring needs a token or a mask, and the sheet never drew the page case.",

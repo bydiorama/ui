@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { MARKER_SHAPES, arcPath, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
+import { MARKER_SHAPES, arcPath, bins, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
 
 const BOX = { width: 160, height: 40, inset: { top: 6, right: 8, bottom: 6, left: 2 } } as const;
 
@@ -202,4 +202,24 @@ test("timePositions spaces points by time, not by index", () => {
   assert.equal(xs[2], 108);
   assert.ok(Math.abs(xs[1]! - 18) < 0.05, `one year of ten lands a tenth of the way: ${xs[1]}`);
   assert.deepEqual(timePositions([5], 100), [50]);
+});
+
+test("valueAxis zero:false hugs the data for a scatter's axis", () => {
+  assert.deepEqual(valueAxis([42, 58, 71], 4, { zero: false }).ticks, [40, 50, 60, 70, 80]);
+  // The default still reaches zero.
+  assert.equal(valueAxis([42, 71], 4).ticks[0], 0);
+  // One value sits mid-axis rather than collapsing the scale.
+  const one = valueAxis([50], 4, { zero: false });
+  assert.ok(one.domain[0] < 50 && one.domain[1] > 50);
+});
+
+test("bins: nice edges, every value counted once, the maximum in the last bin", () => {
+  const b = bins([3, 7, 12, 18, 19, 20, 41], 4);
+  assert.deepEqual(b.map((x) => [x.x0, x.x1]), [[0, 10], [10, 20], [20, 30], [30, 40], [40, 50]].slice(0, b.length));
+  assert.equal(b.reduce((n, x) => n + x.count, 0), 7);
+  const exact = bins([0, 10, 20], 2);
+  assert.equal(exact.at(-1)!.x1, 20);
+  assert.equal(exact.reduce((n, x) => n + x.count, 0), 3);
+  assert.deepEqual(bins([], 4), []);
+  assert.deepEqual(bins([5, 5], 4).map((x) => x.count), [2]);
 });

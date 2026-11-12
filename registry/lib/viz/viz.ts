@@ -247,17 +247,26 @@ export interface ValueAxis {
 
 /**
  * A value axis with a FIXED number of intervals (the anatomy sheet: "fixed
- * count of five" ticks), on nice steps, that always contains zero — a bar's
+ * count of five" ticks), on nice steps, that contains zero unless told not to — a bar's
  * length is its value, and a line chart on the same frame reads alike. The
  * step grows until the data fits, so a negative minimum costs resolution, not
  * a sixth tick.
  */
-export function valueAxis(values: readonly number[], intervals: number): ValueAxis {
+export function valueAxis(values: readonly number[], intervals: number, { zero = true }: { zero?: boolean } = {}): ValueAxis {
   const n = Math.max(1, Math.round(intervals));
   const ext = extent(values);
-  const lo = Math.min(0, ext?.[0] ?? 0);
-  const hi = Math.max(0, ext?.[1] ?? 0);
+  // `zero: false` is a scatter's axis: position, not length, carries the
+  // value, so the domain hugs the data instead of reaching back to 0.
+  const lo = zero ? Math.min(0, ext?.[0] ?? 0) : (ext?.[0] ?? 0);
+  const hi = zero ? Math.max(0, ext?.[1] ?? 0) : (ext?.[1] ?? 0);
   if (lo === hi) {
+    if (!zero && Number.isFinite(lo)) {
+      // One value: a step either side of it, so it sits mid-axis.
+      const step = niceStep(Math.abs(lo) / n || 1);
+      const start = Math.floor(lo / step) * step - step * Math.floor(n / 2);
+      const ticks = Array.from({ length: n + 1 }, (_, i) => Number((start + i * step).toPrecision(12)));
+      return { domain: [ticks[0]!, ticks[n]!], ticks };
+    }
     const ticks = Array.from({ length: n + 1 }, (_, i) => i);
     return { domain: [0, n], ticks };
   }
@@ -543,4 +552,39 @@ export function timePositions(values: readonly number[], width: number, inset = 
   if (values.length === 1 || last === first) return values.map(() => round(width / 2));
   const x = linearScale([first, last], [inset, width - inset]);
   return values.map((v) => round(x(v)));
+}
+
+export interface Bin {
+  /** Inclusive lower edge. */
+  readonly x0: number;
+  /** Exclusive upper edge — inclusive for the last bin, so the maximum counts. */
+  readonly x1: number;
+  readonly count: number;
+}
+
+/**
+ * A histogram's bins: about `count` of them on NICE edges (10–20, not
+ * 9.7–19.4), covering every finite value. Non-finite values are dropped.
+ * Deterministic: the same values always give the same edges.
+ */
+export function bins(values: readonly number[], count = 10): Bin[] {
+  const xs = finite(values);
+  const ext = extent(xs);
+  if (!ext) return [];
+  const [lo, hi] = ext;
+  const n = Math.max(1, Math.round(count));
+  const step = lo === hi ? niceStep(Math.abs(lo) || 1) : niceStep((hi - lo) / n);
+  const start = Math.floor(lo / step) * step;
+  // The maximum falls in the last bin, inclusive, rather than opening a new one.
+  const k = Math.max(1, Math.ceil((hi - start) / step));
+  const out = Array.from({ length: k }, (_, i) => ({
+    x0: Number((start + i * step).toPrecision(12)),
+    x1: Number((start + (i + 1) * step).toPrecision(12)),
+    count: 0,
+  }));
+  for (const v of xs) {
+    const i = Math.min(k - 1, Math.floor((v - start) / step));
+    out[i]!.count += 1;
+  }
+  return out;
 }

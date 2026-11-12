@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-charts-tier-thresholds-measured",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "decision",
+  "summary": "The Phase V0 rendering spike measured SVG, Canvas 2D and WebGL at 500 to 50k nodes in the pinned Chromium, headed on a GPU, at 1× and 4× CPU (the phone stand-in; no phone was available). Restyling every SVG node misses 60 fps at 3k on the throttled CPU, and Canvas 2D at 30k, so the tiers are SVG ≤ ~2k, Canvas 2D ~2k–~20k, WebGL above (it was ~30k as a guess). Headless Chromium renders in software and cannot measure a tier. Numbers in docs/charts-and-graphs-plan.md §3.2; the V5 candidates are checked in docs/charts-v5-extensions.md.",
+  "affects": [
+    "doc:charts-and-graphs-plan",
+    "doc:charts-v5-extensions"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

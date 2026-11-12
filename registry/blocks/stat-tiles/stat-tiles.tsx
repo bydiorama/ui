@@ -30,8 +30,20 @@ export interface StatDeltaProps {
   comparison: string;
   /** Default `up-is-good`. Decides the colour only — never the glyph. */
   polarity?: StatPolarity;
-  /** Default `{ style: "percent", maximumFractionDigits: 0 }`. */
+  /**
+   * `percent` (default): a relative change, printed "12%". `points`: a change
+   * of a SHARE, printed "2.1 pp" — a share going from 40% to 42% rose two
+   * percentage points, not 5%, and `Intl` has no unit for that. Both take
+   * `change` as a fraction (0.021 = 2.1 points).
+   */
+  unit?: "percent" | "points";
+  /** Default `{ style: "percent", maximumFractionDigits: 0 }`, or for
+   *  `points` `{ maximumFractionDigits: 1 }`, applied to the points. */
   format?: Intl.NumberFormatOptions;
+  /** The printed points suffix. Default "pp". */
+  pointsSuffix?: string;
+  /** What a screen reader hears for the suffix. Default "percentage points". */
+  pointsLabel?: string;
   locale?: string;
   /** Spoken before the change, since the glyph is hidden. Default "Up". */
   upLabel?: string;
@@ -50,20 +62,25 @@ export function StatDelta({
   change,
   comparison,
   polarity = "up-is-good",
-  format = { style: "percent", maximumFractionDigits: 0 },
+  unit = "percent",
+  format = unit === "points" ? { maximumFractionDigits: 1 } : { style: "percent", maximumFractionDigits: 0 },
+  pointsSuffix = "pp",
+  pointsLabel = "percentage points",
   locale,
   upLabel = "Up",
   downLabel = "Down",
   flatLabel = "No change",
 }: StatDeltaProps) {
   const formatter = new Intl.NumberFormat(locale, format);
-  const formatted = formatter.format(Math.abs(change));
+  // Points are the fraction scaled to the percent it is a change of.
+  const magnitude = Math.abs(unit === "points" ? change * 100 : change);
+  const formatted = formatter.format(magnitude);
   // A change that rounds to zero in the printed format IS no change to the
   // reader: "↗ 0%" in green would claim a movement nobody can see. Read off
   // the formatted digits, so it holds for any `format` the caller passes.
   const printsZero = Number(
     formatter
-      .formatToParts(Math.abs(change))
+      .formatToParts(magnitude)
       .filter((p) => p.type === "integer" || p.type === "fraction")
       .map((p) => p.value)
       .join(""),
@@ -84,6 +101,12 @@ export function StatDelta({
           <span data-slot="stat-change" className="font-body text-label-sm tabular-nums">
             <span className="sr-only">{direction === "up" ? upLabel : downLabel} </span>
             {formatted}
+            {unit === "points" && (
+              <>
+                <span aria-hidden="true">{`\u2009${pointsSuffix}`}</span>
+                <span className="sr-only"> {pointsLabel}</span>
+              </>
+            )}
           </span>
           <span data-slot="stat-comparison" className="font-body text-label-sm font-regular text-ink-muted">
             {comparison}

@@ -5,7 +5,7 @@ import { renderToString } from "react-dom/server";
 import { act } from "react";
 import type { ReactElement } from "react";
 
-import { AreaChart, BarChart, Chart, LineChart } from "./chart.tsx";
+import { AreaChart, BarChart, Chart, Histogram, LineChart, ScatterPlot } from "./chart.tsx";
 
 const PRINTED = [
   { year: 1957, posters: 120, books: 80 },
@@ -847,5 +847,255 @@ describe("The legend toggles series (Bar sheet: Legend toggle)", () => {
     // Two legend entries, then the plot.
     await userEvent.keyboard("{Tab}{Tab}{Tab}{Tab}{ArrowUp}");
     await expect.poll(() => q("chart-announcer").textContent).toBe("1957, Books, 80");
+  });
+});
+
+describe("An event rule runs down the plot (the stand-in screen's \"Repositioned\")", () => {
+  test("at a category: solid, border-strong, the plot's full height, centred on the category", async () => {
+    const { q } = await mount(
+      <Chart size="sm" label="x" description="y" data={PRINTED} x="year" xLabel="Year" series={[TWO[0]!]}>
+        <Chart.Lines />
+        <Chart.Rule at="1967" label="Repositioned" />
+      </Chart>,
+    );
+    const rule = q("chart-rule");
+    expect(rule.dataset.axis).toBe("x");
+    const path = rule.querySelector("path")!;
+    expect(getComputedStyle(path).stroke).toBe(tokenColor("--ui-border-strong"));
+    expect(getComputedStyle(path).strokeDasharray).toBe("none");
+    const box = path.getBoundingClientRect();
+    expect(Math.round(box.height)).toBe(160);
+    // The 1967 tick is centred on the same x.
+    const tick = [...container!.querySelectorAll<HTMLElement>('[data-slot="chart-x-axis"] [data-slot="chart-tick"]')].find((t) => t.textContent === "1967")!;
+    const t = tick.getBoundingClientRect();
+    expect(Math.abs(box.left + box.width / 2 - (t.left + t.width / 2))).toBeLessThan(1.5);
+    expect(q("chart-rule-label").textContent).toBe("Repositioned");
+  });
+
+  test("near the plot's end the label turns to the line's left, so it never overhangs the frame", async () => {
+    const { q } = await mount(
+      <Chart size="sm" label="x" description="y" data={PRINTED} x="year" xLabel="Year" series={[TWO[0]!]}>
+        <Chart.Lines />
+        <Chart.Rule at="1975" label="Repositioned" />
+      </Chart>,
+    );
+    const label = q("chart-rule-label");
+    expect(label.dataset.placement).toBe("start");
+    expect(label.getBoundingClientRect().right).toBeLessThanOrEqual(q("chart-plot").getBoundingClientRect().right);
+  });
+
+  test("on a time axis it sits at its date, between the rows", async () => {
+    const rows = [1951, 1953, 1961].map((y, i) => ({ when: new Date(Date.UTC(y, 0, 1)), n: [100, 200, 300][i]! }));
+    const { q } = await mount(
+      <Chart xScale="time" size="sm" label="x" description="y" data={rows} x="when" xLabel="Year" series={[{ key: "n", label: "Posters" }]}>
+        <Chart.Lines />
+        <Chart.Rule at={new Date(Date.UTC(1956, 0, 1))} label="New press" />
+      </Chart>,
+    );
+    // The x axis spans the plotted width (the direct-label lane excluded).
+    const axis = q("chart-x-axis").getBoundingClientRect();
+    const x = q("chart-rule").querySelector("path")!.getBoundingClientRect().left - axis.left;
+    // 1956 is half-way from 1951 to 1961 (to within a leap day).
+    expect(Math.abs(x - axis.width / 2)).toBeLessThan(4);
+  });
+
+  test("an `at` that names nothing on the axis is refused, not silently dropped", () => {
+    const quiet = console.error;
+    console.error = () => {};
+    try {
+      expect(() =>
+        renderToString(
+          <Chart label="x" description="y" data={PRINTED} x="year" xLabel="Year" series={[TWO[0]!]}>
+            <Chart.Lines />
+            <Chart.Rule at="1999" label="Nothing" />
+          </Chart>,
+        ),
+      ).toThrow(/must name a category/);
+    } finally {
+      console.error = quiet;
+    }
+  });
+});
+
+describe("A percent stack fills every category to 100%", () => {
+  const percent = () => (
+    <BarChart
+      label="Share of printed work"
+      description="Posters were most of the output every year."
+      data={PRINTED}
+      x="year"
+      xLabel="Year"
+      series={TWO}
+      isStacked={{ isPercent: true }}
+    />
+  );
+
+  test("the value axis runs 0–100% and every column reaches the top", async () => {
+    const { q, all } = await mount(percent());
+    expect(all("chart-tick").slice(0, 5).map((t) => t.textContent)).toEqual(["0%", "25%", "50%", "75%", "100%"]);
+    const plot = q("chart-plot").getBoundingClientRect();
+    const tops = all("chart-series")[1]!.querySelectorAll("path");
+    for (const p of tops) expect(Math.round(p.getBoundingClientRect().top - plot.top)).toBe(0);
+  });
+
+  test("the announcement says the share, then the value; the table keeps the values", async () => {
+    const { q } = await mount(percent());
+    await userEvent.keyboard("{Tab}{Tab}{Tab}{Tab}");
+    // 1957: 120 of 200 posters = 60%.
+    await expect.poll(() => q("chart-announcer").textContent).toBe("1957, Posters, 60% (120)");
+    await userEvent.click(q("chart-table-toggle"));
+    expect(q("chart-table").textContent).toContain("120");
+    expect(q("chart-table").textContent).not.toContain("60%");
+  });
+
+  test("a negative value is refused: it has no share of a whole", () => {
+    const quiet = console.error;
+    console.error = () => {};
+    try {
+      expect(() =>
+        renderToString(
+          <BarChart label="x" description="y" data={[{ year: 1, posters: -1, books: 2 }]} x="year" xLabel="Year" series={TWO} isStacked={{ isPercent: true }} />,
+        ),
+      ).toThrow(/negative value has no share/);
+    } finally {
+      console.error = quiet;
+    }
+  });
+});
+
+describe("A scatter places each reading by x and y", () => {
+  // Shuffled on purpose: the plot sorts by x.
+  const BRANDS = [
+    { share: 31, growth: 12, searches: 900, name: "Tschichold" },
+    { share: 8, growth: 4, searches: 100, name: "Crouwel" },
+    { share: 22, growth: -6, searches: 400, name: "Frutiger" },
+  ];
+  const scatter = (extra: Record<string, unknown> = {}) => (
+    <ScatterPlot
+      label="Market map"
+      description="Larger brands grew faster."
+      data={BRANDS}
+      x="share"
+      xLabel="Share"
+      xFormat={{ style: "unit", unit: "percent" }}
+      series={[{ key: "growth", label: "Growth" }]}
+      {...extra}
+    />
+  );
+
+  test("the x axis hugs the data, dots sit at their values, no crosshair, no direct label", async () => {
+    const { q, all } = await mount(scatter());
+    const xs = all("chart-tick").filter((t) => t.closest('[data-slot="chart-x-axis"]')).map((t) => t.textContent);
+    expect(xs[0]).not.toBe("0%");
+    expect(all("chart-dot")).toHaveLength(3);
+    expect(container!.querySelector('[data-slot="chart-direct-label"]')).toBeNull();
+    // Left to right in x order, whatever order the rows came in.
+    const lefts = all("chart-dot").map((d) => d.getBoundingClientRect().left);
+    expect([...lefts].sort((a, b) => a - b)).toEqual(lefts);
+    await userEvent.hover(all("chart-dot")[0]!);
+    expect(container!.querySelector('[data-slot="chart-crosshair"]')).toBeNull();
+    void q;
+  });
+
+  test("the keyboard walks dots in x order and names the x it measures", async () => {
+    const { q } = await mount(scatter());
+    await userEvent.keyboard("{Tab}{Tab}");
+    await expect.poll(() => q("chart-announcer").textContent).toBe("Share 8%, Growth, 4");
+    await userEvent.keyboard("{ArrowRight}");
+    await expect.poll(() => q("chart-announcer").textContent).toBe("Share 22%, Growth, -6");
+  });
+
+  test("onSelect gets the row's index in the data as given, not as sorted", async () => {
+    const picked: number[] = [];
+    const { q } = await mount(scatter({ onSelect: (s: { index: number }) => picked.push(s.index) }));
+    await userEvent.keyboard("{Tab}{Tab}{Enter}");
+    expect(picked).toEqual([1]);
+    void q;
+  });
+
+  test("a bubble's area follows its measure, which the table and announcement carry", async () => {
+    const { q, all } = await mount(scatter({ areaKey: "searches", areaLabel: "Searches" }));
+    const sizes = all("chart-dot").map((d) => d.getBoundingClientRect().width);
+    // 100, 400, 900 searches: areas 1 : 4 : 9 above the smallest dot.
+    expect(sizes[0]!).toBeLessThan(sizes[1]!);
+    expect(sizes[1]!).toBeLessThan(sizes[2]!);
+    await userEvent.keyboard("{Tab}{Tab}");
+    await expect.poll(() => q("chart-announcer").textContent).toBe("Share 8%, Growth, 4, Searches 100");
+    await userEvent.click(q("chart-table-toggle"));
+    expect(q("chart-table").textContent).toContain("Searches");
+    expect(q("chart-table").textContent).toContain("900");
+  });
+
+  test("two rules quarter it: a value rule across, an `at` rule down", async () => {
+    const { all } = await mount(
+      <Chart xScale="linear" label="x" description="y" data={BRANDS} x="share" xLabel="Share" series={[{ key: "growth", label: "Growth" }]}>
+        <Chart.Dots />
+        <Chart.Rule value={0} label="No growth" />
+        <Chart.Rule at={20} label="Leaders" />
+      </Chart>,
+    );
+    expect(all("chart-rule").map((r) => r.dataset.axis ?? "y")).toEqual(["y", "x"]);
+  });
+
+  test("bars on a linear axis are refused", () => {
+    const quiet = console.error;
+    console.error = () => {};
+    try {
+      expect(() =>
+        renderToString(
+          <Chart xScale="linear" label="x" description="y" data={BRANDS} x="share" xLabel="Share" series={[{ key: "growth", label: "Growth" }]}>
+            <Chart.Bars />
+          </Chart>,
+        ),
+      ).toThrow(/a bar is a category/);
+    } finally {
+      console.error = quiet;
+    }
+  });
+});
+
+describe("A histogram's bins touch", () => {
+  // Every bin holds a reading: an empty bin draws no bar to measure.
+  const READINGS = [3, 7, 12, 14, 18, 19, 21, 22, 27, 33, 41];
+  const hist = () => <Histogram label="Poster widths" description="Most posters are 10–30 cm." values={READINGS} binCount={4} xLabel="Width (cm)" />;
+
+  test("bins are named by nice ranges and count every reading", async () => {
+    const { all } = await mount(hist());
+    const names = all("chart-tick").filter((t) => t.closest('[data-slot="chart-x-axis"]')).map((t) => t.textContent);
+    expect(names[0]).toBe("0–10");
+    expect(all("chart-bar")).toHaveLength(5);
+  });
+
+  test("each bar fills its band, 2px from the next", async () => {
+    const { all } = await mount(hist());
+    const boxes = all("chart-bar").map((b) => b.getBoundingClientRect());
+    for (let i = 1; i < boxes.length; i++) {
+      expect(Math.round(boxes[i]!.left - boxes[i - 1]!.right)).toBe(2);
+    }
+  });
+
+  test("the table lists each bin and its count", async () => {
+    const { q } = await mount(hist());
+    await userEvent.click(q("chart-table-toggle"));
+    expect(q("chart-table").textContent).toContain("10–20");
+    expect(q("chart-table").textContent).toContain("Count");
+  });
+});
+
+describe("A scatter whose values never reach zero", () => {
+  test("keeps its baseline on the plot's floor, not off the plot", async () => {
+    const far = [
+      { share: 40, growth: 52 },
+      { share: 60, growth: 71 },
+    ];
+    const { q } = await mount(
+      <ScatterPlot label="x" description="y" data={far} x="share" xLabel="Share" series={[{ key: "growth", label: "Growth" }]} />,
+    );
+    const base = q("chart-baseline").getBoundingClientRect();
+    const plot = q("chart-plot").getBoundingClientRect();
+    expect(base.top).toBeGreaterThanOrEqual(plot.top);
+    expect(base.bottom).toBeLessThanOrEqual(plot.bottom + 1);
+    // The lowest tick is not zero: the axis hugs the data.
+    expect(container!.querySelector('[data-slot="chart-y-axis"] [data-slot="chart-tick"]')!.textContent).not.toBe("0");
   });
 });

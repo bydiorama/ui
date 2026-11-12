@@ -36,8 +36,56 @@ const BEHAVIOUR_PACKAGES = [
   "@ark-ui",
 ];
 
-const isBehaviour = (specifier) =>
-  BEHAVIOUR_PACKAGES.some((pkg) => specifier === pkg || specifier.startsWith(`${pkg}/`));
+/**
+ * Maths and layout packages the data-visualisation layer may wrap (ADR 0023,
+ * charts-and-graphs-plan §3.4). None is installed today: the layer's scales,
+ * bins and layouts are its own. The rule exists BEFORE the first import is
+ * possible, for the same reason rule 2 did: once a `d3` or `graphology` type
+ * sits in a public prop, taking it out is a breaking change.
+ */
+const VIZ_PACKAGES = [
+  "d3",
+  "d3-array",
+  "d3-scale",
+  "d3-shape",
+  "d3-time",
+  "d3-interpolate",
+  "d3-delaunay",
+  "d3-hierarchy",
+  "d3-force",
+  "d3-dag",
+  "d3-sankey",
+  "@dagrejs",
+  "dagre",
+  "elkjs",
+  "graphology",
+  "data-navigator",
+  "sigma",
+  "@cosmograph",
+  "@xyflow",
+  "reactflow",
+  "cytoscape",
+];
+
+const matches = (list) => (specifier) =>
+  list.some(
+    (pkg) =>
+      specifier === pkg ||
+      specifier.startsWith(`${pkg}/`) ||
+      // `graphology-shortest-path`, `graphology-layout-forceatlas2`: one family.
+      (pkg === "graphology" && specifier.startsWith("graphology-")),
+  );
+
+const isBehaviour = matches(BEHAVIOUR_PACKAGES);
+const isViz = matches(VIZ_PACKAGES);
+
+/** The viz layer's own folder, and the implementation files that draw with it. */
+const VIZ_ITEMS = new Set(["chart", "sparkline", "meter", "diagram", "network"]);
+function mayImportViz(rel) {
+  if (/^registry\/lib\/viz\/[^/]+\.tsx?$/.test(rel) && !/\.(?:test|stories)\.tsx?$/.test(rel)) return true;
+  const match = rel.match(/^registry\/ui\/([^/]+)\/([^/]+?)(?:\.worker)?\.tsx?$/);
+  return Boolean(match) && match[1] === match[2] && VIZ_ITEMS.has(match[1]);
+}
 
 /**
  * A component's own implementation file: `registry/ui/<name>/<name>.tsx`.
@@ -110,6 +158,16 @@ for (const file of walk(join(ROOT, "registry"))) {
 
   const bound = new Set();
   for (const match of source.matchAll(/import\s+([\s\S]*?)\s*from\s*["']([^"']+)["']/g)) {
+    if (isViz(match[2])) {
+      if (!mayImportViz(rel)) {
+        errors.push(
+          `${rel}: imports a viz package ("${match[2]}"). Only registry/lib/viz and the ` +
+            `chart, sparkline, meter, diagram and network implementation files may — ADR 0023.`,
+        );
+      }
+      for (const name of importedNames(match[1])) bound.add(name);
+      continue;
+    }
     if (!isBehaviour(match[2])) continue;
 
     if (!mayImportBehaviour(rel)) {
@@ -127,7 +185,7 @@ for (const file of walk(join(ROOT, "registry"))) {
     for (const name of bound) {
       if (new RegExp(`\\b${name}\\b`).test(body)) {
         errors.push(
-          `${rel}: exported type references "${name}" from the behaviour layer. ` +
+          `${rel}: exported type references "${name}" from the behaviour or viz layer. ` +
             `Public signatures are ours alone (ADR 0002) — restate the props you accept, ` +
             `or derive from React's own DOM types.`,
         );
@@ -143,4 +201,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`boundaries ok — ${scanned} registry file(s), no behaviour-layer leaks`);
+console.log(`boundaries ok — ${scanned} registry file(s), no behaviour- or viz-layer leaks`);

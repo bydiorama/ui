@@ -80,7 +80,7 @@ const config: StorybookConfig = {
         "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
         "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
         "@/hooks/use-graph-viewport": join(root, "registry/hooks/use-graph-viewport/use-graph-viewport.ts"),
-        ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "combobox", "diagram", "dot-pattern", "fade", "header", "menu", "network", "progress", "sheet", "skeleton", "slider", "table", "status-matrix", "popover", "chat-widget"),
+        ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "combobox", "diagram", "dot-pattern", "fade", "header", "input", "menu", "network", "progress", "sheet", "skeleton", "slider", "table", "status-matrix", "popover", "chat-widget"),
         "@/ui": join(root, "registry/ui"),
         // A block imported BY another distributed file, in the consumer's
         // form (`components/blocks/<name>.tsx` is the install target).

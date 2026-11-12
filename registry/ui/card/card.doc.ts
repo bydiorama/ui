@@ -72,7 +72,10 @@ Card  surface? collapsible? isOpen? onOpenChange?
   a11y: {
     role: "section. It becomes a named REGION only when the consumer supplies aria-labelledby — an unnamed <section> is generic, so a page full of cards adds no landmark noise.",
     name: "None by default, deliberately. The heading provides navigable structure on its own.",
-    keyboard: [{ key: "—", does: "The card itself is not focusable; its contents carry their own contracts." }],
+    keyboard: [
+      { key: "—", does: "The card itself is not focusable; its contents carry their own contracts." },
+      { key: "Tab", does: "Only while a capped Card.Body actually scrolls: focuses the body, a region named by the card's title, so arrow keys and Page Up/Down can scroll content that has no focusable child of its own (SC 2.1.1). A body that fits is never a tab stop." },
+    ],
     contrastPairs: [
       { fg: "--ui-text-primary", bg: "--ui-bg-elevated", floor: "text", role: "title on the card surface" },
       { fg: "--ui-bg-elevated", bg: "--ui-bg-base", floor: "decorative", role: "the card surface against the page", why: "the boundary is the border-subtle hairline plus shadow-md, not the fill (ADR 0010)" },

@@ -81,6 +81,12 @@ describe("the floor is the component", () => {
     start();
     await until(drawing(button, "aurora"), "aurora to draw");
     expect(button.getAttribute("data-fx-aurora")).toBe("live");
+    // The label's web font can land after the canvas was first laid out, and
+    // on a cold runner it does: the button grows ~6px and the runtime's
+    // ResizeObserver re-lays the canvas before the NEXT paint. Measure after
+    // that paint, or this reads the gap between two correct states.
+    await document.fonts.ready;
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
     const canvas = q(button, "canvas.ui-fx-canvas-aurora");
     const a = canvas.getBoundingClientRect();
     const b = button.getBoundingClientRect();

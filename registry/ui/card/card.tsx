@@ -13,6 +13,7 @@ import { ChevronDown } from "griddy-icons";
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
+import { useScrollEdges } from "@/hooks/use-scroll-edges";
 import { Button } from "@/ui/button";
 import { Fade } from "@/ui/fade";
 
@@ -264,6 +265,17 @@ function CardBody({ children, className, ...rest }: CardBodyProps) {
   const card = useContext(CardContext);
   const [node, setNode] = useState<HTMLDivElement | null>(null);
   const isOpen = card?.isOpen ?? true;
+  const edges = useScrollEdges(node);
+
+  /**
+   * A tab stop ONLY while it actually scrolls — Sheet.Body's and Table's
+   * rule. A capped body of static text has no focusable child to scroll it
+   * into view, so without this the content past the cap is unreachable from
+   * the keyboard (SC 2.1.1). Unconditional focus would put a silent tab stop
+   * in every card that fits. Found on CI: Linux fonts set the States story
+   * a few pixels taller than macOS, and only there did the body overflow.
+   */
+  const isScrollable = edges.top || edges.bottom;
 
   return (
     <div
@@ -277,11 +289,24 @@ function CardBody({ children, className, ...rest }: CardBodyProps) {
       <div
         ref={setNode}
         data-slot="card-body-scroll"
+        data-scrollable={isScrollable || undefined}
+        // role / name / tabIndex together or not at all, as in Sheet.Body.
+        // Named by the card's title; a Card with no Header has no title to
+        // point at, and still gets the tab stop, which is the part SC 2.1.1
+        // needs.
+        {...(isScrollable
+          ? { tabIndex: 0, ...(card ? { role: "region", "aria-labelledby": card.titleId } : {}) }
+          : {})}
         // `max-h-[inherit]`: the caller caps the region, the scroller takes
         // that cap — one height for the consumer to set, not two.
         // Children never shrink: in a capped column a flex child would
         // otherwise squash to fit instead of overflowing into the scroll.
-        className="flex max-h-[inherit] min-h-0 flex-col gap-lg overflow-y-auto *:shrink-0"
+        // The focus outline is INSET: the body is clipped by its own
+        // overflow-clip wrapper, which would cut an outward ring.
+        className={cn(
+          "flex max-h-[inherit] min-h-0 flex-col gap-lg overflow-y-auto *:shrink-0",
+          "focus-visible:outline-focus focus-visible:-outline-offset-focus focus-visible:outline-edge-focus",
+        )}
       >
         {children}
       </div>

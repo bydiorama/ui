@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-card-body-scrolls-from-the-keyboard",
+  "date": "2026-11-12",
+  "item": "card",
+  "kind": "fix",
+  "summary": "A capped Card.Body that scrolls is now a tab stop: a region named by the card's title, with an inset focus outline, so static content past the cap can be scrolled from the keyboard (SC 2.1.1). It is a tab stop only while it actually overflows, which is Sheet.Body's and Table's rule. Found by CI rather than locally: Linux fonts set the States story a few pixels taller than macOS, and only there did the body overflow and axe report scrollable-region-focusable.",
+  "affects": [
+    "item:card",
+    "slot:card-body-scroll"
+  ]
+}

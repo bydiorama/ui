@@ -235,3 +235,42 @@ describe("collapsible (#10)", () => {
     expect(document.querySelector('[data-slot="card-trigger"]')).toBeNull();
   });
 });
+
+describe("a capped body is reachable from the keyboard (SC 2.1.1)", () => {
+  const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const prose = Array.from({ length: 8 }, (_, i) => (
+    <p key={i}>Josef Müller-Brockmann set the grid in 1961, and every row after it followed.</p>
+  ));
+
+  test("while it scrolls, the body is a tab stop named by the card's title", async () => {
+    const { container: c, title } = mount(
+      <Card>
+        <Card.Header>Grid systems</Card.Header>
+        <Card.Body className="max-h-24">{prose}</Card.Body>
+      </Card>,
+    );
+    await act(frame);
+    const scroller = c.querySelector<HTMLElement>('[data-slot="card-body-scroll"]')!;
+    expect(scroller.scrollHeight).toBeGreaterThan(scroller.clientHeight);
+    expect(scroller.tabIndex).toBe(0);
+    expect(scroller.getAttribute("role")).toBe("region");
+    expect(scroller.getAttribute("aria-labelledby")).toBe(title!.id);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(scroller);
+    // The ring is painted, not just declared — an inset outline.
+    expect(getComputedStyle(scroller).outlineStyle).not.toBe("none");
+  });
+
+  test("a body that fits puts no silent tab stop in front of the page", async () => {
+    const { container: c } = mount(
+      <Card>
+        <Card.Header>Grid systems</Card.Header>
+        <Card.Body>{prose[0]}</Card.Body>
+      </Card>,
+    );
+    await act(frame);
+    const scroller = c.querySelector<HTMLElement>('[data-slot="card-body-scroll"]')!;
+    expect(scroller.hasAttribute("tabindex")).toBe(false);
+    expect(scroller.hasAttribute("role")).toBe(false);
+  });
+});

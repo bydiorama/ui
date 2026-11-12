@@ -377,33 +377,66 @@ export type MarkerShape = (typeof MARKER_SHAPES)[number];
  * The polygon corners of a marker of half-size `r` around (0, 0), or `null`
  * for the circle, which is an arc rather than a polygon.
  */
-function markerPoints(shape: MarkerShape, r: number): (readonly [number, number])[] | null {
+/** Each shape's proportions, before it is sized; see `markerPoints`. */
+function markerOutline(shape: Exclude<MarkerShape, "circle">): (readonly [number, number])[] {
   switch (shape) {
-    case "circle":
-      return null;
     case "square":
-      return [[-r, -r], [r, -r], [r, r], [-r, r]];
+      return [[-1, -1], [1, -1], [1, 1], [-1, 1]];
     case "triangle":
-      return [[0, -1.25 * r], [1.25 * r, r], [-1.25 * r, r]];
+      return [[0, -1.25], [1.25, 1], [-1.25, 1]];
     case "triangle-down":
-      return [[-1.25 * r, -r], [1.25 * r, -r], [0, 1.25 * r]];
+      return [[-1.25, -1], [1.25, -1], [0, 1.25]];
     case "diamond":
-      return [[0, -1.3 * r], [1.3 * r, 0], [0, 1.3 * r], [-1.3 * r, 0]];
+      return [[0, -1], [1, 0], [0, 1], [-1, 0]];
     case "plus": {
-      const a = r * 0.4;
-      return [[-a, -r], [a, -r], [a, -a], [r, -a], [r, a], [a, a], [a, r], [-a, r], [-a, a], [-r, a], [-r, -a], [-a, -a]];
+      const a = 0.4;
+      return [[-a, -1], [a, -1], [a, -a], [1, -a], [1, a], [a, a], [a, 1], [-a, 1], [-a, a], [-1, a], [-1, -a], [-a, -a]];
     }
     case "hexagon":
       return Array.from({ length: 6 }, (_, i) => {
         const t = (Math.PI / 3) * i;
-        return [1.1 * r * Math.cos(t), 1.1 * r * Math.sin(t)] as const;
+        return [Math.cos(t), Math.sin(t)] as const;
       });
     case "pentagon":
       return Array.from({ length: 5 }, (_, i) => {
         const t = -Math.PI / 2 + ((2 * Math.PI) / 5) * i;
-        return [1.15 * r * Math.cos(t), 1.15 * r * Math.sin(t)] as const;
+        return [Math.cos(t), Math.sin(t)] as const;
       });
   }
+}
+
+/** Shoelace area and area centroid of a simple polygon. */
+function polygonMoments(pts: readonly (readonly [number, number])[]) {
+  let a = 0;
+  let cx = 0;
+  let cy = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const [x0, y0] = pts[i]!;
+    const [x1, y1] = pts[(i + 1) % pts.length]!;
+    const cross = x0 * y1 - x1 * y0;
+    a += cross;
+    cx += (x0 + x1) * cross;
+    cy += (y0 + y1) * cross;
+  }
+  a /= 2;
+  return { area: Math.abs(a), cx: cx / (6 * a), cy: cy / (6 * a) };
+}
+
+/**
+ * A shape's points at half-size `r`: **the same area as a circle of radius r**,
+ * with its area centroid on the data point.
+ *
+ * Sized by eye, the shapes read as different weights for the same value: a
+ * square of half-side r is 27% heavier than the circle, the plus 19% lighter.
+ * And a triangle centred on its box sits a quarter of r below the point it
+ * marks, which on a line reads as the line missing the marker.
+ */
+function markerPoints(shape: MarkerShape, r: number): (readonly [number, number])[] | null {
+  if (shape === "circle") return null;
+  const unit = markerOutline(shape);
+  const { area, cx, cy } = polygonMoments(unit);
+  const k = r * Math.sqrt(Math.PI / area);
+  return unit.map(([x, y]) => [(x - cx) * k, (y - cy) * k] as const);
 }
 
 const polygon = (pts: readonly (readonly [number, number])[], cx: number, cy: number) =>
@@ -413,8 +446,9 @@ const circle = (cx: number, cy: number, r: number) =>
   `M${round(cx - r)} ${round(cy)}a${round(r)} ${round(r)} 0 1 0 ${round(2 * r)} 0a${round(r)} ${round(r)} 0 1 0 ${round(-2 * r)} 0Z`;
 
 /**
- * A filled marker of half-size `r`, centred on (cx, cy), as a path. At r=4 the
- * circle, square and triangle are the Line sheet's 8px end markers.
+ * A filled marker of half-size `r`, centred on (cx, cy), as a path. Every shape
+ * has the area of the circle of radius r, centred on its area centroid, so at
+ * r=4 the circle is the Line sheet's 8px end marker and the square is 7.09px.
  *
  * The 2px surface ring is NOT this path at r + 2: scaling a shape moves each
  * edge by r's ratio, not by 2px, so a scaled triangle's slants sat 1.21px off

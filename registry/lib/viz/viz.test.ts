@@ -128,9 +128,35 @@ test("stackSeries stacks up from zero, negatives down, holes keep their place", 
 });
 
 test("markerPath draws the sheet's end markers", () => {
-  assert.equal(markerPath("square", 360, 78, 4), "M356 74L364 74L364 82L356 82Z");
-  assert.equal(markerPath("triangle", 360, 136, 4), "M360 131L365 140L355 140Z");
+  assert.equal(markerPath("square", 360, 78, 4), "M356.46 74.46L363.54 74.46L363.54 81.54L356.46 81.54Z");
+  assert.equal(markerPath("triangle", 360, 136, 4), "M360 129.66L365.28 139.17L354.72 139.17Z");
   for (const shape of MARKER_SHAPES) assert.match(markerPath(shape, 10, 10, 4), /^M.*Z$/);
+});
+
+/** The polygon a markerPath draws, back out of its path string. */
+function vertices(d: string): [number, number][] {
+  return [...d.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+}
+
+test("every marker shape weighs the same as the circle and sits on its point", () => {
+  // Measured before the fix at r 4: square +27%, diamond +8%, triangle -10%,
+  // plus -19%, and the triangle's centroid 1px below the data point.
+  const r = 10;
+  const circle = Math.PI * r * r;
+  for (const shape of MARKER_SHAPES) {
+    if (shape === "circle") continue;
+    const pts = vertices(markerPath(shape, 0, 0, r));
+    let a = 0, cx = 0, cy = 0;
+    pts.forEach(([x0, y0], i) => {
+      const [x1, y1] = pts[(i + 1) % pts.length]!;
+      const c = x0 * y1 - x1 * y0;
+      a += c; cx += (x0 + x1) * c; cy += (y0 + y1) * c;
+    });
+    a /= 2;
+    // Paths are rounded to 2 places, so allow that much and no more.
+    assert.ok(Math.abs(Math.abs(a) / circle - 1) < 0.005, `${shape}: area ${Math.abs(a).toFixed(1)} vs ${circle.toFixed(1)}`);
+    assert.ok(Math.abs(cx / (6 * a)) < 0.02 && Math.abs(cy / (6 * a)) < 0.02, `${shape}: centroid off the point`);
+  }
 });
 
 test("barPath rounds the data end on either side of zero; bandPath closes a stack", () => {

@@ -4,7 +4,7 @@ sheet.id='sheet';const sections=[...content.children];
 const duration=9.5,reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const clamp=x=>Math.max(0,Math.min(1,x));
 function cubic(x1,y1,x2,y2){return x=>{x=clamp(x);if(x===0||x===1)return x;let lo=0,hi=1,u=x;for(let i=0;i<22;i++){u=(lo+hi)/2;const q=3*u*(1-u)**2*x1+3*u*u*(1-u)*x2+u**3;if(q<x)lo=u;else hi=u;}return 3*u*(1-u)**2*y1+3*u*u*(1-u)*y2+u**3;};}
-const out=cubic(.22,1,.36,1),inOut=cubic(.42,0,.58,1),micro=cubic(0,0,.2,1);
+const out=cubic(.22,1,.36,1),inOut=cubic(.42,0,.58,1);
 const tween=(t,a,d,e=out)=>e((t-a)/d),pulse=(t,a,b,c,d)=>tween(t,a,b-a)*(1-tween(t,c,d-c));
 let current=0,playing=true,last=0,ready=false,clicks=0,interactiveStart=null;
 const reveals=[],controls=[];let hero,heroLabel,heroIcon,heroEnd,sizes=[],variants=[],cursor,drawings;

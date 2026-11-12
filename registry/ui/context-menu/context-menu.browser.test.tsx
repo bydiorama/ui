@@ -130,9 +130,13 @@ describe("It is reachable without a pointer", () => {
     mount(<Basic />);
     region().focus();
     await rightClick(region());
+    // The panel takes focus a frame after it opens. A key pressed before that
+    // lands on the trigger and is lost, which read on CI as the PANEL being
+    // active ("DuplicateRename"). Wait for focus to arrive, as a user would.
+    await expect.poll(() => panel()?.contains(document.activeElement) ?? false).toBe(true);
     await userEvent.keyboard("{ArrowDown}");
-    expect(document.activeElement?.textContent?.trim()).toBe("Duplicate");
+    await expect.poll(() => document.activeElement?.textContent?.trim()).toBe("Duplicate");
     await userEvent.keyboard("{ArrowDown}");
-    expect(document.activeElement?.textContent?.trim()).toBe("Rename");
+    await expect.poll(() => document.activeElement?.textContent?.trim()).toBe("Rename");
   });
 });

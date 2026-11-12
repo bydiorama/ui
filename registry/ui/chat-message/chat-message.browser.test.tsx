@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@bydiorama/tokens";
 
 import { Button } from "@/ui/button/button.tsx";
+import { ChatProgress } from "@/ui/chat-progress/chat-progress.tsx";
 import { ChatMessage } from "./chat-message.tsx";
 
 /** Wait out any running transition before reading computed style. */
@@ -174,6 +175,37 @@ describe("ChatMessage.Sender status", () => {
     expect(failedInk).not.toBe(sendingInk);
   });
 
+  test("queued is a caption, not a problem: muted like sending, never danger, same fill", () => {
+    const queued = mount(
+      <ChatMessage.Sender status="queued" statusText="Queued — runs after this turn">Next question</ChatMessage.Sender>,
+      "light",
+    );
+    const queuedInk = getComputedStyle(queued.q<HTMLElement>("chat-message-status")!.firstElementChild!).color;
+    const queuedFill = getComputedStyle(queued.q<HTMLElement>("chat-message-bubble")!).backgroundColor;
+    expect(queued.q<HTMLElement>("chat-message")!.dataset.status).toBe("queued");
+    expect(queued.q("chat-message-status")!.textContent).toBe("Queued — runs after this turn");
+    unmount();
+
+    const sending = mount(
+      <ChatMessage.Sender status="sending" statusText="Sending…">Next question</ChatMessage.Sender>,
+      "light",
+    );
+    const sendingInk = getComputedStyle(sending.q<HTMLElement>("chat-message-status")!.firstElementChild!).color;
+    unmount();
+
+    const failed = mount(
+      <ChatMessage.Sender status="failed" statusText="Not sent">Next question</ChatMessage.Sender>,
+      "light",
+    );
+    const failedInk = getComputedStyle(failed.q<HTMLElement>("chat-message-status")!.firstElementChild!).color;
+    const sentFill = getComputedStyle(failed.q<HTMLElement>("chat-message-bubble")!).backgroundColor;
+
+    // The sheet (40CQ-0) sets the caption in --ui-text-muted, like Sending.
+    expect(queuedInk).toBe(sendingInk);
+    expect(queuedInk).not.toBe(failedInk);
+    expect(queuedFill).toBe(sentFill);
+  });
+
   test("retry is a real control, not a word in a caption", async () => {
     let retried = 0;
     const { q } = mount(
@@ -208,24 +240,40 @@ describe("ChatMessage.Sender status", () => {
 });
 
 describe("ChatMessage.Receiver states", () => {
-  test("streaming draws the caret and WITHHOLDS the actions row", () => {
+  test("streaming WITHHOLDS the actions row and draws no caret of its own", () => {
     const { q } = mount(
       <ChatMessage.Receiver isStreaming actions={ACTIONS} meta="Agent">Half an answer</ChatMessage.Receiver>,
     );
 
-    expect(q("chat-message-caret")).not.toBeNull();
     // Not hidden — absent. A hidden row would put two tab stops in front of an
     // answer that is still being written.
     expect(q("chat-message-actions")).toBeNull();
-    expect(q<HTMLElement>("chat-message-caret")!.getAttribute("aria-hidden")).toBe("true");
+    // The block caret is gone (behaviour sheet, 410S-0): the turn's one mark is
+    // the Streaming matrix, which the caller places.
+    expect(q("chat-message-caret")).toBeNull();
   });
 
-  test("settled drops the caret and shows the row", () => {
+  test("a streaming turn composed as the sheet draws it has ONE mark: the Streaming row under the text", () => {
+    const { container, q } = mount(
+      <ChatMessage.Receiver isStreaming>
+        Half an answer
+        <ChatProgress form="streaming" label="Writing" />
+      </ChatMessage.Receiver>,
+    );
+    const body = q<HTMLElement>("chat-message-body")!;
+    const marks = container.querySelectorAll('[data-slot="status-matrix"]');
+
+    expect(marks).toHaveLength(1);
+    expect(marks[0]!.getAttribute("data-status")).toBe("streaming");
+    // Under the text, as the body's last block.
+    expect(body.lastElementChild!.contains(marks[0]!)).toBe(true);
+  });
+
+  test("settled shows the row", () => {
     const { q } = mount(
       <ChatMessage.Receiver actions={ACTIONS} meta="Agent · now" isActionsVisible>A whole answer</ChatMessage.Receiver>,
     );
 
-    expect(q("chat-message-caret")).toBeNull();
     expect(q("chat-message-actions")).not.toBeNull();
     expect(q("chat-message-meta")!.textContent).toBe("Agent · now");
   });

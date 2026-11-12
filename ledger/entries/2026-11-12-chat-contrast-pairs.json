@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chat-contrast-pairs",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "token",
+  "summary": "Seven contrast pairs the chat components render and the audit did not know about: danger-fg on elevated as TEXT (a failed lane's and a failed task's reason), link-hover on accent-subtle-hover and muted on accent-subtle (Chat Sources' pressed marker and cited row), warning-fg on base (Chat Progress's failed-run receipt), and accent-legible on elevated and on bg-hover plus success-fg on bg-hover (the matrix and check on lanes, cards, the dock and a hovered task header). All clear their floors in theme zero with no role nudged — the tightest is accent-legible on bg-hover at 3.07:1 in light.",
+  "affects": [
+    "token:--ui-intent-danger-fg",
+    "token:--ui-text-link-hover",
+    "token:--ui-text-muted",
+    "token:--ui-intent-warning-fg",
+    "token:--ui-bg-accent-legible",
+    "token:--ui-intent-success-fg",
+    "token:--ui-bg-elevated",
+    "token:--ui-bg-hover",
+    "token:--ui-bg-accent-subtle",
+    "token:--ui-bg-accent-subtle-hover",
+    "token:--ui-bg-base"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/40H0-0"
+  }
+}

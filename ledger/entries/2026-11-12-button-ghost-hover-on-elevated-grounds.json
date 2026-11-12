@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-button-ghost-hover-on-elevated-grounds",
+  "date": "2026-11-12",
+  "item": "button",
+  "kind": "fix",
+  "summary": "A ghost Button's hover is visible on an elevated surface. Its hover fill is the sheet's --ui-bg-elevated, drawn on the page, so inside any surface that already paints bg-elevated — a Card, a Chat Tasks card, the run dock, a lane pill, a popover panel — the hover was the ground's own colour (1.00:1) and nothing happened. Inside an ancestor that paints bg-elevated the ghost now steps to --ui-bg-hover, the next rung of the interaction ramp that the token test holds past elevated in every seed and both schemes; on the page it is unchanged. Asserted in a real hover, both schemes, as the hovered fill DIFFERING from its ground, which failed on the old code. The class reader shared by check:utilities, check:strokes, check:type-roles and check:token-consumers did not know Tailwind's `in-*` variant and skipped such classes whole — probed with a typo that stayed green — and now strips it.",
+  "affects": [
+    "item:button",
+    "item:card",
+    "item:chat-tasks",
+    "item:chat-run-dock",
+    "item:chat-progress",
+    "token:--ui-bg-hover",
+    "token:--ui-bg-elevated",
+    "gate:check-utilities"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/40H0-0"
+  }
+}

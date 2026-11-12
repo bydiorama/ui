@@ -8,8 +8,12 @@
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
+// `in-[…]` / `in-*` (an ANCESTOR state) was missing until Button's ghost
+// hover became ground-aware — `in-[.bg-elevated]:hover:bg-hover`. The bracket
+// made the whole class look arbitrary, so the gate skipped it: a typo in the
+// hover role compiled to nothing and `check:utilities` stayed green. Probed.
 export const VARIANT =
-  /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-[a-z-]+|aria-\[[^\]]+\]|data-\[[^\]]+\]|data-[a-z-]+|has-\[[^\]]+\]|has-[a-z-]+|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
+  /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-[a-z-]+|aria-\[[^\]]+\]|data-\[[^\]]+\]|data-[a-z-]+|has-\[[^\]]+\]|has-[a-z-]+|in-\[[^\]]+\]|in-[a-z-]+|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
 
 /**
  * Comments are not code, and this gate must not read them.

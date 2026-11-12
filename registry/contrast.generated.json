@@ -320,6 +320,22 @@
       "role": "a PRESSED ghost label — the ink step that keeps press from being motion alone"
     },
     {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 11.4,
+      "dark": 9.28,
+      "role": "a hovered ghost label inside an elevated surface"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 13.18,
+      "role": "a pressed ghost label inside an elevated surface"
+    },
+    {
       "fg": "--ui-border-strong",
       "bg": "--ui-bg-base",
       "floor": "non-text",
@@ -657,7 +673,7 @@
       "floor": "text",
       "light": 5.93,
       "dark": 7.02,
-      "role": "the meta line and the \"Sending…\" caption"
+      "role": "the meta line and the \"Sending…\" and \"Queued\" captions"
     },
     {
       "fg": "--ui-intent-danger-fg",
@@ -691,7 +707,7 @@
       "floor": "text",
       "light": 5.93,
       "dark": 7.02,
-      "role": "the thinking line, the receipt, and every step that is not the current one"
+      "role": "status lines, the receipt, finished and pending steps, chips' ink, prose, the clock, the presence line and its Typing dots"
     },
     {
       "fg": "--ui-text-secondary",
@@ -699,7 +715,7 @@
       "floor": "text",
       "light": 13.88,
       "dark": 12.09,
-      "role": "the step-list header and the current step"
+      "role": "the root's name and the running step"
     },
     {
       "fg": "--ui-text-secondary",
@@ -707,7 +723,7 @@
       "floor": "text",
       "light": 12.55,
       "dark": 9.79,
-      "role": "the activity verb, on its pill"
+      "role": "a lane's name and the activity verb, on their pills"
     },
     {
       "fg": "--ui-text-muted",
@@ -715,7 +731,7 @@
       "floor": "text",
       "light": 5.36,
       "dark": 5.68,
-      "role": "the activity detail, on its pill"
+      "role": "a lane's activity, a chip's label, the activity detail"
     },
     {
       "fg": "--ui-intent-success-fg",
@@ -723,7 +739,23 @@
       "floor": "non-text",
       "light": 6.21,
       "dark": 12.24,
-      "role": "the done glyph and the receipt glyph — the only channel saying a step finished (SC 1.4.11)"
+      "role": "the done check and the receipt — the only channel saying it finished (SC 1.4.11)"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.62,
+      "dark": 9.91,
+      "role": "a done lane's check, on its pill"
+    },
+    {
+      "fg": "--ui-intent-warning-fg",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 6.06,
+      "dark": 10.71,
+      "role": "the receipt's AlertTriangle when a step failed"
     },
     {
       "fg": "--ui-intent-danger-fg",
@@ -731,7 +763,31 @@
       "floor": "text",
       "light": 5.94,
       "dark": 8.63,
-      "role": "the failure glyph and its line"
+      "role": "a failed step's cross and label, and the failure line"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.38,
+      "dark": 6.98,
+      "role": "a failed lane's cross and reason, on its pill"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.73,
+      "dark": 12.13,
+      "role": "a Lit dot of the live matrix"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 3.38,
+      "dark": 9.82,
+      "role": "a running lane's held Working matrix, on its pill"
     },
     {
       "fg": "--ui-bg-accent-legible",
@@ -739,7 +795,7 @@
       "floor": "non-text",
       "light": 3.07,
       "dark": 8.06,
-      "role": "the spinner's arc against its track, and the measured fill against its own — the pair the legible accent role exists for"
+      "role": "the measured fill against its track"
     },
     {
       "fg": "--ui-border-default",
@@ -747,7 +803,7 @@
       "floor": "decorative",
       "light": 2.14,
       "dark": 1.84,
-      "role": "a pending step's empty ring"
+      "role": "the rail, the ticks and a pending node's empty ring"
     }
   ],
   "ChatQuestionnaire": [
@@ -806,6 +862,363 @@
       "light": 1.22,
       "dark": 1.3,
       "role": "the hover fill"
+    }
+  ],
+  "ChatRunDock": [
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 9.79,
+      "role": "a dock row's name, and the Stop glyph"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.68,
+      "role": "a dock row's activity and clock"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 3.38,
+      "dark": 9.82,
+      "role": "a Lit dot of a dock row's matrix"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.24
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "started and stopped marks, glyph and line"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 12.09,
+      "role": "a finished mark's line"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 6.21,
+      "dark": 12.24,
+      "role": "the finished mark's CheckCircle"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 8.63,
+      "role": "a failed mark's line and CloseCircle"
+    }
+  ],
+  "ChatSources": [
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.68,
+      "role": "a resting marker's numeral; a card's origin and index; every preview caption"
+    },
+    {
+      "fg": "--ui-text-link",
+      "bg": "--ui-bg-accent-subtle",
+      "floor": "text",
+      "light": 4.82,
+      "dark": 9.82,
+      "role": "a hovered or open marker's numeral; the cited row's index"
+    },
+    {
+      "fg": "--ui-text-link-hover",
+      "bg": "--ui-bg-accent-subtle-hover",
+      "floor": "text",
+      "light": 7.29,
+      "dark": 10.26,
+      "role": "a pressed marker's numeral"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 12.09,
+      "role": "the count on the summary and the gathering line"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 9.79,
+      "role": "\"+N more\" on its card"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 17.18,
+      "role": "a row's title at rest"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 13.9,
+      "role": "a hovered row's title; a card's title; the preview's title"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-accent-subtle",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 13.92,
+      "role": "the cited row's title"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 13.18,
+      "role": "a hovered card's title"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "a row's index, origin and kind glyph at rest"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-accent-subtle",
+      "floor": "text",
+      "light": 4.79,
+      "dark": 5.69,
+      "role": "the cited row's origin and kind glyph"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 4.87,
+      "dark": 5.38,
+      "role": "a hovered card's origin and index"
+    },
+    {
+      "fg": "--ui-text-link",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.39,
+      "dark": 9.82,
+      "role": "the preview's action link; a hovered row's link glyph"
+    },
+    {
+      "fg": "--ui-text-link",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 12.13,
+      "role": "a focused row's link glyph, revealed on a row with no hover fill"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.96,
+      "dark": 12.13,
+      "role": "the focus ring on a marker, the summary and a row"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.39,
+      "dark": 9.82,
+      "role": "the focus ring on a card and inside the preview"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-elevated",
+      "floor": "decorative",
+      "light": 1.94,
+      "dark": 2.18,
+      "role": "a streaming marker's numeral"
+    },
+    {
+      "fg": "--ui-text-disabled",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 2.14,
+      "dark": 2.69,
+      "role": "an unavailable source's row"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.24,
+      "role": "a resting marker's pill, the kind discs and the source cards"
+    }
+  ],
+  "ChatTasks": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 15.53,
+      "dark": 13.9,
+      "role": "the title, the current task, a needs-you task"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 12.55,
+      "dark": 9.79,
+      "role": "tasks still to do, and every proposed task"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.68,
+      "role": "done and skipped tasks, the count, the activity line, the skipped note, the proposed index, the footnote, the list and chevron glyphs"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.38,
+      "dark": 6.98,
+      "role": "a failed task's reason — text in the danger ink, and the CloseCircle beside it"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.62,
+      "dark": 9.91,
+      "role": "the done glyph and the folded complete header's glyph — the only channel saying a task finished besides the hidden status word (SC 1.4.11)"
+    },
+    {
+      "fg": "--ui-intent-warning-fg",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.48,
+      "dark": 8.67,
+      "role": "a needs-you task's ring"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 3.38,
+      "dark": 9.82,
+      "role": "a Lit dot of the held Working matrix on the current task and the folded running header"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 13.18,
+      "role": "the title under a hovered header"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 11.4,
+      "dark": 9.28,
+      "role": "a proposed task under a hovered row"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-hover",
+      "floor": "text",
+      "light": 4.87,
+      "dark": 5.38,
+      "role": "the count and index under a hover"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-hover",
+      "floor": "non-text",
+      "light": 3.07,
+      "dark": 9.3,
+      "role": "the held matrix in a hovered folded running header"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-hover",
+      "floor": "non-text",
+      "light": 5.1,
+      "dark": 9.39,
+      "role": "the CheckCircle in a hovered folded complete header"
+    },
+    {
+      "fg": "--ui-intent-warning-fg",
+      "bg": "--ui-intent-warning-bg",
+      "floor": "text",
+      "light": 5.03,
+      "dark": 7.93,
+      "role": "the Needs you badge (Badge warning)"
+    },
+    {
+      "fg": "--ui-intent-info-fg",
+      "bg": "--ui-intent-info-bg",
+      "floor": "text",
+      "light": 4.82,
+      "dark": 9.04,
+      "role": "the New badge (Badge info)"
+    },
+    {
+      "fg": "--ui-border-default",
+      "bg": "--ui-bg-elevated",
+      "floor": "decorative",
+      "light": 1.94,
+      "dark": 1.49,
+      "role": "a pending task's empty ring"
+    },
+    {
+      "fg": "--ui-bg-elevated",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.11,
+      "dark": 1.24,
+      "role": "the card against the page"
+    },
+    {
+      "fg": "--ui-bg-hover",
+      "bg": "--ui-bg-elevated",
+      "floor": "decorative",
+      "light": 1.1,
+      "dark": 1.06,
+      "role": "the hover fill on the header and on a droppable proposed row"
     }
   ],
   "ChatWidget": [
@@ -2072,6 +2485,48 @@
       "light": 3.17,
       "dark": 5.17,
       "role": "the same marks on the page"
+    }
+  ],
+  "StatusMatrix": [
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 3.73,
+      "dark": 12.13,
+      "role": "a Lit dot of a live status on the thread"
+    },
+    {
+      "fg": "--ui-bg-accent-legible",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 3.38,
+      "dark": 9.82,
+      "role": "a Lit dot of a live status on an elevated card, lane pill or dock — the ground every chat surface paints"
+    },
+    {
+      "fg": "--ui-intent-success-fg",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 6.21,
+      "dark": 12.24,
+      "role": "the Done check"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.94,
+      "dark": 8.63,
+      "role": "the Failed cross"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "non-text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "Typing's dots and the Stopped square"
     }
   ],
   "Switch": [

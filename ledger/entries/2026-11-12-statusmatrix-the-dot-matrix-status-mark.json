@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-statusmatrix-the-dot-matrix-status-mark",
+  "date": "2026-11-12",
+  "item": "status-matrix",
+  "kind": "addition",
+  "summary": "StatusMatrix: the dot-matrix status mark — live states loop on one shared clock, endings draw once, hand-overs happen in place",
+  "affects": [
+    "item:status-matrix",
+    "item:motion",
+    "token:--ui-stagger-step",
+    "token:--ui-duration-fast",
+    "token:--ui-duration-base",
+    "token:--ui-bg-accent-legible",
+    "token:--ui-bg-surface",
+    "token:--ui-intent-success-fg",
+    "token:--ui-intent-danger-fg",
+    "token:--ui-text-muted"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/418R-0"
+  }
+}

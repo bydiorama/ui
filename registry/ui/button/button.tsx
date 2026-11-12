@@ -111,7 +111,15 @@ const VARIANT = {
   // being able to identify. secondary keeps the quiet hairline.
   outline:
     "ring-edge-control text-ink-secondary not-data-disabled:hover:ring-edge-strong not-data-disabled:active:text-ink-primary",
-  ghost: "ring-transparent text-ink-secondary not-data-disabled:hover:bg-elevated not-data-disabled:active:text-ink-primary",
+  // The hover is the sheet's bg-elevated — drawn on the PAGE. On a surface that
+  // already paints bg-elevated (a Chat Tasks card, the run dock, a lane pill,
+  // a popover panel) that fill is the card's own colour and the hover
+  // vanished, so inside one the ghost steps to bg-hover, the next rung of the
+  // interaction ramp; the token test holds that rung past elevated in every
+  // seed and both schemes. The surface declares its ground by PAINTING it —
+  // no prop, no call-site override.
+  ghost:
+    "ring-transparent text-ink-secondary not-data-disabled:hover:bg-elevated in-[.bg-elevated]:not-data-disabled:hover:bg-hover not-data-disabled:active:text-ink-primary",
   danger:
     "bg-danger-subtle ring-danger-border text-ink-on-danger-subtle not-data-disabled:hover:bg-danger-subtle-hover",
   // ON --ui-bg-inverse ONLY (#36; Paper, Components - Handoff, "Inverse

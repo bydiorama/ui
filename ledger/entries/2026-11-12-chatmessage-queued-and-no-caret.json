@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chatmessage-queued-and-no-caret",
+  "date": "2026-11-12",
+  "item": "chat-message",
+  "kind": "breaking",
+  "summary": "Chat Message: the Sender gains status=\"queued\" — a turn sent while the agent is still running the last one, captioned in muted ink like Sending (\"Queued — runs after this turn\"), with statusText required by the type. The Receiver's static block caret is removed: per the Chat status behaviour sheet the turn's one mark is the Streaming matrix in a status row under the text (ChatProgress form=\"streaming\"), placed by the caller. isStreaming still withholds the actions row.",
+  "affects": [
+    "item:chat-message",
+    "item:chat-progress",
+    "token:--ui-text-muted"
+  ],
+  "migration": {
+    "manual": "BREAKING: the `chat-message-caret` part no longer renders. While streaming, put `<ChatProgress form=\"streaming\" label=\"…\" />` as the receiver's last child and remove it when the answer settles."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/40P0-0"
+  }
+}

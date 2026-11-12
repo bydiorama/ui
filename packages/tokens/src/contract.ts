@@ -592,6 +592,16 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // form component draws one and the pair had never been audited, because the
   // only danger pair anyone thought to list was ink on its own tinted well.
   ["--ui-intent-danger-fg", "--ui-bg-base"],
+  // A failure as TEXT on the elevated ground: Chat Progress's failed lane
+  // activity and Chat Tasks' failed reason both sit inside an elevated pill or
+  // card. The pair existed only as a non-text glyph pair below, which holds it
+  // to 3:1 — a sentence needs 4.5.
+  ["--ui-intent-danger-fg", "--ui-bg-elevated"],
+  // Chat Sources: a pressed citation marker's numeral, and the cited row's
+  // origin under the marker's wash. Both are text on a ground the accent
+  // family had only been audited against with primary, secondary and link.
+  ["--ui-text-link-hover", "--ui-bg-accent-subtle-hover"],
+  ["--ui-text-muted", "--ui-bg-accent-subtle"],
   ["--ui-intent-info-fg", "--ui-intent-info-bg"],
   ["--ui-nav-ink", "--ui-nav-bg"],
   ["--ui-nav-active-ink", "--ui-nav-active-bg"],
@@ -666,6 +676,18 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   ["--ui-border-strong", "--ui-bg-elevated"],
   ["--ui-bg-accent-legible", "--ui-bg-sunken"],
   ["--ui-bg-accent-legible", "--ui-bg-base"],
+  // StatusMatrix's Lit dots in a dock row or on a card. The status line beside
+  // the matrix carries the state in words, but a Lit dot is the only thing that
+  // shows which kind of wait it is, so it has to clear 3:1 on every ground the
+  // chat sheets put it on — the thread (base, above) and the dock (surface).
+  ["--ui-bg-accent-legible", "--ui-bg-surface"],
+  // The same Lit dots where the chat sheets actually put the matrix off the
+  // thread: a parallel lane's pill, a Chat Tasks card and the run dock are all
+  // `elevated`, and a folded Chat Tasks header under the pointer is `bg-hover`
+  // inside that card. Neutral grounds, so flooring the role against them costs
+  // no component anything — unlike the accent washes noted further down.
+  ["--ui-bg-accent-legible", "--ui-bg-elevated"],
+  ["--ui-bg-accent-legible", "--ui-bg-hover"],
   // Meter's warning and danger fills on its sunken track. The words carry the
   // state (statusText is required), but the fill is still the only thing that
   // shows HOW FAR the reading is, so it must clear 3:1 against the well.
@@ -712,6 +734,10 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // other success glyph in the library is measured against is the one this
   // component never draws on. An unlisted pair is an unchecked pair.
   ["--ui-intent-success-fg", "--ui-bg-base"],
+  // Chat Progress's receipt when a step failed: the AlertTriangle is the only
+  // mark separating "finished, with a failure" from a clean receipt at a
+  // glance, on the same containerless page as the done check above.
+  ["--ui-intent-warning-fg", "--ui-bg-base"],
   ["--ui-intent-danger-fg", "--ui-bg-surface"],
   // The mark on an EmptyState's well. It is `aria-hidden` — the sentence
   // beneath carries the meaning — but a mark nobody can see is a 32px grey
@@ -740,6 +766,9 @@ export const NONTEXT_CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, Bra
   // grounds every intent pair had ever been measured against.
   ["--ui-intent-info-fg", "--ui-bg-elevated"],
   ["--ui-intent-success-fg", "--ui-bg-elevated"],
+  // A folded, complete Chat Tasks header under the pointer: its check sits on
+  // the header's hover fill inside the card.
+  ["--ui-intent-success-fg", "--ui-bg-hover"],
   ["--ui-intent-warning-fg", "--ui-bg-elevated"],
   ["--ui-intent-danger-fg", "--ui-bg-elevated"],
   // Every categorical data mark against both grounds a chart is drawn on

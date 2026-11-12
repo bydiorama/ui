@@ -86,7 +86,6 @@ Card  surface? collapsible? isOpen? onOpenChange?
     "ALIGNMENT GAP, open: Header and Footer take the unboxed inset, but an Input's own label does not — an Input placed directly in a Card has its label 8px to the left of the card title. The sheet wraps each field label in its own inset frame. Either Input grows an inset-aware mode or Card grows a field wrapper; a wrapper that only re-declares flex-col was tried and removed for earning nothing.",
     "No media/image region — not drawn.",
     "Collapsible open/close has no motion yet: the body toggles with `hidden`. The sheet defers to Accordion's motion and does not draw it.",
-    "Button ghost hovers to --ui-bg-elevated, the card's own fill (1.00:1), so a ghost button inside any Card — the collapsible trigger included — has no visible hover. The sheet draws --ui-bg-hover; that is Button's decision, not Card's, and is open.",
     "CONCENTRICITY, accepted: radius-lg (16) over a radius-md (8) boxed child at p-lg (16) is not concentric — §6 would ask for 24. The 2026-10-29 owner review chose 16 for cards, popovers and dialogs platform-wide (issue #40).",
     "The sheet's icon-only action button carries a raw 8px radius and a 16px padding on a 32px box; that is Button's territory and was not transcribed.",
   ],

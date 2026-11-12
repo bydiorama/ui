@@ -860,6 +860,27 @@
       ]
     },
     {
+      "name": "status-matrix",
+      "type": "registry:ui",
+      "description": "The dot-matrix status mark: a 5×5 screen of dots at four levels on which each run state is a signal — waiting, typing, thinking, working, streaming and progress loop on one shared clock at --ui-stagger-step; done, failed and stopped draw once and hold in their intent ink. Every tick each dot fades a level and the signal re-lights what it touches, so status changes hand over in place. isHeld and reduced motion draw the key frame; the first render is that frame, so it is server-safe. Decorative beside a status line, or role=img with a label.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/motion"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/status-matrix/status-matrix.tsx",
+          "type": "registry:ui",
+          "target": "ui/status-matrix.tsx"
+        },
+        {
+          "path": "registry/ui/status-matrix/status-matrix.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/status-matrix.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "chart",
       "type": "registry:ui",
       "description": "Bars (grouped or stacked), lines and areas on a nice-tick value axis, in a figure that always carries its title, a person-written takeaway, a shape-and-colour legend for two or more series, and a view-as-table toggle backed by Table. The plot is one tab stop: arrow keys walk categories and series, each move is announced politely, and a tooltip follows the pointer and the keyboard. BarChart, LineChart and AreaChart are thin presets over Chart with Chart.Bars / .Lines / .Areas / .Rule children. Eight ordinal slots, never cycled; solid strokes only.",
@@ -1451,7 +1472,7 @@
     {
       "name": "chat-message",
       "type": "registry:ui",
-      "description": "The two voices of an agent thread, deliberately asymmetric. The sender sits in a right-aligned bg-elevated bubble capped at a share of the column, with attachments inside it and delivery state carried by a caption — the bubble's fill never moves. The receiver owns the full width with no bubble at all and a looser leading, a static caret while streaming, a ghost actions row revealed on hover AND on focus, and a failure block that stays attached to the turn instead of floating off as a toast. One item, two components: there is no bare <ChatMessage>, because the receiver has no bubble and a role prop would give it one.",
+      "description": "The two voices of an agent thread, deliberately asymmetric. The sender sits in a right-aligned bg-elevated bubble capped at a share of the column, with attachments inside it and delivery state — sending, queued, failed — carried by a caption; the bubble's fill never moves. The receiver owns the full width with no bubble at all and a looser leading, no mark of its own while streaming (the caller places ChatProgress's Streaming row under the text), a ghost actions row revealed on hover AND on focus, and a failure block that stays attached to the turn instead of floating off as a toast. One item, two components: there is no bare <ChatMessage>, because the receiver has no bubble and a role prop would give it one.",
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
@@ -1473,7 +1494,7 @@
     {
       "name": "chat-progress",
       "type": "registry:ui",
-      "description": "What the agent shows between the question and the answer. Four escalating forms on ONE axis — thinking, activity, steps, measured — discriminated by `form`, so a step list with no steps and a bar with no value are compile errors rather than empty boxes. Every form folds to the same receipt row when the work finishes and re-expands from it, because the log is history rather than chrome; a stopped run replaces the form with a failure line and keeps the log above it. role=\"status\", polite. The measured form is the Progress primitive, and the spinner is CSS — griddy has no spinner glyph and a private SVG is not the answer.",
+      "description": "What the agent shows between the question and the answer, with ONE moving mark. The live-edge forms (waiting, thinking, streaming) are a status row whose StatusMatrix hands over in place to its ending; reasoning streams under a capped, faded body; a thought chain lays steps on a node lane with kind glyphs, chips, prose, one level of branches and failed steps with Retry; parallel runs show lanes as activity-pill boxes that open to their own chain; activity pills and the measured Progress bar remain. Only the deepest running node moves — the root when parallel or folded, none when isHeld — and every finished form folds to one receipt row. role=\"status\", polite.",
       "dependencies": [
         "@base-ui/react@1.7.0",
         "griddy-icons@^0.2.0"
@@ -1481,8 +1502,11 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
+        "@bydiorama/use-controllable-state",
         "@bydiorama/button",
-        "@bydiorama/progress"
+        "@bydiorama/fade",
+        "@bydiorama/progress",
+        "@bydiorama/status-matrix"
       ],
       "files": [
         {
@@ -1494,6 +1518,91 @@
           "path": "registry/ui/chat-progress/chat-progress.doc.ts",
           "type": "registry:ui",
           "target": "ui/chat-progress.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "chat-run-dock",
+      "type": "registry:ui",
+      "description": "Background runs: work that outlives its turn while the conversation carries on. ChatRunDock sits in the composer's block, tucked behind its pill (bg-elevated, radius-lg, inset space-xl each side) — one 32px row per run with a 14px StatusMatrix (Progress when measured, Working when not; held while the thread has a live edge), the run's name, a truncating activity line, a 40px tabular clock and a named Stop. ChatRunMark is the run's line in the thread: started, finished with the result's action, failed with Retry, or stopped. A named region, never a toast or an overlay.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/button",
+        "@bydiorama/status-matrix"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/chat-run-dock/chat-run-dock.tsx",
+          "type": "registry:ui",
+          "target": "ui/chat-run-dock.tsx"
+        },
+        {
+          "path": "registry/ui/chat-run-dock/chat-run-dock.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/chat-run-dock.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "chat-sources",
+      "type": "registry:ui",
+      "description": "How an answer shows where it came from: an inline citation marker after the clause it supports, a hover/focus preview anchored to it, and a sources block under the answer — folded to kind discs and a count, open to numbered link rows, or led by source cards. Marker numbers are list positions, shared through ChatSources.Provider, so a marker and its row never disagree. Four kinds told apart by glyph; a working StatusMatrix while sources gather.",
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/motion",
+        "@bydiorama/compose-event-handlers",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/button",
+        "@bydiorama/popover",
+        "@bydiorama/status-matrix"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/chat-sources/chat-sources.tsx",
+          "type": "registry:ui",
+          "target": "ui/chat-sources.tsx"
+        },
+        {
+          "path": "registry/ui/chat-sources/chat-sources.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/chat-sources.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "chat-tasks",
+      "type": "registry:ui",
+      "description": "The plan the agent works to — a list it writes, ticks off and revises in place across turns. A chat-widget card (gap-xs) with a disclosure header; status=\"proposed\" shows numbered rows, Run / Change it and per-row drop with no disclosure; running/complete/stopped show six row statuses (done, current, pending, needsYou, failed, skipped) and fold to a header whose glyph is the list's status. Complete folds itself. The current task holds StatusMatrix Working's key frame — the plan never moves.",
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/motion",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/button",
+        "@bydiorama/badge",
+        "@bydiorama/chat-widget",
+        "@bydiorama/status-matrix"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/chat-tasks/chat-tasks.tsx",
+          "type": "registry:ui",
+          "target": "ui/chat-tasks.tsx"
+        },
+        {
+          "path": "registry/ui/chat-tasks/chat-tasks.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/chat-tasks.doc.ts"
         }
       ]
     },

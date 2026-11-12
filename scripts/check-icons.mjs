@@ -47,6 +47,13 @@ const ALLOWED_RAW_SVG = new Map([
       "(ADR 0023), not a glyph. No icon set can draw a series, and the SVG is " +
       "aria-hidden behind a role=img root that carries the name and description.",
   ],
+  [
+    "registry/ui/status-matrix/status-matrix.tsx",
+    "the component IS a computed screen — 25 dots whose levels are recomputed " +
+      "every tick from the status's signal, not a glyph. No icon set can draw a " +
+      "frame that does not exist until it is simulated; the settled list glyphs " +
+      "beside it (check, ring, close) stay griddy icons.",
+  ],
 ]);
 
 const manifest = readManifest();

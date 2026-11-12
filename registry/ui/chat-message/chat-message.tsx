@@ -15,8 +15,14 @@ import { Button } from "@/ui/button";
  */
 export type ChatMessageSize = "md" | "sm";
 
-/** Sender delivery state. The bubble's fill never moves; the caption does. */
-export type ChatMessageStatus = "sent" | "sending" | "failed";
+/**
+ * Sender delivery state. The bubble's fill never moves; the caption does.
+ *
+ * `queued` is a turn the person sent while the agent was still running the
+ * last one: it is delivered, and it waits. No indicator starts for it until
+ * the running turn settles — the live edge stays where it was.
+ */
+export type ChatMessageStatus = "sent" | "sending" | "queued" | "failed";
 
 const BUBBLE_SIZE = {
   md: "px-lg py-md text-body-md",
@@ -50,7 +56,7 @@ interface SenderBaseProps extends Omit<HTMLAttributes<HTMLDivElement>, "children
  */
 type SenderStatusProps =
   | { status?: "sent"; statusText?: undefined }
-  | { status: "sending" | "failed"; statusText: string };
+  | { status: "sending" | "queued" | "failed"; statusText: string };
 
 /**
  * Retry needs a NAME and a HANDLER together. The sheet draws the word "retry"
@@ -128,8 +134,9 @@ const ChatMessageSender = forwardRef<HTMLDivElement, ChatMessageSenderProps>(
             <p
               className={cn(
                 "font-body text-caption",
-                // Failure is the only one that colours: a "Sending…" caption in
-                // danger ink would report a problem that has not happened.
+                // Failure is the only one that colours: a "Sending…" or
+                // "Queued" caption in danger ink would report a problem that
+                // has not happened.
                 status === "failed" ? "text-danger" : "text-ink-muted",
               )}
             >
@@ -155,8 +162,11 @@ interface ReceiverBaseProps extends Omit<HTMLAttributes<HTMLDivElement>, "childr
   children: ReactNode;
   size?: ChatMessageSize;
   /**
-   * The answer is still arriving. Draws the caret block, and WITHHOLDS the
-   * actions row — copying or rating half an answer is worse than waiting.
+   * The answer is still arriving. WITHHOLDS the actions row — copying or
+   * rating half an answer is worse than waiting. It draws nothing itself: the
+   * turn's one mark is a `<ChatProgress form="streaming">` status row placed
+   * as the last child, so the same matrix runs from the turn's first second
+   * to its last.
    */
   isStreaming?: boolean;
   /**
@@ -240,18 +250,11 @@ const ChatMessageReceiver = forwardRef<HTMLDivElement, ChatMessageReceiverProps>
             BODY_SIZE[size],
           )}
         >
+          {/* No caret. The first release drew a static 8×15 block here; the
+              Chat status behaviour sheet drops it for the Streaming matrix in
+              a status row under the text, which the caller places — the turn
+              keeps one mark, and a caret beside it would be a second. */}
           {children}
-          {isStreaming ? (
-            // The only ornament while streaming. Static rather than blinking:
-            // the text arriving is already the motion, and a second animation
-            // for the same fact is what §8's "motion is never the only channel,
-            // and never doubled" is about.
-            <span
-              data-slot="chat-message-caret"
-              aria-hidden="true"
-              className="inline-block h-[15px] w-[8px] shrink-0 self-start rounded-[2px] bg-ink-primary"
-            />
-          ) : null}
         </div>
 
         {errorText ? (

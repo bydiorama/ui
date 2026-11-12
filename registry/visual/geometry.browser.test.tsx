@@ -262,17 +262,17 @@ const CASES: Record<string, () => ReactElement> = {
       />
     </div>
   ),
-  "chat-progress-steps": () => (
-    <div className="w-[640px]">
+  // The sheet's lane is 506 wide and hangs 24px in from the run's leading
+  // edge, so a 530px column renders it at the sheet's own width.
+  "chat-progress-lane": () => (
+    <div className="w-[530px]">
       <ChatProgress
-        form="steps"
-        label="Gathering brand resources"
-        duration="12 s"
-        steps={[
-          { id: "tone", label: "Tone of voice — 2 documents", status: "done" },
-          { id: "styles", label: "Brand styles — palette and type ramp", status: "done" },
-          { id: "images", label: "Collecting images — 8 of 12", status: "current" },
-          { id: "moodboard", label: "Compose moodboard", status: "pending" },
+        form="parallel"
+        label="Working on 1 thing"
+        duration="31 s"
+        isHeld
+        lanes={[
+          { id: "carousel", name: "Carousel", activity: "Reframing the scan to 4:5 — frame 2 of 3", status: "current", duration: "31 s" },
         ]}
       />
     </div>

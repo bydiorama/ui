@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chatprogress-one-live-edge",
+  "date": "2026-11-12",
+  "item": "chat-progress",
+  "kind": "breaking",
+  "summary": "Chat Progress rebuilt on StatusMatrix with ONE moving mark per turn. The CSS ring spinner is gone. New forms: waiting and streaming status rows (the thinking row's matrix hands over in place to its ending — failed and stopped keep the same element); reasoning under a five-line capped, faded body; a thought chain on a 16px node lane with kind glyphs, chips, prose, one level of branches, a failed status with Retry and a 40px tabular clock; parallel lanes drawn as the activity pill's box (glyph, 104px name, activity, clock, chevron) that open to their own chain. Only the deepest running node moves — the root when parallel or folded, none when isHeld — and a run that finishes while mounted folds to its receipt. Stop past ~30 s and a stoppedText ending. The geometry spec now measures the lane pill (sheet 4040-0) instead of the old step list.",
+  "affects": [
+    "item:chat-progress",
+    "item:status-matrix",
+    "item:fade",
+    "item:progress",
+    "item:use-controllable-state",
+    "item:button",
+    "token:--ui-bg-elevated",
+    "token:--ui-bg-accent-legible",
+    "token:--ui-intent-warning-fg",
+    "token:--ui-intent-danger-fg",
+    "token:--ui-intent-success-fg",
+    "token:--ui-border-default",
+    "token:--ui-text-muted",
+    "token:--ui-text-secondary"
+  ],
+  "migration": {
+    "manual": "BREAKING: steps take `status: \"done\" | \"current\" | \"pending\" | \"failed\"` with optional icon, duration, chips, detail and one level of `steps`; the spinner and its data-slot are gone (the row's mark is a StatusMatrix with data-slot=\"status-matrix\"). Pass isHeld to every ChatProgress in a turn except the live edge. Rows are 17.55px at the body-sm role's leading rather than the old 16px."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3Z89-0"
+  }
+}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { fn } from "storybook/test";
-import { Bookmark, Copy, MoreVertical, Refresh, ThumbsDown, ThumbsUp } from "griddy-icons";
+import { expect, fn } from "storybook/test";
+import { Bookmark, Copy, MoreVertical, Plus, Refresh, Search, ThumbsDown, ThumbsUp } from "griddy-icons";
 
 import {
   resolveThemePair,
@@ -11,6 +11,11 @@ import {
 } from "@bydiorama/tokens";
 
 import { Button } from "@/ui/button/button.tsx";
+import { ChatComposer } from "@/ui/chat-composer/chat-composer.tsx";
+import { ChatProgress, type ChatProgressStep } from "@/ui/chat-progress/chat-progress.tsx";
+import { ChatRunDock } from "@/ui/chat-run-dock/chat-run-dock.tsx";
+import { ChatSources, type ChatSource } from "@/ui/chat-sources/chat-sources.tsx";
+import { ChatTasks } from "@/ui/chat-tasks/chat-tasks.tsx";
 import { Thumbnail } from "@/ui/thumbnail/thumbnail.tsx";
 import { ChatMessage } from "./chat-message.tsx";
 
@@ -111,6 +116,11 @@ export const SenderStates: Story = {
           Now redraw it with Wim Crouwel&apos;s New Alphabet instead.
         </ChatMessage.Sender>
       </Row>
+      <Row label="Queued">
+        <ChatMessage.Sender status="queued" statusText="Queued — runs after this turn">
+          Then make a 4:5 crop for the carousel.
+        </ChatMessage.Sender>
+      </Row>
       <Row label="Failed">
         <ChatMessage.Sender status="failed" statusText="Not sent" retryLabel="Retry" onRetryAction={fn()}>
           Now redraw it with Wim Crouwel&apos;s New Alphabet instead.
@@ -133,8 +143,9 @@ export const SenderStates: Story = {
 };
 
 /**
- * While streaming, the caret block is the only ornament and the actions row is
- * withheld. Failure is a block inside the message, not a toast — the error
+ * While streaming the actions row is withheld, and the turn's one mark is the
+ * Streaming matrix in a status row under the text — ChatProgress, placed by
+ * the caller. The receiver draws no caret of its own. Failure is a block inside the message, not a toast — the error
  * stays attached to the turn it belongs to.
  */
 export const ReceiverStates: Story = {
@@ -143,8 +154,11 @@ export const ReceiverStates: Story = {
     <div className="flex max-w-[640px] flex-col gap-xl">
       <Row label="Streaming">
         <ChatMessage.Receiver isStreaming actions={<Actions />} meta="Diorama Agent">
-          Here&apos;s your title slide — Aspekta headline on the brand&apos;s deep blue, with the 1961 poster grid
-          recreated as a
+          <p>
+            Here&apos;s your title slide — Aspekta headline on the brand&apos;s deep blue, with the 1961 poster grid
+            recreated as a
+          </p>
+          <ChatProgress form="streaming" label="Writing" />
         </ChatMessage.Receiver>
       </Row>
       <Row label="Settled">
@@ -214,7 +228,10 @@ export const States: Story = {
         </ChatMessage.Receiver>
       </Row>
       <Row label="streaming">
-        <ChatMessage.Receiver isStreaming>Four-colour process: 82 / 46</ChatMessage.Receiver>
+        <ChatMessage.Receiver isStreaming>
+          <p>Four-colour process: 82 / 46</p>
+          <ChatProgress form="streaming" label="Writing" isHeld />
+        </ChatMessage.Receiver>
       </Row>
       <Row label="hover-revealed">
         <ChatMessage.Receiver actions={<Actions />} meta="Diorama Agent · just now">
@@ -274,5 +291,131 @@ export const BrandThemed: Story = {
         <Panel style={brand as React.CSSProperties} title="stress brand — pale yellow accent" />
       </div>
     );
+  },
+};
+
+/** The Rich Turn sheet's chain (40H6-0): one branch, its second frame running. */
+const TURN_CHAIN: ChatProgressStep[] = [
+  {
+    id: "search",
+    label: "Searched the library",
+    status: "done",
+    icon: <Search />,
+    duration: "3 s",
+    chips: [{ label: "grid systems 1961" }, { label: "Müller-Brockmann posters" }],
+  },
+  {
+    id: "draft",
+    label: "Drafting three frames",
+    status: "current",
+    duration: "24 s",
+    steps: [
+      { id: "f1", label: "Frame 1 — title on the 4 × 4", status: "done", duration: "11 s" },
+      { id: "f2", label: "Frame 2 — the grid, drawn", status: "current", duration: "13 s" },
+    ],
+  },
+];
+
+const TURN_SOURCES: ChatSource[] = [
+  { id: "poster", kind: "web", title: "Beethoven poster, Zürich Tonhalle, 1955", origin: "moma.example", href: "https://moma.example/beethoven" },
+  { id: "grid", kind: "libraryItem", title: "Grid Systems in Graphic Design", origin: "Library · p. 48", href: "/library/grid" },
+  { id: "guidelines", kind: "brandAsset", title: "Brand guidelines — Grid", origin: "Guidelines · Chapter 4", href: "/brand/grid" },
+];
+
+/**
+ * The Chat rich turn sheet (40H0-0): everything the three chat sheets draw, in
+ * one receiver block on the 640 column in DARK, in the order a turn is built —
+ * the receipt of a finished thought, a chain still running a branch, the plan
+ * it works to, the answer with its markers, the sources, and the composer with
+ * a background run docked.
+ *
+ * ONE matrix moves: the chain's deepest running node, Frame 2. The tasks card's
+ * current row, the dock's run and every ending hold their key frame — which is
+ * the rule the play function checks, since nothing else in the library can see
+ * the whole turn at once.
+ */
+export const RichTurn: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => {
+    const dark = toStyleObject(resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED }), "dark");
+    return (
+      <div
+        data-testid="rich-turn"
+        style={{ ...(dark as React.CSSProperties), colorScheme: "dark" }}
+        className="rounded-lg bg-base px-xl py-2xl"
+      >
+        <div className="mx-auto flex max-w-[640px] flex-col gap-xl">
+          <ChatMessage.Sender>
+            Create a LinkedIn carousel about Josef Müller-Brockmann&apos;s grid systems — use the poster scan as the
+            reference.
+          </ChatMessage.Sender>
+          <ChatMessage.Receiver>
+            <ChatProgress
+              label="Thinking"
+              reasoning={["The brief asks for a carousel from a single poster — so the first job is deciding what repeats."]}
+              isComplete
+              receiptText="Thought for 4 s"
+              expandLabel="Show the reasoning"
+            />
+            <ChatProgress form="steps" label="Researching grid systems" duration="42 s" steps={TURN_CHAIN} />
+            <ChatTasks
+              status="running"
+              label="Grid systems carousel"
+              count="1 of 3"
+              statusLabels={{ done: "Done:", current: "In progress:", pending: "To do:" }}
+              tasks={[
+                { id: "read", label: "Read the poster scan and the brand grid", status: "done" },
+                { id: "draft", label: "Draft the frames on the 4 × 4 grid", status: "current" },
+                { id: "quote", label: "Pick a quote for frame 3", status: "needsYou", needsYouLabel: "Needs you" },
+              ]}
+            />
+            <ChatSources.Provider
+              sources={TURN_SOURCES}
+              labels={{ openSource: "Open source", previousSource: "Previous source", nextSource: "Next source", unavailable: "No longer available" }}
+            >
+              <p>
+                Müller-Brockmann set the 1955 Beethoven poster on arcs measured from a single module
+                <ChatSources.Citation sourceIds={["poster"]} />, and your brand grid already uses twelve columns
+                <ChatSources.Citation sourceIds={["guidelines"]} />.
+              </p>
+              <ChatSources label="3 sources" defaultIsOpen />
+            </ChatSources.Provider>
+          </ChatMessage.Receiver>
+          <div className="flex flex-col gap-xs">
+            <ChatRunDock
+              aria-label="Background runs"
+              isHeld
+              runs={[{ id: "cuts", name: "Rendering Story cuts", activity: "2 of 3", elapsed: "1:48", value: 66 }]}
+              onStopAction={fn()}
+              stopLabel={(run) => `Stop ${run.name}`}
+            />
+            <ChatComposer
+              label="Message"
+              layout="inline"
+              placeholder="Reply to interrupt…"
+              isGenerating
+              onStopAction={fn()}
+              onSubmitAction={fn()}
+              sendLabel="Send"
+              stopLabel="Stop generating"
+              startAction={
+                <Button variant="ghost" shape="full" size="md" isIconOnly aria-label="Add attachment" icon={<Plus />} onClick={fn()} />
+              }
+            />
+          </div>
+        </div>
+      </div>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const turn = canvasElement.querySelector('[data-testid="rich-turn"]')!;
+    const marks = Array.from(turn.querySelectorAll('[data-slot="status-matrix"]'));
+    const moving = marks.filter((m) => !m.hasAttribute("data-held"));
+    // Several marks, one moving — and the one that moves is the chain's
+    // deepest running node, not its root.
+    await expect(marks.length).toBeGreaterThan(1);
+    await expect(moving).toHaveLength(1);
+    const node = moving[0]!.closest('[data-slot="chat-progress-branch"]');
+    await expect(node?.textContent).toContain("Frame 2");
   },
 };

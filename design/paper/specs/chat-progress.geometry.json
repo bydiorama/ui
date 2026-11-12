@@ -3,23 +3,32 @@
   "item": "chat-progress",
   "source": {
     "tool": "paper",
-    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2HGF-0",
+    "url": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3Z89-0",
     "artboard": "Component --- Chat Progress",
-    "extracted": "2026-08-19",
+    "extracted": "2026-11-12",
     "how": "get_computed_styles for the declared values; get_node_info / get_children for the laid-out rects, whose world coordinates are what `gaps` is computed from."
   },
   "tolerance": 0.5,
-  "note": "The two forms that have a figure at all. Thinking is one row of two items with no container, and measured is the Progress primitive, whose own geometry belongs to Progress — so the cases here are the activity pill (a padded box with an asymmetric inset) and the step list (an indented track with no inset on three of its four sides). Both are places where a number could drift with nothing failing: the pill's 8/12 and the list's single 24px indent are what make the two read as one object and as one group.",
+  "note": "The two figures with a box of their own. The activity pill (a padded one-line box with an asymmetric inset) and a parallel lane (the same pill, holding a 14px matrix, a 104px name, the activity, a 40px clock and a 16px chevron slot). The lane is the activity pill's box by design — the two read as one family — and both are places where a number could drift with nothing failing. The thought chain's lanes (node 16, text edge 24, clock 40, rail at 8) are asserted in chat-progress.browser.test.tsx against the sheet's node ids, because they are columns ACROSS rows rather than one box's inset.",
   "cases": [
     {
       "name": "chat-progress-activity-pill",
       "axis": "horizontal",
-      "nodes": { "container": "2HH2-0", "children": ["2HH3-0", "2HH4-0"] },
+      "nodes": {
+        "container": "2HH2-0",
+        "children": [
+          "2HH3-0",
+          "2HH4-0"
+        ]
+      },
       "slots": {
         "container": "chat-progress-activity",
         "child": "chat-progress-activity-verb|chat-progress-activity-detail"
       },
-      "laws": ["inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "laws": [
+        "inset-is-declared",
+        "track-is-the-sum-of-its-parts"
+      ],
       "lawsNotDeclared": {
         "uniform-inset": "12 inline and 8 block, deliberately — the pill is one line tall and a uniform 12 would make it a box. Tooltip's chip declares the same asymmetry for the same reason.",
         "concentric-radius": "Neither the verb nor the detail paints a fill, a border or a corner. The pill's radius-md is the only shape in the figure."
@@ -28,7 +37,12 @@
         "container": {
           "width": 640,
           "height": 32,
-          "padding": { "top": 8, "right": 12, "bottom": 8, "left": 12 },
+          "padding": {
+            "top": 8,
+            "right": 12,
+            "bottom": 8,
+            "left": 12
+          },
           "border": 0,
           "radius": 8,
           "tokens": {
@@ -40,39 +54,103 @@
         },
         "gap": 8,
         "children": [
-          { "width": 60, "height": 16, "radius": null },
-          { "width": 548, "height": 16, "radius": null }
+          {
+            "width": 60,
+            "height": 16,
+            "radius": null
+          },
+          {
+            "width": 548,
+            "height": 16,
+            "radius": null
+          }
         ],
-        "gaps": { "top": 8, "right": 12, "bottom": 8, "left": 12 }
+        "gaps": {
+          "top": 8,
+          "right": 12,
+          "bottom": 8,
+          "left": 12
+        }
       }
     },
     {
-      "name": "chat-progress-steps",
-      "axis": "vertical",
-      "nodes": { "container": "2HHG-0", "children": ["2HHH-0", "2HHL-0", "2HHP-0", "2HHU-0"] },
-      "slots": { "container": "chat-progress-steps", "child": "chat-progress-step" },
-      "laws": ["inset-is-declared", "track-is-the-sum-of-its-parts"],
+      "name": "chat-progress-lane",
+      "axis": "horizontal",
+      "nodes": {
+        "container": "4040-0",
+        "children": [
+          "4476-0",
+          "4044-0",
+          "4045-0",
+          "4046-0",
+          "4047-0"
+        ]
+      },
+      "slots": {
+        "container": "chat-progress-lane",
+        "child": "status-matrix|chat-progress-lane-name|chat-progress-lane-activity|chat-progress-clock|chat-progress-chevron"
+      },
+      "laws": [
+        "track-is-the-sum-of-its-parts"
+      ],
       "lawsNotDeclared": {
-        "uniform-inset": "24 on the leading side and nothing anywhere else, which IS the design: the list is indented to its group header's text and hangs off nothing. Menu.Separator's rule — grouping is the difference between two gaps, never a rule — is the same decision one level up.",
-        "concentric-radius": "The list paints no fill, no border and no corner; the glyphs inside carry their own and belong to no box."
+        "inset-is-declared": "The sheet declares only padding-inline md and gets its block inset from a fixed 32px height with items-center — so its 8px top and bottom are laid out, not declared, and the law fails on the drawing itself. The render declares py-sm instead of the height (ADR 0019: a fixed height fighting padding is how Tabs drifted). The sheet's laid-out 8/12/8/12 is still asserted against the render by the inset test.",
+        "uniform-inset": "12 inline and 8 block, the activity pill's own asymmetry — the lane is that box.",
+        "concentric-radius": "Nothing inside the lane paints a corner; its radius-md is the only shape in the figure."
       },
       "sheet": {
         "container": {
-          "width": 640,
-          "height": 88,
-          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 24 },
+          "width": 506,
+          "height": 32,
+          "padding": {
+            "top": 0,
+            "right": 12,
+            "bottom": 0,
+            "left": 12
+          },
           "border": 0,
-          "radius": null,
-          "tokens": { "padding": "--ui-space-xl", "gap": "--ui-space-sm" }
+          "radius": 8,
+          "tokens": {
+            "padding": "--ui-space-md",
+            "gap": "--ui-space-sm",
+            "radius": "--ui-radius-md",
+            "fill": "--ui-bg-elevated"
+          }
         },
         "gap": 8,
         "children": [
-          { "width": 616, "height": 16, "radius": null },
-          { "width": 616, "height": 16, "radius": null },
-          { "width": 616, "height": 16, "radius": null },
-          { "width": 616, "height": 16, "radius": null }
+          {
+            "width": 14,
+            "height": 14,
+            "radius": null
+          },
+          {
+            "width": 104,
+            "height": 16,
+            "radius": null
+          },
+          {
+            "width": 276,
+            "height": 16,
+            "radius": null
+          },
+          {
+            "width": 40,
+            "height": 16,
+            "radius": null
+          },
+          {
+            "width": 16,
+            "height": 16,
+            "radius": null
+          }
         ],
-        "gaps": { "top": 0, "right": 0, "bottom": 0, "left": 24 }
+        "gaps": {
+          "top": 8,
+          "right": 12,
+          "bottom": 8,
+          "left": 12
+        }
       }
     }
   ],
@@ -83,14 +161,14 @@
       "why": "The case exists for the 8px between them and the 8/12 inset. The detail is the flexing slot (flex-1, min-w-0, truncate), so its width moves with the copy and the column by design, and the law's arithmetic binds whatever it measures."
     },
     {
-      "case": "chat-progress-steps",
-      "what": "The render's indent is `ps-xl` — a LOGICAL padding — where the sheet lays out a physical 24 on the left.",
-      "why": "The list hangs off its header's text, and in RTL that header starts on the right. Paper draws LTR only; the logical property is what makes the drawing true in both directions, and it resolves to the sheet's 24px left in the direction the sheet drew."
+      "case": "chat-progress-lane",
+      "what": "The render's lane is 33.55px tall where the sheet's is 32.",
+      "why": "The sheet sets the label text at a 16px line height; the label-md role's own leading is 1.3 (16.9px), and ADR 0020 §3 forbids overriding it. The block inset stays the sheet's 8px on both sides — the box grows by the leading, not by the padding — which is the same figure the activity pill renders, and the browser test asserts the lane EQUALS the pill rather than either number."
     },
     {
-      "case": "chat-progress-steps",
-      "what": "Paper reports the third and fourth children at 24.001 and 71.999 rather than 24 and 72.",
-      "why": "Canvas rounding on a stack of four 16px rows with three 8px gaps. Every difference is under a thousandth of a pixel and far inside this spec's tolerance; the numbers here are the exact ones the laws consume, not tidied versions of them."
+      "case": "chat-progress-lane",
+      "what": "The activity is 276px on the sheet; the render's is whatever the flexing slot gets.",
+      "why": "The activity is flex-1, min-w-0 and truncates, so its width moves with the column by design. The case renders at the sheet's 506px lane so the track arithmetic binds the same total."
     }
   ]
 }

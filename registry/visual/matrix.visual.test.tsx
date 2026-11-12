@@ -63,6 +63,7 @@ import { Progress } from "@/ui/progress/progress.tsx";
 import { BarChart, Chart } from "@/ui/chart/chart.tsx";
 import { Meter } from "@/ui/meter/meter.tsx";
 import { Sparkline } from "@/ui/sparkline/sparkline.tsx";
+import { StatusMatrix } from "@/ui/status-matrix/status-matrix.tsx";
 import { StatTiles } from "@/blocks/stat-tiles/stat-tiles.tsx";
 import { ChartCard } from "@/blocks/chart-card/chart-card.tsx";
 import { Select, type SelectItem } from "@/ui/select/select.tsx";
@@ -80,7 +81,10 @@ import { Textarea } from "@/ui/textarea/textarea.tsx";
 import { Thumbnail } from "@/ui/thumbnail/thumbnail.tsx";
 import { ChatComposer } from "@/ui/chat-composer/chat-composer.tsx";
 import { ChatMessage } from "@/ui/chat-message/chat-message.tsx";
-import { ChatProgress, type ChatProgressStep } from "@/ui/chat-progress/chat-progress.tsx";
+import { ChatProgress, type ChatProgressLane, type ChatProgressStep } from "@/ui/chat-progress/chat-progress.tsx";
+import { ChatRunDock, ChatRunMark, type ChatRun } from "@/ui/chat-run-dock/chat-run-dock.tsx";
+import { ChatSources, type ChatSource, type ChatSourcesLabels } from "@/ui/chat-sources/chat-sources.tsx";
+import { ChatTasks } from "@/ui/chat-tasks/chat-tasks.tsx";
 import { ChatWidget } from "@/ui/chat-widget/chat-widget.tsx";
 import { ChatQuestionnaire, type ChatQuestionnaireOption } from "@/ui/chat-questionnaire/chat-questionnaire.tsx";
 
@@ -298,12 +302,77 @@ function VisualToasts() {
   return null;
 }
 
-/** The sheet's own step list: one done, one running, one waiting. */
+/**
+ * The sheet's thought chain (3ZV1-0), trimmed: a kind glyph with chips, a
+ * running step with a branch, a failed step with Retry, and a pending ring —
+ * every glyph and every lane of the chain in one list.
+ */
 const PROGRESS_STEPS: ChatProgressStep[] = [
-  { id: "tone", label: "Tone of voice — 2 documents", status: "done" },
-  { id: "styles", label: "Brand styles — palette and type ramp", status: "done" },
-  { id: "images", label: "Collecting images — 8 of 12", status: "current" },
-  { id: "moodboard", label: "Compose moodboard", status: "pending" },
+  {
+    id: "search",
+    label: "Searched the library",
+    status: "done",
+    icon: <Search />,
+    duration: "3 s",
+    chips: [{ label: "grid systems 1961" }, { label: "Müller-Brockmann posters" }],
+  },
+  {
+    id: "open",
+    label: "Could not open eyemagazine.example",
+    status: "failed",
+    detail: "Timed out after 10 s. Carried on with 3 of 4 sources.",
+    retryLabel: "Retry",
+    onRetryAction: () => {},
+  },
+  {
+    id: "draft",
+    label: "Drafting three frames",
+    status: "current",
+    duration: "24 s",
+    steps: [
+      { id: "f1", label: "Frame 1 — title on the 4 × 4", status: "done", duration: "11 s" },
+      { id: "f2", label: "Frame 2 — the grid, drawn", status: "current", duration: "13 s" },
+    ],
+  },
+  { id: "safe", label: "Check safe areas", status: "pending" },
+];
+
+/** The sheet's running lanes (403F-0): running, done, failed, waiting. */
+const PROGRESS_LANES: ChatProgressLane[] = [
+  { id: "carousel", name: "Carousel", activity: "Reframing the scan to 4:5 — frame 2 of 3", status: "current", duration: "31 s" },
+  { id: "copy", name: "Post copy", activity: "Draft ready — 84 words", status: "done", duration: "14 s" },
+  { id: "alt", name: "Alt text", activity: "Frame 2 could not be read", status: "failed", retryLabel: "Retry", onRetryAction: () => {} },
+  { id: "story", name: "Story cut", activity: "Waits for Carousel", status: "pending" },
+];
+
+/** Five sources, one of each kind and two on the web (Chat Sources, 3ZK8-0). */
+const SOURCES_DEMO: ChatSource[] = [
+  { id: "moma", kind: "web", title: "Lighthouse at dusk — collection record", origin: "moma.example", href: "https://moma.example/lighthouse" },
+  { id: "grid", kind: "libraryItem", title: "Grid Systems in Graphic Design", origin: "Library · p. 48", href: "/library/grid" },
+  { id: "guidelines", kind: "brandAsset", title: "Colour and contrast", origin: "Guidelines · Chapter 4", href: "/brand/4" },
+  { id: "moodboard", kind: "file", title: "moodboard-v3.png", origin: "Attached to this chat", href: "/files/m.png", isExternal: false },
+  { id: "tate", kind: "web", title: "Coastal prints, 1890–1930", origin: "tate.example", href: "https://tate.example/coastal" },
+];
+
+const SOURCES_LABELS: ChatSourcesLabels = {
+  openSource: "Open source",
+  previousSource: "Previous source",
+  nextSource: "Next source",
+  unavailable: "No longer available",
+};
+
+/** One measured run and one unmeasured (05 Background, 3ZIE-0). */
+const DOCK_RUNS: ChatRun[] = [
+  { id: "cuts", name: "Rendering Story cuts", activity: "2 of 3 · keeps going while you chat", elapsed: "1:48", value: 66 },
+  { id: "kit", name: "Exporting brand kit", activity: "Packaging 248 files", elapsed: "0:12" },
+];
+
+const TASK_LABELS = { done: "Done:", current: "In progress:", pending: "To do:" };
+
+const PROGRESS_THOUGHT = [
+  "The brief asks for a carousel, but the reference is a single poster — so the first job is deciding what repeats.",
+  "The 1961 grid is four by four with a doubled baseline; the brand grid is twelve columns. Three brand columns to one poster unit keeps both honest.",
+  "Palette next: the scan is warm, so lift the red from the paper, not from the ink.",
 ];
 
 /** The sheet's four tone options, one of them a handoff. */
@@ -756,6 +825,27 @@ const CASES: Array<{
           <Sparkline data={[]} label="Loading" description="Loading." isLoading />
           <Sparkline data={[42]} label="One point" description="One reading." />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "status-matrix",
+    // Every status at its key frame, at both sizes — HELD, because a moving
+    // matrix has no single frame to baseline. Ink and the four levels are the
+    // whole design here: an Ember that collapsed to Off, or Done drawn in the
+    // accent, is exactly the small-area change this layer exists for (and
+    // below its 1% floor on its own, which is why the frames are also
+    // asserted cell by cell in the contract test).
+    ui: (
+      <div className="flex gap-xl rounded-md bg-base p-lg">
+        {(["md", "sm"] as const).map((size) => (
+          <div key={size} className="flex flex-col gap-sm">
+            {(["waiting", "typing", "thinking", "working", "streaming", "done", "failed", "stopped"] as const).map((status) => (
+              <StatusMatrix key={status} status={status} size={size} isHeld />
+            ))}
+            <StatusMatrix status="progress" value={66} size={size} isHeld />
+          </div>
+        ))}
       </div>
     ),
   },
@@ -1604,14 +1694,16 @@ const CASES: Array<{
   },
   {
     name: "chat-progress",
-    // All four forms plus both terminal rows, which is the only way the
-    // escalation is visible as one axis. The spinner is the exception this
-    // frame has to tolerate: it loops, so `stable()` skips it and the arc is
-    // captured wherever it happens to be — the baseline is about the other
-    // five rows.
+    // Every form on one axis, and every matrix HELD: a moving matrix is a
+    // frame captured wherever its clock happens to be, so the baseline would
+    // be about the clock. Held, each draws its key frame — the frame the
+    // sheet draws — and the whole figure is deterministic.
     ui: (
       <div className="flex w-full flex-col gap-lg">
-        <ChatProgress label="Thinking…" />
+        <ChatProgress label="Thinking…" duration="12 s" isHeld />
+        <ChatProgress label="Thinking" reasoning={PROGRESS_THOUGHT} duration="8 s" isHeld />
+        <ChatProgress form="steps" label="Researching grid systems" duration="42 s" steps={PROGRESS_STEPS} isHeld />
+        <ChatProgress form="parallel" label="Working on 4 things" meta="1 done" duration="31 s" lanes={PROGRESS_LANES} isHeld />
         <ChatProgress
           form="activity"
           activities={[
@@ -1619,21 +1711,139 @@ const CASES: Array<{
             { verb: "Searching…", detail: "5 files included across 3 spaces" },
           ]}
         />
-        <ChatProgress form="steps" label="Gathering brand resources" duration="12 s" steps={PROGRESS_STEPS} />
         <ChatProgress form="measured" label="Generating slide 3 of 6" value={48} />
         <ChatProgress
           form="steps"
-          label="Gathering brand resources"
+          label="Researching grid systems"
           steps={PROGRESS_STEPS}
           isComplete
-          receiptText="Worked for 26 s · 4 steps"
+          receiptText="Worked for 58 s · 4 steps · 1 failed"
           expandLabel="Show what the agent did"
         />
+        <ChatProgress label="Thinking…" stoppedText="Stopped after 5 s" />
         <ChatProgress
           label="Thinking…"
           errorText="Stopped after 12 s — connection lost"
           retryLabel="Retry"
           onRetryAction={() => {}}
+        />
+      </div>
+    ),
+  },
+  {
+    name: "chat-run-dock",
+    // The composer's block as 05 Background draws it: the dock tucked 24px inside
+    // a pill stand-in, one measured and one unmeasured run (both HELD, so there is
+    // one frame), then the four thread marks. The composer's OTHER edge
+    // tenant rides above it: ChatProgress form="typing", people's presence,
+    // narrow enough that the name truncates before the verb (40E1).
+    ui: (
+      <div className="flex w-full flex-col gap-xl rounded-md bg-base p-lg">
+        <div className="flex flex-col gap-xs">
+          <ChatProgress form="typing" who="Josef Müller-Brockmann and Wim Crouwel" label="are typing" isHeld className="w-60 ps-lg" />
+          <ChatRunDock
+            aria-label="Background runs"
+            isHeld
+            runs={DOCK_RUNS}
+            onStopAction={() => {}}
+            stopLabel={(run) => `Stop ${run.name}`}
+          />
+          <div className="h-control-lg rounded-full bg-field ring-hairline ring-edge-subtle ring-inset" />
+        </div>
+        <div className="flex flex-col gap-md">
+          <ChatRunMark kind="started" label="Rendering Story cuts in the background" />
+          <ChatRunMark kind="finished" label="Story cuts finished" detail="3 files · 2 min 6 s" actionLabel="Open" onAction={() => {}} />
+          <ChatRunMark kind="failed" label="Brand kit export stopped at 180 of 248 files" retryLabel="Retry" onRetryAction={() => {}} />
+          <ChatRunMark kind="stopped" label="You stopped Story cuts after 48 s" detail="1 of 3 kept" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    name: "chat-sources",
+    // Markers at rest, grouped and streaming; the block folded, open, as cards,
+    // gathering (matrix HELD) and with a source that has gone. No hover, no
+    // preview: nothing here waits on a pointer or a clock.
+    ui: (
+      <div className="flex w-full flex-col gap-lg">
+        <ChatSources.Provider sources={SOURCES_DEMO} labels={SOURCES_LABELS}>
+          <p className="text-body-md text-ink-primary">
+            The horizon sits high<ChatSources.Citation sourceIds={["moma"]} /> and the grid holds it
+            <ChatSources.Citation sourceIds={["grid", "tate"]} />.
+          </p>
+          <ChatSources label="5 sources" />
+          <ChatSources label="5 sources" defaultIsOpen />
+          <ChatSources label="5 sources" layout="cards" moreLabel={(n) => `+${n} more`} />
+          <ChatSources label="3 sources so far" isGathering isHeld />
+        </ChatSources.Provider>
+        <ChatSources.Provider sources={SOURCES_DEMO} labels={SOURCES_LABELS} isStreaming>
+          <p className="text-body-md text-ink-primary">
+            Still streaming<ChatSources.Citation sourceIds={["moma"]} />
+          </p>
+        </ChatSources.Provider>
+        <ChatSources.Provider sources={[{ ...SOURCES_DEMO[2]!, isUnavailable: true }]} labels={SOURCES_LABELS}>
+          <ChatSources label="1 source" />
+        </ChatSources.Provider>
+      </div>
+    ),
+  },
+  {
+    name: "chat-tasks",
+    // Every row status, the folded trio and the proposed plan in one frame.
+    // Deterministic: the only matrix is held, so nothing loops.
+    ui: (
+      <div className="flex w-full flex-col gap-lg">
+        <ChatTasks
+          status="running"
+          label="Grid systems carousel"
+          count="2 of 6"
+          statusLabels={TASK_LABELS}
+          tasks={[
+            { id: "a", label: "Read the poster scan and the brand grid", status: "done" },
+            { id: "b", label: "Draft the frames on the 4 × 4 grid", status: "current", activity: "Reframing to 4:5 — frame 2 of 3" },
+            { id: "c", label: "Check contrast of the red on the paper tone", status: "pending", isNew: true, newLabel: "New" },
+            { id: "d", label: "Pick a quote for frame 3", status: "needsYou", needsYouLabel: "Needs you" },
+            { id: "e", label: "Export the Story cut", status: "failed", reason: "Failed — the render timed out", retryLabel: "Retry", onRetryAction: () => {} },
+            { id: "f", label: "Cut a 9:16 Story version", status: "skipped", skippedLabel: "Skipped — you asked for feed only" },
+          ]}
+        />
+        <ChatTasks
+          status="running"
+          label="Grid systems carousel"
+          count="2 of 5"
+          defaultIsOpen={false}
+          statusLabels={TASK_LABELS}
+          tasks={[{ id: "b", label: "Draft the frames on the 4 × 4 grid", status: "current" }]}
+        />
+        <ChatTasks
+          status="complete"
+          label="Grid systems carousel"
+          count="5 of 5 · 3 min"
+          statusLabels={TASK_LABELS}
+          tasks={[{ id: "a", label: "Read the poster scan", status: "done" }]}
+        />
+        <ChatTasks
+          status="stopped"
+          label="Grid systems carousel"
+          count="Stopped at 2 of 5"
+          defaultIsOpen={false}
+          statusLabels={TASK_LABELS}
+          tasks={[{ id: "a", label: "Read the poster scan", status: "done" }]}
+        />
+        <ChatTasks
+          status="proposed"
+          label="Grid systems carousel"
+          count="3 steps · about 3 min"
+          runLabel="Run plan"
+          onRunAction={() => {}}
+          changeLabel="Change it"
+          onChangeAction={() => {}}
+          footnote="Nothing runs until you say so"
+          tasks={[
+            { id: "a", label: "Read the poster scan and the brand grid" },
+            { id: "b", label: "Draft the frames on the 4 × 4 grid" },
+            { id: "c", label: "Write the post copy and alt text" },
+          ]}
         />
       </div>
     ),

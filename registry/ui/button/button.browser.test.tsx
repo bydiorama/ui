@@ -4,6 +4,8 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
 
+import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED } from "@bydiorama/tokens";
+
 import { Button, buttonClassName } from "./button.tsx";
 
 /**
@@ -485,6 +487,67 @@ describe("pressing an edge-only Button paints no fill", () => {
     // The sheet's Ghost Hover frame fills with --ui-neutral-95, whose role is
     // --ui-bg-elevated. `bg-hover` is neutral-90 — one step darker than drawn.
     expect(declarationsFor(button, ":hover").get("background-color")).toBe("var(--ui-bg-elevated)");
+  });
+});
+
+/**
+ * A ghost's hover is a FILL, and a fill is only visible against a ground that
+ * differs from it. The sheet's hover is `bg-elevated` — drawn on the page —
+ * and the chat sheets put ghost controls on cards that are ALREADY elevated
+ * (Chat Tasks' Retry and drop, the run dock's Stop, a failed lane's Retry),
+ * where that hover painted the card's own colour and nothing happened.
+ *
+ * Asserted as the relationship that matters, in a real hover and both
+ * schemes: the hovered fill must DIFFER from the ground the button sits on.
+ * Pinning the two hexes would pass while they converged — which is exactly
+ * how this shipped.
+ */
+describe("a hovered ghost is visible on the ground it sits on", () => {
+  async function hoveredFill(ground: "bg-base" | "bg-elevated", scheme: "light" | "dark") {
+    container = document.createElement("div");
+    Object.assign(
+      container.style,
+      toStyleObject(resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED }), scheme) as unknown as Record<string, string>,
+      { colorScheme: scheme },
+    );
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root!.render(
+        <div data-testid="ground" className={`${ground} p-lg`}>
+          <Button variant="ghost">Retry</Button>
+        </div>,
+      );
+    });
+    const groundEl = container.querySelector<HTMLElement>('[data-testid="ground"]')!;
+    const button = container.querySelector("button")!;
+    await userEvent.hover(button);
+    // Wait out the motionMicro ease before reading: a read mid-transition
+    // returns the value the fill is leaving.
+    await Promise.all(button.getAnimations().map((a) => a.finished.catch(() => undefined)));
+    const fill = getComputedStyle(button).backgroundColor;
+    const groundFill = getComputedStyle(groundEl).backgroundColor;
+    await userEvent.unhover(button);
+    act(() => root?.unmount());
+    container.remove();
+    root = null;
+    container = null;
+    return { fill, groundFill };
+  }
+
+  test.each(["light", "dark"] as const)("on the page and on an elevated card (%s)", async (scheme) => {
+    const page = await hoveredFill("bg-base", scheme);
+    const card = await hoveredFill("bg-elevated", scheme);
+
+    // Something was painted at all — a transparent read would make every
+    // inequality below pass vacuously.
+    expect(page.fill).not.toBe("rgba(0, 0, 0, 0)");
+    expect(card.fill).not.toBe("rgba(0, 0, 0, 0)");
+
+    expect(page.fill, `ghost hover on the page (${scheme})`).not.toBe(page.groundFill);
+    expect(card.fill, `ghost hover on an elevated card (${scheme})`).not.toBe(card.groundFill);
+    // On the page it is still the sheet's own fill: the elevated step.
+    expect(page.fill).toBe(card.groundFill);
   });
 });
 

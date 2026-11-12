@@ -69,6 +69,7 @@ const config: StorybookConfig = {
         "@/lib/motion": join(root, "registry/lib/motion/motion.ts"),
         "@/lib/fade-ramp": join(root, "registry/lib/fade-ramp/fade-ramp.ts"),
         "@/lib/viz": join(root, "registry/lib/viz/viz.ts"),
+        "@/lib/graph": join(root, "registry/lib/graph/graph.ts"),
         "@/lib/fx": join(root, "registry/lib/fx/fx.ts"),
         "@/lib/shader-programs": join(root, "registry/lib/shader/shader-programs.ts"),
         "@/lib/shader": join(root, "registry/lib/shader/shader.ts"),
@@ -78,7 +79,8 @@ const config: StorybookConfig = {
         ),
         "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
         "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
-        ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "fade", "header", "menu", "progress", "sheet", "skeleton", "slider", "table", "status-matrix", "popover", "chat-widget"),
+        "@/hooks/use-graph-viewport": join(root, "registry/hooks/use-graph-viewport/use-graph-viewport.ts"),
+        ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "combobox", "diagram", "dot-pattern", "fade", "header", "menu", "network", "progress", "sheet", "skeleton", "slider", "table", "status-matrix", "popover", "chat-widget"),
         "@/ui": join(root, "registry/ui"),
         // A block imported BY another distributed file, in the consumer's
         // form (`components/blocks/<name>.tsx` is the install target).

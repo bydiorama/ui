@@ -3,7 +3,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { act, createRef } from "react";
 import type { ReactElement } from "react";
 
-import { StatFigure, StatTiles } from "./stat-tiles.tsx";
+import { StatDelta, StatFigure, StatTiles } from "./stat-tiles.tsx";
 
 function tokenColor(name: string): string {
   const probe = document.createElement("div");
@@ -278,5 +278,26 @@ describe("StatFigure is the tile's own parts, in a row", () => {
       expect(inFigure![prop], prop).toBe(inTile![prop]);
     }
     expect(getComputedStyle(all("stat-figure")[0]!).columnGap).toBe("12px");
+  });
+});
+
+describe("A change of a share is in percentage points", () => {
+  test("points print the fraction ×100 with a pp suffix and are spoken in full", async () => {
+    const { q } = await mount(<StatDelta change={0.021} comparison="vs last month" unit="points" />);
+    const change = q("stat-change");
+    expect(change.textContent).toBe("Up 2.1 pp percentage points");
+    // The visible suffix is hidden from assistive technology; the words replace it.
+    expect(change.querySelector('[aria-hidden="true"]')!.textContent).toBe(" pp");
+    expect(q("stat-delta").dataset.direction).toBe("up");
+  });
+
+  test("a points change that prints as zero is no change", async () => {
+    const { q } = await mount(<StatDelta change={0.0001} comparison="vs last month" unit="points" />);
+    expect(q("stat-delta").dataset.direction).toBe("flat");
+  });
+
+  test("the default stays a relative percent", async () => {
+    const { q } = await mount(<StatDelta change={0.12} comparison="vs 1971" />);
+    expect(q("stat-change").textContent).toBe("Up 12%");
   });
 });

@@ -3,7 +3,7 @@ import { fn } from "storybook/test";
 
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 
-import { AreaChart, BarChart, Chart, LineChart } from "./chart.tsx";
+import { AreaChart, BarChart, Chart, Histogram, LineChart, ScatterPlot } from "./chart.tsx";
 
 // Generic, discriminated props: the looser Meta/StoryObj form (add-component traps).
 const meta: Meta<typeof BarChart> = {
@@ -156,6 +156,74 @@ export const TimeAndSelect: Story = {
   },
 };
 
+/** Placeholder brands for the scatter: designers, as the harness asks. */
+const MARKET = [
+  { name: "Müller-Brockmann", share: 31, growth: 12, searches: 9100 },
+  { name: "Vignelli", share: 24, growth: 7, searches: 6400 },
+  { name: "Frutiger", share: 18, growth: -4, searches: 3800 },
+  { name: "Aicher", share: 12, growth: 15, searches: 2600 },
+  { name: "Crouwel", share: 9, growth: 2, searches: 1400 },
+  { name: "Tschichold", share: 6, growth: -9, searches: 700 },
+];
+
+/** The P1 additions and the stand-in screen's gaps: an event rule, a 100%
+ *  stack, a scatter quartered by two rules, and bubbles. */
+export const Extensions: Story = {
+  render: () => (
+    <div style={{ maxWidth: 774 }} className="flex flex-col gap-xl">
+      <Chart size="sm" label="Posters printed" description="Output climbed after the 1967 repositioning." data={PRINTED} x="year" xLabel="Year" series={[TWO[0]]}>
+        <Chart.Lines />
+        <Chart.Rule at="1967" label="Repositioned" />
+      </Chart>
+      <BarChart
+        size="sm"
+        label="Share of printed work"
+        description="Books gained on posters every year."
+        data={PRINTED}
+        x="year"
+        xLabel="Year"
+        series={[...TWO]}
+        isStacked={{ isPercent: true }}
+      />
+      <Chart
+        xScale="linear"
+        xFormat={{ style: "unit", unit: "percent" }}
+        label="Market map"
+        description="Two of the three largest studios are still growing."
+        data={MARKET}
+        x="share"
+        xLabel="Share"
+        format={{ style: "unit", unit: "percent", signDisplay: "exceptZero" }}
+        series={[{ key: "growth", label: "Growth" }]}
+      >
+        <Chart.Dots />
+        <Chart.Rule value={0} label="No growth" />
+        <Chart.Rule at={15} label="Leaders" />
+      </Chart>
+      <ScatterPlot
+        xFormat={{ style: "unit", unit: "percent" }}
+        label="Share against growth, sized by searches"
+        description="The largest studio is searched for most, and growing."
+        data={MARKET}
+        x="share"
+        xLabel="Share"
+        series={[{ key: "growth", label: "Growth" }]}
+        areaKey="searches"
+        areaLabel="Searches"
+      />
+      <Histogram
+        size="sm"
+        label="Poster widths"
+        description="Most posters are 40–80 cm wide."
+        values={[32, 41, 44, 48, 52, 55, 57, 58, 61, 63, 64, 66, 70, 72, 77, 84, 91, 118]}
+        binCount={8}
+        xLabel="Width (cm)"
+        countLabel="Posters"
+      />
+    </div>
+  ),
+};
+
 export const BrandThemed: Story = {
   render: () => {
     const zero = toStyleObject(resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED }));
@@ -165,6 +233,7 @@ export const BrandThemed: Story = {
         <p className="text-caption text-ink-muted">{title}</p>
         <BarChart size="sm" label="Grouped" description="Signage overtook both in 1969." data={STUDIOS} x="year" xLabel="Year" series={[...THREE]} />
         <LineChart size="sm" label="Lines" description="Signage fell as posters rose." data={STUDIOS} x="year" xLabel="Year" series={[...THREE]} />
+        <ScatterPlot size="sm" label="Scatter" description="Larger studios grew faster." data={MARKET} x="share" xLabel="Share" series={[{ key: "growth", label: "Growth" }]} areaKey="searches" areaLabel="Searches" />
       </div>
     );
     return (

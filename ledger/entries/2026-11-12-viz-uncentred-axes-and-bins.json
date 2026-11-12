@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-viz-uncentred-axes-and-bins",
+  "date": "2026-11-12",
+  "item": "viz",
+  "kind": "addition",
+  "summary": "lib/viz: `valueAxis(values, intervals, { zero: false })` fits the axis to the data instead of anchoring it at zero (scatter axes), centring a single value; and `bins(values, count)` returns nice-edged histogram bins with the last bin inclusive. Both pure, covered by viz.test.ts.",
+  "affects": [
+    "export:valueAxis",
+    "export:bins",
+    "export:Bin"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/3XEJ-0"
+  }
+}

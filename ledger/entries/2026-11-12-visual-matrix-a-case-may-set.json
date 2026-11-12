@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-visual-matrix-a-case-may-set",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Visual matrix: a case may set its own frame width; the knowledge-graph-explorer case mounts at 800px because its toolbar, canvas and 320px panel do not fit the default 560. New baselines for diagram, network, network-canvas and knowledge-graph-explorer in both schemes, each checked at its frame's pixel dimensions.",
+  "affects": [
+    "gate:test:visual"
+  ]
+}

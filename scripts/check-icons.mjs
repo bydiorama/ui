@@ -54,6 +54,20 @@ const ALLOWED_RAW_SVG = new Map([
       "frame that does not exist until it is simulated; the settled list glyphs " +
       "beside it (check, ring, close) stay griddy icons.",
   ],
+  [
+    "registry/ui/diagram/diagram.tsx",
+    "the edge layer IS a drawing — paths and arrow heads computed from node " +
+      "positions (lib/graph), and the legend's line swatches, which are those same " +
+      "strokes in miniature. Every glyph (group toggle, controls, list toggle) comes " +
+      "from griddy-icons. The SVG is aria-hidden; the announcer and list carry it.",
+  ],
+  [
+    "registry/ui/network/network.tsx",
+    "the drawing IS an SVG — node discs, rings and edges computed from the layout " +
+      "(lib/graph). Node glyphs are the caller's griddy-icons, cloned in; the " +
+      "controls' and chip's glyphs are griddy-icons. The SVG is aria-hidden; the " +
+      "announcer and the table carry the graph.",
+  ],
 ]);
 
 const manifest = readManifest();

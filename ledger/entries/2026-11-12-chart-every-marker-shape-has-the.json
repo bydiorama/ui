@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-chart-every-marker-shape-has-the",
+  "date": "2026-11-12",
+  "item": "chart",
+  "kind": "visual",
+  "summary": "Chart: every marker shape has the area of the circle it stands beside and sits on its area centroid (lib/viz markerPoints). Measured at r 4 before: the square was 27% heavier than the circle, the diamond 8%, the triangle 10% lighter and the plus 19%, and the triangle's centroid sat 1px (a quarter of r) below the data point, so on a line the marker read as off the line. Hexagon and pentagon were already equal-area. Legend and tooltip keys are fitted to their box and do not change. Found by /review-ui on the Marker shapes section; the section and the Line sheet were redrawn to match.",
+  "affects": [
+    "component:chart",
+    "export:markerPath",
+    "slot:chart-dot",
+    "slot:chart-marker-ring"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/46KS-0"
+  }
+}

@@ -740,6 +740,34 @@
       ]
     },
     {
+      "name": "color-picker",
+      "type": "registry:ui",
+      "description": "A colour field that opens an editor: a saturation × brightness area, a hue track, an optional opacity track, a hex field and optional preset swatches. The value is live — every move emits upper-case hex, and there is no Save / Cancel. Composed from what the system already owns: the trigger is Select's field or Button's icon-only box, the panel is Popover's surface, the tracks are Base UI's slider and the fields are Input. The 2D area is the one new control, a role=slider with a two-axis keyboard contract; swatches are a native radio group, so focus and selection are one swatch.",
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/motion",
+        "@bydiorama/button",
+        "@bydiorama/input"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/color-picker/color-picker.tsx",
+          "type": "registry:ui",
+          "target": "ui/color-picker.tsx"
+        },
+        {
+          "path": "registry/ui/color-picker/color-picker.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/color-picker.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "card-sorting",
       "type": "registry:ui",
       "description": "A reorderable list of cards, with a grip on each row. Reordering works three ways and all three are first-class: a pointer drag, a keyboard lift-and-move (Space to lift, arrows to move, Escape to put it back), and a no-drag pointer path of click-to-lift then click-to-place, which is what WCAG 2.5.7 requires. Every path goes through one move and one polite live region that announces the row's name, its new position and the list's. Built without a drag library (ADR 0012) — the accessible half of this pattern is the half a drag library does not solve.",

@@ -43,6 +43,7 @@ import { Button } from "@/ui/button/button.tsx";
 import { Calendar } from "@/ui/calendar/calendar.tsx";
 import { Card } from "@/ui/card/card.tsx";
 import { ContextMenu } from "@/ui/context-menu/context-menu.tsx";
+import { ColorPicker } from "@/ui/color-picker/color-picker.tsx";
 import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
@@ -1060,6 +1061,26 @@ const CASES: Array<{
         defaultValue={new Date(2026, 7, 3, 12)}
         today={new Date(2026, 7, 6, 12)}
       />
+    ),
+  },
+  {
+    name: "color-picker",
+    // Closed only, as date-picker: the panel is portalled outside the frame
+    // and asserted in the contract suite. Beside a Select, because the field
+    // claims to be Select's control; then the swatch trigger at every size.
+    ui: (
+      <div className="flex flex-col gap-lg">
+        <Select label="Services" items={SELECT_ITEMS} />
+        <ColorPicker label="Accent colour" defaultValue="#1B6C84" />
+        <ColorPicker label="Empty" helperText="Used for links and buttons." />
+        <ColorPicker label="With error" defaultValue="#9EDBF3" errorText="Too light for text on white." />
+        <ColorPicker label="Disabled" defaultValue="#1B6C84" isDisabled />
+        <div className="flex items-center gap-lg">
+          <ColorPicker label="Fill" variant="swatch" size="lg" defaultValue="#1B6C84" />
+          <ColorPicker label="Fill" variant="swatch" size="md" defaultValue="#FFFFFF" />
+          <ColorPicker label="Fill" variant="swatch" size="sm" defaultValue="#1D1B19" />
+        </div>
+      </div>
     ),
   },
   {

@@ -275,3 +275,15 @@ Final local checks for this follow-up: `pnpm verify`, `pnpm type-check`,
 Chromium audit and WebKit interaction audit all passed. The previously
 identified visual-baseline drift remains separate from these appearance
 checks; it has not been silently rebaselined.
+
+
+### Linux counterparts completed after push
+
+[Generate visual baselines run 43388058479](https://github.com/bydiorama/ui/actions/runs/43388058479)
+recorded source commit `edcba9b` in the pinned Playwright 1.62.1 Noble container.
+The recording run rendered all 126 cases successfully. Only the four intended
+Tabs/Table light/dark Linux PNGs were copied back after inspecting each image;
+the Tabs light image was already byte-identical. Other generated images
+were left outside the repository. This closes the
+Linux regeneration item above. It does not reclassify the unrelated existing
+macOS baseline drift as fixed, nor treat an update run as a clean comparison.

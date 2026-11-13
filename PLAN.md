@@ -643,8 +643,9 @@ does not manufacture specimens for the remaining reference-only items.
 
 The visual runner now installs its resolved theme instead of reading an
 obsolete emitter API. The review's isolated-HEAD comparison separates existing
-baseline drift from this patch. Only intentional Tabs/Table macOS baselines
-were updated; unrelated failures and Linux regeneration remain open. See
+baseline drift from this patch. The intentional Tabs/Table baselines
+were updated on macOS and regenerated in the pinned Linux workflow, then
+visually inspected. Unrelated pre-existing baseline failures remain open. See
 `docs/public-site-design-review-2026-11-12.md` for evidence and commands.
 
 

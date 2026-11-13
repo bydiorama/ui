@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-owned-cli-initialises-projects-and-ships",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "addition",
+  "summary": "The owned CLI adds init and ui.config.json, installs without shadcn configuration, and retains existing shadcn aliases for gradual adoption. A compiled, dependency-free tarball is built into the site preview and tested through npm exec in a fresh app, including transitive files, locks, sync and local edit preservation. Hosted registry indexes are read beside their items with a fallback for the GitHub mirror. Installation presents the owned preview first and shadcn as an alternative. Npm publication remains pending.",
+  "affects": [
+    "tool:cli",
+    "site:installation"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01M5D1CCKC5MQZ9JZJ83G954CR/p-5-0"
+  }
+}

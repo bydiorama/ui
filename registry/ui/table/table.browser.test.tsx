@@ -133,7 +133,7 @@ describe("the frame", () => {
     expect(style.backgroundColor).toBe(tokenColor("--ui-bg-elevated"));
   });
 
-  test("the body clips at the CONCENTRIC radius — outer minus the mat's padding", () => {
+  test("the body clips at the concentric radius including the frame border", () => {
     const { container: host } = mount(<Table {...base} />);
     const clip = host.querySelector<HTMLElement>('[data-slot="table-body-clip"]')!;
     const style = getComputedStyle(clip);
@@ -143,9 +143,8 @@ describe("the frame", () => {
     // not: a grid wider than the frame SCROLLS instead of losing its
     // right-hand columns silently. See the scrolling block below.
     expect(style.overflowX).toBe("auto");
-    // radius-lg 16 − space-xs 4 = 12, the sheet's inner corner exactly. It is
-    // written as the arithmetic because 12 is not a step on the radius scale.
-    expect(style.borderRadius).toBe("12px");
+    // Outer 16 − padding 4 − border 1 = 11.
+    expect(style.borderRadius).toBe("11px");
   });
 
   test("clipping on the FRAME would not have produced that corner", () => {
@@ -824,4 +823,62 @@ describe("the frame scrolls rather than swallowing its right-hand columns", () =
     // did, which is why the corner radius survives the change.
     expect(getComputedStyle(clip).borderTopLeftRadius).not.toBe("0px");
   });
+});
+
+
+describe("row details composition", () => {
+  test("a disclosure in a non-selectable table has one focus target, not a second row ring", async () => {
+    const { rows } = mount(<Table {...base} columns={[{ key: "name", header: "Name", cell: row => <button>{row.name}</button> }]} />);
+    await userEvent.tab();
+    rows[0]!.querySelector('button')!.focus();
+    expect(getComputedStyle(rows[0]!).outlineStyle).toBe("none");
+  });
+
+  test("spans all lanes, follows its owner and preserves column geometry", () => {
+    const { container: host, rows, headerCells } = mount(<Table {...selectable}
+      rowDetails={row => row.id === "tschichold" ? <p>Additional context for Jan Tschichold.</p> : null}
+    />);
+    const details = host.querySelector<HTMLTableRowElement>('[data-slot="table-details-row"]')!;
+    expect(details).not.toBeNull();
+    expect(rows[0]!.nextElementSibling).toBe(details);
+    const cell = details.cells[0]!;
+    expect(cell.colSpan).toBe(COLUMNS.length + 1);
+    expect(cell.getBoundingClientRect().width).toBeCloseTo(rows[0]!.getBoundingClientRect().width, 0);
+    expect(headerCells[1]!.getBoundingClientRect().width).toBe(260);
+    expect(getComputedStyle(rows[0]!.cells[0]!).borderBottomWidth).toBe("0px");
+    expect(getComputedStyle(cell).borderBottomWidth).toBe("1px");
+  });
+
+  test("detail content does not toggle selection and null renders no row", async () => {
+    const onSelectionChange = vi.fn();
+    const { container: host } = mount(<Table {...selectable} onSelectionChange={onSelectionChange}
+      rowDetails={row => row.id === "tschichold" ? <a href="#details">Read context</a> : null}
+    />);
+    const details = host.querySelector('[data-slot="table-details-row"]');
+    expect(details).not.toBeNull();
+    expect(host.querySelectorAll('[data-slot="table-details-row"]')).toHaveLength(1);
+    await userEvent.click(details!.querySelector('a')!);
+    expect(onSelectionChange).not.toHaveBeenCalled();
+  });
+
+  test("loading and empty bodies do not render row details", () => {
+    const rowDetails = vi.fn(() => <p>Context</p>);
+    const { container: host } = mount(<Table {...base} isLoading rowDetails={rowDetails} />);
+    expect(rowDetails).not.toHaveBeenCalled();
+    expect(host.querySelector('[data-slot="table-details-row"]')).toBeNull();
+  });
+});
+
+
+describe("nested table radius under brand geometry", () => {
+  for (const [outer, border] of [[20, 1], [12, 2], [4, 1]]) {
+    test(`outer ${outer}px and border ${border}px include the whole inset`, () => {
+      const { frame, clip } = mount(<Table {...base} />);
+      frame.style.setProperty("--ui-radius-lg", `${outer}px`);
+      frame.style.setProperty("--ui-stroke-default", `${border}px`);
+      const style = getComputedStyle(frame);
+      const inset = parseFloat(style.paddingLeft) + parseFloat(style.borderLeftWidth);
+      expect(parseFloat(getComputedStyle(clip).borderTopLeftRadius)).toBe(Math.max(0, outer! - inset));
+    });
+  }
 });

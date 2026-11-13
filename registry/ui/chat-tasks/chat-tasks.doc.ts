@@ -1,6 +1,7 @@
 /** Typed documentation for ChatTasks (CONVENTIONS §11). */
 
 export const chatTasksDoc = {
+  lead: "Brings proposed tasks into a conversation for review.",
   name: "ChatTasks",
   status: "experimental",
   summary:

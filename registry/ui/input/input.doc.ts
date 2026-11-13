@@ -6,6 +6,7 @@
  */
 
 export const inputDoc = {
+  lead: "Takes a line of text, with room for a label, a hint and a useful error.",
   name: "Input",
   status: "stable",
   summary:
@@ -43,9 +44,9 @@ Input   size? lg|md|sm · shape? soft|full
     size: { type: '"lg" | "md" | "sm"', default: '"lg"', notes: "48 / 40 / 32px with a 14 / 14 / 12px value (body-md, body-md, caption). All clear the 24px target floor; lg is the touch size for primary forms. md moved from caption to body-md (#16): the owner's frames draw every 40px field value at 14px, and a row mixing Input and Select at md read as two type styles. sm stays caption — the field tokens carry no type step (ADR 0020 §4 keeps type out of density), and a 14px value's 21.7px line in a compact 28px field would leave 3px of block padding." },
     shape: {
       type: '"soft" | "full"',
-      default: '"soft"',
+
       notes:
-        "Button's and Avatar's two words for the same two shapes (§2). soft is the form field (radius-md). full is the capsule a search field draws: rounded-full, with the inline padding one spacing step wider (16 / 12 / 12px at default density, a calc on the density token so it still moves with data-ui-density) because a capsule's ends curve in on the text. A round submit goes in iconEnd: on a full field the end padding collapses to the block padding minus the edge whenever the last child is a <button>, so a circle sized lg field + md Button, md + sm, sm + sm sits CONCENTRIC — 8 / 8 / 4px from the edge on every side. Asserted in the browser test.",
+        "Omitted follows the brand controlShape (soft in theme zero); explicit soft/full wins. Theme-shaped fields carry data-shape=theme. soft is the form field (radius-md). full is the capsule a search field draws: rounded-full, with the inline padding one spacing step wider (16 / 12 / 12px at default density, a calc on the density token so it still moves with data-ui-density) because a capsule's ends curve in on the text. A round submit goes in iconEnd: on a full field the end padding collapses to the block padding minus the edge whenever the last child is a <button>, so a circle sized lg field + md Button, md + sm, sm + sm sits CONCENTRIC — 8 / 8 / 4px from the edge on every side. Asserted in the browser test.",
     },
     isDisabled: { type: "boolean", default: "false", notes: "Native disabled: blocked and out of the tab order." },
     isRequired: { type: "boolean", default: "false", notes: "Sets the native required attribute and appends an aria-hidden asterisk to the visible label." },

@@ -175,11 +175,17 @@ function mount(
   width = 560,
 ) {
   container = document.createElement("div");
-  Object.assign(container.style, toStyleObject(PAIR)[scheme] as unknown as Record<string, string>, {
+  // The emitter returns one flat style map, with light-dark() values. DOM
+  // custom properties require setProperty; Object.assign only creates JS keys.
+  for (const [name, value] of Object.entries(toStyleObject(PAIR, scheme))) {
+    if (name.startsWith("--")) container.style.setProperty(name, value);
+  }
+  Object.assign(container.style, {
     width: `${width}px`,
     padding: "24px",
     colorScheme: scheme,
   });
+  expect(container.style.getPropertyValue("--ui-bg-base"), "The visual frame must install the resolved theme, not silently inherit it").toBe(toStyleObject(PAIR, scheme)["--ui-bg-base"]);
   container.className = "bg-base";
   if (isOverlay) {
     // Fixed overlays need a containing block with real dimensions. Without

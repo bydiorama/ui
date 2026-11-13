@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-public-table-has-a-sortable-live",
+  "date": "2026-11-13",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Public Table has a sortable live example; API and keyboard reference content now compose the registry Table while retaining mobile prop rows.",
+  "affects": []
+}

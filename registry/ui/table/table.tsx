@@ -1,5 +1,5 @@
 import {
-  useCallback, useEffect, useId, useRef, useState,
+  Fragment, useCallback, useEffect, useId, useRef, useState,
   type CSSProperties, type MouseEvent, type ReactNode, type Ref,
 } from "react";
 import { ChevronDown } from "griddy-icons";
@@ -111,6 +111,13 @@ interface TableBaseProps<Row> {
   rows: Row[];
   /** Stable identity per row, and the value the selection API speaks in. */
   getRowId: (row: Row) => string;
+  /**
+   * Optional full-width content immediately after its data row. Return null
+   * when absent or collapsed. The caller owns disclosure controls, state and
+   * accessible relationships; Table owns the spanning cell and row divider.
+   * Detail content never participates in row selection.
+   */
+  rowDetails?: (row: Row) => ReactNode;
   size?: TableSize;
   /** Controlled sort. `null` means no column is sorted. */
   sort?: TableSort | null;
@@ -206,11 +213,9 @@ export type TableProps<Row> = TableBaseProps<Row> & (SelectableProps<Row> | NonS
  * bolted on can only ever re-describe what `<th scope>` already says.
  *
  * The frame is a `bg-elevated` mat with `p-xs` of padding, and the body inside
- * it clips at `--ui-table-body-radius` — `radius-lg` minus that padding, which
- * is the concentric rule (§6) written as arithmetic. It lands on the sheet's
- * 12px exactly, and 12 is not a step on the `--ui-radius-*` scale
- * (4/8/16/24/32), so writing it as a value would have meant writing a step
- * that does not exist.
+ * it clips at `--ui-table-body-radius`: outer radius minus padding AND
+ * border, clamped at zero. The original sheet's 12px ignored the 1px frame
+ * border; 11px keeps the two visible arcs concentric in theme zero.
  *
  * The dividers are `border-b-elevated`: the mat itself, showing between rows
  * that float on it. A dedicated border role would be one more value free to
@@ -232,6 +237,7 @@ export function Table<Row>({
   columns,
   rows,
   getRowId,
+  rowDetails,
   size = "md",
   sort,
   defaultSort = null,
@@ -399,10 +405,9 @@ export function Table<Row>({
       style={
         {
           // The concentric radius, as the arithmetic rather than as a number
-          // (§6): outer minus the mat's padding. It lands on the sheet's 12px
-          // exactly, and 12 is not on the --ui-radius-* scale, so writing it
-          // as a value would have meant writing a step that does not exist.
-          "--ui-table-body-radius": "calc(var(--ui-radius-lg) - var(--ui-space-xs))",
+          // (§6): outer minus padding and border. Clamp at zero for a brand
+          // whose outer radius is smaller than the inset.
+          "--ui-table-body-radius": "max(0px, calc(var(--ui-radius-lg) - var(--ui-space-xs) - var(--ui-stroke-default)))",
         } as CSSProperties
       }
       className={cn("w-full rounded-lg border border-edge-subtle bg-elevated p-xs", className)}
@@ -411,8 +416,7 @@ export function Table<Row>({
         The body's own clip, and the reason it is a separate node.
 
         Clipping on the FRAME cuts the corners along the frame's 15px curve
-        offset by 4px of padding, which is a shallow bite rather than a 12px
-        round — visibly not the corner the sheet draws. A `<tr>` cannot carry a
+        offset by its padding — a different curve from the explicit inner clip. A `<tr>` cannot carry a
         border-radius in either border model, so the radius cannot go on the
         rows either. One element that clips at exactly the inner radius solves
         both, and leaves the rows and cells untouched.
@@ -655,10 +659,12 @@ export function Table<Row>({
               const isDisabled = isRowDisabled?.(row) ?? false;
               const isSelected = selectedSet.has(id);
               const isPressable = isSelectable && !isDisabled;
+              const details = rowDetails?.(row);
+              const hasDetails = details != null && details !== false;
 
               return (
+                <Fragment key={id}>
                 <tr
-                  key={id}
                   data-slot="table-row"
                   data-state={isSelected ? "selected" : "default"}
                   {...(isDisabled ? { "data-disabled": true } : {})}
@@ -671,7 +677,7 @@ export function Table<Row>({
                     // stops — everything a row does is reachable from the
                     // checkbox inside it — so this fires when a control in the
                     // row takes focus, which is the state the sheet is drawing.
-                    "has-[:focus-visible]:outline-focus has-[:focus-visible]:-outline-offset-focus has-[:focus-visible]:outline-focus-ring",
+                    isPressable && "has-[:focus-visible]:outline-focus has-[:focus-visible]:-outline-offset-focus has-[:focus-visible]:outline-focus-ring",
                   )}
                 >
                   {isSelectable ? (
@@ -684,7 +690,7 @@ export function Table<Row>({
                           isSelected,
                           isPressable,
                           isFirst,
-                          isLast,
+                          isLast: isLast || hasDetails,
                           isLeading: true,
                           isTrailing: false,
                         }),
@@ -719,7 +725,7 @@ export function Table<Row>({
                             isSelected,
                             isPressable,
                             isFirst,
-                            isLast,
+                            isLast: isLast || hasDetails,
                             isLeading: !isSelectable && index === 0,
                             isTrailing: index === columns.length - 1,
                           }),
@@ -744,6 +750,21 @@ export function Table<Row>({
                     );
                   })}
                 </tr>
+                {hasDetails && (
+                  <tr data-slot="table-details-row" data-state={isSelected ? "selected" : "default"}>
+                    <td
+                      data-slot="table-details"
+                      colSpan={columnCount}
+                      className={cn(
+                        metrics.pl, metrics.pr, "py-md text-ink-secondary",
+                        rowSurface({ isSelected, isFirst: false, isLast, isLeading: true, isTrailing: true }),
+                      )}
+                    >
+                      {details}
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               );
             })
           )}

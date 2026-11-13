@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-install-resolved-themes-in-visual-comparison",
+  "date": "2026-11-13",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Install resolved themes in visual comparison frames",
+  "affects": []
+}

@@ -243,7 +243,9 @@
         "use-controllable-state",
         "use-scroll-edges"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Forms",
+      "docs": "registry/ui/combobox/combobox.doc.ts"
     },
     {
       "name": "media-toggle",
@@ -268,7 +270,9 @@
         "compose-event-handlers",
         "use-controllable-state"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Actions",
+      "docs": "registry/ui/media-toggle/media-toggle.doc.ts"
     },
     {
       "name": "theme-zero-css",
@@ -303,7 +307,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Actions",
+      "docs": "registry/ui/button/button.doc.ts"
     },
     {
       "name": "header",
@@ -330,7 +336,9 @@
         "use-is-stuck",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/header/header.doc.ts"
     },
     {
       "name": "site-header",
@@ -355,7 +363,9 @@
         "header",
         "sheet"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Navigation",
+      "docs": "registry/ui/site-header/site-header.doc.ts"
     },
     {
       "name": "input",
@@ -375,7 +385,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/input/input.doc.ts"
     },
     {
       "name": "popover",
@@ -398,7 +410,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/popover/popover.doc.ts"
     },
     {
       "name": "toast",
@@ -423,7 +437,9 @@
         "motion",
         "button"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Feedback",
+      "docs": "registry/ui/toast/toast.doc.ts"
     },
     {
       "name": "tooltip",
@@ -446,7 +462,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/tooltip/tooltip.doc.ts"
     },
     {
       "name": "modal",
@@ -469,7 +487,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/modal/modal.doc.ts"
     },
     {
       "name": "multiselect",
@@ -494,7 +514,9 @@
         "badge",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/multiselect/multiselect.doc.ts"
     },
     {
       "name": "select",
@@ -518,7 +540,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/select/select.doc.ts"
     },
     {
       "name": "avatar",
@@ -537,7 +561,9 @@
       "registryDependencies": [
         "cn"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/avatar/avatar.doc.ts"
     },
     {
       "name": "badge",
@@ -556,7 +582,9 @@
       "registryDependencies": [
         "cn"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/badge/badge.doc.ts"
     },
     {
       "name": "banner",
@@ -580,7 +608,9 @@
         "motion",
         "button"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Feedback",
+      "docs": "registry/ui/banner/banner.doc.ts"
     },
     {
       "name": "card",
@@ -607,7 +637,9 @@
         "button",
         "fade"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/card/card.doc.ts"
     },
     {
       "name": "calendar",
@@ -632,7 +664,9 @@
         "chrome-control",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/calendar/calendar.doc.ts"
     },
     {
       "name": "menu",
@@ -656,7 +690,9 @@
         "cn",
         "menu-surface"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/menu/menu.doc.ts"
     },
     {
       "name": "context-menu",
@@ -680,7 +716,9 @@
         "menu-surface",
         "menu"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/context-menu/context-menu.doc.ts"
     },
     {
       "name": "date-picker",
@@ -706,7 +744,9 @@
         "calendar",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/date-picker/date-picker.doc.ts"
     },
     {
       "name": "card-sorting",
@@ -732,7 +772,9 @@
         "compose-event-handlers",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Data",
+      "docs": "registry/ui/card-sorting/card-sorting.doc.ts"
     },
     {
       "name": "checkbox",
@@ -757,7 +799,9 @@
         "compose-event-handlers",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/checkbox/checkbox.doc.ts"
     },
     {
       "name": "radio",
@@ -779,7 +823,9 @@
         "compose-event-handlers",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/radio/radio.doc.ts"
     },
     {
       "name": "switch",
@@ -801,7 +847,9 @@
         "compose-event-handlers",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/switch/switch.doc.ts"
     },
     {
       "name": "sparkline",
@@ -821,7 +869,9 @@
         "cn",
         "viz"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/sparkline/sparkline.doc.ts"
     },
     {
       "name": "status-matrix",
@@ -841,7 +891,9 @@
         "cn",
         "motion"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/status-matrix/status-matrix.doc.ts"
     },
     {
       "name": "chart",
@@ -867,7 +919,9 @@
         "button",
         "table"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/chart/chart.doc.ts"
     },
     {
       "name": "graph",
@@ -922,7 +976,9 @@
         "button",
         "dot-pattern"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/diagram/diagram.doc.ts"
     },
     {
       "name": "network",
@@ -955,7 +1011,9 @@
         "dot-pattern",
         "table"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/network/network.doc.ts"
     },
     {
       "name": "network-canvas",
@@ -965,12 +1023,18 @@
         {
           "path": "registry/ui/network/network-canvas.tsx",
           "target": "ui/network-canvas.tsx"
+        },
+        {
+          "path": "registry/ui/network/network-canvas.doc.ts",
+          "target": "ui/network-canvas.doc.ts"
         }
       ],
       "registryDependencies": [
         "network"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/network/network-canvas.doc.ts"
     },
     {
       "name": "stat-tiles",
@@ -993,7 +1057,9 @@
         "cn",
         "skeleton"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/blocks/stat-tiles/stat-tiles.doc.ts"
     },
     {
       "name": "chart-card",
@@ -1013,7 +1079,9 @@
         "chart",
         "stat-tiles"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/blocks/chart-card/chart-card.doc.ts"
     },
     {
       "name": "knowledge-graph-explorer",
@@ -1042,7 +1110,9 @@
         "combobox",
         "network"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/blocks/knowledge-graph-explorer/knowledge-graph-explorer.doc.ts"
     },
     {
       "name": "meter",
@@ -1062,7 +1132,9 @@
         "cn",
         "viz"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Display",
+      "docs": "registry/ui/meter/meter.doc.ts"
     },
     {
       "name": "progress",
@@ -1082,7 +1154,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/progress/progress.doc.ts"
     },
     {
       "name": "sidebar",
@@ -1108,7 +1182,9 @@
         "chrome-control",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/sidebar/sidebar.doc.ts"
     },
     {
       "name": "nav-rail",
@@ -1132,7 +1208,9 @@
         "chrome-control",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/nav-rail/nav-rail.doc.ts"
     },
     {
       "name": "drawer",
@@ -1156,7 +1234,9 @@
         "use-controllable-state",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/drawer/drawer.doc.ts"
     },
     {
       "name": "sheet",
@@ -1179,7 +1259,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/sheet/sheet.doc.ts"
     },
     {
       "name": "slider",
@@ -1205,7 +1287,9 @@
         "motion",
         "use-controllable-state"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/slider/slider.doc.ts"
     },
     {
       "name": "range-slider",
@@ -1229,7 +1313,9 @@
         "use-controllable-state",
         "slider"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/range-slider/range-slider.doc.ts"
     },
     {
       "name": "tabs",
@@ -1252,7 +1338,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/tabs/tabs.doc.ts"
     },
     {
       "name": "accordion",
@@ -1276,7 +1364,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Feedback",
+      "docs": "registry/ui/accordion/accordion.doc.ts"
     },
     {
       "name": "textarea",
@@ -1296,7 +1386,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/textarea/textarea.doc.ts"
     },
     {
       "name": "aspect-ratio",
@@ -1315,7 +1407,9 @@
       "registryDependencies": [
         "cn"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/aspect-ratio/aspect-ratio.doc.ts"
     },
     {
       "name": "image-overlay",
@@ -1335,7 +1429,9 @@
         "cn",
         "aspect-ratio"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/image-overlay/image-overlay.doc.ts"
     },
     {
       "name": "thumbnail",
@@ -1358,7 +1454,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/thumbnail/thumbnail.doc.ts"
     },
     {
       "name": "image-upload",
@@ -1382,7 +1480,9 @@
         "progress",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/image-upload/image-upload.doc.ts"
     },
     {
       "name": "image-edit",
@@ -1407,7 +1507,9 @@
         "use-controllable-state",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/image-edit/image-edit.doc.ts"
     },
     {
       "name": "skeleton",
@@ -1426,7 +1528,9 @@
       "registryDependencies": [
         "cn"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/skeleton/skeleton.doc.ts"
     },
     {
       "name": "dot-pattern",
@@ -1445,7 +1549,9 @@
       "registryDependencies": [
         "cn"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Utilities",
+      "docs": "registry/ui/dot-pattern/dot-pattern.doc.ts"
     },
     {
       "name": "fade",
@@ -1466,7 +1572,9 @@
         "fade-ramp",
         "use-scroll-edges"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Utilities",
+      "docs": "registry/ui/fade/fade.doc.ts"
     },
     {
       "name": "empty-state",
@@ -1485,7 +1593,9 @@
       "registryDependencies": [
         "cn"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/empty-state/empty-state.doc.ts"
     },
     {
       "name": "table",
@@ -1511,12 +1621,14 @@
         "motion",
         "skeleton"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Data",
+      "docs": "registry/ui/table/table.doc.ts"
     },
     {
       "name": "chat-composer",
       "type": "ui",
-      "description": "The message box of the agent chat: one frame holding an attachment tray, an auto-growing text region and a control row. A compact pill at rest, squaring to radius-xl the moment the text wraps \u2014 the layout switch is measured from the rendered line boxes, not declared, because a composer cannot know in advance whether a sentence will wrap. Send carries the state of the conversation: disabled while the field is blank, accent when sendable, and an inverse-filled Stop while the agent answers. Enter submits, Shift+Enter opens a line, and an Enter committing an IME candidate does neither.",
+      "description": "The message box of the agent chat: one frame holding an attachment tray, an auto-growing text region and a control row. A compact pill at rest, squaring to radius-xl the moment the text wraps — the layout switch is measured from the rendered line boxes, not declared, because a composer cannot know in advance whether a sentence will wrap. Send carries the state of the conversation: disabled while the field is blank, accent when sendable, and an inverse-filled Stop while the agent answers. Enter submits, Shift+Enter opens a line, and an Enter committing an IME candidate does neither.",
       "files": [
         {
           "path": "registry/ui/chat-composer/chat-composer.tsx",
@@ -1537,7 +1649,9 @@
         "use-controllable-state",
         "button"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-composer/chat-composer.doc.ts"
     },
     {
       "name": "chat-message",
@@ -1558,7 +1672,9 @@
         "motion",
         "button"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-message/chat-message.doc.ts"
     },
     {
       "name": "chat-progress",
@@ -1587,7 +1703,9 @@
         "progress",
         "status-matrix"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-progress/chat-progress.doc.ts"
     },
     {
       "name": "chat-run-dock",
@@ -1611,7 +1729,9 @@
         "button",
         "status-matrix"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-run-dock/chat-run-dock.doc.ts"
     },
     {
       "name": "chat-sources",
@@ -1640,7 +1760,9 @@
         "popover",
         "status-matrix"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-sources/chat-sources.doc.ts"
     },
     {
       "name": "chat-tasks",
@@ -1669,12 +1791,14 @@
         "chat-widget",
         "status-matrix"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-tasks/chat-tasks.doc.ts"
     },
     {
       "name": "chat-widget",
       "type": "ui",
-      "description": "The artifact container \u2014 the thing the agent hands you to take away. One shell with two payload families: TEXT (a header naming the artifact, prose capped at 320px behind a fade, a Copy/Edit bar) and MEDIA (a stage at a fixed ratio, an optional frame rail and caption, an Edit/Download bar). One component because the container, the action bar and the dark treatment are identical across both. bg-elevated, radius-lg, an 8px inset and NO border \u2014 the fill alone is the boundary, and the media's radius-md is concentric with it by construction. The body becomes a named, focusable region only WHILE it scrolls, so a short draft puts no tab stop in front of the reader.",
+      "description": "The artifact container — the thing the agent hands you to take away. One shell with two payload families: TEXT (a header naming the artifact, prose capped at 320px behind a fade, a Copy/Edit bar) and MEDIA (a stage at a fixed ratio, an optional frame rail and caption, an Edit/Download bar). One component because the container, the action bar and the dark treatment are identical across both. bg-elevated, radius-lg, an 8px inset and NO border — the fill alone is the boundary, and the media's radius-md is concentric with it by construction. The body becomes a named, focusable region only WHILE it scrolls, so a short draft puts no tab stop in front of the reader.",
       "files": [
         {
           "path": "registry/ui/chat-widget/chat-widget.tsx",
@@ -1691,12 +1815,14 @@
         "aspect-ratio",
         "fade"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-widget/chat-widget.doc.ts"
     },
     {
       "name": "chat-questionnaire",
       "type": "ui",
-      "description": "The agent asking, inside the thread: a question followed by tappable options \u2014 text rows or image tiles. Single-select commits on tap; multi-select collects and confirms; answering collapses it to a receipt where the question stays and the answer becomes a selected Badge. It has NO container, no fill and no action bar, which is why it is not a ChatWidget payload. Selection follows Card Sorting: the fill does NOT move, a 1.5px border-focus edge and a check in the same blue carry the state \u2014 which also keeps selection (an edge) and hover (a fill) on different channels by construction.",
+      "description": "The agent asking, inside the thread: a question followed by tappable options — text rows or image tiles. Single-select commits on tap; multi-select collects and confirms; answering collapses it to a receipt where the question stays and the answer becomes a selected Badge. It has NO container, no fill and no action bar, which is why it is not a ChatWidget payload. Selection follows Card Sorting: the fill does NOT move, a 1.5px border-focus edge and a check in the same blue carry the state — which also keeps selection (an edge) and hover (a fill) on different channels by construction.",
       "files": [
         {
           "path": "registry/ui/chat-questionnaire/chat-questionnaire.tsx",
@@ -1718,7 +1844,9 @@
         "badge",
         "button"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-questionnaire/chat-questionnaire.doc.ts"
     },
     {
       "name": "static-rendering",

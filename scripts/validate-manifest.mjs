@@ -9,6 +9,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { readManifest, ROOT, ITEM_TYPES, ITEM_KEYS, BINARY_EXTENSIONS } from "./lib/manifest.mjs";
+import { SITE_CATEGORIES } from "./lib/site.mjs";
 
 const errors = [];
 const manifest = readManifest();
@@ -91,6 +92,14 @@ for (const [i, item] of (manifest.items ?? []).entries()) {
 
   if (item.docs && !existsSync(join(ROOT, item.docs))) {
     errors.push(`${where}: docs file does not exist — ${item.docs}`);
+  }
+  if (["ui", "block"].includes(item.type)) {
+    if (!item.docs) errors.push(`${where}: components and blocks need a typed docs path for the public library`);
+    if (item.docs && !item.files.some(file => file.path === item.docs)) errors.push(`${where}: list the typed docs in files so the public reference also reaches consumers`);
+    if (!SITE_CATEGORIES.includes(item.category)) errors.push(`${where}: category must be one of ${SITE_CATEGORIES.join(", ")}`);
+    if (!["stable", "experimental", "deprecated"].includes(item.status)) errors.push(`${where}: public components need an explicit stable, experimental or deprecated status`);
+  } else if (item.category !== undefined) {
+    errors.push(`${where}: category is only supported on components and blocks`);
   }
 }
 

@@ -1,6 +1,7 @@
 /** Typed documentation for Modal (CONVENTIONS §11). */
 
 export const modalDoc = {
+  lead: "Pauses the current task for a decision.",
   name: "Modal",
   status: "stable",
   summary:

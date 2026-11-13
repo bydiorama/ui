@@ -1,6 +1,7 @@
 /** Typed documentation for Chart (CONVENTIONS §11). */
 
 export const chartDoc = {
+  lead: "Makes a comparison visible, with a written takeaway and a table of the data.",
   name: "Chart",
   status: "experimental",
   summary:

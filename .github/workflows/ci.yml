@@ -24,6 +24,9 @@ jobs:
       - name: Registry freshness
         run: node scripts/build-registry.mjs --check
 
+      - name: Public library data and source boundary
+        run: node scripts/build-site-data.mjs --check && node scripts/check-site-source.mjs
+
       # The registry ships SOURCE, so an undeclared import is a build error in
       # somebody else's app. `cn` declared clsx and tailwind-merge from the
       # start, so the mechanism was understood — seven Base UI components just
@@ -164,6 +167,9 @@ jobs:
       - name: Type-check
         run: pnpm run type-check
 
+      - name: Owned CLI package installs without a repository checkout
+        run: pnpm test:cli-package
+
       - name: Lint
         run: pnpm run lint
 
@@ -182,6 +188,17 @@ jobs:
       # runs each story with addon-a11y at error severity.
       - name: Storybook build
         run: pnpm --filter @bydiorama/storybook run build
+
+      - name: Public library build and browser checks
+        run: pnpm test:site
+
+      - name: Public library review images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-library-review
+          path: apps/site/test-results/
+          if-no-files-found: ignore
 
   # Visual regression, in a CONTAINER rather than on the runner image.
   #

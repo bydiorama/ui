@@ -1,7 +1,7 @@
 # ui.bydiorama.com — research and design brief
 
-**Status:** accepted direction, 2026-11-11. Nothing is built and nothing is
-drawn. The six decisions in §9 were accepted as recommended on 2026-11-11;
+**Status:** initial implementation, 2026-11-12. The Paper page is drawn and
+`apps/site` has the first public reader. Release gates remain in `PLAN.md`. The six decisions in §9 were accepted as recommended on 2026-11-11;
 the three lasting ones are recorded in ADR 0024, and `PLAN.md` § *Docs site*
 sequences the work.
 
@@ -54,7 +54,7 @@ public.
 - A designer can answer "do we have a date picker, and what does it look like
   in our brand colours" in under a minute.
 - A consumer's `components.json` points at `ui.bydiorama.com`, not at GitHub.
-- No number on the site is typed by hand.
+- Public copy carries no changing component, test or contrast-pair totals.
 
 ---
 
@@ -168,7 +168,13 @@ Markdown twin of every page.
 
 ## 3. Positioning
 
-**One sentence:** a design system you can inspect, measure and own.
+**One sentence:** Your eye. Your system. Your code.
+
+The copy takes its philosophy from Jakub’s [article about building with
+agents](https://tympanus.net/codrops/2026/11/01/design-systems-agents/): people
+set direction and review the work; agents help with structured work; design,
+code and documentation improve together. Shared knowledge makes later work
+easier. The site should invite that practice in plain language.
 
 Every benchmarked site says what it has. Almost none shows evidence. This
 library's distinguishing trait is that its claims are computed: contrast is
@@ -216,7 +222,7 @@ text stays as the design rationale further down the page.
 /effects/               The fx layer and shaders
 /charts/                Data-visualisation layer (when it leaves experimental)
 /changelog/             The ledger, by date; filter by item and by kind
-/status/                Measured status: counts, gates, gaps, roadmap
+/status/                Quality checks, known limits and roadmap; no growth totals
 /r/                     Registry: registry.json and <name>.json
 /llms.txt  /llms-full.txt  /<any page>.md
 ```
@@ -227,22 +233,10 @@ exactly this bar.
 
 ### Component categories
 
-A flat list of 52 fails the reader. The manifest has no category field today;
-it gains one, because a category that lives only in the site would be prose
-(`AGENTS.md` ground rule 2). Proposed grouping, to be confirmed in design:
-
-| Category | Items |
-|---|---|
-| Actions | button, media-toggle |
-| Forms | input, textarea, checkbox, radio, switch, select, multiselect, combobox, slider, range-slider, date-picker, calendar |
-| Navigation | header, site-header, sidebar, nav-rail, tabs, menu, context-menu |
-| Overlays | modal, sheet, drawer, popover, tooltip, toast |
-| Display | avatar, badge, card, table, accordion, empty-state, thumbnail, aspect-ratio, image-overlay, skeleton, progress, meter |
-| Feedback | banner, toast (listed once, linked twice) |
-| Media | image-upload, image-edit |
-| Data | chart, sparkline |
-| Conversation | chat-composer, chat-message, chat-progress, chat-widget, chat-questionnaire |
-| Utilities | fade, dot-pattern, card-sorting |
+Categories live in `ui.manifest.json`, validated against `SITE_CATEGORIES`
+in `scripts/lib/site.mjs`. Component pages, search and gallery filters read
+that data. Do not keep another category inventory in this brief or show a
+component total beside a category name.
 
 ---
 
@@ -252,25 +246,21 @@ it gains one, because a category that lives only in the site would be prose
 
 Purpose: in one screen, say what this is and let the reader touch it.
 
-1. **Lead.** The positioning line, then what the reader gets (how many
-   components, distributed as source, built to take a brand), then the
-   install command with a copy button. There are no action buttons: the
-   gallery directly below is the next step, and the header carries *Docs*.
-2. **The gallery**: a grid of live component tiles (nine in the design), each
-   named with its category. Scheme, density, brand and effects controls sit
-   above it, and changing them re-themes every tile. This is where the reader
-   touches the product. An *All components* link leads to `/components/`.
-3. **Footer facts**: one generated line with the component count, the
-   measured contrast pairs and the browser tests. Links to *Status*,
-   *Tokens* and *For agents* sit beside it.
+1. **Lead.** “Your eye. Your system. Your code.” Follow it with the invitation
+   to build with agents while keeping the decisions, then the install command
+   and copy control. No component or test totals.
+2. **The gallery**: live component tiles, each named with its category.
+   Scheme, density, brand and effects controls sit above it. A *Browse
+   components* link leads to the full catalog.
+3. **The philosophy**: a short explanation of how people direct the work,
+   agents help with structured tasks, and learning travels between design,
+   code and documentation. Link to Jakub’s article instead of repeating it.
+4. **Footer**: “Designed with intent. Built in the open.” Navigation links,
+   with no component, test or contrast-pair totals, generated or otherwise.
 
-Cut on purpose (decided 2026-11-12, keeping Home v2): a separate live
-composition, proof tiles, an add/own/sync strip and a *For agents* block.
-Each has a home elsewhere:
-- The composition is covered by the examples.
-- The proof numbers are on `/status/`.
-- Distribution is covered in the docs (CLI and sync).
-- Agent routes are on the docs agents page.
+This supersedes the earlier footer-facts proposal and the plan to move proof
+numbers to `/status/`. Quality evidence belongs beside the work as checks
+and known limits; the public site does not advertise inventory growth.
 
 No carousel, no testimonial block, no animated hero that does not show the
 product.
@@ -284,13 +274,13 @@ effort goes.
   component in a fixed frame at a curated resting state, with its name,
   one-line summary and status badge.
 - Tiles are **static HTML, not hydrated**. The `diorama-static-rendering`
-  skill classifies 45 of the 52 components: 18 are static-safe and 7 render
+  skill records which components are static-safe and which render
   correctly while inert. Overlay components show their trigger and an open-state
   specimen rendered inline. The components the skill does not yet classify
   need classifying first (see §5.3, row 11).
 - **Controls above the grid**: filter by text, category chips, a status
   filter, and the global scheme, density and brand controls. Flipping the
-  scheme re-themes all 52 tiles at once. That single interaction is the
+  scheme re-themes the tiles together. That single interaction is the
   gallery's argument.
 - A **list view** toggle for readers who know the name they want.
 - Each tile needs one new exported story or specimen: a `Thumbnail` case.
@@ -299,35 +289,44 @@ effort goes.
 
 ### 5.3 Component page
 
-One page per item, generated from the doc file, the manifest, the stories and
-the ledger. Section order follows the evidence in §2.4: example first,
-source second, reference third, proof last.
+One page per item, generated from the typed doc and manifest. The current
+revision uses a short reference page inspired by the directness of
+[shadcn's component pages](https://ui.shadcn.com/docs/components/accordion).
+Detailed reasoning remains available in the Markdown twin and source.
 
-| # | Section | Source |
+| Section | Content | Source |
 |---|---|---|
-| 1 | Name, status badge, one-sentence summary, actions: copy page as Markdown, view source, open in Storybook | `doc.name`, `doc.status`, new `doc.lead` |
-| 2 | **Playground**: the live component with controls for its main props, and scheme, density and brand toggles. Code tab shows the JSX for the current control state | the `Playground` story's args |
-| 3 | **Install**: CLI and Manual tabs. CLI shows the `shadcn` command and the `@bydiorama/ui` CLI command. Manual shows the files, from the registry JSON, and lists dependencies and registry dependencies as links | `r/<name>.json` |
-| 4 | **Usage**: minimal import and JSX | new `doc.usage`, type-checked |
-| 5 | **Anatomy and composition**: the composition tree and the parts table | `doc.composition`, `doc.anatomy` |
-| 6 | **Examples**: curated cases, each live with its code. Variants are shown as **one matrix**, not a heading each | selected stories |
-| 7 | **Props**: complete table with type, default and notes. Compound components get one table per part | `doc.props` |
-| 8 | **Do and don't** | `doc.do`, `doc.dont` |
-| 9 | **Accessibility**: notes, keyboard table, measured contrast pairs for this component in both schemes | `doc.a11y`, `contrast.generated.json` |
-| 10 | **Motion**: what animates, on which tokens, and what happens under reduced motion | `doc.motion` |
-| 11 | **Rendering**: static-safe, inert until hydrated, or needs hydration | new typed field (today a table in a skill) |
-| 12 | **Design notes and declared gaps**: the rationale, and every derived value | `doc.summary`, `doc.design`, `doc.knownGaps` |
-| 13 | **Changes**: this item's ledger entries, newest first | `ledger/entries` |
+| Header | Name, one-sentence lead, experimental badge when needed, Markdown and source links | typed doc and manifest |
+| Preview | Live example, Appearance, collapsed View code | type-checked `apps/site/src/examples/<name>.tsx`, importing registry source |
+| Installation | Diorama CLI first; shadcn as an alternative for existing apps | CLI package metadata and registry name |
+| API reference | Prop, type, default; longer notes disclosed per prop | `doc.props` |
+| Accessibility | Short role description; keyboard, implementation notes and known limits disclosed | `doc.a11y`, `doc.knownGaps` |
 
-Rules for the page:
+No per-component changelog. The site-wide ledger remains available separately.
+Do not repeat internal implementation history as introductory public copy.
 
-- Sections 1 to 4 fit in the first two screens on a laptop.
-- The preview is the same source file the registry ships. No docs-only copy
-  of a component may exist.
-- Every code sample is copied from a file that is type-checked. No snippet is
-  typed into a page.
-- A keyboard table is new typed data (`doc.keyboard`) for interactive
-  components. It does not exist yet.
+Responsive rules:
+
+- Keep prop names intact. Fixed column lanes on desktop; stacked labelled
+  values on phones. Long types may scroll within the reference at intermediate
+  widths, without overflowing the page.
+- Navigation headings and rows share their left edge. Wrapped labels use a
+  hanging list layout, with no first-line indentation.
+- The right outline contains only the visible sections and disappears before
+  it crowds the content. Component navigation collapses on phones.
+- Appearance composes the library's Button, Popover, Modal, RadioGroup and Switch.
+  Explicit Light/Dark must beat every emitted brand theme; System follows the
+  OS. Verify computed colors and reload persistence, not just saved attributes.
+  Scheme and Density use compact native radio choices; Brand uses aligned
+  choice cards. Settings keep default density while the preview and examples
+  demonstrate the selected density. Narrow or short screens use a dismissible
+  dialog so the trigger's position cannot hide half the controls. Effects
+  adds or removes supported library effect classes on specimens; it must not
+  fake the state with pseudo-element overrides. Reset restores the defaults.
+
+The CLI preview is a built tarball downloadable from the site and runnable
+with npx without a checkout. Publish `@bydiorama/ui` before advertising its
+short npm command as available. Keep shadcn's namespace route as an alternative.
 
 ### 5.4 Examples
 
@@ -356,8 +355,9 @@ shared.
 - **Right**: a live specimen of the system, switchable between *components*
   (a dense board), *a screen* (one example) and *type and colour* (ramps and
   roles).
-- **Contrast, live**: the resolver's measured pairs update as the seed moves.
-  A failing pair is flagged where it occurs, with the ratio.
+- **Contrast, live**: the resolver checks the declared pairs as the seed
+  moves. Show pass, fail or decorative status beside each role; omit pair
+  totals and changing ratios from the public design.
 - **Output**: copy the seed as JSON, copy the resolved CSS, and a link that
   encodes the seed in the URL fragment so a theme can be shared without a
   server.
@@ -393,9 +393,9 @@ shared.
   The wells are `#EDDED9` at 1.20 : 1 (Zero manages 1.10), and the secondary
   button's ring is 3.27 : 1.
 
-  The Hockney board draws Button and Input with `shape="full"`. That is a
-  prop, not a seed knob, so a preset cannot choose it today. If Hockney
-  should ship pill-shaped controls, the seed needs a control-shape knob.
+  Hockney opts into `shape.controlShape: "full"` (ADR 0025). Button and Input
+  inherit that default; explicit component shape props override it. Field
+  insets follow the capsule shape without changing density or panel radii.
 
 The resolver runs in the browser; it is a pure function in
 `@bydiorama/tokens`. No backend.
@@ -412,10 +412,9 @@ that read it, which `check:token-consumers` already computes.
 
 - **Changelog**: the ledger, rendered. Filter by item and by kind
   (`breaking`, `a11y`, and so on). Each entry links to the item. An RSS feed.
-- **Status**: the generated numbers that today live in `PLAN.md`'s status
-  table, the gates and whether CI is green, the declared-gap count, and the
-  roadmap as a short list. It is generated at build, so it cannot go stale
-  the way `README.md` did.
+- **Status**: quality checks and their outcomes, known limits, and the
+  roadmap as a short list. No changing component, test or contrast-pair
+  totals. Generate the check results at build.
 
 ### 5.8 Docs
 
@@ -572,7 +571,7 @@ playground ships.
 
 | Risk | Mitigation |
 |---|---|
-| The site becomes a second place where facts go stale | Every number and table is generated; a freshness gate fails the build |
+| The site becomes a second place where facts go stale | No growth totals in public copy; reference data is generated and checked |
 | Dogfooding exposes gaps faster than they can be designed | That is a benefit. Site-only patterns are allowed, labelled, and promoted later |
 | Proportional code is hard to read | Specimen first (decision 2), with a defined exit |
 | Hydration cost of docs chrome | A measured budget and a named fallback |

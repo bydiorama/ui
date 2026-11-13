@@ -1,6 +1,7 @@
 /** Typed documentation for DatePicker (CONVENTIONS §11). */
 
 export const datePickerDoc = {
+  lead: "Chooses a date with a field and a calendar.",
   name: "DatePicker",
   status: "stable",
   summary:

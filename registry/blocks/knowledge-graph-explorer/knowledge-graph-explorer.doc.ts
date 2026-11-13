@@ -1,6 +1,7 @@
 /** Typed documentation for KnowledgeGraphExplorer (CONVENTIONS §11). */
 
 export const knowledgeGraphExplorerDoc = {
+  lead: "Brings connected knowledge into a view you can search and explore.",
   name: "KnowledgeGraphExplorer",
   status: "experimental",
   summary:

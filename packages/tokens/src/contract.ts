@@ -300,6 +300,13 @@ export const BRANDABLE_TOKENS = [
   "--ui-data-cat-8-bg",
   "--ui-data-cat-8-solid",
 
+  // Default control shape, separate from the radius scale for surfaces.
+  "--ui-control-radius-sm",
+  "--ui-control-radius-md",
+  "--ui-field-shape-inset",
+  "--ui-field-shape-end-sm",
+  "--ui-field-shape-end-md",
+  "--ui-field-shape-end-lg",
   // Shape
   "--ui-radius-sm",
   "--ui-radius-md",

@@ -372,3 +372,26 @@ export const Responsive: Story = {
     </div>
   ),
 };
+
+
+/** The caller composes the disclosure; the table owns the spanning row. */
+export const RowDetails: Story = {
+  render: function DetailExample() {
+    const [expanded, setExpanded] = useState<string | null>(DESIGNERS[0]!.id);
+    return <Table
+      caption="Designer details"
+      columns={[
+        { key: "name", header: "Name", cell: row => row.name },
+        { key: "discipline", header: "Discipline", cell: row => row.discipline },
+        { key: "details", header: "Details", width: 96, cell: row => <Button
+          size="sm" variant="ghost" aria-label={`Details for ${row.name}`}
+          aria-expanded={expanded === row.id}
+          aria-controls={expanded === row.id ? `designer-detail-${row.id}` : undefined}
+          onClick={() => setExpanded(expanded === row.id ? null : row.id)}
+        >{expanded === row.id ? "Hide" : "Details"}</Button> },
+      ]}
+      rows={DESIGNERS.slice(0, 3)} getRowId={row => row.id}
+      rowDetails={row => expanded === row.id ? <p id={`designer-detail-${row.id}`}>Known for {row.discipline.toLowerCase()}, {row.year}.</p> : null}
+    />;
+  },
+};

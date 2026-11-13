@@ -1,6 +1,7 @@
 /** Typed documentation for RadioGroup and Radio (CONVENTIONS §11). */
 
 export const radioDoc = {
+  lead: "One choice from a set that stays visible.",
   name: "RadioGroup",
   status: "stable",
   summary:

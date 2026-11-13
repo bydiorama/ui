@@ -6,6 +6,7 @@
  */
 
 export const aspectRatioDoc = {
+  lead: "Keeps media in a predictable frame as the layout changes.",
   name: "AspectRatio",
   status: "stable",
   summary:

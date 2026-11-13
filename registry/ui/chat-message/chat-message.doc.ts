@@ -1,6 +1,7 @@
 /** Typed documentation for ChatMessage (CONVENTIONS §11). */
 
 export const chatMessageDoc = {
+  lead: "Gives a message its place in a conversation.",
   name: "ChatMessage",
   status: "stable",
   summary:

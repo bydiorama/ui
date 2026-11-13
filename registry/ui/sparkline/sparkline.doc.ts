@@ -1,6 +1,7 @@
 /** Typed documentation for Sparkline (CONVENTIONS §11). */
 
 export const sparklineDoc = {
+  lead: "Adds a small trend to a number, label or table row.",
   name: "Sparkline",
   status: "experimental",
   summary:

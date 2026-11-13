@@ -51,7 +51,7 @@ export class UnresolvableAliasError extends Error {
   aliasKey: string;
   constructor(aliasKey: string) {
     super(
-      `No alias "${aliasKey}" in components.json — cannot resolve this item's target path. ` +
+      `No alias "${aliasKey}" in project configuration — cannot resolve this item's target path. ` +
         `If the target is meant as a literal path from the consumer root, it must start with "." (e.g. ".claude/...") or "~/".`,
     );
     this.name = "UnresolvableAliasError";

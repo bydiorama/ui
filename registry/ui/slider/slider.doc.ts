@@ -1,6 +1,7 @@
 /** Typed documentation for Slider (CONVENTIONS §11). */
 
 export const sliderDoc = {
+  lead: "Adjusts a value along a track.",
   name: "Slider",
   status: "stable",
   summary:

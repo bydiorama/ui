@@ -1,6 +1,7 @@
 /** Typed documentation for Sidebar (CONVENTIONS §11). */
 
 export const sidebarDoc = {
+  lead: "Organises navigation beside the work.",
   name: "Sidebar",
   status: "stable",
   summary:

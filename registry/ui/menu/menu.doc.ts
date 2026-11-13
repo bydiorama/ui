@@ -1,6 +1,7 @@
 /** Typed documentation for Menu (CONVENTIONS §11). */
 
 export const menuDoc = {
+  lead: "Offers a set of actions from a trigger.",
   name: "Menu",
   status: "stable",
   summary:

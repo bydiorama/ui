@@ -1,0 +1,12 @@
+---
+import Base from "../layouts/Base.astro";
+import Gallery from "../components/Gallery.astro";
+import { copy } from "../lib/copy";
+---
+<Base>
+  <div class="home-content">
+    <section class="lead" aria-labelledby="intro"><h1 id="intro">{copy.title} <span>{copy.intro}</span></h1><a class="browse-link" href="/docs/">Get started <span aria-hidden="true">→</span></a></section>
+    <Gallery home />
+    <section class="philosophy" aria-labelledby="philosophy-title"><h2 id="philosophy-title">Build the system.<br />Keep your point of view.</h2><div><p>Start with something small. Make it work, put it in front of people, and refine it until it feels right. Agents can help with the variants, the code and the checks. The direction is yours.</p><p>Diorama UI gives you components to own and a shared language to build on. Design, code and documentation stay close, so what you learn in one place can improve the rest.</p><a href={copy.article}>How we work with agents <span aria-hidden="true">↗</span></a></div></section>
+  </div>
+</Base>

@@ -6,6 +6,7 @@
  */
 
 export const accordionDoc = {
+  lead: "Opens related sections of content as they are needed.",
   name: "Accordion",
   status: "stable",
   summary:

@@ -1,6 +1,7 @@
 /** Typed documentation for RangeSlider (CONVENTIONS §11). */
 
 export const rangeSliderDoc = {
+  lead: "Sets the lower and upper ends of a range.",
   name: "RangeSlider",
   status: "stable",
   summary:

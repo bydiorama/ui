@@ -1,6 +1,7 @@
 /** Typed documentation for Multiselect (CONVENTIONS §11). */
 
 export const multiselectDoc = {
+  lead: "Chooses several values from a searchable list.",
   name: "Multiselect",
   status: "stable",
   summary:

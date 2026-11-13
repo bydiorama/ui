@@ -1,6 +1,7 @@
 /** Typed documentation for Header (CONVENTIONS §11). */
 
 export const headerDoc = {
+  lead: "Keeps the current context and the next action within reach.",
   name: "Header",
   status: "stable",
   summary:

@@ -1,6 +1,7 @@
 /** Typed documentation for ChartCard (CONVENTIONS §11). */
 
 export const chartCardDoc = {
+  lead: "Brings a figure, its change and a chart into the same frame.",
   name: "ChartCard",
   status: "experimental",
   summary:

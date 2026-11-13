@@ -99,7 +99,8 @@ export function toTsConstants(pair: ResolvedPair, options: TsOptions = {}): stri
   for (const token of BRANDABLE_TOKENS as readonly BrandableToken[]) {
     branded[token] = pair[scheme][token];
   }
-  entries("Theme.", branded);
+  const resolvedTheme = resolveInternalRefs({ ...resolvedFixed, ...schemeOnly, ...branded });
+  entries("Theme.", Object.fromEntries(Object.keys(branded).map(key => [key, resolvedTheme[key]!])));
 
   lines.push("} as const;", "", `export type TsTokenName = keyof typeof ${exportName};`);
 

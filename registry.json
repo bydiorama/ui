@@ -1010,6 +1010,11 @@
           "path": "registry/ui/network/network-canvas.tsx",
           "type": "registry:ui",
           "target": "ui/network-canvas.tsx"
+        },
+        {
+          "path": "registry/ui/network/network-canvas.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/network-canvas.doc.ts"
         }
       ]
     },

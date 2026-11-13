@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-account-for-frame-borders-in-nested",
+  "date": "2026-11-13",
+  "item": "table",
+  "kind": "visual",
+  "summary": "Account for frame borders in nested table corners",
+  "affects": [
+    "table"
+  ]
+}

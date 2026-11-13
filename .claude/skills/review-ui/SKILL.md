@@ -169,6 +169,17 @@ comment compiles a dead rule. Harmless, but don't let it fool a grep-count.
   paid assets. If a review approves an exception, it needs an ADR, not a nod.
 
 **Docs & governance** *(the review is not done at LGTM)*
+- Public registration: manifest `category` and `docs`, a useful `lead` in the
+  typed doc, and `pnpm check:site-data` green. Build with `pnpm site:build` to
+  verify the HTML reference, Markdown twin and registry route. A live specimen
+  must import registry source; `check:site-source` rejects copied components.
+- Site UI changes: `pnpm test:site` checks actual rendered scheme colors
+  across brands and reload persistence. Saved attributes alone missed a CSS
+  cascade bug. Inspect narrow API rows and the left edges of both navigation
+  columns; use registry controls for preferences. Installation changes also
+  need `pnpm test:cli-package`, which runs the packed executable.
+- Do not use changing component or test totals as public copy. Describe the
+  work and its limits. Keep fixture values and API defaults in their context.
 - Typed doc describes the component as shipped — including known gaps; a doc
   that names a prop that doesn't exist is a defect, found here once.
 - Ledger entry with real `affects`; registry rebuilt; Paper updated when the

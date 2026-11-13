@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-reserve-row-focus-rings-for-selectable",
+  "date": "2026-11-13",
+  "item": "table",
+  "kind": "a11y",
+  "summary": "Reserve row focus rings for selectable rows",
+  "affects": [
+    "table"
+  ]
+}

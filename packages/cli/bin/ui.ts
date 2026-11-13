@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 /**
- * `bydiorama-ui` CLI. Not yet published (packages/cli/package.json is
- * private) — run locally with `node --experimental-strip-types bin/ui.ts
- * <command>` from a bydiorama/ui checkout, against a consumer app's
- * directory.
+ * `bydiorama-ui` CLI. The release package runs compiled JavaScript; a checkout
+ * can run this TypeScript source directly with Node type stripping.
  *
  * Commands:
  *   add <item...>    Install items (and their registry dependencies) from
@@ -30,13 +28,15 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
-import { findAtAliasBase, resolveTargetPath } from "../src/target-path.ts";
+import { resolveTargetPath } from "../src/target-path.ts";
 import { listRegistryItems, localRegistrySource, remoteRegistrySource, type RegistrySource } from "../src/registry-source.ts";
 import { localLedgerSource, remoteLedgerSource, type LedgerSource } from "../src/ledger-source.ts";
 import { readLockfile, writeLockfile } from "../src/lockfile.ts";
 import { lockItem } from "../src/lock.ts";
 import { syncAll, type FileReader } from "../src/sync.ts";
 import { addItems, type FileWriter } from "../src/add.ts";
+
+import { initProject, readProjectConfig } from "../src/project-config.ts";
 
 const GITHUB_OWNER = "bydiorama";
 const GITHUB_REPO = "ui";
@@ -60,19 +60,6 @@ function parseArgs(argv: string[]) {
     }
   }
   return { positional, flags };
-}
-
-async function readComponentsJson(cwd: string) {
-  const raw = await readFile(join(cwd, "components.json"), "utf8");
-  return JSON.parse(raw) as { aliases: Record<string, string>; registries?: Record<string, string> };
-}
-
-async function readTsconfigAtAliasBase(cwd: string): Promise<string> {
-  const raw = await readFile(join(cwd, "tsconfig.json"), "utf8");
-  const tsconfig = JSON.parse(raw) as { compilerOptions?: { paths?: Record<string, string[]> } };
-  const base = findAtAliasBase(tsconfig.compilerOptions?.paths);
-  if (!base) throw new Error('tsconfig.json has no "@/*" path — this CLI only understands that alias form.');
-  return base;
 }
 
 function makeFileReader(cwd: string): FileReader {
@@ -101,11 +88,11 @@ async function resolveSources(
 
   let urlTemplate = typeof flags["registry-url"] === "string" ? (flags["registry-url"] as string) : undefined;
   if (!urlTemplate) {
-    const componentsJson = await readComponentsJson(cwd);
-    urlTemplate = Object.values(componentsJson.registries ?? {})[0];
+    const componentsJson = await readProjectConfig(cwd);
+    urlTemplate = componentsJson.registries["@bydiorama"];
   }
   if (!urlTemplate) {
-    throw new Error("No registry URL: pass --registry-url, or add a `registries` entry to components.json.");
+    throw new Error("No registry URL: pass --registry-url, or add an @bydiorama registry to your project configuration.");
   }
   return {
     registrySource: remoteRegistrySource(urlTemplate),
@@ -146,8 +133,8 @@ async function resolveAddRevision(flags: Record<string, string | boolean>): Prom
 async function cmdAdd(itemNames: string[], flags: Record<string, string | boolean>) {
   const cwd = typeof flags.cwd === "string" ? flags.cwd : process.cwd();
   const { registrySource, registryLabel } = await resolveSources(cwd, flags);
-  const componentsJson = await readComponentsJson(cwd);
-  const atAliasBase = await readTsconfigAtAliasBase(cwd);
+  const componentsJson = await readProjectConfig(cwd);
+  const atAliasBase = componentsJson.sourceRoot;
   const resolveTargetToPath = (target: string) => resolveTargetPath(target, componentsJson.aliases, atAliasBase);
   const readInstalledFile = makeFileReader(cwd);
   const revision = await resolveAddRevision(flags);
@@ -204,8 +191,8 @@ npm dependencies to install:
 async function cmdLock(itemNames: string[], flags: Record<string, string | boolean>) {
   const cwd = typeof flags.cwd === "string" ? flags.cwd : process.cwd();
   const { registrySource, registryLabel } = await resolveSources(cwd, flags);
-  const componentsJson = await readComponentsJson(cwd);
-  const atAliasBase = await readTsconfigAtAliasBase(cwd);
+  const componentsJson = await readProjectConfig(cwd);
+  const atAliasBase = componentsJson.sourceRoot;
   const resolveTargetToPath = (target: string) => resolveTargetPath(target, componentsJson.aliases, atAliasBase);
   const readInstalledFile = makeFileReader(cwd);
 
@@ -256,8 +243,8 @@ async function cmdLock(itemNames: string[], flags: Record<string, string | boole
 async function cmdSync(flags: Record<string, string | boolean>) {
   const cwd = typeof flags.cwd === "string" ? flags.cwd : process.cwd();
   const { registrySource, ledgerSource } = await resolveSources(cwd, flags);
-  const componentsJson = await readComponentsJson(cwd);
-  const atAliasBase = await readTsconfigAtAliasBase(cwd);
+  const componentsJson = await readProjectConfig(cwd);
+  const atAliasBase = componentsJson.sourceRoot;
   const resolveTargetToPath = (target: string) => resolveTargetPath(target, componentsJson.aliases, atAliasBase);
   const readInstalledFile = makeFileReader(cwd);
 
@@ -290,11 +277,16 @@ async function cmdSync(flags: Record<string, string | boolean>) {
 }
 
 const HELP: Record<string, string> = {
+  init: `Usage: bydiorama-ui init [--src <source-directory>]
+
+Creates ui.config.json for the owned install channel. Existing shadcn aliases
+are retained. Configure the same @/* alias in your app. No source is replaced.`,
   general: `bydiorama-ui — install and track @bydiorama/ui registry items as source.
 
 Usage: bydiorama-ui <command> [...] [flags]
 
 Commands:
+  init             Configure the owned install channel.
   add <item...>   Install items and their registry dependencies, then lock them.
   lock <item...>  Record already-installed items in ui.lock.json (or --all).
   sync            Report drift for every locked item, with applicable ledger entries.
@@ -356,7 +348,12 @@ async function main() {
     return;
   }
 
-  if (command === "add") {
+  if (command === "init") {
+    const cwd = typeof flags.cwd === "string" ? flags.cwd : process.cwd();
+    const result = await initProject(cwd, typeof flags.src === "string" ? flags.src : undefined);
+    console.log(result.created ? "Created ui.config.json." : "Kept existing ui.config.json.");
+    console.log(`Configure @/* to point to ${result.config.sourceRoot}/* in your app. Then add theme-zero-css, font-aspekta and the components you need.`);
+  } else if (command === "add") {
     if (rest.length === 0) throw new Error(HELP.add);
     await cmdAdd(rest, flags);
   } else if (command === "lock") {

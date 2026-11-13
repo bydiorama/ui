@@ -6,6 +6,7 @@
  */
 
 export const textareaDoc = {
+  lead: "Multi-line text field with its label, helper text and error message as one accessible unit.",
   name: "Textarea",
   status: "stable",
   summary:

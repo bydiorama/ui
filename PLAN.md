@@ -288,7 +288,7 @@ Its exit gate is untouched:
       actually asked for. Per-component doc data (`*.doc.ts`, item 3) exists and
       feeds `design:gaps` and the contrast gate; it has no site consuming it yet.
 
-### Docs site — ui.bydiorama.com · **briefed, not started**
+### Docs site — ui.bydiorama.com · **initial local implementation**
 
 The brief, the benchmark behind it and its sources are in
 [`docs/site-design-brief.md`](docs/site-design-brief.md). This section carries
@@ -321,13 +321,49 @@ ledger's consumption gates in [Change ledger](#change-ledger). It does unlock
 something the portal never could: every component rendered in public under a
 theme switch, on every push.
 
+Implementation on `library-public-page` (2026-11-12): `apps/site` builds
+Home, a filterable gallery, templated component and block references, Markdown
+twins, agent indexes, changelog and `/r/` from repository sources. Live
+examples are a featured subset with code read from their type-checked files;
+remaining catalog entries have references. The template is now preview,
+installation, API reference and accessibility, with no per-item changelog.
+API rows stack on phones and navigation rows share their left edge. Appearance
+uses library Button/Popover/RadioGroup/Switch; browser tests assert rendered
+scheme colors under each brand and persistence after reload.
+Manifest `category`/`docs` and typed-doc `lead` are required, and `site:data`
+joins the sources with a freshness gate in `verify`. Site alias maps also come
+from manifest targets. `site:build` checks output coverage and local links.
+See `docs/public-library-workflow.md` for upkeep. Public copy and the Paper
+variants no longer carry changing component, test or contrast-pair totals.
+
+Design review follow-through (2026-11-13, ADR 0025): the public catalog adds
+status filters, a list view and all existing live examples. The search field
+uses registry Input. Hockney now selects default capsule controls via the seed,
+including field insets; explicit shape props win. Tabs derives concentric
+corners without changing density. Browser checks cover these brand contracts,
+and WebKit interaction checks expose and fix locale-dependent example hydration.
+The full gallery specimen pipeline and full theme playground remain open.
+See `docs/public-site-design-review-2026-11-12.md` for evidence and the existing
+visual-baseline drift; do not treat this as a clean library-wide visual gate.
+
+The owned CLI now has `init` and `ui.config.json`, supports existing shadcn
+configuration, and ships a runnable preview tarball with the local site.
+`pnpm test:cli-package` exercises the packed executable through npm exec in a
+fresh app, including install, sync and local edits. The shadcn route remains
+an alternative. No npm package has been published.
+
+This is not a public release: hosting, the canonical address change, npm
+publication, per-item interactive examples, the full theme playground, release
+smoke checks and deployed performance measurements remain open. The Paper
+page exists; the separate distributable CodeBlock pipeline is still open.
+
 #### S0 — decisions and data · unblocks everything, no UI
 
 - [x] Settle the six decisions in the brief's §9 (2026-11-11, all as
       recommended). 1, 3 and 4 are recorded in one record, ADR 0024:
       they are a framework choice, a public address and a public npm name.
 - [ ] Find out why `ui.bydiorama.com` answers 403 and who owns the record.
-- [ ] **`category` in the manifest**, validated by `check:manifest` against a
+- [x] **`category` in the manifest**, validated by `check:manifest` against a
       closed list. A grouping that lives only in the site is prose.
 - [ ] **Four doc fields**, typed, with a gate each so they cannot be skipped:
       `lead` (one public sentence), `usage` (a snippet compiled by
@@ -336,10 +372,10 @@ theme switch, on every push.
       Generate the skill's table from the field once it exists.
 - [ ] Classify the 7 components the skill does not cover: combobox,
       media-toggle, site-header, sparkline, chart, meter, range-slider.
-- [ ] **A doc-data build step**: one generated JSON per item joining the doc,
-      the manifest entry, the registry file list, the contrast pairs and the
-      item's ledger entries. The site, the `.md` twins and `llms.txt` all read
-      this and nothing else. `--check` mode joins `pnpm verify`.
+- [x] **A doc-data build step**: a generated catalog joining each typed doc,
+      the manifest entry, registry file list, contrast pairs and item ledger.
+      The component references, `.md` twins and agent indexes read this data.
+      `--check` mode is in `pnpm verify` (2026-11-12).
 
 **Closes when:** `pnpm verify` is green with the new fields required on all
 52 docs, and the doc-data step produces 52 files from a cold clone.
@@ -373,7 +409,7 @@ five page designs are exported to `design/paper/`.
 
 #### S2 — registry, gallery and component pages · **the first public release**
 
-- [ ] `apps/site`: Astro 7, static output, the same `@/ui` aliases as
+- [x] `apps/site`: Astro 7, static output, the same `@/ui` aliases as
       Storybook, the theme-zero stylesheet, Aspekta from the font item.
 - [ ] **The registry at `/r/`**: the items, a `registry.json` beside them
       with no file `content`, `Access-Control-Allow-Origin: *`, revalidating
@@ -384,16 +420,19 @@ five page designs are exported to `design/paper/`.
 - [ ] **Gallery**: 52 live tiles by category, filterable, with site-wide
       scheme, density and brand controls. Needs one `Thumbnail` specimen per
       component and a `check:` gate that fails when one is missing.
-- [ ] **Component page template** over the doc data, thirteen sections in the
-      brief's order. Examples are plain exported components that a story and
-      the page both import — not `composeStories`, which is documented for
-      test runners only.
-- [ ] A `.md` twin of every page, `llms.txt` and `llms-full.txt`.
+- [x] **Minimal component page template** over the doc data: preview where
+      available, installation, API reference and accessibility (brief §5.3
+      revised 2026-11-12). Examples are plain type-checked files imported by
+      the preview and read verbatim by its code view. Full example coverage
+      and reuse from stories remain open.
+- [x] A `.md` twin of every component page, `llms.txt` and `llms-full.txt`.
 - [ ] Search on Pagefind's JS API behind our own dialog.
 - [ ] Deploy on Cloudflare Workers Static Assets with a preview per pull
       request. `ui.manifest.json`'s `homepage` becomes the site.
 - [ ] Publish `@bydiorama/ui` to npm (decision 4). The site may not print an
-      install command that needs a checkout of this repo.
+      install command that needs a checkout of this repo. Until publication,
+      the downloadable compiled tarball is the working preview route; CI
+      smoke-tests that packed artifact through npm exec.
 
 Gates added to CI in this step, each a script and not a review habit:
 
@@ -591,3 +630,28 @@ In the order that removes the most risk per unit of work:
    which no amount of implementation effort can clear.
 4. Re-order `TODO.md`'s design queue by consumer call sites, so the next twelve
    components are not chosen by drawing order either.
+
+### Public review decisions — 2026-11-13
+
+API notes now use full-width Table detail rows with fixed column lanes and a
+no-JavaScript fallback. Table's nested clip includes the frame border; the
+corrected light/dark public Paper reference is recorded in
+`design/paper/specs/table.geometry.json` and exercised in the render-side gate.
+Catalog previews are discovered from example source files and their coverage
+is checked in the browser. This covers all existing public live examples; it
+does not manufacture specimens for the remaining reference-only items.
+
+The visual runner now installs its resolved theme instead of reading an
+obsolete emitter API. The review's isolated-HEAD comparison separates existing
+baseline drift from this patch. Only intentional Tabs/Table macOS baselines
+were updated; unrelated failures and Linux regeneration remain open. See
+`docs/public-site-design-review-2026-11-12.md` for evidence and commands.
+
+
+Appearance now shares a validated preference store between the pre-paint
+script and React examples. The Effects setting changes actual library
+materials. Browser checks exercise every brand/density/effects combination,
+both explicit schemes and System under each OS scheme, plus persistence,
+keyboard operation and short-viewport dialogs. Reproduce with
+`node apps/site/scripts/test-browser.mjs --appearance-only` (add `--webkit`
+for the second engine) after `pnpm site:build`.

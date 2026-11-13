@@ -1,6 +1,7 @@
 /** Typed documentation for StatTiles (CONVENTIONS §11). The first block. */
 
 export const statTilesDoc = {
+  lead: "Pairs a key figure with the context needed to read it.",
   name: "StatTiles",
   status: "experimental",
   summary:

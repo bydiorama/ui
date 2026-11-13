@@ -47,7 +47,7 @@ stays coarse on purpose:
 | 0 — repo and rules | manifest → generated registry, change ledger, ADRs, CI | **done** — delivered past its gate: the planned five checks became 18 enumerated gates |
 | 1 — tokens | `@bydiorama/tokens`: OKLCH resolver, CSS/Tailwind/TS emitters, measured contrast | **done bar one emitter** — the Paper payload emitter waits until something needs a live push |
 | 2 — core primitives | the components, five files each, visual baselines on both platforms | **in progress, exit gate not met** — 45 components ship; the queue that remains is ordered by real consumer call sites |
-| 3 — blocks and docs site | `registry/blocks/`, a public docs site | **not started** |
+| 3 — blocks and docs site | `registry/blocks/`, a public docs site | **in progress** — local public reader and owned CLI preview; release gates remain in `PLAN.md` |
 
 ### What CI enforces
 
@@ -238,3 +238,15 @@ MIT — see [LICENSE](LICENSE). Adapted third-party material and inspirations
 are itemised in [CREDITS.md](CREDITS.md); the one asset class that is *not*
 MIT-distributable (licensed typefaces) is enforced out of the tree by
 `pnpm check:licensing` ([ADR 0003](ledger/decisions/0003-typography-licensing.md)).
+
+## Public library site
+
+The public reader lives in `apps/site`. Run `pnpm site:dev` to preview it or
+`pnpm site:build` to produce the static site. Components are registered through
+the manifest and documented from their typed docs; `pnpm site:data` updates the
+generated catalog after a change. See [the public library workflow](docs/public-library-workflow.md).
+
+The site uses the owned CLI preview as its primary installation route, with
+shadcn as an alternative for existing apps. `pnpm test:cli-package` verifies
+the packed executable without a repository checkout in the consumer. Npm
+publication and hosting remain release work in `PLAN.md`.

@@ -1,0 +1,28 @@
+---
+import Base from "../../layouts/Base.astro";
+import { catalog, type Item } from "../../lib/catalog";
+import { Specimen, hasExample } from "../../components/Specimen";
+import { Install } from "../../components/Install";
+import { PropsTable, KeyboardTable } from "../../components/ReferenceTables";
+import Appearance from "../../components/Appearance.astro";
+const sources = import.meta.glob<string>("../../examples/*.tsx", { eager: true, query: "?raw", import: "default" });
+export function getStaticPaths() { return catalog.items.map(item => ({ params: { name: item.name }, props: { item } })); }
+const { item } = Astro.props as { item: Item };
+const hasSpecimen = hasExample(item.name);
+const exampleSource = sources[`../../examples/${item.name}.tsx`] ?? "";
+const groups = catalog.categories.map(category => ({ category, items: catalog.items.filter(entry => entry.category === category) }));
+const sections = [...(hasSpecimen ? [{ label: "Preview", id: "preview" }] : []), { label: "Installation", id: "install" }, { label: "API reference", id: "props" }, { label: "Accessibility", id: "accessibility" }];
+---
+<Base title={item.title} description={item.lead}>
+  <div class="doc-shell">
+    <aside class="doc-sidebar"><nav class="desktop-component-nav" aria-label="Component navigation">{groups.map(group => <><h2>{group.category}</h2>{group.items.map(entry => <a href={`/components/${entry.name}/`} aria-current={entry.name === item.name ? "page" : undefined}>{entry.title}</a>)}</>)}</nav><details class="mobile-component-nav"><summary>Components</summary><nav aria-label="Component navigation">{groups.map(group => <><h2>{group.category}</h2>{group.items.map(entry => <a href={`/components/${entry.name}/`} aria-current={entry.name === item.name ? "page" : undefined}>{entry.title}</a>)}</>)}</nav></details></aside>
+    <article class="doc-main">
+      <div class="doc-heading">{item.status === "experimental" && <span class="status">Experimental</span>}<h1>{item.title}</h1><p>{item.lead}</p><div class="doc-actions"><a href={`/components/${item.name}.md`}>Read as Markdown</a><a href={`https://github.com/bydiorama/ui/blob/main/${item.files[0]?.path}`}>View source ↗</a></div></div>
+      {hasSpecimen && <section aria-labelledby="preview"><div class="section-toolbar"><h2 id="preview">Preview</h2><Appearance /></div><div class="preview-frame"><div class="specimen-well"><Specimen name={item.name} client:load /></div><details class="example-code"><summary>View code</summary><pre><code>{exampleSource}</code></pre></details></div></section>}
+      <section aria-labelledby="install"><h2 id="install">Installation</h2><Install name={item.name} client:load /></section>
+      <section aria-labelledby="props"><h2 id="props">API reference</h2><PropsTable title={item.title} props={item.docs.props} client:load /><noscript><style>.prop-disclosure { display: none; }</style><div class="prop-notes-fallback">{Object.entries(item.docs.props).filter(([, prop]) => prop.notes).map(([name, prop]) => <details class="reference-details"><summary>{name} details</summary><p>{prop.notes}</p></details>)}</div></noscript></section>
+      <section aria-labelledby="accessibility"><h2 id="accessibility">Accessibility</h2><p>{item.docs.a11y.role}</p><details class="reference-details"><summary>Keyboard and implementation notes</summary>{item.docs.a11y.keyboard?.length && <KeyboardTable title={item.title} rows={item.docs.a11y.keyboard} client:load />}<dl class="accessibility-notes">{Object.entries(item.docs.a11y).filter(([key, value]) => key !== "role" && typeof value === "string").map(([key, value]) => <><dt>{key.replace(/([A-Z])/g, " $1")}</dt><dd>{String(value)}</dd></>)}</dl>{item.docs.knownGaps?.length && <><h3>Known limits</h3><ul class="doc-list">{item.docs.knownGaps.map(text => <li>{text}</li>)}</ul></>}</details></section>
+    </article>
+    <aside class="page-outline"><nav aria-label="On this page"><h2>On this page</h2>{sections.map(section => <a href={`#${section.id}`}>{section.label}</a>)}</nav></aside>
+  </div>
+</Base>

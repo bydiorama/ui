@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-public-catalog-gains-status-filtering-list",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Public catalog gains status filtering, list view, descriptions and all existing live examples; search uses library Input and DatePicker formatting is deterministic across server and browser.",
+  "affects": [
+    "site:catalog",
+    "site:date-picker"
+  ]
+}

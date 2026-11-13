@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-compose-full-width-row-details-without",
+  "date": "2026-11-13",
+  "item": "table",
+  "kind": "addition",
+  "summary": "Compose full-width row details without changing lanes",
+  "affects": [
+    "table"
+  ]
+}

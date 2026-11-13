@@ -1,6 +1,7 @@
 /** Typed documentation for ChatRunDock and ChatRunMark (CONVENTIONS §11). */
 
 export const chatRunDockDoc = {
+  lead: "Keeps a running task and its controls in view.",
   name: "ChatRunDock",
   status: "experimental",
   summary:

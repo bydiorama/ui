@@ -1,0 +1,44 @@
+---
+import "../styles/site.css";
+import { Search } from "../components/Search";
+import { catalog } from "../lib/catalog";
+import { copy } from "../lib/copy";
+import { appearanceOptions, appearanceAttributes, appearanceStorageKey, defaultAppearance } from "../lib/appearance";
+const { title = "Diorama UI", description = copy.description } = Astro.props;
+const nav = [{ label: "Docs", href: "/docs/" }, { label: "Components", href: "/components/" }, { label: "For agents", href: "/docs/agents/" }, { label: "Changelog", href: "/changelog/" }];
+const searchEntries = catalog.items.map(({ name, title, lead, category }) => ({ name, title, lead, category }));
+---
+<!doctype html>
+<html lang="en" data-site-brand="zero" data-ui-density="default" data-site-effects="off">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title === "Diorama UI" ? title : `${title} · Diorama UI`}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} /><meta property="og:description" content={description} />
+    <link rel="preload" href="/fonts/aspekta/AspektaVF.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="For agents" />
+    <script define:vars={{ appearanceOptions, appearanceAttributes, appearanceStorageKey, defaultAppearance }}>
+      let preferences = {};
+      try { preferences = JSON.parse(localStorage.getItem(appearanceStorageKey) || "{}"); }
+      catch { /* Storage is optional; the page follows the system. */ }
+      for (const key of Object.keys(defaultAppearance)) {
+        const value = preferences?.[key];
+        document.documentElement.dataset[appearanceAttributes[key]] = appearanceOptions[key].some(option => option.value === value) ? value : defaultAppearance[key];
+      }
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <header class="site-header">
+      <a href="/" class="wordmark">Diorama UI</a>
+      <nav class="desktop-nav" aria-label="Main navigation">{nav.map(item => <a href={item.href} aria-current={Astro.url.pathname === item.href || (item.href === "/components/" && Astro.url.pathname.startsWith(item.href)) ? "page" : undefined}>{item.label}</a>)}</nav>
+      <div class="header-tools"><Search entries={searchEntries} client:load /><a class="github-link" href={copy.repository}>GitHub</a><details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation">{nav.map(item => <a href={item.href}>{item.label}</a>)}<a href={copy.repository}>GitHub</a></nav></details></div>
+    </header>
+    <main id="main" tabindex="-1"><slot /></main>
+    <footer class="site-footer"><p>{copy.footer}</p><nav aria-label="Footer"><a href="/docs/">Get started</a><a href="/docs/agents/">For agents</a><a href="https://bydiorama.com">bydiorama.com</a></nav></footer>
+    <script>
+      import "../lib/interactions";
+    </script>
+  </body>
+</html>

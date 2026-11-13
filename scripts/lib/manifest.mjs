@@ -37,7 +37,7 @@ export const ITEM_TYPES = ["ui", "lib", "hook", "block", "theme", "file", "skill
  */
 export const ITEM_KEYS = new Set([
   "name", "type", "description", "files", "status",
-  "dependencies", "registryDependencies", "docs",
+  "dependencies", "registryDependencies", "docs", "category",
 ]);
 
 /**

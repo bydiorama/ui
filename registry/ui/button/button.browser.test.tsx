@@ -631,3 +631,22 @@ describe("variant=\"inverse\" (#36)", () => {
     expect([...declared.keys()]).not.toContain("background-color");
   });
 });
+
+
+describe("Button owns its painted boundary", () => {
+  test.each(["secondary", "outline"] as const)("%s suppresses native platform decoration", (variant) => {
+    const button = mount(<Button variant={variant}>Discard</Button>);
+    expect(getComputedStyle(button).appearance).toBe("none");
+    expect(getComputedStyle(button).borderTopWidth).toBe("0px");
+  });
+});
+
+describe("Brand default control shape", () => {
+  test.each([undefined, "soft", "full"] as const)("explicit shape %s takes precedence over the brand", (shape) => {
+    const button = mount(<Button {...(shape ? { shape } : {})}>Save</Button>);
+    const pair = resolveThemePair({ ...THEME_ZERO, shape: { controlShape: "full", radiusPx: { md: 12 } } });
+    for (const [key, value] of Object.entries(pair.light)) container!.style.setProperty(key, value);
+    expect(parseFloat(getComputedStyle(button).borderTopLeftRadius)).toBe(shape === "soft" ? 12 : parseFloat(pair.light["--ui-radius-full"]));
+    expect(button.getBoundingClientRect().height).toBe(32);
+  });
+});

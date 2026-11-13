@@ -4,6 +4,8 @@ import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
 
+import { resolveThemePair, THEME_ZERO } from "@bydiorama/tokens";
+
 import { ArrowRight } from "griddy-icons";
 
 import { Button } from "@/ui/button/button.tsx";
@@ -249,7 +251,7 @@ describe("Input shape", () => {
   test("soft is the default, and full is a capsule at every size", () => {
     for (const size of ["lg", "md", "sm"] as const) {
       const soft = mount(<Input label="Search" size={size} />);
-      expect(soft.control.getAttribute("data-shape")).toBe("soft");
+      expect(soft.control.getAttribute("data-shape")).toBe("theme");
       const softRadius = parseFloat(getComputedStyle(soft.control).borderTopLeftRadius);
       unmount();
 
@@ -339,5 +341,31 @@ describe("Input shape", () => {
     );
     const style = getComputedStyle(control);
     expect(style.paddingRight).toBe(style.paddingLeft);
+  });
+});
+
+
+describe("Brand-shaped fields", () => {
+  test.each([undefined, "soft", "full"] as const)("shape %s preserves the explicit override and pill inset", (shape) => {
+    const { control, container } = mount(<Input label="Name" size="md" {...(shape ? { shape } : {})} />);
+    const pair = resolveThemePair({ ...THEME_ZERO, shape: { controlShape: "full", radiusPx: { md: 12 } } });
+    for (const [key, value] of Object.entries(pair.light)) container.style.setProperty(key, value);
+    const style = getComputedStyle(control);
+    expect(parseFloat(style.borderTopLeftRadius)).toBe(shape === "soft" ? 12 : parseFloat(pair.light["--ui-radius-full"]));
+    expect(parseFloat(style.paddingLeft)).toBe(shape === "soft" ? 8 : 12);
+    expect(control.getBoundingClientRect().height).toBe(40);
+  });
+});
+
+describe("Brand capsules retain the explicit capsule's density and end-control geometry", () => {
+  test.each(["default", "compact", "comfortable"])("%s density", (density) => {
+    const { container } = mount(<><Input label="Themed" size="md" iconEnd={<Button shape="full" size="sm" isIconOnly aria-label="Submit themed" icon={<ArrowRight />} />} /><Input label="Explicit" size="md" shape="full" iconEnd={<Button shape="full" size="sm" isIconOnly aria-label="Submit explicit" icon={<ArrowRight />} />} /></>);
+    const pair = resolveThemePair({ ...THEME_ZERO, shape: { controlShape: "full" } });
+    for (const [key, value] of Object.entries(pair.light)) container.style.setProperty(key, value);
+    container.dataset.uiDensity = density;
+    const controls = [...container.querySelectorAll('[data-slot="control"]')].map(el => getComputedStyle(el));
+    for (const property of ["height", "paddingLeft", "paddingRight", "borderTopLeftRadius"] as const) {
+      expect(controls[0]![property]).toBe(controls[1]![property]);
+    }
   });
 });

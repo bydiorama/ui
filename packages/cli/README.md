@@ -10,7 +10,14 @@ broadcast a consumer has to remember to read.
 
 **Not on npm yet** (issue #30): the package is prepared to publish as
 `@bydiorama/ui` (zero runtime dependencies, Node ≥ 22), but `npx @bydiorama/ui`
-returns E404 until it is. Run it from a checkout (below). Once published, from
+returns E404 until it is. A built tarball is offered by the site preview. Download it into a consumer app and run:
+
+```sh
+npx --package=./bydiorama-ui-0.1.0.tgz bydiorama-ui init --src src
+npx --package=./bydiorama-ui-0.1.0.tgz bydiorama-ui add button
+```
+
+This needs no repository checkout or shadcn installation. Once published, from
 inside a consumer app it will be:
 
 ```sh
@@ -30,6 +37,19 @@ That checkout form (with `--registry-path <checkout>`) is also how you test
 against a branch that hasn't merged to `main` yet.
 
 ## Commands
+
+### `init [--src <source-directory>]`
+
+Creates `ui.config.json` with the source root, install aliases and registry
+namespace. Use `--src src` for a typical app, and configure `@/*` to point at
+the same source directory in the app's TypeScript and bundler settings. When
+omitted, the CLI reads the alias from a plain JSON `tsconfig.json`; use
+`--src` when your config uses comments or inherits that mapping.
+
+Existing app files are preserved. If a shadcn `components.json` is present,
+its aliases and registry mappings are retained. `add`, `lock` and `sync` also
+read that file directly when there is no owned config, so migration can be
+gradual. Re-running `init` leaves the existing owned configuration intact.
 
 ### `add <item...> [--force]`
 
@@ -148,12 +168,11 @@ item type needs no special case:
 
 | Shape | Looks like | Resolves to |
 | --- | --- | --- |
-| **Alias** | `ui/header.tsx`, `lib/cn.ts` | The first segment is a key in `components.json` `aliases`, mapped through `tsconfig.json`'s `@/*` — `ui/header.tsx` → `src/components/ui/header.tsx`. |
+| **Alias** | `ui/header.tsx`, `lib/cn.ts` | The first segment is a key in `ui.config.json` `aliases`, mapped through its `sourceRoot` (or the existing shadcn aliases and TypeScript `@/*` mapping) — `ui/header.tsx` → `src/components/ui/header.tsx`. |
 | **Literal** | `.claude/skills/diorama-ui-craft/SKILL.md`, `~/public/fonts/aspekta/aspekta.css` | A path from the consumer root, as-is. Literal means the first segment starts with `.`, or the target starts with `~/` (shadcn's own project-root marker, for a root path with no leading dot). |
 
 The split is by shape, not by "was it found in `aliases`". An alias-shaped
-target whose alias is missing still fails with `No alias "…" in
-components.json` — falling back to a literal path on a miss would turn a
+target whose alias is missing still fails with `No alias "…" in project configuration` — falling back to a literal path on a miss would turn a
 typo'd `iu/button.tsx` into a file silently written at the app root. A root
 path without a dot, like `public/...`, is therefore alias-shaped and must be
 written `~/public/...`.
@@ -165,13 +184,13 @@ target aborts the install instead of leaving half of it on disk.
 
 ## Registry and ledger sources
 
-Both commands read from either:
+Registry-reading commands use either:
 
 - `--registry-path <dir>` — a local `bydiorama/ui` checkout (has `r/` and
   `ledger/entries/` at its root). Use this for developing against a branch
   that hasn't merged to `main` yet — the only way to test real in-flight
   changes before this package is published.
-- The published registry — `components.json`'s own `registries` entry
+- The published registry — the project configuration's `@bydiorama` registry entry
   (`https://raw.githubusercontent.com/bydiorama/ui/main/r/{name}.json`) by
   default, or `--registry-url <template>` to override it. Ledger entries in
   this mode come from GitHub's contents API (`api.github.com/repos/.../ledger/entries`),
@@ -187,3 +206,9 @@ consumer (`service-portal`) today, and building coordination machinery for
 a single consumer is the over-engineering the plan explicitly warns against.
 This package is the mechanism those two pieces will call into once there's
 a second consumer to justify them.
+
+## Package verification
+
+`pnpm test:cli-package` packs the compiled executable and runs it through npm
+exec in a fresh app. It exercises init without shadcn configuration, transitive
+installation, locks, sync and preservation of local edits. CI runs this gate.

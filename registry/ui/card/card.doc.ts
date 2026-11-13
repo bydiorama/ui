@@ -1,6 +1,7 @@
 /** Typed documentation for Card (CONVENTIONS §11). */
 
 export const cardDoc = {
+  lead: "Groups related content and its actions on a surface.",
   name: "Card",
   status: "stable",
   summary:

@@ -1,6 +1,7 @@
 /** Typed documentation for StatusMatrix (CONVENTIONS §11). */
 
 export const statusMatrixDoc = {
+  lead: "Gives a running process a small, recognisable signal.",
   name: "StatusMatrix",
   status: "experimental",
   summary:

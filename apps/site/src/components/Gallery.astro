@@ -1,0 +1,18 @@
+---
+import catalog from "../data/catalog.generated.json";
+import { Specimen, featured, exampleNames } from "./Specimen";
+import Appearance from "./Appearance.astro";
+import { Input } from "@/ui/input";
+import { buttonClassName } from "@/ui/button";
+const { home = false } = Astro.props;
+const previewNames: readonly string[] = home ? featured : [...featured, ...exampleNames.filter(name => !(featured as readonly string[]).includes(name))];
+const items = previewNames.map(name => catalog.items.find(item => item.name === name)).filter(Boolean);
+---
+<section class="gallery" aria-label="Component library" data-gallery>
+  <div class="section-toolbar"><h2>{home ? "Components" : "Browse the system"}</h2><Appearance /></div>
+  {!home && <><div class="gallery-search"><Input label="Find something to build with" id="component-filter" type="search" placeholder="Search components" size="md" data-gallery-query /></div><div class="category-list" role="group" aria-label="Filter components">{["All", ...catalog.categories].map(category => <button class={buttonClassName({ variant: "ghost", size: "md" })} type="button" data-category={category} aria-pressed={category === "All"}>{category}</button>)}</div><div class="catalog-options"><div role="group" aria-label="Filter status">{["All statuses", "Stable", "Experimental"].map(status => <button class={buttonClassName({ variant: "ghost", size: "md" })} type="button" data-status-filter={status} aria-pressed={status === "All statuses"}>{status}</button>)}</div><div role="group" aria-label="Catalog view">{["Gallery", "List"].map(view => <button class={buttonClassName({ variant: "ghost", size: "md" })} type="button" data-view={view.toLowerCase()} aria-pressed={view === "Gallery"}>{view}</button>)}</div></div></>}
+  <div class="specimen-grid">
+    {items.map(item => item && <article class="gallery-item" data-gallery-item data-category={item.category} data-status={item.status} data-search={`${item.title} ${item.lead}`}><div class="specimen-well"><Specimen name={item.name} client:load /></div><div class="tile-caption"><a href={`/components/${item.name}/`}>{item.title}</a><span>{item.category}</span></div>{!home && <div class="tile-description"><p>{item.lead}</p>{item.status === "experimental" && <span class="status">Experimental</span>}</div>}</article>)}
+  </div>
+  {home ? <a class="browse-link" href="/components/">Browse components <span aria-hidden="true">→</span></a> : <><div class="reference-grid">{catalog.items.filter(item => !previewNames.includes(item.name)).map(item => <a class="reference-item" href={`/components/${item.name}/`} data-gallery-item data-category={item.category} data-status={item.status} data-search={`${item.title} ${item.lead}`}><div><strong>{item.title}</strong>{item.status === "experimental" && <span class="status">Experimental</span>}</div><p>{item.lead}</p><span class="reference-category">{item.category}</span></a>)}</div><p data-gallery-empty role="status" hidden>No matching components. Try a different word or choose another category.</p></>}
+</section>

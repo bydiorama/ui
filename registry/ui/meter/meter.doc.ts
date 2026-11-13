@@ -1,6 +1,7 @@
 /** Typed documentation for Meter (CONVENTIONS §11). */
 
 export const meterDoc = {
+  lead: "Places a measurement within a known range.",
   name: "Meter",
   status: "experimental",
   summary:

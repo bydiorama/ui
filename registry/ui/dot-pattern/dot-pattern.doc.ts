@@ -6,6 +6,7 @@
  */
 
 export const dotPatternDoc = {
+  lead: "Adds a quiet field of dots behind a composition.",
   name: "DotPattern",
   status: "stable",
   summary:

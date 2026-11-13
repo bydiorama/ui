@@ -1,0 +1,29 @@
+{
+  "name": "@bydiorama/site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare:site": "node ../../scripts/build-site-data.mjs --check && node scripts/prepare.mjs",
+    "dev": "pnpm prepare:site && astro dev --host 127.0.0.1",
+    "build": "pnpm prepare:site && astro build && node ../../scripts/check-site-output.mjs",
+    "preview": "astro preview --host 127.0.0.1",
+    "type-check": "astro check",
+    "test:browser": "pnpm build && node scripts/test-browser.mjs"
+  },
+  "dependencies": {
+    "@astrojs/react": "7.1.8",
+    "@bydiorama/tokens": "workspace:*",
+    "astro": "7.4.11",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@axe-core/playwright": "4.14.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "playwright": "1.62.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6"
+  }
+}

@@ -1,6 +1,7 @@
 /** Typed documentation for Toast (CONVENTIONS §11). */
 
 export const toastDoc = {
+  lead: "Acknowledges an action without taking over the task.",
   name: "Toast",
   status: "stable",
   summary:

@@ -1,6 +1,7 @@
 /** Typed documentation for SiteHeader (CONVENTIONS §11). */
 
 export const siteHeaderDoc = {
+  lead: "Connects a site’s pages with navigation that adapts to a small screen.",
   name: "SiteHeader",
   status: "experimental",
   summary:

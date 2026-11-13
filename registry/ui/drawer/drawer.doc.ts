@@ -1,6 +1,7 @@
 /** Typed documentation for Drawer (CONVENTIONS §11). */
 
 export const drawerDoc = {
+  lead: "Brings a panel up from the bottom, ready to dismiss with a drag.",
   name: "Drawer",
   status: "stable",
   summary:

@@ -998,6 +998,12 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-data-cat-8-solid": legibleOn(catHues[7], colors.bg, 3),
 
     // Shape
+    "--ui-control-radius-sm": px(shape.controlShape === "full" ? radius.pill : radius.sm),
+    "--ui-control-radius-md": px(shape.controlShape === "full" ? radius.pill : radius.md),
+    "--ui-field-shape-inset": shape.controlShape === "full" ? "var(--ui-space-xs)" : "0px",
+    "--ui-field-shape-end-sm": shape.controlShape === "full" ? "calc(var(--ui-space-xs) - var(--ui-stroke-hairline))" : "var(--ui-field-sm-inset)",
+    "--ui-field-shape-end-md": shape.controlShape === "full" ? "calc(var(--ui-space-sm) - var(--ui-stroke-hairline))" : "var(--ui-field-md-inset)",
+    "--ui-field-shape-end-lg": shape.controlShape === "full" ? "calc(var(--ui-space-sm) - var(--ui-stroke-hairline))" : "var(--ui-field-lg-inset)",
     "--ui-radius-sm": px(radius.sm),
     "--ui-radius-md": px(radius.md),
     "--ui-radius-lg": px(radius.lg),

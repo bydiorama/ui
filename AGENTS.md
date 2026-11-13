@@ -50,6 +50,12 @@ to be read, owned and modified downstream.
 | `pnpm ledger:new` | Scaffold a change-ledger entry |
 | `pnpm type-check` | `tsc --noEmit` **and** the storybook project's own. Run the script, never bare `tsc`: `apps/storybook` has a separate tsconfig, and every `*.stories.tsx` error appears only there |
 | `pnpm lint` | ESLint |
+| `pnpm site:data` | Regenerate public library data from the manifest, typed docs, registry, contrast report and ledger |
+| `pnpm check:site-data` | Fail if the public library data is stale or a public component lacks documentation |
+| `pnpm site:build` | Build the public site and check generated routes and internal links |
+| `pnpm site:dev` | Start the local public library site |
+| `pnpm test:site` | Build and test public pages, accessibility and rendered theme preferences in Chromium |
+| `pnpm test:cli-package` | Run the packed owned CLI through npm exec in a fresh app |
 
 Run `pnpm verify` before considering any change done. It needs no `node_modules`
 — the checks are dependency-free Node scripts on purpose, so they also run in a
@@ -94,6 +100,18 @@ Invoke it before starting; the steps below are the summary, not the manual.
    own colours is not finished.
 5. `pnpm ledger:new` to record the addition.
 6. `pnpm verify`, `pnpm type-check`, `pnpm lint`.
+
+Public registration is part of adding a component: the manifest needs
+`category` and `docs`, and its typed doc needs a public `lead`. Run
+`pnpm site:data` after registry and ledger changes. The public catalog,
+reference routes, Markdown twins and agent index are generated from those
+sources; there is no second list to register. A live specimen still needs
+an explicit composition importing registry source. See
+`docs/public-library-workflow.md`. Keep HTML references minimal and expose
+the same type-checked example file in its preview and code view. Use library
+controls for appearance and verify computed colors when switching schemes.
+Public copy carries no changing library
+or test totals.
 
 ## Skills
 

@@ -30,6 +30,7 @@ import type { ReactElement } from "react";
 import { useEffect, useRef } from "react";
 
 import { Accordion } from "@/ui/accordion/accordion.tsx";
+import { Table } from "@/ui/table/table.tsx";
 import { Tabs } from "@/ui/tabs/tabs.tsx";
 import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
 import { Tooltip } from "@/ui/tooltip/tooltip.tsx";
@@ -52,6 +53,7 @@ import { Plus, Microphone, InfoCircle, Close } from "griddy-icons";
 // of the numbers is a second thing to drift.
 import { evaluate, sides, formatFailures } from "../../scripts/lib/geometry-laws.mjs";
 import accordionSpec from "../../design/paper/specs/accordion.geometry.json";
+import tableSpec from "../../design/paper/specs/table.geometry.json";
 import tabsSpec from "../../design/paper/specs/tabs.geometry.json";
 import radioSpec from "../../design/paper/specs/radio.geometry.json";
 import tooltipSpec from "../../design/paper/specs/tooltip.geometry.json";
@@ -97,6 +99,7 @@ type Spec = {
 const SPECS: Spec[] = [
   accordionSpec as Spec,
   tabsSpec as Spec,
+  tableSpec as Spec,
   radioSpec as Spec,
   tooltipSpec as Spec,
   toastSpec as Spec,
@@ -120,6 +123,12 @@ const SPECS: Spec[] = [
  * the sheet's own composition, and nothing else.
  */
 const CASES: Record<string, () => ReactElement> = {
+  "table-frame": () => <Table caption="Props" size="sm" columns={[
+    { key: "name", header: "Prop", cell: row => row.name },
+    { key: "type", header: "Type", cell: row => row.type },
+  ]} rows={[{ name: "variant", type: "primary | secondary | outline | ghost | danger | inverse" }, { name: "size", type: "sm | md | lg" }]}
+    getRowId={row => row.name} rowDetails={row => row.name === "variant" ? <p>Choose the emphasis for this action.</p> : null} />,
+
   // ONE item, because `measure` takes every [data-slot="accordion-trigger"] on
   // screen — a second row would put its trigger into the union the gap
   // arithmetic runs over and the bottom inset would read as the whole list.

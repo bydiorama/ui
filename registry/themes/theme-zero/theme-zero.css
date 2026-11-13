@@ -443,6 +443,12 @@
   --ui-data-cat-8-fg: light-dark(#b82164, #db4781);
   --ui-data-cat-8-bg: light-dark(rgba(184, 33, 100, 0.14), rgba(212, 64, 123, 0.14));
   --ui-data-cat-8-solid: light-dark(#B82164, #D4407B);
+  --ui-control-radius-sm: 4px;
+  --ui-control-radius-md: 8px;
+  --ui-field-shape-inset: 0px;
+  --ui-field-shape-end-sm: var(--ui-field-sm-inset);
+  --ui-field-shape-end-md: var(--ui-field-md-inset);
+  --ui-field-shape-end-lg: var(--ui-field-lg-inset);
   --ui-radius-sm: 4px;
   --ui-radius-md: 8px;
   --ui-radius-lg: 16px;

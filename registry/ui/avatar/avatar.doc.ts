@@ -6,6 +6,7 @@
  */
 
 export const avatarDoc = {
+  lead: "Represents a person or team, with an image or their initials.",
   name: "Avatar",
   status: "stable",
   summary:

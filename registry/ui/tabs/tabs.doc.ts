@@ -1,6 +1,7 @@
 /** Typed documentation for Tabs (CONVENTIONS §11). */
 
 export const tabsDoc = {
+  lead: "A segmented control that switches which panel is shown, in two orientations and two variants.",
   name: "Tabs",
   status: "stable",
   summary:
@@ -9,7 +10,7 @@ export const tabsDoc = {
   anatomy: [
     { part: "root", slot: "tabs", notes: "The wrapper. className lands here (§5)." },
     { part: "list", slot: "tabs-list", notes: "role=tablist. Carries data-orientation and data-variant. Enclosed is a bordered bg-surface track at radius-md with a 2px inset and a 32px height; ghost drops fill and edge entirely." },
-    { part: "tab", slot: "tabs-tab", notes: "role=tab. min-h-6 for the target floor. Enclosed is flex-1 at radius-sm so the track divides evenly; ghost sizes to its label at radius-md, because there is no track to divide." },
+    { part: "tab", slot: "tabs-tab", notes: "role=tab. min-h-6 for the target floor. Enclosed is flex-1, with its radius derived from the track radius minus padding and stroke, so brand corners remain concentric; ghost sizes to its label at radius-md, because there is no track to divide." },
     { part: "count", slot: "tabs-count", notes: "Optional number beside the label. A 16px circle — min-h as well as min-w, or one digit renders as a lozenge. 12px type, not the sheet's 11px." },
     { part: "panel", slot: "tabs-panel", notes: "role=tabpanel, paired with its tab both ways." },
   ],

@@ -81,6 +81,12 @@ const INSET = {
   },
 } as const satisfies Record<InputShape, Record<InputSize, string>>;
 
+const THEMED_INSET = {
+  sm: "rounded-[var(--ui-control-radius-md,var(--ui-radius-md))] px-[calc(var(--ui-field-sm-inset)+var(--ui-field-shape-inset,0px))] has-[>button:last-child]:pe-[var(--ui-field-shape-end-sm,var(--ui-field-sm-inset))]",
+  md: "rounded-[var(--ui-control-radius-md,var(--ui-radius-md))] px-[calc(var(--ui-field-md-inset)+var(--ui-field-shape-inset,0px))] has-[>button:last-child]:pe-[var(--ui-field-shape-end-md,var(--ui-field-md-inset))]",
+  lg: "rounded-[var(--ui-control-radius-md,var(--ui-radius-md))] px-[calc(var(--ui-field-lg-inset)+var(--ui-field-shape-inset,0px))] has-[>button:last-child]:pe-[var(--ui-field-shape-end-lg,var(--ui-field-lg-inset))]",
+} as const satisfies Record<InputSize, string>;
+
 interface InputBaseProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, "disabled" | "size" | "required"> {
   /**
@@ -93,7 +99,7 @@ interface InputBaseProps
   isLabelHidden?: boolean;
   size?: InputSize;
   /**
-   * `soft` (the default) is the form field; `full` is the capsule a search
+   * Omitted follows the brand (soft in theme zero). `full` is the capsule a search
    * field draws, with its inline padding widened so the text clears the
    * curve. A round submit goes in `iconEnd` — see INSET for the pairing.
    */
@@ -141,7 +147,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     label,
     isLabelHidden = false,
     size = "lg",
-    shape = "soft",
+    shape,
     surface = "page",
     isDisabled = false,
     isRequired = false,
@@ -207,7 +213,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <div
         data-slot="control"
         data-size={size}
-        data-shape={shape}
+        data-shape={shape ?? "theme"}
         data-invalid={invalid || undefined}
         data-disabled={isDisabled || undefined}
         className={cn(
@@ -250,7 +256,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           "focus-within:border-edge-focus focus-within:shadow-(--ui-focus-ring)",
           "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
           SIZE[size],
-          INSET[shape][size],
+          shape ? INSET[shape][size] : THEMED_INSET[size],
         )}
       >
         {icon}

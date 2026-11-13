@@ -6,6 +6,7 @@
  */
 
 export const tableDoc = {
+  lead: "Makes structured information easy to compare, sort and scan.",
   name: "Table",
   status: "stable",
   summary:
@@ -22,7 +23,7 @@ export const tableDoc = {
       part: "body clip",
       slot: "table-body-clip",
       notes:
-        "The node that rounds the header's top corners and the last row's bottom ones, clipping at radius-lg minus the mat's padding — the concentric rule (§6) as arithmetic, landing on the sheet's 12px. It exists because neither of the alternatives works: clipping on the FRAME cuts along the frame's own curve offset by its padding, which is a shallow bite rather than a 12px round, and a <tr> cannot carry a border-radius in either border model.",
+        "The node that rounds the header's top corners and the last row's bottom ones, clipping at max(0, radius-lg minus padding minus border). The frame's border counts in the inset, so the corrected theme-zero radius is 11px. It exists because neither of the alternatives works: clipping on the FRAME cuts along the frame's own curve offset by its padding, which is a different curve from the explicit inner clip, and a <tr> cannot carry a border-radius in either border model.",
     },
     { part: "grid", slot: "table-grid", notes: "The <table>: table-fixed, border-SEPARATE at zero spacing, with a <colgroup> carrying the lane widths and an sr-only <caption>. Separate rather than collapse because border-radius does not apply in the collapsing model at all, and the first data row is rounded." },
     { part: "head", slot: "table-head", notes: "The <thead>. One row, at the size's own height, filled bg-elevated so it reads as part of the mat." },
@@ -30,10 +31,12 @@ export const tableDoc = {
     { part: "sort", slot: "table-sort", notes: "The sort control, which IS the header cell — full-bleed inside the <th> so its hover fill covers the lane. data-state is none/ascending/descending." },
     { part: "sort indicator", slot: "table-sort-indicator", notes: "A ChevronDown, always in the layout at opacity 0 so revealing it moves nothing. 40% on hover or focus, solid when sorted, rotated for ascending." },
     { part: "body", slot: "table-body", notes: "The <tbody>. Carries aria-busy while loading." },
-    { part: "row", slot: "table-row", notes: "A <tr>. Carries data-state selected/default, data-disabled, the press target and the focus ring — but NOT the fill, the divider or the corners. Those are on its cells: a <tr> renders no border-radius in either border model, and the separate model ignores a border on a row." },
+    { part: "row", slot: "table-row", notes: "A <tr>. Carries data-state selected/default, data-disabled, the press target and, for selectable rows, the focus ring — but NOT the fill, the divider or the corners. Those are on its cells: a <tr> renders no border-radius in either border model, and the separate model ignores a border on a row." },
     { part: "select-all", slot: "table-select-all", notes: "The header's select lane. Holds a Checkbox whose mixed state resolves to ALL." },
     { part: "select-row", slot: "table-select-row", notes: "A row's select lane. Holds the row's own Checkbox, which is the non-colour half of what a selected row communicates." },
     { part: "cell", slot: "table-cell", notes: "A <td>. Primary ink and medium weight on the primary column, secondary and regular elsewhere. Also carries the row's fill and hover/press states, the 1px bg-elevated divider, and — on the first row's outer two cells — the radius-md top corners." },
+    { part: "row details", slot: "table-details-row", notes: "Optional row immediately after its owner. Its table-details cell spans all columns, including selection. The caller owns disclosure controls and state." },
+    { part: "details cell", slot: "table-details", notes: "Full-width context on the owner row's surface, with the divider after the content. Content does not toggle row selection." },
     { part: "loading row", slot: "table-loading-row", notes: "A placeholder row at the real row's height, in the real lanes." },
     { part: "skeleton", slot: "table-skeleton", notes: "A composed Skeleton at h-2.5, the denser row's height rather than the component's 16px default. Widths still ripple deterministically by row and column — a visual baseline has to be reproducible, which the harness now achieves by pausing the pulse at its first keyframe rather than by the bar being static. Requires the skeleton item." },
     { part: "empty", slot: "table-empty", notes: "One cell spanning every lane, marked aria-live=\"polite\". Renders whatever `empty` was given." },
@@ -55,6 +58,7 @@ Table<Row>
 ├─ isSelectable?  true — then getRowLabel AND selectAllLabel are REQUIRED
 │   ├─ selectedIds? / defaultSelectedIds?   string[]
 │   └─ onSelectionChange?  (ids: string[]) => void
+├─ rowDetails?    (row: Row) => ReactNode — null when absent or collapsed
 ├─ isRowDisabled? (row: Row) => boolean
 ├─ isLoading?     boolean           loadingRowCount?  number
 └─ empty?         ReactNode — an EmptyState, typically
@@ -83,6 +87,10 @@ Table<Row>
       type: "(row: Row) => string",
       required: true,
       notes: "Stable identity: the React key, and the value the selection API speaks in. Index-based keys break selection the moment rows reorder, which is the first thing sorting does.",
+    },
+    rowDetails: {
+      type: "(row: Row) => ReactNode",
+      notes: "Full-width content immediately after a data row. Return null when absent or collapsed. Compose a disclosure button in a cell with aria-expanded and aria-controls pointing to an ID in the detail content. The caller owns expansion state; Table preserves lanes, surface, and selection boundaries.",
     },
     size: {
       type: '"sm" | "md" | "lg"',
@@ -179,7 +187,7 @@ Table<Row>
     targetSize:
       "Every checkbox is a Checkbox, whose label row is padded to a 24px target around an 18px box — SC 2.5.8's floor. The sort control fills its header cell: 32px tall at the smallest size, and the full lane wide.",
     focus:
-      "Each control owns its own indicator. The ROW additionally draws a 2px inset outline whenever a control inside it has focus-visible, which is what the sheet's focus row is describing — it says which row you are standing in while tabbing down a column of checkboxes. An outline rather than a box-shadow, so it survives forced-colors mode.",
+      "Each control owns its own indicator. A selectable ROW additionally draws a 2px inset outline whenever a control inside it has focus-visible, which is what the sheet's focus row is describing — it says which row you are standing in while tabbing down a column of checkboxes. An outline rather than a box-shadow, so it survives forced-colors mode.",
     selection:
       "A selected row is its wash plus its checked box — no leading edge, no marker. Rows are not tab stops and carry no aria-selected. Everything a row does is reachable from the checkbox inside it, and aria-selected on a row is only meaningful inside role=\"grid\" — which would mean full APG grid navigation, not an attribute. A mixed select-all resolves to ALL, never to none: at three of eight chosen, 'the rest too' is the far more common intent and the undo for guessing wrong is eight clicks.",
     contrastPairs: [
@@ -231,8 +239,6 @@ Table<Row>
     "The sortable-hover and sorted-descending header rows appear SWAPPED: the sheet's hover row is weight 600 with a solid arrow and its sorted row is 550 with a muted one, the opposite of the gutter. Shipped per the gutter — which is also the version that does not reflow the header on hover.",
     "The header-state matrix types its labels 550 / 0.02em / leading-flat; five other header rows on the sheet use label-sm / 500 / leading-normal. Shipped as the majority. Confirm the outlier.",
     "sm is annotated 'radius-md 8' and painted radius-lg, like md and lg. Shipped uniform at radius-lg.",
-    "The inner radius is drawn at 12px, which is off the --ui-radius-* scale (4/8/16/24/32). Shipped as calc(radius-lg - space-xs) on a clipping node of its own, which is the concentric arithmetic and lands on 12 exactly. Confirm, or put 12 on the scale.",
-    "The first data row is drawn with radius-md top corners while the header above it and the last row below it are drawn at 12px — three different corner values in one frame. All three ship as drawn.",
     "The selected row's '3px accent-legible edge' is annotated in the gutter and never painted. NOT shipped: selection is only reachable through the select lane, so a selected row always carries a checked box, which is the non-colour channel SC 1.4.1 asks for. Building it also floored --ui-bg-accent-legible against the accent wash and darkened the Switch, the Slider, Progress and ImageUpload — a table row costing four other components a shade. Confirm the annotation is stale.",
     "The disabled row is annotated text-disabled, which measures 2.09:1 in light. WCAG exempts an inactive CONTROL's label; a row's DATA is content. Shipped at text-muted, the quietest ink that clears AA here.",
     "The checkbox is scaled 16/18/20 with radii 4/4/5 across the three sizes, and the Checkbox sheet defines exactly one 18px box at radius-sm — 5px is off the radius scale. Shipped at 18 everywhere. If Checkbox should grow a size axis that is Checkbox's change, with its own sheet.",

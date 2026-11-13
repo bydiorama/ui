@@ -6,6 +6,7 @@
  */
 
 export const thumbnailDoc = {
+  lead: "Shows a small image with room to identify or remove it.",
   name: "Thumbnail",
   status: "stable",
   summary:

@@ -306,3 +306,21 @@ describe("Panel isAlwaysMounted (#34)", () => {
     expect(c.textContent).not.toContain("Second");
   });
 });
+
+// Public Page Hockney (6GM-0/6GP-0) exposed the independent-radius bug:
+// 12px track and 6px child cannot be concentric around a 3px inset.
+describe("Brand geometry retains density", () => {
+  test.each([{ md: 12, sm: 6 }, { md: 6, sm: 4 }, { md: 0, sm: 0 }])("enclosed corners derive from the track: %j", (radiusPx) => {
+    const host = mount(<Basic />);
+    const pair = resolveThemePair({ ...THEME_ZERO, shape: { radiusPx } });
+    for (const [key, value] of Object.entries(pair.light)) host.style.setProperty(key, value);
+    const list = host.querySelector<HTMLElement>('[data-slot="tabs-list"]')!;
+    const child = host.querySelector<HTMLElement>('[data-slot="tabs-tab"]')!;
+    const outer = getComputedStyle(list), inner = getComputedStyle(child);
+    expect(parseFloat(outer.borderTopLeftRadius)).toBe(radiusPx.md);
+    const inset = parseFloat(outer.paddingTop) + parseFloat(outer.borderTopWidth);
+    expect(Math.abs(parseFloat(inner.borderTopLeftRadius) - Math.max(0, parseFloat(outer.borderTopLeftRadius) - inset))).toBeLessThanOrEqual(0.5);
+    expect(outer.paddingTop).toBe("3px");
+    expect(list.getBoundingClientRect().height).toBe(32);
+  });
+});

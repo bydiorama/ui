@@ -106,13 +106,9 @@ function TabsList({ className, ...rest }: TabsListProps) {
         // and right, 4px top and bottom. A fixed height is a SECOND author of
         // the inset, and the two only agree by arithmetic accident.
         //
-        // So: no fixed height, and no `items-center`. Height is now the sum of
-        // its parts (24 + 3 + 3 + border = the 32px the sheet specifies), and
-        // stretch makes every tab fill the content box, so all four gaps are
-        // the padding for every tab whatever it contains. 3px is also what
-        // closes §6's concentric arithmetic, which 2px never did: the radius
-        // scale rounds the border box, so the PADDING box is 8 − 1.5 ≈ 7, and
-        // radius-sm rows plus a 3px inset want exactly 7.
+        // Keep density independent of brand shape: the track owns its inset;
+        // enclosed tabs derive their radius from that track minus this padding
+        // and its stroke. Browser stroke snapping can differ by half a pixel.
         "p-[3px]",
         orientation === "vertical" ? "flex-col" : "justify-center",
         variant === "enclosed" && "bg-surface border-hairline border-edge-subtle",
@@ -153,7 +149,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
         "text-ink-muted",
         // Enclosed divides the track evenly and centres each label; ghost sizes
         // to its content and sits left, because there is no track to divide.
-        variant === "enclosed" ? "flex-1 rounded-sm" : "rounded-md",
+        variant === "enclosed" ? "flex-1 rounded-[max(0px,calc(var(--ui-radius-md)-3px-var(--ui-stroke-hairline)))]" : "rounded-md",
         orientation === "horizontal" ? "justify-center" : "self-stretch",
         // `bg-selected`, not `bg-sunken`. The sheet draws the selected tab
         // DARKER than its track, and "recessed" is a relative role: below the

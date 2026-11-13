@@ -1,6 +1,7 @@
 /** Typed documentation for Calendar (CONVENTIONS §11). */
 
 export const calendarDoc = {
+  lead: "Browses dates and makes a selection with a pointer or keyboard.",
   name: "Calendar",
   status: "stable",
   summary:

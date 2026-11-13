@@ -133,6 +133,11 @@ Work through `CONVENTIONS.md` §1–§10 with the file open. The ones that bit:
 
 ### 4 · Typed doc (`*.doc.ts`)
 
+Write `lead`, a short public sentence about what the component does. Keep
+library totals, test totals and internal issue history out of it. The detailed
+`summary` remains the reasoning. Public pages and Markdown twins read this
+same file; do not write a second component reference in `apps/site`.
+
 Anatomy, composition tree (agents compose from trees, not prose), props with
 *why* notes, do/don't, an a11y block with an explicit keyboard table and
 **measured** contrast numbers, a `forwarding` block once the component is
@@ -184,12 +189,28 @@ spread the args bag into components with discriminated-union props
 
 ### 7 · Register and record
 
+- Set `category` from `SITE_CATEGORIES` in `scripts/lib/site.mjs` and `docs`
+  to the typed doc path in the manifest. Both are required for components and
+  blocks, including experimental ones. Stable and experimental items are
+  discovered automatically; deprecated items leave the public catalog.
+
 - Manifest entry: component + doc file only. Stories/tests are co-located but
   **never listed** — `check:manifest` enforces it; the manifest, not the
   folder, is the distribution boundary.
 - `pnpm registry:build`, then a ledger entry (`pnpm ledger:new`) with real
   `affects` values and the Paper URL as provenance. Design fixes pushed back
   into Paper get their own entry.
+- After the registry and ledger are final, run `pnpm site:data`. This joins
+  the manifest, typed docs, registry, contrast report and ledger. Every public
+  item gets its reference page, Markdown twin, search entry and registry route
+  from that data; no route or catalog list to edit. `pnpm check:site-data`
+  fails on drift. Run `pnpm site:build` to prove the routes and links exist.
+- A live specimen is a separate composition in `apps/site`, importing the
+  registry source in `apps/site/src/examples/<name>.tsx`. The page reads
+  that same type-checked file for View code; add its selection in Specimen.
+  HTML stays minimal (preview, install, API, accessibility), with longer
+  reasoning in Markdown and no per-item changelog. Live examples still cover
+  a subset; automatic documentation does not claim automatic examples.
 
 ### 8 · Gates — and prove the new ones bite
 

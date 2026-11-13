@@ -1,6 +1,7 @@
 /** Typed documentation for ChatProgress (CONVENTIONS §11). */
 
 export const chatProgressDoc = {
+  lead: "Shows what an agent is doing as the work unfolds.",
   name: "ChatProgress",
   status: "stable",
   summary:

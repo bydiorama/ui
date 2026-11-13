@@ -59,6 +59,8 @@ export interface SeedTypography {
 export type ShadowIntensity = "none" | "subtle" | "standard" | "strong";
 
 export interface SeedShape {
+  /** Default shape of Button and Input. Explicit component shapes still win. */
+  controlShape?: "soft" | "full";
   /** Six knobs matching the approved radius scale (4/8/16/24/32/pill). */
   radiusPx?: { sm?: number; md?: number; lg?: number; xl?: number; "2xl"?: number; pill?: number };
   /** The base of the stroke scale (ADR 0020 §2): `--ui-stroke-default` is
@@ -207,6 +209,9 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
   checkNumber("typography.baseSize", seed.typography?.baseSize);
   checkNumber("typography.ratio", seed.typography?.ratio);
   checkNumber("chrome.contentWidthPx", seed.chrome?.contentWidthPx);
+  if (seed.shape?.controlShape !== undefined && !["soft", "full"].includes(seed.shape.controlShape)) {
+    issues.push({ path: "shape.controlShape", message: "must be soft or full" });
+  }
   checkNumber("shape.borderWidthPx", seed.shape?.borderWidthPx);
   checkNumber("shape.focusRingWidthPx", seed.shape?.focusRingWidthPx);
   for (const key of ["sm", "md", "lg", "xl", "2xl", "pill"] as const) {

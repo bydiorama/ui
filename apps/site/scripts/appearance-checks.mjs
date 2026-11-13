@@ -5,6 +5,11 @@ import AxeBuilder from "@axe-core/playwright";
 
 const storageKey = "diorama-ui-appearance";
 const defaults = { scheme: "auto", density: "default", brand: "zero", effects: "off" };
+export async function waitForAppearance(page) {
+  await page.locator('astro-island[component-export="AppearanceControls"]:not([ssr])').waitFor();
+  // useSyncExternalStore chooses the responsive surface after hydration.
+  await page.waitForFunction(() => [...document.querySelectorAll('.appearance-trigger')].every(trigger => trigger.dataset.slot === (matchMedia('(max-width: 639px), (max-height: 600px)').matches ? 'modal-trigger' : 'popover-trigger')));
+}
 const settle = async page => {
   await page.waitForFunction(() => !document.documentElement.hasAttribute("data-appearance-changing"));
   await page.evaluate(async () => Promise.all(document.getAnimations().filter(a => a.effect?.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {}))));
@@ -17,7 +22,7 @@ export async function checkAppearance(page, base, artifacts) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   const open = async () => {
-    await page.locator('astro-island[component-export="AppearanceControls"]:not([ssr])').waitFor();
+    await waitForAppearance(page);
     await page.getByRole("button", { name: "Appearance", exact: true }).click();
     await settle(page);
   };
@@ -177,7 +182,7 @@ export async function checkAppearance(page, base, artifacts) {
   const blockedErrors = [];
   blockedPage.on("pageerror", error => blockedErrors.push(error.message));
   await blockedPage.goto(`${base}/components/button/`);
-  await blockedPage.locator('astro-island[component-export="AppearanceControls"]:not([ssr])').waitFor();
+  await waitForAppearance(blockedPage);
   await blockedPage.getByRole("button", { name: "Appearance", exact: true }).click();
   await blockedPage.getByRole("group", { name: "Scheme", exact: true }).getByText("Dark", { exact: true }).click();
   await blockedPage.getByText("Effects", { exact: true }).click();

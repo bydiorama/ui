@@ -12,6 +12,11 @@ for (const item of readManifest().items.filter(isPublicItem)) {
   for (const path of [`components/${item.name}/index.html`, `components/${item.name}.md`, `r/${item.name}.json`]) {
     if (!existsSync(join(out, path))) errors.push(`Missing public output: ${path}`);
   }
+  const reference = join(out, `components/${item.name}/index.html`);
+  if (existsSync(reference)) {
+    const html = readFileSync(reference, "utf8");
+    if (!html.includes('id="preview"') || !html.includes('class="example-code"')) errors.push(`${item.name}: public references must include a preview and its example source.`);
+  }
 }
 const index = JSON.parse(readFileSync(join(out, "r/registry.json"), "utf8"));
 if (index.items.some(item => item.files.some(file => "content" in file))) errors.push("Registry index must not embed file content.");

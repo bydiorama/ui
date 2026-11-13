@@ -32,13 +32,17 @@ registry index is emitted beside the item files at `/r/registry.json`.
 ## What is automatic, and what still needs design
 
 Documentation and registration are automatic. Interactive examples are
-authored compositions. The initial site has a featured subset; remaining
-items still get a complete reference and a gallery entry. Add a specimen by
+authored compositions, required for every public component and block. The
+home page shows a featured subset; the catalog previews the whole library.
+Add a specimen by
 importing the real registry source into the site, then expose that same
 type-checked file to its code view. Files live at
 `apps/site/src/examples/<name>.tsx`; `Specimen.tsx` selects the composition
 and the page reads that file verbatim. Never copy the component implementation
-into `apps/site`. `check:site-source` checks that boundary.
+into `apps/site`. `check:site-source` checks that boundary and requires an
+example for every public manifest item. Build checks require the preview and
+code view on every reference page; browser checks cover hydration,
+accessibility, responsive layout and example interactions.
 
 `pnpm test:site` builds and runs Chromium against public pages in both
 schemes, checks accessibility and overflow, and exercises the gallery,

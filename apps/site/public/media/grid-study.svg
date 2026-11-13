@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <title>Geometric grid study</title>
+  <rect width="640" height="400" fill="Canvas"/>
+  <path d="M0 100H640M0 200H640M0 300H640M120 0V400M220 0V400M320 0V400M420 0V400M520 0V400" fill="none" stroke="CanvasText" opacity=".12"/>
+  <circle cx="220" cy="200" r="140" fill="Highlight"/>
+  <path d="M320 60H560V300H320Z" fill="CanvasText"/>
+  <circle cx="440" cy="180" r="60" fill="Canvas"/>
+  <path d="M80 340H560" stroke="CanvasText"/>
+</svg>

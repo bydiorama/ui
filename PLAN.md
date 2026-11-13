@@ -637,9 +637,10 @@ API notes now use full-width Table detail rows with fixed column lanes and a
 no-JavaScript fallback. Table's nested clip includes the frame border; the
 corrected light/dark public Paper reference is recorded in
 `design/paper/specs/table.geometry.json` and exercised in the render-side gate.
-Catalog previews are discovered from example source files and their coverage
-is checked in the browser. This covers all existing public live examples; it
-does not manufacture specimens for the remaining reference-only items.
+Catalog previews use authored example source files for every public component
+and block. `pnpm check:site-source` requires complete manifest coverage;
+`pnpm site:build` checks each reference's preview and source view, and
+`pnpm test:site` checks the rendered examples in the catalog and references.
 
 The visual runner now installs its resolved theme instead of reading an
 obsolete emitter API. The review's isolated-HEAD comparison separates existing

@@ -128,6 +128,30 @@ export function seriesPoints(values: readonly number[], box: PlotBox, domain?: D
   return xs.map((v, i) => ({ x: x(i), y: y(v) }));
 }
 
+/**
+ * Contiguous readings on one evenly spaced sample axis. Missing values and
+ * sparse slots break a run; they never change another reading's position.
+ * A series containing exactly one sample keeps the centred one-point state.
+ */
+export function seriesRuns(values: readonly number[], box: PlotBox, domain?: Domain): Point[][] {
+  const own = extent(values);
+  if (!own) return [];
+  const ext = domain ?? own;
+  if (values.length === 1) return [[{ x: box.width / 2, y: box.height / 2 }]];
+  const { width, height, inset } = box;
+  const x = linearScale([0, values.length - 1], [inset.left, width - inset.right]);
+  const y = linearScale(ext, [height - inset.bottom, inset.top]);
+  const runs: Point[][] = [];
+  let run: Point[] = [];
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i]!;
+    if (Number.isFinite(value)) run.push({ x: x(i), y: y(value) });
+    else if (run.length) { runs.push(run); run = []; }
+  }
+  if (run.length) runs.push(run);
+  return runs;
+}
+
 export interface Column {
   readonly path: string;
   readonly value: number;
@@ -141,21 +165,23 @@ export interface Column {
  *
  * `gap` is the surface gap between neighbours (the dataviz spacer: 2px or
  * more), `maxWidth` caps a column so a three-point series is not three slabs.
+ * Missing samples keep an empty path in their original slot.
  */
 export function columns(
   values: readonly number[],
   { width, height, gap, maxWidth, radius }: { width: number; height: number; gap: number; maxWidth: number; radius: number },
 ): Column[] {
-  const xs = finite(values);
-  if (xs.length === 0) return [];
-  const [lo, hi] = extent(xs)!;
+  const ext = extent(values);
+  if (!ext) return [];
+  const [lo, hi] = ext;
   const y = linearScale([Math.min(0, lo), Math.max(0, hi)], [height, 0]);
   const zero = y(0);
-  const n = xs.length;
+  const n = values.length;
   const barWidth = Math.max(1, Math.min(maxWidth, (width - gap * (n - 1)) / n));
   const step = n === 1 ? 0 : (width - barWidth) / (n - 1);
   const offset = n === 1 ? (width - barWidth) / 2 : 0;
-  return xs.map((v, i) => {
+  return Array.from(values, (v, i) => {
+    if (!Number.isFinite(v)) return { path: "", value: v ?? Number.NaN };
     const x = offset + i * step;
     const top = y(v);
     const path =

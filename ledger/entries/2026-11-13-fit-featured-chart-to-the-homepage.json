@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-fit-featured-chart-to-the-homepage",
+  "date": "2026-11-13",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The homepage uses a compact composition of the real Chart in the same 240px preview frame as its neighbours. The thumbnail hides its takeaway visually, keeps its accessible description, uses a transparent frame and preserves readable type, plot geometry and full-size controls. The component reference uses the full composition. Browser checks assert fixed frames and aligned captions across brands, densities, schemes and breakpoints, plus hover, keyboard and table-view behavior.",
+  "affects": [
+    "site:home",
+    "site:chart-preview"
+  ]
+}

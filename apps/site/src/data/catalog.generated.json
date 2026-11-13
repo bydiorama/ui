@@ -1,5 +1,5 @@
 {
-  "sourceHash": "a0b85f3b3717f5841882aa0c98c4cb1ef20b57bd65f201ada5ce5938cadd4244",
+  "sourceHash": "1934b1ca6a62fd8f986054bc2b40eda0e8548b81a8bb1d5cf283e7b29be9f155",
   "categories": [
     "Actions",
     "Forms",
@@ -23781,6 +23781,11 @@
             "notes": "2px (--ui-stroke-thick), round caps and joins, the slot's -solid ink."
           },
           {
+            "part": "isolated reading",
+            "slot": "sparkline-point",
+            "notes": "A bare 4px dot for a reading separated from its neighbours by gaps. Keeps its sample position; the final reading uses the end marker when enabled."
+          },
+          {
             "part": "marker ring",
             "slot": "sparkline-marker-ring",
             "notes": "A 6px disc in bg-surface under the end dot, so the dot separates from the line it ends."
@@ -23788,7 +23793,7 @@
           {
             "part": "marker",
             "slot": "sparkline-marker",
-            "notes": "The latest value: a 4px dot in the slot's -solid ink. Alone and centred for a one-point series."
+            "notes": "The last measured value: a 4px dot in the slot's -solid ink. A one-sample series is centred; a lone reading among missing samples keeps its original position."
           },
           {
             "part": "column",
@@ -23801,12 +23806,12 @@
             "notes": "isLoading. bg-sunken, radius-sm, the full box — height is reserved so a row of tiles never jumps."
           }
         ],
-        "composition": "Sparkline\n├─ data           number[] (required) — oldest first; NaN and ±Infinity dropped\n├─ label          string (required) — the accessible name: what is measured\n├─ description    string (required) — the takeaway, in words\n├─ variant?       line | area | column\n├─ series?        1…8 — the categorical slot\n├─ size?          md (160×40) | sm (120×32) | xs (64×20)\n├─ domain?        [min, max] — share one across a column of sparklines\n├─ hasEndMarker?  default true (line, area)\n└─ isLoading?",
+        "composition": "Sparkline\n├─ data           number[] (required) — oldest first; missing readings leave gaps\n├─ label          string (required) — the accessible name: what is measured\n├─ description    string (required) — the takeaway, in words\n├─ variant?       line | area | column\n├─ series?        1…8 — the categorical slot\n├─ size?          md (160×40) | sm (120×32) | xs (64×20)\n├─ domain?        [min, max] — share one across a column of sparklines\n├─ hasEndMarker?  default true (line, area)\n└─ isLoading?",
         "props": {
           "data": {
             "type": "readonly number[]",
             "required": true,
-            "notes": "Oldest first, evenly spaced. Non-finite values are DROPPED rather than drawn at zero — plotting NaN at the baseline states a value nobody measured."
+            "notes": "Oldest first, evenly spaced. NaN, ±Infinity and sparse slots are missing readings: line and area break at them, columns leave an empty slot, and later samples keep their original positions. Isolated readings remain visible as dots. Mention missing periods in the description; never replace them with a fabricated zero."
           },
           "label": {
             "type": "string",
@@ -23836,7 +23841,7 @@
           "hasEndMarker": {
             "type": "boolean",
             "default": "true",
-            "notes": "The ringed dot on the latest value. On by default because a trend that does not mark where it ends does not say where it is now. Ignored for columns."
+            "notes": "The ringed dot on the last measured value, at its original sample position even when later readings are missing. Isolated readings remain visible as bare dots with this off. Ignored for columns."
           },
           "domain": {
             "type": "readonly [number, number]",
@@ -23935,6 +23940,35 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-13-preserve-missing-sample-positions-and-gaps",
+          "date": "2026-11-13",
+          "item": "sparkline",
+          "kind": "fix",
+          "summary": "Sparkline preserves the positions of NaN, infinite and sparse samples. Line and area paths break at missing readings, isolated readings remain visible, columns leave empty slots, and the last measured marker stays at its sample position. Complete series retain their geometry. The public example shows the default line beside a metric using the same readings as Chart.",
+          "affects": [
+            "prop:data",
+            "slot:sparkline-line",
+            "slot:sparkline-area",
+            "slot:sparkline-column",
+            "slot:sparkline-marker",
+            "slot:sparkline-point"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-13-preserve-missing-column-slots-and-expose",
+          "date": "2026-11-13",
+          "item": "viz",
+          "kind": "fix",
+          "summary": "The columns helper reserves missing sample positions with empty paths instead of compacting the series. Adds seriesRuns to compute contiguous finite runs on one original sample axis, including sparse arrays. Sparkline uses it for the same gap semantics as Chart; the existing seriesPoints API remains available.",
+          "affects": [
+            "export:columns",
+            "export:seriesRuns",
+            "item:sparkline"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-sparkline-xs-for-table-rows",

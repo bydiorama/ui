@@ -74,9 +74,25 @@ html[data-appearance-changing] *, html[data-appearance-changing] *::before, html
 @media (forced-colors: active) {
   .appearance-segments [data-slot="radio"]:has(input:checked) { border-color: Highlight; }
 }
-.specimen-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ui-space-2xl) var(--ui-space-lg); }
+.specimen-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; gap: var(--ui-space-2xl) var(--ui-space-lg); }
 .gallery-item { min-width: 0; }
-.specimen-well { height: 240px; background: light-dark(var(--ui-bg-elevated), var(--ui-bg-surface)); border-radius: var(--ui-radius-lg); display: flex; align-items: center; justify-content: center; padding: var(--ui-space-xl); }
+.gallery-item:has(.example-explorer) { grid-column: 1 / -1; }
+.specimen-well { min-height: 240px; min-width: 0; background: light-dark(var(--ui-bg-elevated), var(--ui-bg-surface)); border-radius: var(--ui-radius-lg); display: flex; align-items: center; justify-content: center; padding: var(--ui-space-xl); }
+.specimen-well > astro-island { display: contents; }
+.home-content .specimen-well { height: 240px; min-height: 0; }
+/* Keep the chart's server-rendered width inside the example until its
+   ResizeObserver measures the live plot column. */
+.specimen-well [data-slot="chart-plot"] > svg { max-width: 100%; height: auto; }
+.specimen-well [data-slot="chart-x-axis"] { max-width: 100%; overflow: clip; }
+.specimen-stack { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: var(--ui-space-md); }
+.example-explorer { container-type: inline-size; }
+.example-explorer [data-slot="knowledge-graph-explorer-toolbar"] > div:first-child { width: 100%; max-width: 320px; min-width: 0; }
+.example-explorer [data-slot="combobox"] { min-width: 0; }
+@container (max-width: 600px) {
+  .example-explorer [data-slot="knowledge-graph-explorer-body"] { flex-direction: column; }
+  .example-explorer [data-slot="knowledge-graph-explorer-detail"] { width: 100%; max-height: 240px; }
+}
+.specimen-well:has([data-slot="calendar"]) { padding-inline: var(--ui-space-xs); }
 .specimen-row { display: flex; align-items: center; justify-content: center; gap: var(--ui-space-sm); flex-wrap: wrap; }
 .specimen-field { width: min(100%, 240px); }
 .specimen-tabs { width: auto; gap: 0; }
@@ -99,11 +115,6 @@ html[data-appearance-changing] *, html[data-appearance-changing] *::before, html
 .gallery-search { max-width: 480px; margin-bottom: calc(var(--ui-space-lg) + var(--ui-space-xs)); }
 .category-list { display: flex; flex-wrap: wrap; gap: var(--ui-space-xs); margin-bottom: var(--ui-space-2xl); }
 .category-list button[aria-pressed="true"] { background: var(--ui-bg-elevated); color: var(--ui-text-primary); }
-.reference-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--ui-space-2xl); margin-top: var(--ui-space-3xl); }
-.reference-item { border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); padding: var(--ui-space-xl) 0; display: block; }
-.reference-item > div { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ui-space-sm); }
-.reference-item p { margin-top: var(--ui-space-sm); color: var(--ui-text-secondary); }
-.reference-category { @apply text-label-sm;  display: block; margin-top: var(--ui-space-md); color: var(--ui-text-muted); }
 .status { @apply text-label-sm;  display: inline-block; border-radius: var(--ui-radius-sm); padding: 2px 6px; background: var(--ui-bg-elevated); color: var(--ui-text-muted); }
 .search-heading { display: flex; align-items: center; justify-content: space-between; }
 .search-results { list-style: none; margin: 0; padding: 0; overflow-y: auto; max-height: 50vh; }
@@ -146,7 +157,7 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
 @media (max-width: 1200px) { .page-outline { display: none; } .doc-shell { grid-template-columns: 180px minmax(0, 1fr); } }
 @media (max-width: 1000px) {
   .desktop-nav { gap: var(--ui-space-lg); }
-  .specimen-grid, .reference-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .specimen-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .home-content, .page-content { padding-inline: var(--ui-space-2xl); }
   .doc-shell { grid-template-columns: 150px minmax(0, 1fr); gap: var(--ui-space-xl); padding: var(--ui-space-3xl) var(--ui-space-2xl); }
   .site-footer { padding-inline: var(--ui-space-2xl); }
@@ -161,8 +172,9 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
   .home-content { padding: calc(var(--ui-space-3xl) + var(--ui-space-sm)) var(--ui-space-lg) var(--ui-space-3xl); gap: calc(var(--ui-space-3xl) + var(--ui-space-sm)); }
   .lead { gap: var(--ui-space-xl); }
   .lead h1 { @apply text-title-lg;  }
-  .specimen-grid, .reference-grid { grid-template-columns: minmax(0, 1fr); }
-  .specimen-well { height: 200px; }
+  .specimen-grid { grid-template-columns: minmax(0, 1fr); }
+  .specimen-well { min-height: 200px; }
+  .home-content .specimen-well { height: 200px; }
   .specimen-grid { gap: calc(var(--ui-space-xl) + var(--ui-space-xs)); }
   .home-content .gallery-item:nth-child(n+4) { display: none; }
   .home-content .gallery-item:nth-child(6) { display: block; }
@@ -236,7 +248,7 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
 .tile-description { padding: var(--ui-space-sm) var(--ui-space-xs) 0; color: var(--ui-text-secondary); }
 .tile-description p { @apply text-body-sm; }
 .tile-description .status { margin-top: var(--ui-space-sm); }
-.gallery[data-view="list"] .specimen-grid, .gallery[data-view="list"] .reference-grid { grid-template-columns: 1fr; gap: 0; margin: 0; }
+.gallery[data-view="list"] .specimen-grid { grid-template-columns: 1fr; gap: 0; margin: 0; }
 .gallery[data-view="list"] .specimen-well { display: none; }
 .gallery[data-view="list"] .gallery-item { border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); padding: var(--ui-space-xl) 0; }
 .gallery[data-view="list"] .tile-caption, .gallery[data-view="list"] .tile-description { padding-inline: 0; }

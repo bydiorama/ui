@@ -5,12 +5,14 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { chromium, webkit } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { checkAppearance } from "./appearance-checks.mjs";
+import { checkAppearance, waitForAppearance } from "./appearance-checks.mjs";
+import { checkPreviews } from "./preview-checks.mjs";
 
 const site = fileURLToPath(new URL("../", import.meta.url));
 const out = join(site, "dist");
 const catalog = JSON.parse(readFileSync(join(site, "src/data/catalog.generated.json"), "utf8"));
 const exampleNames = readdirSync(join(site, "src/examples")).filter(name => name.endsWith(".tsx")).map(name => name.slice(0, -4));
+assert.deepEqual(exampleNames.toSorted(), catalog.items.map(item => item.name).toSorted(), "Every public component and block must have a preview");
 const artifacts = join(site, "test-results");
 mkdirSync(artifacts, { recursive: true });
 const mime = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".json": "application/json", ".woff2": "font/woff2", ".svg": "image/svg+xml", ".txt": "text/plain", ".md": "text/markdown" };
@@ -38,7 +40,15 @@ try {
   const page = await context.newPage();
   page.setDefaultTimeout(15000);
   page.on("pageerror", error => errors.push(error.message));
-  if (process.argv.includes("--appearance-only")) {
+  const visit = async url => {
+    await page.goto(url);
+    await page.waitForFunction(() => [...document.querySelectorAll('astro-island')].every(island => !island.hasAttribute("ssr")));
+    if (await page.locator('.appearance-trigger').count()) await waitForAppearance(page);
+  };
+  if (process.argv.includes("--previews-only")) {
+    await checkPreviews(page, base, artifacts);
+    assert.deepEqual(errors, []);
+  } else if (process.argv.includes("--appearance-only")) {
     await checkAppearance(page, base, artifacts);
     assert.deepEqual(errors, []);
     console.log("Appearance rendering and combinations checked");
@@ -47,26 +57,32 @@ try {
   for (const scheme of process.argv.includes("--interactions-only") ? [] : ["light", "dark"]) {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
     for (const path of paths) {
-      await page.goto(`${base}${path}`);
+      await visit(`${base}${path}`);
+      await page.waitForFunction(() => [...document.querySelectorAll('astro-island[component-export="Specimen"]')].every(island => !island.hasAttribute("ssr")));
       await page.evaluate(() => document.fonts.ready);
+      if (path.startsWith("/components/") && path !== "/components/") {
+        assert(await page.locator('#preview').isVisible(), `${path}: missing preview heading`);
+        assert(await page.locator('.preview-frame .specimen-well astro-island').evaluate(island => [...island.children].some(child => child.getBoundingClientRect().width > 0 && child.getBoundingClientRect().height > 0)), `${path}: empty preview`);
+        assert.match(await page.locator('.example-code code').textContent(), /export (?:function|const) Example\b/, `${path}: missing example source`);
+      }
       assert(await page.evaluate(() => [...document.fonts].some(face => face.family === "Aspekta" && face.status === "loaded")), "The bundled Aspekta face must load");
       const { violations } = await audit(page).analyze();
       if (violations.length) errors.push(`${scheme} ${path}: ${violations.map(v => `${v.id} (${v.nodes.map(n => n.target.join(" ")).join(", ")})`).join("; ")}`);
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${path} overflows the desktop viewport`);
     }
     console.log(`${scheme}: public pages checked for accessibility and overflow`);
-    await page.goto(base);
+    await visit(base);
     await page.screenshot({ path: join(artifacts, `home-desktop-${scheme}.png`), fullPage: true });
     await page.setViewportSize({ width: 320, height: 800 });
     for (const path of ["/", "/components/", "/components/button/", "/docs/", "/docs/agents/"]) {
-      await page.goto(`${base}${path}`);
+      await visit(`${base}${path}`);
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${scheme} ${path} overflows at 320px`);
     }
-    await page.goto(base);
+    await visit(base);
     await page.screenshot({ path: join(artifacts, `home-mobile-${scheme}.png`), fullPage: true });
     await page.setViewportSize({ width: 1280, height: 900 });
   }
-  await page.goto(base);
+  await visit(base);
   await page.evaluate(() => document.fonts.ready);
   const geometry = await page.evaluate(() => ({
     ctaMargin: getComputedStyle(document.querySelector(".lead .browse-link")).marginTop,
@@ -87,16 +103,16 @@ try {
   await page.getByRole("tab", { name: "Files", exact: true }).click();
   assert.equal(await page.getByRole("tab", { name: "Files", exact: true }).getAttribute("aria-selected"), "true");
 
-  await page.goto(`${base}/docs/agents/`);
+  await visit(`${base}/docs/agents/`);
   assert.equal(await page.locator('.desktop-nav [aria-current="page"]').count(), 1, "Only one primary navigation item is current");
   assert.equal(await page.locator('.desktop-nav [aria-current="page"]').innerText(), "For agents");
-  await page.goto(`${base}/components/table/`);
+  await visit(`${base}/components/table/`);
   assert.equal(await page.locator('.props-table[data-slot="table"]').count(), 1, "Reference content must compose the registry Table");
   const projectTable = page.getByRole("table", { name: "Project overview", exact: true });
   await projectTable.getByRole("button", { name: "Project", exact: true }).click();
   await projectTable.getByRole("button", { name: "Project", exact: true }).click();
   assert.equal(await projectTable.locator('tbody tr').first().locator('td').first().innerText(), "Website", "The live table example sorts its supplied rows");
-  await page.goto(`${base}/components/`);
+  await visit(`${base}/components/`);
   await page.getByRole("button", { name: "Forms", exact: true }).click();
   assert(await page.locator('[data-gallery-item]:visible').evaluateAll(items => items.every(item => item.dataset.category === "Forms")));
   await page.locator("[data-gallery-query]").fill("a-component-that-does-not-exist");
@@ -183,7 +199,7 @@ try {
   for (const width of [1440, 768, 320]) {
     await page.setViewportSize({ width, height: 900 });
     for (const name of ["button", "accordion", "date-picker"]) {
-      await page.goto(`${base}/components/${name}/`);
+      await visit(`${base}/components/${name}/`);
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       assert(await page.locator(".props-table .prop-name").evaluateAll(names => names.every(name => { const range = document.createRange(); range.selectNodeContents(name); return range.getClientRects().length === 1; })), `${name}: a prop name must stay on one line`);
       assert.equal(await page.getByRole("heading", { name: "Recent changes", exact: true }).count(), 0);
@@ -226,7 +242,7 @@ try {
   for (const item of catalog.items) {
     const grouped = Object.entries(item.docs.props).filter(([name, prop]) => /\s/.test(name) && prop.notes);
     if (!grouped.length) continue;
-    await page.goto(`${base}/components/${item.name}/`);
+    await visit(`${base}/components/${item.name}/`);
     for (const [name] of grouped) {
       const disclosure = page.getByRole("button", { name: `${name} details`, exact: true });
       await disclosure.click();
@@ -238,11 +254,11 @@ try {
       await disclosure.click();
     }
   }
-  await page.goto(`${base}/components/accordion/`);
+  await visit(`${base}/components/accordion/`);
   await page.getByRole("button", { name: "Can I use my own brand?", exact: true }).click();
   await page.getByText("Use the shared tokens to bring your colours, type and shape into the system.", { exact: true }).waitFor();
   await page.setViewportSize({ width: 320, height: 640 });
-  await page.goto(`${base}/components/`);
+  await visit(`${base}/components/`);
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await choose("Scheme", "Light");
   const mobilePanel = await page.locator(".appearance-panel").boundingBox();
@@ -252,9 +268,10 @@ try {
   await page.screenshot({ path: join(artifacts, "appearance-mobile-light.png") });
   await page.keyboard.press("Escape");
   for (const item of catalog.items) {
-    await page.goto(`${base}/components/${item.name}/`);
+    await visit(`${base}/components/${item.name}/`);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${item.name}: reference overflows a phone`);
   }
+  await checkPreviews(page, base, artifacts);
   await checkAppearance(page, base, artifacts);
   await context.close();
 

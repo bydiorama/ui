@@ -13,15 +13,16 @@ export const sparklineDoc = {
     { part: "plot", slot: "sparkline-plot", notes: "The SVG. aria-hidden: its paths say nothing the description does not." },
     { part: "area", slot: "sparkline-area", notes: "variant=area only. The slot's own -bg wash, closed to the bottom edge." },
     { part: "line", slot: "sparkline-line", notes: "2px (--ui-stroke-thick), round caps and joins, the slot's -solid ink." },
+    { part: "isolated reading", slot: "sparkline-point", notes: "A bare 4px dot for a reading separated from its neighbours by gaps. Keeps its sample position; the final reading uses the end marker when enabled." },
     { part: "marker ring", slot: "sparkline-marker-ring", notes: "A 6px disc in bg-surface under the end dot, so the dot separates from the line it ends." },
-    { part: "marker", slot: "sparkline-marker", notes: "The latest value: a 4px dot in the slot's -solid ink. Alone and centred for a one-point series." },
+    { part: "marker", slot: "sparkline-marker", notes: "The last measured value: a 4px dot in the slot's -solid ink. A one-sample series is centred; a lone reading among missing samples keeps its original position." },
     { part: "column", slot: "sparkline-column", notes: "variant=column. 8px wide at most, 2px surface gap, 4px radius at the data end, standing on zero." },
     { part: "skeleton", slot: "sparkline-skeleton", notes: "isLoading. bg-sunken, radius-sm, the full box — height is reserved so a row of tiles never jumps." },
   ],
 
   composition: `
 Sparkline
-├─ data           number[] (required) — oldest first; NaN and ±Infinity dropped
+├─ data           number[] (required) — oldest first; missing readings leave gaps
 ├─ label          string (required) — the accessible name: what is measured
 ├─ description    string (required) — the takeaway, in words
 ├─ variant?       line | area | column
@@ -33,13 +34,13 @@ Sparkline
   `.trim(),
 
   props: {
-    data: { type: "readonly number[]", required: true, notes: "Oldest first, evenly spaced. Non-finite values are DROPPED rather than drawn at zero — plotting NaN at the baseline states a value nobody measured." },
+    data: { type: "readonly number[]", required: true, notes: "Oldest first, evenly spaced. NaN, ±Infinity and sparse slots are missing readings: line and area break at them, columns leave an empty slot, and later samples keep their original positions. Isolated readings remain visible as dots. Mention missing periods in the description; never replace them with a fabricated zero." },
     label: { type: "string", required: true, notes: "Names what is measured. Not shown: a sparkline sits beside a label the layout already draws, and drawing it twice is noise." },
     description: { type: "string", required: true, notes: "Required by the type, because it is what replaces the data table every other chart must ship. Write the takeaway a reader should leave with ('Rose 12% since January, peaking in October'), not 'a sparkline'." },
     variant: { type: '"line" | "area" | "column"', default: '"line"', notes: "All three are on the sheet. Columns stand on ZERO, never on the minimum: a column's length is its value." },
     series: { type: "1 | 2 | 3 | 4 | 5 | 6 | 7 | 8", default: "1", notes: "The ordinal data slot (--ui-data-cat-N). Use the slot this series has in the full chart it summarises, so colour keeps meaning one thing across a screen. Not `slot`: that is a global HTML attribute." },
     size: { type: '"md" | "sm" | "xs"', default: '"md"', notes: "160×40 and 120×32, the two sizes the sheet draws, and xs 64×20 for a table row's trend (the library's own reading; see needsDesign). Fixed, not fluid: a stretched sparkline exaggerates its own slope." },
-    hasEndMarker: { type: "boolean", default: "true", notes: "The ringed dot on the latest value. On by default because a trend that does not mark where it ends does not say where it is now. Ignored for columns." },
+    hasEndMarker: { type: "boolean", default: "true", notes: "The ringed dot on the last measured value, at its original sample position even when later readings are missing. Isolated readings remain visible as bare dots with this off. Ignored for columns." },
     domain: { type: "readonly [number, number]", notes: "Line and area: the value range the height spans. Default is the series' own min–max, which stretches any wobble to full height — right alone, wrong in a column of sparklines, where a flat 12 ↔ 13 draws like a crash beside a real one. Pass ONE domain to every sparkline in the column — only when the rows share a unit (an index, a share); raw volumes of very different sizes would flatten every small row, and those want their own range. Widened to hold every value, so it never clips. Columns ignore it: they stand on zero." },
     isLoading: { type: "boolean", default: "false", notes: "Reserves the box with a sunken skeleton and sets aria-busy. The name and description stay, so a screen reader is not handed a nameless busy image." },
   },

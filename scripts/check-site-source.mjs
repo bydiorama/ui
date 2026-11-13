@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { ROOT, readManifest } from "./lib/manifest.mjs";
-import { GROWTH_METRIC } from "./lib/site.mjs";
+import { GROWTH_METRIC, isPublicItem } from "./lib/site.mjs";
 
 const base = join(ROOT, "apps/site/src");
 const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]);
@@ -11,7 +11,10 @@ const targets = new Set(manifest.items.flatMap(item => item.files).map(file => `
 const sourceFiles = manifest.items.flatMap(item => item.files).filter(file => /\.[jt]sx?$/.test(file.path) && !file.path.endsWith(".doc.ts"));
 const exported = new Set(sourceFiles.flatMap(file => [...readFileSync(join(ROOT, file.path), "utf8").matchAll(/export\s+(?:const|function|class)\s+(\w+)/g)].map(match => match[1])));
 const errors = [];
-const publicNames = new Set(manifest.items.filter(item => item.category && item.docs).map(item => item.name));
+const publicNames = new Set(manifest.items.filter(isPublicItem).map(item => item.name));
+for (const name of publicNames) {
+  if (!existsSync(join(base, "examples", `${name}.tsx`))) errors.push(`${name}: every public component or block needs a live example in apps/site/src/examples/.`);
+}
 for (const file of readdirSync(join(base, "examples")).filter(file => file.endsWith(".tsx"))) {
   const name = file.slice(0, -4);
   if (!publicNames.has(name)) errors.push(`apps/site/src/examples/${file}: no public manifest item owns this live example.`);
@@ -31,5 +34,5 @@ for (const path of walk(base).filter(path => /\.(?:astro|tsx?|css)$/.test(path))
   if (/\.astro$/.test(path) && /<code[^>]*>\s*(?:&lt;|<|\{`<)/.test(source)) errors.push(`${file}: JSX samples must come from a type-checked source file via ?raw.`);
   if (path.endsWith("copy.ts") && GROWTH_METRIC.test(source)) errors.push(`${file}: public copy must not include changing component or test totals.`);
 }
-console.log(errors.length ? errors.join("\n") : "public site imports registry source and copy contains no growth metrics");
+console.log(errors.length ? errors.join("\n") : "every public item has a live example, the site imports registry source and copy contains no growth metrics");
 if (errors.length) process.exit(1);

@@ -30,6 +30,14 @@ The Hockney Button and Input also use `shape="full"` in Paper. The brief already
 - The full theme playground, examples routes and per-item interactive specimens remain open in PLAN.md. Existing references and a theme selector do not close those gates.
 - Paper’s presentation colors must be compared to resolver output, not copied as arbitrary CSS overrides. A theme resolver may adjust colors for contrast; visual equality alone cannot justify bypassing semantic roles.
 
+The featured-chart composition difference above was resolved on 2026-11-13:
+the homepage now renders Chart. Sparkline stays in the full catalog and its
+reference beside a labelled project metric, using the same readings and
+series ink as Chart. Missing Sparkline readings preserve their sample slots
+and break line and area paths; columns leave gaps. Focused browser contracts
+compare gap handling with Chart, and the existing finite-data visual
+baselines remain unchanged.
+
 ## Research used
 
 [Radix radius](https://www.radix-ui.com/themes/docs/theme/radius) explicitly treats rounding as contextual: a fully rounded button must not make a checkbox indistinguishable from a radio. This supports role-specific geometry rather than multiplying every radius indiscriminately; it does not justify adopting another library’s components or theme.

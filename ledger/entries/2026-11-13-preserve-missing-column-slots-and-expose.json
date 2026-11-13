@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-preserve-missing-column-slots-and-expose",
+  "date": "2026-11-13",
+  "item": "viz",
+  "kind": "fix",
+  "summary": "The columns helper reserves missing sample positions with empty paths instead of compacting the series. Adds seriesRuns to compute contiguous finite runs on one original sample axis, including sparse arrays. Sparkline uses it for the same gap semantics as Chart; the existing seriesPoints API remains available.",
+  "affects": [
+    "export:columns",
+    "export:seriesRuns",
+    "item:sparkline"
+  ]
+}

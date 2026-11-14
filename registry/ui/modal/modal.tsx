@@ -203,7 +203,17 @@ function ModalSurface({
           // Selects — which portal to <body> and are this panel's SIBLINGS,
           // so only the scale keeps them in front. Carrying no z at all was
           // the bug: it put the whole dialog under the affix Header.
-          "fixed top-1/2 left-1/2 z-(--ui-z-modal) -translate-x-1/2 -translate-y-1/2",
+          //
+          // CENTRED BY AUTO MARGINS, NOT BY A TRANSLATE. `inset-0` spans the
+          // containing block, `h-fit` gives the box back its own height, and
+          // `m-auto` splits what is left. It used to be
+          // `top-1/2 left-1/2 -translate-1/2`, and a transform is painted
+          // exactly where it lands: whenever the viewport and the dialog
+          // differed in height by an odd pixel, the whole surface sat on a
+          // half pixel and every 1.5px hairline in it split unevenly — the
+          // outline Cancel button's bottom edge read heavier than its top.
+          // A layout offset is snapped to the grid at paint; a translate is not.
+          "fixed inset-0 z-(--ui-z-modal) m-auto h-fit",
           // `w-full` against the containing block, floored so it cannot collapse.
           // 100vw was wrong: a `fixed` element resolves against the nearest
           // TRANSFORMED ancestor, not the viewport, and Storybook's docs blocks

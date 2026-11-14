@@ -287,6 +287,31 @@ async function transitionsStartedBy(target: () => Element | null, interaction: (
  * Modal was 16px, had no border at all, carried sm's single shadow layer, and
  * set its title at title-lg / 500.
  */
+describe("The surface sits on whole pixels", () => {
+  /**
+   * The dialog was centred with `top-1/2 left-1/2 -translate-1/2`, and a
+   * transform is painted exactly where it lands — unsnapped. Whenever the
+   * centring put the surface off the pixel grid, every 1.5px hairline in it
+   * split its half pixel unevenly, and the outline Cancel button's bottom edge
+   * read heavier than its top. The pixels themselves are measured in
+   * `modal.visual.test.tsx`, because this project's frame is scaled to fit the
+   * page and a scaled frame cannot answer a question about one pixel.
+   */
+  test("the surface carries no transform at rest, and is still centred", async () => {
+    mount(<Basic />);
+    await userEvent.click(trigger());
+    const s = surface()!;
+    await settled(s);
+    const style = getComputedStyle(s);
+    expect(style.translate).toBe("none");
+    expect(style.transform).toBe("none");
+    const box = s.getBoundingClientRect();
+    const view = document.documentElement;
+    expect(Math.abs(box.top + box.height / 2 - view.clientHeight / 2)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(box.left + box.width / 2 - view.clientWidth / 2)).toBeLessThanOrEqual(0.5);
+  });
+});
+
 describe("Modal wears Card's surface (#23)", () => {
   function ModalBesideCard() {
     return (

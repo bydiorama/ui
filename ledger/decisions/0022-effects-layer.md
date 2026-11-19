@@ -226,6 +226,26 @@ reader's reduced-transparency path, scoped by the app.
 - **A scope, not a component effect.** `FxTarget` gains `"scope"`: any element,
   reaching the glass inside it.
 
+### Device check — 2026-11-19, iOS Safari
+
+The prototype in Safari on the iOS 26 Simulator (iPhone 17 Pro), light and
+dark. That is iOS WebKit, the engine behind both iOS findings above, not a
+phone's GPU.
+
+- **Nothing broke.** Every glass pane kept its rounded corners while the
+  backdrop moved, shadows stayed the shape of their part, and `backdrop-filter`
+  applied on all three tiers.
+- **Contrast matched Chromium.** Muted ink over the worst backdrop: frame
+  4.61:1 light, 4.62:1 dark; overlay 5.05:1 light, 4.87:1 dark (Chromium:
+  5.06 and 4.88, rounding in `color-mix`). All clear AA.
+- **The overlay tier is near-opaque by design.** At 96–97% it barely differs
+  from today's opaque menu; what it adds is the lit top edge and one material
+  across the view, not see-through. The frame tier is where the backdrop
+  visibly comes through.
+- **Saturation in dark** (below) is barely visible at a 0.92 tint.
+- **Not covered:** the cost of a 32px blur on a phone's GPU while content
+  scrolls. Check that on a physical device before accepting.
+
 ### Open, not decided: saturation in dark
 
 Glass saturates its backdrop 1.6× in both schemes. In dark, a boosted backdrop

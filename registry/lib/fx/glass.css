@@ -1,6 +1,20 @@
 /*
- * glass — a translucent surface over moving or busy content, and its three
- * modifiers: edge, inner, specular (ADR 0022).
+ * glass — a translucent surface over moving or busy content, its three
+ * modifiers (edge, inner, specular) and the scope that turns it off (opaque)
+ * (ADR 0022).
+ *
+ * THICKNESS COMES FROM THE ROLE (ADR 0022, amendment). One class, three tiers,
+ * and the component decides which it is — not the caller, and not its
+ * elevation step, which Card and Menu share (ADR 0016):
+ *
+ *   frame    Sidebar, NavRail   --ui-nav-bg-glass       12px  a faint hairline, no top rim
+ *   surface  Card, Badge, Button --ui-bg-glass      24 / 12px  the lit top edge
+ *   overlay  Popover, Menu      --ui-bg-glass-overlay   32px  light along the top, shade along the foot
+ *
+ * No tier is thinner than the surface tint, which is already the least alpha
+ * the inks allow. The frame is quietest so a column of them never outshines
+ * what is read; the overlay is thickest so it wins over the content it opened
+ * on. A tier never changes the component's shadow.
  *
  * A STACK OF LIGHT ON A TINT. The tint is `--ui-bg-glass`: the surface colour
  * at an alpha the RESOLVER derives per brand and scheme — the least alpha at
@@ -22,7 +36,12 @@
  * two agree: change one, and the test names the other.
  *
  * Reduced transparency → the component's own opaque fill, no blur.
+ * Inside or on fx("opaque") → the same, for one region the app chooses.
  * Forced colours → the component, untouched.
+ *
+ * EVERY RULE THAT SETS A FILL OR A BLUR carries the opaque step-aside nested
+ * inside it, for the reason base.css nests every step-aside: it then has the
+ * rule's exact selector and cannot drift from it. check:fx enforces it.
  */
 
 @layer fx {
@@ -31,6 +50,10 @@
        content needs more smoothing to stay quiet behind its text. */
     --ui-fx-glass-blur: 24px;
     --ui-fx-glass-blur-control: 12px;
+    /* The frame blurs least: it is beside what is read, not under it. The
+       overlay most: it covers what the reader was in the middle of. */
+    --ui-fx-glass-blur-frame: 12px;
+    --ui-fx-glass-blur-overlay: 32px;
     --ui-fx-glass-saturate: 1.6;
     /* The light that may sit UNDER text — see the header. */
     --ui-fx-glass-wash: light-dark(rgb(255 255 255 / 0.38), rgb(255 255 255 / 0.02));
@@ -71,12 +94,105 @@
       --tw-inset-shadow: revert-layer;
       box-shadow: revert-layer;
     }
+    /* The light along the edges stays: it is the pane's edge, not its glass. */
+    .fx-opaque &,
+    &.fx-opaque {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
   }
   .fx-glass[data-slot="card"] {
     -webkit-backdrop-filter: blur(var(--ui-fx-glass-blur)) saturate(var(--ui-fx-glass-saturate));
     backdrop-filter: blur(var(--ui-fx-glass-blur)) saturate(var(--ui-fx-glass-saturate));
 
     @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
+    .fx-opaque &,
+    &.fx-opaque {
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
+  }
+
+  /* ------------------------------------------------------ frame tier */
+
+  /* Sidebar and NavRail: the frames a page is laid out in. The NAV's own
+     fill at the surface glass's alpha or more (the resolver derives it from
+     the nav's inks, since a brand may colour its nav), the least blur, and
+     no top rim — a column of lit frames would outshine the content. A faint
+     hairline all round instead: an opaque nav needs no edge against the
+     page, a translucent one over a busy backdrop does, and the component
+     does not know which side faces the content. */
+  .fx-glass:is([data-slot="sidebar"], [data-slot="nav-rail"]) {
+    /* A theme emitted before the nav glass pair existed: the opaque nav. */
+    background-color: var(--ui-nav-bg-glass, var(--ui-nav-bg));
+    -webkit-backdrop-filter: blur(var(--ui-fx-glass-blur-frame)) saturate(var(--ui-fx-glass-saturate));
+    backdrop-filter: blur(var(--ui-fx-glass-blur-frame)) saturate(var(--ui-fx-glass-saturate));
+    --tw-inset-shadow: inset 0 0 0 1px var(--ui-fx-light-faint);
+    box-shadow:
+      var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000),
+      var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+
+    @media (prefers-reduced-transparency: reduce) {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
+    @media (forced-colors: active) {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+      --tw-inset-shadow: revert-layer;
+      box-shadow: revert-layer;
+    }
+    .fx-opaque &,
+    &.fx-opaque {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
+  }
+
+  /* ---------------------------------------------------- overlay tier */
+
+  /* Popover and Menu: they open over content the reader was in the middle
+     of, so they are the thickest pane — the surface tint closer to opaque,
+     the most blur, lit along the top and shaded along the foot. Their
+     shadow stays their own (ADR 0016): glass changes how thick a pane at an
+     elevation looks, never the elevation. Popover's own fill is elevated
+     and Menu's is surface; glass paints both the surface family, as it
+     already does for Card.
+
+     Both are PORTALLED, so an fx("opaque") region in the app tree does not
+     contain them. Put fx("opaque") on the panel itself, or portal it into
+     the region with `container`. */
+  .fx-glass:is([data-slot="popover-panel"], [data-slot="menu-panel"]) {
+    background-color: var(--ui-bg-glass-overlay, var(--ui-bg-surface));
+    -webkit-backdrop-filter: blur(var(--ui-fx-glass-blur-overlay)) saturate(var(--ui-fx-glass-saturate));
+    backdrop-filter: blur(var(--ui-fx-glass-blur-overlay)) saturate(var(--ui-fx-glass-saturate));
+    --tw-inset-shadow: inset 0 1px 0 0 var(--ui-fx-light), inset 0 -1px 0 0 var(--ui-fx-shade);
+    box-shadow:
+      var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000),
+      var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+
+    @media (prefers-reduced-transparency: reduce) {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+    }
+    @media (forced-colors: active) {
+      background-color: revert-layer;
+      -webkit-backdrop-filter: revert-layer;
+      backdrop-filter: revert-layer;
+      --tw-inset-shadow: revert-layer;
+      box-shadow: revert-layer;
+    }
+    .fx-opaque &,
+    &.fx-opaque {
+      background-color: revert-layer;
       -webkit-backdrop-filter: revert-layer;
       backdrop-filter: revert-layer;
     }
@@ -88,6 +204,10 @@
       background-color: color-mix(in srgb, var(--ui-bg-elevated) 50%, var(--ui-bg-glass, var(--ui-bg-surface)));
 
       @media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+        background-color: revert-layer;
+      }
+      .fx-opaque &,
+      &.fx-opaque {
         background-color: revert-layer;
       }
     }

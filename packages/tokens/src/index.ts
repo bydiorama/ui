@@ -41,7 +41,7 @@ export type {
 // the stylesheet to it.
 export {
   resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA,
-  GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT,
+  GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, GLASS_OVERLAY_CLOSE,
 } from "./resolve.ts";
 export type { Scheme, ResolveOptions, ResolveResult, ResolvedPair, ContrastAdjustment } from "./resolve.ts";
 

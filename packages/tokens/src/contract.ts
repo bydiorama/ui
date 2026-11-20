@@ -110,6 +110,13 @@ export const BRANDABLE_TOKENS = [
   // glass studio measured muted ink falling from 4.57:1 to 4.02:1 under a 4%
   // wash at the brand's floor. Never painted; the audit and the gates read it.
   "--ui-bg-glass-floor",
+  // The OVERLAY tier of glass (ADR 0022, amendment): Popover and Menu, which
+  // open over content the reader was in the middle of and so must win over
+  // it. The same surface as `--ui-bg-glass`, closer to opaque by
+  // `GLASS_OVERLAY_CLOSE` — never thinner, so it carries the inks wherever
+  // the glass tint does, which is why it has no floor of its own
+  // (resolve.test.ts pins both halves).
+  "--ui-bg-glass-overlay",
   "--ui-bg-muted",
   "--ui-bg-overlay",
   "--ui-bg-hover",
@@ -378,6 +385,13 @@ export const BRANDABLE_TOKENS = [
   "--ui-nav-ink-muted",
   "--ui-nav-ink-disabled",
   "--ui-nav-border",
+  // The FRAME tier of glass (ADR 0022, amendment): a Sidebar or NavRail
+  // wearing fx("glass"). Derived from the NAV's fill and inks, not the
+  // surface's — a brand may colour its nav, and a surface tint under nav ink
+  // is a pair nobody audited. Same construction as the glass pair, without
+  // the light under text: the frame paints none under its labels.
+  "--ui-nav-bg-glass",
+  "--ui-nav-bg-glass-floor",
   "--ui-nav-hover-bg",
   "--ui-nav-active-bg",
   "--ui-nav-active-ink",
@@ -621,6 +635,12 @@ export const CONTRAST_PAIRS: ReadonlyArray<readonly [BrandableToken, BrandableTo
   // unlisted pair here would be the one measurement that matters going
   // unmeasured. Fifth time that sentence has been earned.
   ["--ui-nav-ink", "--ui-nav-active-bg"],
+  // Nav ink on the frame's glass, on its floor — AFTER the nav's own pairs,
+  // so a brand whose nav ink fails is corrected against the nav it always
+  // paints, and glass never moves an ink (resolve.test.ts). Derived to pass;
+  // listed so it stays true if an authored nav ink moves.
+  ["--ui-nav-ink", "--ui-nav-bg-glass-floor"],
+  ["--ui-nav-ink-muted", "--ui-nav-bg-glass-floor"],
   // The rail's hover fill. It exists because a 2px left-edge marker was the
   // wrong way to separate current from hover — a rule inside a control reads
   // as clutter, and Menu.Separator had already written the principle down

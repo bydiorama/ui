@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-20-glass-takes-its-thickness-from-the",
+  "date": "2026-11-20",
+  "item": "fx",
+  "kind": "addition",
+  "summary": "Glass takes its thickness from the component's role, and fx(\"opaque\") turns it off for one region (ADR 0022, amendment accepted 2026-11-20). fx(\"glass\") now also reaches Sidebar and NavRail (frame tier: --ui-nav-bg-glass, 12px blur, a faint hairline, no lit top edge) and Popover.Panel and Menu.Panel (overlay tier: --ui-bg-glass-overlay, 32px blur, light along the top and shade along the foot); Card, Badge and unfilled Buttons are unchanged. No tier is thinner than --ui-bg-glass, and a tier never changes the component's shadow. fx(\"opaque\") on any element, or on a glass part itself, hands every glass part inside it its component's opaque fill and drops the blur, keeping the edge light; every glass rule nests the step-aside (check:fx enforces it). Popover and Menu portal out of an app region, so put the scope on the panel. Modal, Sheet, Drawer, Tooltip and the Select family take no glass. EFFECTS gains an opaque row, FxTarget gains sidebar, nav-rail, popover, menu and scope, and TARGET_SLOT/targetSlot() map a target to the slot its class lands on. New tunables --ui-fx-glass-blur-frame and --ui-fx-glass-blur-overlay. Needs the re-emitted theme for the new tints; without them frame glass falls back to the opaque nav and overlay glass to the opaque surface.",
+  "affects": [
+    "item:fx",
+    "item:sidebar",
+    "item:nav-rail",
+    "item:popover",
+    "item:menu",
+    "token:--ui-bg-glass-overlay",
+    "token:--ui-nav-bg-glass"
+  ]
+}

@@ -3,6 +3,7 @@
  * over the components without any component growing a prop.
  *
  *   <Card className={fx("glass", "edge", "specular")}>…</Card>
+ *   <section className={fx("opaque")}>…glass inside stands down…</section>
  *   <Button className={fx("aurora", "sheen")}>Publish</Button>
  *   <p className={fx("shimmer")}>Generating…</p>
  *
@@ -43,10 +44,33 @@ export type FxTarget =
   | "slider"
   | "progress"
   | "field"
+  | "sidebar"
+  | "nav-rail"
+  | "popover"
+  | "menu"
   /** Any element that sets text: a heading, a status line. */
   | "text"
   /** Any unslotted surface: a hero band, an empty state's ground. */
-  | "ground";
+  | "ground"
+  /** Any element, reaching the effects of the components INSIDE it. */
+  | "scope";
+
+/**
+ * The root slot a target's class lands on, where it is not the target's own
+ * name. A compound component's `className` lands on the part it is passed to,
+ * and for Popover and Menu that is the panel (`Popover.Panel`, `Menu.Panel`),
+ * whose slot names the part. `check:fx` and the browser tests read this
+ * rather than guess; `text`, `ground` and `scope` have no slot.
+ */
+export const TARGET_SLOT: Partial<Record<FxTarget, string>> = {
+  popover: "popover-panel",
+  menu: "menu-panel",
+};
+
+/** The slot an effect on `target` reaches: the map above, or the target's own name. */
+export function targetSlot(target: FxTarget): string {
+  return TARGET_SLOT[target] ?? target;
+}
 
 export interface FxSpec {
   /** CSS ships in `@/lib/fx`; a shader needs `@/lib/shader` and its runtime. */
@@ -68,8 +92,14 @@ export const EFFECTS = {
   glass: {
     kind: "css",
     sheet: "glass",
-    job: "A translucent surface over moving or busy content: --ui-bg-glass (a tint the resolver derives per brand so the inks still clear AA) over a blurred, saturated backdrop, lit along its top edge.",
-    on: ["button", "card", "badge"],
+    job: "A translucent surface over moving or busy content: a tint the resolver derives per brand so the inks still clear AA, over a blurred, saturated backdrop. The component's role sets the thickness — a frame (Sidebar, NavRail) is quietest, a surface (Card, Badge, unfilled Button) as before, an overlay (Popover, Menu) thickest.",
+    on: ["button", "card", "badge", "sidebar", "nav-rail", "popover", "menu"],
+  },
+  opaque: {
+    kind: "css",
+    sheet: "glass",
+    job: "A region where glass stands down: every glass part inside it, or on it, gets its component's opaque fill back and loses its blur; the light along its edges stays. The reader's reduced transparency, scoped by the app — for a dense table, a slow embed.",
+    on: ["scope"],
   },
   edge: {
     kind: "css",

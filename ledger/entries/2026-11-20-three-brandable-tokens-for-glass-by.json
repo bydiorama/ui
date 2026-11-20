@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-20-three-brandable-tokens-for-glass-by",
+  "date": "2026-11-20",
+  "item": "system",
+  "kind": "token",
+  "summary": "Three brandable tokens for glass by role (ADR 0022, amendment): --ui-bg-glass-overlay, the surface at glassOverlayAlpha(a) = a + 0.6 × (1 − a) of the glass alpha, rounded up (theme zero 0.96 light / 0.97 dark; same surface, never thinner, so it carries the inks wherever --ui-bg-glass does and needs no floor of its own); and --ui-nav-bg-glass with --ui-nav-bg-glass-floor, the nav's own fill at the least alpha at which nav ink and muted nav ink clear AA over the floor (the tint over black in light, over white in dark, with no light under text), never below the --ui-bg-glass alpha (theme zero 0.90 / 0.92). Both nav inks are audited on the nav floor in CONTRAST_PAIRS, after the nav's own pairs. Tailwind names: glass-overlay, nav-glass, nav-glass-floor. GLASS_OVERLAY_CLOSE is exported. Re-emit any brand theme (resolveThemePair → toCss) to get them; theme-zero.css is regenerated.",
+  "affects": [
+    "token:--ui-bg-glass-overlay",
+    "token:--ui-nav-bg-glass",
+    "token:--ui-nav-bg-glass-floor",
+    "item:theme-zero-css",
+    "item:fx"
+  ]
+}

@@ -30,7 +30,7 @@ import { ROOT } from "./lib/manifest.mjs";
 const FX = join(ROOT, "registry/lib/fx");
 const SHADER = join(ROOT, "registry/lib/shader");
 
-const { EFFECTS } = await import(join(FX, "fx.ts"));
+const { EFFECTS, targetSlot } = await import(join(FX, "fx.ts"));
 const { SHADERS } = await import(join(SHADER, "shader-programs.ts"));
 const { GLASS_LIGHT_UNDER_TEXT } = await import(join(ROOT, "packages/tokens/src/resolve.ts"));
 
@@ -72,11 +72,14 @@ for (const [name, spec] of Object.entries(EFFECTS)) {
   if (!new RegExp(`\\.fx-${name}(?![\\w-])`).test(css)) {
     fail(where, `no rule in its stylesheet styles .fx-${name}: fx("${name}") would do nothing.`);
   }
-  // Every component it claims, its stylesheet (or its shader recipe) reaches.
+  // Every component it claims, its stylesheet (or its shader recipe) reaches
+  // — through the slot its class lands on, which for a compound component is
+  // the panel's, not its name (TARGET_SLOT in fx.ts).
   for (const target of spec.on) {
-    if (target === "text" || target === "ground") continue;
-    if (spec.kind === "css" && !css.includes(`[data-slot="${target}"]`)) {
-      fail(where, `lists "${target}", and no selector in ${spec.sheet}.css reaches [data-slot="${target}"].`);
+    if (target === "text" || target === "ground" || target === "scope") continue;
+    const slot = targetSlot(target);
+    if (spec.kind === "css" && !css.includes(`[data-slot="${slot}"]`)) {
+      fail(where, `lists "${target}", and no selector in ${spec.sheet}.css reaches [data-slot="${slot}"].`);
     }
   }
 }
@@ -155,6 +158,66 @@ for (const [file, css] of Object.entries(allCss)) {
       fail(file, `\`${top.slice(0, 60)}\` sits outside @layer fx. Every rule of the layer is in it, so the app's unlayered CSS outranks an effect and revert-layer hands a property back to the component.`);
     },
   );
+}
+
+// ------------------------------------------------- the opaque step-aside
+
+// fx("opaque") hands glass back to the component in one region (ADR 0022,
+// amendment). It works only if EVERY rule that sets a glass fill or blur
+// carries `.fx-opaque &, &.fx-opaque` nested inside it, handing both back —
+// a rule without one leaves that part translucent in a region the app
+// declared opaque, and renders it exactly as before everywhere else.
+{
+  const glassCss = sheets.glass ?? "";
+  const OWNED = ["background-color", "backdrop-filter", "-webkit-backdrop-filter"];
+  const isSelector = (prelude) => !prelude.startsWith("@");
+  /** rule (its chain) → the owned properties it sets, and those its opaque child reverts. */
+  const sets = new Map();
+  const reverts = new Map();
+  walkCss(
+    glassCss,
+    (decl, chain) => {
+      const [prop, ...rest] = decl.split(":");
+      const property = prop.trim();
+      if (!OWNED.includes(property) || !chain.length || !isSelector(chain.at(-1))) return;
+      const value = rest.join(":").trim();
+      const innermost = chain.at(-1);
+      if (/(^|,)\s*\.fx-opaque\s+&/.test(innermost) && /&\.fx-opaque/.test(innermost)) {
+        if (value === "revert-layer") {
+          const key = chain.slice(0, -1).join(" ▸ ");
+          reverts.set(key, new Set([...(reverts.get(key) ?? []), property]));
+        }
+        return;
+      }
+      if (value === "revert-layer") return;
+      const key = chain.join(" ▸ ");
+      sets.set(key, new Set([...(sets.get(key) ?? []), property]));
+    },
+    () => {},
+  );
+  for (const [rule, props] of sets) {
+    const handed = reverts.get(rule) ?? new Set();
+    const missing = [...props].filter((p) => !handed.has(p));
+    if (missing.length) {
+      fail(
+        "registry/lib/fx/glass.css",
+        `\`${rule.split(" ▸ ").at(-1).replace(/\s+/g, " ").slice(0, 90)}\` sets ${missing.join(", ")} with no nested \`.fx-opaque &, &.fx-opaque { … revert-layer }\` handing it back — glass would stay translucent inside fx("opaque").`,
+      );
+    }
+  }
+}
+
+// ------------------------------------------- no light under the frame's text
+
+// The nav glass floor is built WITHOUT the light under text, because the
+// frame paints none (packages/tokens/src/resolve.ts, glassTokens). An effect
+// that paints light or a layer on a Sidebar or NavRail would light their
+// labels past what the floor measured.
+for (const [name, spec] of Object.entries(EFFECTS)) {
+  if (name === "glass") continue;
+  for (const target of spec.on.filter((t) => t === "sidebar" || t === "nav-rail")) {
+    fail(`EFFECTS.${name}`, `lists "${target}". The nav glass floor counts no light under the nav's text; only glass itself reaches the frame tier.`);
+  }
 }
 
 // ------------------------------------------------------ the admission rule

@@ -152,30 +152,47 @@ export const GLASS_MIN_ALPHA = 0.78;
 export const GLASS_LIGHT_UNDER_TEXT = 0.04;
 
 /**
- * The glass pair for one scheme: the tint a glass surface wears, and the
- * worst ground it can produce (see the contract).
+ * How far the OVERLAY glass tint closes the gap between the surface tint and
+ * opaque: `a + GLASS_OVERLAY_CLOSE × (1 − a)`, rounded up to a hundredth.
+ * Theme zero: 0.90 → 0.96 light, 0.92 → 0.97 dark (ADR 0022, amendment).
+ *
+ * A panel that opens over content the reader was in the middle of has to win
+ * over it, so the overlay is the thickest pane. It is the same surface as the
+ * glass tint at a higher alpha, so it carries the inks wherever that tint
+ * does — resolve.test.ts pins both halves of that.
+ */
+export const GLASS_OVERLAY_CLOSE = 0.6;
+
+/**
+ * A glass tint for one fill and the inks it carries, and the worst ground it
+ * can produce (see the contract).
  *
  * The alpha is DERIVED, the opposite of `AFFIX_BG_ALPHA`'s fixed 0.9: a bar
  * is chrome and should look the same in every brand, while glass is a
  * material whose whole point is to be as clear as the brand's inks allow.
- * Searched between GLASS_MIN_ALPHA and 1 for the least alpha at which both
- * inks clear AA on the floor, then rounded UP to a hundredth so the shipped
- * value is never the boundary. If even an opaque surface cannot carry the
+ * Searched between GLASS_MIN_ALPHA and 1 for the least alpha at which every
+ * ink clears AA on the floor, then rounded UP to a hundredth so the shipped
+ * value is never the boundary. If even an opaque fill cannot carry the
  * inks, the alpha is 1 and `auditContrast` moves the ink, as for any ground.
  *
  * The floor is built over an ABSOLUTE extreme, never over an ink: the inks
  * are audited against it, so a floor built from them would be circular (the
- * affix floor's lesson, pinned in resolve.test.ts).
+ * affix floor's lesson, pinned in resolve.test.ts). In dark it adds the white
+ * light the material lays under text — `GLASS_LIGHT_UNDER_TEXT` for a
+ * surface, none for the nav frame, which paints no light under its text.
  */
-function glassPair(
-  surface: string,
+function glassTint(
+  fill: string,
   inks: readonly string[],
   scheme: Scheme,
-): { "--ui-bg-glass": string; "--ui-bg-glass-floor": string } {
+  lightUnderText: number,
+  /** No thinner than this, whatever the inks allow. */
+  atLeast = GLASS_MIN_ALPHA,
+): { tint: string; floor: string; alpha: number } {
   const dark = scheme === "dark";
   const floorAt = (alpha: number) => {
-    const behind = flatten(withAlpha(surface, alpha), dark ? "#ffffff" : "#000000");
-    return dark ? flatten(withAlpha("#ffffff", GLASS_LIGHT_UNDER_TEXT), behind) : behind;
+    const behind = flatten(withAlpha(fill, alpha), dark ? "#ffffff" : "#000000");
+    return dark && lightUnderText > 0 ? flatten(withAlpha("#ffffff", lightUnderText), behind) : behind;
   };
   const clears = (alpha: number) => inks.every((ink) => contrastRatio(ink, floorAt(alpha)) >= AA_TEXT);
 
@@ -191,7 +208,46 @@ function glassPair(
     }
     alpha = Math.min(1, Math.ceil(hi * 100) / 100);
   }
-  return { "--ui-bg-glass": withAlpha(surface, alpha), "--ui-bg-glass-floor": floorAt(alpha) };
+  alpha = Math.max(alpha, atLeast);
+  return { tint: withAlpha(fill, alpha), floor: floorAt(alpha), alpha };
+}
+
+/** The overlay tier's alpha for a surface tint at `alpha` (see GLASS_OVERLAY_CLOSE). */
+export function glassOverlayAlpha(alpha: number): number {
+  // Rounded to a ten-thousandth first, so float noise (0.96000000001) cannot
+  // push the ceiling up a whole hundredth.
+  const raw = Math.round((alpha + GLASS_OVERLAY_CLOSE * (1 - alpha)) * 10000) / 10000;
+  return Math.min(1, Math.ceil(raw * 100) / 100);
+}
+
+/**
+ * Every glass token for one scheme (ADR 0022): the surface tint and its
+ * floor, the overlay tint (the same surface, thicker), and the nav frame's
+ * own tint and floor — derived from the nav's fill and inks, because a brand
+ * may colour its nav, and the surface tint under nav ink is a pair nobody
+ * audited — at no less than the surface glass's alpha.
+ */
+type GlassToken =
+  | "--ui-bg-glass"
+  | "--ui-bg-glass-floor"
+  | "--ui-bg-glass-overlay"
+  | "--ui-nav-bg-glass"
+  | "--ui-nav-bg-glass-floor";
+
+function glassTokens(theme: Omit<ResolvedTheme, GlassToken>, scheme: Scheme): Record<GlassToken, string> {
+  const surface = theme["--ui-bg-surface"];
+  const glass = glassTint(surface, [theme["--ui-text-primary"], theme["--ui-text-muted"]], scheme, GLASS_LIGHT_UNDER_TEXT);
+  // Never thinner than the surface glass: a frame is the quietest pane in
+  // the view, and a nav's strong ink would otherwise let it derive down to
+  // GLASS_MIN_ALPHA (theme zero: 0.78), busier than the content it frames.
+  const nav = glassTint(theme["--ui-nav-bg"], [theme["--ui-nav-ink"], theme["--ui-nav-ink-muted"]], scheme, 0, glass.alpha);
+  return {
+    "--ui-bg-glass": glass.tint,
+    "--ui-bg-glass-floor": glass.floor,
+    "--ui-bg-glass-overlay": withAlpha(surface, glassOverlayAlpha(glass.alpha)),
+    "--ui-nav-bg-glass": nav.tint,
+    "--ui-nav-bg-glass-floor": nav.floor,
+  };
 }
 
 const SHADOW_SCALE = {
@@ -778,7 +834,8 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   const affixBg = withAlpha(colors.bg, AFFIX_BG_ALPHA);
   const affixFloor = flatten(affixBg, dark ? "#ffffff" : "#000000");
 
-  const theme: ResolvedTheme = {
+  // The glass tokens are derived from the finished theme, below.
+  const theme: Omit<ResolvedTheme, GlassToken> = {
     // Text
     "--ui-text-primary": colors.textPrimary,
     "--ui-text-secondary": towardL(colors.textPrimary, colors.textMuted, 0.5),
@@ -867,9 +924,6 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-media-floor": scrimFloor,
     "--ui-bg-affix": affixBg,
     "--ui-bg-affix-floor": affixFloor,
-    // Recomputed in `resolveTheme` once an authored map has landed, so an
-    // authored surface or ink is the one the alpha is derived from.
-    ...glassPair(colors.surface, [colors.textPrimary, colors.textMuted], dark ? "dark" : "light"),
     "--ui-bg-emphasis": accent,
     "--ui-bg-emphasis-hover": shiftL(accent, awayFromInk * 0.06),
     "--ui-bg-emphasis-active": shiftL(accent, awayFromInk * 0.11),
@@ -1089,7 +1143,9 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-logo-height": seed.chrome?.logoHeight ?? "2rem",
   };
 
-  return theme;
+  // Recomputed in `resolveTheme` once an authored map has landed, so an
+  // authored surface, nav or ink is the one every alpha is derived from.
+  return Object.assign(theme, glassTokens(theme, dark ? "dark" : "light"));
 }
 
 /**
@@ -1166,11 +1222,9 @@ export function resolveTheme(seed: ThemeSeed, options: ResolveOptions = {}): Res
   // final one, so the audit has nothing to move for glass unless even an
   // opaque surface cannot carry the ink — then it moves the ink, as for any
   // ground, and the alpha stays 1.
-  const deriveGlass = () =>
-    Object.assign(
-      theme,
-      glassPair(theme["--ui-bg-surface"], [theme["--ui-text-primary"], theme["--ui-text-muted"]], scheme),
-    );
+  // Glass is derived HERE rather than in `derive`, so an authored surface,
+  // nav or ink is the one every glass alpha is derived from.
+  const deriveGlass = () => Object.assign(theme, glassTokens(theme, scheme));
   deriveGlass();
   const adjustments = auditContrast(theme);
   deriveGlass();

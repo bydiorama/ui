@@ -37,6 +37,7 @@
   --color-affix-floor: var(--ui-bg-affix-floor);
   --color-glass: var(--ui-bg-glass);
   --color-glass-floor: var(--ui-bg-glass-floor);
+  --color-glass-overlay: var(--ui-bg-glass-overlay);
   --color-muted: var(--ui-bg-muted);
   --color-overlay: var(--ui-bg-overlay);
   --color-hover: var(--ui-bg-hover);
@@ -115,6 +116,8 @@
   --color-ink-nav-muted: var(--ui-nav-ink-muted);
   --color-ink-nav-disabled: var(--ui-nav-ink-disabled);
   --color-edge-nav: var(--ui-nav-border);
+  --color-nav-glass: var(--ui-nav-bg-glass);
+  --color-nav-glass-floor: var(--ui-nav-bg-glass-floor);
   --color-nav-hover: var(--ui-nav-hover-bg);
   --color-nav-active: var(--ui-nav-active-bg);
   --color-ink-nav-active: var(--ui-nav-active-ink);
@@ -365,6 +368,7 @@
   --ui-bg-affix-floor: light-dark(#e6e6e6, #2e2b29);
   --ui-bg-glass: light-dark(rgba(253, 252, 251, 0.9), rgba(30, 27, 24, 0.92));
   --ui-bg-glass-floor: light-dark(#e4e3e2, #383533);
+  --ui-bg-glass-overlay: light-dark(rgba(253, 252, 251, 0.96), rgba(30, 27, 24, 0.97));
   --ui-bg-muted: light-dark(#EDE8E3, #1E1B18);
   --ui-bg-overlay: light-dark(#DAD4CE, rgba(0, 0, 0, 0.55));
   --ui-bg-hover: light-dark(#EDE8E3, #2E2B28);
@@ -536,6 +540,8 @@
   --ui-nav-ink-muted: light-dark(#403e3b, #D6D1CB);
   --ui-nav-ink-disabled: light-dark(#a29f9d, #63605d);
   --ui-nav-border: light-dark(#DAD4CE, #302D2A);
+  --ui-nav-bg-glass: light-dark(rgba(255, 255, 255, 0.9), rgba(28, 25, 22, 0.92));
+  --ui-nav-bg-glass-floor: light-dark(#e6e6e6, #2e2b29);
   --ui-nav-hover-bg: light-dark(#FDFCFB, #221F1C);
   --ui-nav-active-bg: light-dark(#F6F3F0, #2A2724);
   --ui-nav-active-ink: light-dark(#1d1b19, #FAF7F3);

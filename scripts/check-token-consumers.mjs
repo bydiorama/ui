@@ -53,6 +53,7 @@ const ALLOWED = new Map([
   [/^--ui-hit-area-(min|touch)$/, "WCAG 2.5.8 target sizes for consumer layouts. Inside the library the floor is enforced where sizes are DERIVED — the density modes clamp at 24px (ADR 0020 §4) — rather than read at a call site."],
 
   ["--ui-bg-glass-floor", "Never painted: the worst ground a glass surface can produce (ADR 0022). The resolver derives the glass alpha against it and check:contrast audits ink on it, the same role --ui-bg-affix-floor plays for the affix bar."],
+  ["--ui-nav-bg-glass-floor", "Never painted: the worst ground a glass Sidebar or NavRail can produce (ADR 0022, amendment). The resolver derives the nav glass alpha against it and check:contrast audits nav ink on it."],
 
   // ── Open questions already on record, not new ones ──
   [/^--ui-(ease-in|stagger-step|motion-(micro|standard|deliberate|choreographed))$/, "PLAN.md § Motion records it: the curve vocabulary has almost no consumers, and whether it is too big is an open question for a person. Listed here so that question is visible, not settled."],

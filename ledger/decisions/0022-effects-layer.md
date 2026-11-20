@@ -1,8 +1,8 @@
 # 0022 — The effects layer: CSS materials first, shaders only by admission
 
 **Status:** accepted · 2026-11-06 · items `fx` and `shader` ship as
-`experimental` · amendment **proposed** 2026-11-19 (glass by role, an
-opaque scope)
+`experimental` · amendment accepted 2026-11-20 (glass by role, an
+opaque scope), with the changes recorded under "As implemented"
 
 ## Context
 
@@ -134,11 +134,13 @@ and on an iPhone. What it established is the substance of this record:
   behind an element, or when HTML-in-Canvas leaves its flag — and then only
   through clause 5.
 
-## Amendment — 2026-11-19 (proposed): glass by role, an opaque scope
+## Amendment — 2026-11-19, accepted 2026-11-20: glass by role, an opaque scope
 
-**Status of this section: proposed, not accepted.** Nothing below ships until
-the owner accepts it and the device check at the end has been run. Until then
-the decision above stands unchanged.
+**Status of this section: accepted 2026-11-20 and implemented.** Drafted
+2026-11-19 and checked in Safari on iOS (below). Implementation changed three
+things in the draft; "As implemented" at the end records them, and where it
+disagrees with the draft above it, it wins. Still to do: the GPU cost of a
+32px blur on a physical phone.
 
 ### Context
 
@@ -295,14 +297,60 @@ Settled, so not to be re-proposed without new evidence:
   as opaque as `--ui-bg-glass` in every stress seed and both schemes, and both
   inks clear AA over its floor.
 
+### As implemented — 2026-11-20
+
+Three changes from the draft, each found when the code was read against it:
+
+- **The frame is tinted from the nav, not the surface.** Sidebar and NavRail
+  paint `bg-nav` with `ink-nav`, and a brand may colour its nav: under the
+  surface tint, an inverse nav's light ink would sit on a light pane, a pair
+  nobody audited. The frame wears `--ui-nav-bg-glass`: the nav's own fill at
+  the least alpha at which `--ui-nav-ink` and `--ui-nav-ink-muted` clear AA
+  over `--ui-nav-bg-glass-floor`, **and never below `--ui-bg-glass`'s
+  alpha**. Without that floor theme zero's strong nav ink derived 0.78 — the
+  frame would have been the busiest pane, not the quietest. Theme zero: 0.90
+  light, 0.92 dark, the values the prototype and the iOS check measured. The
+  nav floor counts no light under text: the frame paints none, and `check:fx`
+  rejects any other effect that lists `sidebar` or `nav-rail`.
+- **The overlay tier is Popover and Menu only.** Modal is `bg-surface`,
+  Sheet and Drawer `bg-base`, each chosen on purpose and documented in the
+  component; and all three open over a scrim, so a pane over them shows
+  almost nothing. The owner chose (2026-11-20) to leave them opaque rather
+  than repaint them or add a token pair per fill. `FxTarget` gains
+  `sidebar`, `nav-rail`, `popover`, `menu` and `scope`, not `modal`, `sheet`
+  or `drawer`.
+- **The overlay tint is the surface family, and has no floor of its own.**
+  Menu's own fill is `bg-surface` and Popover's `bg-elevated`; glass paints
+  both from the surface, as it already did for Card (`bg-elevated`).
+  `--ui-bg-glass-overlay` is `--ui-bg-surface` at `glassOverlayAlpha(a)` —
+  `a + GLASS_OVERLAY_CLOSE (0.6) × (1 − a)`, rounded up to a hundredth;
+  theme zero 0.96 / 0.97. Being the same surface at an alpha never below the
+  glass tint's, it carries the inks wherever that tint does; `resolve.test.ts`
+  pins both halves instead of a third floor token. Without the token (a theme
+  emitted earlier) it falls back to the opaque surface, like Card's glass.
+
+Smaller: the frame's light is a faint hairline all round, not on one side —
+Sidebar and NavRail are rounded panels that do not know which side faces the
+content. And Popover and Menu portal to the body, so an `fx("opaque")` region
+does not contain them; the scope goes on the panel itself (`&.fx-opaque`), or
+the panel portals into the region with `container`.
+
+Enforced as drafted, with the targets above: `TARGET_SLOT` and `targetSlot()`
+in `fx.ts` (read by `check:fx` and the browser tests), the opaque step-aside
+on every rule that sets a glass fill or blur (`check:fx`, which names the
+rule), each tier's alpha at least `--ui-bg-glass`'s in both schemes and the
+opaque scope on every glass target (`fx.browser.test.tsx`), and the nav pair
+on its floor in `CONTRAST_PAIRS`.
+
 ### Consequences
 
-- **Additive.** One new brandable token and its audited floor; Card, Badge and
-  Button glass unchanged. A theme emitted before this has no overlay tint, so
-  overlay glass falls back to the opaque `--ui-bg-elevated`, as decision 4's
-  fallback does for the surface tint.
+- **Additive.** Three new brandable tokens (`--ui-bg-glass-overlay`,
+  `--ui-nav-bg-glass`, `--ui-nav-bg-glass-floor`); Card, Badge and Button
+  glass unchanged. A theme emitted before this has none of them: overlay glass
+  falls back to the opaque surface and frame glass to the opaque nav, as
+  decision 4's fallback does for the surface tint.
 - **Ledger.** `fx` and `theme-zero-css` each take a `feature` entry when it
   lands; nothing is breaking.
-- **Acceptance**, as above: visual, on a device, in both schemes, with the
-  frame and overlay tiers checked over real content in Safari on iOS before
-  the status line says accepted.
+- **Acceptance**: the iOS Safari check ran on 2026-11-19 (above) and the
+  owner accepted the amendment on 2026-11-20. Still to check on a physical
+  phone: the GPU cost of a 32px blur while content scrolls under a menu.

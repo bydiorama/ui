@@ -411,7 +411,14 @@ never a feature of one (ADR 0022).
   `@/lib/fx`: `<Card className={fx("glass", "edge")}>`. Never a prop. The
   stylesheet reaches the part it paints through `data-slot`, so every
   component an effect lists needs a `data-slot` on its **root** — which is
-  where `className` lands (§5).
+  where `className` lands (§5). For a compound component that is the part
+  the class is passed to (`Popover.Panel` → `popover-panel`); `TARGET_SLOT`
+  in `fx.ts` records each such case.
+- **The component decides how an effect looks on it, not the caller.** Glass
+  is one class whose thickness follows the component's role — frame, surface,
+  overlay — never a variant the caller picks. A scope that turns effects off
+  (`fx("opaque")`) is nested in every rule it undoes, like every other
+  step-aside.
 - **The floor is the component.** Each effect hands every property back
   (`revert-layer`) under reduced transparency, reduced motion and forced
   colours, and a shader effect without WebGL or before hydration leaves the

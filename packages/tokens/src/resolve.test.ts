@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type BrandableToken, type FixedToken } from "./contract.ts";
 import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES } from "./base.ts";
-import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, GLASS_OVERLAY_CLOSE, glassOverlayAlpha, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
 import { SEED_BOUNDS, validateSeed } from "./seed.ts";
 import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
@@ -648,6 +648,79 @@ test("glass is the surface at the least alpha that carries the inks, and its flo
       }
       const moved = pair.adjustments[scheme].filter((a) => a.against === "--ui-bg-glass-floor");
       assert.deepEqual(moved, [], `${name}/${scheme}: the audit moved an ink to fit glass`);
+    }
+  }
+});
+
+/**
+ * The overlay tier (ADR 0022, amendment): the glass surface, thicker.
+ *
+ * It has no floor token of its own, and this test is why that is safe: the
+ * overlay is the SAME surface as `--ui-bg-glass` at an alpha that is never
+ * less, so its worst ground is never further from the surface than the glass
+ * floor is, and the inks the floor carries it carries too. Both halves are
+ * pinned — if either breaks, the overlay needs its own floor and audit.
+ */
+test("the overlay glass is the glass surface, closer to opaque, and carries the inks wherever glass does", () => {
+  const alphaOf = (v: string) => Number(v.match(/rgba\([^)]*,\s*([\d.]+)\)/)?.[1] ?? 1);
+  for (const { name, seed } of ALL_SEEDS) {
+    const options = seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {};
+    const pair = resolveThemePair(seed, options);
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      const glass = alphaOf(theme["--ui-bg-glass"]!);
+      const overlay = alphaOf(theme["--ui-bg-glass-overlay"]!);
+      assert.equal(theme["--ui-bg-glass-overlay"], withAlpha(theme["--ui-bg-surface"]!, overlay), `${name}/${scheme}: the overlay is not the surface at its alpha`);
+      assert.ok(overlay >= glass, `${name}/${scheme}: the overlay (${overlay}) is thinner than the glass it thickens (${glass})`);
+      assert.equal(overlay, glassOverlayAlpha(glass), `${name}/${scheme}: the overlay alpha is not derived from the glass alpha`);
+      assert.ok(overlay >= glass + GLASS_OVERLAY_CLOSE * (1 - glass) - 1e-9, `${name}/${scheme}: the overlay closes less of the gap than GLASS_OVERLAY_CLOSE`);
+    }
+  }
+  // Theme zero, as the amendment states it.
+  const zero = resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED });
+  assert.equal(alphaOf(zero.light["--ui-bg-glass-overlay"]!), 0.96);
+  assert.equal(alphaOf(zero.dark["--ui-bg-glass-overlay"]!), 0.97);
+});
+
+/**
+ * The frame tier (ADR 0022, amendment): a glass nav is tinted from the NAV.
+ *
+ * The amendment first proposed the surface tint here. A brand may colour its
+ * nav — an inverse rail, an accent rail — and nav ink over a surface tint is
+ * then light on light. So the nav pair is the glass construction run over
+ * the nav's own fill and inks, minus the light under text: the frame paints
+ * none under its labels (check:fx keeps the glass modifiers off it). And it
+ * is never thinner than the surface glass: strong nav ink would let it
+ * derive down to the 0.78 minimum, and a frame must stay the quietest pane.
+ */
+test("the nav glass is the nav at the least alpha that carries the nav inks — never under the surface glass — over its own floor", () => {
+  for (const { name, seed } of ALL_SEEDS) {
+    const options = seed === THEME_ZERO ? { authored: ZERO_AUTHORED } : {};
+    const pair = resolveThemePair(seed, options);
+    for (const scheme of ["light", "dark"] as const) {
+      const theme = pair[scheme];
+      const tint = theme["--ui-nav-bg-glass"]!;
+      const alphaOf = (v: string) => Number(v.match(/rgba\([^)]*,\s*([\d.]+)\)/)?.[1] ?? 1);
+      const alpha = alphaOf(tint);
+      const surfaceGlass = alphaOf(theme["--ui-bg-glass"]!);
+      assert.ok(alpha >= surfaceGlass && alpha <= 1, `${name}/${scheme}: nav glass alpha ${alpha} is outside [${surfaceGlass} (the surface glass), 1]`);
+      assert.equal(tint, withAlpha(theme["--ui-nav-bg"]!, alpha), `${name}/${scheme}: nav glass is not the nav at its alpha`);
+      const floorAt = (a: number) => flatten(withAlpha(theme["--ui-nav-bg"]!, a), scheme === "dark" ? "#ffffff" : "#000000");
+      assert.equal(theme["--ui-nav-bg-glass-floor"], floorAt(alpha), `${name}/${scheme}: the nav glass floor is not the tint over the extreme`);
+      const inks = ["--ui-nav-ink", "--ui-nav-ink-muted"] as const;
+      for (const ink of inks) {
+        const ratio = contrastRatio(theme[ink]!, theme["--ui-nav-bg-glass-floor"]!);
+        assert.ok(ratio >= AA_TEXT, `${name}/${scheme}: ${ink} on the nav glass floor is ${ratio.toFixed(2)}:1`);
+      }
+      if (alpha > Math.max(GLASS_MIN_ALPHA, surfaceGlass) && alpha < 1) {
+        const thinner = Math.round((alpha - 0.01) * 100) / 100;
+        assert.ok(
+          inks.some((ink) => contrastRatio(theme[ink]!, floorAt(thinner)) < AA_TEXT),
+          `${name}/${scheme}: nav glass at ${thinner} would still carry the inks — the alpha is not the least`,
+        );
+      }
+      const moved = pair.adjustments[scheme].filter((a) => a.against === "--ui-nav-bg-glass-floor");
+      assert.deepEqual(moved, [], `${name}/${scheme}: the audit moved a nav ink to fit nav glass`);
     }
   }
 });

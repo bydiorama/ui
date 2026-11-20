@@ -21,6 +21,7 @@ import { fx } from "@/lib/fx";
 <Card className={fx("glass", "edge", "specular")}>…</Card>
 <Button className={fx("sheen", "grain")}>Publish</Button>
 <p className={fx("shimmer")}>Generating…</p>
+<section className={fx("opaque")}>…glass inside stands down…</section>
 ```
 
 Never add a prop to a component for an effect, and never style its inner
@@ -53,6 +54,8 @@ useEffect(() => startShaders(), []);   // returns its own stop; StrictMode-safe
 | You want | Use | Not |
 | --- | --- | --- |
 | A panel over a photo, a video or a moving ground | `glass` (+ `edge`, `inner`, `specular`) | glass over a flat page — it is only a tint there |
+| One material across a view: the nav, the cards, the menu opened over them | `glass` on each — the component picks its own thickness | choosing a "thinner" or "thicker" glass yourself: there is no such knob |
+| Glass off for one dense region — a billing table, a slow embed | `opaque` on the region | removing `glass` from each part inside, or overriding the fill by hand |
 | A flat fill to read as a material | `grain` | grain on an unfilled control: it shows as grey haze |
 | Mark a moment — saved, value reached | `sheen` + `sweep(el)` once | a sweep on hover, or on a loop |
 | A control that is ON to read as lit | `glow` | glow as a focus indicator |
@@ -62,11 +65,19 @@ useEffect(() => startShaders(), []);   // returns its own stop; StrictMode-safe
 
 ## What the layer guarantees — do not re-solve it
 
-- **Contrast.** Glass paints `--ui-bg-glass`, a tint the resolver derives per
-  brand so primary and muted ink clear 4.5:1 over **anything** behind it. Do
-  not lower its opacity "for more glass"; re-emit the theme instead if the
-  brand changed. Aurora guards its part's ink per pixel.
-- **Accessibility.** Reduced transparency → the component's own opaque fill.
+- **Contrast.** Glass paints a tint the resolver derives per brand so the
+  inks clear 4.5:1 over **anything** behind it. Do not lower its opacity
+  "for more glass"; re-emit the theme instead if the brand changed. Aurora
+  guards its part's ink per pixel.
+- **Thickness by role.** Sidebar and NavRail are the quietest pane
+  (`--ui-nav-bg-glass`, derived from the nav's own colours, 12px blur, no lit
+  top edge); Card, Badge and unfilled Buttons are as before; Popover and Menu
+  are the thickest (`--ui-bg-glass-overlay`, 32px blur, lit along the top),
+  because they open over what the reader was in. No tier is thinner than
+  `--ui-bg-glass`. Select, Combobox, Tooltip, Modal, Sheet and Drawer take no
+  glass.
+- **Accessibility.** Reduced transparency, or `fx("opaque")` on an ancestor
+  or the part itself → the component's own opaque fill; the edge light stays.
   Reduced motion → no ambient animation, one still shader frame, `sweep()`
   plays nothing. Forced colours → the plain component. You add nothing.
 - **The floor.** No WebGL, before hydration, on the server: every component
@@ -79,6 +90,7 @@ Override tokens on a scope, like any component variable:
 | Token | Default | Moves |
 | --- | --- | --- |
 | `--ui-fx-glass-blur` / `-blur-control` | 24px / 12px | backdrop blur on surfaces / controls |
+| `--ui-fx-glass-blur-frame` / `-blur-overlay` | 12px / 32px | backdrop blur on Sidebar and NavRail / Popover and Menu |
 | `--ui-fx-grain` + `--ui-fx-grain-amount` | subtle tile, 0.03 | `var(--ui-fx-grain-visible)`, 0.07 for a grainier brand |
 | `--ui-fx-ambient-speed` | 1 | 0.5 calm, 1.7 expressive — aurora, ink, shimmer |
 | `--ui-fx-aurora-intensity` | per part | how much light moves through the fill |
@@ -95,6 +107,8 @@ amount.
 | A halo cut flat on one side | It reaches 22px outside its part; an `overflow: hidden` ancestor clips it. Give it room |
 | Sheen on a pale brand accent | White light lifts a pale fill toward white and it reads disabled. Sheen wants a mid-to-dark fill |
 | A glass card in a theme emitted before glass existed | Falls back to the opaque surface. Re-emit the theme to get `--ui-bg-glass` |
+| A glass nav or menu in a theme emitted before 2026-11-20 | The nav falls back to the opaque nav, the menu and popover to the opaque surface. Re-emit the theme to get `--ui-nav-bg-glass` and `--ui-bg-glass-overlay` |
+| `fx("opaque")` around a menu that stays glass | Popover and Menu portal to the body, out of the region. Put `fx("opaque")` on the panel itself, or portal it into the region with `container` |
 | A canvas over a Slider thumb | Fixed in the runtime (the fill's canvas sits right after the fill). If you see it, your `shader` copy is stale — sync it |
 | Clipping a shader canvas with CSS | iOS Safari drops the clip while it animates. The shader draws its own shape; never add `overflow`/`border-radius` hacks to the canvas |
 | Judging an effect in headless Chromium | The worst defects of this layer only showed on an iPhone. Look on a device, both schemes |

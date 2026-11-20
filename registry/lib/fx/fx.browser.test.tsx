@@ -9,7 +9,7 @@
  * transparency, reduced motion and forced colours.
  */
 import { afterEach, describe, expect, test } from "vitest";
-import { cdp } from "vitest/browser";
+import { cdp, userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act, type ReactElement } from "react";
 
@@ -18,7 +18,11 @@ import { Badge } from "@/ui/badge/badge.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Card } from "@/ui/card/card.tsx";
 import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
+import { Menu } from "@/ui/menu/menu.tsx";
+import { NavRail } from "@/ui/nav-rail/nav-rail.tsx";
+import { Popover } from "@/ui/popover/popover.tsx";
 import { Progress } from "@/ui/progress/progress.tsx";
+import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
 import { Slider } from "@/ui/slider/slider.tsx";
 import { Switch } from "@/ui/switch/switch.tsx";
 
@@ -54,11 +58,23 @@ const q = (c: ParentNode, s: string) => {
   return el;
 };
 
+/**
+ * The NEWEST match in the document. Popover and Menu portal their panel to
+ * the body, outside the host; a test that renders a plain and an effected
+ * copy reads each right after rendering it, so the newest is the one wanted.
+ */
+const newest = (s: string) => {
+  const all = document.querySelectorAll<HTMLElement>(s);
+  const el = all[all.length - 1];
+  if (!el) throw new Error(`no ${s}`);
+  return el;
+};
+
 /** Glass and its modifiers are for UNFILLED buttons; light and grain for filled ones. */
 const GLASS_FAMILY = new Set<FxName>(["glass", "edge", "inner", "specular"]);
 
 /** Every component a CSS effect can list, rendered in the state the effect needs. */
-const FIXTURES: Record<Exclude<FxTarget, "field" | "ground">, {
+const FIXTURES: Record<Exclude<FxTarget, "field" | "ground" | "scope">, {
   render: (className: string, effect: FxName) => ReactElement;
   part: (host: HTMLElement) => HTMLElement;
 }> = {
@@ -113,6 +129,47 @@ const FIXTURES: Record<Exclude<FxTarget, "field" | "ground">, {
     render: (className) => <p className={className}>Generating…</p>,
     part: (h) => q(h, "p"),
   },
+  sidebar: {
+    render: (className) => (
+      <Sidebar label="Primary" className={className}>
+        <Sidebar.Item href="/overview" isCurrent>Overview</Sidebar.Item>
+        <Sidebar.Item href="/projects">Projects</Sidebar.Item>
+      </Sidebar>
+    ),
+    part: (h) => q(h, '[data-slot="sidebar"]'),
+  },
+  "nav-rail": {
+    render: (className) => (
+      <NavRail label="Primary" className={className}>
+        <NavRail.Item icon={<svg aria-hidden="true" />} label="Overview" href="/overview" isCurrent />
+      </NavRail>
+    ),
+    part: (h) => q(h, '[data-slot="nav-rail"]'),
+  },
+  popover: {
+    render: (className) => (
+      <Popover defaultIsOpen>
+        <Popover.Trigger>Details</Popover.Trigger>
+        <Popover.Panel className={className}>
+          <Popover.Title>Spring identity review</Popover.Title>
+          <Popover.Description>Due Friday · 4 reviewers</Popover.Description>
+        </Popover.Panel>
+      </Popover>
+    ),
+    part: () => newest('[data-slot="popover-panel"]'),
+  },
+  menu: {
+    render: (className) => (
+      <Menu defaultIsOpen>
+        <Menu.Trigger render={<Button>More</Button>} />
+        <Menu.Panel className={className}>
+          <Menu.Item>Duplicate</Menu.Item>
+          <Menu.Item>Archive</Menu.Item>
+        </Menu.Panel>
+      </Menu>
+    ),
+    part: () => newest('[data-slot="menu-panel"]'),
+  },
 };
 
 const LOOK = [
@@ -143,8 +200,9 @@ function look(el: HTMLElement) {
 }
 
 const CSS_EFFECTS = (Object.keys(EFFECTS) as FxName[]).filter((n) => EFFECTS[n].kind === "css");
+// A scope has no part of its own; fx("opaque") is asserted on what it contains, below.
 const CASES = CSS_EFFECTS.flatMap((effect) =>
-  EFFECTS[effect].on.map((target) => [effect, target as keyof typeof FIXTURES] as const),
+  EFFECTS[effect].on.filter((t) => t !== "scope").map((target) => [effect, target as keyof typeof FIXTURES] as const),
 );
 
 describe("every CSS effect changes every component it lists", () => {
@@ -152,9 +210,10 @@ describe("every CSS effect changes every component it lists", () => {
   // the composer in base.css never paints, and only a computed style says so.
   test.each(CASES)("%s on %s", (effect, target) => {
     const fixture = FIXTURES[target];
-    const plain = fixture.part(render(fixture.render("", effect)));
-    const withFx = fixture.part(render(fixture.render(fx(effect), effect)));
-    expect(look(withFx), `fx("${effect}") renders ${target} exactly as without it`).not.toEqual(look(plain));
+    // Read each as soon as it renders: a second open Menu can close the first.
+    const plain = look(fixture.part(render(fixture.render("", effect))));
+    const withFx = look(fixture.part(render(fixture.render(fx(effect), effect))));
+    expect(withFx, `fx("${effect}") renders ${target} exactly as without it`).not.toEqual(plain);
   });
 });
 
@@ -233,6 +292,40 @@ describe("glass", () => {
     expect(getComputedStyle(card, "::after").backgroundImage).toContain("linear-gradient(");
   });
 
+  test("the frame tier paints the nav's own glass, the least blur and no top rim", () => {
+    for (const target of ["sidebar", "nav-rail"] as const) {
+      const host = render(FIXTURES[target].render(fx("glass"), "glass"));
+      const part = FIXTURES[target].part(host);
+      expect(getComputedStyle(part).backgroundColor, target).toBe(resolved("--ui-nav-bg-glass", host));
+      expect(getComputedStyle(part).backdropFilter, target).toBe("blur(12px) saturate(1.6)");
+      expect(getComputedStyle(part).getPropertyValue("--tw-inset-shadow"), `${target}: a lit top rim`).not.toMatch(/inset 0(px)? 1px/);
+    }
+  });
+
+  test("the overlay tier paints the thicker overlay tint, the most blur, lit along the top", () => {
+    for (const target of ["popover", "menu"] as const) {
+      const host = render(FIXTURES[target].render(fx("glass"), "glass"));
+      const part = FIXTURES[target].part(host);
+      expect(getComputedStyle(part).backgroundColor, target).toBe(resolved("--ui-bg-glass-overlay", host));
+      expect(getComputedStyle(part).backdropFilter, target).toBe("blur(32px) saturate(1.6)");
+    }
+  });
+
+  /** The alpha of a computed colour: rgba(r, g, b, a), or 1. */
+  const alphaOf = (color: string) => Number(color.match(/rgba\([^)]*,\s*([\d.]+)\)/)?.[1] ?? 1);
+
+  test.each(["light", "dark"])("no tier is thinner than the surface glass (%s)", async (scheme) => {
+    await emulate([{ name: "prefers-color-scheme", value: scheme }]);
+    expect(matchMedia(`(prefers-color-scheme: ${scheme})`).matches, "emulation did not take").toBe(true);
+    const floor = alphaOf(resolved("--ui-bg-glass", document.body));
+    expect(floor).toBeLessThan(1);
+    for (const target of EFFECTS.glass.on) {
+      const fixture = FIXTURES[target as keyof typeof FIXTURES];
+      const alpha = alphaOf(getComputedStyle(fixture.part(render(fixture.render(fx("glass"), "glass")))).backgroundColor);
+      expect(alpha, `${target} glass in ${scheme}`).toBeGreaterThanOrEqual(floor);
+    }
+  });
+
   test.each(EFFECTS.glass.on)("reduced transparency hands a %s back its own opaque fill and no blur", async (target) => {
     await emulate([{ name: "prefers-reduced-transparency", value: "reduce" }]);
     expect(matchMedia("(prefers-reduced-transparency: reduce)").matches, "emulation did not take").toBe(true);
@@ -241,6 +334,54 @@ describe("glass", () => {
     const glass = fixture.part(render(fixture.render(fx("glass", "edge", "inner", "specular"), "glass")));
     expect(getComputedStyle(glass).backgroundColor).toBe(getComputedStyle(plain).backgroundColor);
     expect(getComputedStyle(glass).backdropFilter).toBe("none");
+  });
+});
+
+describe("fx(\"opaque\")", () => {
+  test.each(EFFECTS.glass.on)("inside the scope, a glass %s gets its own fill back and no blur, and keeps its edge light", (target) => {
+    const fixture = FIXTURES[target as keyof typeof FIXTURES];
+    // Each read as soon as it renders: a second open Menu can close the first.
+    const plainFill = getComputedStyle(fixture.part(render(fixture.render("", "glass")))).backgroundColor;
+    const glassLight = getComputedStyle(fixture.part(render(fixture.render(fx("glass"), "glass")))).getPropertyValue("--tw-inset-shadow");
+    // Popover and Menu portal OUT of an app region, so the scope goes on the
+    // panel itself; the rest are rendered inside a scoped region.
+    const portalled = target === "popover" || target === "menu";
+    const scoped = getComputedStyle(
+      portalled
+        ? fixture.part(render(fixture.render(fx("glass", "opaque"), "glass")))
+        : fixture.part(render(<section className={fx("opaque")}>{fixture.render(fx("glass"), "glass")}</section>)),
+    );
+    expect(scoped.backgroundColor, `${target}: fill`).toBe(plainFill);
+    expect(scoped.backdropFilter, `${target}: blur`).toBe("none");
+    expect(scoped.getPropertyValue("--tw-inset-shadow"), `${target}: the edge light went with the glass`).toBe(glassLight);
+  });
+
+  test("a ghost Button's hover inside the scope is the component's own hover again", async () => {
+    /** The settled fill under the pointer: the button transitions its background. */
+    const hovered = async (el: HTMLElement) => {
+      await userEvent.hover(el);
+      await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
+      const fill = getComputedStyle(el).backgroundColor;
+      await userEvent.unhover(el);
+      return fill;
+    };
+    const plain = await hovered(q(render(<Button variant="ghost">More</Button>), '[data-slot="button"]'));
+    const host = render(
+      <section className={fx("opaque")}>
+        <Button variant="ghost" className={fx("glass")}>More</Button>
+      </section>,
+    );
+    expect(await hovered(q(host, '[data-slot="button"]'))).toBe(plain);
+  });
+
+  test("outside the scope, glass is untouched", () => {
+    const host = render(
+      <div>
+        <section className={fx("opaque")} />
+        {FIXTURES.card.render(fx("glass"), "glass")}
+      </div>,
+    );
+    expect(getComputedStyle(q(host, '[data-slot="card"]')).backdropFilter).toBe("blur(24px) saturate(1.6)");
   });
 });
 

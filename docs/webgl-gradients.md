@@ -440,6 +440,15 @@ What the iterations taught:
   (`fx_falloff`), so the copy corner reads as the frame's shadow side.
 - **The horizon fits the system naturally.** Its light is low, so the copy
   goes top left, in the sky (quiet-y 0.18).
+- **Sweep's dark mode needed its own palette and its own light.** The
+  first version mixed the accent into the warm near-black base and read as
+  grey-teal fog. It now stays in the accent's hue family: near-neutral
+  shadow, saturated body, light, near-white highlight. Forms are lit across
+  the whole body and cast a shadow in front of their edge. Darker tones
+  turn their hue *away from yellow-green* (`fx_shadowTurn`), so a blue
+  accent's shadows go royal and a yellow's go amber, not olive. The shading
+  toward the copy is a straight diagonal of light (`fx_lightFrom`), not an
+  ellipse drawn around the text.
 - **Full frame is possible only with glass.** Without the zone, muted ink
   drops to 2.0–2.6:1. The copy then needs a glass pane, which ADR 0022
   makes legible over anything.

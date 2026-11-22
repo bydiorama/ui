@@ -28,6 +28,22 @@ float fx_falloff(vec2 uv) {
   float d = length((uv - anchor) * vec2(0.75, 1.5));
   return u_quiet > 0.0 ? smoothstep(0.35 * u_quiet, 1.6 * u_quiet, d) : 1.0;
 }
+// Shadows turn AWAY from yellow-green: a blue accent's shadows go royal
+// (as in the stripe reference), a yellow's go amber instead of olive.
+// Returns +1 or -1, the direction a darker tone's hue turns.
+float fx_shadowTurn(vec3 accent) {
+  float h = degrees(atan(accent.z, accent.y));
+  h = h < 0.0 ? h + 360.0 : h;
+  return (h > 110.0 && h < 290.0) ? 1.0 : -1.0;
+}
+// Light from a direction: 0 at the copy's corner, 1 toward the opposite
+// one, along a straight diagonal. Shading that follows the composition
+// instead of an ellipse drawn around the copy.
+float fx_lightFrom(vec2 uv) {
+  vec2 anchor = vec2(u_quietX, (1.0 - u_quietY) * fx_aspect());
+  vec2 dir = normalize(vec2(1.0, 0.75));
+  return u_quiet > 0.0 ? smoothstep(0.02, 0.62, dot(uv - anchor, dir)) : 1.0;
+}
 float fx_dark() { return fx_oklab(u_base).x < 0.5 ? 1.0 : 0.0; }
 `;
 
@@ -74,19 +90,50 @@ void main() {
   float a = radians(-28.0), c = cos(a), s = sin(a);
   vec2 q = mat2(c, s, -s, c) * (uv - vec2(0.5, 0.5 * k)) * 2.2;
   vec3 B = fx_oklab(u_base), A = fx_oklab(u_light);
-  vec3 deep = fx_tone(fx_hueTurn(A, radians(-14.0)), mix(0.68, 0.40, dk), mix(1.5, 1.8, dk));
-  vec3 bright = fx_tone(fx_hueTurn(A, radians(8.0)), mix(0.97, 0.93, dk), 1.15);
-  vec3 lab = mix(B, deep, 0.55);
-  for (int i = 0; i < 2; i++) {
-    float fi = float(i);
-    float f = fx_sweepForm(q + vec2(0.0, 0.55 - 1.1 * fi), t, 1.7 * fi, 0.55 - 0.15 * fi);
-    float inside = smoothstep(-0.02, 0.05, f);
-    float lit = exp(-max(f, 0.0) * 2.6);
-    float shade = exp(-max(-f, 0.0) * 5.0);
-    lab = mix(lab, deep, (1.0 - inside) * shade * 0.6);
-    lab = mix(lab, mix(deep, bright, lit), inside * (0.75 - 0.2 * fi));
+  vec3 lab;
+  if (dk > 0.5) {
+    // DARK: stay inside the accent's hue family. Mixing the light into a
+    // warm near-black base is what turned the first version grey-teal; here
+    // the darks are the accent's own navy, and the base only returns in the
+    // quiet zone under the copy.
+    float dir = fx_shadowTurn(A);
+    // Near-neutral at the bottom of the range, so the shadow meets the warm
+    // base under the copy without a seam; chroma comes back with the light.
+    vec3 navy = fx_tone(fx_hueTurn(A, radians(22.0 * dir)), 0.20, 0.55);
+    vec3 blue = fx_tone(fx_hueTurn(A, radians(18.0 * dir)), 0.56, 1.8);
+    vec3 cyan = fx_tone(fx_hueTurn(A, radians(-10.0 * dir)), 0.82, 1.45);
+    vec3 hi = fx_tone(fx_hueTurn(A, radians(-6.0 * dir)), 0.95, 0.9);
+    // The backdrop: deep blue, a little lighter toward the top.
+    lab = mix(navy, blue, 0.25 + 0.3 * smoothstep(-1.2, 1.2, q.y));
+    for (int i = 0; i < 2; i++) {
+      float fi = float(i);
+      float f = fx_sweepForm(q + vec2(0.0, 0.55 - 1.1 * fi), t, 1.7 * fi, 0.55 - 0.15 * fi);
+      float inside = smoothstep(-0.012, 0.03, f);
+      // A form casts a shadow just in front of its edge: depth, not fog.
+      float shadow = exp(-max(-f, 0.0) * 3.2);
+      lab = mix(lab, navy, (1.0 - inside) * shadow * 0.75);
+      // Lit across the whole body, brightest at the edge, falling inward.
+      float body = exp(-max(f, 0.0) * 1.1);
+      vec3 tone = fi < 0.5 ? mix(blue, cyan, body) : mix(navy, blue, 0.35 + 0.65 * body);
+      tone = mix(tone, hi, exp(-max(f, 0.0) * 14.0) * (fi < 0.5 ? 0.55 : 0.25));
+      lab = mix(lab, tone, inside);
+    }
+    lab = mix(navy, lab, fx_lightFrom(uv));
+  } else {
+    vec3 deep = fx_tone(fx_hueTurn(A, radians(-14.0)), 0.68, 1.5);
+    vec3 bright = fx_tone(fx_hueTurn(A, radians(8.0)), 0.97, 1.15);
+    lab = mix(B, deep, 0.55);
+    for (int i = 0; i < 2; i++) {
+      float fi = float(i);
+      float f = fx_sweepForm(q + vec2(0.0, 0.55 - 1.1 * fi), t, 1.7 * fi, 0.55 - 0.15 * fi);
+      float inside = smoothstep(-0.02, 0.05, f);
+      float lit = exp(-max(f, 0.0) * 2.6);
+      float shade = exp(-max(-f, 0.0) * 5.0);
+      lab = mix(lab, deep, (1.0 - inside) * shade * 0.6);
+      lab = mix(lab, mix(deep, bright, lit), inside * (0.75 - 0.2 * fi));
+    }
+    lab = mix(B, lab, fx_falloff(uv));
   }
-  lab = mix(B, lab, fx_falloff(uv));
   fragColor = fx_groundFinish(lab, uv, local);
 }`;
 

@@ -26,9 +26,9 @@ generated grounds look poor, so should the effects layer move to WebGL
 programs in their hue turns. A wide turn sent the pale-yellow brand's fold
 to green, so the shipped grounds drift by 20–24° only.
 
-Everything measured here comes from the lab in
-[`webgl-gradients/lab/`](./webgl-gradients/lab/). The lab renders the shipped
-aurora GLSL directly from `registry/lib/shader/shader-programs.ts`, the
+Everything measured here comes from a lab (`docs/webgl-gradients/lab/`,
+kept in history, not at HEAD; see "Reproduce the lab"). The lab rendered the
+then-shipped aurora GLSL directly from `registry/lib/shader/shader-programs.ts`, the
 blurred-circles ground, Paper's MeshGradient and a prototype, all under the
 same conditions: 960×540 at 1× DPR, theme zero, and the Ground story's copy
 (`text-ink-primary` + `text-ink-muted`).
@@ -416,7 +416,7 @@ anti-banding dither in rule 3.
 ## 9. After the specimen: wash, sweep, rise (lab only)
 
 Of the references, the owner picked gradflow's **mesh, stripe and horizon**.
-Measured on the renders (`lab/.out/bg`, OKLab), they share a recipe:
+Measured on the lab's renders (OKLab), they share a recipe:
 
 | | Detail (lower = bigger forms) | Lightness range | Chroma (p90) |
 |---|---:|---:|---:|
@@ -429,7 +429,7 @@ Measured on the renders (`lab/.out/bg`, OKLab), they share a recipe:
 That is: a few **large** forms, a **wide** lightness range, **real** chroma.
 Ours were busier, flatter and greyer.
 
-`lab/looks.mts` prototypes three grounds on that recipe. They are written
+The lab's `looks.mts` prototyped three grounds on that recipe. They are written
 from scratch on the shipped prelude and ground helpers:
 
 - **wash**: broad gaussian pools over a ramp.
@@ -536,18 +536,29 @@ contrast in every scheme and brand, banding, presets.
 
 ## Reproduce the lab
 
-From `docs/webgl-gradients/lab/` (needs Node 22, Playwright's Chromium,
-Python with Pillow and numpy; outputs go to the git-ignored `.out/`):
+The lab's scripts read the programs as they were when it ran (aurora, then
+mesh), so they are **not kept at HEAD**: they would not run against the
+shipped gradient. Check out the commit each part ran at; the lab is in
+`docs/webgl-gradients/lab/` there. It needs Node 22, Playwright's Chromium,
+and Python with Pillow and numpy; outputs go to the git-ignored `.out/`.
 
 ```sh
+# §1–§5: aurora, blurred circles, Paper, gradflow, the first prototypes
+git worktree add ../lab-research 14a00dc && cd ../lab-research/docs/webgl-gradients/lab
 mkdir -p .out/paper && (cd .out/paper && npm pack @paper-design/shaders@0.0.82 && tar xzf paper-design-shaders-0.0.82.tgz)
 git clone --depth 1 https://github.com/meerbahadin/gradflow.git .out/gradflow
-node --experimental-strip-types build.mts   # .out/lab.html — needs aurora: run it at commit 14a00dc, before aurora was retired
-node --experimental-strip-types looks.mts && node shoot-looks.cjs   # §9 — needs the mesh program: run it at commit c30978f
-# §10, the shipped gradient: the Storybook stories Effects/Shaders and Effects/Specimen
-node shoot.cjs && node shoot-paper.cjs && node shoot-gradflow.cjs   # every tile, with and without copy
-python3 -I measure.py                       # the tables above
+node --experimental-strip-types build.mts && node shoot.cjs && node shoot-paper.cjs && node shoot-gradflow.cjs
+python3 -I measure.py
+
+# §9: wash, sweep, rise (same setup, at the commit where the dark sweep was polished)
+git worktree add ../lab-looks c30978f && cd ../lab-looks/docs/webgl-gradients/lab
+node --experimental-strip-types looks.mts && node shoot-looks.cjs && python3 -I measure.py
 ```
+
+§10 and §11 — the shipped gradient — are checked where the library is: the
+Storybook stories **Effects/Shaders** and **Effects/Specimen**, and
+`registry/lib/shader/shader.browser.test.tsx`, which measures contrast in
+the quiet zone and banding for every look.
 
 ## Sources
 

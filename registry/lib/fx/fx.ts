@@ -153,7 +153,7 @@ export const EFFECTS = {
   gradient: {
     kind: "shader",
     sheet: "shader",
-    job: "A moving ground in the brand's two colours, parametric: a look picks the form — wash (a calm field), sweep (two big lit forms), fold (light panes with lit rims) or rise (a horizon) — and shared knobs tune any of them (angle, sharpness, scale, chroma, intensity). Dithered so it never bands; its copy sits in a quiet zone of the exact base, so the ink keeps its audited contrast. One per view.",
+    job: "A moving ground in the brand's two colours, parametric: a look picks the form — wash (a calm field), sweep (two big lit forms), fold (light panes with lit rims), rise (a horizon with a crisp rim) or dawn (a soft horizon) — and shared knobs tune any of them (angle, sharpness, scale, chroma, intensity). Dithered so it never bands; its copy sits in a quiet zone of the exact base, so the ink keeps its audited contrast. One per view.",
     on: ["ground"],
   },
   halo: {

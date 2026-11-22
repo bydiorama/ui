@@ -69,7 +69,7 @@
      in. Its light sits in the top-right corner, away from either default
      quiet zone's copy. */
   .fx-gradient {
-    --ui-fx-gradient-look: wash; /* wash · sweep · fold · rise */
+    --ui-fx-gradient-look: wash; /* wash · sweep · fold · rise · dawn */
     --ui-fx-gradient-base: var(--ui-bg-base);
     --ui-fx-gradient-light: var(--ui-bg-accent);
     --ui-fx-gradient-angle: auto; /* degrees: the direction the forms run */
@@ -77,7 +77,7 @@
     --ui-fx-gradient-scale: 1; /* the forms' size */
     --ui-fx-gradient-chroma: 1; /* colourfulness: 0.6 quiet, 1.4 vivid */
     --ui-fx-gradient-intensity: auto; /* 0 = the base alone */
-    --ui-fx-gradient-quiet: 0.42;
+    --ui-fx-gradient-quiet: auto; /* 0.42; 0.3 for the horizons; 0 = none */
     --ui-fx-gradient-quiet-x: 0.16;
     --ui-fx-gradient-quiet-y: auto;
     --ui-fx-gradient-dissolve: 0;

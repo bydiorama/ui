@@ -5,7 +5,7 @@ import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeS
 import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
 import { startShaders } from "@/lib/shader";
-import { GRADIENT_LOOKS, type GradientLook } from "@/lib/shader-programs";
+import { GRADIENT_LOOKS, GRADIENT_PRESETS, type GradientLook } from "@/lib/shader-programs";
 import { Button } from "@/ui/button/button.tsx";
 import { Input } from "@/ui/input/input.tsx";
 
@@ -17,7 +17,7 @@ function Shaders({ children }: { children: ReactNode }) {
 
 /**
  * The optional shader half of the effects layer (ADR 0022, 0025): the
- * gradient — one parametric ground in four looks — and halo, drawn by
+ * gradient — one parametric ground in five looks — and halo, drawn by
  * `startShaders()` on one shared WebGL2 context. Without the runtime, or without WebGL, a ground shows its
  * CSS floor and a component renders exactly as itself. The specimen that
  * puts glass on a ground is Effects/Specimen.
@@ -65,7 +65,7 @@ function Copy() {
 /** A ground in one look, with any knob set inline — tokens, never props. */
 function Ground({ look, tune, children }: { look: GradientLook; tune?: Record<string, string | number>; children?: ReactNode }) {
   const style = { "--ui-fx-gradient-look": look, ...tune } as CSSProperties;
-  const top = look === "rise" && !tune?.["--ui-fx-gradient-quiet-y"];
+  const top = GRADIENT_PRESETS[look].quietY < 0.5 && !tune?.["--ui-fx-gradient-quiet-y"];
   return (
     <div className={cn("flex aspect-[16/10] flex-col rounded-xl p-lg", top ? "justify-start" : "justify-end", fx("gradient"))} style={style}>
       {children ?? <Copy />}
@@ -74,9 +74,10 @@ function Ground({ look, tune, children }: { look: GradientLook; tune?: Record<st
 }
 
 /**
- * One effect, four looks, in both schemes. The look is a token
+ * One effect, five looks, in both schemes. The look is a token
  * (`--ui-fx-gradient-look`); every knob left at `auto` takes the look's own
- * preset — rise moves its quiet zone, and so its copy, into the sky. The
+ * preset — the horizons (rise, dawn) move their quiet zone, and so their
+ * copy, into the sky. The
  * copy sits on the exact base there, so the muted line keeps the contrast
  * the token pair was audited at. All are dithered: no bands.
  */
@@ -110,6 +111,7 @@ export const Parameters: Story = {
       ["fold · sharpness 0.15", "fold", { "--ui-fx-gradient-sharpness": 0.15 }],
       ["wash · chroma 1.5", "wash", { "--ui-fx-gradient-chroma": 1.5 }],
       ["wash · intensity 0.5", "wash", { "--ui-fx-gradient-intensity": 0.5 }],
+      ["dawn · sharpness 0.85", "dawn", { "--ui-fx-gradient-sharpness": 0.85 }],
       [
         "rise · centred copy, dissolving edge",
         "rise",

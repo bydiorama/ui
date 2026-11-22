@@ -72,7 +72,8 @@ useEffect(() => startShaders(), []);   // returns its own stop; StrictMode-safe
 | `wash` (default) | a calm field of colour that fills the frame | empty states, sign-in, a panel behind glass |
 | `sweep` | two big forms lit across their bodies, one strong curve | a hero, a feature band |
 | `fold` | light panes with crisp lit rims | a launch moment, a marketing band |
-| `rise` | a horizon: a bright rim low in the frame, copy in the sky | a landing hero, a "welcome" screen |
+| `rise` | a horizon: a crisp bright rim low in the frame, copy in the sky | a landing hero, a "welcome" screen |
+| `dawn` | a soft horizon: light rising from below the frame, no rim, copy in the sky | a sign-in, a calm landing, an onboarding step |
 
 Set only what you mean to change: a knob left at `auto` takes the look's own
 preset (angle, intensity, where the copy goes), so `look: rise` alone is a
@@ -110,14 +111,14 @@ Override tokens on a scope, like any component variable:
 | `--ui-fx-glass-blur-frame` / `-blur-overlay` | 12px / 32px | backdrop blur on Sidebar and NavRail / Popover and Menu |
 | `--ui-fx-grain` + `--ui-fx-grain-amount` | subtle tile, 0.03 | `var(--ui-fx-grain-visible)`, 0.07 for a grainier brand |
 | `--ui-fx-ambient-speed` | 1 | 0.5 calm, 1.7 expressive — the grounds, ink, shimmer |
-| `--ui-fx-gradient-look` | `wash` | `wash` · `sweep` · `fold` · `rise` |
+| `--ui-fx-gradient-look` | `wash` | `wash` · `sweep` · `fold` · `rise` · `dawn` |
 | `--ui-fx-gradient-base` / `-light` | `--ui-bg-base` / `--ui-bg-accent` | the gradient's two colours; every other tone is derived from them |
 | `--ui-fx-gradient-angle` | `auto` | the direction the forms run, in `deg` |
 | `--ui-fx-gradient-sharpness` | 0.5 | 0 soft … 1 crisp edges and rims |
 | `--ui-fx-gradient-scale` | 1 | the forms' size: 0.6 tight, 1.6 broad |
 | `--ui-fx-gradient-chroma` | 1 | colourfulness: 0.6 quiet, 1.4 vivid |
 | `--ui-fx-gradient-intensity` | `auto` | how far the field leaves the base: 0.5 is a hint |
-| `--ui-fx-gradient-quiet` + `-quiet-x` / `-quiet-y` | 0.42 at 0.16, `auto` | the quiet zone's radius (a fraction of the width; 0 = none, copy on glass) and centre (0..1 from the top left) — put it where the copy is |
+| `--ui-fx-gradient-quiet` + `-quiet-x` / `-quiet-y` | `auto` (0.42; 0.3 for the horizons) at 0.16, `auto` | the quiet zone's radius (a fraction of the width; 0 = none, copy on glass) and centre (0..1 from the top left) — put it where the copy is |
 | `--ui-fx-gradient-dissolve` | 0 | 0.15–0.25 melts the ground's edge into the page |
 
 **Never** tune `--ui-fx-glass-wash`, `-grade` or `-bloom` up in dark: that

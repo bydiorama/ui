@@ -4,7 +4,7 @@
   "date": "2026-11-22",
   "item": "system",
   "kind": "decision",
-  "summary": "Records ADR 0025: the effects layer's ground is written for this library (no gradient library; gradflow and MagicPattern were a benchmark only) and is ONE parametric effect, fx(\"gradient\") — a look token (wash, sweep, fold, rise) plus shared knobs, each defaulting to the look's preset — rather than one effect per look. Aurora is retired, every shader ends in a static triangular dither, and a ground keeps its copy legible with a quiet zone of its exact base instead of a per-pixel contrast guard (amends ADR 0022, rules 5 and 6). Research and measurements: docs/webgl-gradients.md.",
+  "summary": "Records ADR 0025: the effects layer's ground is written for this library (no gradient library; gradflow and MagicPattern were a benchmark only) and is ONE parametric effect, fx(\"gradient\") — a look token (wash, sweep, fold, rise, dawn) plus shared knobs, each defaulting to the look's preset — rather than one effect per look. Aurora is retired, every shader ends in a static triangular dither, and a ground keeps its copy legible with a quiet zone of its exact base instead of a per-pixel contrast guard (amends ADR 0022, rules 5 and 6). Research and measurements: docs/webgl-gradients.md.",
   "affects": [
     "decision:0025-parametric-gradient-replaces-aurora",
     "decision:0022-effects-layer"

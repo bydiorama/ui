@@ -6,7 +6,7 @@ import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeS
 import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
 import { startShaders } from "@/lib/shader";
-import { GRADIENT_LOOKS, type GradientLook } from "@/lib/shader-programs";
+import { GRADIENT_LOOKS, GRADIENT_PRESETS, type GradientLook } from "@/lib/shader-programs";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Card } from "@/ui/card/card.tsx";
@@ -22,7 +22,7 @@ import { NavRail } from "@/ui/nav-rail/nav-rail.tsx";
  * What to look for, in both schemes and under the stress brand:
  *   - no bands in the slow ramps, no creases in the corners;
  *   - the copy on the exact base, readable at a glance (bottom left; in the
- *     sky, top left, for rise);
+ *     sky, top left, for the horizons — rise and dawn);
  *   - glass that softens the folds behind it and keeps its own ink legible;
  *   - before the runtime draws (or without WebGL), the CSS floor: the base
  *     and a still light in the far corner, no gap.
@@ -67,6 +67,7 @@ const meta = {
     brand: { control: "inline-radio", options: ["theme zero", "pale yellow"] },
     angle: { control: "select", options: ["auto", "-40", "-28", "-12", "0", "12", "24", "40"] },
     sharpness: { control: { type: "range", min: 0, max: 1, step: 0.05 } },
+    // The quiet zone follows the look; the toggle only turns it off.
     scale: { control: { type: "range", min: 0.5, max: 2, step: 0.05 } },
     chroma: { control: { type: "range", min: 0, max: 1.8, step: 0.05 } },
     intensity: { control: "select", options: ["auto", "0.4", "0.6", "0.8", "1"] },
@@ -115,8 +116,9 @@ function tokens(a: SpecimenArgs): CSSProperties {
 
 function Window(args: SpecimenArgs) {
   const { look, scheme, brand, grain } = args;
-  // Rise's light is low in the frame, so its copy goes up, into the sky.
-  const copyOnTop = look === "rise";
+  // A horizon's light is low in the frame, so its copy goes up, into the
+  // sky: wherever the look's own quiet zone is (unless the controls move it).
+  const copyOnTop = GRADIENT_PRESETS[look].quietY < 0.5;
   const copy = (
     <div className="flex max-w-[440px] flex-col gap-sm">
       <p className="text-title-lg text-ink-primary">Make it yours</p>

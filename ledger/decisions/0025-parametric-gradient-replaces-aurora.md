@@ -23,7 +23,10 @@ GLSL and the candidates under the same conditions:
 The owner pointed at two references, gradflow and MagicPattern's shader
 background generator, and decided: **use no gradient library; treat them as
 inspiration and a quality benchmark; write our own; retire aurora
-completely.** gradflow declares MIT but ships no LICENSE file or copyright
+completely.** After the parametric design landed, the owner asked for
+gradflow's horizon itself: soft light rising from the bottom, with no rim.
+It became a fifth look, `dawn`, which made the point of the design: a new
+look is one form function, one preset row and one keyword. gradflow declares MIT but ships no LICENSE file or copyright
 line. MagicPattern exports bitmaps and video from a closed tool, so its
 output can follow neither tokens nor schemes. Neither one considers text:
 with our tokens, gradflow's looks left muted ink at 1.0–2.4:1.
@@ -56,13 +59,16 @@ the form differs.
    | `sweep` | two big S-shaped forms lit across their bodies, each casting a shadow |
    | `fold` | light panes along slow folds, a soft body and a sharp lit rim |
    | `rise` | a horizon: a bright rim low in the frame, glow above, body below |
+   | `dawn` | a soft horizon: light rising from below the frame, no rim; the colour peaks where the core meets the halo |
 
    Every other knob is shared and tunes any look: `-angle`, `-sharpness`,
    `-scale`, `-chroma`, `-intensity`, the quiet zone (`-quiet`, `-quiet-x`,
    `-quiet-y`) and `-dissolve`. A knob left at **`auto`** takes the look's
-   own preset (`GRADIENT_PRESETS`: angle, intensity, where the copy goes),
-   so `--ui-fx-gradient-look: rise` alone is a finished horizon with its
-   copy in the sky. The looks do not blend into each other: they are
+   own preset (`GRADIENT_PRESETS`: angle, intensity, the zone's size and
+   where the copy goes), so `--ui-fx-gradient-look: rise` alone is a
+   finished horizon with its copy in the sky. The horizons (rise, dawn) use
+   a smaller zone: their sky is already quiet, and a large ellipse there
+   reaches down into the light. The looks do not blend into each other: they are
    different forms. Everything around the form is one piece of code.
 
    The runtime gains what this needs: a **keyword** uniform (a token whose

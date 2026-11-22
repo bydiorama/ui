@@ -5,8 +5,8 @@ Status: **implemented**, 2026-11-22, as
 
 - Aurora is retired.
 - **One parametric ground ships, `fx("gradient")`**, written from scratch.
-  - `--ui-fx-gradient-look` picks the form: `wash`, `sweep`, `fold` or
-    `rise`.
+  - `--ui-fx-gradient-look` picks the form: `wash`, `sweep`, `fold`,
+    `rise` or `dawn`.
   - Shared knobs tune any look: angle, sharpness, scale, chroma, intensity,
     the quiet zone and the edge.
   - A knob at `auto` takes the look's preset.
@@ -504,6 +504,35 @@ count (§9). The browser test covers:
 The band measure skips runs of the ground's exact base: rise's flat sky is
 flat on purpose, and a one-step dither leaves most of a flat area on one
 value. Its negative control (an undithered ramp) still fails it.
+
+## 11. Dawn: gradflow's horizon, as a fifth look
+
+After the parametric design landed, the owner asked for gradflow's horizon
+itself. Rise is a different horizon: a crisp rim along an arc, like a
+planet's edge. gradflow's horizon has no rim. It is soft light rising from
+the bottom of the frame: a wide glowing hill with a hot, near-white core
+inside it, fading into a dark sky.
+
+`dawn` is that look, written from scratch. It took three passes:
+
+1. **Hills stacked as flat layers** (sky, a cyan slab, pale cyan) read as
+   bands, not light.
+2. **One field of light through a colour ramp.** The field is a wide hill
+   plus a hot core. The ramp runs from sky to heart, with its chroma
+   peaking near the top, so the colour is strongest **where the core meets
+   the halo**. That bright edge is what makes the reference glow. On a white
+   page the same ramp deepens toward the edge instead of brightening, so
+   light mode reads as light, not water.
+3. **A calmer arc and a smaller quiet zone.** The default zone (0.42), sized
+   for copy at the bottom, reached down from the sky into the glow and
+   tilted it. The zone's radius became a per-look `auto` preset: 0.42, and
+   0.3 for both horizons.
+
+![gradflow's horizon beside dawn: dark, light, the pale-yellow brand in dark](./webgl-gradients/08-dawn.jpg)
+
+Muted ink in the sky: 6.96:1 dark, 5.88:1 light, 6.92:1 and 6.27:1 on the
+pale-yellow brand. The browser test picks dawn up from `GRADIENT_LOOKS`:
+contrast in every scheme and brand, banding, presets.
 
 ## Reproduce the lab
 

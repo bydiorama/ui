@@ -169,25 +169,31 @@ float fx_cover(float d) { return clamp(0.5 - d * u_dpr, 0.0, 1.0); }
  * The palette is the two tokens and nothing else: the base it replaces and
  * the light moving over it. Every other tone is derived in OKLab.
  */
-export const GRADIENT_LOOKS = ["wash", "sweep", "fold", "rise"] as const;
+export const GRADIENT_LOOKS = ["wash", "sweep", "fold", "rise", "dawn"] as const;
 export type GradientLook = (typeof GRADIENT_LOOKS)[number];
 
 /** What `auto` means, per look. */
-export const GRADIENT_PRESETS: Record<GradientLook, { angle: number; intensity: number; quietY: number }> = {
+export const GRADIENT_PRESETS: Record<GradientLook, { angle: number; intensity: number; quiet: number; quietY: number }> = {
   /** A calm field that fills the frame. */
-  wash: { angle: 0, intensity: 1, quietY: 0.9 },
+  wash: { angle: 0, intensity: 1, quiet: 0.42, quietY: 0.9 },
   /** Two big S-shaped forms, each lit across its body. */
-  sweep: { angle: -28, intensity: 1, quietY: 0.9 },
+  sweep: { angle: -28, intensity: 1, quiet: 0.42, quietY: 0.9 },
   /** Light panes along slow folds, a soft body and a sharp lit rim. */
-  fold: { angle: 24, intensity: 0.85, quietY: 0.9 },
-  /** A horizon: a bright rim low in the frame, glow above, body below. Copy goes in the sky. */
-  rise: { angle: 0, intensity: 1, quietY: 0.18 },
+  fold: { angle: 24, intensity: 0.85, quiet: 0.42, quietY: 0.9 },
+  /**
+   * A horizon: a bright rim low in the frame, glow above, body below. Copy
+   * goes in the sky, and the zone is smaller: the sky is already quiet, and
+   * a large ellipse there reaches down into the light.
+   */
+  rise: { angle: 0, intensity: 1, quiet: 0.3, quietY: 0.18 },
+  /** A soft horizon: light rising from below the frame, no rim. Copy goes in the sky. */
+  dawn: { angle: 0, intensity: 1, quiet: 0.3, quietY: 0.18 },
 };
 
 const GRADIENT = `
 uniform vec3  u_base;       // the ground the light sits on
 uniform vec3  u_light;      // the brand light
-uniform float u_look;       // 0 wash, 1 sweep, 2 fold, 3 rise
+uniform float u_look;       // 0 wash, 1 sweep, 2 fold, 3 rise, 4 dawn
 uniform float u_angle;      // degrees: the direction the forms run
 uniform float u_sharpness;  // 0..1; 0.5 is the look's own edges and rims
 uniform float u_scale;      // the forms' size; 1 is the look's own
@@ -376,6 +382,39 @@ vec3 fx_rise(vec2 uv, float t, float dk, vec3 B, vec3 A) {
   return mix(mix(body, sky, above), rim, core * 0.9);
 }
 
+// DAWN: a soft horizon — light rising from below the frame, with no rim.
+// One smooth field of light (a wide hill and a hot core inside it, with
+// calm, slowly moving tops) mapped through a colour ramp whose chroma PEAKS
+// near the top of the ramp: the colour is strongest where the core meets the
+// halo, as in a real glow, and not spread as flat layers. Sharpness sets how
+// long the hills' shoulders are.
+float fx_hill(float h, float top, float soft) {
+  float g = clamp((top + soft - h) / (1.6 * soft), 0.0, 1.0);
+  return g * g * g * (g * (g * 6.0 - 15.0) + 10.0);  // smootherstep: no visible knee
+}
+vec3 fx_dawn(vec2 uv, float t, float dk, vec3 B, vec3 A) {
+  float k = fx_aspect();
+  vec2 p = fx_frame(uv);
+  float h = p.y + 0.5 * k;                      // 0 at the bottom of the frame
+  float x = p.x;
+  float sh = fx_sharp();
+  float wide = 0.46 * k - 0.08 * x * x + 0.018 * sin(2.1 * x + 0.40 * t + 0.7) + 0.008 * sin(4.6 * x - 0.30 * t);
+  float hot = 0.24 * k - 0.06 * x * x + 0.014 * sin(1.7 * x - 0.35 * t + 2.2) + 0.006 * sin(4.0 * x + 0.25 * t + 1.0);
+  float e = 0.55 * fx_hill(h, wide, 0.36 * k / sh) + 0.45 * fx_hill(h, hot, 0.14 * k / sh);
+  float dir = fx_shadowTurn(A);
+  // The ramp, from the sky (e = 0) to the heart of the light (e = 1).
+  // Dark: base, a deep saturated halo, the accent at full chroma, near white.
+  // Light: base, a pale tint, the accent at full chroma, a lighter tint — on
+  // a white page the light is colour at its edge, not brightness.
+  vec3 halo = fx_tone(fx_hueTurn(A, radians(16.0 * dir)), mix(0.88, 0.40, dk), mix(0.9, 1.6, dk));
+  vec3 vivid = fx_tone(fx_hueTurn(A, radians(-6.0 * dir)), mix(0.74, 0.80, dk), 1.55);
+  vec3 heart = fx_tone(fx_hueTurn(A, radians(-10.0 * dir)), mix(0.94, 0.98, dk), mix(0.6, 0.28, dk));
+  vec3 lab = mix(B, halo, smoothstep(0.0, 0.42, e));
+  lab = mix(lab, vivid, smoothstep(0.34, 0.74, e));
+  lab = mix(lab, heart, smoothstep(0.72, 1.0, e));
+  return lab;
+}
+
 void main() {
   vec2 local = fx_local();
   vec2 uv = local / (2.0 * u_box.x);
@@ -384,7 +423,8 @@ void main() {
   vec3 lab = u_look < 0.5 ? fx_wash(uv, t, dk, B, A)
            : u_look < 1.5 ? fx_sweep(uv, t, dk, B, A)
            : u_look < 2.5 ? fx_fold(uv, 1.2 * t, dk, B, A)
-           : fx_rise(uv, t, dk, B, A);
+           : u_look < 3.5 ? fx_rise(uv, t, dk, B, A)
+           : fx_dawn(uv, t, dk, B, A);
   // Back to the base wherever the light must not be (the quiet zone, a
   // dissolving edge, a lower intensity); then grain outside the zone only,
   // so the copy's ground stays exact; then the dither, last.
@@ -413,7 +453,7 @@ export const SHADERS: Record<ShaderName, ShaderDef> = {
       u_scale: { number: "--ui-fx-gradient-scale", fallback: 1 },
       u_chroma: { number: "--ui-fx-gradient-chroma", fallback: 1 },
       u_intensity: { number: "--ui-fx-gradient-intensity", fallback: NaN },
-      u_quiet: { number: "--ui-fx-gradient-quiet", fallback: 0.42 },
+      u_quiet: { number: "--ui-fx-gradient-quiet", fallback: NaN },
       u_quietX: { number: "--ui-fx-gradient-quiet-x", fallback: 0.16 },
       u_quietY: { number: "--ui-fx-gradient-quiet-y", fallback: NaN },
       u_dissolve: { number: "--ui-fx-gradient-dissolve", fallback: 0 },
@@ -423,6 +463,7 @@ export const SHADERS: Record<ShaderName, ShaderDef> = {
       const preset = GRADIENT_PRESETS[GRADIENT_LOOKS[v.u_look as number] ?? "wash"];
       if (Number.isNaN(v.u_angle)) v.u_angle = preset.angle;
       if (Number.isNaN(v.u_intensity)) v.u_intensity = preset.intensity;
+      if (Number.isNaN(v.u_quiet)) v.u_quiet = preset.quiet;
       if (Number.isNaN(v.u_quietY)) v.u_quietY = preset.quietY;
     },
     fragment: GRADIENT,

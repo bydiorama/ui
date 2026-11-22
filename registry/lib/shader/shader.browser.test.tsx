@@ -7,8 +7,8 @@
  *      context, the element is exactly what it draws on its own (for a
  *      ground, its CSS floor);
  *   4. the ink stays legible — on a ground, the QUIET ZONE around the copy
- *      is the exact base, measured on the pixels the shader drew, for both
- *      grounds, in both schemes and under the brand whose accent is the
+ *      is the exact base, measured on the pixels the shader drew, for every
+ *      look of the gradient, in both schemes and under the brand whose accent is the
  *      hardest to keep legible; and the measurement is shown to fail when
  *      the zone is switched off.
  *
@@ -21,7 +21,8 @@ import { act, type CSSProperties, type ReactElement } from "react";
 
 import { contrastRatio, resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 import { fx } from "@/lib/fx";
-import { configureShaders, readColor, readNumber, sampleShader, startShaders } from "@/lib/shader";
+import { configureShaders, readColor, sampleShader, startShaders } from "@/lib/shader";
+import { GRADIENT_LOOKS, GRADIENT_PRESETS, type GradientLook } from "@/lib/shader-programs";
 import { Button } from "@/ui/button/button.tsx";
 
 const mounted: Array<{ root: Root; host: HTMLElement }> = [];
@@ -69,35 +70,36 @@ async function until(check: () => boolean, what: string, ms = 3000) {
 const drawing = (root: HTMLElement, name: string) => () =>
   ["live", "still"].includes(root.getAttribute(`data-fx-${name}`) ?? "");
 
-type Ground = "mesh" | "fold";
-const GROUNDS: Ground[] = ["mesh", "fold"];
-
-/** A ground the size of an empty state, carrying nothing but the effect. */
-const ground = (name: Ground, style?: CSSProperties) => (
-  <div data-ground className={fx(name)} style={{ width: 480, height: 300, borderRadius: 16, ...style }} />
+/** A ground the size of an empty state, carrying the gradient in one look. */
+const ground = (look: GradientLook, style?: CSSProperties) => (
+  <div
+    data-ground
+    className={fx("gradient")}
+    style={{ width: 480, height: 300, borderRadius: 16, ["--ui-fx-gradient-look" as string]: look, ...style }}
+  />
 );
 
 describe("the floor is the component", () => {
   test("before startShaders() nothing is mounted and nothing is marked", () => {
-    const el = q(render(ground("mesh")), "[data-ground]");
+    const el = q(render(ground("wash")), "[data-ground]");
     expect(el.querySelector("canvas")).toBeNull();
-    expect(el.hasAttribute("data-fx-mesh")).toBe(false);
+    expect(el.hasAttribute("data-fx-gradient")).toBe(false);
   });
 
   test("before it draws, a ground shows its CSS floor: its base, and the light in the far corner", () => {
-    const el = q(render(ground("fold")), "[data-ground]");
+    const el = q(render(ground("sweep")), "[data-ground]");
     const css = getComputedStyle(el);
     expect(css.backgroundImage).toContain("radial-gradient");
     expect(css.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
   });
 
   test("started, one canvas covers the ground's border box and the root says it is live", async () => {
-    const el = q(render(ground("mesh")), "[data-ground]");
+    const el = q(render(ground("wash")), "[data-ground]");
     start();
-    await until(drawing(el, "mesh"), "mesh to draw");
-    expect(el.getAttribute("data-fx-mesh")).toBe("live");
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    expect(el.getAttribute("data-fx-gradient")).toBe("live");
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const canvas = q(el, "canvas.ui-fx-canvas-mesh");
+    const canvas = q(el, "canvas.ui-fx-canvas-gradient");
     const a = canvas.getBoundingClientRect();
     const b = el.getBoundingClientRect();
     for (const k of ["left", "top", "width", "height"] as const) expect(Math.abs(a[k] - b[k]), k).toBeLessThan(0.5);
@@ -109,45 +111,78 @@ describe("the floor is the component", () => {
     const el = q(render(ground("fold")), "[data-ground]");
     const before = el.getAttribute("style");
     const stop = start();
-    await until(drawing(el, "fold"), "fold to draw");
+    await until(drawing(el, "gradient"), "the gradient to draw");
     stop();
     expect(el.querySelector("canvas")).toBeNull();
-    expect(el.hasAttribute("data-fx-fold")).toBe(false);
+    expect(el.hasAttribute("data-fx-gradient")).toBe(false);
     expect(el.getAttribute("style")).toBe(before);
   });
 
   test("callers are counted: StrictMode's double effect shares one runtime", async () => {
-    const el = q(render(ground("mesh")), "[data-ground]");
+    const el = q(render(ground("wash")), "[data-ground]");
     const first = start();
     start();
     first();
     first(); // a second call of the same stop is a no-op
-    await until(drawing(el, "mesh"), "mesh to keep drawing");
+    await until(drawing(el, "gradient"), "the gradient to keep drawing");
     expect(el.querySelectorAll("canvas").length).toBe(1);
   });
 
   test("without a context the ground keeps its floor, and the canvas stays hidden", async () => {
     configureShaders({ forceFloor: true });
-    const el = q(render(ground("fold")), "[data-ground]");
+    const el = q(render(ground("rise")), "[data-ground]");
     start();
-    await until(() => el.getAttribute("data-fx-fold") === "floor", "the floor state");
+    await until(() => el.getAttribute("data-fx-gradient") === "floor", "the floor state");
     expect(getComputedStyle(q(el, "canvas")).opacity).toBe("0");
   });
 
   test("reduced motion draws one still frame", async () => {
     configureShaders({ reducedMotion: true });
-    const el = q(render(ground("mesh")), "[data-ground]");
+    const el = q(render(ground("wash")), "[data-ground]");
     start();
-    await until(() => el.getAttribute("data-fx-mesh") === "still", "the still state");
+    await until(() => el.getAttribute("data-fx-gradient") === "still", "the still state");
   });
 
   test("a large ground keeps full resolution: a dither must not be scaled", async () => {
     const el = q(render(ground("fold", { width: 900, height: 560 })), "[data-ground]");
     start();
-    await until(drawing(el, "fold"), "fold to draw");
-    const s = sampleShader(el, "fold")!;
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const s = sampleShader(el, "gradient")!;
     expect(s.width).toBe(Math.round(900 * s.dpr));
     expect(s.dpr).toBe(Math.min(devicePixelRatio, 2));
+  });
+});
+
+describe("one gradient, parametric", () => {
+  test("a knob at auto takes the look's preset; a token set on the ground overrides it", async () => {
+    configureShaders({ freezeAt: 6 });
+    const rise = q(render(ground("rise")), "[data-ground]");
+    const tilted = q(render(ground("sweep", { ["--ui-fx-gradient-angle" as string]: "12deg" })), "[data-ground]");
+    start();
+    await until(() => drawing(rise, "gradient")() && drawing(tilted, "gradient")(), "both to draw");
+    const r = sampleShader(rise, "gradient")!.values;
+    expect(r.u_look).toBe(GRADIENT_LOOKS.indexOf("rise"));
+    expect(r.u_quietY).toBe(GRADIENT_PRESETS.rise.quietY);
+    expect(r.u_angle).toBe(GRADIENT_PRESETS.rise.angle);
+    const t = sampleShader(tilted, "gradient")!.values;
+    expect(t.u_angle).toBe(12);
+    expect(t.u_intensity).toBe(GRADIENT_PRESETS.sweep.intensity);
+  });
+
+  test("changing the look token redraws the same canvas in the new look", async () => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(render(ground("wash")), "[data-ground]");
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const canvas = q(el, "canvas");
+    const before = sampleShader(el, "gradient")!.data.slice();
+    el.style.setProperty("--ui-fx-gradient-look", "rise");
+    await until(() => sampleShader(el, "gradient")?.values.u_look === GRADIENT_LOOKS.indexOf("rise"), "the new look");
+    expect(q(el, "canvas")).toBe(canvas);
+    const after = sampleShader(el, "gradient")!.data;
+    let differ = 0;
+    for (let i = 0; i < after.length; i += 4) if (Math.abs(after[i]! - before[i]!) > 24) differ++;
+    expect(differ, "the frame did not change with the look").toBeGreaterThan(after.length / 40);
   });
 });
 
@@ -200,11 +235,11 @@ const hex = (rgb: readonly number[]) => `#${rgb.map((c) => Math.round(c).toStrin
  * Every fully covered pixel the shader drew, with where it sits in the
  * field the GLSL uses: x 0..1 across, y 0..aspect up.
  */
-function pixels(el: HTMLElement, name: Ground) {
-  const s = sampleShader(el, name);
+function pixels(el: HTMLElement) {
+  const s = sampleShader(el, "gradient");
   if (!s) return [];
   const w = s.width / s.dpr;
-  const out: Array<{ rgb: [number, number, number]; u: number; v: number; x: number; y: number }> = [];
+  const out: Array<{ rgb: [number, number, number]; u: number; v: number }> = [];
   for (let y = 0; y < s.height; y++) {
     for (let x = 0; x < s.width; x++) {
       const i = (y * s.width + x) * 4;
@@ -213,8 +248,6 @@ function pixels(el: HTMLElement, name: Ground) {
         rgb: [s.data[i]!, s.data[i + 1]!, s.data[i + 2]!],
         u: (x + 0.5) / s.dpr / w,
         v: (s.height - y - 0.5) / s.dpr / w,
-        x,
-        y,
       });
     }
   }
@@ -223,15 +256,11 @@ function pixels(el: HTMLElement, name: Ground) {
 
 type Zone = { quiet: number; x: number; y: number; aspect: number };
 
-/** The quiet zone as the ground's tokens place it, read once. */
+/** The quiet zone the runtime drew with — `auto` resolved to the look's preset. */
 function zoneOf(el: HTMLElement): Zone {
+  const v = sampleShader(el, "gradient")!.values;
   const r = el.getBoundingClientRect();
-  return {
-    quiet: readNumber(el, "--ui-fx-ground-quiet", 0),
-    x: readNumber(el, "--ui-fx-ground-quiet-x", 0),
-    y: readNumber(el, "--ui-fx-ground-quiet-y", 0),
-    aspect: r.height / r.width,
-  };
+  return { quiet: v.u_quiet as number, x: v.u_quietX as number, y: v.u_quietY as number, aspect: r.height / r.width };
 }
 
 /** Inside the zone's CORE, as the GLSL defines it (fx_quietMask): an ellipse at half the radius. */
@@ -239,11 +268,11 @@ const inCore = (z: Zone) => (p: { u: number; v: number }) =>
   Math.hypot((p.u - z.x) * 0.75, (p.v - (1 - z.y) * z.aspect) * 1.5) < 0.5 * z.quiet;
 
 /** The least contrast between a pixel under the copy and the ink. NaN: nothing sampled. */
-function worstUnderCopy(el: HTMLElement, name: Ground, ink: string, core: (p: { u: number; v: number }) => boolean) {
+function worstUnderCopy(el: HTMLElement, ink: string, core: (p: { u: number; v: number }) => boolean) {
   const against = hex(readColor(el, ink).map((c) => c * 255));
   const seen = new Map<string, number>();
   let min = Infinity;
-  for (const p of pixels(el, name)) {
+  for (const p of pixels(el)) {
     if (!core(p)) continue;
     const key = hex(p.rgb);
     let ratio = seen.get(key);
@@ -255,48 +284,47 @@ function worstUnderCopy(el: HTMLElement, name: Ground, ink: string, core: (p: { 
 
 describe("the copy keeps its contrast in the quiet zone", () => {
   const cases = THEMES.flatMap(([theme, style]) =>
-    (["light", "dark"] as const).flatMap((scheme) => GROUNDS.map((g) => [theme, scheme, g, style] as const)),
+    (["light", "dark"] as const).flatMap((scheme) => GRADIENT_LOOKS.map((look) => [theme, scheme, look, style] as const)),
   );
 
-  test.each(cases)("%s, %s: %s", async (_theme, scheme, name, style) => {
+  test.each(cases)("%s, %s: %s", async (_theme, scheme, look, style) => {
     configureShaders({ freezeAt: 6 });
-    const el = q(render(ground(name), { ...style, colorScheme: scheme }), "[data-ground]");
+    const el = q(render(ground(look), { ...style, colorScheme: scheme }), "[data-ground]");
     start();
-    await until(drawing(el, name), `${name} to draw`);
+    await until(drawing(el, "gradient"), "the gradient to draw");
     const core = inCore(zoneOf(el));
     for (const ink of ["--ui-text-primary", "--ui-text-muted"]) {
-      const ratio = worstUnderCopy(el, name, ink, core);
+      const ratio = worstUnderCopy(el, ink, core);
       // NaN means no pixel was measured — a gate must never pass on no data.
       expect(Number.isNaN(ratio), "no pixel in the quiet zone was sampled").toBe(false);
       expect(ratio, `${ink}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
     }
     // And outside the zone the ground is a ground, not a flat base: the
     // light moves at least 24 steps off it somewhere.
-    const base = readColor(el, "--ui-fx-ground-base").map((c) => c * 255);
-    const far = pixels(el, name).some((p) => !core(p) && p.rgb.some((c, i) => Math.abs(c - base[i]!) > 24));
+    const base = readColor(el, "--ui-fx-gradient-base").map((c) => c * 255);
+    const far = pixels(el).some((p) => !core(p) && p.rgb.some((c, i) => Math.abs(c - base[i]!) > 24));
     expect(far, "the ground drew no light outside its quiet zone").toBe(true);
   });
 
-  test("the measurement measures something: with the zone off, some ground falls under 4.5:1 where the copy sits", async () => {
+  test("the measurement measures something: with the zone off, some look falls under 4.5:1 where the copy sits", async () => {
     configureShaders({ freezeAt: 6 });
     const failures: string[] = [];
     for (const [theme, style] of THEMES) {
       for (const scheme of ["light", "dark"] as const) {
-        for (const name of GROUNDS) {
-          const el = q(render(ground(name), { ...style, colorScheme: scheme }), "[data-ground]");
-          // Where the copy sits, from the default zone; then the zone goes.
-          const core = inCore(zoneOf(el));
-          el.style.setProperty("--ui-fx-ground-quiet", "0");
+        for (const look of GRADIENT_LOOKS) {
+          const el = q(render(ground(look), { ...style, colorScheme: scheme }), "[data-ground]");
           if (!stops.length) start();
-          await until(drawing(el, name), `${name} to draw`);
-          // The token change is read on the next frame; sample after it.
-          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-          const ratio = worstUnderCopy(el, name, "--ui-text-muted", core);
-          if (ratio < 4.5) failures.push(`${theme}/${scheme}/${name}`);
+          await until(drawing(el, "gradient"), "the gradient to draw");
+          // Where the copy sits, from the look's own zone; then the zone goes.
+          const core = inCore(zoneOf(el));
+          el.style.setProperty("--ui-fx-gradient-quiet", "0");
+          await until(() => sampleShader(el, "gradient")?.values.u_quiet === 0, "the zone to switch off");
+          const ratio = worstUnderCopy(el, "--ui-text-muted", core);
+          if (ratio < 4.5) failures.push(`${theme}/${scheme}/${look}`);
         }
       }
     }
-    expect(failures.length, "no ground fails without its quiet zone, so the passing cases above prove nothing").toBeGreaterThan(0);
+    expect(failures.length, "no look fails without its quiet zone, so the passing cases above prove nothing").toBeGreaterThan(0);
   });
 });
 
@@ -304,8 +332,15 @@ describe("the copy keeps its contrast in the quiet zone", () => {
 
 type Frame = { data: Uint8ClampedArray; width: number; height: number };
 
-/** The widest run of identical pixels along a row that changes at all, in the frame's middle. */
-function widestBand(s: Frame) {
+/**
+ * The widest run of identical pixels along a row that changes at all, in the
+ * frame's middle. A run of the ground's own BASE is skipped: a flat area of
+ * base (the quiet zone, rise's sky) is flat by design, and a one-step dither
+ * leaves most of a flat area's pixels on the same value. A band is a plateau
+ * inside a ramp, and every ramp leaves the base.
+ */
+function widestBand(s: Frame, base?: readonly number[]) {
+  const isBase = (i: number) => !!base && [0, 1, 2].every((c) => Math.abs(s.data[i + c]! - base[c]!) <= 1);
   let widest = 0;
   for (let y = Math.floor(s.height * 0.1); y < s.height * 0.6; y += 3) {
     let run = 1;
@@ -317,25 +352,29 @@ function widestBand(s: Frame) {
       if (same) run++;
       else {
         changes++;
-        rowWidest = Math.max(rowWidest, run);
+        if (!isBase(i - 4)) rowWidest = Math.max(rowWidest, run);
         run = 1;
       }
     }
-    if (changes) widest = Math.max(widest, rowWidest, run);
+    const last = (y * s.width + Math.floor(s.width * 0.9) - 1) * 4;
+    if (changes) widest = Math.max(widest, rowWidest, isBase(last) ? 0 : run);
   }
   return widest;
 }
 
 describe("a ground never bands", () => {
-  test.each(GROUNDS)("%s: no band wider than 32 device px, in light or dark", async (name) => {
+  test.each([...GRADIENT_LOOKS])("%s: no band wider than 32 device px, in light or dark", async (look) => {
     configureShaders({ freezeAt: 6 });
     const [, style] = THEMES[0]!;
     const els = (["light", "dark"] as const).map((scheme) =>
-      q(render(ground(name, { width: 640, height: 400 }), { ...style, colorScheme: scheme }), "[data-ground]"),
+      q(render(ground(look, { width: 640, height: 400 }), { ...style, colorScheme: scheme }), "[data-ground]"),
     );
     start();
-    for (const el of els) await until(drawing(el, name), `${name} to draw`);
-    for (const el of els) expect(widestBand(sampleShader(el, name)!)).toBeLessThanOrEqual(32);
+    for (const el of els) await until(drawing(el, "gradient"), `${look} to draw`);
+    for (const el of els) {
+      const base = readColor(el, "--ui-fx-gradient-base").map((c) => Math.round(c * 255));
+      expect(widestBand(sampleShader(el, "gradient")!, base)).toBeLessThanOrEqual(32);
+    }
   });
 
   test("the measure sees a band: an undithered dark ramp fails it", () => {

@@ -232,7 +232,7 @@ and `registry/lib/shader/shader.browser.test.tsx`, in Chromium on SwiftShader.
       colours, reduced motion and reduced transparency (asserted per pair).
 - [x] Glass's tint is a resolver token, derived per brand against a floor
       that counts the material's own light (theme zero: 0.90 / 0.92).
-- [x] `shader` — the mesh and fold grounds (ADR 0025; aurora retired) and halo, optional, one WebGL2 context, server-safe;
+- [x] `shader` — the parametric `gradient` ground — wash, sweep, fold, rise (ADR 0025; aurora retired) — and halo, optional, one WebGL2 context, server-safe;
       the guard holds every inked part at its floor on drawn pixels, in both
       schemes and under the pale-yellow stress brand, and the test proves it
       can fail.

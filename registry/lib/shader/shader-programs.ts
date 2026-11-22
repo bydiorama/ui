@@ -1,6 +1,7 @@
 /**
  * The shader programs of the effects layer (ADR 0022, ADR 0025): the two
- * grounds, mesh and fold, and halo, and the GLSL they share. Paired with
+ * gradient ground (one parametric program: wash, sweep, fold, rise) and
+ * halo, and the GLSL they share. Paired with
  * `@/lib/shader`, which runs them.
  *
  * THE ADMISSION RULE, which `pnpm check:fx` enforces on this file:
@@ -35,8 +36,18 @@ import type { ShaderFxName } from "@/lib/fx";
 
 export type ShaderName = ShaderFxName;
 
-/** A uniform's source: a colour token, or a numeric one. `live` ones follow a CSS transition. */
-export type UniformSpec = { color: string } | { number: string; fallback?: number; live?: boolean };
+/**
+ * A uniform's source: a colour token, a numeric one, or a KEYWORD one (its
+ * value is one of `values`, sent as its index). `live` ones follow a CSS
+ * transition. A numeric token set to `auto` reads as its fallback; NaN as a
+ * fallback means "the look decides", filled in by the program's `resolve`.
+ */
+export type UniformSpec =
+  | { color: string }
+  | { number: string; fallback?: number; live?: boolean }
+  | { keyword: string; values: readonly string[] };
+
+export type UniformValues = Record<string, number | number[]>;
 
 export interface ShaderDef {
   name: ShaderName;
@@ -56,7 +67,9 @@ export interface ShaderDef {
   /** Frames per second at most. A ground moves slowly; 30 halves its cost unseen. */
   fps?: number;
   /** Skip drawing while this holds (a halo faded to nothing costs nothing). */
-  idle?: (values: Record<string, number | number[]>) => boolean;
+  idle?: (values: UniformValues) => boolean;
+  /** Fill in what the tokens left to the program (`auto`): a look's own preset. */
+  resolve?: (values: UniformValues) => void;
 }
 
 export const VERTEX = `#version 300 es
@@ -145,18 +158,40 @@ float fx_cover(float d) { return clamp(0.5 - d * u_dpr, 0.0, 1.0); }
 `;
 
 /**
- * What both grounds share (ADR 0025): the box as a 0..1-wide field, the
- * quiet zone, an edge that can dissolve into the page, and the finish —
- * grain, sRGB, dither.
+ * THE GRADIENT (ADR 0025): one ground, parametric. A look picks the form —
+ * wash, sweep, fold or rise — and every other knob is shared: the two
+ * colours, angle, sharpness, scale, chroma, intensity, the quiet zone, the
+ * edge, grain. Any knob left at `auto` takes the look's own preset, so
+ * `--ui-fx-gradient-look: rise` alone is a finished horizon. The looks do
+ * not blend into each other (they are different forms), but everything
+ * around the form is the same code.
  *
- * The palette is the ground's two tokens and nothing else: the base it
- * replaces and the light moving over it. Every other tone is derived in
- * OKLab (a mix, a lightness step, a hue turn), so a brand theme gets a
- * ground without a single new token.
+ * The palette is the two tokens and nothing else: the base it replaces and
+ * the light moving over it. Every other tone is derived in OKLab.
  */
-const GROUND = `
+export const GRADIENT_LOOKS = ["wash", "sweep", "fold", "rise"] as const;
+export type GradientLook = (typeof GRADIENT_LOOKS)[number];
+
+/** What `auto` means, per look. */
+export const GRADIENT_PRESETS: Record<GradientLook, { angle: number; intensity: number; quietY: number }> = {
+  /** A calm field that fills the frame. */
+  wash: { angle: 0, intensity: 1, quietY: 0.9 },
+  /** Two big S-shaped forms, each lit across its body. */
+  sweep: { angle: -28, intensity: 1, quietY: 0.9 },
+  /** Light panes along slow folds, a soft body and a sharp lit rim. */
+  fold: { angle: 24, intensity: 0.85, quietY: 0.9 },
+  /** A horizon: a bright rim low in the frame, glow above, body below. Copy goes in the sky. */
+  rise: { angle: 0, intensity: 1, quietY: 0.18 },
+};
+
+const GRADIENT = `
 uniform vec3  u_base;       // the ground the light sits on
 uniform vec3  u_light;      // the brand light
+uniform float u_look;       // 0 wash, 1 sweep, 2 fold, 3 rise
+uniform float u_angle;      // degrees: the direction the forms run
+uniform float u_sharpness;  // 0..1; 0.5 is the look's own edges and rims
+uniform float u_scale;      // the forms' size; 1 is the look's own
+uniform float u_chroma;     // colourfulness; 1 is the look's own
 uniform float u_intensity;  // 0 = the base alone, 1 = the full field
 uniform float u_quiet;      // quiet zone radius, as a fraction of the width; 0 = none
 uniform float u_quietX;     // its centre, 0..1 across the box, left to right
@@ -167,15 +202,50 @@ uniform float u_grain;      // visible film grain; 0 = none (the dither is alway
 // The box in CSS px, y up (GL), and the field: x 0..1 across, y 0..aspect.
 vec2 fx_local() { return gl_FragCoord.xy / u_dpr - (u_center - u_box); }
 float fx_aspect() { return u_box.y / max(u_box.x, 1.0); }
+float fx_isDark() { return fx_oklab(u_base).x < 0.5 ? 1.0 : 0.0; }
+// Sharpness as a factor: 0.25 at 0, 1 at 0.5, 4 at 1.
+float fx_sharp() { return exp2((u_sharpness - 0.5) * 4.0); }
+// The field turned by the angle and sized by the scale, about its centre.
+vec2 fx_frame(vec2 uv) {
+  vec2 c = vec2(0.5, 0.5 * fx_aspect());
+  float a = radians(u_angle);
+  return mat2(cos(a), sin(a), -sin(a), cos(a)) * (uv - c) / max(u_scale, 0.05);
+}
+
+// A tone derived from the accent: a lightness, and its chroma scaled. Chroma
+// shrinks as the tone darkens — a dark tone at full chroma reads electric,
+// and a dark yellow at any real chroma reads olive.
+vec3 fx_tone(vec3 accent, float lightness, float chroma) {
+  return vec3(lightness, accent.yz * chroma * u_chroma * mix(0.45, 1.0, smoothstep(0.3, 0.85, lightness)));
+}
+// Shadows turn AWAY from yellow-green: a blue accent's go royal, a yellow's
+// go amber instead of olive. +1 or -1: the direction a darker tone turns.
+float fx_shadowTurn(vec3 accent) {
+  float h = degrees(atan(accent.z, accent.y));
+  h = h < 0.0 ? h + 360.0 : h;
+  return (h > 110.0 && h < 290.0) ? 1.0 : -1.0;
+}
 
 // 0 inside the quiet zone's core (the copy), 1 outside it. An ellipse wider
 // than tall, because a block of copy is. The core is HALF the radius, so the
 // whole copy block sits on the exact base, then the field comes in.
+vec2 fx_anchor() { return vec2(u_quietX, (1.0 - u_quietY) * fx_aspect()); }
 float fx_quietMask(vec2 uv) {
   if (u_quiet <= 0.0) return 1.0;
-  vec2 anchor = vec2(u_quietX, (1.0 - u_quietY) * fx_aspect());
-  float d = length((uv - anchor) * vec2(0.75, 1.5));
+  float d = length((uv - fx_anchor()) * vec2(0.75, 1.5));
   return smoothstep(0.5 * u_quiet, u_quiet, d);
+}
+// On a look that fills the frame, an ellipse of base reads as a stain. These
+// make the quiet side part of the composition: light falling away toward the
+// copy over a long reach, or light from a direction.
+float fx_falloff(vec2 uv) {
+  if (u_quiet <= 0.0) return 1.0;
+  float d = length((uv - fx_anchor()) * vec2(0.75, 1.5));
+  return smoothstep(0.35 * u_quiet, 1.6 * u_quiet, d);
+}
+float fx_lightFrom(vec2 uv) {
+  if (u_quiet <= 0.0) return 1.0;
+  return smoothstep(0.02, 0.62, dot(uv - fx_anchor(), normalize(vec2(1.0, 0.75))));
 }
 
 // Separable: the product of two 1D falloffs is smooth everywhere. A fade by
@@ -189,108 +259,84 @@ float fx_edgeMask(vec2 local) {
   return s.x * s.y;
 }
 
-// From the field's colour (OKLab) to the pixel: back to the base wherever the
-// light must not be, then grain (outside the quiet zone only, so the copy's
-// ground stays exact), then the dither, last.
-vec4 fx_groundFinish(vec3 lab, vec2 uv, vec2 local) {
-  vec3 base = fx_oklab(u_base);
-  float keep = fx_quietMask(uv) * fx_edgeMask(local);
-  lab = mix(base, mix(base, lab, u_intensity), keep);
-  vec3 rgb = fx_srgb(lab);
-  rgb += (fx_rand(uvec3(uvec2(gl_FragCoord.xy), 7u)) - 0.5) * u_grain * keep;
-  rgb += fx_tpdf(gl_FragCoord.xy) / 255.0;
-  float a = fx_cover(fx_shapeDistance(gl_FragCoord.xy / u_dpr));
-  return vec4(clamp(rgb, 0.0, 1.0) * a, a);
-}
-`;
+// ---- the looks: each returns the field's colour in OKLab
 
-/** Every ground reads the same tokens; each look adds its own. */
-const GROUND_UNIFORMS = {
-  u_base: { color: "--ui-fx-ground-base" },
-  u_light: { color: "--ui-fx-ground-light" },
-  u_intensity: { number: "--ui-fx-ground-intensity", fallback: 0.85 },
-  u_quiet: { number: "--ui-fx-ground-quiet", fallback: 0.42 },
-  u_quietX: { number: "--ui-fx-ground-quiet-x", fallback: 0.16 },
-  u_quietY: { number: "--ui-fx-ground-quiet-y", fallback: 0.9 },
-  u_dissolve: { number: "--ui-fx-ground-dissolve", fallback: 0 },
-  u_grain: { number: "--ui-fx-grain-amount", fallback: 0 },
-} satisfies Record<string, UniformSpec>;
-
-export const SHADERS: Record<ShaderName, ShaderDef> = {
-  /**
-   * MESH — the quiet look. Five colour points drift on slow Lissajous paths
-   * over a field bent by two low sine swirls; each pixel is their
-   * inverse-distance blend, in OKLab. Low frequency by construction: no
-   * noise octaves, so nothing reads as veins or dirt.
-   */
-  mesh: {
-    name: "mesh",
-    restTime: 6,
-    adaptive: false,
-    fps: 30,
-    uniforms: {
-      ...GROUND_UNIFORMS,
-      u_distortion: { number: "--ui-fx-mesh-distortion", fallback: 1 },
-    },
-    fragment: `${GROUND}
-uniform float u_distortion; // 0 = still points, 1 = the default swirl
-void main() {
-  vec2 local = fx_local();
-  vec2 uv = local / (2.0 * u_box.x);
-  float k = fx_aspect(), t = u_time * 0.12;
-  vec3 B = fx_oklab(u_base), A = fx_oklab(u_light);
-  vec2 p = uv;
-  p += u_distortion * 0.08 * vec2(sin(2.1 * p.y + 1.3 * t + 1.7), sin(1.7 * p.x - 1.1 * t + 0.4));
-  p += u_distortion * 0.04 * vec2(sin(3.3 * p.y - 0.9 * t + 4.0), sin(2.9 * p.x + 0.7 * t + 2.2));
-  vec2 P[5]; vec3 C[5];
-  // The ground itself is one of the points, held near the quiet corner.
-  P[0] = vec2(0.10, 0.10 * k) + 0.04 * vec2(sin(0.5 * t), cos(0.4 * t));                C[0] = B;
-  P[1] = vec2(0.82, 0.78 * k) + 0.14 * vec2(sin(0.43 * t + 2.0), cos(0.67 * t + 0.3));  C[1] = A;
-  P[2] = vec2(0.30, 0.86 * k) + 0.14 * vec2(sin(0.59 * t + 4.1), cos(0.37 * t + 2.6));
-  C[2] = fx_hueTurn(A, radians(24.0)); C[2].x = mix(B.x, A.x, 0.8);
-  P[3] = vec2(0.58, 0.40 * k) + 0.16 * vec2(sin(0.31 * t + 1.2), cos(0.47 * t + 5.0));  C[3] = mix(B, A, 0.45);
-  P[4] = vec2(0.95, 0.20 * k) + 0.12 * vec2(sin(0.27 * t + 3.3), cos(0.41 * t + 4.4));
-  C[4] = fx_hueTurn(A, radians(-20.0)); C[4].x = mix(B.x, A.x, 0.9);
-  vec3 sum = vec3(0.0); float wsum = 0.0;
-  for (int i = 0; i < 5; i++) {
+// WASH: broad gaussian pools drifting over a ramp between two derived tones.
+// No point is small, so nothing reads as a spot.
+vec3 fx_wash(vec2 uv, float t, float dk, vec3 B, vec3 A) {
+  float k = fx_aspect();
+  vec2 p = fx_frame(uv) + vec2(0.5, 0.5 * k);
+  vec3 deep = fx_tone(A, mix(0.74, 0.46, dk), mix(1.35, 1.7, dk));
+  vec3 mid = fx_tone(fx_hueTurn(A, radians(16.0)), mix(0.86, 0.64, dk), mix(1.2, 1.5, dk));
+  vec3 pale = fx_tone(A, mix(0.95, 0.80, dk), 0.9);
+  vec3 ramp = mix(deep, mid, smoothstep(0.0, k, p.y));
+  vec2 P[4]; vec3 C[4];
+  P[0] = vec2(0.25, 0.75 * k) + 0.18 * vec2(sin(0.7 * t), cos(0.5 * t));             C[0] = pale;
+  P[1] = vec2(0.75, 0.30 * k) + 0.20 * vec2(cos(0.6 * t + 1.0), sin(0.4 * t));       C[1] = deep;
+  P[2] = vec2(0.85, 0.85 * k) + 0.16 * vec2(sin(0.5 * t + 2.0), cos(0.7 * t));       C[2] = mid;
+  P[3] = vec2(0.45, 0.25 * k) + 0.18 * vec2(cos(0.4 * t + 3.0), sin(0.6 * t + 1.0)); C[3] = fx_tone(fx_hueTurn(A, radians(-14.0)), mix(0.80, 0.52, dk), 1.25);
+  float spread = 0.09 / fx_sharp();  // sharper: tighter pools
+  vec3 sum = ramp * 0.25; float wsum = 0.25;
+  for (int i = 0; i < 4; i++) {
     vec2 d = p - P[i];
-    float w = 1.0 / pow(dot(d, d) + 0.015, 1.6);
+    float w = exp(-dot(d, d) / spread);
     sum += w * C[i]; wsum += w;
   }
-  fragColor = fx_groundFinish(sum / wsum, uv, local);
-}`,
-  },
+  return mix(B, sum / wsum, fx_falloff(uv));
+}
 
-  /**
-   * FOLD — the expressive look: light panes stacked along slowly bending
-   * creases, each a soft body behind the crease and a sharp lit rim on it,
-   * running in one direction. The look the benchmarks share (folded silk,
-   * glass panes), written from scratch.
-   */
-  fold: {
-    name: "fold",
-    restTime: 6,
-    adaptive: false,
-    fps: 30,
-    uniforms: {
-      ...GROUND_UNIFORMS,
-      u_angle: { number: "--ui-fx-fold-angle", fallback: 24 },
-      u_sharp: { number: "--ui-fx-fold-sharpness", fallback: 70 },
-    },
-    fragment: `${GROUND}
-uniform float u_angle;  // degrees: the direction the folds run
-uniform float u_sharp;  // the rim's falloff: higher is a crisper edge
-void main() {
-  vec2 local = fx_local();
-  float w = 2.0 * u_box.x;
-  vec2 uv = local / w;
-  float a = radians(u_angle), c = cos(a), s = sin(a);
-  vec2 q = mat2(c, s, -s, c) * (uv - vec2(0.5, 0.5 * fx_aspect())) * 2.4;
-  float px = 2.4 / (w * u_dpr);  // one device pixel, in q units: the crease's antialiasing
-  float t = u_time * 0.12;
-  vec3 B = fx_oklab(u_base), A = fx_oklab(u_light);
+// SWEEP: two big S-shaped forms, each lit across its body — brightest at its
+// edge — with a shadow cast in front of the edge.
+float fx_sweepForm(vec2 q, float t, float phase, float amp) {
+  return q.y - amp * sin(1.15 * q.x + 0.35 * t + phase) - 0.18 * sin(2.3 * q.x - 0.25 * t + 2.0 * phase);
+}
+vec3 fx_sweep(vec2 uv, float t, float dk, vec3 B, vec3 A) {
+  vec2 q = fx_frame(uv) * 2.2;
+  float sh = fx_sharp();
+  vec3 lab;
+  if (dk > 0.5) {
+    // Dark stays inside the accent's hue family: mixing the light into a warm
+    // near-black base reads as grey-teal fog. The base returns only under the copy.
+    float dir = fx_shadowTurn(A);
+    vec3 navy = fx_tone(fx_hueTurn(A, radians(22.0 * dir)), 0.20, 0.55);
+    vec3 blue = fx_tone(fx_hueTurn(A, radians(18.0 * dir)), 0.56, 1.8);
+    vec3 cyan = fx_tone(fx_hueTurn(A, radians(-10.0 * dir)), 0.82, 1.45);
+    vec3 hi = fx_tone(fx_hueTurn(A, radians(-6.0 * dir)), 0.95, 0.9);
+    lab = mix(navy, blue, 0.25 + 0.3 * smoothstep(-1.2, 1.2, q.y));
+    for (int i = 0; i < 2; i++) {
+      float fi = float(i);
+      float f = fx_sweepForm(q + vec2(0.0, 0.55 - 1.1 * fi), t, 1.7 * fi, 0.55 - 0.15 * fi);
+      float inside = smoothstep(-0.012 / sh, 0.03 / sh, f);
+      lab = mix(lab, navy, (1.0 - inside) * exp(-max(-f, 0.0) * 3.2) * 0.75);
+      float body = exp(-max(f, 0.0) * 1.1);
+      vec3 tone = fi < 0.5 ? mix(blue, cyan, body) : mix(navy, blue, 0.35 + 0.65 * body);
+      tone = mix(tone, hi, exp(-max(f, 0.0) * 14.0 * sh) * (fi < 0.5 ? 0.55 : 0.25));
+      lab = mix(lab, tone, inside);
+    }
+    return mix(navy, lab, fx_lightFrom(uv));
+  }
+  vec3 deep = fx_tone(fx_hueTurn(A, radians(-14.0)), 0.68, 1.5);
+  vec3 bright = fx_tone(fx_hueTurn(A, radians(8.0)), 0.97, 1.15);
+  lab = mix(B, deep, 0.55);
+  for (int i = 0; i < 2; i++) {
+    float fi = float(i);
+    float f = fx_sweepForm(q + vec2(0.0, 0.55 - 1.1 * fi), t, 1.7 * fi, 0.55 - 0.15 * fi);
+    float inside = smoothstep(-0.02 / sh, 0.05 / sh, f);
+    lab = mix(lab, deep, (1.0 - inside) * exp(-max(-f, 0.0) * 5.0) * 0.6);
+    lab = mix(lab, mix(deep, bright, exp(-max(f, 0.0) * 2.6)), inside * (0.75 - 0.2 * fi));
+  }
+  return mix(B, lab, fx_falloff(uv));
+}
+
+// FOLD: light panes stacked along slowly bending creases, each a soft body
+// behind the crease and a sharp lit rim on it.
+vec3 fx_fold(vec2 uv, float t, float dk, vec3 B, vec3 A) {
+  vec2 q = fx_frame(uv) * 2.4;
+  float px = 2.4 / (2.0 * u_box.x * u_dpr * max(u_scale, 0.05));  // one device pixel in q units
+  vec3 Ac = vec3(A.x, A.yz * u_chroma);
   // A small drift only: a wide turn sends a pale-yellow brand's folds to green.
-  vec3 A2 = fx_hueTurn(A, radians(-20.0)); A2.x = mix(B.x, A.x, 0.85);
+  vec3 A2 = fx_hueTurn(Ac, radians(-20.0)); A2.x = mix(B.x, A.x, 0.85);
+  float rimK = 70.0 * fx_sharp();
   vec3 lab = B;
   for (int i = 0; i < 5; i++) {
     float fi = float(i);
@@ -301,12 +347,85 @@ void main() {
     float pane = smoothstep(-px, px, sd);
     float back = max(sd, 0.0);
     float body = exp(-back * 2.4);
-    float rim = exp(-back * u_sharp);
-    vec3 tint = mix(mix(B, A, 0.55), mix(A, A2, 0.5 + 0.5 * sin(2.1 * fi + 0.8 * q.x)), body);
+    float rim = exp(-back * rimK);
+    vec3 tint = mix(mix(B, Ac, 0.55), mix(Ac, A2, 0.5 + 0.5 * sin(2.1 * fi + 0.8 * q.x)), body);
     lab = mix(lab, tint, pane * (0.42 * body + 0.55 * rim));
   }
-  fragColor = fx_groundFinish(lab, uv, local);
-}`,
+  return lab;
+}
+
+// RISE: a horizon. A bright rim along a gently moving arc low in the frame,
+// a wide glow above it fading into the ground, and the body below falling
+// from the glow into a deep tone. One focal edge.
+vec3 fx_rise(vec2 uv, float t, float dk, vec3 B, vec3 A) {
+  float k = fx_aspect();
+  vec2 p = fx_frame(uv);
+  float px = 1.0 / (2.0 * u_box.x * u_dpr * max(u_scale, 0.05));
+  vec3 deep = fx_tone(fx_hueTurn(A, radians(14.0)), mix(0.62, 0.34, dk), 1.6);
+  vec3 glow = fx_tone(A, mix(0.86, 0.74, dk), 1.3);
+  vec3 rim = fx_tone(fx_hueTurn(A, radians(-10.0)), 0.97, 0.9);
+  float x = p.x;
+  float edge = -0.20 * k - 0.55 * x * x + 0.025 * sin(3.1 * x + 0.5 * t) + 0.012 * sin(6.0 * x - 0.4 * t);
+  float sd = p.y - edge;                       // > 0 above the horizon
+  float above = smoothstep(-px, px, sd);
+  float halo = exp(-max(sd, 0.0) / (0.22 * k));
+  float core = exp(-abs(sd) * fx_sharp() / 0.010);
+  vec3 sky = mix(B, deep, halo * 0.55);
+  sky = mix(sky, glow, halo * halo * 0.75);
+  vec3 body = mix(glow, deep, smoothstep(0.0, 0.22 * k, -sd));
+  return mix(mix(body, sky, above), rim, core * 0.9);
+}
+
+void main() {
+  vec2 local = fx_local();
+  vec2 uv = local / (2.0 * u_box.x);
+  float t = u_time * 0.1, dk = fx_isDark();
+  vec3 B = fx_oklab(u_base), A = fx_oklab(u_light);
+  vec3 lab = u_look < 0.5 ? fx_wash(uv, t, dk, B, A)
+           : u_look < 1.5 ? fx_sweep(uv, t, dk, B, A)
+           : u_look < 2.5 ? fx_fold(uv, 1.2 * t, dk, B, A)
+           : fx_rise(uv, t, dk, B, A);
+  // Back to the base wherever the light must not be (the quiet zone, a
+  // dissolving edge, a lower intensity); then grain outside the zone only,
+  // so the copy's ground stays exact; then the dither, last.
+  float keep = fx_quietMask(uv) * fx_edgeMask(local);
+  lab = mix(B, mix(B, lab, u_intensity), keep);
+  vec3 rgb = fx_srgb(lab);
+  rgb += (fx_rand(uvec3(uvec2(gl_FragCoord.xy), 7u)) - 0.5) * u_grain * keep;
+  rgb += fx_tpdf(gl_FragCoord.xy) / 255.0;
+  float a = fx_cover(fx_shapeDistance(gl_FragCoord.xy / u_dpr));
+  fragColor = vec4(clamp(rgb, 0.0, 1.0) * a, a);
+}
+`;
+
+export const SHADERS: Record<ShaderName, ShaderDef> = {
+  gradient: {
+    name: "gradient",
+    restTime: 6,
+    adaptive: false,
+    fps: 30,
+    uniforms: {
+      u_base: { color: "--ui-fx-gradient-base" },
+      u_light: { color: "--ui-fx-gradient-light" },
+      u_look: { keyword: "--ui-fx-gradient-look", values: GRADIENT_LOOKS },
+      u_angle: { number: "--ui-fx-gradient-angle", fallback: NaN },
+      u_sharpness: { number: "--ui-fx-gradient-sharpness", fallback: 0.5 },
+      u_scale: { number: "--ui-fx-gradient-scale", fallback: 1 },
+      u_chroma: { number: "--ui-fx-gradient-chroma", fallback: 1 },
+      u_intensity: { number: "--ui-fx-gradient-intensity", fallback: NaN },
+      u_quiet: { number: "--ui-fx-gradient-quiet", fallback: 0.42 },
+      u_quietX: { number: "--ui-fx-gradient-quiet-x", fallback: 0.16 },
+      u_quietY: { number: "--ui-fx-gradient-quiet-y", fallback: NaN },
+      u_dissolve: { number: "--ui-fx-gradient-dissolve", fallback: 0 },
+      u_grain: { number: "--ui-fx-grain-amount", fallback: 0 },
+    },
+    resolve: (v) => {
+      const preset = GRADIENT_PRESETS[GRADIENT_LOOKS[v.u_look as number] ?? "wash"];
+      if (Number.isNaN(v.u_angle)) v.u_angle = preset.angle;
+      if (Number.isNaN(v.u_intensity)) v.u_intensity = preset.intensity;
+      if (Number.isNaN(v.u_quietY)) v.u_quietY = preset.quietY;
+    },
+    fragment: GRADIENT,
   },
 
   halo: {

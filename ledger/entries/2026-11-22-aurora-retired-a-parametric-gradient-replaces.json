@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-22-aurora-retired-a-parametric-gradient-replaces",
+  "date": "2026-11-22",
+  "item": "shader",
+  "kind": "breaking",
+  "summary": "The aurora shader effect is retired (ADR 0025) and one PARAMETRIC ground written for this library replaces it: fx(\"gradient\"). A keyword token picks the look — --ui-fx-gradient-look: wash (a calm field, the default), sweep (two big forms lit across their bodies), fold (light panes with lit rims) or rise (a horizon) — and shared knobs tune any look: --ui-fx-gradient-angle, -sharpness, -scale, -chroma, -intensity, the quiet zone (-quiet, -quiet-x, -quiet-y) and -dissolve; a knob at auto takes the look's own preset, so look: rise alone puts the horizon low and the copy in the sky. Two colour tokens (--ui-fx-gradient-base, default --ui-bg-base; --ui-fx-gradient-light, default --ui-bg-accent) with every other tone derived in OKLab: chroma falls with lightness and darker tones turn away from yellow-green, so a pale-yellow brand's shadows go amber, not olive. Every pixel ends in a static one-step triangular dither, so slow ramps no longer band; copy keeps its contrast in a QUIET ZONE of the exact base instead of aurora's per-pixel guard, which held 4.5:1 by squeezing dark grounds to a few grey levels; the edge fade is separable (no diagonal creases). fx(\"grain\") adds visible grain outside the zone. A ground renders at full resolution and at most 30fps (new ShaderDef options adaptive, fps, resolve; keyword uniforms), and its floor before hydration or without WebGL is a faint CSS gradient of the same light. sampleShader() now also returns the resolved uniform values. Halo dithers its alpha. Removed: fx(\"aurora\"), the --ui-fx-aurora-* tokens, the registered --ui-fx-on and the per-pixel guard (fx_guard) in the prelude.",
+  "affects": [
+    "item:shader",
+    "item:fx",
+    "decision:0025-parametric-gradient-replaces-aurora",
+    "decision:0022-effects-layer"
+  ],
+  "migration": {
+    "manual": "fx(\"aurora\") no longer type-checks. On a ground (a hero band, an empty state), use fx(\"gradient\") and choose a look with --ui-fx-gradient-look (wash, sweep, fold, rise); place the copy in the quiet zone (bottom left by default, top left for rise) or move the zone to the copy with --ui-fx-gradient-quiet-x / -quiet-y, or set --ui-fx-gradient-quiet: 0 and put the copy on glass. On a control (Button, Switch, Checkbox, Slider, Progress), remove it, or use sheen, grain or glow. Delete any --ui-fx-aurora-* overrides; they do nothing. Sync shader.ts, shader-programs.ts and styles/fx/shader.css together."
+  }
+}

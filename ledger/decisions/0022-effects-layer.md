@@ -3,7 +3,7 @@
 **Status:** accepted · 2026-11-06 · items `fx` and `shader` ship as
 `experimental` · amendment accepted 2026-11-20 (glass by role, an
 opaque scope), with the changes recorded under "As implemented" · amended
-2026-11-22 by ADR 0025 (aurora retired; the grounds mesh and fold)
+2026-11-22 by ADR 0025 (aurora retired; one parametric gradient ground)
 
 ## Context
 
@@ -86,7 +86,7 @@ and on an iPhone. What it established is the substance of this record:
 
    Anything that fails a clause is a CSS effect, a design job, or a gap.
    Today two effects pass: **aurora** and **halo**. *(2026-11-22, ADR 0025:
-   aurora is retired; the grounds `mesh` and `fold` pass, and a ground meets
+   aurora is retired; the parametric `gradient` passes, and a ground meets
    clause 4 with a quiet zone around its copy instead of a per-pixel guard.)*
 
 6. **Shaders are a separate, optional item.** `shader` depends on `fx`; `fx`

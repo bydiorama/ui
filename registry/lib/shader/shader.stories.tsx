@@ -5,6 +5,7 @@ import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeS
 import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
 import { startShaders } from "@/lib/shader";
+import { GRADIENT_LOOKS, type GradientLook } from "@/lib/shader-programs";
 import { Button } from "@/ui/button/button.tsx";
 import { Input } from "@/ui/input/input.tsx";
 
@@ -15,9 +16,9 @@ function Shaders({ children }: { children: ReactNode }) {
 }
 
 /**
- * The optional shader half of the effects layer (ADR 0022, 0025): the two
- * grounds, mesh and fold, and halo, drawn by `startShaders()` on one shared
- * WebGL2 context. Without the runtime, or without WebGL, a ground shows its
+ * The optional shader half of the effects layer (ADR 0022, 0025): the
+ * gradient — one parametric ground in four looks — and halo, drawn by
+ * `startShaders()` on one shared WebGL2 context. Without the runtime, or without WebGL, a ground shows its
  * CSS floor and a component renders exactly as itself. The specimen that
  * puts glass on a ground is Effects/Specimen.
  */
@@ -61,24 +62,34 @@ function Copy() {
   );
 }
 
+/** A ground in one look, with any knob set inline — tokens, never props. */
+function Ground({ look, tune, children }: { look: GradientLook; tune?: Record<string, string | number>; children?: ReactNode }) {
+  const style = { "--ui-fx-gradient-look": look, ...tune } as CSSProperties;
+  const top = look === "rise" && !tune?.["--ui-fx-gradient-quiet-y"];
+  return (
+    <div className={cn("flex aspect-[16/10] flex-col rounded-xl p-lg", top ? "justify-start" : "justify-end", fx("gradient"))} style={style}>
+      {children ?? <Copy />}
+    </div>
+  );
+}
+
 /**
- * The two grounds in both schemes. The copy sits in the quiet zone — bottom
- * left by default — where the ground is exactly its base, so the muted line
- * keeps the contrast the token pair was audited at; outside it the light is
- * free to be bright. Both are dithered: a slow ramp never shows bands.
+ * One effect, four looks, in both schemes. The look is a token
+ * (`--ui-fx-gradient-look`); every knob left at `auto` takes the look's own
+ * preset — rise moves its quiet zone, and so its copy, into the sky. The
+ * copy sits on the exact base there, so the muted line keeps the contrast
+ * the token pair was audited at. All are dithered: no bands.
  */
-export const Grounds: Story = {
+export const Looks: Story = {
   render: () => (
     <div className="grid gap-lg md:grid-cols-2">
-      {(["mesh", "fold"] as const).flatMap((ground) =>
+      {GRADIENT_LOOKS.flatMap((look) =>
         (["light", "dark"] as const).map((scheme) => (
-          <Panel key={`${ground}-${scheme}`} scheme={scheme}>
+          <Panel key={`${look}-${scheme}`} scheme={scheme}>
             <p className="text-caption text-ink-muted">
-              fx("{ground}") · {scheme}
+              --ui-fx-gradient-look: {look} · {scheme}
             </p>
-            <div className={cn("flex aspect-[16/10] flex-col justify-end rounded-xl p-lg", fx(ground))}>
-              <Copy />
-            </div>
+            <Ground look={look} />
           </Panel>
         )),
       )}
@@ -87,34 +98,45 @@ export const Grounds: Story = {
 };
 
 /**
- * Tuned by tokens, never by props: the fold's direction and rim, the quiet
- * zone moved to where centred copy sits, and the edge dissolving into the
- * page around it.
+ * The shared knobs, each on its own. Any look takes any of them: angle,
+ * sharpness, scale, chroma, intensity, the quiet zone and the edge.
  */
-export const Tuned: Story = {
-  render: () => (
-    <div className="grid gap-lg md:grid-cols-2">
-      {(["light", "dark"] as const).map((scheme) => (
-        <Panel key={scheme} scheme={scheme}>
-          <div
-            className={cn("flex aspect-[16/10] flex-col items-center justify-center rounded-xl p-lg text-center", fx("fold"))}
-            style={
-              {
-                "--ui-fx-fold-angle": "-12deg",
-                "--ui-fx-fold-sharpness": 120,
-                "--ui-fx-ground-quiet": 0.5,
-                "--ui-fx-ground-quiet-x": 0.5,
-                "--ui-fx-ground-quiet-y": 0.5,
-                "--ui-fx-ground-dissolve": 0.18,
-              } as CSSProperties
-            }
-          >
-            <Copy />
-          </div>
-        </Panel>
-      ))}
-    </div>
-  ),
+export const Parameters: Story = {
+  render: () => {
+    const rows: Array<[string, GradientLook, Record<string, string | number>]> = [
+      ["sweep · angle 12deg", "sweep", { "--ui-fx-gradient-angle": "12deg" }],
+      ["sweep · sharpness 0.9", "sweep", { "--ui-fx-gradient-sharpness": 0.9 }],
+      ["fold · scale 1.6", "fold", { "--ui-fx-gradient-scale": 1.6 }],
+      ["fold · sharpness 0.15", "fold", { "--ui-fx-gradient-sharpness": 0.15 }],
+      ["wash · chroma 1.5", "wash", { "--ui-fx-gradient-chroma": 1.5 }],
+      ["wash · intensity 0.5", "wash", { "--ui-fx-gradient-intensity": 0.5 }],
+      [
+        "rise · centred copy, dissolving edge",
+        "rise",
+        {
+          "--ui-fx-gradient-quiet": 0.5,
+          "--ui-fx-gradient-quiet-x": 0.5,
+          "--ui-fx-gradient-quiet-y": 0.3,
+          "--ui-fx-gradient-dissolve": 0.18,
+        },
+      ],
+      ["sweep · no quiet zone (copy belongs on glass)", "sweep", { "--ui-fx-gradient-quiet": 0 }],
+    ];
+    return (
+      <Panel scheme="dark">
+        <div className="grid gap-lg md:grid-cols-2">
+          {rows.map(([label, look, tune]) => (
+            <div key={label} className="flex flex-col gap-xs">
+              <p className="text-caption text-ink-muted">{label}</p>
+              <Ground look={look} tune={tune}>
+                <span />
+              </Ground>
+            </div>
+          ))}
+        </div>
+      </Panel>
+    );
+  },
 };
 
 /**
@@ -145,9 +167,10 @@ export const Halo: Story = {
 };
 
 /**
- * Theme zero beside a hostile brand (AGENTS.md). The ground's only palette
- * is the brand's base and accent, read where the ground sits; pale yellow
- * on white gives a quiet fold, and the copy keeps its contrast either way.
+ * Theme zero beside a hostile brand (AGENTS.md). The gradient's only palette
+ * is the brand's base and accent, read where the ground sits. Darker tones
+ * turn their hue away from yellow-green, so pale yellow's shadows go amber,
+ * not olive; the copy keeps its contrast either way.
  */
 export const BrandThemed: Story = {
   render: () => (
@@ -158,9 +181,7 @@ export const BrandThemed: Story = {
             <p className="text-caption text-ink-muted">
               {i === 0 ? "theme zero" : "stress brand — pale yellow accent"} · {scheme}
             </p>
-            <div className={cn("flex aspect-[16/10] flex-col justify-end rounded-xl p-lg", fx(i === 0 ? "mesh" : "fold"))}>
-              <Copy />
-            </div>
+            <Ground look={i === 0 ? "wash" : "sweep"} />
           </Panel>
         )),
       )}

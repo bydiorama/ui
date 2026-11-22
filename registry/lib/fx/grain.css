@@ -5,8 +5,8 @@
  * A static tile, never animated: grain that changes every frame reads as
  * flicker, not texture. A tile cannot read a variable, so the AMOUNT is a
  * choice of tile — `--ui-fx-grain` — with `--ui-fx-grain-amount` the matching
- * strength for a shader that paints the same element (a ground — mesh,
- * fold — adds grain to its own pixels, outside its quiet zone, only where
+ * strength for a shader that paints the same element (the gradient
+ * ground adds grain to its own pixels, outside its quiet zone, only where
  * `fx-grain` is also set). To make a scope grainier:
  *
  *   .poster { --ui-fx-grain: var(--ui-fx-grain-visible); --ui-fx-grain-amount: 0.07; }

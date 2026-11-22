@@ -1,15 +1,24 @@
 # WebGL gradients for grounds — research
 
 Status: **implemented**, 2026-11-22, as
-[ADR 0025](../ledger/decisions/0025-grounds-replace-aurora.md).
+[ADR 0025](../ledger/decisions/0025-parametric-gradient-replaces-aurora.md).
 
 - Aurora is retired.
-- `fx("mesh")` and `fx("fold")` ship in the `shader` item, written from
-  scratch. gradflow and MagicPattern were a benchmark only.
-- The testing specimen is the Storybook story **Effects/Specimen**: the
-  grounds under glass, in both schemes and under the stress brand.
+- **One parametric ground ships, `fx("gradient")`**, written from scratch.
+  - `--ui-fx-gradient-look` picks the form: `wash`, `sweep`, `fold` or
+    `rise`.
+  - Shared knobs tune any look: angle, sharpness, scale, chroma, intensity,
+    the quiet zone and the edge.
+  - A knob at `auto` takes the look's preset.
+- gradflow and MagicPattern were a benchmark only.
+- The testing specimen is the Storybook story **Effects/Specimen**. Every
+  knob is a control, with glass on top, in both schemes and under the
+  stress brand.
 
-![Effects/Specimen: fold dark, fold light, mesh dark, fold on the pale-yellow brand](./webgl-gradients/06-specimen.jpg)
+![Effects/Specimen: wash, sweep, fold and rise in dark; wash and rise in light](./webgl-gradients/06-specimen.jpg)
+
+Sections 1–9 below are the research that led there, in order; §10 is the
+shape it shipped in.
 
 What follows is the research that led there. It answers one question: the
 generated grounds look poor, so should the effects layer move to WebGL
@@ -457,6 +466,45 @@ All twelve zoned tiles hold muted ink at 5.9–7.0:1, with no band wider than
 36 px (95 px on rise-light, the flat white sky). Not shipped: the library
 still has mesh and fold until a choice is made.
 
+## 10. One parametric gradient, not one effect per look
+
+The four looks were first built as separate effects. Before merge, the owner
+asked why not one parametric gradient, and the answer was yes. Everything
+but the form is shared: the two colours and the tones derived from them, the
+quiet zone, the dither, the edge fade, motion and grain. Four effects would
+have meant four `EFFECTS` rows, four token sets and four test matrices for
+one idea.
+
+What ships:
+
+- `fx("gradient")`, one class and one program.
+- `--ui-fx-gradient-look: wash | sweep | fold | rise`, a **keyword token**.
+  The runtime sends its index; the program branches on it, which is uniform
+  control flow, so a pixel runs only its own look's code.
+- **Shared knobs**: `-angle`, `-sharpness` (0..1, 0.5 = the look's own),
+  `-scale`, `-chroma`, `-intensity`, `-quiet`, `-quiet-x`, `-quiet-y` and
+  `-dissolve`.
+- **`auto`** on angle, intensity and quiet-y means the look's preset
+  (`GRADIENT_PRESETS`). `look: rise` alone moves the copy into the sky.
+
+What the looks are not: points on one continuum. Wash, sweep, fold and rise
+are different forms, so there is no slider from one to the next. A new look
+is a form function, a preset row and a value in `GRADIENT_LOOKS`. The
+contrast and banding tests pick it up from that list.
+
+`mesh` was dropped: wash is its successor and measured better on every
+count (§9). The browser test covers:
+
+- every look × both schemes × theme zero and the pale-yellow brand, for the
+  quiet zone's contrast;
+- banding per look;
+- `auto` resolving to the preset, and an explicit token overriding it;
+- a live look change redrawing the same canvas.
+
+The band measure skips runs of the ground's exact base: rise's flat sky is
+flat on purpose, and a one-step dither leaves most of a flat area on one
+value. Its negative control (an undithered ramp) still fails it.
+
 ## Reproduce the lab
 
 From `docs/webgl-gradients/lab/` (needs Node 22, Playwright's Chromium,
@@ -466,7 +514,8 @@ Python with Pillow and numpy; outputs go to the git-ignored `.out/`):
 mkdir -p .out/paper && (cd .out/paper && npm pack @paper-design/shaders@0.0.82 && tar xzf paper-design-shaders-0.0.82.tgz)
 git clone --depth 1 https://github.com/meerbahadin/gradflow.git .out/gradflow
 node --experimental-strip-types build.mts   # .out/lab.html — needs aurora: run it at commit 14a00dc, before aurora was retired
-node --experimental-strip-types looks.mts && node shoot-looks.cjs   # §9: wash, sweep, rise
+node --experimental-strip-types looks.mts && node shoot-looks.cjs   # §9 — needs the mesh program: run it at commit c30978f
+# §10, the shipped gradient: the Storybook stories Effects/Shaders and Effects/Specimen
 node shoot.cjs && node shoot-paper.cjs && node shoot-gradflow.cjs   # every tile, with and without copy
 python3 -I measure.py                       # the tables above
 ```

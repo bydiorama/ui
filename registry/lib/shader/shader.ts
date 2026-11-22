@@ -1,12 +1,12 @@
 /**
  * The shader runtime of the effects layer (ADR 0022, 0025) — OPTIONAL. Install
- * it only for the grounds (`mesh`, `fold`) and `halo`; every CSS effect works
- * without it.
+ * it only for `gradient` (the parametric ground) and `halo`; every CSS effect
+ * works without it.
  *
  *   // once, in a client component at the app root (or a <script> in Astro)
  *   useEffect(() => startShaders(), []);
  *
- *   <section className={fx("fold")}>…</section>
+ *   <section className={fx("gradient")} style={{ "--ui-fx-gradient-look": "rise" }}>…</section>
  *
  * It finds every element carrying a shader effect's class, mounts one canvas
  * in the part the effect paints, and draws it from tokens read where that
@@ -32,9 +32,9 @@
  * the border to cover the border box.
  */
 
-import { SHADERS, VERTEX, PRELUDE, type ShaderDef, type ShaderName } from "@/lib/shader-programs";
+import { SHADERS, VERTEX, PRELUDE, type ShaderDef, type ShaderName, type UniformValues } from "@/lib/shader-programs";
 
-type Values = Record<string, number | number[]>;
+type Values = UniformValues;
 
 export type ShaderState = "floor" | "live" | "still" | "lost" | "unsupported";
 
@@ -74,10 +74,7 @@ export interface ShaderRecipe {
 }
 
 export const SHADER_RECIPES: Record<ShaderName, Record<string, ShaderRecipe>> = {
-  mesh: {
-    "*": {},
-  },
-  fold: {
+  gradient: {
     "*": {},
   },
   halo: {
@@ -121,7 +118,13 @@ export function readColor(el: HTMLElement, token: string): [number, number, numb
   return [d[0]! / 255, d[1]! / 255, d[2]! / 255];
 }
 
-/** A numeric token: `2000ms` → 2 (seconds), `16px` → 16, `0.6` → 0.6. */
+/** A keyword token: the index of its value in `values`, or 0 (the first) when unset or unknown. */
+export function readKeyword(el: Element, token: string, values: readonly string[]): number {
+  const raw = getComputedStyle(el).getPropertyValue(token).trim();
+  return Math.max(0, values.indexOf(raw));
+}
+
+/** A numeric token: `2000ms` → 2 (seconds), `16px` → 16, `0.6` → 0.6; `auto` → the fallback. */
 export function readNumber(el: Element, token: string, fallback: number): number {
   const raw = getComputedStyle(el).getPropertyValue(token).trim();
   const n = parseFloat(raw);
@@ -330,15 +333,20 @@ class Target {
   refresh() {
     for (const [name, spec] of Object.entries(this.def.uniforms)) {
       this.values[name] =
-        "color" in spec ? readColor(this.canvas, spec.color) : readNumber(this.canvas, spec.number, spec.fallback ?? 0);
+        "color" in spec
+          ? readColor(this.canvas, spec.color)
+          : "keyword" in spec
+            ? readKeyword(this.canvas, spec.keyword, spec.values)
+            : readNumber(this.canvas, spec.number, spec.fallback ?? 0);
     }
+    this.def.resolve?.(this.values);
     this.speed = readNumber(this.canvas, "--ui-fx-ambient-speed", 1);
     this.layout();
   }
 
   readLive() {
     for (const [name, spec] of Object.entries(this.def.uniforms)) {
-      if (!("live" in spec) || !spec.live) continue;
+      if (!("number" in spec) || !spec.live) continue;
       const v = readNumber(this.canvas, spec.number, spec.fallback ?? 0);
       if (v !== this.values[name]) {
         this.values[name] = v;
@@ -506,7 +514,7 @@ class Scheduler {
         // Geometry is the observers' business: a Slider fill's inline width
         // changes on every pointer move, and re-reading tokens for it would
         // cost a style read per uniform per frame of a drag. But an inline
-        // TOKEN on the same element — `style={{ "--ui-fx-ground-intensity":
+        // TOKEN on the same element — `style={{ "--ui-fx-gradient-intensity":
         // 0.5 }}` on a ground — is a token change like any other.
         if (r.attributeName === "style" && this.geometry(r.target as Element)) {
           const tokens = (css: string | null) => (css?.match(/--[\w-]+\s*:[^;]*/g) ?? []).join(";");
@@ -714,7 +722,7 @@ class Scheduler {
     const t = this.byRoot.get(root)?.get(name);
     if (!t || !t.paint(this.renderer)) return null;
     const { data } = t.pixels();
-    return { data, width: t.w, height: t.h, dpr: t.dpr };
+    return { data, width: t.w, height: t.h, dpr: t.dpr, values: { ...t.values } };
   }
 }
 
@@ -760,7 +768,8 @@ export function configureShaders(next: Partial<ShaderSettings>): void {
 
 /**
  * Draw the effect on `root` now and return its pixels (premultiplied RGBA,
- * device px), or null if it is not drawing. What a contrast test samples:
+ * device px) and the uniform values it drew with, `auto` already resolved —
+ * or null if it is not drawing. What a contrast test samples:
  * the guard is only as good as the measurement that holds it.
  */
 export function sampleShader(root: HTMLElement, name: ShaderName) {

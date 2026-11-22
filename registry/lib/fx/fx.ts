@@ -4,7 +4,7 @@
  *
  *   <Card className={fx("glass", "edge", "specular")}>…</Card>
  *   <section className={fx("opaque")}>…glass inside stands down…</section>
- *   <section className={fx("fold")}>…a hero on a moving ground…</section>
+ *   <section className={fx("gradient")}>…a hero on a moving ground…</section>
  *   <p className={fx("shimmer")}>Generating…</p>
  *
  * HOW AN EFFECT REACHES A PART. An effect is a CLASS on a component's root.
@@ -24,7 +24,7 @@
  * (`fx/*.css`, imported through `fx/fx.css`). The two SHADER effects are a
  * separate, optional item, `@/lib/shader`, because a canvas costs a runtime
  * and most products will never want one. They are named here anyway, so
- * `fx("mesh")` type-checks in an app that has not installed the runtime
+ * `fx("gradient")` type-checks in an app that has not installed the runtime
  * yet — and renders exactly the element, which is the floor.
  *
  * WHAT MAY BE A SHADER is a rule, not a taste (ADR 0022): a shader paints only
@@ -150,16 +150,10 @@ export const EFFECTS = {
     job: "Display text filled with a slowly turning gradient between two text roles.",
     on: ["text"],
   },
-  mesh: {
+  gradient: {
     kind: "shader",
     sheet: "shader",
-    job: "A quiet moving ground: brand light blended softly from a few drifting points, in OKLab, dithered so it never bands. Its copy sits in a quiet zone of the exact base, so the ink keeps its audited contrast. For an app's empty state, a sign-in, a panel behind glass.",
-    on: ["ground"],
-  },
-  fold: {
-    kind: "shader",
-    sheet: "shader",
-    job: "An expressive moving ground: light panes along slow folds, a soft body behind each and a sharp lit rim on it, running one way. Same quiet zone and dither as mesh. For a hero, a launch moment, a marketing band — one per view.",
+    job: "A moving ground in the brand's two colours, parametric: a look picks the form — wash (a calm field), sweep (two big lit forms), fold (light panes with lit rims) or rise (a horizon) — and shared knobs tune any of them (angle, sharpness, scale, chroma, intensity). Dithered so it never bands; its copy sits in a quiet zone of the exact base, so the ink keeps its audited contrast. One per view.",
     on: ["ground"],
   },
   halo: {

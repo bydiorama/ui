@@ -237,7 +237,7 @@ for (const banned of ["createTexture", "texImage2D", "texSubImage2D", "copyTexIm
 for (const [name, def] of Object.entries(SHADERS)) {
   if (EFFECTS[name]?.kind !== "shader") fail(`SHADERS.${name}`, "has no shader entry in EFFECTS.");
   for (const [uniform, spec] of Object.entries(def.uniforms)) {
-    const token = spec.color ?? spec.number;
+    const token = spec.color ?? spec.number ?? spec.keyword;
     if (typeof token !== "string" || !token.startsWith("--")) {
       fail(`SHADERS.${name}.${uniform}`, "does not name a token. Every input is a token, read where the part sits (ADR 0022, rule 2).");
     }

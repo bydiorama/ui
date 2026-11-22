@@ -2,7 +2,8 @@
 
 **Status:** accepted · 2026-11-06 · items `fx` and `shader` ship as
 `experimental` · amendment accepted 2026-11-20 (glass by role, an
-opaque scope), with the changes recorded under "As implemented"
+opaque scope), with the changes recorded under "As implemented" · amended
+2026-11-22 by ADR 0025 (aurora retired; the grounds mesh and fold)
 
 ## Context
 
@@ -84,11 +85,13 @@ and on an iPhone. What it established is the substance of this record:
       measured doing so.
 
    Anything that fails a clause is a CSS effect, a design job, or a gap.
-   Today two effects pass: **aurora** and **halo**.
+   Today two effects pass: **aurora** and **halo**. *(2026-11-22, ADR 0025:
+   aurora is retired; the grounds `mesh` and `fold` pass, and a ground meets
+   clause 4 with a quiet zone around its copy instead of a per-pixel guard.)*
 
 6. **Shaders are a separate, optional item.** `shader` depends on `fx`; `fx`
    never depends on `shader`. A product that wants no WebGL installs none,
-   and `fx("aurora")` still type-checks and renders the component. The
+   and `fx("halo")` still type-checks and renders the component. The
    runtime is one WebGL2 context for the page, one canvas per part, drawn
    from tokens, server-safe and reference-counted (`startShaders()` returns
    its stop). The shader draws the part's own rounded shape and the canvas

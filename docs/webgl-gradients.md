@@ -1,9 +1,21 @@
 # WebGL gradients for grounds — research
 
-Status: **research**, 2026-11-22. Nothing here changes the library yet. It
-answers one question: the generated grounds look poor — should the effects
-layer move to WebGL (mesh) gradients? It ends with a recommendation and the
-ADR change that recommendation needs.
+Status: **implemented**, 2026-11-22, as
+[ADR 0025](../ledger/decisions/0025-grounds-replace-aurora.md).
+
+- Aurora is retired.
+- `fx("mesh")` and `fx("fold")` ship in the `shader` item, written from
+  scratch. gradflow and MagicPattern were a benchmark only.
+- The testing specimen is the Storybook story **Effects/Specimen**: the
+  grounds under glass, in both schemes and under the stress brand.
+
+![Effects/Specimen: fold dark, fold light, mesh dark, fold on the pale-yellow brand](./webgl-gradients/06-specimen.jpg)
+
+What follows is the research that led there. It answers one question: the
+generated grounds look poor, so should the effects layer move to WebGL
+(mesh) gradients? The prototypes in the lab differ from the shipped
+programs in their hue turns. A wide turn sent the pale-yellow brand's fold
+to green, so the shipped grounds drift by 20–24° only.
 
 Everything measured here comes from the lab in
 [`webgl-gradients/lab/`](./webgl-gradients/lab/). The lab renders the shipped

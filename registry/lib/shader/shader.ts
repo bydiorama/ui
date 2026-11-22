@@ -1,11 +1,12 @@
 /**
- * The shader runtime of the effects layer (ADR 0022) — OPTIONAL. Install it
- * only for `aurora` and `halo`; every CSS effect works without it.
+ * The shader runtime of the effects layer (ADR 0022, 0025) — OPTIONAL. Install
+ * it only for the grounds (`mesh`, `fold`) and `halo`; every CSS effect works
+ * without it.
  *
  *   // once, in a client component at the app root (or a <script> in Astro)
  *   useEffect(() => startShaders(), []);
  *
- *   <Button className={fx("aurora")}>Publish</Button>
+ *   <section className={fx("fold")}>…</section>
  *
  * It finds every element carrying a shader effect's class, mounts one canvas
  * in the part the effect paints, and draws it from tokens read where that
@@ -64,9 +65,7 @@ export interface ShaderSettings {
  *            sibling (the origin mark, the THUMB) still paints above it.
  *            Appended last, it covered the Slider's thumb.
  *
- * A part that does not exist leaves the root at its floor: Slider's inline
- * variant carries text on its fill, so `aurora` applies to the track variant
- * only, and the selector says so.
+ * A part that does not exist leaves the root at its floor.
  */
 export interface ShaderRecipe {
   part?: string;
@@ -75,16 +74,10 @@ export interface ShaderRecipe {
 }
 
 export const SHADER_RECIPES: Record<ShaderName, Record<string, ShaderRecipe>> = {
-  aurora: {
-    button: {},
-    switch: { part: '[data-slot="track"]' },
-    checkbox: { part: '[data-slot="control"]' },
-    slider: {
-      part: '[data-variant="track"] [data-slot="slider-fill"]',
-      mount: '[data-variant="track"] [data-slot="slider-track"]',
-      layer: "over",
-    },
-    progress: { part: '[data-slot="fill"]', mount: '[data-slot="track"]', layer: "over" },
+  mesh: {
+    "*": {},
+  },
+  fold: {
     "*": {},
   },
   halo: {
@@ -264,6 +257,8 @@ class Target {
   dpr = 1;
   /** Live-value transitions in flight on this canvas. */
   easing = 0;
+  /** When this target last painted while moving (ms), for `def.fps`. */
+  painted = 0;
   private radius = 0;
   private readonly restore: Array<() => void> = [];
 
@@ -302,7 +297,7 @@ class Target {
       this.restore.push(() => (style.isolation = prev));
     }
 
-    // State values (--ui-fx-on, --ui-fx-halo-strength) are read every frame
+    // State values (--ui-fx-halo-strength) are read every frame
     // only while the canvas is transitioning one of them, so they follow the
     // component's own motion token. At rest a target costs no style read.
     this.canvas.addEventListener("transitionrun", (e) => {
@@ -366,7 +361,7 @@ class Target {
     s.top = `${-m.clientTop - bleed}px`;
     s.width = `${this.cssW}px`;
     s.height = `${this.cssH}px`;
-    const big = this.cssW * this.cssH > BIG_AREA;
+    const big = this.cssW * this.cssH > BIG_AREA && this.def.adaptive !== false;
     this.dpr = Math.min(devicePixelRatio || 1, settings.maxDpr) * (big ? quality : 1);
     const w = Math.max(1, Math.round(this.cssW * this.dpr));
     const h = Math.max(1, Math.round(this.cssH * this.dpr));
@@ -511,8 +506,8 @@ class Scheduler {
         // Geometry is the observers' business: a Slider fill's inline width
         // changes on every pointer move, and re-reading tokens for it would
         // cost a style read per uniform per frame of a drag. But an inline
-        // TOKEN on the same element — `style={{ "--ui-fx-aurora-intensity":
-        // 0.5 }}` on a Button — is a token change like any other.
+        // TOKEN on the same element — `style={{ "--ui-fx-ground-intensity":
+        // 0.5 }}` on a ground — is a token change like any other.
         if (r.attributeName === "style" && this.geometry(r.target as Element)) {
           const tokens = (css: string | null) => (css?.match(/--[\w-]+\s*:[^;]*/g) ?? []).join(";");
           if (tokens(r.oldValue) === tokens((r.target as Element).getAttribute("style"))) continue;
@@ -678,8 +673,12 @@ class Scheduler {
         continue;
       }
       t.clock += dt * t.speed;
-      t.paint(this.renderer);
       moving = true;
+      // A capped target keeps its clock running and paints when its turn
+      // comes; a state change (dirty) never waits.
+      if (t.def.fps && !t.dirty && now - t.painted < 1000 / t.def.fps - 2) continue;
+      t.painted = now;
+      t.paint(this.renderer);
     }
     this.measure(now, performance.now() - t0);
     // The loop sleeps once nothing moves: still targets are drawn once, an
@@ -707,7 +706,7 @@ class Scheduler {
     const next = per > 12 ? Math.max(0.5, this.quality - 0.25) : per < 5 ? Math.min(1, this.quality + 0.25) : this.quality;
     if (next === this.quality) return;
     this.quality = next;
-    for (const t of this.targets) if (t.cssW * t.cssH > BIG_AREA) t.layout(next);
+    for (const t of this.targets) if (t.cssW * t.cssH > BIG_AREA && t.def.adaptive !== false) t.layout(next);
   }
 
   /** Draw a target now and read its pixels back. */

@@ -72,7 +72,7 @@ These are not style preferences; violating them breaks consumers:
 ## Effects
 
 Glass, grain, sheen, glow, shimmer and ink (`registry/lib/fx`) and the
-optional aurora and halo shaders (`registry/lib/shader`) are applied as a
+optional shaders — the mesh and fold grounds and halo (`registry/lib/shader`) are applied as a
 class on a component's root — `className={fx("glass")}` — never as a prop
 (CONVENTIONS §12, ADR 0022). Adding or changing one: the row in `EFFECTS`
 first, then its stylesheet, then `pnpm check:fx` and the two browser tests

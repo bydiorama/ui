@@ -37,7 +37,7 @@ Notes that cost someone a bug:
 
 The `fx` effects (glass, grain, sheen, glow, shimmer, ink) are CSS on a
 class: static-safe on every component above, before and without hydration.
-The `shader` effects (aurora, halo) need `startShaders()` in a client
+The `shader` effects (mesh, fold, halo) need `startShaders()` in a client
 script — not a hydrated component. It is safe to import on the server (it
 does nothing there) and leaves every component exactly as rendered until it
 runs, so a static page shows the plain fill, never a gap:

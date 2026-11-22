@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-22-aurora-retired-mesh-and-fold-grounds",
+  "date": "2026-11-22",
+  "item": "shader",
+  "kind": "breaking",
+  "summary": "The aurora shader effect is retired (ADR 0025) and two grounds written for this library replace it: fx(\"mesh\") — soft colour points drifting over a gently swirled field — and fx(\"fold\") — light panes along slow folds, a soft body and a sharp lit rim, running one way. Both apply to a ground (an unslotted section) only, mix in OKLab from two tokens (--ui-fx-ground-base, default --ui-bg-base; --ui-fx-ground-light, default --ui-bg-accent) and end in a static one-step triangular dither, so slow ramps no longer band. Copy keeps its contrast in a QUIET ZONE of the exact base (--ui-fx-ground-quiet, -quiet-x, -quiet-y; bottom left by default) instead of aurora's per-pixel guard, which held 4.5:1 by squeezing dark grounds to a few grey levels. Further knobs: --ui-fx-ground-intensity, --ui-fx-ground-dissolve (a separable edge fade — no more diagonal creases), --ui-fx-fold-angle, --ui-fx-fold-sharpness, --ui-fx-mesh-distortion; fx(\"grain\") adds visible grain outside the zone. A ground renders at full resolution and at most 30fps (new ShaderDef options adaptive and fps), and its floor before hydration or without WebGL is a still two-stop OKLab CSS gradient of the same light. Halo now dithers its alpha. Removed: fx(\"aurora\"), the --ui-fx-aurora-* tokens, the registered --ui-fx-on and the per-pixel guard (fx_guard) in the prelude.",
+  "affects": [
+    "item:shader",
+    "item:fx",
+    "decision:0025-grounds-replace-aurora",
+    "decision:0022-effects-layer"
+  ],
+  "migration": {
+    "manual": "fx(\"aurora\") no longer type-checks. On a ground (a hero band, an empty state), use fx(\"mesh\") for a quiet ground or fx(\"fold\") for an expressive one, and place the copy in the quiet zone (bottom left by default) or move the zone to the copy with --ui-fx-ground-quiet-x / -quiet-y. On a control (Button, Switch, Checkbox, Slider, Progress), remove it, or use sheen, grain or glow. Delete any --ui-fx-aurora-* overrides; they do nothing. Sync shader.ts, shader-programs.ts and styles/fx/shader.css together."
+  }
+}

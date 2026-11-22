@@ -6,11 +6,7 @@ import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
 import { startShaders } from "@/lib/shader";
 import { Button } from "@/ui/button/button.tsx";
-import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Input } from "@/ui/input/input.tsx";
-import { Progress } from "@/ui/progress/progress.tsx";
-import { Slider } from "@/ui/slider/slider.tsx";
-import { Switch } from "@/ui/switch/switch.tsx";
 
 /** What an app does once, at its root. Stopped when the story unmounts. */
 function Shaders({ children }: { children: ReactNode }) {
@@ -19,10 +15,11 @@ function Shaders({ children }: { children: ReactNode }) {
 }
 
 /**
- * The optional shader half of the effects layer (ADR 0022): aurora and
- * halo, drawn by `startShaders()` on one shared WebGL2 context. Each
- * specimen is a shipped component with `className={fx(…)}` added; without
- * the runtime, or without WebGL, each renders exactly as the component.
+ * The optional shader half of the effects layer (ADR 0022, 0025): the two
+ * grounds, mesh and fold, and halo, drawn by `startShaders()` on one shared
+ * WebGL2 context. Without the runtime, or without WebGL, a ground shows its
+ * CSS floor and a component renders exactly as itself. The specimen that
+ * puts glass on a ground is Effects/Specimen.
  */
 const meta = {
   title: "Effects/Shaders",
@@ -55,46 +52,64 @@ function Panel({ scheme, theme = zero, children }: { scheme: "light" | "dark"; t
   );
 }
 
+function Copy() {
+  return (
+    <div className="flex flex-col gap-xs">
+      <p className="text-title-sm text-ink-primary">Nothing on this board yet</p>
+      <p className="text-body-sm text-ink-muted">Drop images here or start from a template.</p>
+    </div>
+  );
+}
+
 /**
- * Aurora on every component it lists. The shader keeps each part's ink at
- * its floor per pixel: the Button's label at 4.5:1, the Switch track and the
- * Progress fill at 3:1. The Slider's fill is drawn on a canvas inserted right
- * after it, so the thumb stays on top.
+ * The two grounds in both schemes. The copy sits in the quiet zone — bottom
+ * left by default — where the ground is exactly its base, so the muted line
+ * keeps the contrast the token pair was audited at; outside it the light is
+ * free to be bright. Both are dithered: a slow ramp never shows bands.
  */
-export const Aurora: Story = {
+export const Grounds: Story = {
   render: () => (
     <div className="grid gap-lg md:grid-cols-2">
-      {(["light", "dark"] as const).map((scheme) => (
-        <Panel key={scheme} scheme={scheme}>
-          <div className="flex flex-wrap items-center gap-md">
-            <Button className={fx("aurora")}>Publish board</Button>
-            <Switch defaultIsChecked className={fx("aurora")}>
-              Sync
-            </Switch>
-            <Checkbox defaultIsChecked className={fx("aurora")}>
-              Agree
-            </Checkbox>
-          </div>
-          <Slider label="Grain amount" defaultValue={64} hasValueText className={fx("aurora")} />
-          <Progress label="Uploading" value={64} className={fx("aurora", "grain")} />
-        </Panel>
-      ))}
+      {(["mesh", "fold"] as const).flatMap((ground) =>
+        (["light", "dark"] as const).map((scheme) => (
+          <Panel key={`${ground}-${scheme}`} scheme={scheme}>
+            <p className="text-caption text-ink-muted">
+              fx("{ground}") · {scheme}
+            </p>
+            <div className={cn("flex aspect-[16/10] flex-col justify-end rounded-xl p-lg", fx(ground))}>
+              <Copy />
+            </div>
+          </Panel>
+        )),
+      )}
     </div>
   ),
 };
 
 /**
- * A ground: an unslotted surface carrying aurora dissolves toward its edges
- * into the page, and guards the WEAKEST ink placed on it — muted body text.
+ * Tuned by tokens, never by props: the fold's direction and rim, the quiet
+ * zone moved to where centred copy sits, and the edge dissolving into the
+ * page around it.
  */
-export const Ground: Story = {
+export const Tuned: Story = {
   render: () => (
     <div className="grid gap-lg md:grid-cols-2">
       {(["light", "dark"] as const).map((scheme) => (
         <Panel key={scheme} scheme={scheme}>
-          <div className={cn("flex min-h-64 flex-col justify-end gap-xs rounded-xl p-lg", fx("aurora"))}>
-            <p className="text-title-sm text-ink-primary">Nothing on this board yet</p>
-            <p className="text-body-sm text-ink-muted">Drop images here or start from a template.</p>
+          <div
+            className={cn("flex aspect-[16/10] flex-col items-center justify-center rounded-xl p-lg text-center", fx("fold"))}
+            style={
+              {
+                "--ui-fx-fold-angle": "-12deg",
+                "--ui-fx-fold-sharpness": 120,
+                "--ui-fx-ground-quiet": 0.5,
+                "--ui-fx-ground-quiet-x": 0.5,
+                "--ui-fx-ground-quiet-y": 0.5,
+                "--ui-fx-ground-dissolve": 0.18,
+              } as CSSProperties
+            }
+          >
+            <Copy />
           </div>
         </Panel>
       ))}
@@ -130,9 +145,9 @@ export const Halo: Story = {
 };
 
 /**
- * Theme zero beside a hostile brand (AGENTS.md). Every colour the shaders
- * draw is a token read where the part sits; pale yellow's on-accent ink is
- * dark, and the guard holds the label against it instead.
+ * Theme zero beside a hostile brand (AGENTS.md). The ground's only palette
+ * is the brand's base and accent, read where the ground sits; pale yellow
+ * on white gives a quiet fold, and the copy keeps its contrast either way.
  */
 export const BrandThemed: Story = {
   render: () => (
@@ -143,13 +158,9 @@ export const BrandThemed: Story = {
             <p className="text-caption text-ink-muted">
               {i === 0 ? "theme zero" : "stress brand — pale yellow accent"} · {scheme}
             </p>
-            <div className="flex flex-wrap items-center gap-md">
-              <Button className={fx("aurora")}>Publish board</Button>
-              <Switch defaultIsChecked className={fx("aurora")}>
-                Sync
-              </Switch>
+            <div className={cn("flex aspect-[16/10] flex-col justify-end rounded-xl p-lg", fx(i === 0 ? "mesh" : "fold"))}>
+              <Copy />
             </div>
-            <Progress label="Uploading" value={40} className={fx("aurora")} />
           </Panel>
         )),
       )}

@@ -1,16 +1,19 @@
 /**
  * The shader runtime, in a real browser with a real WebGL2 context
- * (ADR 0022). check:fx holds the first two clauses of the admission rule on
- * the source; the last two only exist here:
+ * (ADR 0022, 0025). check:fx holds the first two clauses of the admission
+ * rule on the source; the last two only exist here:
  *
  *   3. the floor is the component — not started, stopped, or without a
- *      context, the part is exactly what the component draws;
- *   4. the ink keeps its contrast — measured on the pixels the shader drew,
- *      for every part that carries one, in both schemes and under a brand
- *      whose accent is the hardest to keep legible.
+ *      context, the element is exactly what it draws on its own (for a
+ *      ground, its CSS floor);
+ *   4. the ink stays legible — on a ground, the QUIET ZONE around the copy
+ *      is the exact base, measured on the pixels the shader drew, for both
+ *      grounds, in both schemes and under the brand whose accent is the
+ *      hardest to keep legible; and the measurement is shown to fail when
+ *      the zone is switched off.
  *
- * And the regression that made the runtime insert a fill's canvas right
- * after the fill: the Slider's thumb must paint above it.
+ * And the dither: a ground's slow ramps carry no band wider than a few
+ * pixels — and the measure is shown to see a band on an undithered ramp.
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { createRoot, type Root } from "react-dom/client";
@@ -18,11 +21,8 @@ import { act, type CSSProperties, type ReactElement } from "react";
 
 import { contrastRatio, resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 import { fx } from "@/lib/fx";
-import { configureShaders, readColor, sampleShader, startShaders } from "@/lib/shader";
+import { configureShaders, readColor, readNumber, sampleShader, startShaders } from "@/lib/shader";
 import { Button } from "@/ui/button/button.tsx";
-import { Progress } from "@/ui/progress/progress.tsx";
-import { Slider } from "@/ui/slider/slider.tsx";
-import { Switch } from "@/ui/switch/switch.tsx";
 
 const mounted: Array<{ root: Root; host: HTMLElement }> = [];
 const stops: Array<() => void> = [];
@@ -69,111 +69,89 @@ async function until(check: () => boolean, what: string, ms = 3000) {
 const drawing = (root: HTMLElement, name: string) => () =>
   ["live", "still"].includes(root.getAttribute(`data-fx-${name}`) ?? "");
 
+type Ground = "mesh" | "fold";
+const GROUNDS: Ground[] = ["mesh", "fold"];
+
+/** A ground the size of an empty state, carrying nothing but the effect. */
+const ground = (name: Ground, style?: CSSProperties) => (
+  <div data-ground className={fx(name)} style={{ width: 480, height: 300, borderRadius: 16, ...style }} />
+);
+
 describe("the floor is the component", () => {
   test("before startShaders() nothing is mounted and nothing is marked", () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
-    expect(button.querySelector("canvas")).toBeNull();
-    expect(button.hasAttribute("data-fx-aurora")).toBe(false);
+    const el = q(render(ground("mesh")), "[data-ground]");
+    expect(el.querySelector("canvas")).toBeNull();
+    expect(el.hasAttribute("data-fx-mesh")).toBe(false);
   });
 
-  test("started, one canvas covers the part's border box and the root says it is live", async () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+  test("before it draws, a ground shows its CSS floor: its base, and the light in the far corner", () => {
+    const el = q(render(ground("fold")), "[data-ground]");
+    const css = getComputedStyle(el);
+    expect(css.backgroundImage).toContain("radial-gradient");
+    expect(css.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+  });
+
+  test("started, one canvas covers the ground's border box and the root says it is live", async () => {
+    const el = q(render(ground("mesh")), "[data-ground]");
     start();
-    await until(drawing(button, "aurora"), "aurora to draw");
-    expect(button.getAttribute("data-fx-aurora")).toBe("live");
-    // The label's web font can land after the canvas was first laid out, and
-    // on a cold runner it does: the button grows ~6px and the runtime's
-    // ResizeObserver re-lays the canvas before the NEXT paint. Measure after
-    // that paint, or this reads the gap between two correct states.
-    await document.fonts.ready;
+    await until(drawing(el, "mesh"), "mesh to draw");
+    expect(el.getAttribute("data-fx-mesh")).toBe("live");
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const canvas = q(button, "canvas.ui-fx-canvas-aurora");
+    const canvas = q(el, "canvas.ui-fx-canvas-mesh");
     const a = canvas.getBoundingClientRect();
-    const b = button.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
     for (const k of ["left", "top", "width", "height"] as const) expect(Math.abs(a[k] - b[k]), k).toBeLessThan(0.5);
     // It fades in over the floor (--ui-duration-enter), so look once it has.
     await until(() => getComputedStyle(canvas).opacity === "1", "the canvas to fade in");
   });
 
   test("stopped, everything is put back: no canvas, no state, no inline styles", async () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
-    const before = button.getAttribute("style");
+    const el = q(render(ground("fold")), "[data-ground]");
+    const before = el.getAttribute("style");
     const stop = start();
-    await until(drawing(button, "aurora"), "aurora to draw");
+    await until(drawing(el, "fold"), "fold to draw");
     stop();
-    expect(button.querySelector("canvas")).toBeNull();
-    expect(button.hasAttribute("data-fx-aurora")).toBe(false);
-    expect(button.getAttribute("style")).toBe(before);
+    expect(el.querySelector("canvas")).toBeNull();
+    expect(el.hasAttribute("data-fx-fold")).toBe(false);
+    expect(el.getAttribute("style")).toBe(before);
   });
 
   test("callers are counted: StrictMode's double effect shares one runtime", async () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+    const el = q(render(ground("mesh")), "[data-ground]");
     const first = start();
     start();
     first();
     first(); // a second call of the same stop is a no-op
-    await until(drawing(button, "aurora"), "aurora to keep drawing");
-    expect(button.querySelectorAll("canvas").length).toBe(1);
+    await until(drawing(el, "mesh"), "mesh to keep drawing");
+    expect(el.querySelectorAll("canvas").length).toBe(1);
   });
 
-  test("without a context the part keeps its own fill, and the canvas stays hidden", async () => {
+  test("without a context the ground keeps its floor, and the canvas stays hidden", async () => {
     configureShaders({ forceFloor: true });
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+    const el = q(render(ground("fold")), "[data-ground]");
     start();
-    await until(() => button.getAttribute("data-fx-aurora") === "floor", "the floor state");
-    expect(getComputedStyle(q(button, "canvas")).opacity).toBe("0");
+    await until(() => el.getAttribute("data-fx-fold") === "floor", "the floor state");
+    expect(getComputedStyle(q(el, "canvas")).opacity).toBe("0");
   });
 
   test("reduced motion draws one still frame", async () => {
     configureShaders({ reducedMotion: true });
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+    const el = q(render(ground("mesh")), "[data-ground]");
     start();
-    await until(() => button.getAttribute("data-fx-aurora") === "still", "the still state");
-  });
-});
-
-describe("stacking", () => {
-  test("a Slider's thumb paints above its fill's canvas", async () => {
-    const host = render(<Slider label="Grain amount" defaultValue={64} className={fx("aurora")} />);
-    start();
-    await until(drawing(q(host, '[data-slot="slider"]'), "aurora"), "aurora to draw");
-    const fill = q(host, '[data-slot="slider-fill"]');
-    const canvas = q(host, "canvas.ui-fx-canvas-aurora");
-    // Inserted directly after the fill, so every later sibling paints above.
-    expect(fill.nextElementSibling).toBe(canvas);
-    const thumb = q(host, '[data-slot="slider-thumb"]');
-    const r = thumb.getBoundingClientRect();
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    expect(hit && thumb.contains(hit), `the topmost element at the thumb's centre is ${hit?.outerHTML.slice(0, 80)}`).toBe(true);
+    await until(() => el.getAttribute("data-fx-mesh") === "still", "the still state");
   });
 
-  test("the inline Slider carries text on its fill, so aurora leaves it at its floor", async () => {
-    const host = render(<Slider variant="inline" label="Opacity" defaultValue={40} className={fx("aurora")} />);
+  test("a large ground keeps full resolution: a dither must not be scaled", async () => {
+    const el = q(render(ground("fold", { width: 900, height: 560 })), "[data-ground]");
     start();
-    await new Promise((r) => setTimeout(r, 100));
-    expect(host.querySelector("canvas")).toBeNull();
+    await until(drawing(el, "fold"), "fold to draw");
+    const s = sampleShader(el, "fold")!;
+    expect(s.width).toBe(Math.round(900 * s.dpr));
+    expect(s.dpr).toBe(Math.min(devicePixelRatio, 2));
   });
 });
 
 describe("state follows the component", () => {
-  test("a Switch's light is off while it is off, and on once it is checked", async () => {
-    configureShaders({ freezeAt: 4 });
-    const host = render(<Switch className={fx("aurora")}>Sync</Switch>);
-    const root = q(host, '[data-slot="switch"]');
-    start();
-    await until(drawing(root, "aurora"), "aurora to draw");
-    const peak = () => {
-      const s = sampleShader(root, "aurora");
-      if (!s) return -1;
-      let max = 0;
-      for (let i = 3; i < s.data.length; i += 4) max = Math.max(max, s.data[i]!);
-      return max;
-    };
-    expect(peak()).toBe(0);
-    act(() => q(host, "input").click());
-    await until(() => peak() === 255, "the light to come on");
-  });
-
   test("a busy Button lights its halo; idle, the halo is dark", async () => {
     configureShaders({ freezeAt: 2 });
     const host = render(
@@ -196,7 +174,7 @@ describe("state follows the component", () => {
   });
 });
 
-// --------------------------------------------------------------- contrast
+// ----------------------------------------------------------- the quiet zone
 
 /** The hardest accent to keep ink legible on: pale yellow, as in the stress stories. */
 const PALE: ThemeSeed = {
@@ -216,33 +194,58 @@ const THEMES: Array<[string, CSSProperties]> = [
   ["pale yellow", toStyleObject(resolveThemePair(PALE)) as CSSProperties],
 ];
 
-/** Each part that carries ink, the ink, and the floor it keeps. */
-const GUARDED: Array<{ name: string; ui: ReactElement; root: string; ink: string; floor: number }> = [
-  { name: "Button label", ui: <Button className={fx("aurora")}>Publish</Button>, root: '[data-slot="button"]', ink: "--ui-text-on-accent", floor: 4.5 },
-  { name: "Switch track vs page", ui: <Switch defaultIsChecked className={fx("aurora")}>Sync</Switch>, root: '[data-slot="switch"]', ink: "--ui-bg-base", floor: 3 },
-  { name: "Progress fill vs track", ui: <Progress label="Uploading" value={70} className={fx("aurora")} />, root: '[data-slot="progress"]', ink: "--ui-bg-sunken", floor: 3 },
-  // A ground guards the WEAKEST ink placed on it: muted, body text.
-  {
-    name: "ground vs muted ink",
-    ui: <div data-ground className={fx("aurora")} style={{ width: 320, height: 160 }} />,
-    root: "[data-ground]",
-    ink: "--ui-text-muted",
-    floor: 4.5,
-  },
-];
-
 const hex = (rgb: readonly number[]) => `#${rgb.map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")}`;
 
-/** The least contrast between any fully covered pixel and the ink. */
-function worst(root: HTMLElement, ink: string) {
-  const s = sampleShader(root, "aurora");
-  if (!s) return NaN;
-  const against = hex(readColor(root, ink).map((c) => c * 255));
+/**
+ * Every fully covered pixel the shader drew, with where it sits in the
+ * field the GLSL uses: x 0..1 across, y 0..aspect up.
+ */
+function pixels(el: HTMLElement, name: Ground) {
+  const s = sampleShader(el, name);
+  if (!s) return [];
+  const w = s.width / s.dpr;
+  const out: Array<{ rgb: [number, number, number]; u: number; v: number; x: number; y: number }> = [];
+  for (let y = 0; y < s.height; y++) {
+    for (let x = 0; x < s.width; x++) {
+      const i = (y * s.width + x) * 4;
+      if (s.data[i + 3] !== 255) continue;
+      out.push({
+        rgb: [s.data[i]!, s.data[i + 1]!, s.data[i + 2]!],
+        u: (x + 0.5) / s.dpr / w,
+        v: (s.height - y - 0.5) / s.dpr / w,
+        x,
+        y,
+      });
+    }
+  }
+  return out;
+}
+
+type Zone = { quiet: number; x: number; y: number; aspect: number };
+
+/** The quiet zone as the ground's tokens place it, read once. */
+function zoneOf(el: HTMLElement): Zone {
+  const r = el.getBoundingClientRect();
+  return {
+    quiet: readNumber(el, "--ui-fx-ground-quiet", 0),
+    x: readNumber(el, "--ui-fx-ground-quiet-x", 0),
+    y: readNumber(el, "--ui-fx-ground-quiet-y", 0),
+    aspect: r.height / r.width,
+  };
+}
+
+/** Inside the zone's CORE, as the GLSL defines it (fx_quietMask): an ellipse at half the radius. */
+const inCore = (z: Zone) => (p: { u: number; v: number }) =>
+  Math.hypot((p.u - z.x) * 0.75, (p.v - (1 - z.y) * z.aspect) * 1.5) < 0.5 * z.quiet;
+
+/** The least contrast between a pixel under the copy and the ink. NaN: nothing sampled. */
+function worstUnderCopy(el: HTMLElement, name: Ground, ink: string, core: (p: { u: number; v: number }) => boolean) {
+  const against = hex(readColor(el, ink).map((c) => c * 255));
   const seen = new Map<string, number>();
   let min = Infinity;
-  for (let i = 0; i < s.data.length; i += 4) {
-    if (s.data[i + 3] !== 255) continue;
-    const key = hex([s.data[i]!, s.data[i + 1]!, s.data[i + 2]!]);
+  for (const p of pixels(el, name)) {
+    if (!core(p)) continue;
+    const key = hex(p.rgb);
     let ratio = seen.get(key);
     if (ratio === undefined) seen.set(key, (ratio = contrastRatio(key, against)));
     min = Math.min(min, ratio);
@@ -250,41 +253,102 @@ function worst(root: HTMLElement, ink: string) {
   return seen.size ? min : NaN;
 }
 
-describe("the guard keeps the ink's contrast, per pixel", () => {
+describe("the copy keeps its contrast in the quiet zone", () => {
   const cases = THEMES.flatMap(([theme, style]) =>
-    (["light", "dark"] as const).flatMap((scheme) => GUARDED.map((g) => [theme, scheme, g, style] as const)),
+    (["light", "dark"] as const).flatMap((scheme) => GROUNDS.map((g) => [theme, scheme, g, style] as const)),
   );
 
-  test.each(cases)("%s, %s: %s", async (_theme, scheme, g, style) => {
-    configureShaders({ freezeAt: 4 });
-    const host = render(g.ui, { ...style, colorScheme: scheme });
-    const root = q(host, g.root);
+  test.each(cases)("%s, %s: %s", async (_theme, scheme, name, style) => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(render(ground(name), { ...style, colorScheme: scheme }), "[data-ground]");
     start();
-    await until(drawing(root, "aurora"), "aurora to draw");
-    const ratio = worst(root, g.ink);
-    // NaN means no pixel was measured — a gate must never pass on no data.
-    expect(Number.isNaN(ratio), "no fully covered pixel was sampled").toBe(false);
-    expect(ratio, `${g.name}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(g.floor);
+    await until(drawing(el, name), `${name} to draw`);
+    const core = inCore(zoneOf(el));
+    for (const ink of ["--ui-text-primary", "--ui-text-muted"]) {
+      const ratio = worstUnderCopy(el, name, ink, core);
+      // NaN means no pixel was measured — a gate must never pass on no data.
+      expect(Number.isNaN(ratio), "no pixel in the quiet zone was sampled").toBe(false);
+      expect(ratio, `${ink}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+    }
+    // And outside the zone the ground is a ground, not a flat base: the
+    // light moves at least 24 steps off it somewhere.
+    const base = readColor(el, "--ui-fx-ground-base").map((c) => c * 255);
+    const far = pixels(el, name).some((p) => !core(p) && p.rgb.some((c, i) => Math.abs(c - base[i]!) > 24));
+    expect(far, "the ground drew no light outside its quiet zone").toBe(true);
   });
 
-  test("the measurement measures something: with the guard off, some part falls under its floor", async () => {
-    configureShaders({ freezeAt: 4 });
+  test("the measurement measures something: with the zone off, some ground falls under 4.5:1 where the copy sits", async () => {
+    configureShaders({ freezeAt: 6 });
     const failures: string[] = [];
     for (const [theme, style] of THEMES) {
       for (const scheme of ["light", "dark"] as const) {
-        for (const g of GUARDED) {
-          const host = render(g.ui, { ...style, colorScheme: scheme });
-          const root = q(host, g.root);
-          root.style.setProperty("--ui-fx-aurora-guard", "0");
+        for (const name of GROUNDS) {
+          const el = q(render(ground(name), { ...style, colorScheme: scheme }), "[data-ground]");
+          // Where the copy sits, from the default zone; then the zone goes.
+          const core = inCore(zoneOf(el));
+          el.style.setProperty("--ui-fx-ground-quiet", "0");
           if (!stops.length) start();
-          await until(drawing(root, "aurora"), "aurora to draw");
-          await new Promise((r) => requestAnimationFrame(r));
-          await new Promise((r) => requestAnimationFrame(r));
-          const ratio = worst(root, g.ink);
-          if (ratio < g.floor) failures.push(`${theme}/${scheme}/${g.name}`);
+          await until(drawing(el, name), `${name} to draw`);
+          // The token change is read on the next frame; sample after it.
+          await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          const ratio = worstUnderCopy(el, name, "--ui-text-muted", core);
+          if (ratio < 4.5) failures.push(`${theme}/${scheme}/${name}`);
         }
       }
     }
-    expect(failures.length, "no part fails without the guard, so the passing cases above prove nothing").toBeGreaterThan(0);
+    expect(failures.length, "no ground fails without its quiet zone, so the passing cases above prove nothing").toBeGreaterThan(0);
+  });
+});
+
+// --------------------------------------------------------------- the dither
+
+type Frame = { data: Uint8ClampedArray; width: number; height: number };
+
+/** The widest run of identical pixels along a row that changes at all, in the frame's middle. */
+function widestBand(s: Frame) {
+  let widest = 0;
+  for (let y = Math.floor(s.height * 0.1); y < s.height * 0.6; y += 3) {
+    let run = 1;
+    let changes = 0;
+    let rowWidest = 1;
+    for (let x = Math.floor(s.width * 0.1) + 1; x < s.width * 0.9; x++) {
+      const i = (y * s.width + x) * 4;
+      const same = s.data[i] === s.data[i - 4] && s.data[i + 1] === s.data[i - 3] && s.data[i + 2] === s.data[i - 2];
+      if (same) run++;
+      else {
+        changes++;
+        rowWidest = Math.max(rowWidest, run);
+        run = 1;
+      }
+    }
+    if (changes) widest = Math.max(widest, rowWidest, run);
+  }
+  return widest;
+}
+
+describe("a ground never bands", () => {
+  test.each(GROUNDS)("%s: no band wider than 32 device px, in light or dark", async (name) => {
+    configureShaders({ freezeAt: 6 });
+    const [, style] = THEMES[0]!;
+    const els = (["light", "dark"] as const).map((scheme) =>
+      q(render(ground(name, { width: 640, height: 400 }), { ...style, colorScheme: scheme }), "[data-ground]"),
+    );
+    start();
+    for (const el of els) await until(drawing(el, name), `${name} to draw`);
+    for (const el of els) expect(widestBand(sampleShader(el, name)!)).toBeLessThanOrEqual(32);
+  });
+
+  test("the measure sees a band: an undithered dark ramp fails it", () => {
+    // 640 px from sRGB 20 to 36: sixteen steps, each a 40 px band.
+    const width = 640;
+    const height = 60;
+    const data = new Uint8ClampedArray(width * height * 4);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const v = 20 + Math.floor((x / width) * 16);
+        data.set([v, v, v, 255], (y * width + x) * 4);
+      }
+    }
+    expect(widestBand({ data, width, height })).toBeGreaterThan(32);
   });
 });

@@ -17,8 +17,8 @@
 // And the shader admission rule, on the sources: a shader paints only pixels
 // it owns (no texture sampling — refraction failed exactly there, twice) and
 // takes every input from a token. Rules three and four (the component is the
-// floor; the ink keeps its contrast per pixel) need a browser and live in
-// registry/lib/shader/shader.browser.test.tsx.
+// floor; the ink stays legible — on a ground, in its quiet zone, ADR 0025)
+// need a browser and live in registry/lib/shader/shader.browser.test.tsx.
 //
 // Dependency-free like every gate in `verify`; run with
 // --experimental-strip-types so it can read the registry from the source.

@@ -55,9 +55,16 @@
 
   /* A ground is an unslotted surface: a hero band, an empty state, the page
      behind glass. ONE effect, parametric: the look picks the form, every
-     other knob is shared, and a knob at `auto` takes the look's own preset
-     (GRADIENT_PRESETS in shader-programs.ts) — so `--ui-fx-gradient-look:
-     rise` alone is a finished horizon.
+     other knob is shared. Four knobs follow the look when left at `auto`
+     (angle, intensity, the quiet zone's size and height: GRADIENT_PRESETS
+     in shader-programs.ts) — so `--ui-fx-gradient-look: rise` alone is a
+     finished horizon. The rest have one default for every look.
+
+     The knobs' defaults are declared ON :root and INHERITED, not on
+     .fx-gradient: set any of them on the ground, a wrapper or a brand
+     scope and it reaches the ground. The two colours are not declared at
+     all — they fall back to --ui-bg-base and --ui-bg-accent where the
+     ground sits, so a brand scope's accent is the light without a word.
 
      Its copy sits in the QUIET ZONE — an ellipse around (quiet-x, quiet-y),
      measured from the top left like CSS, whose core is exactly the base.
@@ -68,24 +75,26 @@
      what shows before hydration, without WebGL and while the canvas fades
      in. Its light sits in the top-right corner, away from either default
      quiet zone's copy. */
-  .fx-gradient {
+  :root {
     --ui-fx-gradient-look: wash; /* wash · sweep · fold · rise · dawn */
-    --ui-fx-gradient-base: var(--ui-bg-base);
-    --ui-fx-gradient-light: var(--ui-bg-accent);
-    --ui-fx-gradient-angle: auto; /* degrees: the direction the forms run */
+    --ui-fx-gradient-angle: auto; /* deg (or turn, rad): the direction the forms run */
     --ui-fx-gradient-sharpness: 0.5; /* 0 soft … 1 crisp edges and rims */
-    --ui-fx-gradient-scale: 1; /* the forms' size */
-    --ui-fx-gradient-chroma: 1; /* colourfulness: 0.6 quiet, 1.4 vivid */
-    --ui-fx-gradient-intensity: auto; /* 0 = the base alone */
+    --ui-fx-gradient-scale: 1; /* the forms' size, 0.25 … 4 */
+    --ui-fx-gradient-chroma: 1; /* colourfulness, 0 … 2: 0.6 quiet, 1.4 vivid */
+    --ui-fx-gradient-intensity: auto; /* 0 = the base alone … 1 */
     --ui-fx-gradient-quiet: auto; /* 0.42; 0.3 for the horizons; 0 = none */
-    --ui-fx-gradient-quiet-x: 0.16;
+    --ui-fx-gradient-quiet-x: 0.16; /* 0 … 1, or a percentage */
     --ui-fx-gradient-quiet-y: auto;
-    --ui-fx-gradient-dissolve: 0;
-    background-color: var(--ui-fx-gradient-base);
+    --ui-fx-gradient-dissolve: 0; /* 0 … 0.5 */
+  }
+  .fx-gradient {
+    --ui-fx-gradient-floor-base: var(--ui-fx-gradient-base, var(--ui-bg-base));
+    --ui-fx-gradient-floor-light: var(--ui-fx-gradient-light, var(--ui-bg-accent));
+    background-color: var(--ui-fx-gradient-floor-base);
     background-image: radial-gradient(
       in oklab ellipse 70% 80% at 92% 6%,
-      color-mix(in oklab, var(--ui-fx-gradient-light) 30%, var(--ui-fx-gradient-base)),
-      var(--ui-fx-gradient-base) 72%
+      color-mix(in oklab, var(--ui-fx-gradient-floor-light) 30%, var(--ui-fx-gradient-floor-base)),
+      var(--ui-fx-gradient-floor-base) 72%
     );
 
     @media (forced-colors: active) {

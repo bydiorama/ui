@@ -1,8 +1,8 @@
 /**
- * The shader programs of the effects layer (ADR 0022, ADR 0025): the two
- * gradient ground (one parametric program: wash, sweep, fold, rise) and
- * halo, and the GLSL they share. Paired with
- * `@/lib/shader`, which runs them.
+ * The shader programs of the effects layer (ADR 0022, ADR 0025): the
+ * gradient — one parametric ground in five looks (wash, sweep, fold, rise,
+ * dawn) — and halo, and the GLSL they share. Paired with `@/lib/shader`,
+ * which runs them.
  *
  * THE ADMISSION RULE, which `pnpm check:fx` enforces on this file:
  *
@@ -43,7 +43,7 @@ export type ShaderName = ShaderFxName;
  * fallback means "the look decides", filled in by the program's `resolve`.
  */
 export type UniformSpec =
-  | { color: string }
+  | { color: string; fallback?: string }
   | { number: string; fallback?: number; live?: boolean }
   | { keyword: string; values: readonly string[] };
 
@@ -159,12 +159,14 @@ float fx_cover(float d) { return clamp(0.5 - d * u_dpr, 0.0, 1.0); }
 
 /**
  * THE GRADIENT (ADR 0025): one ground, parametric. A look picks the form —
- * wash, sweep, fold or rise — and every other knob is shared: the two
+ * wash, sweep, fold, rise or dawn — and every other knob is shared: the two
  * colours, angle, sharpness, scale, chroma, intensity, the quiet zone, the
- * edge, grain. Any knob left at `auto` takes the look's own preset, so
- * `--ui-fx-gradient-look: rise` alone is a finished horizon. The looks do
- * not blend into each other (they are different forms), but everything
- * around the form is the same code.
+ * edge, grain. Four knobs follow the look when left at `auto`: angle,
+ * intensity, and the quiet zone's size and height (GRADIENT_PRESETS) — so
+ * `--ui-fx-gradient-look: rise` alone is a finished horizon. The rest have
+ * one default for every look. Every knob is clamped to the range its GLSL is
+ * written for. The looks do not blend into each other (they are different
+ * forms), but everything around the form is the same code.
  *
  * The palette is the two tokens and nothing else: the base it replaces and
  * the light moving over it. Every other tone is derived in OKLab.
@@ -431,7 +433,8 @@ void main() {
   float keep = fx_quietMask(uv) * fx_edgeMask(local);
   lab = mix(B, mix(B, lab, u_intensity), keep);
   vec3 rgb = fx_srgb(lab);
-  rgb += (fx_rand(uvec3(uvec2(gl_FragCoord.xy), 7u)) - 0.5) * u_grain * keep;
+  // Grain is part of the field: at intensity 0 the ground is the base alone.
+  rgb += (fx_rand(uvec3(uvec2(gl_FragCoord.xy), 7u)) - 0.5) * u_grain * keep * u_intensity;
   rgb += fx_tpdf(gl_FragCoord.xy) / 255.0;
   float a = fx_cover(fx_shapeDistance(gl_FragCoord.xy / u_dpr));
   fragColor = vec4(clamp(rgb, 0.0, 1.0) * a, a);
@@ -445,8 +448,10 @@ export const SHADERS: Record<ShaderName, ShaderDef> = {
     adaptive: false,
     fps: 30,
     uniforms: {
-      u_base: { color: "--ui-fx-gradient-base" },
-      u_light: { color: "--ui-fx-gradient-light" },
+      // Fallback tokens, not defaults declared on .fx-gradient: a wrapper or
+      // a brand scope that sets the gradient's colours must reach it.
+      u_base: { color: "--ui-fx-gradient-base", fallback: "--ui-bg-base" },
+      u_light: { color: "--ui-fx-gradient-light", fallback: "--ui-bg-accent" },
       u_look: { keyword: "--ui-fx-gradient-look", values: GRADIENT_LOOKS },
       u_angle: { number: "--ui-fx-gradient-angle", fallback: NaN },
       u_sharpness: { number: "--ui-fx-gradient-sharpness", fallback: 0.5 },
@@ -465,6 +470,22 @@ export const SHADERS: Record<ShaderName, ShaderDef> = {
       if (Number.isNaN(v.u_intensity)) v.u_intensity = preset.intensity;
       if (Number.isNaN(v.u_quiet)) v.u_quiet = preset.quiet;
       if (Number.isNaN(v.u_quietY)) v.u_quietY = preset.quietY;
+      // Every knob within the range its GLSL is written for. Past it the
+      // maths breaks, not just the look: sharpness 80 overflows exp2 to
+      // infinity and fold's rim turns to NaN; sharpness far below 0 makes
+      // dawn divide 0 by 0; intensity past 1 extrapolates in OKLab.
+      const clamp = (k: string, lo: number, hi: number) => {
+        v[k] = Math.min(hi, Math.max(lo, v[k] as number));
+      };
+      clamp("u_sharpness", 0, 1);
+      clamp("u_scale", 0.25, 4);
+      clamp("u_chroma", 0, 2);
+      clamp("u_intensity", 0, 1);
+      clamp("u_quiet", 0, 1);
+      clamp("u_quietX", 0, 1);
+      clamp("u_quietY", 0, 1);
+      clamp("u_dissolve", 0, 0.5);
+      clamp("u_grain", 0, 0.25);
     },
     fragment: GRADIENT,
   },

@@ -534,6 +534,23 @@ Muted ink in the sky: 6.96:1 dark, 5.88:1 light, 6.92:1 and 6.27:1 on the
 pale-yellow brand. The browser test picks dawn up from `GRADIENT_LOOKS`:
 contrast in every scheme and brand, banding, presets.
 
+## 12. Review before merge
+
+An independent review of the branch, then fixes, each checked by a
+mutation (the code broken on purpose, the test seen to fail):
+
+| Finding | Fix | Mutation that now fails a test |
+|---|---|---|
+| The full-resolution test passed with `adaptive: false` deleted (quality only drops after slow frames) | `configureShaders({ quality })` pins the step; the test also shows a large halo DOES step down | `adaptive: false` removed |
+| The quiet-zone test sampled a region derived from the shader's own formula | It samples the canvas under each real line of text (a `Range`'s boxes) on a 960×540 ground; wash, sweep and fold must each fail somewhere with the zone off | quiet mask removed: fold fails; zone set to 0: wash, sweep and fold fail |
+| The banding measure scanned rows only, over the top 60%, and skipped runs within one step of the base | Rows and columns over 90% of the frame; only runs of the exact base are skipped; a vertical-ramp control | dither removed: every look fails |
+| `50%`, `0.1turn`, `calc()` misread; no clamping (sharpness 80 → NaN pixels); grain at intensity 0 | Unit-aware reads, a warning once on anything unreadable, clamps in `resolve`, grain × intensity | — (direct tests) |
+| Knob defaults declared on `.fx-gradient` blocked a wrapper's or brand scope's values | Defaults on `:root`, inherited; colours via fallback tokens | — (direct test) |
+| Forced colours hid the canvas but kept painting it; skipped frames diluted the cost measure | Forced colours are the floor; only frames that paint are measured | — (direct test) |
+
+The lab scripts also left HEAD: they read programs that no longer exist,
+and their CommonJS requires failed the repo-wide lint CI runs.
+
 ## Reproduce the lab
 
 The lab's scripts read the programs as they were when it ran (aurora, then

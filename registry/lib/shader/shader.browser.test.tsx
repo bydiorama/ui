@@ -13,9 +13,11 @@
  *      the zone is switched off.
  *
  * And the dither: a ground's slow ramps carry no band wider than a few
- * pixels — and the measure is shown to see a band on an undithered ramp.
+ * pixels along rows or columns — and the measure is shown to see a band on
+ * an undithered ramp in either direction.
  */
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { commands } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act, type CSSProperties, type ReactElement } from "react";
 
@@ -50,7 +52,8 @@ afterEach(() => {
     act(() => root.unmount());
     host.remove();
   }
-  configureShaders({ reducedMotion: null, forceFloor: false, freezeAt: null });
+  configureShaders({ reducedMotion: null, forceFloor: false, freezeAt: null, quality: null });
+  vi.restoreAllMocks();
 });
 
 const q = (c: ParentNode, s: string) => {
@@ -143,13 +146,32 @@ describe("the floor is the component", () => {
     await until(() => el.getAttribute("data-fx-gradient") === "still", "the still state");
   });
 
-  test("a large ground keeps full resolution: a dither must not be scaled", async () => {
+  test("when frames are slow a large ground keeps full resolution (a dither must not be scaled); a large halo steps down", async () => {
+    // Pin the step the runtime would reach under slow frames.
+    configureShaders({ quality: 0.5 });
     const el = q(render(ground("fold", { width: 900, height: 560 })), "[data-ground]");
+    const halo = q(render(<div data-halo data-fx-active className={fx("halo")} style={{ width: 900, height: 560 }} />), "[data-halo]");
     start();
-    await until(drawing(el, "gradient"), "the gradient to draw");
+    await until(() => drawing(el, "gradient")() && drawing(halo, "halo")(), "both to draw");
+    const full = Math.min(devicePixelRatio, 2);
     const s = sampleShader(el, "gradient")!;
+    expect(s.dpr).toBe(full);
     expect(s.width).toBe(Math.round(900 * s.dpr));
-    expect(s.dpr).toBe(Math.min(devicePixelRatio, 2));
+    // The control: without `adaptive: false` a large target does step down.
+    await until(() => (sampleShader(halo, "halo")?.dpr ?? 0) > 0, "the halo to sample");
+    expect(sampleShader(halo, "halo")!.dpr).toBe(full * 0.5);
+  });
+
+  test("under forced colours nothing is drawn: the target is at its floor", async () => {
+    await commands.setForcedColors(true);
+    try {
+      const el = q(render(ground("wash")), "[data-ground]");
+      start();
+      await until(() => el.getAttribute("data-fx-gradient") === "floor", "the floor state");
+      expect(sampleShader(el, "gradient")).toBeNull();
+    } finally {
+      await commands.setForcedColors(false);
+    }
   });
 });
 
@@ -183,6 +205,80 @@ describe("one gradient, parametric", () => {
     let differ = 0;
     for (let i = 0; i < after.length; i += 4) if (Math.abs(after[i]! - before[i]!) > 24) differ++;
     expect(differ, "the frame did not change with the look").toBeGreaterThan(after.length / 40);
+  });
+});
+
+describe("tokens are read as authors write them", () => {
+  test("knobs set on a wrapper or a brand scope reach the ground; the colours fall back to the scope's own", async () => {
+    configureShaders({ freezeAt: 6 });
+    const host = render(
+      <div style={{ ["--ui-fx-gradient-look" as string]: "dawn", ["--ui-bg-accent" as string]: "#ff0000" }}>
+        <div data-ground className={fx("gradient")} style={{ width: 480, height: 300 }} />
+      </div>,
+    );
+    const el = q(host, "[data-ground]");
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const v = sampleShader(el, "gradient")!.values;
+    expect(v.u_look).toBe(GRADIENT_LOOKS.indexOf("dawn"));
+    expect((v.u_light as number[]).map((c) => Math.round(c * 255))).toEqual([255, 0, 0]);
+  });
+
+  test("units are converted, quotes and case forgiven; what cannot be read is said once and falls back", async () => {
+    configureShaders({ freezeAt: 6 });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const el = q(
+      render(
+        ground("wash", {
+          ["--ui-fx-gradient-look" as string]: '"Sweep"',
+          ["--ui-fx-gradient-angle" as string]: "0.1turn",
+          ["--ui-fx-gradient-quiet-x" as string]: "25%",
+          ["--ui-fx-gradient-scale" as string]: "calc(1 + 1)",
+        }),
+      ),
+      "[data-ground]",
+    );
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const v = sampleShader(el, "gradient")!.values;
+    expect(v.u_look).toBe(GRADIENT_LOOKS.indexOf("sweep"));
+    expect(v.u_angle as number).toBeCloseTo(36, 5);
+    expect(v.u_quietX as number).toBeCloseTo(0.25, 5);
+    expect(v.u_scale).toBe(1);
+    expect(warn.mock.calls.filter(([m]) => String(m).includes("--ui-fx-gradient-scale")).length).toBe(1);
+  });
+
+  test("an out-of-range knob is clamped to what the GLSL is written for, and draws finite pixels", async () => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(
+      render(ground("fold", { ["--ui-fx-gradient-sharpness" as string]: 80, ["--ui-fx-gradient-intensity" as string]: 3 })),
+      "[data-ground]",
+    );
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const s = sampleShader(el, "gradient")!;
+    expect(s.values.u_sharpness).toBe(1);
+    expect(s.values.u_intensity).toBe(1);
+    // NaN in a fragment shader comes out as black or garbage: the fold's
+    // lit panes must still be lit.
+    let lit = 0;
+    for (let i = 0; i < s.data.length; i += 4) if (s.data[i]! + s.data[i + 1]! + s.data[i + 2]! > 120) lit++;
+    expect(lit).toBeGreaterThan(s.data.length / 4 / 50);
+  });
+
+  test("intensity 0 is the base alone — grain included", async () => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(render(<div data-ground className={fx("gradient", "grain")} style={{ width: 480, height: 300, ["--ui-fx-gradient-intensity" as string]: 0 }} />), "[data-ground]");
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const base = readColor(el, "--ui-fx-gradient-base", "--ui-bg-base").map((c) => Math.round(c * 255));
+    const s = sampleShader(el, "gradient")!;
+    let worst = 0;
+    for (let i = 0; i < s.data.length; i += 4) {
+      if (s.data[i + 3] !== 255) continue;
+      for (let c = 0; c < 3; c++) worst = Math.max(worst, Math.abs(s.data[i + c]! - base[c]!));
+    }
+    expect(worst, "a pixel left the base by more than the dither").toBeLessThanOrEqual(1);
   });
 });
 
@@ -232,99 +328,126 @@ const THEMES: Array<[string, CSSProperties]> = [
 const hex = (rgb: readonly number[]) => `#${rgb.map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")}`;
 
 /**
- * Every fully covered pixel the shader drew, with where it sits in the
- * field the GLSL uses: x 0..1 across, y 0..aspect up.
+ * A ground at a page's proportions with its copy where a page puts it: an
+ * empty state's title and muted line, bottom left — or top left for a look
+ * whose preset puts its quiet zone in the sky.
  */
-function pixels(el: HTMLElement) {
+function GroundWithCopy({ look, style }: { look: GradientLook; style?: CSSProperties }) {
+  const top = GRADIENT_PRESETS[look].quietY < 0.5;
+  return (
+    <div
+      data-ground
+      className={fx("gradient")}
+      style={{
+        width: 960,
+        height: 540,
+        padding: 48,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: top ? "flex-start" : "flex-end",
+        ["--ui-fx-gradient-look" as string]: look,
+        ...style,
+      }}
+    >
+      <p data-ink="--ui-text-primary" className="text-title-sm text-ink-primary">
+        Nothing on this board yet
+      </p>
+      <p data-ink="--ui-text-muted" className="text-body-sm text-ink-muted">
+        Drop images here or start from a template.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * The least contrast between each line of text and the pixels the shader
+ * drew under ITS OWN glyph boxes — the boxes of its text, measured by a
+ * Range, not a region derived from the shader. NaN: nothing sampled.
+ */
+function worstUnderText(el: HTMLElement) {
   const s = sampleShader(el, "gradient");
-  if (!s) return [];
-  const w = s.width / s.dpr;
-  const out: Array<{ rgb: [number, number, number]; u: number; v: number }> = [];
-  for (let y = 0; y < s.height; y++) {
-    for (let x = 0; x < s.width; x++) {
-      const i = (y * s.width + x) * 4;
-      if (s.data[i + 3] !== 255) continue;
-      out.push({
-        rgb: [s.data[i]!, s.data[i + 1]!, s.data[i + 2]!],
-        u: (x + 0.5) / s.dpr / w,
-        v: (s.height - y - 0.5) / s.dpr / w,
-      });
+  if (!s) return { ratio: NaN, where: "" };
+  const box = el.getBoundingClientRect();
+  let ratio = Infinity;
+  let where = "";
+  let sampled = 0;
+  for (const line of el.querySelectorAll<HTMLElement>("[data-ink]")) {
+    const against = hex(readColor(line, line.dataset.ink!).map((c) => c * 255));
+    const range = document.createRange();
+    range.selectNodeContents(line);
+    for (const r of range.getClientRects()) {
+      const x0 = Math.floor((r.left - box.left) * s.dpr);
+      const x1 = Math.ceil((r.right - box.left) * s.dpr);
+      const y0 = Math.floor((r.top - box.top) * s.dpr);
+      const y1 = Math.ceil((r.bottom - box.top) * s.dpr);
+      const seen = new Map<string, number>();
+      for (let y = Math.max(0, y0); y < Math.min(s.height, y1); y++) {
+        for (let x = Math.max(0, x0); x < Math.min(s.width, x1); x++) {
+          const i = (y * s.width + x) * 4;
+          if (s.data[i + 3] !== 255) continue;
+          const key = hex([s.data[i]!, s.data[i + 1]!, s.data[i + 2]!]);
+          let c = seen.get(key);
+          if (c === undefined) seen.set(key, (c = contrastRatio(key, against)));
+          sampled++;
+          if (c < ratio) {
+            ratio = c;
+            where = line.dataset.ink!;
+          }
+        }
+      }
     }
   }
-  return out;
+  return { ratio: sampled ? ratio : NaN, where };
 }
 
-type Zone = { quiet: number; x: number; y: number; aspect: number };
-
-/** The quiet zone the runtime drew with — `auto` resolved to the look's preset. */
-function zoneOf(el: HTMLElement): Zone {
-  const v = sampleShader(el, "gradient")!.values;
-  const r = el.getBoundingClientRect();
-  return { quiet: v.u_quiet as number, x: v.u_quietX as number, y: v.u_quietY as number, aspect: r.height / r.width };
-}
-
-/** Inside the zone's CORE, as the GLSL defines it (fx_quietMask): an ellipse at half the radius. */
-const inCore = (z: Zone) => (p: { u: number; v: number }) =>
-  Math.hypot((p.u - z.x) * 0.75, (p.v - (1 - z.y) * z.aspect) * 1.5) < 0.5 * z.quiet;
-
-/** The least contrast between a pixel under the copy and the ink. NaN: nothing sampled. */
-function worstUnderCopy(el: HTMLElement, ink: string, core: (p: { u: number; v: number }) => boolean) {
-  const against = hex(readColor(el, ink).map((c) => c * 255));
-  const seen = new Map<string, number>();
-  let min = Infinity;
-  for (const p of pixels(el)) {
-    if (!core(p)) continue;
-    const key = hex(p.rgb);
-    let ratio = seen.get(key);
-    if (ratio === undefined) seen.set(key, (ratio = contrastRatio(key, against)));
-    min = Math.min(min, ratio);
-  }
-  return seen.size ? min : NaN;
-}
-
-describe("the copy keeps its contrast in the quiet zone", () => {
+describe("the copy keeps its contrast where it actually sits", () => {
   const cases = THEMES.flatMap(([theme, style]) =>
     (["light", "dark"] as const).flatMap((scheme) => GRADIENT_LOOKS.map((look) => [theme, scheme, look, style] as const)),
   );
 
   test.each(cases)("%s, %s: %s", async (_theme, scheme, look, style) => {
     configureShaders({ freezeAt: 6 });
-    const el = q(render(ground(look), { ...style, colorScheme: scheme }), "[data-ground]");
+    const el = q(render(<GroundWithCopy look={look} />, { ...style, colorScheme: scheme }), "[data-ground]");
     start();
     await until(drawing(el, "gradient"), "the gradient to draw");
-    const core = inCore(zoneOf(el));
-    for (const ink of ["--ui-text-primary", "--ui-text-muted"]) {
-      const ratio = worstUnderCopy(el, ink, core);
-      // NaN means no pixel was measured — a gate must never pass on no data.
-      expect(Number.isNaN(ratio), "no pixel in the quiet zone was sampled").toBe(false);
-      expect(ratio, `${ink}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
-    }
-    // And outside the zone the ground is a ground, not a flat base: the
-    // light moves at least 24 steps off it somewhere.
-    const base = readColor(el, "--ui-fx-gradient-base").map((c) => c * 255);
-    const far = pixels(el).some((p) => !core(p) && p.rgb.some((c, i) => Math.abs(c - base[i]!) > 24));
-    expect(far, "the ground drew no light outside its quiet zone").toBe(true);
+    await document.fonts.ready;
+    const { ratio, where } = worstUnderText(el);
+    // NaN means no pixel was measured — a gate must never pass on no data.
+    expect(Number.isNaN(ratio), "no pixel under the text was sampled").toBe(false);
+    expect(ratio, `${where}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+    // And the ground is a ground, not a flat base: somewhere the light
+    // moves at least 24 steps off it.
+    const base = readColor(el, "--ui-fx-gradient-base", "--ui-bg-base").map((c) => c * 255);
+    const s = sampleShader(el, "gradient")!;
+    let far = false;
+    for (let i = 0; i < s.data.length && !far; i += 4) far = [0, 1, 2].some((c) => Math.abs(s.data[i + c]! - base[c]!) > 24);
+    expect(far, "the ground drew no light anywhere").toBe(true);
   });
 
-  test("the measurement measures something: with the zone off, some look falls under 4.5:1 where the copy sits", async () => {
+  /**
+   * The looks that fill the frame owe the copy's contrast to the zone, and
+   * each must fall under 4.5:1 somewhere without it, or the passing cases
+   * above prove nothing for it. The horizons (rise, dawn) are exempt by
+   * composition: their copy sits in a sky that is quiet without a zone.
+   */
+  const OWES_THE_ZONE: GradientLook[] = ["wash", "sweep", "fold"];
+  test.each(OWES_THE_ZONE)("the measurement measures something: %s falls under 4.5:1 under its copy with the zone off", async (look) => {
     configureShaders({ freezeAt: 6 });
     const failures: string[] = [];
     for (const [theme, style] of THEMES) {
       for (const scheme of ["light", "dark"] as const) {
-        for (const look of GRADIENT_LOOKS) {
-          const el = q(render(ground(look), { ...style, colorScheme: scheme }), "[data-ground]");
-          if (!stops.length) start();
-          await until(drawing(el, "gradient"), "the gradient to draw");
-          // Where the copy sits, from the look's own zone; then the zone goes.
-          const core = inCore(zoneOf(el));
-          el.style.setProperty("--ui-fx-gradient-quiet", "0");
-          await until(() => sampleShader(el, "gradient")?.values.u_quiet === 0, "the zone to switch off");
-          const ratio = worstUnderCopy(el, "--ui-text-muted", core);
-          if (ratio < 4.5) failures.push(`${theme}/${scheme}/${look}`);
-        }
+        const el = q(
+          render(<GroundWithCopy look={look} style={{ ["--ui-fx-gradient-quiet" as string]: 0 }} />, { ...style, colorScheme: scheme }),
+          "[data-ground]",
+        );
+        if (!stops.length) start();
+        await until(drawing(el, "gradient"), "the gradient to draw");
+        await document.fonts.ready;
+        const { ratio } = worstUnderText(el);
+        if (ratio < 4.5) failures.push(`${theme}/${scheme}`);
       }
     }
-    expect(failures.length, "no look fails without its quiet zone, so the passing cases above prove nothing").toBeGreaterThan(0);
+    expect(failures.length, `${look} keeps 4.5:1 without its zone, so its passing case proves nothing`).toBeGreaterThan(0);
   });
 });
 
@@ -333,33 +456,56 @@ describe("the copy keeps its contrast in the quiet zone", () => {
 type Frame = { data: Uint8ClampedArray; width: number; height: number };
 
 /**
- * The widest run of identical pixels along a row that changes at all, in the
- * frame's middle. A run of the ground's own BASE is skipped: a flat area of
- * base (the quiet zone, rise's sky) is flat by design, and a one-step dither
- * leaves most of a flat area's pixels on the same value. A band is a plateau
- * inside a ramp, and every ramp leaves the base.
+ * The widest run of identical pixels along a line that changes at all — every
+ * third row AND every third column, across the whole frame but its outer 5%.
+ * A run of the ground's EXACT base is skipped: a flat area of base (the
+ * quiet zone, a horizon's sky) is flat by design, and a one-step dither
+ * leaves most of a flat area's pixels on the same value. A plateau one step
+ * off the base — the first band beside it — is still measured.
  */
 function widestBand(s: Frame, base?: readonly number[]) {
-  const isBase = (i: number) => !!base && [0, 1, 2].every((c) => Math.abs(s.data[i + c]! - base[c]!) <= 1);
-  let widest = 0;
-  for (let y = Math.floor(s.height * 0.1); y < s.height * 0.6; y += 3) {
-    let run = 1;
-    let changes = 0;
-    let rowWidest = 1;
-    for (let x = Math.floor(s.width * 0.1) + 1; x < s.width * 0.9; x++) {
-      const i = (y * s.width + x) * 4;
-      const same = s.data[i] === s.data[i - 4] && s.data[i + 1] === s.data[i - 3] && s.data[i + 2] === s.data[i - 2];
-      if (same) run++;
-      else {
-        changes++;
-        if (!isBase(i - 4)) rowWidest = Math.max(rowWidest, run);
-        run = 1;
+  const at = (x: number, y: number) => (y * s.width + x) * 4;
+  const same = (a: number, b: number) => s.data[a] === s.data[b] && s.data[a + 1] === s.data[b + 1] && s.data[a + 2] === s.data[b + 2];
+  const isBase = (i: number) => !!base && s.data[i] === base[0] && s.data[i + 1] === base[1] && s.data[i + 2] === base[2];
+  const scan = (count: number, length: number, index: (line: number, k: number) => number) => {
+    let widest = 0;
+    for (let line = Math.floor(count * 0.05); line < count * 0.95; line += 3) {
+      let run = 1;
+      let changes = 0;
+      let lineWidest = 0;
+      const k0 = Math.floor(length * 0.05) + 1;
+      const k1 = Math.floor(length * 0.95);
+      for (let k = k0; k < k1; k++) {
+        if (same(index(line, k), index(line, k - 1))) run++;
+        else {
+          changes++;
+          if (!isBase(index(line, k - 1))) lineWidest = Math.max(lineWidest, run);
+          run = 1;
+        }
       }
+      if (!isBase(index(line, k1 - 1))) lineWidest = Math.max(lineWidest, run);
+      if (changes) widest = Math.max(widest, lineWidest);
     }
-    const last = (y * s.width + Math.floor(s.width * 0.9) - 1) * 4;
-    if (changes) widest = Math.max(widest, rowWidest, isBase(last) ? 0 : run);
+    return widest;
+  };
+  return Math.max(
+    scan(s.height, s.width, (y, x) => at(x, y)),
+    scan(s.width, s.height, (x, y) => at(x, y)),
+  );
+}
+
+/** An undithered dark ramp, 16 steps of sRGB 20→36 over 640 px, horizontal or vertical. */
+function ramp(vertical: boolean): Frame {
+  const width = vertical ? 60 : 640;
+  const height = vertical ? 640 : 60;
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const v = 20 + Math.floor(((vertical ? y : x) / 640) * 16);
+      data.set([v, v, v, 255], (y * width + x) * 4);
+    }
   }
-  return widest;
+  return { data, width, height };
 }
 
 describe("a ground never bands", () => {
@@ -372,22 +518,13 @@ describe("a ground never bands", () => {
     start();
     for (const el of els) await until(drawing(el, "gradient"), `${look} to draw`);
     for (const el of els) {
-      const base = readColor(el, "--ui-fx-gradient-base").map((c) => Math.round(c * 255));
+      const base = readColor(el, "--ui-fx-gradient-base", "--ui-bg-base").map((c) => Math.round(c * 255));
       expect(widestBand(sampleShader(el, "gradient")!, base)).toBeLessThanOrEqual(32);
     }
   });
 
-  test("the measure sees a band: an undithered dark ramp fails it", () => {
-    // 640 px from sRGB 20 to 36: sixteen steps, each a 40 px band.
-    const width = 640;
-    const height = 60;
-    const data = new Uint8ClampedArray(width * height * 4);
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const v = 20 + Math.floor((x / width) * 16);
-        data.set([v, v, v, 255], (y * width + x) * 4);
-      }
-    }
-    expect(widestBand({ data, width, height })).toBeGreaterThan(32);
+  test("the measure sees a band: an undithered dark ramp fails it, along rows and along columns", () => {
+    expect(widestBand(ramp(false))).toBeGreaterThan(32);
+    expect(widestBand(ramp(true))).toBeGreaterThan(32);
   });
 });

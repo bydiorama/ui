@@ -75,9 +75,17 @@ useEffect(() => startShaders(), []);   // returns its own stop; StrictMode-safe
 | `rise` | a horizon: a crisp bright rim low in the frame, copy in the sky | a landing hero, a "welcome" screen |
 | `dawn` | a soft horizon: light rising from below the frame, no rim, copy in the sky | a sign-in, a calm landing, an onboarding step |
 
-Set only what you mean to change: a knob left at `auto` takes the look's own
-preset (angle, intensity, where the copy goes), so `look: rise` alone is a
-finished horizon with its copy top left.
+Set only what you mean to change. Four knobs follow the look when left at
+`auto`: angle, intensity, and the quiet zone's size and height. So `look:
+rise` alone is a finished horizon with its copy top left. The other knobs
+have one default for every look.
+
+Set the knobs **anywhere above the ground**: on the section, a wrapper or a
+brand scope — they inherit. The colours default to the scope's own
+`--ui-bg-base` and `--ui-bg-accent`, so a brand scope needs no gradient
+tokens at all. Write numbers as CSS would: `24deg`, `0.1turn`, `25%`.
+`calc()` is not evaluated in a custom property and reads as the default
+(with a console warning); out-of-range values are clamped.
 
 ## What the layer guarantees — do not re-solve it
 
@@ -112,8 +120,8 @@ Override tokens on a scope, like any component variable:
 | `--ui-fx-grain` + `--ui-fx-grain-amount` | subtle tile, 0.03 | `var(--ui-fx-grain-visible)`, 0.07 for a grainier brand |
 | `--ui-fx-ambient-speed` | 1 | 0.5 calm, 1.7 expressive — the grounds, ink, shimmer |
 | `--ui-fx-gradient-look` | `wash` | `wash` · `sweep` · `fold` · `rise` · `dawn` |
-| `--ui-fx-gradient-base` / `-light` | `--ui-bg-base` / `--ui-bg-accent` | the gradient's two colours; every other tone is derived from them |
-| `--ui-fx-gradient-angle` | `auto` | the direction the forms run, in `deg` |
+| `--ui-fx-gradient-base` / `-light` | the scope's `--ui-bg-base` / `--ui-bg-accent` | the gradient's two colours; every other tone is derived from them |
+| `--ui-fx-gradient-angle` | `auto` | the direction the forms run (`deg`, `turn`, `rad`) |
 | `--ui-fx-gradient-sharpness` | 0.5 | 0 soft … 1 crisp edges and rims |
 | `--ui-fx-gradient-scale` | 1 | the forms' size: 0.6 tight, 1.6 broad |
 | `--ui-fx-gradient-chroma` | 1 | colourfulness: 0.6 quiet, 1.4 vivid |

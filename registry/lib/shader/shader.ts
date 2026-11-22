@@ -47,6 +47,8 @@ export interface ShaderSettings {
   freezeAt: number | null;
   /** Device-pixel cap. 2 is indistinguishable from 3 at these feature sizes. */
   maxDpr: number;
+  /** null adapts to frame time; a number pins the quality step (tests). */
+  quality: number | null;
 }
 
 /**
@@ -87,7 +89,7 @@ export const SHADER_RECIPES: Record<ShaderName, Record<string, ShaderRecipe>> = 
 const NAMES = Object.keys(SHADERS) as ShaderName[];
 const SELECTOR = NAMES.map((n) => `.fx-${n}`).join(", ");
 
-export const settings: ShaderSettings = { reducedMotion: null, forceFloor: false, freezeAt: null, maxDpr: 2 };
+export const settings: ShaderSettings = { reducedMotion: null, forceFloor: false, freezeAt: null, maxDpr: 2, quality: null };
 
 // --- reading tokens ----------------------------------------------------------
 
@@ -99,14 +101,16 @@ let swatch: CanvasRenderingContext2D | null = null;
  * 1×1 canvas reads the result back, which is the one parser that agrees with
  * the browser on every colour syntax by construction.
  */
-export function readColor(el: HTMLElement, token: string): [number, number, number] {
+export function readColor(el: HTMLElement, token: string, fallbackToken?: string): [number, number, number] {
   if (!swatch) {
     const c = document.createElement("canvas");
     c.width = c.height = 1;
     swatch = c.getContext("2d", { willReadFrequently: true });
   }
   const prev = el.style.color;
-  el.style.color = `var(${token})`;
+  // A fallback token, not a declared default: a default declared on the
+  // effect's own class would override what a wrapper or a brand scope sets.
+  el.style.color = fallbackToken ? `var(${token}, var(${fallbackToken}))` : `var(${token})`;
   const css = getComputedStyle(el).color;
   el.style.color = prev;
   if (!swatch) return [0, 0, 0];
@@ -118,18 +122,47 @@ export function readColor(el: HTMLElement, token: string): [number, number, numb
   return [d[0]! / 255, d[1]! / 255, d[2]! / 255];
 }
 
-/** A keyword token: the index of its value in `values`, or 0 (the first) when unset or unknown. */
-export function readKeyword(el: Element, token: string, values: readonly string[]): number {
-  const raw = getComputedStyle(el).getPropertyValue(token).trim();
-  return Math.max(0, values.indexOf(raw));
+/** Each unreadable token value is said once, not every frame. */
+const warned = new Set<string>();
+function warnOnce(token: string, raw: string, expected: string) {
+  const key = `${token}:${raw}`;
+  if (warned.has(key)) return;
+  warned.add(key);
+  console.warn(`[shader] ${token}: "${raw}" is not ${expected}; using the default.`);
 }
 
-/** A numeric token: `2000ms` → 2 (seconds), `16px` → 16, `0.6` → 0.6; `auto` → the fallback. */
+/**
+ * A keyword token: the index of its value in `values`, or 0 (the first) when
+ * unset. Quotes and case are forgiven (`"Rise"` is `rise`); an unknown value
+ * is said once and reads as the first.
+ */
+export function readKeyword(el: Element, token: string, values: readonly string[]): number {
+  const raw = getComputedStyle(el).getPropertyValue(token).trim();
+  const word = raw.replace(/^["']|["']$/g, "").toLowerCase();
+  const i = values.indexOf(word);
+  if (i < 0 && word && word !== "auto") warnOnce(token, raw, `one of ${values.join(", ")}`);
+  return Math.max(0, i);
+}
+
+/**
+ * A numeric token, in the unit the program expects: `2000ms` → 2 (seconds),
+ * `16px` → 16, `24deg` → 24, `0.1turn` → 36 (degrees), `1rad` → 57.3, `50%`
+ * → 0.5, `0.6` → 0.6. Unset or `auto` → the fallback, silently. Anything
+ * else — `calc()`, an unknown unit — is said once and reads as the fallback:
+ * a custom property's value is not evaluated, so `calc(…)` arrives as text.
+ */
 export function readNumber(el: Element, token: string, fallback: number): number {
   const raw = getComputedStyle(el).getPropertyValue(token).trim();
-  const n = parseFloat(raw);
-  if (!Number.isFinite(n)) return fallback;
-  return raw.endsWith("ms") ? n / 1000 : n;
+  if (!raw || raw === "auto") return fallback;
+  const m = raw.match(/^([-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)([a-z%]*)$/i);
+  const n = m ? parseFloat(m[1]!) : NaN;
+  const unit = m?.[2]?.toLowerCase() ?? "";
+  const scale: Record<string, number> = { "": 1, px: 1, deg: 1, s: 1, ms: 1 / 1000, "%": 1 / 100, turn: 360, rad: 180 / Math.PI, grad: 0.9 };
+  if (!Number.isFinite(n) || !(unit in scale)) {
+    warnOnce(token, raw, "a number");
+    return fallback;
+  }
+  return n * scale[unit]!;
 }
 
 // --- Renderer ------------------------------------------------------------------
@@ -334,7 +367,7 @@ class Target {
     for (const [name, spec] of Object.entries(this.def.uniforms)) {
       this.values[name] =
         "color" in spec
-          ? readColor(this.canvas, spec.color)
+          ? readColor(this.canvas, spec.color, spec.fallback)
           : "keyword" in spec
             ? readKeyword(this.canvas, spec.keyword, spec.values)
             : readNumber(this.canvas, spec.number, spec.fallback ?? 0);
@@ -348,11 +381,13 @@ class Target {
     for (const [name, spec] of Object.entries(this.def.uniforms)) {
       if (!("number" in spec) || !spec.live) continue;
       const v = readNumber(this.canvas, spec.number, spec.fallback ?? 0);
-      if (v !== this.values[name]) {
+      // Object.is: a NaN (`auto`) must not read as a change on every frame.
+      if (!Object.is(v, this.values[name])) {
         this.values[name] = v;
         this.dirty = true;
       }
     }
+    this.def.resolve?.(this.values);
   }
 
   layout(quality = this.scheduler.quality) {
@@ -449,7 +484,11 @@ class Target {
 class Scheduler {
   readonly renderer: Renderer;
   readonly targets = new Set<Target>();
-  quality = 1;
+  /** The adaptive step, 1 down to 0.5. `settings.quality` overrides it. */
+  private adaptive = 1;
+  get quality() {
+    return settings.quality ?? this.adaptive;
+  }
   private byRoot = new WeakMap<HTMLElement, Map<ShaderName, Target>>();
   private byMount = new Map<Element, Set<Target>>();
   private seed = 1;
@@ -465,6 +504,8 @@ class Scheduler {
   private pending = new Set<Element>();
   private readonly teardown: Array<() => void> = [];
   private readonly reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  /** Forced colours hide every canvas (shader.css): draw nothing, as at the floor. */
+  private readonly forcedColors = matchMedia("(forced-colors: active)");
 
   private intersection = new IntersectionObserver(
     (entries) => {
@@ -542,9 +583,11 @@ class Scheduler {
     const scheme = matchMedia("(prefers-color-scheme: dark)");
     scheme.addEventListener("change", all);
     this.reducedMotion.addEventListener("change", all);
+    this.forcedColors.addEventListener("change", all);
     this.teardown.push(() => {
       scheme.removeEventListener("change", all);
       this.reducedMotion.removeEventListener("change", all);
+      this.forcedColors.removeEventListener("change", all);
     });
     void document.fonts?.ready.then(() => this.targets.size && all());
     this.wake();
@@ -649,8 +692,9 @@ class Scheduler {
     this.last = now;
     const t0 = performance.now();
     const still = this.isStill();
-    const usable = !settings.forceFloor && this.renderer.init();
-    const offState: ShaderState = settings.forceFloor
+    const floor = settings.forceFloor || this.forcedColors.matches;
+    const usable = !floor && this.renderer.init();
+    const offState: ShaderState = floor
       ? "floor"
       : this.renderer.lost
         ? "lost"
@@ -658,6 +702,7 @@ class Scheduler {
           ? "floor"
           : "unsupported";
     let moving = false;
+    let painted = 0;
     for (const t of this.targets) {
       if (!usable) {
         t.setState(offState);
@@ -677,7 +722,7 @@ class Scheduler {
           t.clock = at;
           t.dirty = true;
         }
-        if (t.dirty) t.paint(this.renderer);
+        if (t.dirty && t.paint(this.renderer)) painted++;
         continue;
       }
       t.clock += dt * t.speed;
@@ -686,9 +731,11 @@ class Scheduler {
       // comes; a state change (dirty) never waits.
       if (t.def.fps && !t.dirty && now - t.painted < 1000 / t.def.fps - 2) continue;
       t.painted = now;
-      t.paint(this.renderer);
+      if (t.paint(this.renderer)) painted++;
     }
-    this.measure(now, performance.now() - t0);
+    // Only frames that painted say what painting costs: averaging in the
+    // frames a capped ground skips would halve its cost on paper.
+    if (painted) this.measure(now, performance.now() - t0);
     // The loop sleeps once nothing moves: still targets are drawn once, an
     // idle halo not at all. Anything that changes a target — a transition on
     // the canvas, a resize, a token, visibility — wakes it again. With no
@@ -700,9 +747,12 @@ class Scheduler {
   /**
    * Adaptive quality. Full device resolution by default. Only when frames
    * get slow do LARGE targets step down, a quarter at a time, and step back
-   * up once there is room. Small controls always render at full resolution.
+   * up once there is room. Small controls always render at full resolution,
+   * and so does a target whose program says `adaptive: false` (a ground: a
+   * scaled dither smears). `settings.quality` pins the step instead.
    */
   private measure(now: number, ms: number) {
+    if (settings.quality !== null) return;
     if (!this.since) this.since = now;
     this.spent += ms;
     this.frames++;
@@ -711,9 +761,9 @@ class Scheduler {
     this.frames = 0;
     this.spent = 0;
     this.since = now;
-    const next = per > 12 ? Math.max(0.5, this.quality - 0.25) : per < 5 ? Math.min(1, this.quality + 0.25) : this.quality;
-    if (next === this.quality) return;
-    this.quality = next;
+    const next = per > 12 ? Math.max(0.5, this.adaptive - 0.25) : per < 5 ? Math.min(1, this.adaptive + 0.25) : this.adaptive;
+    if (next === this.adaptive) return;
+    this.adaptive = next;
     for (const t of this.targets) if (t.cssW * t.cssH > BIG_AREA && t.def.adaptive !== false) t.layout(next);
   }
 

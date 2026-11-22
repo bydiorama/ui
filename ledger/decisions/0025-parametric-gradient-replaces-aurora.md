@@ -63,10 +63,19 @@ the form differs.
 
    Every other knob is shared and tunes any look: `-angle`, `-sharpness`,
    `-scale`, `-chroma`, `-intensity`, the quiet zone (`-quiet`, `-quiet-x`,
-   `-quiet-y`) and `-dissolve`. A knob left at **`auto`** takes the look's
-   own preset (`GRADIENT_PRESETS`: angle, intensity, the zone's size and
-   where the copy goes), so `--ui-fx-gradient-look: rise` alone is a
-   finished horizon with its copy in the sky. The horizons (rise, dawn) use
+   `-quiet-y`) and `-dissolve`. Four knobs follow the look when left at
+   **`auto`** (`GRADIENT_PRESETS`): angle, intensity, and the zone's size
+   and height. So `--ui-fx-gradient-look: rise` alone is a finished horizon
+   with its copy in the sky. The other knobs have one default for every
+   look.
+
+   The knobs' defaults are declared on `:root` and **inherited**, so a
+   wrapper or a brand scope can set them. The colours are not declared;
+   they fall back to the scope's own `--ui-bg-base` and `--ui-bg-accent`.
+   Numbers are read with their CSS unit (`deg`, `turn`, `rad`, `%`, `ms`),
+   an unreadable value (a `calc()`, an unknown unit or keyword) is said once
+   in the console and reads as the default, and every knob is clamped to
+   the range its GLSL is written for. The horizons (rise, dawn) use
    a smaller zone: their sky is already quiet, and a large ellipse there
    reaches down into the light. The looks do not blend into each other: they are
    different forms. Everything around the form is one piece of code.

@@ -18,8 +18,12 @@ import numpy as np
 from PIL import Image
 
 OUT = Path(__file__).parent / ".out"
-MUTED = {"dark": "#A69F98", "light": "#69635D"}
+MUTED = {"dark": "#A69F98", "light": "#69635D", "pale-light": "#6B5D3F", "pale-dark": "#A89E86"}
 COPY_BOX = (slice(446, 496), slice(48, 370))  # rows, cols: the Ground story's copy
+TOP_COPY_BOX = (slice(44, 94), slice(48, 370))  # a look whose copy sits top left
+import json
+_copy = OUT / "looks-copy.json"
+COPY_AT = json.loads(_copy.read_text()) if _copy.exists() else {}
 
 
 def luminance(rgb):
@@ -48,8 +52,9 @@ for png in sorted(OUT.glob("*.png")):
     ratio = ""
     bg = OUT / "bg" / png.name
     if bg.exists():
-        scheme = "light" if "light" in png.stem else "dark"
+        scheme = next((s for s in ("pale-light", "pale-dark") if png.stem.endswith(s)), "light" if "light" in png.stem else "dark")
         ink = luminance([int(MUTED[scheme][i : i + 2], 16) for i in (1, 3, 5)])
-        box = luminance(np.asarray(Image.open(bg).convert("RGB"))[COPY_BOX].reshape(-1, 3))
+        region = TOP_COPY_BOX if COPY_AT.get(png.stem) == "top" else COPY_BOX
+        box = luminance(np.asarray(Image.open(bg).convert("RGB"))[region].reshape(-1, 3))
         ratio = f"{np.percentile(contrast(ink, box), 1):.2f}"
     print(f"{png.stem:24s}{levels:8d}{np.percentile(runs, 95):9.0f}{runs.max():9d}{ratio:>11s}")

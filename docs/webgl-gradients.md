@@ -404,6 +404,50 @@ anti-banding dither in rule 3.
    the text, `pnpm check:fx`, visual baselines in both schemes and the stress
    theme.
 
+## 9. After the specimen: wash, sweep, rise (lab only)
+
+Of the references, the owner picked gradflow's **mesh, stripe and horizon**.
+Measured on the renders (`lab/.out/bg`, OKLab), they share a recipe:
+
+| | Detail (lower = bigger forms) | Lightness range | Chroma (p90) |
+|---|---:|---:|---:|
+| gradflow mesh | **2.8** | 0.31 | 0.076 |
+| gradflow stripe | **5.5** | **0.70** | **0.165** |
+| gradflow horizon | **6.4** | **0.84** | 0.064 |
+| gradflow fold / silk (not picked) | 25.3 / 15.6 | 0.64 / 0.32 | 0.054 / 0.093 |
+| our mesh / fold prototypes | 9.2 / 20.5 | 0.42 / 0.39 | 0.048 / 0.032 |
+
+That is: a few **large** forms, a **wide** lightness range, **real** chroma.
+Ours were busier, flatter and greyer.
+
+`lab/looks.mts` prototypes three grounds on that recipe. They are written
+from scratch on the shipped prelude and ground helpers:
+
+- **wash**: broad gaussian pools over a ramp.
+- **sweep**: two big S-shaped forms, each with a lit edge.
+- **rise**: a horizon rim with a glow above and a body below.
+
+![References (top) and wash, sweep, rise in dark, light, the pale-yellow brand and full frame](./webgl-gradients/07-looks.jpg)
+
+What the iterations taught:
+
+- **Chroma has to fall with lightness.** Doubling the accent's chroma made
+  dark tones electric and dark yellow olive. `fx_tone` scales chroma from
+  0.45× at dark to 1× at light.
+- **On a full-frame look the quiet zone must be composition, not a hole.**
+  An ellipse of base reads as a stain on a frame that is colour everywhere.
+  The light now falls away toward the copy over a long reach
+  (`fx_falloff`), so the copy corner reads as the frame's shadow side.
+- **The horizon fits the system naturally.** Its light is low, so the copy
+  goes top left, in the sky (quiet-y 0.18).
+- **Full frame is possible only with glass.** Without the zone, muted ink
+  drops to 2.0–2.6:1. The copy then needs a glass pane, which ADR 0022
+  makes legible over anything.
+
+All twelve zoned tiles hold muted ink at 5.9–7.0:1, with no band wider than
+36 px (95 px on rise-light, the flat white sky). Not shipped: the library
+still has mesh and fold until a choice is made.
+
 ## Reproduce the lab
 
 From `docs/webgl-gradients/lab/` (needs Node 22, Playwright's Chromium,
@@ -412,7 +456,8 @@ Python with Pillow and numpy; outputs go to the git-ignored `.out/`):
 ```sh
 mkdir -p .out/paper && (cd .out/paper && npm pack @paper-design/shaders@0.0.82 && tar xzf paper-design-shaders-0.0.82.tgz)
 git clone --depth 1 https://github.com/meerbahadin/gradflow.git .out/gradflow
-node --experimental-strip-types build.mts   # writes .out/lab.html: the shipped aurora GLSL + both prototypes
+node --experimental-strip-types build.mts   # .out/lab.html — needs aurora: run it at commit 14a00dc, before aurora was retired
+node --experimental-strip-types looks.mts && node shoot-looks.cjs   # §9: wash, sweep, rise
 node shoot.cjs && node shoot-paper.cjs && node shoot-gradflow.cjs   # every tile, with and without copy
 python3 -I measure.py                       # the tables above
 ```

@@ -31,6 +31,12 @@ look just as bad if we carried them over:
 A mesh gradient fixes (3) and (5) by its nature. (1), (2) and (4) we have to
 fix ourselves, whatever technique we choose.
 
+**Update after the references (§5).** gradflow and MagicPattern point at a
+*directional* "fold/silk" look rather than a soft mesh. A second prototype in
+that family holds the muted text at 5.4:1 in both schemes, with a quiet zone
+under the copy instead of a per-pixel guard. So the recommendation becomes
+**one ground with two looks: `mesh` (quiet) and `fold` (expressive)**.
+
 ## 1. What is wrong today, measured
 
 ![Today: aurora ground and blurred circles, dark and light](./webgl-gradients/01-today.png)
@@ -165,10 +171,131 @@ What the lab shows:
   not a design). The shapes in Paper's tiles show how much better an art
   directed set of points and warp can look.
 
-## 5. Recommendation
+## 5. References: gradflow and MagicPattern
 
-**Add a `mesh` ground to the existing shader runtime. Do not adopt Paper's
-runtime or React components.** Our runtime already handles what a
+Added 2026-11-22, after the first pass. Two references were proposed as the
+look to aim for.
+
+### gradflow ([meerbahadin/gradflow](https://github.com/meerbahadin/gradflow))
+
+What it is:
+
+- A React `<canvas>` component, npm `gradflow` 0.4.0 (October 2026).
+- One WebGL1 fragment shader holding 20 pattern types (`mesh`, `silk`,
+  `fold`, `stripe`, `horizon`, `aurora` …), picked by an integer uniform.
+- Three colours, a `speed`, a `scale` and a `noise` value.
+- Type changes dissolve along a noise front.
+
+**Licence: MIT is declared in `package.json` and the README, but there is no
+LICENSE file in the repository or the npm tarball, and no copyright line.**
+MIT asks us to keep the copyright notice, and there is none to keep. Treat
+it as a reference. If we want its code itself, first ask the author to add a
+LICENSE file.
+
+Rendered in the lab with theme zero's dark tokens (accent, base, and a
+hue-turned accent as its three colours):
+
+![gradflow types with theme zero's dark tokens](./webgl-gradients/04-gradflow.png)
+
+- **`fold`, `silk` and `stripe` are the look the references point at.** They
+  are directional: creases or bands that run one way, a sharp lit rim over a
+  soft body, and high chroma. This is a *different family* from the mesh
+  gradients in §4. Their banding is fine (max runs 23–40 px) because the
+  structure itself breaks up the ramps.
+- **`horizon` is the "two blurred shapes" idea, done in a shader**: two soft
+  hills whose smoothstep width plays the blur radius. Without grain it has
+  the worst band in the whole lab: **700 px**. With `noise: 0.25` it drops to
+  20 px.
+- **None of the types considers text.** With our muted ink on top:
+  - `fold` 1.01:1;
+  - `mesh` 1.00:1;
+  - `silk` and `stripe` 1.12:1;
+  - `horizon` 2.35:1.
+
+  They are hero art; copy is the page's problem.
+- What we would not copy:
+  - colour mixing in gamma sRGB;
+  - grain that moves with time (`noise(vUv * 200.0 + time * 0.1)`) and only
+    multiplies the colour down, so it darkens and shimmers;
+  - no dither;
+  - `mediump` fallback;
+  - one WebGL context per component.
+
+  What it does well: a DPR cap of 2, reduced motion, IntersectionObserver
+  and `visibilitychange`.
+
+### MagicPattern shader background generator ([magicpattern.design](https://www.magicpattern.design/tools/shader-background-generator))
+
+A closed web tool. It renders WebGL in the browser and **exports a raster
+(PNG/JPG) or a video (MP4/WebM)**. Exports need a login. The page shows a
+watermark and advertises a paid plan. The exports are described as
+royalty-free.
+
+**Not usable as a source for the library:**
+
+- A bitmap or video ground cannot follow tokens, the light and dark schemes,
+  or a brand theme.
+- A video background costs far more than a shader.
+- Anything behind the paid plan is a paid-tier asset, which AGENTS.md rules
+  out.
+
+**Useful as a reference for art direction and controls.** Its 15 presets are
+almost all the directional family: diagonal folds, satin, streaks. Most have
+visible grain or Bayer dither *as texture*.
+
+Its controls are a good template for a token set:
+
+| Group | Controls |
+|---|---|
+| Colours | 2–6 colours |
+| Placement | position, zoom, rotation |
+| Mesh Waves | frequency, sharpness, amplitude, wave width |
+| Distortion | intensity, warp |
+| Effects | dithering, grain, vignette |
+
+### What the references change: a second prototype, `fold`
+
+The first prototype answered "can a mesh gradient be clean?". The references
+ask a different question: "can we get *that* look and still be a design
+system ground?" Prototype 2 is a fold ground, written from scratch in the
+directional family:
+
+- five light panes along slowly bending creases;
+- a soft body behind each crease and a sharp lit rim on it (`u_sharp`);
+- a direction (`u_angle`);
+- mixed in OKLab from `--ui-bg-base` and `--ui-bg-accent`;
+- static triangular dither last.
+
+**Instead of a per-pixel guard, a quiet zone keeps the ground's own colour
+around the copy's anchor (bottom-left).**
+
+![Prototype 2: fold ground, dark and light](./webgl-gradients/05-fold.png)
+
+This adds a **muted ink** column: the WCAG ratio of `--ui-text-muted`
+against the 1st-percentile pixel under the copy's box, measured on a render
+with the copy hidden. Body text needs 4.5.
+
+| Tile | Levels | Max run | Muted ink |
+|---|---:|---:|---:|
+| Aurora ground, dark (guarded per pixel) | 23 | 103 | 4.57 |
+| Mesh prototype, dark, unguarded | 68 | 16 | **3.76** |
+| Mesh prototype, dark, guarded per pixel | 5 | 16 | 4.60 |
+| Paper MeshGradient, dark | 129 | 219 | **4.14** |
+| gradflow fold, dark tokens | 179 | 30 | **1.01** |
+| **Fold prototype, dark, quiet zone** | **162** | **24** | **5.44** |
+| **Fold prototype, light, quiet zone** | **43** | **15** | **5.59** |
+
+**The quiet zone is the answer to the contrast question.** It passes 4.5:1
+in both schemes and keeps 162 luminance levels. The per-pixel guard passes
+only by squeezing the ground to 5.
+
+## 6. Recommendation
+
+**Add a ground to the existing shader runtime, with two looks, and do not
+adopt a gradient library.** The looks are `mesh` (quiet) and `fold`
+(expressive: the reference look). Choose with a token or a second effect
+name, decided in the ADR. Do not adopt Paper's runtime or React components,
+or gradflow. Our runtime already handles what a
 full-bleed WebGL background needs, and Paper's does not:
 
 | Concern | Our runtime (`lib/shader`) | Paper `ShaderMount` |
@@ -182,9 +309,16 @@ full-bleed WebGL background needs, and Paper's does not:
 
 The shader itself, rule by rule:
 
-1. **Technique.** Per-pixel colour points with inverse-distance weights and a
-   low-frequency sine/swirl warp, i.e. Paper's technique. No fbm octaves. A
-   technique cannot be copyrighted, so we can write it ourselves. If we copy
+1. **Technique.**
+   - `mesh`: per-pixel colour points with inverse-distance weights and a
+     low-frequency sine/swirl warp, i.e. Paper's technique.
+   - `fold`: stacked creases, each with a soft body and a sharp rim, i.e. the
+     family of gradflow's fold and silk and of MagicPattern's presets.
+     Prototype 2 is our own code.
+
+   No fbm octaves in either. A technique cannot be copyrighted, so we can
+   write both ourselves. Copy nothing from gradflow until it carries a LICENSE
+   file. If we copy
    any of Paper's GLSL instead, pin ≥ 0.0.77, ship its LICENSE and NOTICE,
    mark the changes, and **never** copy from 0.0.47–0.0.76.
 2. **Colour.** Mix in OKLab. Derive the palette from two tokens (base and
@@ -200,9 +334,10 @@ The shader itself, rule by rule:
 5. **Contrast.** This one **needs an ADR 0022 amendment.** Rule 4 says to
    guard "the ink its part carries, per pixel". On a ground that guard is what
    makes it muddy. Proposal:
-   - A ground keeps the base colour under its copy anchor: one colour point
-     *is* the base and sits where copy goes, so the bottom-left by default and
-     a token to move it.
+   - A ground keeps a **quiet zone** of its own base colour around the copy
+     anchor: bottom-left by default, with a token to move it. Measured in §5,
+     it holds 5.4:1 where the guard keeps 4.6:1 only by squeezing the ground
+     to 5 luminance levels.
    - The browser test samples contrast **under the text boxes**, not over the
      whole ground.
    - Controls (Button, Switch, Progress) keep the per-pixel guard unchanged.
@@ -219,10 +354,15 @@ The shader itself, rule by rule:
 
 **Keep aurora for controls.** On a 56 px button the ribbons read as light
 moving through a fill, and the guard is doing its job there. Aurora only
-fails as a *ground*: once the mesh lands, the `.fx-aurora:not([data-slot])`
-rule should move to it.
+fails as a *ground*: once the new ground lands, the
+`.fx-aurora:not([data-slot])` rule should move to it.
 
-## 6. Not verified
+**Borrow MagicPattern's controls for the tokens:** angle, frequency,
+sharpness, amplitude, warp, grain, and possibly a deliberate Bayer dither as
+a style. That dither is a visible texture, separate from the invisible
+anti-banding dither in rule 3.
+
+## 7. Not verified
 
 - Whether Chrome's 2D canvas, which the runtime copies onto, keeps the
   dither's exact pixel values on every GPU path. The lab draws WebGL
@@ -236,18 +376,21 @@ rule should move to it.
   GPUs closely for this kind of shader, but frame times say nothing; perf has
   to be measured on devices.
 
-## 7. Proposed next steps
+## 8. Proposed next steps
 
-1. **ADR 0024** (or an amendment to 0022): grounds guard ink under the copy
-   anchor rather than per pixel; dither after the encode is mandatory for
-   every shader; separable dissolve.
-2. **`mesh` in `EFFECTS` and `shader-programs.ts`**: the prototype GLSL,
-   moved to the prelude conventions, with uniforms read from tokens.
-3. **Art direction in Paper**: tune the point layout, the warp and the
-   palette recipe against real screens. The prototype's composition is a
-   placeholder.
-4. Story (`Ground` moves to mesh), the browser test sampling under the text,
-   `pnpm check:fx`, visual baselines in both schemes and the stress theme.
+1. **ADR 0024** (or an amendment to 0022): grounds keep a quiet zone under
+   the copy anchor instead of a per-pixel guard; dither after the encode is
+   mandatory for every shader; separable dissolve; `mesh` and `fold` as one
+   effect with a look token, or as two effects.
+2. **The ground in `EFFECTS` and `shader-programs.ts`**: both prototypes'
+   GLSL, moved to the prelude conventions, with uniforms read from tokens.
+3. **Art direction in Paper**: tune the fold's angle, crease count, rim and
+   palette recipe, and the mesh's points, against real screens, using
+   MagicPattern's presets as the mood board. Both compositions in the lab are
+   placeholders.
+4. Story (`Ground` moves to the new effect), the browser test sampling under
+   the text, `pnpm check:fx`, visual baselines in both schemes and the stress
+   theme.
 
 ## Reproduce the lab
 
@@ -256,8 +399,9 @@ Python with Pillow and numpy; outputs go to the git-ignored `.out/`):
 
 ```sh
 mkdir -p .out/paper && (cd .out/paper && npm pack @paper-design/shaders@0.0.82 && tar xzf paper-design-shaders-0.0.82.tgz)
-node --experimental-strip-types build.mts   # writes .out/lab.html from the shipped aurora GLSL + the prototype
-node shoot.cjs && node shoot-paper.cjs      # screenshots every tile
+git clone --depth 1 https://github.com/meerbahadin/gradflow.git .out/gradflow
+node --experimental-strip-types build.mts   # writes .out/lab.html: the shipped aurora GLSL + both prototypes
+node shoot.cjs && node shoot-paper.cjs && node shoot-gradflow.cjs   # every tile, with and without copy
 python3 -I measure.py                       # the tables above
 ```
 

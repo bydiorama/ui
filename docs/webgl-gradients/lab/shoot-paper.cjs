@@ -19,5 +19,9 @@ const PAPER = path.join(__dirname, ".out/paper/package/dist");
   await p.waitForFunction(() => window.__done, null, { timeout: 15000 });
   console.log("errors", errs);
   for (const id of ["paper-dark", "paper-light", "papergrain-dark"]) await p.locator("#" + id).screenshot({ path: `${__dirname}/.out/${id}.png` });
+  await p.addStyleTag({ content: ".copy{visibility:hidden}" });
+  fs.mkdirSync(path.join(__dirname, ".out/bg"), { recursive: true });
+  for (const id of await p.$$eval(".tile", (els) => els.map((e) => e.id)))
+    await p.locator("#" + id).screenshot({ path: path.join(__dirname, ".out/bg", id + ".png") });
   await b.close();
 })();

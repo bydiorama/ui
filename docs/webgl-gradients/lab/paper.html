@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>Paper lab</title>
+<style>body{margin:0;font:13px system-ui}.tile{position:relative;width:960px;height:540px;margin-bottom:4px}
+.m{position:absolute;inset:0}.copy{position:absolute;left:48px;bottom:44px;z-index:2}.copy b{display:block;font-size:22px;font-weight:600;margin-bottom:6px}
+.dark{background:#171411}.dark b{color:#FAF7F3}.dark span{color:#A69F98}.light{background:#fff}.light b{color:#1D1B19}.light span{color:#69635D}</style>
+<div id="paper-dark" class="tile dark"><div class="m"></div><div class="copy"><b>Nothing on this board yet</b><span>Drop images here or start from a template.</span></div></div>
+<div id="paper-light" class="tile light"><div class="m"></div><div class="copy"><b>Nothing on this board yet</b><span>Drop images here or start from a template.</span></div></div>
+<div id="papergrain-dark" class="tile dark"><div class="m"></div><div class="copy"><b>Nothing on this board yet</b><span>Drop images here or start from a template.</span></div></div>
+<script type="module">
+import { ShaderMount, meshGradientFragmentShader, getShaderColorFromString, ShaderFitOptions } from "/paper/index.js";
+const pal = { dark: ["#171411", "#9EDBF3", "#2B5D73", "#8FA7E8", "#171411"], light: ["#FFFFFF", "#9EDBF3", "#D2EBF8", "#B9C9F0", "#FFFFFF"] };
+const mount = (id, colors, grain) => new ShaderMount(document.querySelector(`#${id} .m`), meshGradientFragmentShader, {
+  u_colors: colors.map(getShaderColorFromString), u_colorsCount: colors.length, u_distortion: 0.8, u_swirl: 0.1,
+  u_grainMixer: 0, u_grainOverlay: grain, u_fit: ShaderFitOptions.cover, u_scale: 1, u_rotation: 0,
+  u_offsetX: 0, u_offsetY: 0, u_originX: 0.5, u_originY: 0.5, u_worldWidth: 0, u_worldHeight: 0 }, undefined, 0, 6000, 1);
+mount("paper-dark", pal.dark, 0); mount("paper-light", pal.light, 0); mount("papergrain-dark", pal.dark, 0.15);
+setTimeout(() => (window.__done = true), 800);
+</script>

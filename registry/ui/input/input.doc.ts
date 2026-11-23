@@ -13,7 +13,7 @@ export const inputDoc = {
 
   anatomy: [
     { part: "field", slot: "field", notes: "The wrapper. Owns the vertical rhythm between label, control and messages." },
-    { part: "label", slot: "label", notes: "Always rendered. isLabelHidden makes it visually hidden, never absent. text-field-label: label-md (13/600) at default, label-sm (12/600) under compact density (ADR 0026)." },
+    { part: "label", slot: "label", notes: "Always rendered. isLabelHidden makes it visually hidden, never absent. text-field-label: label-md (13/600) at default, label-sm (12/600) under compact density (ADR 0026). On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density." },
     { part: "control", slot: "control", notes: "The bordered surface. Carries the border, background, focus ring and data-size/data-shape/data-invalid/data-disabled." },
     { part: "input", slot: "input", notes: "The native <input>. Transparent and borderless — the control draws the chrome." },
     { part: "error", slot: "error", notes: "Rendered before helper so the correction is read first." },

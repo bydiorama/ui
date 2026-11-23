@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-popover-list-panel",
+  "date": "2026-11-23",
+  "item": "popover",
+  "kind": "addition",
+  "summary": "Popover.Panel takes variant=\"content\" | \"list\" (issue #55). content is the default and unchanged. list is a picker on Menu's surface: 280px wide, radius-md, bg-surface, hairline, shadow-md, and no padding of its own. It comes with four new parts. Popover.Search is a bare input on a 36px row under a hairline, and takes initial focus. Popover.List is p-xs, scrolls, and maxRows caps it. Popover.Row is Menu's item recipe made dense: px-sm py-xs on a 32px floor, so every label and glyph sits on a 12px lane. Popover.Footer is p-xs under a top hairline. It is still a dialog; the rows' keyboard model, filtering and selection are the caller's.",
+  "affects": [
+    "prop:variant",
+    "prop:maxRows",
+    "prop:isHighlighted",
+    "slot:popover-panel",
+    "slot:popover-search",
+    "slot:popover-list",
+    "slot:popover-row",
+    "slot:popover-row-label",
+    "slot:popover-footer"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4878-0"
+  }
+}

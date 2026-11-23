@@ -66,6 +66,15 @@ test("the row insets and floors merge like any spacing step — a consumer's p-s
   assert.ok(!has(rail, "size-nav-rail-item"), rail);
 });
 
+test("the footnote role is a size: it merges with sizes and keeps the colour", () => {
+  // Outside the size-name pattern, like caption and figure: without its name
+  // in cn's font-size group the merger reads it as a colour (#59).
+  const kept = cn("text-footnote", "text-ink-muted");
+  assert.ok(has(kept, "text-footnote") && has(kept, "text-ink-muted"), `one was dropped: ${kept}`);
+  const merged = cn("text-label-sm", "text-footnote");
+  assert.ok(!has(merged, "text-label-sm"), `both sizes survived: ${merged}`);
+});
+
 test("two leadings merge, including the custom step", () => {
   const result = cn("leading-flat", "leading-snug");
   assert.ok(!has(result, "leading-flat"), `both leadings survived: ${result}`);

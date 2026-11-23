@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp } from "griddy-icons";
 import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 import { Calendar } from "@/ui/calendar";
 import { useControllableState } from "@/hooks/use-controllable-state";
@@ -166,14 +167,12 @@ export function DatePicker({
           data-slot="date-picker-label"
           className={cn(
             "text-field-label font-body text-ink-secondary",
-            // Bare text inside a rounded surface takes the inset (§6) — but
+            // On the control's text lane (lib/field-lane) — but
             // the two are alternatives, not layers: `sr-only` resets padding
             // to 0 and a later `px-sm` puts 16px of it back, so a "hidden"
-            // label ends up a 16px-wide clipped box instead of a 1px one.
-            // Harmless, and the kind of harmless that makes the next person
-            // doubt the utility works. (Select, Multiselect and Input still
-            // compose them the layered way.)
-            isLabelHidden ? "sr-only" : "px-sm",
+            // label ends up a wide clipped box instead of a 1px one. Every
+            // field in the family composes them this way now.
+            isLabelHidden ? "sr-only" : fieldLane("lg"),
           )}
         >
           {label}
@@ -281,12 +280,12 @@ export function DatePicker({
         </BasePopover.Portal>
 
         {errorText && (
-          <p data-slot="date-picker-error" id={errorId} className="px-sm text-caption font-body text-danger">
+          <p data-slot="date-picker-error" id={errorId} className={cn(fieldLane("lg"), "text-caption font-body text-danger")}>
             {errorText}
           </p>
         )}
         {helperText && (
-          <p data-slot="date-picker-helper" id={helperId} className="px-sm text-caption font-body text-ink-muted">
+          <p data-slot="date-picker-helper" id={helperId} className={cn(fieldLane("lg"), "text-caption font-body text-ink-muted")}>
             {helperText}
           </p>
         )}

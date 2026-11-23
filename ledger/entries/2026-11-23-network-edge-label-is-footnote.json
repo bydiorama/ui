@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-network-edge-label-is-footnote",
+  "date": "2026-11-23",
+  "item": "network",
+  "kind": "visual",
+  "summary": "A resting network edge label is set in the footnote role, and an active one in label-sm at 600, instead of label-sm with a font-regular override (#59). The size and weight are unchanged (12px, 400). The leading moves from label-sm's 1.3 to footnote's 1.35, so a line is 16.2px instead of 15.6px.",
+  "affects": [
+    "slot:network-edge-label"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+  }
+}

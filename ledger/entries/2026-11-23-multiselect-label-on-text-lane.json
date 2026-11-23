@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-multiselect-label-on-text-lane",
+  "date": "2026-11-23",
+  "item": "multiselect",
+  "kind": "visual",
+  "summary": "Multiselect's label moves from a fixed 8px (px-sm) to its trigger's text lane: the hairline plus the trigger's own inline padding (px-lg, px-md, px-sm by size), so it starts where the trigger's text does.",
+  "affects": [
+    "slot:multiselect-label"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+  }
+}

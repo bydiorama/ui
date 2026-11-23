@@ -1,6 +1,7 @@
 import { forwardRef, useId, type InputHTMLAttributes, type ReactElement } from "react";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 
 import type { OwnedSlot } from "@/lib/data-slot";
@@ -167,6 +168,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   // and announces fine — so the message drives the state rather than trusting
   // callers to keep two props in sync.
   const invalid = isInvalid || Boolean(errorText);
+  // The label, helper and error follow the control's own inline padding:
+  // a given shape picks its map, and no shape follows the brand's.
+  const lane = fieldLane(size, shape ?? "themed");
 
   // Both are announced when both exist: an error rarely makes the guidance
   // irrelevant, and dropping it mid-correction is exactly when it is needed.
@@ -187,8 +191,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         className={cn(
           "text-field-label font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
-          // accessibility tree and still be clickable as a target.
-          isLabelHidden && "sr-only",
+          // accessibility tree and still be clickable as a target. Otherwise
+          // on the control's text lane, so the label, the typed value and the
+          // helper start at one edge (lib/field-lane). Alternatives, not
+          // layers: sr-only zeroes padding that the lane would put back.
+          isLabelHidden ? "sr-only" : lane,
         )}
       >
         {label}
@@ -278,12 +285,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
 
       {errorText && (
-        <p data-slot="error" id={errorId} className="text-caption font-body text-danger">
+        <p data-slot="error" id={errorId} className={cn("text-caption font-body text-danger", lane)}>
           {errorText}
         </p>
       )}
       {helperText && (
-        <p data-slot="helper" id={helperId} className="text-caption font-body text-ink-muted">
+        <p data-slot="helper" id={helperId} className={cn("text-caption font-body text-ink-muted", lane)}>
           {helperText}
         </p>
       )}

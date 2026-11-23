@@ -829,7 +829,11 @@ describe("The legend toggles series (Bar sheet: Legend toggle)", () => {
   test("every entry is a 24px target; hover fills it", async () => {
     const { all } = await mount(bars());
     const entry = all("chart-legend-item")[0]!;
-    expect(entry.getBoundingClientRect().height).toBe(24); // 4 + 16 + 4
+    // 4 + 16.2 + 4: the footnote's line is 16.2px (#59), so the entry is a
+    // fifth of a pixel over the sheet's 24. It must never be UNDER 24.
+    const h = entry.getBoundingClientRect().height;
+    expect(h).toBeGreaterThanOrEqual(24);
+    expect(h).toBeCloseTo(24, 0);
     await userEvent.hover(entry);
     await expect.poll(() => getComputedStyle(entry).backgroundColor).toBe(tokenColor("--ui-bg-hover"));
   });

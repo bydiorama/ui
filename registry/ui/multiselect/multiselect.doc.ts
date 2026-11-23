@@ -8,7 +8,7 @@ export const multiselectDoc = {
 
   anatomy: [
     { part: "root", slot: "multiselect", notes: "The field wrapper. className lands here (§5)." },
-    { part: "label", slot: "multiselect-label", notes: "Names the trigger via aria-labelledby. Takes the unboxed inset." },
+    { part: "label", slot: "multiselect-label", notes: "Names the trigger via aria-labelledby. On the trigger's text lane: its hairline plus its own inline padding, so it starts where the trigger's text does." },
     { part: "trigger", slot: "multiselect-trigger", notes: "48px, radius-md — the SAME control surface as Input size lg, asserted as a relationship rather than as numbers. Its value takes Input's type step at every size (14 / 14 / 12px) from the size map alone; a hard-coded text-body-md after the map used to win the merge (#16)." },
     { part: "chips", slot: "multiselect-chips", notes: "The selection, as Badge components with real remove buttons. Hidden when empty." },
     { part: "panel", slot: "multiselect-panel", notes: "The portalled list surface. radius-lg, bg-surface, hairline and shadow-md." },
@@ -67,6 +67,7 @@ Multiselect
   },
 
   knownGaps: [
+    "The trigger pads with spacing steps (px-lg / px-md / px-sm), not the density field insets the rest of the field family uses, so it does not follow data-ui-density. The label follows the trigger's own padding, so the two still line up.",
     "Nine design defects were corrected rather than transcribed — see the ledger entry. Most consequential: an 11px chip label (below the 12px floor), a 1.51:1 tick, and four palette steps where intent/accent roles exist.",
     "Chips are Badge components rather than Base UI's Chip parts, so the arrow-key navigation BETWEEN chips that Base UI offers is not adopted. Removal is still fully keyboard operable via each chip's button.",
     "The option row reuses Checkbox's visual language but not the component; the two could drift. A shared visual primitive would fix it and does not exist yet.",

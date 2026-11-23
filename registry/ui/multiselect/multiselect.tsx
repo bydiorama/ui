@@ -27,6 +27,19 @@ const SIZE = {
   sm: "h-field-sm px-sm text-caption",
 } as const satisfies Record<MultiselectSize, string>;
 
+/**
+ * The text lane for the label: the trigger's hairline plus its inline
+ * padding, so the label starts where the trigger's text does (lib/field-lane
+ * gives the field family's lane). Its own map, because this trigger pads with
+ * spacing steps rather than the density field insets the rest of the family
+ * uses — a divergence recorded in the doc's knownGaps.
+ */
+const LANE = {
+  lg: "px-[calc(var(--ui-stroke-hairline)+var(--ui-space-lg))]",
+  md: "px-[calc(var(--ui-stroke-hairline)+var(--ui-space-md))]",
+  sm: "px-[calc(var(--ui-stroke-hairline)+var(--ui-space-sm))]",
+} as const satisfies Record<MultiselectSize, string>;
+
 export interface MultiselectItem {
   value: string;
   label: string;
@@ -112,13 +125,13 @@ export function Multiselect({
       })}
     >
       <div ref={rootRef} data-slot="multiselect" className={cn("flex w-full min-w-56 flex-col gap-sm", className)}>
-        {/* Bare text inside a rounded surface takes the inset (§6). */}
+        {/* On the trigger's text lane, as every field's label is. */}
         <span
           id={labelId}
           data-slot="multiselect-label"
           className={cn(
-            "px-sm text-field-label font-body text-ink-secondary",
-            isLabelHidden && "sr-only",
+            "text-field-label font-body text-ink-secondary",
+            isLabelHidden ? "sr-only" : LANE[size],
           )}
         >
           {label}

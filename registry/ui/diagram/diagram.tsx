@@ -708,8 +708,10 @@ function DiagramRoot<D = unknown>({
                         data-slot="diagram-edge-label"
                         style={{ left: mid.x, top: mid.y }}
                         className={cn(
-                          "absolute -translate-x-1/2 -translate-y-1/2 rounded-sm px-xs font-body text-label-sm whitespace-nowrap",
-                          isActive ? "bg-surface text-ink-primary" : cn("font-regular text-ink-muted", inGroup ? "bg-surface" : "bg-base"),
+                          "absolute -translate-x-1/2 -translate-y-1/2 rounded-sm px-xs font-body whitespace-nowrap",
+                          // At rest the predicate is a footnote under the 600 node labels; an
+                          // active edge's label steps up to label-sm's 600 (#59).
+                          isActive ? "text-label-sm bg-surface text-ink-primary" : cn("text-footnote text-ink-muted", inGroup ? "bg-surface" : "bg-base"),
                           pathIds && !pathIds.has(e.id) && "opacity-32",
                         )}
                       >
@@ -758,7 +760,7 @@ function DiagramRoot<D = unknown>({
                           <>
                             <span className="flex min-w-0 flex-1 flex-col">
                               <span className="truncate text-label-md text-ink-primary">{v.label}</span>
-                              <span data-slot="diagram-node-description" className={cn("truncate text-label-sm font-regular", isSelected ? "text-ink-primary" : "text-ink-muted")}>{v.description}</span>
+                              <span data-slot="diagram-node-description" className={cn("truncate text-footnote", isSelected ? "text-ink-primary" : "text-ink-muted")}>{v.description}</span>
                             </span>
                             <button
                               type="button"
@@ -779,7 +781,7 @@ function DiagramRoot<D = unknown>({
                         ) : (
                           <>
                             <span className="w-full truncate text-label-md text-ink-primary">{v.label}</span>
-                            {v.description && <span data-slot="diagram-node-description" className={cn("line-clamp-2 w-full text-label-sm font-regular", isSelected ? "text-ink-primary" : "text-ink-muted")}>{v.description}</span>}
+                            {v.description && <span data-slot="diagram-node-description" className={cn("line-clamp-2 w-full text-footnote", isSelected ? "text-ink-primary" : "text-ink-muted")}>{v.description}</span>}
                           </>
                         )}
                       </div>
@@ -831,7 +833,7 @@ function DiagramList<D>({
               {n.label}
               {n.description && <span data-slot="diagram-list-note" className="font-regular text-ink-muted">, {n.description}</span>}
             </span>
-            {group && <span data-slot="diagram-list-note" className="text-label-sm font-regular text-ink-muted">In {group.label}</span>}
+            {group && <span data-slot="diagram-list-note" className="text-footnote text-ink-muted">In {group.label}</span>}
             {rels.length ? (
               <ul className="flex flex-wrap gap-xs" aria-label={`${rels.length} ${rels.length === 1 ? "relation" : "relations"}`}>
                 {rels.map((r) => {
@@ -852,7 +854,7 @@ function DiagramList<D>({
                 })}
               </ul>
             ) : (
-              <span data-slot="diagram-list-note" className="text-label-sm font-regular text-ink-muted">No relations</span>
+              <span data-slot="diagram-list-note" className="text-footnote text-ink-muted">No relations</span>
             )}
           </li>
         );

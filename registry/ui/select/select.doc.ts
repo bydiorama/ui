@@ -8,7 +8,7 @@ export const selectDoc = {
 
   anatomy: [
     { part: "root", slot: "select", notes: "The field column: label, trigger, then error and helper text." },
-    { part: "label", slot: "select-label", notes: "Names the trigger via aria-labelledby. sr-only when isLabelHidden, never removed." },
+    { part: "label", slot: "select-label", notes: "Names the trigger via aria-labelledby. sr-only when isLabelHidden, never removed. On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density." },
     { part: "trigger", slot: "select-trigger", notes: "Input's control surface at all three sizes, value type included — asserted as a relationship, not as numbers. The size map is the ONLY thing on the trigger that names a type role; a hard-coded text-body-md after it used to win the merge and render md and sm at 14px (#16)." },
     { part: "value", slot: "select-value", notes: "The chosen label, or the placeholder in placeholder ink." },
     { part: "icon", slot: "select-icon", notes: "The chevron. Decorative — the trigger's name comes from the label." },

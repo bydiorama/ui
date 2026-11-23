@@ -1366,8 +1366,9 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                   <li key={s.key} className="flex">
                     {/* A native checkbox: checked is shown. The label is the
                         24px target (SC 2.5.8): 4px block padding around the
-                        line, with a 24px floor because label-sm's line is
-                        15.6px, not the sheet's 16 — the tooltip chip's pair.
+                        footnote's 16.2px line (#59), so 24.2, with a 24px
+                        floor. The padding, not the floor, is what authors the
+                        inset (the geometry law) — the tooltip chip's pair.
                         It paints the hover and the focus ring. */}
                     <label
                       data-slot="chart-legend-item"
@@ -1411,7 +1412,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                       </svg>
                       <span
                         data-slot="chart-legend-label"
-                        className={cn("font-body font-regular text-label-sm", isShown ? "text-ink-secondary" : "text-ink-muted")}
+                        className={cn("font-body text-footnote", isShown ? "text-ink-secondary" : "text-ink-muted")}
                       >
                         {s.label}
                       </span>
@@ -1436,7 +1437,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                       data-slot="chart-tick"
                       // pt-sm on the plot column: each name centres on its 24px bar.
                       style={{ top: i * ROW_PITCH + 8, height: ROW_HEIGHT }}
-                      className="absolute inset-x-0 flex items-center font-body font-regular text-label-sm text-ink-muted"
+                      className="absolute inset-x-0 flex items-center font-body text-footnote text-ink-muted"
                     >
                       <span className="truncate" title={c}>{c}</span>
                     </span>
@@ -1453,7 +1454,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                     // The plot column starts 8px lower (pt-sm), so a 16px label
                     // whose top is at y(t) is centred on its gridline.
                     style={{ top: round(y(t)) }}
-                    className="absolute end-0 font-body font-regular text-label-sm whitespace-nowrap tabular-nums text-ink-muted"
+                    className="absolute end-0 font-body text-footnote whitespace-nowrap tabular-nums text-ink-muted"
                   >
                     {isPercent ? formatShare(t) : format(t)}
                   </span>
@@ -1581,7 +1582,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                               ? { insetInlineEnd: 0 }
                               : { insetInlineStart: tickX, transform: "translateX(-50%)" }
                         }
-                        className="absolute top-0 font-body font-regular text-label-sm whitespace-nowrap tabular-nums text-ink-muted"
+                        className="absolute top-0 font-body text-footnote whitespace-nowrap tabular-nums text-ink-muted"
                       >
                         {tickLabel}
                       </span>
@@ -1745,7 +1746,7 @@ function ChartTooltip({
                   <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
                     <path d={markerKeyPath(s.shape, 8)} className={FILL[s.slot]} />
                   </svg>
-                  <span data-slot="chart-tooltip-label" className="flex-1 font-body font-regular text-label-sm text-ink-muted">
+                  <span data-slot="chart-tooltip-label" className="flex-1 font-body text-footnote text-ink-muted">
                     {s.label}
                   </span>
                   <span data-slot="chart-tooltip-value" className="ps-md font-body text-label-sm tabular-nums text-ink-primary">

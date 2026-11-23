@@ -43,6 +43,14 @@ try {
   const page = await context.newPage();
   page.setDefaultTimeout(15000);
   page.on("pageerror", error => errors.push(error.message));
+  // When a page is wider than the window, name what sticks out: elements past the right edge
+  // with no clipping or scrolling ancestor, which are the ones that widen the page.
+  const overflowCulprits = page => page.evaluate(() => {
+    const clipped = el => { for (let node = el.parentElement; node && node !== document.documentElement; node = node.parentElement) if (getComputedStyle(node).overflowX !== "visible") return true; return false; };
+    return [...document.querySelectorAll("body *")]
+      .filter(el => el.getBoundingClientRect().right > innerWidth + 0.5 && el.getBoundingClientRect().width > 0 && !clipped(el))
+      .slice(0, 6).map(el => `${el.tagName.toLowerCase()}${el.className && typeof el.className === "string" ? "." + el.className.trim().split(/\s+/).slice(0, 2).join(".") : ""} right=${Math.round(el.getBoundingClientRect().right)}`).join("; ");
+  });
   const visit = async url => {
     await page.goto(url);
     // `client:visible` islands hydrate only once scrolled to, so they are not waited for.
@@ -80,7 +88,7 @@ try {
     await page.setViewportSize({ width: 320, height: 800 });
     for (const path of ["/", "/components/", "/components/button/", "/docs/", "/docs/agents/"]) {
       await visit(`${base}${path}`);
-      assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${scheme} ${path} overflows at 320px`);
+      if (!(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))) assert.fail(`${scheme} ${path} overflows at 320px: ${await overflowCulprits(page)}`);
     }
     await visit(base);
     await page.screenshot({ path: join(artifacts, `home-mobile-${scheme}.png`), fullPage: true });

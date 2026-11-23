@@ -28,7 +28,7 @@
     --ui-fx-light-faint: light-dark(rgb(255 255 255 / 0.15), rgb(255 255 255 / 0.04));
     /* The far edge of a lit surface falls into a little shade. */
     --ui-fx-shade: light-dark(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.3));
-    /* Ambient effects (aurora, ink, shimmer) run at the loop token times this.
+    /* Ambient effects (the grounds, ink, shimmer) run at the loop token times this.
        A brand's motion personality: 0.5 calm, 1 default, 1.7 expressive. */
     --ui-fx-ambient-speed: 1;
   }

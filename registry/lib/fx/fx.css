@@ -8,7 +8,7 @@
  *
  * One stylesheet per effect, so an app that wants no shimmer deletes a line
  * here and the file beside it, and nothing else refers to either. base.css
- * is the one every effect needs. The shader effects (aurora, halo) are not
+ * is the one every effect needs. The shader effects (gradient, halo) are not
  * here: they are the optional `shader` item, with its own shader.css.
  */
 

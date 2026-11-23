@@ -1,17 +1,15 @@
 /*
- * The shader effects' CSS (ADR 0022) — what aurora and halo are made of per
- * component, and how their canvases sit and change state. Import after
- * fx/fx.css; the runtime is `startShaders()` from `@/lib/shader`.
+ * The shader effects' CSS (ADR 0022, 0025) — what the gradient ground and
+ * halo are made of, and how their canvases sit and change state. Import
+ * after fx/fx.css; the runtime is `startShaders()` from `@/lib/shader`.
  *
- * WHEN an aurora is on and WHEN a halo is lit is CSS's business, not the
- * runtime's: `--ui-fx-on` and `--ui-fx-halo-strength` are registered
- * properties the canvas inherits and EASES with the component's own motion
- * tokens, and the runtime reads them only while they transition. So a
- * Switch's light follows its fill on motionMicro, and a busy Button's halo
- * comes in on `--ui-duration-enter`, without either knowing about the other.
+ * WHEN a halo is lit is CSS's business, not the runtime's:
+ * `--ui-fx-halo-strength` is a registered property the canvas inherits and
+ * EASES with the component's own motion tokens, and the runtime reads it only
+ * while it transitions. So a busy Button's halo comes in on
+ * `--ui-duration-enter` without either knowing about the other.
  */
 
-@property --ui-fx-on { syntax: "<number>"; inherits: true; initial-value: 1; }
 @property --ui-fx-halo-strength { syntax: "<number>"; inherits: true; initial-value: 0; }
 
 @layer fx {
@@ -34,12 +32,9 @@
     /* Timing by USAGE (transitions.dev polish rules, mapped onto tokens):
        - the reveal over the floor is a content reveal: enter on smooth-out,
          which is exactly --ui-ease-spring;
-       - --ui-fx-on follows the control's own fill (motionMicro), so light
-         and fill change together;
        - a halo going out is a close: faster and quieter than coming in. */
     transition:
       opacity var(--ui-duration-enter) var(--ui-ease-spring),
-      --ui-fx-on var(--ui-duration-fast) var(--ui-ease-out),
       --ui-fx-halo-strength var(--ui-duration-base) var(--ui-ease-out);
   }
   .ui-fx-canvas-over {
@@ -51,81 +46,60 @@
       display: none;
     }
   }
-  :is([data-fx-aurora="live"], [data-fx-aurora="still"]) .ui-fx-canvas-aurora,
+  :is([data-fx-gradient="live"], [data-fx-gradient="still"]) .ui-fx-canvas-gradient,
   :is([data-fx-halo="live"], [data-fx-halo="still"]) .ui-fx-canvas-halo {
     opacity: 1;
   }
 
-  /* -------------------------------------------------------------- aurora */
+  /* ------------------------------------------------------------ gradient */
 
-  /* A control's light follows its state: on only while checked, never while
-     disabled. `data-disabled`, not `aria-disabled`: a busy Button sets
-     aria-disabled (ADR 0021 — activation is unavailable) but is not drawn
-     disabled, and its fill keeps moving while it works. */
-  .fx-aurora:is([data-slot="switch"], [data-slot="checkbox"]):not(:has(input:checked)),
-  .fx-aurora:is([data-disabled], :has(input:disabled)) {
-    --ui-fx-on: 0;
-  }
+  /* A ground is an unslotted surface: a hero band, an empty state, the page
+     behind glass. ONE effect, parametric: the look picks the form, every
+     other knob is shared. Four knobs follow the look when left at `auto`
+     (angle, intensity, the quiet zone's size and height: GRADIENT_PRESETS
+     in shader-programs.ts) — so `--ui-fx-gradient-look: rise` alone is a
+     finished horizon. The rest have one default for every look.
 
-  /* What each part's aurora is made of, and the ink it keeps contrast with.
-     A GROUND guards the WEAKEST ink placed on it (an empty state's muted
-     description measured 3.6:1 in dark when the ground guarded secondary). */
-  .fx-aurora {
-    --ui-fx-aurora-base: var(--ui-bg-base);
-    --ui-fx-aurora-light: var(--ui-bg-accent);
-    --ui-fx-aurora-guard-ink: var(--ui-text-muted);
-    --ui-fx-aurora-guard: 4.5;
-    --ui-fx-aurora-intensity: 0.7;
-    --ui-fx-aurora-scale: 420px;
+     The knobs' defaults are declared ON :root and INHERITED, not on
+     .fx-gradient: set any of them on the ground, a wrapper or a brand
+     scope and it reaches the ground. The two colours are not declared at
+     all — they fall back to --ui-bg-base and --ui-bg-accent where the
+     ground sits, so a brand scope's accent is the light without a word.
+
+     Its copy sits in the QUIET ZONE — an ellipse around (quiet-x, quiet-y),
+     measured from the top left like CSS, whose core is exactly the base.
+     Move the zone to where the copy is; 0 turns it off for a ground that
+     carries no text (or whose text sits on glass).
+
+     THE FLOOR is a still, faint two-stop version of the light, drawn in CSS:
+     what shows before hydration, without WebGL and while the canvas fades
+     in. Its light sits in the top-right corner, away from either default
+     quiet zone's copy. */
+  :root {
+    --ui-fx-gradient-look: wash; /* wash · sweep · fold · rise · dawn */
+    --ui-fx-gradient-angle: auto; /* deg (or turn, rad): the direction the forms run */
+    --ui-fx-gradient-sharpness: 0.5; /* 0 soft … 1 crisp edges and rims */
+    --ui-fx-gradient-scale: 1; /* the forms' size, 0.25 … 4 */
+    --ui-fx-gradient-chroma: 1; /* colourfulness, 0 … 2: 0.6 quiet, 1.4 vivid */
+    --ui-fx-gradient-intensity: auto; /* 0 = the base alone … 1 */
+    --ui-fx-gradient-quiet: auto; /* 0.42; 0.3 for the horizons; 0 = none */
+    --ui-fx-gradient-quiet-x: 0.16; /* 0 … 1, or a percentage */
+    --ui-fx-gradient-quiet-y: auto;
+    --ui-fx-gradient-dissolve: 0; /* 0 … 0.5 */
   }
-  /* A ground (an unslotted surface) dissolves toward its edges into the page
-     around it; a component's fill runs to its edge. */
-  .fx-aurora:not([data-slot]) {
-    --ui-fx-aurora-dissolve: 0.22;
-  }
-  .fx-aurora[data-slot="button"] {
-    /* The label sits on it: 4.5:1 with the on-accent ink. */
-    --ui-fx-aurora-base: var(--ui-bg-accent);
-    --ui-fx-aurora-light: var(--ui-bg-accent);
-    --ui-fx-aurora-guard-ink: var(--ui-text-on-accent);
-    --ui-fx-aurora-scale: 56px;
-    --ui-fx-aurora-intensity: 1;
-  }
-  .fx-aurora[data-slot="switch"] {
-    /* The ON track is the state (SC 1.4.11): 3:1 against the page. */
-    --ui-fx-aurora-base: var(--ui-bg-accent-legible);
-    --ui-fx-aurora-light: var(--ui-bg-accent-legible);
-    --ui-fx-aurora-guard-ink: var(--ui-bg-base);
-    --ui-fx-aurora-guard: 3;
-    --ui-fx-aurora-scale: 28px;
-    --ui-fx-aurora-intensity: 1;
-  }
-  .fx-aurora[data-slot="checkbox"] {
-    /* The check glyph sits on it: 3:1, a graphic. */
-    --ui-fx-aurora-base: var(--ui-bg-accent);
-    --ui-fx-aurora-light: var(--ui-bg-accent);
-    --ui-fx-aurora-guard-ink: var(--ui-text-on-accent);
-    --ui-fx-aurora-guard: 3;
-    --ui-fx-aurora-scale: 18px;
-    --ui-fx-aurora-intensity: 1;
-  }
-  .fx-aurora[data-slot="slider"] {
-    /* The thumb's ring carries SC 1.4.11 on a Slider; the fill is a
-       secondary cue (slider.tsx says so), so it needs no guard. */
-    --ui-fx-aurora-base: var(--ui-bg-accent);
-    --ui-fx-aurora-light: var(--ui-bg-accent);
-    --ui-fx-aurora-guard: 0;
-    --ui-fx-aurora-scale: 90px;
-    --ui-fx-aurora-intensity: 1;
-  }
-  .fx-aurora[data-slot="progress"] {
-    /* The fill IS the value: 3:1 against its track. */
-    --ui-fx-aurora-base: var(--ui-bg-accent-legible);
-    --ui-fx-aurora-light: var(--ui-bg-accent-legible);
-    --ui-fx-aurora-guard-ink: var(--ui-bg-sunken);
-    --ui-fx-aurora-guard: 3;
-    --ui-fx-aurora-scale: 90px;
-    --ui-fx-aurora-intensity: 1;
+  .fx-gradient {
+    --ui-fx-gradient-floor-base: var(--ui-fx-gradient-base, var(--ui-bg-base));
+    --ui-fx-gradient-floor-light: var(--ui-fx-gradient-light, var(--ui-bg-accent));
+    background-color: var(--ui-fx-gradient-floor-base);
+    background-image: radial-gradient(
+      in oklab ellipse 70% 80% at 92% 6%,
+      color-mix(in oklab, var(--ui-fx-gradient-floor-light) 30%, var(--ui-fx-gradient-floor-base)),
+      var(--ui-fx-gradient-floor-base) 72%
+    );
+
+    @media (forced-colors: active) {
+      background-image: none;
+    }
   }
 
   /* ---------------------------------------------------------------- halo */

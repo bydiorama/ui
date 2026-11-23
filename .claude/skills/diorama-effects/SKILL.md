@@ -1,6 +1,6 @@
 ---
 name: diorama-effects
-description: Applying @bydiorama/ui's effects layer — glass, grain, sheen, glow, shimmer, ink, and the optional aurora and halo shaders — to components in a consumer app. Use when someone asks for glass or frosted panels, grain or texture, a shine or sweep on a button, a glow, shimmering status text, gradient headings, animated brand colour, a halo while something loads, "make it feel premium", or when adding shaders, WebGL or liquid glass to a Diorama UI.
+description: Applying @bydiorama/ui's effects layer — glass, grain, sheen, glow, shimmer, ink, and the optional shaders: the parametric gradient ground and halo — to components in a consumer app. Use when someone asks for glass or frosted panels, grain or texture, a shine or sweep on a button, a glow, shimmering status text, gradient headings, an animated gradient or WebGL background, a hero or empty-state ground, a halo while something loads, "make it feel premium", or when adding shaders, WebGL or liquid glass to a Diorama UI.
 ---
 
 # Effects on @bydiorama/ui
@@ -11,7 +11,7 @@ motion laid over components that are already finished. Two registry items:
 | Item | What | Cost |
 | --- | --- | --- |
 | `fx` | `fx()` helper + one stylesheet per CSS effect | CSS only. Works before hydration, in every engine, statically rendered |
-| `shader` | aurora, halo, and `startShaders()` | One WebGL2 context, a client script. **Optional** — install only for these two |
+| `shader` | `gradient` (one parametric ground), `halo`, and `startShaders()` | One WebGL2 context, a client script. **Optional** — install only for these |
 
 ## Apply an effect: a class on the root, nothing else
 
@@ -22,6 +22,8 @@ import { fx } from "@/lib/fx";
 <Button className={fx("sheen", "grain")}>Publish</Button>
 <p className={fx("shimmer")}>Generating…</p>
 <section className={fx("opaque")}>…glass inside stands down…</section>
+<section className={fx("gradient")}>…a moving ground, glass on top…</section>
+<section className={fx("gradient")} style={{ "--ui-fx-gradient-look": "rise" }}>…a horizon…</section>
 ```
 
 Never add a prop to a component for an effect, and never style its inner
@@ -61,14 +63,38 @@ useEffect(() => startShaders(), []);   // returns its own stop; StrictMode-safe
 | A control that is ON to read as lit | `glow` | glow as a focus indicator |
 | "Working…" while an agent runs | `shimmer` on the status text; `halo` on the busy Button | a spinner beside a shimmer — one signal |
 | A hero heading with presence | `ink` | ink on body copy |
-| The brand colour alive in the primary action, a fill or an empty ground | `aurora` | aurora on more than one or two things per view |
+| A moving ground: an empty state, a sign-in, a hero, a panel behind glass | `gradient` on the section; pick the look with `--ui-fx-gradient-look` | a ground behind dense UI; more than one per view; a ground on a control (grounds are sections only) |
+
+**Choosing the look** — one effect, one token; every other knob is shared:
+
+| Look | Reads as | Good for |
+| --- | --- | --- |
+| `wash` (default) | a calm field of colour that fills the frame | empty states, sign-in, a panel behind glass |
+| `sweep` | two big forms lit across their bodies, one strong curve | a hero, a feature band |
+| `fold` | light panes with crisp lit rims | a launch moment, a marketing band |
+| `rise` | a horizon: a crisp bright rim low in the frame, copy in the sky | a landing hero, a "welcome" screen |
+| `dawn` | a soft horizon: light rising from below the frame, no rim, copy in the sky | a sign-in, a calm landing, an onboarding step |
+
+Set only what you mean to change. Four knobs follow the look when left at
+`auto`: angle, intensity, and the quiet zone's size and height. So `look:
+rise` alone is a finished horizon with its copy top left. The other knobs
+have one default for every look.
+
+Set the knobs **anywhere above the ground**: on the section, a wrapper or a
+brand scope — they inherit. The colours default to the scope's own
+`--ui-bg-base` and `--ui-bg-accent`, so a brand scope needs no gradient
+tokens at all. Write numbers as CSS would: `24deg`, `0.1turn`, `25%`.
+`calc()` is not evaluated in a custom property and reads as the default
+(with a console warning); out-of-range values are clamped.
 
 ## What the layer guarantees — do not re-solve it
 
 - **Contrast.** Glass paints a tint the resolver derives per brand so the
   inks clear 4.5:1 over **anything** behind it. Do not lower its opacity
-  "for more glass"; re-emit the theme instead if the brand changed. Aurora
-  guards its part's ink per pixel.
+  "for more glass"; re-emit the theme instead if the brand changed. A
+  ground keeps a **quiet zone** of its exact base around its copy (bottom
+  left by default), so the ink keeps its audited contrast — put the copy
+  there, or move the zone to the copy (`--ui-fx-gradient-quiet-x` / `-y`).
 - **Thickness by role.** Sidebar and NavRail are the quietest pane
   (`--ui-nav-bg-glass`, derived from the nav's own colours, 12px blur, no lit
   top edge); Card, Badge and unfilled Buttons are as before; Popover and Menu
@@ -92,8 +118,16 @@ Override tokens on a scope, like any component variable:
 | `--ui-fx-glass-blur` / `-blur-control` | 24px / 12px | backdrop blur on surfaces / controls |
 | `--ui-fx-glass-blur-frame` / `-blur-overlay` | 12px / 32px | backdrop blur on Sidebar and NavRail / Popover and Menu |
 | `--ui-fx-grain` + `--ui-fx-grain-amount` | subtle tile, 0.03 | `var(--ui-fx-grain-visible)`, 0.07 for a grainier brand |
-| `--ui-fx-ambient-speed` | 1 | 0.5 calm, 1.7 expressive — aurora, ink, shimmer |
-| `--ui-fx-aurora-intensity` | per part | how much light moves through the fill |
+| `--ui-fx-ambient-speed` | 1 | 0.5 calm, 1.7 expressive — the grounds, ink, shimmer |
+| `--ui-fx-gradient-look` | `wash` | `wash` · `sweep` · `fold` · `rise` · `dawn` |
+| `--ui-fx-gradient-base` / `-light` | the scope's `--ui-bg-base` / `--ui-bg-accent` | the gradient's two colours; every other tone is derived from them |
+| `--ui-fx-gradient-angle` | `auto` | the direction the forms run (`deg`, `turn`, `rad`) |
+| `--ui-fx-gradient-sharpness` | 0.5 | 0 soft … 1 crisp edges and rims |
+| `--ui-fx-gradient-scale` | 1 | the forms' size: 0.6 tight, 1.6 broad |
+| `--ui-fx-gradient-chroma` | 1 | colourfulness: 0.6 quiet, 1.4 vivid |
+| `--ui-fx-gradient-intensity` | `auto` | how far the field leaves the base: 0.5 is a hint |
+| `--ui-fx-gradient-quiet` + `-quiet-x` / `-quiet-y` | `auto` (0.42; 0.3 for the horizons) at 0.16, `auto` | the quiet zone's radius (a fraction of the width; 0 = none, copy on glass) and centre (0..1 from the top left) — put it where the copy is |
+| `--ui-fx-gradient-dissolve` | 0 | 0.15–0.25 melts the ground's edge into the page |
 
 **Never** tune `--ui-fx-glass-wash`, `-grade` or `-bloom` up in dark: that
 light sits under text, and the resolver's floor counts exactly the current
@@ -109,7 +143,10 @@ amount.
 | A glass card in a theme emitted before glass existed | Falls back to the opaque surface. Re-emit the theme to get `--ui-bg-glass` |
 | A glass nav or menu in a theme emitted before 2026-11-20 | The nav falls back to the opaque nav, the menu and popover to the opaque surface. Re-emit the theme to get `--ui-nav-bg-glass` and `--ui-bg-glass-overlay` |
 | `fx("opaque")` around a menu that stays glass | Popover and Menu portal to the body, out of the region. Put `fx("opaque")` on the panel itself, or portal it into the region with `container` |
-| A canvas over a Slider thumb | Fixed in the runtime (the fill's canvas sits right after the fill). If you see it, your `shader` copy is stale — sync it |
+| Copy wider than the quiet zone on a narrow ground | The zone is a fraction of the ground's **width**; copy is fixed in px. Below ~900px wide, raise `--ui-fx-gradient-quiet` (0.6 holds a 440px block on a 600px ground) or put the copy on `glass` |
+| Copy on a ground, outside its quiet zone | The ground is free to be bright there; nothing keeps that text legible. Move the zone (`--ui-fx-gradient-quiet-x` / `-y`) to the copy, or the copy into the zone — or set the zone to 0 and put the copy on `glass` |
+| Changing the look by swapping classes | There is one class. Change `--ui-fx-gradient-look`; the same canvas redraws in the new look |
+| `fx("aurora")` in an app | Retired 2026-11-22 (ADR 0025). On a ground use `fx("gradient")`; on a control, `sheen`, `grain` or `glow` |
 | Clipping a shader canvas with CSS | iOS Safari drops the clip while it animates. The shader draws its own shape; never add `overflow`/`border-radius` hacks to the canvas |
 | Judging an effect in headless Chromium | The worst defects of this layer only showed on an iPhone. Look on a device, both schemes |
 | Everything carries an effect | An effect is emphasis; emphasis everywhere is none. One glass surface and one lit action per view is plenty |

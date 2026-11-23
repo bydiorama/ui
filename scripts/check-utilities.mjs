@@ -317,6 +317,13 @@ const sources = walk(join(ROOT, "registry"))
 const componentProps = new Set(
   sources.filter((f) => !f.isStory).flatMap((f) => [...f.declares]),
 );
+// The effects layer declares its knobs in its STYLESHEETS, on the effect's
+// class (`.fx-gradient { --ui-fx-gradient-angle: auto; }`), not in a component. A
+// story or an app overriding one reaches a real declaration.
+for (const file of walk(join(ROOT, "registry/lib"), [], /\.css$/)) {
+  const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+  for (const m of css.matchAll(/(--ui-fx-[\w-]+)\s*:/g)) componentProps.add(m[1]);
+}
 
 for (const { rel, source, classes, isStory } of sources) {
   checkedFiles++;

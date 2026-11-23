@@ -1,28 +1,31 @@
 /**
  * The shader runtime, in a real browser with a real WebGL2 context
- * (ADR 0022). check:fx holds the first two clauses of the admission rule on
- * the source; the last two only exist here:
+ * (ADR 0022, 0025). check:fx holds the first two clauses of the admission
+ * rule on the source; the last two only exist here:
  *
  *   3. the floor is the component — not started, stopped, or without a
- *      context, the part is exactly what the component draws;
- *   4. the ink keeps its contrast — measured on the pixels the shader drew,
- *      for every part that carries one, in both schemes and under a brand
- *      whose accent is the hardest to keep legible.
+ *      context, the element is exactly what it draws on its own (for a
+ *      ground, its CSS floor);
+ *   4. the ink stays legible — on a ground, the QUIET ZONE around the copy
+ *      is the exact base, measured on the pixels the shader drew, for every
+ *      look of the gradient, in both schemes and under the brand whose accent is the
+ *      hardest to keep legible; and the measurement is shown to fail when
+ *      the zone is switched off.
  *
- * And the regression that made the runtime insert a fill's canvas right
- * after the fill: the Slider's thumb must paint above it.
+ * And the dither: a ground's slow ramps carry no band wider than a few
+ * pixels along rows or columns — and the measure is shown to see a band on
+ * an undithered ramp in either direction.
  */
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { commands } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act, type CSSProperties, type ReactElement } from "react";
 
 import { contrastRatio, resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 import { fx } from "@/lib/fx";
 import { configureShaders, readColor, sampleShader, startShaders } from "@/lib/shader";
+import { GRADIENT_LOOKS, GRADIENT_PRESETS, type GradientLook } from "@/lib/shader-programs";
 import { Button } from "@/ui/button/button.tsx";
-import { Progress } from "@/ui/progress/progress.tsx";
-import { Slider } from "@/ui/slider/slider.tsx";
-import { Switch } from "@/ui/switch/switch.tsx";
 
 const mounted: Array<{ root: Root; host: HTMLElement }> = [];
 const stops: Array<() => void> = [];
@@ -49,7 +52,8 @@ afterEach(() => {
     act(() => root.unmount());
     host.remove();
   }
-  configureShaders({ reducedMotion: null, forceFloor: false, freezeAt: null });
+  configureShaders({ reducedMotion: null, forceFloor: false, freezeAt: null, quality: null });
+  vi.restoreAllMocks();
 });
 
 const q = (c: ParentNode, s: string) => {
@@ -69,111 +73,216 @@ async function until(check: () => boolean, what: string, ms = 3000) {
 const drawing = (root: HTMLElement, name: string) => () =>
   ["live", "still"].includes(root.getAttribute(`data-fx-${name}`) ?? "");
 
+/** A ground the size of an empty state, carrying the gradient in one look. */
+const ground = (look: GradientLook, style?: CSSProperties) => (
+  <div
+    data-ground
+    className={fx("gradient")}
+    style={{ width: 480, height: 300, borderRadius: 16, ["--ui-fx-gradient-look" as string]: look, ...style }}
+  />
+);
+
 describe("the floor is the component", () => {
   test("before startShaders() nothing is mounted and nothing is marked", () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
-    expect(button.querySelector("canvas")).toBeNull();
-    expect(button.hasAttribute("data-fx-aurora")).toBe(false);
+    const el = q(render(ground("wash")), "[data-ground]");
+    expect(el.querySelector("canvas")).toBeNull();
+    expect(el.hasAttribute("data-fx-gradient")).toBe(false);
   });
 
-  test("started, one canvas covers the part's border box and the root says it is live", async () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+  test("before it draws, a ground shows its CSS floor: its base, and the light in the far corner", () => {
+    const el = q(render(ground("sweep")), "[data-ground]");
+    const css = getComputedStyle(el);
+    expect(css.backgroundImage).toContain("radial-gradient");
+    expect(css.backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+  });
+
+  test("started, one canvas covers the ground's border box and the root says it is live", async () => {
+    const el = q(render(ground("wash")), "[data-ground]");
     start();
-    await until(drawing(button, "aurora"), "aurora to draw");
-    expect(button.getAttribute("data-fx-aurora")).toBe("live");
-    // The label's web font can land after the canvas was first laid out, and
-    // on a cold runner it does: the button grows ~6px and the runtime's
-    // ResizeObserver re-lays the canvas before the NEXT paint. Measure after
-    // that paint, or this reads the gap between two correct states.
-    await document.fonts.ready;
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    expect(el.getAttribute("data-fx-gradient")).toBe("live");
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const canvas = q(button, "canvas.ui-fx-canvas-aurora");
+    const canvas = q(el, "canvas.ui-fx-canvas-gradient");
     const a = canvas.getBoundingClientRect();
-    const b = button.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
     for (const k of ["left", "top", "width", "height"] as const) expect(Math.abs(a[k] - b[k]), k).toBeLessThan(0.5);
     // It fades in over the floor (--ui-duration-enter), so look once it has.
     await until(() => getComputedStyle(canvas).opacity === "1", "the canvas to fade in");
   });
 
   test("stopped, everything is put back: no canvas, no state, no inline styles", async () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
-    const before = button.getAttribute("style");
+    const el = q(render(ground("fold")), "[data-ground]");
+    const before = el.getAttribute("style");
     const stop = start();
-    await until(drawing(button, "aurora"), "aurora to draw");
+    await until(drawing(el, "gradient"), "the gradient to draw");
     stop();
-    expect(button.querySelector("canvas")).toBeNull();
-    expect(button.hasAttribute("data-fx-aurora")).toBe(false);
-    expect(button.getAttribute("style")).toBe(before);
+    expect(el.querySelector("canvas")).toBeNull();
+    expect(el.hasAttribute("data-fx-gradient")).toBe(false);
+    expect(el.getAttribute("style")).toBe(before);
   });
 
   test("callers are counted: StrictMode's double effect shares one runtime", async () => {
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+    const el = q(render(ground("wash")), "[data-ground]");
     const first = start();
     start();
     first();
     first(); // a second call of the same stop is a no-op
-    await until(drawing(button, "aurora"), "aurora to keep drawing");
-    expect(button.querySelectorAll("canvas").length).toBe(1);
+    await until(drawing(el, "gradient"), "the gradient to keep drawing");
+    expect(el.querySelectorAll("canvas").length).toBe(1);
   });
 
-  test("without a context the part keeps its own fill, and the canvas stays hidden", async () => {
+  test("without a context the ground keeps its floor, and the canvas stays hidden", async () => {
     configureShaders({ forceFloor: true });
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+    const el = q(render(ground("rise")), "[data-ground]");
     start();
-    await until(() => button.getAttribute("data-fx-aurora") === "floor", "the floor state");
-    expect(getComputedStyle(q(button, "canvas")).opacity).toBe("0");
+    await until(() => el.getAttribute("data-fx-gradient") === "floor", "the floor state");
+    expect(getComputedStyle(q(el, "canvas")).opacity).toBe("0");
   });
 
   test("reduced motion draws one still frame", async () => {
     configureShaders({ reducedMotion: true });
-    const button = q(render(<Button className={fx("aurora")}>Publish</Button>), '[data-slot="button"]');
+    const el = q(render(ground("wash")), "[data-ground]");
     start();
-    await until(() => button.getAttribute("data-fx-aurora") === "still", "the still state");
+    await until(() => el.getAttribute("data-fx-gradient") === "still", "the still state");
+  });
+
+  test("when frames are slow a large ground keeps full resolution (a dither must not be scaled); a large halo steps down", async () => {
+    // Pin the step the runtime would reach under slow frames.
+    configureShaders({ quality: 0.5 });
+    const el = q(render(ground("fold", { width: 900, height: 560 })), "[data-ground]");
+    const halo = q(render(<div data-halo data-fx-active className={fx("halo")} style={{ width: 900, height: 560 }} />), "[data-halo]");
+    start();
+    await until(() => drawing(el, "gradient")() && drawing(halo, "halo")(), "both to draw");
+    const full = Math.min(devicePixelRatio, 2);
+    const s = sampleShader(el, "gradient")!;
+    expect(s.dpr).toBe(full);
+    expect(s.width).toBe(Math.round(900 * s.dpr));
+    // The control: without `adaptive: false` a large target does step down.
+    await until(() => (sampleShader(halo, "halo")?.dpr ?? 0) > 0, "the halo to sample");
+    expect(sampleShader(halo, "halo")!.dpr).toBe(full * 0.5);
+  });
+
+  test("under forced colours nothing is drawn: the target is at its floor", async () => {
+    await commands.setForcedColors(true);
+    try {
+      const el = q(render(ground("wash")), "[data-ground]");
+      start();
+      await until(() => el.getAttribute("data-fx-gradient") === "floor", "the floor state");
+      expect(sampleShader(el, "gradient")).toBeNull();
+    } finally {
+      await commands.setForcedColors(false);
+    }
   });
 });
 
-describe("stacking", () => {
-  test("a Slider's thumb paints above its fill's canvas", async () => {
-    const host = render(<Slider label="Grain amount" defaultValue={64} className={fx("aurora")} />);
+describe("one gradient, parametric", () => {
+  test("a knob at auto takes the look's preset; a token set on the ground overrides it", async () => {
+    configureShaders({ freezeAt: 6 });
+    const rise = q(render(ground("rise")), "[data-ground]");
+    const tilted = q(render(ground("sweep", { ["--ui-fx-gradient-angle" as string]: "12deg" })), "[data-ground]");
     start();
-    await until(drawing(q(host, '[data-slot="slider"]'), "aurora"), "aurora to draw");
-    const fill = q(host, '[data-slot="slider-fill"]');
-    const canvas = q(host, "canvas.ui-fx-canvas-aurora");
-    // Inserted directly after the fill, so every later sibling paints above.
-    expect(fill.nextElementSibling).toBe(canvas);
-    const thumb = q(host, '[data-slot="slider-thumb"]');
-    const r = thumb.getBoundingClientRect();
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
-    expect(hit && thumb.contains(hit), `the topmost element at the thumb's centre is ${hit?.outerHTML.slice(0, 80)}`).toBe(true);
+    await until(() => drawing(rise, "gradient")() && drawing(tilted, "gradient")(), "both to draw");
+    const r = sampleShader(rise, "gradient")!.values;
+    expect(r.u_look).toBe(GRADIENT_LOOKS.indexOf("rise"));
+    expect(r.u_quietY).toBe(GRADIENT_PRESETS.rise.quietY);
+    expect(r.u_angle).toBe(GRADIENT_PRESETS.rise.angle);
+    const t = sampleShader(tilted, "gradient")!.values;
+    expect(t.u_angle).toBe(12);
+    expect(t.u_intensity).toBe(GRADIENT_PRESETS.sweep.intensity);
   });
 
-  test("the inline Slider carries text on its fill, so aurora leaves it at its floor", async () => {
-    const host = render(<Slider variant="inline" label="Opacity" defaultValue={40} className={fx("aurora")} />);
+  test("changing the look token redraws the same canvas in the new look", async () => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(render(ground("wash")), "[data-ground]");
     start();
-    await new Promise((r) => setTimeout(r, 100));
-    expect(host.querySelector("canvas")).toBeNull();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const canvas = q(el, "canvas");
+    const before = sampleShader(el, "gradient")!.data.slice();
+    el.style.setProperty("--ui-fx-gradient-look", "rise");
+    await until(() => sampleShader(el, "gradient")?.values.u_look === GRADIENT_LOOKS.indexOf("rise"), "the new look");
+    expect(q(el, "canvas")).toBe(canvas);
+    const after = sampleShader(el, "gradient")!.data;
+    let differ = 0;
+    for (let i = 0; i < after.length; i += 4) if (Math.abs(after[i]! - before[i]!) > 24) differ++;
+    expect(differ, "the frame did not change with the look").toBeGreaterThan(after.length / 40);
+  });
+});
+
+describe("tokens are read as authors write them", () => {
+  test("knobs set on a wrapper or a brand scope reach the ground; the colours fall back to the scope's own", async () => {
+    configureShaders({ freezeAt: 6 });
+    const host = render(
+      <div style={{ ["--ui-fx-gradient-look" as string]: "dawn", ["--ui-bg-accent" as string]: "#ff0000" }}>
+        <div data-ground className={fx("gradient")} style={{ width: 480, height: 300 }} />
+      </div>,
+    );
+    const el = q(host, "[data-ground]");
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const v = sampleShader(el, "gradient")!.values;
+    expect(v.u_look).toBe(GRADIENT_LOOKS.indexOf("dawn"));
+    expect((v.u_light as number[]).map((c) => Math.round(c * 255))).toEqual([255, 0, 0]);
+  });
+
+  test("units are converted, quotes and case forgiven; what cannot be read is said once and falls back", async () => {
+    configureShaders({ freezeAt: 6 });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const el = q(
+      render(
+        ground("wash", {
+          ["--ui-fx-gradient-look" as string]: '"Sweep"',
+          ["--ui-fx-gradient-angle" as string]: "0.1turn",
+          ["--ui-fx-gradient-quiet-x" as string]: "25%",
+          ["--ui-fx-gradient-scale" as string]: "calc(1 + 1)",
+        }),
+      ),
+      "[data-ground]",
+    );
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const v = sampleShader(el, "gradient")!.values;
+    expect(v.u_look).toBe(GRADIENT_LOOKS.indexOf("sweep"));
+    expect(v.u_angle as number).toBeCloseTo(36, 5);
+    expect(v.u_quietX as number).toBeCloseTo(0.25, 5);
+    expect(v.u_scale).toBe(1);
+    expect(warn.mock.calls.filter(([m]) => String(m).includes("--ui-fx-gradient-scale")).length).toBe(1);
+  });
+
+  test("an out-of-range knob is clamped to what the GLSL is written for, and draws finite pixels", async () => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(
+      render(ground("fold", { ["--ui-fx-gradient-sharpness" as string]: 80, ["--ui-fx-gradient-intensity" as string]: 3 })),
+      "[data-ground]",
+    );
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const s = sampleShader(el, "gradient")!;
+    expect(s.values.u_sharpness).toBe(1);
+    expect(s.values.u_intensity).toBe(1);
+    // NaN in a fragment shader comes out as black or garbage: the fold's
+    // lit panes must still be lit.
+    let lit = 0;
+    for (let i = 0; i < s.data.length; i += 4) if (s.data[i]! + s.data[i + 1]! + s.data[i + 2]! > 120) lit++;
+    expect(lit).toBeGreaterThan(s.data.length / 4 / 50);
+  });
+
+  test("intensity 0 is the base alone — grain included", async () => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(render(<div data-ground className={fx("gradient", "grain")} style={{ width: 480, height: 300, ["--ui-fx-gradient-intensity" as string]: 0 }} />), "[data-ground]");
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    const base = readColor(el, "--ui-fx-gradient-base", "--ui-bg-base").map((c) => Math.round(c * 255));
+    const s = sampleShader(el, "gradient")!;
+    let worst = 0;
+    for (let i = 0; i < s.data.length; i += 4) {
+      if (s.data[i + 3] !== 255) continue;
+      for (let c = 0; c < 3; c++) worst = Math.max(worst, Math.abs(s.data[i + c]! - base[c]!));
+    }
+    expect(worst, "a pixel left the base by more than the dither").toBeLessThanOrEqual(1);
   });
 });
 
 describe("state follows the component", () => {
-  test("a Switch's light is off while it is off, and on once it is checked", async () => {
-    configureShaders({ freezeAt: 4 });
-    const host = render(<Switch className={fx("aurora")}>Sync</Switch>);
-    const root = q(host, '[data-slot="switch"]');
-    start();
-    await until(drawing(root, "aurora"), "aurora to draw");
-    const peak = () => {
-      const s = sampleShader(root, "aurora");
-      if (!s) return -1;
-      let max = 0;
-      for (let i = 3; i < s.data.length; i += 4) max = Math.max(max, s.data[i]!);
-      return max;
-    };
-    expect(peak()).toBe(0);
-    act(() => q(host, "input").click());
-    await until(() => peak() === 255, "the light to come on");
-  });
-
   test("a busy Button lights its halo; idle, the halo is dark", async () => {
     configureShaders({ freezeAt: 2 });
     const host = render(
@@ -196,7 +305,7 @@ describe("state follows the component", () => {
   });
 });
 
-// --------------------------------------------------------------- contrast
+// ----------------------------------------------------------- the quiet zone
 
 /** The hardest accent to keep ink legible on: pale yellow, as in the stress stories. */
 const PALE: ThemeSeed = {
@@ -216,75 +325,206 @@ const THEMES: Array<[string, CSSProperties]> = [
   ["pale yellow", toStyleObject(resolveThemePair(PALE)) as CSSProperties],
 ];
 
-/** Each part that carries ink, the ink, and the floor it keeps. */
-const GUARDED: Array<{ name: string; ui: ReactElement; root: string; ink: string; floor: number }> = [
-  { name: "Button label", ui: <Button className={fx("aurora")}>Publish</Button>, root: '[data-slot="button"]', ink: "--ui-text-on-accent", floor: 4.5 },
-  { name: "Switch track vs page", ui: <Switch defaultIsChecked className={fx("aurora")}>Sync</Switch>, root: '[data-slot="switch"]', ink: "--ui-bg-base", floor: 3 },
-  { name: "Progress fill vs track", ui: <Progress label="Uploading" value={70} className={fx("aurora")} />, root: '[data-slot="progress"]', ink: "--ui-bg-sunken", floor: 3 },
-  // A ground guards the WEAKEST ink placed on it: muted, body text.
-  {
-    name: "ground vs muted ink",
-    ui: <div data-ground className={fx("aurora")} style={{ width: 320, height: 160 }} />,
-    root: "[data-ground]",
-    ink: "--ui-text-muted",
-    floor: 4.5,
-  },
-];
-
 const hex = (rgb: readonly number[]) => `#${rgb.map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")}`;
 
-/** The least contrast between any fully covered pixel and the ink. */
-function worst(root: HTMLElement, ink: string) {
-  const s = sampleShader(root, "aurora");
-  if (!s) return NaN;
-  const against = hex(readColor(root, ink).map((c) => c * 255));
-  const seen = new Map<string, number>();
-  let min = Infinity;
-  for (let i = 0; i < s.data.length; i += 4) {
-    if (s.data[i + 3] !== 255) continue;
-    const key = hex([s.data[i]!, s.data[i + 1]!, s.data[i + 2]!]);
-    let ratio = seen.get(key);
-    if (ratio === undefined) seen.set(key, (ratio = contrastRatio(key, against)));
-    min = Math.min(min, ratio);
-  }
-  return seen.size ? min : NaN;
+/**
+ * A ground at a page's proportions with its copy where a page puts it: an
+ * empty state's title and muted line, bottom left — or top left for a look
+ * whose preset puts its quiet zone in the sky.
+ */
+function GroundWithCopy({ look, style }: { look: GradientLook; style?: CSSProperties }) {
+  const top = GRADIENT_PRESETS[look].quietY < 0.5;
+  return (
+    <div
+      data-ground
+      className={fx("gradient")}
+      style={{
+        width: 960,
+        height: 540,
+        padding: 48,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: top ? "flex-start" : "flex-end",
+        ["--ui-fx-gradient-look" as string]: look,
+        ...style,
+      }}
+    >
+      <p data-ink="--ui-text-primary" className="text-title-sm text-ink-primary">
+        Nothing on this board yet
+      </p>
+      <p data-ink="--ui-text-muted" className="text-body-sm text-ink-muted">
+        Drop images here or start from a template.
+      </p>
+    </div>
+  );
 }
 
-describe("the guard keeps the ink's contrast, per pixel", () => {
-  const cases = THEMES.flatMap(([theme, style]) =>
-    (["light", "dark"] as const).flatMap((scheme) => GUARDED.map((g) => [theme, scheme, g, style] as const)),
-  );
-
-  test.each(cases)("%s, %s: %s", async (_theme, scheme, g, style) => {
-    configureShaders({ freezeAt: 4 });
-    const host = render(g.ui, { ...style, colorScheme: scheme });
-    const root = q(host, g.root);
-    start();
-    await until(drawing(root, "aurora"), "aurora to draw");
-    const ratio = worst(root, g.ink);
-    // NaN means no pixel was measured — a gate must never pass on no data.
-    expect(Number.isNaN(ratio), "no fully covered pixel was sampled").toBe(false);
-    expect(ratio, `${g.name}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(g.floor);
-  });
-
-  test("the measurement measures something: with the guard off, some part falls under its floor", async () => {
-    configureShaders({ freezeAt: 4 });
-    const failures: string[] = [];
-    for (const [theme, style] of THEMES) {
-      for (const scheme of ["light", "dark"] as const) {
-        for (const g of GUARDED) {
-          const host = render(g.ui, { ...style, colorScheme: scheme });
-          const root = q(host, g.root);
-          root.style.setProperty("--ui-fx-aurora-guard", "0");
-          if (!stops.length) start();
-          await until(drawing(root, "aurora"), "aurora to draw");
-          await new Promise((r) => requestAnimationFrame(r));
-          await new Promise((r) => requestAnimationFrame(r));
-          const ratio = worst(root, g.ink);
-          if (ratio < g.floor) failures.push(`${theme}/${scheme}/${g.name}`);
+/**
+ * The least contrast between each line of text and the pixels the shader
+ * drew under ITS OWN glyph boxes — the boxes of its text, measured by a
+ * Range, not a region derived from the shader. NaN: nothing sampled.
+ */
+function worstUnderText(el: HTMLElement) {
+  const s = sampleShader(el, "gradient");
+  if (!s) return { ratio: NaN, where: "" };
+  const box = el.getBoundingClientRect();
+  let ratio = Infinity;
+  let where = "";
+  let sampled = 0;
+  for (const line of el.querySelectorAll<HTMLElement>("[data-ink]")) {
+    const against = hex(readColor(line, line.dataset.ink!).map((c) => c * 255));
+    const range = document.createRange();
+    range.selectNodeContents(line);
+    for (const r of range.getClientRects()) {
+      const x0 = Math.floor((r.left - box.left) * s.dpr);
+      const x1 = Math.ceil((r.right - box.left) * s.dpr);
+      const y0 = Math.floor((r.top - box.top) * s.dpr);
+      const y1 = Math.ceil((r.bottom - box.top) * s.dpr);
+      const seen = new Map<string, number>();
+      for (let y = Math.max(0, y0); y < Math.min(s.height, y1); y++) {
+        for (let x = Math.max(0, x0); x < Math.min(s.width, x1); x++) {
+          const i = (y * s.width + x) * 4;
+          if (s.data[i + 3] !== 255) continue;
+          const key = hex([s.data[i]!, s.data[i + 1]!, s.data[i + 2]!]);
+          let c = seen.get(key);
+          if (c === undefined) seen.set(key, (c = contrastRatio(key, against)));
+          sampled++;
+          if (c < ratio) {
+            ratio = c;
+            where = line.dataset.ink!;
+          }
         }
       }
     }
-    expect(failures.length, "no part fails without the guard, so the passing cases above prove nothing").toBeGreaterThan(0);
+  }
+  return { ratio: sampled ? ratio : NaN, where };
+}
+
+describe("the copy keeps its contrast where it actually sits", () => {
+  const cases = THEMES.flatMap(([theme, style]) =>
+    (["light", "dark"] as const).flatMap((scheme) => GRADIENT_LOOKS.map((look) => [theme, scheme, look, style] as const)),
+  );
+
+  test.each(cases)("%s, %s: %s", async (_theme, scheme, look, style) => {
+    configureShaders({ freezeAt: 6 });
+    const el = q(render(<GroundWithCopy look={look} />, { ...style, colorScheme: scheme }), "[data-ground]");
+    start();
+    await until(drawing(el, "gradient"), "the gradient to draw");
+    await document.fonts.ready;
+    const { ratio, where } = worstUnderText(el);
+    // NaN means no pixel was measured — a gate must never pass on no data.
+    expect(Number.isNaN(ratio), "no pixel under the text was sampled").toBe(false);
+    expect(ratio, `${where}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+    // And the ground is a ground, not a flat base: somewhere the light
+    // moves at least 24 steps off it.
+    const base = readColor(el, "--ui-fx-gradient-base", "--ui-bg-base").map((c) => c * 255);
+    const s = sampleShader(el, "gradient")!;
+    let far = false;
+    for (let i = 0; i < s.data.length && !far; i += 4) far = [0, 1, 2].some((c) => Math.abs(s.data[i + c]! - base[c]!) > 24);
+    expect(far, "the ground drew no light anywhere").toBe(true);
+  });
+
+  /**
+   * The looks that fill the frame owe the copy's contrast to the zone, and
+   * each must fall under 4.5:1 somewhere without it, or the passing cases
+   * above prove nothing for it. The horizons (rise, dawn) are exempt by
+   * composition: their copy sits in a sky that is quiet without a zone.
+   */
+  const OWES_THE_ZONE: GradientLook[] = ["wash", "sweep", "fold"];
+  test.each(OWES_THE_ZONE)("the measurement measures something: %s falls under 4.5:1 under its copy with the zone off", async (look) => {
+    configureShaders({ freezeAt: 6 });
+    const failures: string[] = [];
+    for (const [theme, style] of THEMES) {
+      for (const scheme of ["light", "dark"] as const) {
+        const el = q(
+          render(<GroundWithCopy look={look} style={{ ["--ui-fx-gradient-quiet" as string]: 0 }} />, { ...style, colorScheme: scheme }),
+          "[data-ground]",
+        );
+        if (!stops.length) start();
+        await until(drawing(el, "gradient"), "the gradient to draw");
+        await document.fonts.ready;
+        const { ratio } = worstUnderText(el);
+        if (ratio < 4.5) failures.push(`${theme}/${scheme}`);
+      }
+    }
+    expect(failures.length, `${look} keeps 4.5:1 without its zone, so its passing case proves nothing`).toBeGreaterThan(0);
+  });
+});
+
+// --------------------------------------------------------------- the dither
+
+type Frame = { data: Uint8ClampedArray; width: number; height: number };
+
+/**
+ * The widest run of identical pixels along a line that changes at all — every
+ * third row AND every third column, across the whole frame but its outer 5%.
+ * A run of the ground's EXACT base is skipped: a flat area of base (the
+ * quiet zone, a horizon's sky) is flat by design, and a one-step dither
+ * leaves most of a flat area's pixels on the same value. A plateau one step
+ * off the base — the first band beside it — is still measured.
+ */
+function widestBand(s: Frame, base?: readonly number[]) {
+  const at = (x: number, y: number) => (y * s.width + x) * 4;
+  const same = (a: number, b: number) => s.data[a] === s.data[b] && s.data[a + 1] === s.data[b + 1] && s.data[a + 2] === s.data[b + 2];
+  const isBase = (i: number) => !!base && s.data[i] === base[0] && s.data[i + 1] === base[1] && s.data[i + 2] === base[2];
+  const scan = (count: number, length: number, index: (line: number, k: number) => number) => {
+    let widest = 0;
+    for (let line = Math.floor(count * 0.05); line < count * 0.95; line += 3) {
+      let run = 1;
+      let changes = 0;
+      let lineWidest = 0;
+      const k0 = Math.floor(length * 0.05) + 1;
+      const k1 = Math.floor(length * 0.95);
+      for (let k = k0; k < k1; k++) {
+        if (same(index(line, k), index(line, k - 1))) run++;
+        else {
+          changes++;
+          if (!isBase(index(line, k - 1))) lineWidest = Math.max(lineWidest, run);
+          run = 1;
+        }
+      }
+      if (!isBase(index(line, k1 - 1))) lineWidest = Math.max(lineWidest, run);
+      if (changes) widest = Math.max(widest, lineWidest);
+    }
+    return widest;
+  };
+  return Math.max(
+    scan(s.height, s.width, (y, x) => at(x, y)),
+    scan(s.width, s.height, (x, y) => at(x, y)),
+  );
+}
+
+/** An undithered dark ramp, 16 steps of sRGB 20→36 over 640 px, horizontal or vertical. */
+function ramp(vertical: boolean): Frame {
+  const width = vertical ? 60 : 640;
+  const height = vertical ? 640 : 60;
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const v = 20 + Math.floor(((vertical ? y : x) / 640) * 16);
+      data.set([v, v, v, 255], (y * width + x) * 4);
+    }
+  }
+  return { data, width, height };
+}
+
+describe("a ground never bands", () => {
+  test.each([...GRADIENT_LOOKS])("%s: no band wider than 32 device px, in light or dark", async (look) => {
+    configureShaders({ freezeAt: 6 });
+    const [, style] = THEMES[0]!;
+    const els = (["light", "dark"] as const).map((scheme) =>
+      q(render(ground(look, { width: 640, height: 400 }), { ...style, colorScheme: scheme }), "[data-ground]"),
+    );
+    start();
+    for (const el of els) await until(drawing(el, "gradient"), `${look} to draw`);
+    for (const el of els) {
+      const base = readColor(el, "--ui-fx-gradient-base", "--ui-bg-base").map((c) => Math.round(c * 255));
+      expect(widestBand(sampleShader(el, "gradient")!, base)).toBeLessThanOrEqual(32);
+    }
+  });
+
+  test("the measure sees a band: an undithered dark ramp fails it, along rows and along columns", () => {
+    expect(widestBand(ramp(false))).toBeGreaterThan(32);
+    expect(widestBand(ramp(true))).toBeGreaterThan(32);
   });
 });

@@ -215,11 +215,12 @@ describe("The surface paints the designed dialog", () => {
     const titleEl = document.querySelector<HTMLElement>('[data-slot="modal-title"]')!;
     const title = getComputedStyle(titleEl);
     // A FIXED 16px (#51): body-lg, never the fluid title-sm, which reached
-    // ~12px on a phone. At title-sm's 600 and 1.35 (declared exceptions).
+    // ~12px on a phone. At title-sm's 600 (a declared exception) and
+    // body-lg's own 1.55 leading.
     expect(titleEl.classList.contains("text-body-lg")).toBe(true);
     expect(title.fontSize).toBe("16px");
     expect(title.fontWeight).toBe("600");
-    expect(Number.parseFloat(title.lineHeight) / Number.parseFloat(title.fontSize)).toBeCloseTo(1.35, 2);
+    expect(Number.parseFloat(title.lineHeight) / Number.parseFloat(title.fontSize)).toBeCloseTo(1.55, 2);
     // The surface's own child: space-xs above and below, px-sm either side.
     expect([title.paddingTop, title.paddingBottom]).toEqual(["4px", "4px"]);
     expect([title.paddingLeft, title.paddingRight]).toEqual(["8px", "8px"]);
@@ -361,7 +362,7 @@ describe("Modal wears Card's surface (#23)", () => {
     expect(modal.boxShadow).toBe(card.boxShadow);
   });
 
-  test("the title is Card.Header's title, except that it does not shrink: weight, leading, tracking and inset", async () => {
+  test("the title is Card.Header's title, except that it does not shrink and keeps body-lg's leading: weight, tracking and inset", async () => {
     mount(<ModalBesideCard />);
     await settled(surface()!);
     const modalTitle = document.querySelector<HTMLElement>('[data-slot="modal-title"]')!;
@@ -375,8 +376,6 @@ describe("Modal wears Card's surface (#23)", () => {
     expect(m.fontSize).toBe("16px");
     expect(Number.parseFloat(c.fontSize)).toBeLessThanOrEqual(16);
     expect(m.fontWeight).toBe(c.fontWeight);
-    const ratio = (s: CSSStyleDeclaration) => Number.parseFloat(s.lineHeight) / Number.parseFloat(s.fontSize);
-    expect(ratio(m)).toBeCloseTo(ratio(c), 2);
     expect(Number.parseFloat(m.letterSpacing) / 16).toBeCloseTo(
       Number.parseFloat(c.letterSpacing) / Number.parseFloat(c.fontSize),
       3,

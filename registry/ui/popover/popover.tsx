@@ -194,13 +194,15 @@ function PopoverPanel({
         className="z-(--ui-z-dropdown)"
       >
         <BasePopover.Popup
+          // A list panel opens with its search field focused, so typing
+          // filters at once; without a search it falls back to Base UI's
+          // default, the popup itself. Set BEFORE the rest spread: a caller
+          // that passes its own initialFocus through it (ChatSources'
+          // preview passes false, so focus stays on the marker) wins.
+          initialFocus={() => searchRef.current ?? true}
           {...forBaseUI<ComponentPropsWithoutRef<typeof BasePopover.Popup>>(rest)}
           data-slot="popover-panel"
           data-variant={variant}
-          // A list panel opens with its search field focused, so typing
-          // filters at once; without a search it falls back to Base UI's
-          // default, the popup itself.
-          initialFocus={() => searchRef.current ?? true}
           className={cn(
             "flex flex-col",
             PANEL_SURFACE[variant],

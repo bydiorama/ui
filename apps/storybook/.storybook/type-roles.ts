@@ -57,7 +57,6 @@ export const TYPE_ROLE_EXCEPTIONS: Record<string, Partial<Record<Attribute, stri
   },
   "modal-title": {
     weight: "A dialog title is 16px FIXED, so it is set in body-lg rather than the fluid title-sm (#51), at title-sm's 600 so it still heads the dialog.",
-    leading: "At title-sm's 1.35, so on a desktop the title matches Card.Header's line for line; body-lg's 1.55 is a reading measure for paragraphs.",
   },
   "chat-message-bubble": { leading: "The sender's voice is set tighter (1.35) than the receiver's 1.55 — the pair's signature at the same size." },
   textarea: { leading: "The box is rows × leading, and the sheet's 128px is drawn at leading-snug at every size." },

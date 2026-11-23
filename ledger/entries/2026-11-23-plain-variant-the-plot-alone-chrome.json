@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-plain-variant-the-plot-alone-chrome",
+  "date": "2026-11-23",
+  "item": "chart",
+  "kind": "addition",
+  "summary": "Chart takes variant=\"plain\": the plot alone — marks, gridlines and baseline on whatever ground it sits on, with no frame, title, takeaway, table toggle, legend, axes or direct labels. For illustrative charts whose context the page already gives. The title and takeaway stay in the document as the figure's name and description, the plot keeps its keyboard, tooltip and announcements, and the data table is always present, visually hidden, as a native table so it adds no tab stop. The default, framed, is unchanged. No sheet draws the plain variant yet (needsDesign).",
+  "affects": [
+    "prop:variant",
+    "slot:chart",
+    "slot:chart-head",
+    "slot:chart-table"
+  ]
+}

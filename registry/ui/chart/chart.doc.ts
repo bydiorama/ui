@@ -60,6 +60,7 @@ BarChart orientation="horizontal"   series must be a one-element tuple, never st
     series: { type: "{ key; label; slot? }[]", required: true, notes: "One to eight. A ninth throws: it is never a generated colour (ADR 0023 §5). `slot` pins a series' colour so a filter that removes others cannot repaint it." },
     isStacked: { type: "boolean | { isPercent: boolean }", default: "false", notes: "Stack instead of grouping (bars) or overlaying (lines, areas). Positives stack up, negatives down. `{ isPercent: true }` stacks every category to 100%: marks and the value axis show shares (0–100%), the tooltip and announcement say the share then the value (\"42% (1,234)\"), and the table keeps the values. A percent stack refuses negative values — a negative has no share of a whole — and re-shares among the series still shown when one is hidden, as the whole is always 100%." },
     size: { type: '"md" | "sm"', default: '"md"', notes: "240px with five ticks, or 160px with three — the two plots the sheets draw." },
+    variant: { type: '"framed" | "plain"', default: '"framed"', notes: "`plain` prints the plot alone — gridlines, baseline and marks on whatever ground the chart sits on: no frame, title, takeaway, table toggle, legend, axes or direct labels. For an illustrative or ambient chart whose context the page already gives (a feature tile, a hero). The figure keeps its name and description, the plot keeps its keyboard, tooltip and announcements, and the data table is always in the document, visually hidden, so a plain chart says to a screen reader exactly what a framed one does. Not for a chart a reader has to read values off: without ticks the scale is in the tooltip only." },
     format: { type: "Intl.NumberFormatOptions", notes: "For values and ticks. Never a format string (ADR 0023 §1)." },
     locale: { type: "string", notes: "Pass it when the server and the reader may differ, or the server's digits hydrate into the client's." },
     isLoading: { type: "boolean", default: "false", notes: "Skeleton columns in bg-sunken, no axis text, aria-busy; the frame keeps its height." },
@@ -119,6 +120,7 @@ BarChart orientation="horizontal"   series must be a one-element tuple, never st
   },
 
   needsDesign: [
+    "The plain variant (`variant=\"plain\"`): the framed chart with its chrome subtracted — no sheet draws it. Its first use is the public site's Charts tile (2026-11-23), where the plot fills a padded well on the page ground.",
     "Histogram (`Chart.Bars isAdjacent`): bars fill their band 2px apart, bins named by en-dash ranges. The library's reading of the Plan's P1 row; drawn from code on the Rules, shares, dots and bins sheet (Gaps: Derived) and waiting for a designer's yes.",
     "Scatter and bubble (`Chart.Dots`, `ScatterPlot`): the library's reading of the Plan's P1 row and the stand-in screen's market map — the Line sheet's ringed markers as dots, a nice x axis that need not reach zero, pointer hit within 24px of a dot, a tooltip naming one reading. Drawn from code on the Rules, shares, dots and bins sheet (Gaps: Derived); not yet designed.",
     "Event rules (`Chart.Rule at`): a solid edge-strong line down the plot, its label-sm name at the top on the side with room. The library's own reading for the stand-in screen's \"Repositioned\" marker; drawn from code on the Rules, shares, dots and bins sheet (Gaps: Derived).",
@@ -131,6 +133,7 @@ BarChart orientation="horizontal"   series must be a one-element tuple, never st
   ],
 
   knownGaps: [
+    "A plain chart keeps the fixed plot heights (160 or 240px) — it does not fill a taller container. Its hidden table is a native <table>, not the Table component, because Table's scroll region would become a tab stop inside a 1px box.",
     "A dense scatter (hundreds of dots) is still SVG: the Canvas tier of ADR 0023 §3.2 is not built, and the V0 spike that sets its threshold has not run. No Voronoi: the pointer finds the nearest dot within 24px by brute force, which is fine to a few thousand.",
     "The keyboard walks a scatter in x order, one series at a time (↑/↓ switch series). Dots that share an x are reached by index, not by position.",
     "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",

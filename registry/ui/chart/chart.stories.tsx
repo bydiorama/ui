@@ -63,6 +63,42 @@ export const Playground: Story = {
   ),
 };
 
+/**
+ * `variant="plain"`: the plot alone, on the ground it sits on — here a
+ * sunken well, as an illustrative tile would hold it. The title, takeaway
+ * and table are still in the document, visually hidden.
+ */
+export const Plain: Story = {
+  render: () => (
+    <div className="grid max-w-[774px] gap-lg sm:grid-cols-2">
+      <div className="rounded-lg bg-sunken p-xl">
+        <LineChart
+          variant="plain"
+          size="sm"
+          label="Studio output, 1967–1972"
+          description="Posters overtook signage in 1970 and kept rising."
+          data={STUDIOS}
+          x="year"
+          xLabel="Year"
+          series={[...THREE]}
+        />
+      </div>
+      <div className="rounded-lg bg-sunken p-xl">
+        <BarChart
+          variant="plain"
+          size="sm"
+          label="Printed work by year"
+          description="Posters led books in every year and peaked in 1972."
+          data={PRINTED}
+          x="year"
+          xLabel="Year"
+          series={[...TWO]}
+        />
+      </div>
+    </div>
+  ),
+};
+
 /** Mirrors the Bar and Line sheets: vertical, horizontal, grouped, stacked; lines, rule, stacked area. */
 export const Matrix: Story = {
   render: () => (

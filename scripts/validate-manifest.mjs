@@ -102,6 +102,13 @@ for (const item of manifest.items ?? []) {
   }
 }
 
+// A rename keeps old ledger entries valid (ADR 0027); it must point at an item
+// that exists, and an old name must not be reused for a new item.
+for (const [from, to] of Object.entries(manifest.renamed ?? {})) {
+  if (!seenNames.has(to)) errors.push(`renamed: "${from}" → "${to}", but "${to}" is not an item in this manifest`);
+  if (seenNames.has(from)) errors.push(`renamed: "${from}" is still an item name — an old name is not reused`);
+}
+
 if (errors.length) {
   console.error("Manifest invalid:\n");
   for (const e of errors) console.error(`  - ${e}`);

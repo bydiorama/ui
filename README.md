@@ -32,7 +32,8 @@ tooling that keeps consumers in sync — distributed as source you own.**
   (169 pairs, both schemes), every story runs through axe, interaction
   contracts run in a real browser, and visual baselines cover every
   component in both colour schemes.
-- **Agent-ready.** [`AGENTS.md`](AGENTS.md), distributable agent skills, and
+- **Agent-ready.** [`AGENTS.md`](AGENTS.md), an agent plugin with ten skills
+  ([`plugins/ui`](plugins/ui/README.md)), and
   a dependency-free `pnpm verify` a fresh clone (or a fresh agent) can run
   before installing anything.
 
@@ -276,10 +277,26 @@ installed component imports.
 
 ### Check it against the design
 
-Install the `visual-review` skill (it brings the `visual-diff` script): it
-diffs the running app against 1× exports of the design's frames and
-components, and teaches the agent to read the result. The `app-motion` skill
-covers motion beyond what the components already do.
+Install the `visual-diff` item and the `ui` agent plugin. The plugin's
+`ui:visual-review` skill diffs the running app against 1× exports of the
+design's frames and components with that script, and teaches the agent to
+read the result. `ui:app-motion` covers motion beyond what the components
+already do.
+
+### Agent skills
+
+The skills ship as one agent plugin, `ui`, for Claude Code, claude.ai and
+Cowork — not through the registry. In Claude Code:
+
+```
+/plugin marketplace add bydiorama/ui
+/plugin install ui@diorama-ui
+```
+
+In claude.ai or Cowork: **Customize › Plugins › Add › Add marketplace**,
+enter `bydiorama/ui`, then add `ui`. It follows `main`. The skill list is in
+[`plugins/ui/README.md`](plugins/ui/README.md); why it works this way is
+ADR 0027.
 
 ### Stay in sync
 
@@ -338,7 +355,8 @@ registry.json, r/    GENERATED — never hand-edited
 registry/            the distributed source itself
   ui/                one directory per component, five files each
   lib/ hooks/        utilities and hooks
-  fonts/ skills/     Aspekta (OFL); agent skills, per ADR 0013
+  fonts/ skills/     Aspekta (OFL); agent skills — the source (ADR 0013)
+plugins/ui/          the `ui` agent plugin — skills GENERATED from registry/skills (ADR 0027)
   visual/            the visual-regression matrix and its baselines
 packages/tokens/     @bydiorama/tokens — token contract, resolver, emitters
 packages/cli/        the consumer-side CLI — add, lock, sync

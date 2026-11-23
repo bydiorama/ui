@@ -1,5 +1,5 @@
 ---
-name: diorama-visual-review
+name: visual-review
 description: Comparing a screen built with @bydiorama/ui against its design pixel by pixel — exporting 1× references of frames and components, reproducing the exact state with a script, diffing on a canvas in the same browser and reading the result. Use when asked whether a screen or component matches Figma or Paper, to "match the design", to fix spacing, sizes or drift against a frame, to set up visual diffs in an app, or when a design asset URL 403s and an export is needed.
 ---
 
@@ -17,7 +17,8 @@ Never skip from "read" to "fix".
 
 1. Install the script (from a `bydiorama/ui` checkout, like any item):
    `node --experimental-strip-types packages/cli/bin/ui.ts add visual-diff --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"`
-   — installing this skill (`visual-review`) brings it along. It lands at
+   — the skill comes from the `ui` plugin, the script from the registry, so
+   install it even when the skill is already loaded. It lands at
    `scripts/visual-diff.mjs`; its header documents every option.
 2. `pnpm add -D playwright && pnpm exec playwright install chromium`.
 3. References in `design/references/` (or pass `--refs`); cases in

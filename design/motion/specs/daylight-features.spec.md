@@ -105,11 +105,11 @@ All three are dark, 1600×1200, 60 fps, H.264 CRF 15, BT.709-tagged.
 
 ## 6 · Reproduce
 
-From the repo root, with `T=registry/skills/ui-video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill), with the venv from the banner spec:
+From the repo root, with `T=registry/skills/video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill), with the venv from the banner spec:
 
 ```sh
 PY=~/.cache/ui-motion/venv/bin/python
-T=registry/skills/ui-video-render/scripts/python
+T=registry/skills/video-render/scripts/python
 PAGE=design/motion/daylight-walkthrough/daylight-walkthrough.html
 OUT=design/motion/daylight-features/exports
 CAP=/tmp/feature-cap

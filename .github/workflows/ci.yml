@@ -141,9 +141,10 @@ jobs:
       - name: Contrast pairs
         run: node scripts/check-contrast.mjs --check
 
-      # The skill contract, plus freshness of the generated .claude/skills
-      # copies. A skill loads on its description alone, so a bad one fails
-      # silently — which is exactly what a gate is for (ADR 0013).
+      # The skill contract, the `ui` plugin's manifests, and freshness of the
+      # generated .claude/skills and plugins/ui copies. A skill loads on its
+      # description alone, so a bad one fails silently — which is exactly what
+      # a gate is for (ADR 0013, 0027).
       - name: Skill contract
         run: node scripts/validate-skills.mjs && node scripts/build-skills.mjs --check
 

@@ -1,0 +1,16 @@
+{
+  "name": "diorama-ui",
+  "owner": {
+    "name": "Diorama"
+  },
+  "metadata": {
+    "description": "The Diorama design system's agent plugin, from bydiorama/ui."
+  },
+  "plugins": [
+    {
+      "name": "ui",
+      "source": "./plugins/ui",
+      "description": "Agent skills for the Diorama design system (@bydiorama/ui): craft rules, effects, motion, static rendering and visual review for apps; designing components in Paper; and demo pages, videos and stills of the UI."
+    }
+  ]
+}

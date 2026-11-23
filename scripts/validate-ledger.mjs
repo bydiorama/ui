@@ -13,7 +13,9 @@ const KINDS = ["breaking", "addition", "fix", "visual", "a11y", "token", "decisi
 const ID_RE = /^\d{4}-\d{2}-\d{2}-[a-z0-9]+(-[a-z0-9]+)*$/;
 
 const manifest = readManifest();
-const knownItems = new Set(manifest.items.map((i) => i.name));
+// Ledger history is immutable: an entry written under an item's old name stays
+// valid after a rename (manifest `renamed`, ADR 0027).
+const knownItems = new Set([...manifest.items.map((i) => i.name), ...Object.keys(manifest.renamed ?? {})]);
 knownItems.add("system");
 
 const errors = [];

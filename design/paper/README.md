@@ -216,7 +216,8 @@ which a sheet ends up true, and the amendments are the interesting part:
 
 Sheets are built with the **`design-component`** skill, which carries the
 handoff format (the 20% title lane, the annotation rows, the Gaps badges).
-Icons come from the installed set via **`griddy-icons-in-paper`** — extracted,
+Icons come from the installed set via **`griddy-icons-in-paper`** (public in
+`bydiorama/skills`; `bydiorama:griddy-icons-in-paper` in Diorama's plugin) — extracted,
 never hand-drawn, and every glyph layer named for its export so the sheet
 records which icon it means.
 

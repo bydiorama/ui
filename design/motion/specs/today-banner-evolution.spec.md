@@ -56,7 +56,7 @@ each iteration is built on a new frame, to the right.
   Every size, gap, radius, colour and type setting in the page comes from
   that dump, not from screenshots.
 - **Dark scheme.** The asset is light only. Dark values come from the Daylight
-  Jet Black ladder (Rev 6) in `ui-demo-page/reference/daylight-demo.html`.
+  Jet Black ladder (Rev 6) in `demo-page/reference/daylight-demo.html`.
   Its light half equals Paper's resolved values one for one, so the mapping
   is token to token, not by eye. The table is in the storyboard.
 - **Type.** Aspekta from `registry/fonts/aspekta/AspektaVF.woff2` (OFL),
@@ -84,7 +84,7 @@ each iteration is built on a new frame, to the right.
 ```
 design/motion/
 ├─ specs/today-banner-evolution.spec.md     ← this file
-├─ (tools)                                 ← the Python port; now in registry/skills/ui-video-render/scripts/python/
+├─ (tools)                                 ← the Python port; now in registry/skills/video-render/scripts/python/
 └─ today-banner-evolution/
    ├─ storyboard.md
    ├─ today-banner-evolution.html          ← the demo page (#demo, #demo-light)
@@ -145,11 +145,11 @@ python3 -m venv ~/.cache/ui-motion/venv
 ~/.cache/ui-motion/venv/bin/python -m playwright install chromium
 ```
 
-Per clip, from the repo root, with `T=registry/skills/ui-video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill). Captures go to a scratch dir, never into the repo (≈ 3–4 k JPEGs at 2×):
+Per clip, from the repo root, with `T=registry/skills/video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill). Captures go to a scratch dir, never into the repo (≈ 3–4 k JPEGs at 2×):
 
 ```sh
 PY=~/.cache/ui-motion/venv/bin/python
-T=registry/skills/ui-video-render/scripts/python
+T=registry/skills/video-render/scripts/python
 PAGE=design/motion/today-banner-evolution/today-banner-evolution.html
 OUT=design/motion/today-banner-evolution/exports
 CAP=/tmp/banner-cap

@@ -206,7 +206,7 @@ item type needs no special case:
 | Shape | Looks like | Resolves to |
 | --- | --- | --- |
 | **Alias** | `ui/header.tsx`, `lib/cn.ts` | The first segment is a key in `components.json` `aliases`, mapped through `tsconfig.json`'s `@/*` — `ui/header.tsx` → `src/components/ui/header.tsx`. |
-| **Literal** | `.claude/skills/diorama-ui-craft/SKILL.md`, `~/public/fonts/aspekta/aspekta.css` | A path from the consumer root, as-is. Literal means the first segment starts with `.`, or the target starts with `~/` (shadcn's own project-root marker, for a root path with no leading dot). |
+| **Literal** | `.claude/settings.json`, `~/public/fonts/aspekta/aspekta.css` | A path from the consumer root, as-is. Literal means the first segment starts with `.`, or the target starts with `~/` (shadcn's own project-root marker, for a root path with no leading dot). |
 
 The split is by shape, not by "was it found in `aliases`". An alias-shaped
 target whose alias is missing still fails with `No alias "…" in

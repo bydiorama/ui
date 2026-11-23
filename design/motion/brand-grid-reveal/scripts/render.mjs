@@ -1,4 +1,4 @@
-// Deterministic variant of ui-video-render/scripts/render.mjs: seek every
+// Deterministic variant of video-render/scripts/render.mjs: seek every
 // film frame instead of recording wall time. Same 2× capture, 60fps and CRF15.
 // PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs
 // CHROMIUM_EXECUTABLE=/absolute/path/to/chromium node design/motion/brand-grid-reveal/scripts/render.mjs

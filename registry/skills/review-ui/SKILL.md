@@ -188,7 +188,7 @@ comment compiles a dead rule. Harmless, but don't let it fool a grep-count.
   the visual baselines let a small element change ENTIRELY under
   `allowedMismatchedPixelRatio`, so green is evidence about large surfaces only.
   **Compare against a design export by diffing, not by looking** — the
-  `visual-review` skill (`diorama-visual-review`) is the method: 1× exports
+  `visual-review` skill is the method: 1× exports
   of the frame and its key parts, the state reproduced by script, a canvas
   diff in the same browser (`registry/tooling/visual-diff/visual-diff.mjs`,
   shipped as the `visual-diff` item), then read the red — glyph outline is

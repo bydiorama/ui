@@ -1,0 +1,12 @@
+{
+  "name": "ui",
+  "displayName": "Diorama UI",
+  "description": "Agent skills for the Diorama design system (@bydiorama/ui): craft rules, effects, motion, static rendering and visual review for apps; designing components in Paper; and demo pages, videos and stills of the UI.",
+  "author": {
+    "name": "Diorama"
+  },
+  "homepage": "https://github.com/bydiorama/ui/tree/main/plugins/ui#readme",
+  "repository": "https://github.com/bydiorama/ui",
+  "license": "MIT",
+  "keywords": ["design-system", "ui", "react", "paper", "motion", "skills"]
+}

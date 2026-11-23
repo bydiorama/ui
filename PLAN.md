@@ -548,9 +548,10 @@ in its own source — both corrected by measurement rather than by argument.
 ## Phase 5 — governance and agent ops · **partial**
 
 - [x] Changesets configured; ledger discipline is the strongest part of the repo.
-- [x] Six skills, `check:skills` gating the contract and the generated
-      `.claude/skills/` copies (ADR 0013). One is distributed (`ui-craft` →
-      `diorama-ui-craft`); five are authoring-only.
+- [x] Thirteen skills, `check:skills` gating the contract and the generated
+      `.claude/skills/` and `plugins/ui/` copies (ADR 0013). Ten ship as the
+      `ui` agent plugin (ADR 0027); three are authoring-only. The plugin's
+      `add`/`sync` commands and the drift hook wait for the CLI on npm (#30).
 - [ ] **Scheduled agent routines** — the weekly dependency / a11y / doc-drift
       sweep. Nothing exists. A doc-drift sweep would have caught this file's
       predecessor.

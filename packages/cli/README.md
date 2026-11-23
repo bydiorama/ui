@@ -64,7 +64,8 @@ the registry still serves as an alternative — same items, same URLs):
 The lock is taken at the registry revision being installed: pass
 `--revision <sha>`, or omit it for a remote install and `add` resolves
 main's current sha from the GitHub API (with `--registry-path` the flag is
-required — the checkout has git right there).
+required — the checkout has git right there). That lookup can hit GitHub's
+anonymous rate limit; see [GitHub API and `GITHUB_TOKEN`](#github-api-and-github_token).
 
 ```sh
 node --experimental-strip-types bin/ui.ts add button select \
@@ -233,6 +234,44 @@ target aborts the install instead of leaving half of it on disk.
   default, or `--registry-url <template>` to override it. Ledger entries in
   this mode come from GitHub's contents API (`api.github.com/repos/.../ledger/entries`),
   since `raw.githubusercontent.com` can't list a directory.
+
+## GitHub API and `GITHUB_TOKEN`
+
+Two calls go to `api.github.com`: `add` without `--revision` asks for
+`main`'s current sha, and `sync` (without `--registry-path`) lists
+`ledger/entries`. Everything else — item JSON, the ledger entry files — comes
+from `raw.githubusercontent.com`, which is not the API.
+
+GitHub allows **60 anonymous API calls an hour per IP address**. On a shared
+machine (a CI runner, a cloud session) other people's calls count against the
+same address, so the CLI's first call can be the one that answers `403 API
+rate limit exceeded` — while `curl` to a raw URL from the same machine still
+works.
+
+| Variable | |
+| --- | --- |
+| `GITHUB_TOKEN` | Sent as `Authorization: Bearer …` on both API calls. Any GitHub token works — the repository is public, so it needs no scopes — and authenticated calls get 5,000 an hour. In GitHub Actions, pass the workflow's own: `env: { GITHUB_TOKEN: ${{ github.token }} }`. Locally, `GITHUB_TOKEN="$(gh auth token)"`. |
+| `GH_TOKEN` | Read when `GITHUB_TOKEN` is unset or blank — the name the `gh` CLI uses. |
+
+The token goes only to `api.github.com`, never to `raw.githubusercontent.com`,
+and is never printed: messages name the variable, not its value. Every request
+also sends `User-Agent: bydiorama-ui-cli`, which GitHub requires.
+
+When GitHub refuses with a rate limit (a 403 or 429 with
+`x-ratelimit-remaining: 0`, or "rate limit" in the body), the CLI says so,
+says whether the call was anonymous, prints when the limit resets, and names
+the ways out:
+
+- set `GITHUB_TOKEN` (or `GH_TOKEN`), or
+- for `add`, pass `--revision <sha>` and no API call is made —
+  `git ls-remote https://github.com/bydiorama/ui main` prints the sha without
+  using the API;
+- for `sync`, use `--registry-path <checkout>`, which reads the ledger from
+  disk.
+
+A 403 that is not a rate limit is not called one; the message carries
+GitHub's own reason instead. A 401 with a token set means GitHub rejected that
+token: fix it, or unset the variable to call anonymously.
 
 ## What this is not (yet)
 

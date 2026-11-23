@@ -40,6 +40,7 @@ import { findAtAliasBase, resolveTargetPath } from "../src/target-path.ts";
 import { listRegistryItems, localRegistrySource, remoteRegistrySource, type RegistrySource } from "../src/registry-source.ts";
 import { localLedgerSource, remoteLedgerSource, type LedgerSource } from "../src/ledger-source.ts";
 import { readLockfile, writeLockfile } from "../src/lockfile.ts";
+import { resolveRemoteRevision } from "../src/github-api.ts";
 import { lockItem } from "../src/lock.ts";
 import { syncAll, type FileReader } from "../src/sync.ts";
 import { addItems, type FileWriter } from "../src/add.ts";
@@ -135,19 +136,15 @@ function makeFileWriter(cwd: string): FileWriter {
  * serves main, so that IS the revision being installed (within the raw CDN's
  * few minutes of cache). A local checkout has git right there, so requiring
  * an explicit sha costs one flag and keeps this CLI's no-shelling-out rule.
+ * The API call sends GITHUB_TOKEN / GH_TOKEN when set and explains a rate
+ * limit (src/github-api.ts).
  */
 async function resolveAddRevision(flags: Record<string, string | boolean>): Promise<string> {
   if (typeof flags.revision === "string") return flags.revision;
   if (typeof flags["registry-path"] === "string") {
     throw new Error("--revision <git-sha> is required with --registry-path (run `git rev-parse HEAD` in the checkout).");
   }
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/main`, {
-    headers: { accept: "application/vnd.github.sha" },
-  });
-  if (!res.ok) {
-    throw new Error(`Could not resolve the registry's current revision from the GitHub API (${res.status}) — pass --revision <git-sha>.`);
-  }
-  return (await res.text()).trim();
+  return resolveRemoteRevision(GITHUB_OWNER, GITHUB_REPO, "main");
 }
 
 async function cmdAdd(itemNames: string[], flags: Record<string, string | boolean>) {
@@ -375,7 +372,12 @@ prints the npm packages left for you to install.
                     never overwritten.
   --revision <sha>  The bydiorama/ui commit the files come from, recorded in the
                     lock. Use the SHA in your registry URL, or
-                    \`git -C <checkout> rev-parse HEAD\` with --registry-path.`,
+                    \`git -C <checkout> rev-parse HEAD\` with --registry-path.
+                    Omitted, \`add\` asks the GitHub API for main's sha.
+
+Environment:
+  GITHUB_TOKEN      A GitHub token (or GH_TOKEN) sent to the GitHub API, which
+                    allows only 60 anonymous calls an hour per IP address.`,
   lock: `Usage: bydiorama-ui lock (<item...> | --all) --revision <sha>
 
 Records the current hash of each installed item's files, so \`sync\` can tell an
@@ -396,7 +398,12 @@ comment, so reinstall byte-exact with \`add <item> --force --revision <sha>\`.`,
 Diffs every locked item against the registry and prints its status — current,
 stale, modified, forked, or a combination — with the ledger entries that apply.
 
-  --json  Machine-readable output.`,
+  --json  Machine-readable output.
+
+Environment:
+  GITHUB_TOKEN  A GitHub token (or GH_TOKEN) sent when listing the ledger
+                through the GitHub API, which allows only 60 anonymous calls
+                an hour per IP address. --registry-path avoids the API.`,
   theme: `Usage: bydiorama-ui theme --seed <file> --out <css> [--scheme auto|light|dark]
                           [--check] [--export <name>] [--registry-path <checkout>]
 

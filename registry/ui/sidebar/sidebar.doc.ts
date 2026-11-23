@@ -21,9 +21,9 @@ export const sidebarDoc = {
     { part: "body", slot: "sidebar-body", notes: "The scroll column. p-sm and NO gap; the 8 here plus each row's 12 is the sheet's 20px text inset, and the rows stack flush." },
     { part: "group", slot: "sidebar-group", notes: "The header band (the sheet's `Nav Group`). p-sm. Holds controls — a back button, a close button — not navigation." },
     { part: "section", slot: "sidebar-section", notes: "A primary-level label with its second-level rows beneath." },
-    { part: "sectionLabel", slot: "sidebar-section-label", notes: "A <button> disclosure when isCollapsible, a <span> heading otherwise. 16px at bold weight in --ui-nav-ink; 13px and a 32px row under compact density (ADR 0025)." },
+    { part: "sectionLabel", slot: "sidebar-section-label", notes: "A <button> disclosure when isCollapsible, a <span> heading otherwise. 16px at bold weight in --ui-nav-ink; 13px and a 32px row under compact density (ADR 0026)." },
     { part: "sublist", slot: "sidebar-sublist", notes: "The section's <ul>. No padding, no gap, no indent: both levels sit at 20px and the hierarchy is carried by type and colour." },
-    { part: "item", slot: "sidebar-item", notes: "A row: p-md, radius-sm, 46px tall as drawn at 16px. Under data-ui-density=\"compact\" it is 32px at 13px (text-nav-row → body-sm) with its label on a 16px lane, the compact search field's (ADR 0025). An <a> when given href, a <div> otherwise. Carries data-current and aria-current=\"page\"." },
+    { part: "item", slot: "sidebar-item", notes: "A row: p-md, radius-sm, 46px tall as drawn at 16px. Under data-ui-density=\"compact\" it is 32px at 13px (text-nav-row → body-sm) with its label on a 16px lane, the compact search field's (ADR 0026). An <a> when given href, a <div> otherwise. Carries data-current and aria-current=\"page\"." },
     { part: "spacer", slot: "sidebar-spacer", notes: "flex-1, aria-hidden. Pushes what follows to the bottom of the rail." },
   ],
 

@@ -88,13 +88,13 @@ them. Three knobs and one mode now reach components, each behind a gate:
       keeps the exceptions current.
 - [x] **Control sizes and density** — two families (control, field) and
       `[data-ui-density]` modes, floored at 24px.
-- [x] **Dense rows and type** (ADR 0025) — menu, option and Sidebar rows
+- [x] **Dense rows and type** (ADR 0026) — menu, option and Sidebar rows
       are 32px under compact, NavRail squares 28px, field labels and md
       values step through three density-stepped roles; `dense-md` /
       `dense-sm` join the table. Open: the compact field step (36px md
       against a 34px dense design) is a ladder decision, not taken.
 - [ ] **Regenerate the `density` visual baselines** (both schemes, both
-      platforms): its compact Input steps under ADR 0025.
+      platforms): its compact Input steps under ADR 0026.
 - [x] **`check:token-consumers`** — a contract token nothing reads fails
       unless declared with a reason. 79 are declared; twelve colour roles,
       `--ui-weight-book` and two leadings are listed for review, not settled.
@@ -239,7 +239,7 @@ and `registry/lib/shader/shader.browser.test.tsx`, in Chromium on SwiftShader.
       colours, reduced motion and reduced transparency (asserted per pair).
 - [x] Glass's tint is a resolver token, derived per brand against a floor
       that counts the material's own light (theme zero: 0.90 / 0.92).
-- [x] `shader` — aurora and halo, optional, one WebGL2 context, server-safe;
+- [x] `shader` — the parametric `gradient` ground — wash, sweep, fold, rise, dawn (ADR 0025; aurora retired) — and halo, optional, one WebGL2 context, server-safe;
       the guard holds every inked part at its floor on drawn pixels, in both
       schemes and under the pale-yellow stress brand, and the test proves it
       can fail.

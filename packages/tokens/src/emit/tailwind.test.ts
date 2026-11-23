@@ -67,7 +67,7 @@ test("every role in the type table is a size, never an ink", () => {
   }
 });
 
-test("a stepped role mixes its two table roles on --ui-type-step, attribute by attribute (ADR 0025)", () => {
+test("a stepped role mixes its two table roles on --ui-type-step, attribute by attribute (ADR 0026)", () => {
   const theme = toTailwindTheme();
   for (const [name, step] of Object.entries(STEPPED_ROLES)) {
     const a = `--ui-text-${step.default}`;
@@ -85,7 +85,7 @@ test("a stepped role mixes its two table roles on --ui-type-step, attribute by a
   }
 });
 
-test("the row sizes are purpose-named spacing (ADR 0025)", () => {
+test("the row sizes are purpose-named spacing (ADR 0026)", () => {
   const theme = toTailwindTheme();
   for (const [key, token] of [
     ["row-inset", "--ui-row-inset"],

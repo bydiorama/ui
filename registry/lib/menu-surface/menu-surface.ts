@@ -90,7 +90,7 @@ export function menuPanel(className?: string): string {
  *
  * `text-row` — Select's option role, so a menu and a select list on one
  * page set their rows in one type (#22). It is `body-md` at default density
- * and steps to `dense-md` under compact (ADR 0025). The sheet draws 16/600 and this
+ * and steps to `dense-md` under compact (ADR 0026). The sheet draws 16/600 and this
  * shipped as `text-body-lg`; a members table with a role Select and a row
  * Menu on every line then read as two type systems side by side, a size
  * apart, in what is the same kind of popup, list and gesture. Matched BY
@@ -120,7 +120,7 @@ export function menuPanel(className?: string): string {
  */
 export function menuItem(className?: string): string {
   return cn(
-    // Density-bound geometry (ADR 0025). At default the tokens are p-md and
+    // Density-bound geometry (ADR 0026). At default the tokens are p-md and
     // no floor, so the row is still the padding-drawn ~46px; under compact
     // the block inset drops to xs and the 32px floor sets the height, the
     // inline inset to sm. `text-row` is body-md at default and dense-md

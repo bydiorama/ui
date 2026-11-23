@@ -614,6 +614,12 @@ describe("ChatSources.Citation", () => {
     tap();
     await wait(50);
     expect(pill.getAttribute("aria-expanded")).toBe("false");
+    // And it STAYS closed. Closing hands focus back to the marker once the
+    // panel has left (~150ms), and keyboard focus on the marker opens the
+    // preview: read at 50ms only, the reopen landed after the check on a
+    // fast machine and before it on a slow one.
+    await wait(400);
+    expect(pill.getAttribute("aria-expanded")).toBe("false");
   });
 
   test("the preview: 320px, gap-md, origin · title · excerpt · link", async () => {

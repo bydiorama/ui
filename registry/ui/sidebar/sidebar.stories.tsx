@@ -48,7 +48,7 @@ export const Playground: Story = { render: () => <Rail /> };
 export const Matrix: Story = { render: () => <Rail /> };
 
 /**
- * Under `data-ui-density="compact"` (ADR 0025): 32px rows at 13px, labels on
+ * Under `data-ui-density="compact"` (ADR 0026): 32px rows at 13px, labels on
  * a 16px lane. Nothing is passed to the rail — the density tokens and the
  * stepped `text-nav-row` role do it, and the type-role check holds every row
  * to body-sm here rather than body-lg.

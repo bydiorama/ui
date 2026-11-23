@@ -354,7 +354,7 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-button-lg",
   "--ui-text-button-sm",
   "--ui-text-figure",
-  // The dense family (ADR 0025): 13 and 12 at the regular weight.
+  // The dense family (ADR 0026): 13 and 12 at the regular weight.
   "--ui-text-dense-md",
   "--ui-text-dense-sm",
   // Each role's weight, leading and tracking (ADR 0020 §3). The table in
@@ -470,14 +470,14 @@ export const FIXED_TOKENS = [
   // while the TARGET stays at --ui-hit-area-min (CONVENTIONS §10).
   "--ui-choice-row-min-height",
 
-  // List and nav ROWS (ADR 0025), density-bound like the control sizes. The
+  // List and nav ROWS (ADR 0026), density-bound like the control sizes. The
   // inline and block insets of a menu, option or Sidebar row; the floor of a
   // list row (none at default, where padding draws the 46px row; 32px under
   // compact) and of a Sidebar row; the side of a NavRail square.
   "--ui-row-inset", "--ui-row-block-inset",
   "--ui-row-min-height", "--ui-nav-row-min-height",
   "--ui-nav-rail-item-size",
-  // The density-bound switch a STEPPED type role reads (ADR 0025): 0, or 1
+  // The density-bound switch a STEPPED type role reads (ADR 0026): 0, or 1
   // under compact. A number, never a size — so it is safe to inherit across
   // a brand scope, which the role tokens themselves are not.
   "--ui-type-step",

@@ -150,7 +150,7 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
     }),
   );
 
-  // Density-stepped roles (ADR 0025): `text-row` is body-md at default and
+  // Density-stepped roles (ADR 0026): `text-row` is body-md at default and
   // dense-md under compact. Each attribute is a mix of the two roles' tokens
   // on `--ui-type-step` (0 or 1), evaluated on the element that names the
   // utility — so it reads the role tokens in scope THERE, and a brand scope
@@ -208,7 +208,7 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
     }),
   );
 
-  // Rows (ADR 0025): `px-row-inset py-row-block-inset min-h-row` for a menu
+  // Rows (ADR 0026): `px-row-inset py-row-block-inset min-h-row` for a menu
   // or option row, `min-h-nav-row` for a Sidebar row, `size-nav-rail-item`
   // for a NavRail square. Purpose-named for the same reason as the control
   // sizes, and re-bound by `[data-ui-density]` the same way.

@@ -25,7 +25,7 @@
  *   7. a compact CHOICE ROW (Checkbox, Radio, Switch) may be shorter than
  *      24px while its hit target is not — measured by hit-testing, because
  *      the target is a pseudo-element no box measurement can see;
- *   8. ROWS and TYPE follow density too (ADR 0025): menu, option and Sidebar
+ *   8. ROWS and TYPE follow density too (ADR 0026): menu, option and Sidebar
  *      rows are 32px under compact and set in the stepped roles, NavRail's
  *      squares step to 28px, a field's label to 12px and its md value to
  *      13px — and the stepped type follows a brand scope's own baseSize at
@@ -454,14 +454,14 @@ describe("compact choice rows keep a 24px target (SC 2.5.8)", () => {
 });
 
 /**
- * ADR 0025. Rows had no density at all: a menu row was `p-md text-body-md`
+ * ADR 0026. Rows had no density at all: a menu row was `p-md text-body-md`
  * (~46px) and a Sidebar row 46px at 16px, so the first dense consumer passed
  * `className="p-sm text-body-sm"` to every Menu.Item and wrote its own
  * sidebar. Each claim is measured at default (the drawn geometry, unchanged)
  * and under compact, because reading the right token is not the same claim
  * as the token reaching a box.
  */
-describe("rows follow density (ADR 0025)", () => {
+describe("rows follow density (ADR 0026)", () => {
   const px = (el: Element | null) => parseFloat(getComputedStyle(el as Element).fontSize);
   const weight = (el: Element | null) => parseFloat(getComputedStyle(el as Element).fontWeight);
   const slot = (scope: ParentNode, name: string) => scope.querySelector<HTMLElement>(`[data-slot="${name}"]`);

@@ -4,7 +4,7 @@
  *
  *   <Card className={fx("glass", "edge", "specular")}>…</Card>
  *   <section className={fx("opaque")}>…glass inside stands down…</section>
- *   <Button className={fx("aurora", "sheen")}>Publish</Button>
+ *   <section className={fx("gradient")}>…a hero on a moving ground…</section>
  *   <p className={fx("shimmer")}>Generating…</p>
  *
  * HOW AN EFFECT REACHES A PART. An effect is a CLASS on a component's root.
@@ -13,7 +13,7 @@
  * them to its hidden <input>). From the root, the stylesheet reaches the part
  * it paints through `data-slot` — the surface CONVENTIONS §6 already
  * sanctions for targeting internals — so a Switch's grain lands on its track
- * and a Slider's aurora on its fill, and the component never knows.
+ * and a Slider's sheen on its fill, and the component never knows.
  *
  * THE FLOOR IS THE COMPONENT. Every effect is a layer over a component that
  * is already finished. When it cannot apply — reduced transparency, forced
@@ -24,12 +24,13 @@
  * (`fx/*.css`, imported through `fx/fx.css`). The two SHADER effects are a
  * separate, optional item, `@/lib/shader`, because a canvas costs a runtime
  * and most products will never want one. They are named here anyway, so
- * `fx("aurora")` type-checks in an app that has not installed the runtime
- * yet — and renders exactly the component, which is the floor.
+ * `fx("gradient")` type-checks in an app that has not installed the runtime
+ * yet — and renders exactly the element, which is the floor.
  *
  * WHAT MAY BE A SHADER is a rule, not a taste (ADR 0022): a shader paints only
  * pixels it owns, every input is a token, its floor is the component, and it
- * guards the contrast of the ink its part carries. Glass that bends the page
+ * keeps the ink its part carries legible — a ground by a quiet zone around
+ * its copy (ADR 0025). Glass that bends the page
  * behind it fails the first clause — a canvas cannot read the DOM — which is
  * why glass is CSS. `pnpm check:fx` enforces the rule on the shader sources.
  */
@@ -149,11 +150,11 @@ export const EFFECTS = {
     job: "Display text filled with a slowly turning gradient between two text roles.",
     on: ["text"],
   },
-  aurora: {
+  gradient: {
     kind: "shader",
     sheet: "shader",
-    job: "The brand colour moving through a fill or a ground. The shader keeps the part's ink at its contrast floor, per pixel.",
-    on: ["button", "switch", "checkbox", "slider", "progress", "ground"],
+    job: "A moving ground in the brand's two colours, parametric: a look picks the form — wash (a calm field), sweep (two big lit forms), fold (light panes with lit rims), rise (a horizon with a crisp rim) or dawn (a soft horizon) — and shared knobs tune any of them (angle, sharpness, scale, chroma, intensity). Dithered so it never bands; its copy sits in a quiet zone of the exact base, so the ink keeps its audited contrast. One per view.",
+    on: ["ground"],
   },
   halo: {
     kind: "shader",

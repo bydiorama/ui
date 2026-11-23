@@ -86,7 +86,7 @@ const SURFACE = {
  */
 const OPTION = cn(
   "flex cursor-pointer items-center gap-sm rounded-sm select-none",
-  // Density-bound, as Select's row is (ADR 0025).
+  // Density-bound, as Select's row is (ADR 0026).
   "min-h-row px-row-inset py-row-block-inset",
   "text-row font-body text-ink-primary no-underline",
   "transition-[background-color]", motionMicro,

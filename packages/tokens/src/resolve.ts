@@ -391,7 +391,7 @@ export const TYPE_ROLES = {
   // fluid: title-lg shrinks to ~17px on a phone inside a tile that does not
   // shrink. 24/30 at 600; components add `tabular-nums` themselves.
   "--ui-text-figure": { px: 24, leading: 1.25, weight: 600, tracking: "-0.02em" },
-  // The DENSE family (ADR 0025): regular-weight running text at the sizes a
+  // The DENSE family (ADR 0026): regular-weight running text at the sizes a
   // 28–32px row holds. The table had a 13px and a 12px step only at 500 and
   // 600 (body-sm, label-*, caption), so a dense screen that wanted 13 or 12
   // REGULAR wrote `text-[13px]/4 font-normal` at the call site — the first
@@ -404,7 +404,7 @@ export const TYPE_ROLES = {
 export type TypeRoleName = keyof typeof TYPE_ROLES extends `--ui-text-${infer Name}` ? Name : never;
 
 /**
- * Density-stepped roles (ADR 0025): a role whose VALUE is one table role at
+ * Density-stepped roles (ADR 0026): a role whose VALUE is one table role at
  * default and comfortable density and another under compact.
  *
  * Not new rows of the table — each is a choice BETWEEN two rows, made by the

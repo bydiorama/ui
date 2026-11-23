@@ -92,7 +92,7 @@ export const Open: Story = {
 };
 
 /**
- * A dense menu (ADR 0025): the attribute on the PANEL, because the panel
+ * A dense menu (ADR 0026): the attribute on the PANEL, because the panel
  * portals out of any compact subtree it is opened from. Rows are 32px at
  * 13/400 with no className.
  */

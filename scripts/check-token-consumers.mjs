@@ -46,7 +46,7 @@ const ALLOWED = new Map([
   [/^--ui-text-(display-lg|display-md|title-lg|title-md)(-weight|-leading|-tracking)?$/, "Page-heading roles of the authored type table (ADR 0009), with their attributes (ADR 0020 §3). Components do not set page headings; consumer pages do. title-lg joined this list when Modal, its last component consumer, moved to Card's title-sm (#23)."],
 
   // ── Families whose consumers live outside registry/ by design ──
-  [/^--ui-text-dense-sm(-weight|-leading|-tracking)?$/, "The dense family's 12px regular step (ADR 0025): meta and secondary text on a consumer's dense screens, which the first dense consumer wrote as `text-[12px]/4 font-normal`. No component sets running 12/400 text — the 12px parts it would replace (captions, descriptions, chip labels) are drawn at 600 — so its consumers are app screens, like the page-heading roles above."],
+  [/^--ui-text-dense-sm(-weight|-leading|-tracking)?$/, "The dense family's 12px regular step (ADR 0026): meta and secondary text on a consumer's dense screens, which the first dense consumer wrote as `text-[12px]/4 font-normal`. No component sets running 12/400 text — the 12px parts it would replace (captions, descriptions, chip labels) are drawn at 600 — so its consumers are app screens, like the page-heading roles above."],
 
   [/^--ui-data-/, "Categorical data colours (ADR 0006(a)) for consumer charts. The library ships no chart component."],
   [/^--ui-shadow-(xl|(sm|md|lg|xl)-up)$/, "Elevation roles ADR 0016 assigns to the editor's artboard (xl) and to bottom-anchored surfaces (-up). Their consumers are the editor, not a distributed component."],

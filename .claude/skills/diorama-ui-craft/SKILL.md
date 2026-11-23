@@ -182,7 +182,7 @@ What feels off at 10% speed is what is subtly wrong at full speed.
 ### Effects
 
 12. **Effects are a layer, not a feature.** Glass, grain, sheen, glow,
-    shimmer, ink, aurora and halo are a class on a component's root —
+    shimmer, ink, the grounds and halo are a class on a component's root —
     `className={fx("glass")}` — never a prop, never a restyle of its parts.
     One glass surface and one lit action per view; emphasis everywhere is
     none. The full guide is the `diorama-effects` skill.

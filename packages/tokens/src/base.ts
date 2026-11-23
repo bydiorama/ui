@@ -88,7 +88,7 @@ const NAV_ROW_PX = 36;
 const NAV_RAIL_ITEM_PX = 32;
 
 /**
- * Rows (ADR 0025): menu, context-menu and option rows, Sidebar rows and the
+ * Rows (ADR 0026): menu, context-menu and option rows, Sidebar rows and the
  * NavRail square, plus the switch a density-stepped type role reads.
  *
  * Default reproduces what each row drew before it read a token — p-md, no

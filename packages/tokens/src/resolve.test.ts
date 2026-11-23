@@ -1198,7 +1198,7 @@ test("every density step is 4px on the grid, and nothing goes under the 24px flo
   assert.equal(heightPx(CONTROL_SIZES.comfortable["--ui-field-lg-height"]) - heightPx(d["--ui-field-lg-height"]), DENSITY_STEP_PX);
 });
 
-// ── Rows and dense type (ADR 0025) ─────────────────────────────────────────
+// ── Rows and dense type (ADR 0026) ─────────────────────────────────────────
 
 test("rows: default is the drawn geometry, so default rendering cannot move", () => {
   const d = ROW_SIZES.default;

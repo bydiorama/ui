@@ -261,7 +261,7 @@ export function Multiselect({
                       disabled: item.isDisabled,
                       "data-slot": "multiselect-option",
                       className: cn(
-                        // The menu row's density-bound geometry (ADR 0025);
+                        // The menu row's density-bound geometry (ADR 0026);
                         // the type is already 12px and does not step.
                         "flex cursor-pointer items-center gap-sm rounded-sm",
                         "min-h-row px-row-inset py-row-block-inset",

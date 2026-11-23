@@ -111,7 +111,7 @@ export function Select({
   const invalid = Boolean(errorText);
 
   /**
-   * The density the TRIGGER sits in, carried onto the popup (ADR 0025).
+   * The density the TRIGGER sits in, carried onto the popup (ADR 0026).
    *
    * The list portals to <body>, which leaves a `[data-ui-density]` subtree
    * (ADR 0020 §4), and Select — unlike Menu or Popover — has no popup part a
@@ -273,7 +273,7 @@ export function Select({
                         // flagged rather than followed.
                         //
                         // The geometry and `text-row` are the menu row's density-
-                        // bound ones (ADR 0025): p-md and body-md at default,
+                        // bound ones (ADR 0026): p-md and body-md at default,
                         // a 32px row at dense-md under compact.
                         "flex cursor-pointer items-center gap-sm rounded-sm",
                         "min-h-row px-row-inset py-row-block-inset",

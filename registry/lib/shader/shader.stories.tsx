@@ -4,13 +4,10 @@ import { useEffect, type CSSProperties, type ReactNode } from "react";
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
-import { startShaders } from "@/lib/shader";
+import { configureShaders, startShaders } from "@/lib/shader";
+import { GRADIENT_LOOKS, GRADIENT_PRESETS, type GradientLook } from "@/lib/shader-programs";
 import { Button } from "@/ui/button/button.tsx";
-import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
 import { Input } from "@/ui/input/input.tsx";
-import { Progress } from "@/ui/progress/progress.tsx";
-import { Slider } from "@/ui/slider/slider.tsx";
-import { Switch } from "@/ui/switch/switch.tsx";
 
 /** What an app does once, at its root. Stopped when the story unmounts. */
 function Shaders({ children }: { children: ReactNode }) {
@@ -19,10 +16,27 @@ function Shaders({ children }: { children: ReactNode }) {
 }
 
 /**
- * The optional shader half of the effects layer (ADR 0022): aurora and
- * halo, drawn by `startShaders()` on one shared WebGL2 context. Each
- * specimen is a shipped component with `className={fx(…)}` added; without
- * the runtime, or without WebGL, each renders exactly as the component.
+ * Many grounds on one page draw ONE still frame each — the look's rest frame,
+ * the one reduced motion shows — and the loop then sleeps. Ten or twenty
+ * live full-resolution grounds at once is a load no page should carry (and
+ * on a CPU-rendered runner it starved the story's own checks past their
+ * timeout). The live, single ground is Effects/Specimen.
+ */
+function Still({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    configureShaders({ reducedMotion: true });
+    return () => configureShaders({ reducedMotion: null });
+  }, []);
+  return <>{children}</>;
+}
+const still = (Story: () => ReactNode) => <Still>{Story()}</Still>;
+
+/**
+ * The optional shader half of the effects layer (ADR 0022, 0025): the
+ * gradient — one parametric ground in five looks — and halo, drawn by
+ * `startShaders()` on one shared WebGL2 context. Without the runtime, or without WebGL, a ground shows its
+ * CSS floor and a component renders exactly as itself. The specimen that
+ * puts glass on a ground is Effects/Specimen.
  */
 const meta = {
   title: "Effects/Shaders",
@@ -55,51 +69,94 @@ function Panel({ scheme, theme = zero, children }: { scheme: "light" | "dark"; t
   );
 }
 
+function Copy() {
+  return (
+    <div className="flex flex-col gap-xs">
+      <p className="text-title-sm text-ink-primary">Nothing on this board yet</p>
+      <p className="text-body-sm text-ink-muted">Drop images here or start from a template.</p>
+    </div>
+  );
+}
+
+/** A ground in one look, with any knob set inline — tokens, never props. */
+function Ground({ look, tune, children }: { look: GradientLook; tune?: Record<string, string | number>; children?: ReactNode }) {
+  const style = { "--ui-fx-gradient-look": look, ...tune } as CSSProperties;
+  const top = GRADIENT_PRESETS[look].quietY < 0.5 && !tune?.["--ui-fx-gradient-quiet-y"];
+  return (
+    <div className={cn("flex aspect-[16/10] flex-col rounded-xl p-lg", top ? "justify-start" : "justify-end", fx("gradient"))} style={style}>
+      {children ?? <Copy />}
+    </div>
+  );
+}
+
 /**
- * Aurora on every component it lists. The shader keeps each part's ink at
- * its floor per pixel: the Button's label at 4.5:1, the Switch track and the
- * Progress fill at 3:1. The Slider's fill is drawn on a canvas inserted right
- * after it, so the thumb stays on top.
+ * One effect, five looks, in both schemes. The look is a token
+ * (`--ui-fx-gradient-look`); every knob left at `auto` takes the look's own
+ * preset — the horizons (rise, dawn) move their quiet zone, and so their
+ * copy, into the sky. The
+ * copy sits on the exact base there, so the muted line keeps the contrast
+ * the token pair was audited at. All are dithered: no bands.
  */
-export const Aurora: Story = {
+export const Looks: Story = {
+  decorators: [still],
   render: () => (
     <div className="grid gap-lg md:grid-cols-2">
-      {(["light", "dark"] as const).map((scheme) => (
-        <Panel key={scheme} scheme={scheme}>
-          <div className="flex flex-wrap items-center gap-md">
-            <Button className={fx("aurora")}>Publish board</Button>
-            <Switch defaultIsChecked className={fx("aurora")}>
-              Sync
-            </Switch>
-            <Checkbox defaultIsChecked className={fx("aurora")}>
-              Agree
-            </Checkbox>
-          </div>
-          <Slider label="Grain amount" defaultValue={64} hasValueText className={fx("aurora")} />
-          <Progress label="Uploading" value={64} className={fx("aurora", "grain")} />
-        </Panel>
-      ))}
+      {GRADIENT_LOOKS.flatMap((look) =>
+        (["light", "dark"] as const).map((scheme) => (
+          <Panel key={`${look}-${scheme}`} scheme={scheme}>
+            <p className="text-caption text-ink-muted">
+              --ui-fx-gradient-look: {look} · {scheme}
+            </p>
+            <Ground look={look} />
+          </Panel>
+        )),
+      )}
     </div>
   ),
 };
 
 /**
- * A ground: an unslotted surface carrying aurora dissolves toward its edges
- * into the page, and guards the WEAKEST ink placed on it — muted body text.
+ * The shared knobs, each on its own. Any look takes any of them: angle,
+ * sharpness, scale, chroma, intensity, the quiet zone and the edge.
  */
-export const Ground: Story = {
-  render: () => (
-    <div className="grid gap-lg md:grid-cols-2">
-      {(["light", "dark"] as const).map((scheme) => (
-        <Panel key={scheme} scheme={scheme}>
-          <div className={cn("flex min-h-64 flex-col justify-end gap-xs rounded-xl p-lg", fx("aurora"))}>
-            <p className="text-title-sm text-ink-primary">Nothing on this board yet</p>
-            <p className="text-body-sm text-ink-muted">Drop images here or start from a template.</p>
-          </div>
-        </Panel>
-      ))}
-    </div>
-  ),
+export const Parameters: Story = {
+  decorators: [still],
+  render: () => {
+    const rows: Array<[string, GradientLook, Record<string, string | number>]> = [
+      ["sweep · angle 12deg", "sweep", { "--ui-fx-gradient-angle": "12deg" }],
+      ["sweep · sharpness 0.9", "sweep", { "--ui-fx-gradient-sharpness": 0.9 }],
+      ["fold · scale 1.6", "fold", { "--ui-fx-gradient-scale": 1.6 }],
+      ["fold · sharpness 0.15", "fold", { "--ui-fx-gradient-sharpness": 0.15 }],
+      ["wash · chroma 1.5", "wash", { "--ui-fx-gradient-chroma": 1.5 }],
+      ["wash · intensity 0.5", "wash", { "--ui-fx-gradient-intensity": 0.5 }],
+      ["dawn · sharpness 0.85", "dawn", { "--ui-fx-gradient-sharpness": 0.85 }],
+      [
+        "rise · centred copy, dissolving edge",
+        "rise",
+        {
+          "--ui-fx-gradient-quiet": 0.5,
+          "--ui-fx-gradient-quiet-x": 0.5,
+          "--ui-fx-gradient-quiet-y": 0.3,
+          "--ui-fx-gradient-dissolve": 0.18,
+        },
+      ],
+      ["sweep · no quiet zone (copy belongs on glass)", "sweep", { "--ui-fx-gradient-quiet": 0 }],
+    ];
+    return (
+      <Panel scheme="dark">
+        <div className="grid gap-lg md:grid-cols-2">
+          {rows.map(([label, look, tune]) => (
+            <div key={label} className="flex flex-col gap-xs">
+              <p className="text-caption text-ink-muted">{label}</p>
+              <Ground look={look} tune={tune}>
+                <span />
+              </Ground>
+            </div>
+          ))}
+        </div>
+      </Panel>
+    );
+  },
 };
 
 /**
@@ -130,11 +187,13 @@ export const Halo: Story = {
 };
 
 /**
- * Theme zero beside a hostile brand (AGENTS.md). Every colour the shaders
- * draw is a token read where the part sits; pale yellow's on-accent ink is
- * dark, and the guard holds the label against it instead.
+ * Theme zero beside a hostile brand (AGENTS.md). The gradient's only palette
+ * is the brand's base and accent, read where the ground sits. Darker tones
+ * turn their hue away from yellow-green, so pale yellow's shadows go amber,
+ * not olive; the copy keeps its contrast either way.
  */
 export const BrandThemed: Story = {
+  decorators: [still],
   render: () => (
     <div className="grid gap-lg md:grid-cols-2">
       {[zero, pale].map((theme, i) =>
@@ -143,13 +202,7 @@ export const BrandThemed: Story = {
             <p className="text-caption text-ink-muted">
               {i === 0 ? "theme zero" : "stress brand — pale yellow accent"} · {scheme}
             </p>
-            <div className="flex flex-wrap items-center gap-md">
-              <Button className={fx("aurora")}>Publish board</Button>
-              <Switch defaultIsChecked className={fx("aurora")}>
-                Sync
-              </Switch>
-            </div>
-            <Progress label="Uploading" value={40} className={fx("aurora")} />
+            <Ground look={i === 0 ? "wash" : "sweep"} />
           </Panel>
         )),
       )}

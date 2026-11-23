@@ -46,7 +46,7 @@ test("the figure role is a size: it merges with sizes and keeps the colour", () 
 });
 
 test("the dense and density-stepped roles are sizes: they merge with sizes and keep the colour", () => {
-  // ADR 0025. `text-row`, `text-nav-row` and `text-field-label` are outside
+  // ADR 0026. `text-row`, `text-nav-row` and `text-field-label` are outside
   // every name pattern the group had; read as colours, each would delete the
   // ink beside it — or be deleted by it.
   for (const role of ["dense-md", "dense-sm", "row", "nav-row", "field-label"]) {

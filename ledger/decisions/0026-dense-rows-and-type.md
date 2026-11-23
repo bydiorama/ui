@@ -1,4 +1,4 @@
-# 0025 — Dense screens: rows and type follow density; two additive roles
+# 0026 — Dense screens: rows and type follow density; two additive roles
 
 **Status:** accepted · 2026-11-23 · amends 0020 §4 (type, rows and NavRail
 were out of density) and extends 0009's table additively

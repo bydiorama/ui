@@ -24,7 +24,7 @@ import { STEPPED_ROLES, TYPE_ROLES, type TypeRoleName } from "@bydiorama/tokens"
 const ROLES = Object.keys(TYPE_ROLES).map((token) => token.replace("--ui-text-", "")) as TypeRoleName[];
 
 /**
- * The density-stepped roles (ADR 0025): `text-row` renders one table role at
+ * The density-stepped roles (ADR 0026): `text-row` renders one table role at
  * default and another under compact, switched by `--ui-type-step`. Each is
  * held to the role it resolves to IN SCOPE — read off the element, so a
  * compact story is checked against the compact role.

@@ -402,14 +402,21 @@ const ChatSourcesCitation = forwardRef<HTMLButtonElement, ChatSourcesCitationPro
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === "Enter" || event.key === " ") pressing.current = "keyboard";
   }
-  function handleClick() {
+  function handleClick(event: MouseEvent<HTMLButtonElement>) {
     // Touch has no hover, so a tap is the preview's toggle and a second tap
     // on its link follows it. Mouse and keyboard already have the preview
     // (hover, focus): their press is the stronger intent — unfold the block
     // at the source's row.
     if (pressing.current === "touch") {
-      if (isOpen) close();
-      else open();
+      if (isOpen) {
+        // Closing hands focus back to the marker once the panel has left, and
+        // focus on the marker opens the preview: swallow that one return, as
+        // Escape does, so the tap's dismissal stays dismissed. Unless the
+        // marker already has focus, a return is coming — from the preview or
+        // from the page (a tap need not move focus at all).
+        if (document.activeElement !== event.currentTarget) suppressFocusOpen.current = true;
+        close();
+      } else open();
     } else {
       open();
       if (current) reveal(current.id);

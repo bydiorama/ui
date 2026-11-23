@@ -321,7 +321,7 @@ function SidebarSection({
    * suite, and worst of all on a phone, which is the one viewport where the
    * sheet actually draws this rail at 16.
    *
-   * Spelled `text-nav-row`, the density-stepped role (ADR 0025): body-lg at
+   * Spelled `text-nav-row`, the density-stepped role (ADR 0026): body-lg at
    * default and comfortable, body-sm (13px) under compact. Both are fixed.
    */
   const headingClass =
@@ -496,7 +496,7 @@ function SidebarItem({
         // caller who puts something shorter in the slot, and still clears
         // SC 2.5.8's 24px.
         //
-        // All three are density-bound (ADR 0025): under compact the inline
+        // All three are density-bound (ADR 0026): under compact the inline
         // inset drops to sm (the 16px lane the compact search text sits on),
         // the block inset to xs and the floor to 32px, which then sets the
         // row's height around a 13px `text-nav-row`.
@@ -505,7 +505,7 @@ function SidebarItem({
         // body-lg and not the fluid title-sm); the levels differ by weight and
         // ink, since they share an inset. `leading-normal` keeps the sheet's
         // 46px row — a declared exception to body-lg's 1.55 (ADR 0020 §3).
-        // `text-nav-row` is body-lg here and body-sm under compact (ADR 0025).
+        // `text-nav-row` is body-lg here and body-sm under compact (ADR 0026).
         "text-nav-row font-body leading-normal no-underline",
         inSection ? "text-ink-nav-muted" : "text-ink-nav",
         isLink && [

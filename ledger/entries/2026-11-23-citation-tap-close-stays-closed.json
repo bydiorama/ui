@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-citation-tap-close-stays-closed",
+  "date": "2026-11-23",
+  "item": "chat-sources",
+  "kind": "fix",
+  "summary": "ChatSources.Citation: on touch, a second tap that closes the preview now keeps it closed. Closing hands focus back to the marker once the panel has left (~150ms), and keyboard focus on the marker opens the preview; when the browser judged that returning focus :focus-visible (seen with synthetic touch events, and left to a heuristic otherwise), the preview reopened. The tap-to-close path now swallows that one returning focus, as Escape already did — unless the marker already has focus, in which case no return is coming. The browser test now also checks the preview is still closed after the focus return; read only at 50ms, it passed or failed with the machine's speed.",
+  "affects": [
+    "item:chat-sources"
+  ]
+}

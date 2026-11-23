@@ -6,6 +6,7 @@
  */
 
 export const imageOverlayDoc = {
+  lead: "Keeps a label readable over an image.",
   name: "ImageOverlay",
   status: "stable",
   summary:

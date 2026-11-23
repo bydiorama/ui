@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
-  "description": "Diorama design system — tokens, components, docs.",
+  "description": "Diorama design system \u2014 tokens, components, docs.",
   "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=22.0.0"
@@ -26,9 +26,9 @@
     "ledger:new": "node scripts/ledger-new.mjs",
     "test": "node --experimental-strip-types --test \"packages/*/src/**/*.test.ts\" \"registry/**/*.test.ts\"",
     "test:browser": "pnpm --filter @bydiorama/storybook run test:browser",
-    "type-check": "tsc --noEmit && pnpm --filter @bydiorama/storybook run type-check",
+    "type-check": "tsc --noEmit && pnpm --filter @bydiorama/storybook run type-check && pnpm --filter @bydiorama/site run prepare:site && pnpm --filter @bydiorama/site run type-check",
     "lint": "eslint .",
-    "verify": "pnpm run check:manifest && pnpm run check:theme-css && pnpm run check:registry && pnpm run check:dependencies && pnpm run check:ledger && pnpm run check:licensing && pnpm run check:icons && pnpm run check:utilities && pnpm run check:token-consumers && pnpm run check:strokes && pnpm run check:type-roles && pnpm run check:boundaries && pnpm run check:controls && pnpm run check:gestures && pnpm run check:motion && pnpm run check:fx && pnpm run check:stories && pnpm run check:overlays && pnpm run check:visual-coverage && pnpm run check:visual-runner && pnpm run check:skills && pnpm run check:contrast && pnpm run check:design-spec",
+    "verify": "pnpm run check:manifest && pnpm run check:theme-css && pnpm run check:registry && pnpm run check:dependencies && pnpm run check:ledger && pnpm run check:licensing && pnpm run check:icons && pnpm run check:utilities && pnpm run check:token-consumers && pnpm run check:strokes && pnpm run check:type-roles && pnpm run check:boundaries && pnpm run check:controls && pnpm run check:gestures && pnpm run check:motion && pnpm run check:fx && pnpm run check:stories && pnpm run check:overlays && pnpm run check:visual-coverage && pnpm run check:visual-runner && pnpm run check:skills && pnpm run check:contrast && pnpm run check:design-spec && pnpm run check:site-data && pnpm run check:site-source",
     "check:boundaries": "node scripts/check-boundaries.mjs",
     "check:controls": "node scripts/check-controls.mjs",
     "check:gestures": "node scripts/check-gestures.mjs",
@@ -44,7 +44,14 @@
     "test:visual": "pnpm --filter @bydiorama/storybook run test:visual",
     "contrast:build": "node scripts/check-contrast.mjs",
     "check:contrast": "node scripts/check-contrast.mjs --check",
-    "check:design-spec": "node scripts/check-design-spec.mjs"
+    "check:design-spec": "node scripts/check-design-spec.mjs",
+    "site:data": "node scripts/build-site-data.mjs",
+    "check:site-data": "node scripts/build-site-data.mjs --check",
+    "check:site-source": "node scripts/check-site-source.mjs",
+    "site:dev": "pnpm --filter @bydiorama/site dev",
+    "site:build": "pnpm --filter @bydiorama/site build",
+    "test:site": "pnpm --filter @bydiorama/site test:browser",
+    "test:cli-package": "node packages/cli/scripts/smoke-packed.mjs"
   },
   "devDependencies": {
     "@base-ui/react": "1.7.0",

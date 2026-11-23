@@ -13,7 +13,8 @@ import { motionMicro } from "@/lib/motion";
 export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "inverse";
 export type ButtonSize = "lg" | "md" | "sm";
 /**
- * `soft` is the DEFAULT, and that is the whole point of this axis.
+ * Theme zero defaults to soft. Omitted shape follows the brand controlShape;
+ * explicit soft/full always wins.
  *
  * It shipped the other way round — pill by default, soft opt-in — and that one
  * inversion is why Header, Sheet and Calendar all appeared to need a button
@@ -176,7 +177,7 @@ interface ButtonBaseProps
   variant?: ButtonVariant;
   size?: ButtonSize;
   /**
-   * `soft` is the default (see ButtonShape). `full` is the fully rounded form
+   * Omitted follows the brand (soft in theme zero). `full` is the fully rounded form
    * the sheet labels "Rounded Full".
    */
   shape?: ButtonShape;
@@ -258,7 +259,7 @@ export interface ButtonClassNameOptions {
 export function buttonClassName({
   variant = "primary",
   size = "md",
-  shape = "soft",
+  shape,
   isIconOnly = false,
   isFullWidth = false,
   isBusy = false,
@@ -268,7 +269,7 @@ export function buttonClassName({
 }: ButtonClassNameOptions = {}): string {
   return cn(
     // no-underline: a rendered `<a>` (#31) must not wear the UA link rule.
-    "inline-flex shrink-0 items-center justify-center ring-inset no-underline",
+    "inline-flex shrink-0 items-center justify-center appearance-none ring-inset no-underline",
     "font-body font-bold leading-flat tracking-tight whitespace-nowrap",
     // The icon slot is SIZED, at 16px for every button size — which is what
     // the sheet draws at all four (a 44px lg button and a 24px sm button
@@ -306,7 +307,9 @@ export function buttonClassName({
     // No press-scale while busy: pressing a busy button activates nothing,
     // and motion that acknowledges a press nobody acted on is a false cue.
     !staticTap && !isBusy && "not-data-disabled:active:scale-(--ui-press-scale) motion-reduce:active:scale-100",
-    shape === "full" ? "rounded-full" : SOFT_RADIUS[size],
+    shape === "full" ? "rounded-full" : shape === "soft" ? SOFT_RADIUS[size]
+      : size === "sm" ? "rounded-[var(--ui-control-radius-sm,var(--ui-radius-sm))]"
+        : "rounded-[var(--ui-control-radius-md,var(--ui-radius-md))]",
     isIconOnly ? ICON_SIZE[size] : SIZE[size],
     VARIANT[variant],
     isFullWidth && "w-full",
@@ -328,7 +331,7 @@ export const Button = forwardRef<HTMLElement, ButtonProps>(function Button(props
   const {
     variant = "primary",
     size = "md",
-    shape = "soft",
+    shape,
     isDisabled = false,
     isBusy = false,
     isFullWidth = false,

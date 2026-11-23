@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-separate-brand-control-shape-from-surface",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Separate brand control shape from surface radii; Hockney opts into capsule controls with matching field insets and explicit component overrides.",
+  "affects": [
+    "tokens:shape",
+    "button",
+    "input",
+    "theme-zero-css",
+    "site:hockney"
+  ]
+}

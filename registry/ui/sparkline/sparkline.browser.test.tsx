@@ -5,6 +5,7 @@ import { act } from "react";
 import type { ReactElement } from "react";
 
 import { Sparkline, type DataSeries } from "./sparkline.tsx";
+import { LineChart } from "@/ui/chart";
 
 /** The resolved value of a colour token, so assertions name the ROLE. */
 function tokenColor(name: string): string {
@@ -180,6 +181,57 @@ describe("Sparkline paints the designed marks", () => {
     const box = q<SVGPathElement>("sparkline-line")!.getBBox();
     expect(box.y).toBeGreaterThanOrEqual(0);
     expect(box.y + box.height).toBeLessThanOrEqual(32);
+  });
+});
+
+describe("missing samples keep the same meaning as Chart", () => {
+  const data = [1, 2, Number.NaN, 4, 5];
+
+  test("line and area break at missing samples, with their positions reserved", () => {
+    for (const variant of ["line", "area"] as const) {
+      const { q, container: c } = mount(<Sparkline data={data} variant={variant} label="Projects" description="One missing sample." />);
+      const lines = [...c.querySelectorAll<SVGPathElement>('[data-slot="sparkline-line"]')];
+      expect(lines).toHaveLength(2);
+      // Five evenly spaced slots: the second run starts at 3/4 of the
+      // span, even though the third sample has no reading.
+      const start = lines[0]!.getPointAtLength(0).x;
+      const end = Number(q<SVGCircleElement>("sparkline-marker")!.getAttribute("cx"));
+      expect((lines[1]!.getPointAtLength(0).x - start) / (end - start)).toBeCloseTo(0.75);
+      if (variant === "area") expect(c.querySelectorAll('[data-slot="sparkline-area"]')).toHaveLength(2);
+      act(() => root?.unmount()); c.remove();
+    }
+  });
+
+  test("Sparkline and Chart split the same readings into the same runs", () => {
+    const { container: c } = mount(<>
+      <Sparkline data={data} label="Compact projects" description="One missing sample." />
+      <LineChart label="Projects" description="One missing sample." data={data.map((value, index) => ({ index, value }))} x="index" xLabel="Sample" series={[{ key: "value", label: "Projects" }]} />
+    </>);
+    const paths = (slot: string) => [...c.querySelectorAll<SVGPathElement>(`[data-slot="${slot}"]`)];
+    expect(paths("sparkline-line").length).toBe(paths("chart-line").length);
+    expect(paths("sparkline-line")).toHaveLength(2);
+  });
+
+  test("trailing missing readings do not move the last measured marker to the end", () => {
+    const { q } = mount(<Sparkline data={[1, 2, Number.NaN]} label="Projects" description="The last sample is missing." />);
+    expect(Number(q<SVGCircleElement>("sparkline-marker")!.getAttribute("cx"))).toBeCloseTo(77);
+  });
+
+  test("an isolated reading stays visible and inside the frame at its sample position", () => {
+    const { q } = mount(<Sparkline data={[1, Number.NaN, 3, 4]} label="Projects" description="The second sample is missing." />);
+    const point = q<SVGCircleElement>("sparkline-point")!;
+    expect(point).not.toBeNull();
+    expect(Number(point.getAttribute("cx")) - Number(point.getAttribute("r"))).toBeGreaterThanOrEqual(0);
+  });
+
+  test("sparse arrays and all-missing readings cannot acquire invented segments", () => {
+    const sparse = [1, , 3, 4] as number[];
+    const { container: c } = mount(<Sparkline data={sparse} label="Projects" description="The second sample is missing." />);
+    expect(c.querySelectorAll('[data-slot="sparkline-line"]')).toHaveLength(1);
+    expect(c.querySelector('[data-slot="sparkline-point"]')).not.toBeNull();
+    act(() => root?.unmount()); c.remove();
+    const { container: empty } = mount(<Sparkline data={[Number.NaN, Number.POSITIVE_INFINITY]} label="Projects" description="No readings yet." />);
+    expect(empty.querySelectorAll("svg path, svg circle")).toHaveLength(0);
   });
 });
 

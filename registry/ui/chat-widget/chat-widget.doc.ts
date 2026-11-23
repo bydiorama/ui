@@ -1,6 +1,7 @@
 /** Typed documentation for ChatWidget (CONVENTIONS §11). */
 
 export const chatWidgetDoc = {
+  lead: "Keeps a conversation’s output in a form you can use.",
   name: "ChatWidget",
   status: "stable",
   summary:

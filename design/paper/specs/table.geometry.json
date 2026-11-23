@@ -1,0 +1,62 @@
+{
+  "$schema": "../../../schemas/design.geometry.schema.json",
+  "item": "table",
+  "source": {
+    "tool": "paper",
+    "url": "https://app.paper.design/file/01M5D1CCKC5MQZ9JZJ83G954CR/p-5-0/1MH-0",
+    "artboard": "Site --- Component page \u00b7 1280 \u00b7 Light",
+    "extracted": "2026-11-13",
+    "how": "Corrected public API reference. get_node_info world coordinates: frame (5176,404), clip (5181,409); get_computed_styles radius 16 / 11, padding 4 and border 1. Tests cover frame/clip geometry, not documentation-specific row heights."
+  },
+  "tolerance": 0.5,
+  "cases": [
+    {
+      "name": "table-frame",
+      "axis": "vertical",
+      "nodes": {
+        "container": "1UV-0",
+        "children": [
+          "7LZ-0"
+        ]
+      },
+      "slots": {
+        "container": "table",
+        "child": "table-body-clip"
+      },
+      "laws": [
+        "uniform-inset",
+        "inset-is-declared",
+        "concentric-radius",
+        "track-is-the-sum-of-its-parts"
+      ],
+      "sheet": {
+        "container": {
+          "width": 560,
+          "height": 319,
+          "padding": 4,
+          "border": 1,
+          "radius": 16,
+          "tokens": {
+            "radius": "--ui-radius-lg",
+            "padding": "--ui-space-xs",
+            "border": "--ui-stroke-default"
+          }
+        },
+        "gap": 0,
+        "children": [
+          {
+            "width": 550,
+            "height": 309,
+            "radius": 11
+          }
+        ],
+        "gaps": {
+          "top": 5,
+          "right": 5,
+          "bottom": 5,
+          "left": 5
+        }
+      }
+    }
+  ]
+}

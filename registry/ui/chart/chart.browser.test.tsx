@@ -125,6 +125,63 @@ describe("Chart frames the data the way the anatomy sheet does", () => {
   });
 });
 
+describe('variant="plain" prints the plot alone and says the same to a screen reader', () => {
+  const plain = () => (
+    <BarChart variant="plain" label="Printed work by year" description="Posters led books in every year and peaked in 1972." data={PRINTED} x="year" xLabel="Year" series={TWO} />
+  );
+  const printed = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 1 && r.height > 1;
+  };
+
+  test("no frame, and none of the chrome the framed chart prints", async () => {
+    const { q, container: c } = await mount(plain());
+    const s = getComputedStyle(q("chart"));
+    expect(s.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(s.borderTopWidth).toBe("0px");
+    expect(s.paddingTop).toBe("0px");
+    for (const slot of ["chart-legend", "chart-y-axis", "chart-x-axis", "chart-tick", "chart-table-toggle", "chart-direct-label"]) {
+      expect(c.querySelector(`[data-slot="${slot}"]`), slot).toBeNull();
+    }
+    expect(printed(q("chart-title"))).toBe(false);
+    expect(printed(q("chart-description"))).toBe(false);
+  });
+
+  test("the plot takes the whole width the axis column held, and keeps its marks, grid and baseline", async () => {
+    const framed = await mount(bars());
+    const framedWidth = framed.q("chart-plot").getBoundingClientRect().width;
+    act(() => root!.unmount());
+    container!.remove();
+    const { q, all } = await mount(plain());
+    // 774 with no border, padding or 32px tick column + 8px gap.
+    expect(q("chart-plot").getBoundingClientRect().width).toBe(774);
+    expect(q("chart-plot").getBoundingClientRect().width).toBeGreaterThan(framedWidth);
+    expect(all("chart-bar").length).toBe(PRINTED.length * TWO.length);
+    expect(getComputedStyle(q("chart-grid")).stroke).toBe(tokenColor("--ui-border-subtle"));
+    expect(q("chart-baseline")).toBeTruthy();
+  });
+
+  test("the same name, description and every value, in a hidden table that is not a tab stop", async () => {
+    const { q } = await mount(plain());
+    const figure = q("chart");
+    expect(document.getElementById(figure.getAttribute("aria-labelledby")!)!.textContent).toBe("Printed work by year");
+    expect(document.getElementById(figure.getAttribute("aria-describedby")!)!.textContent).toContain("peaked in 1972");
+    const table = q("chart-table");
+    expect(printed(table)).toBe(false);
+    const cells = [...table.querySelectorAll("tbody tr")].map((tr) => [...tr.children].map((td) => td.textContent));
+    expect(cells[4]).toEqual(["1972", "320", "220"]);
+    expect(table.querySelector("caption")!.textContent).toBe("Printed work by year");
+    expect(table.querySelectorAll("[tabindex]").length).toBe(0);
+  });
+
+  test("the plot is still the first and only tab stop, with its announcements", async () => {
+    const { q } = await mount(plain());
+    await userEvent.keyboard("{Tab}");
+    expect(document.activeElement).toBe(q("chart-plot"));
+    await expect.poll(() => q("chart-announcer").textContent).toBe("1957, Posters, 120");
+  });
+});
+
 describe("Chart is one tab stop with arrow keys and announcements", () => {
   test("Tab enters the plot on the first value and announces it", async () => {
     const { q } = await mount(bars());

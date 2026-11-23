@@ -6,6 +6,7 @@
  */
 
 export const skeletonDoc = {
+  lead: "A placeholder standing in for content that has not arrived.",
   name: "Skeleton",
   status: "stable",
   summary:

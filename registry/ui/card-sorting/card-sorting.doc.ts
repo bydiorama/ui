@@ -1,6 +1,7 @@
 /** Typed documentation for CardSorting (CONVENTIONS §11). */
 
 export const cardSortingDoc = {
+  lead: "Reorders items with a pointer or keyboard.",
   name: "CardSorting",
   status: "stable",
   summary:

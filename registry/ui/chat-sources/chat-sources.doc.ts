@@ -1,6 +1,7 @@
 /** Typed documentation for ChatSources (CONVENTIONS §11). */
 
 export const chatSourcesDoc = {
+  lead: "Keeps the sources behind an answer within reach.",
   name: "ChatSources",
   status: "experimental",
   summary:

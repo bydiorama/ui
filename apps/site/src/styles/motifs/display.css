@@ -1,0 +1,49 @@
+/* Display — Paper: Family / Display. */
+.motif-avatar { display: flex; }
+.motif-avatar > span { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 48px; height: 48px; border: 3px solid var(--ui-bg-base); border-radius: var(--ui-radius-full); box-sizing: content-box; font-size: 15px; line-height: 20px; font-weight: 600; }
+.motif-avatar > span + span { margin-left: -10px; }
+.motif-avatar-initials { background: var(--ui-bg-elevated); }
+.motif-avatar-image { background: linear-gradient(in oklab 135deg, var(--ui-bg-elevated) 0%, color-mix(in oklab, var(--ui-bg-accent) 55%, var(--ui-bg-elevated)) 55%, var(--ui-bg-accent) 100%) border-box; }
+.motif-avatar-accent { background: var(--ui-bg-accent); color: var(--ui-text-on-accent); }
+.motif-avatar .motif-avatar-more { background: var(--ui-bg-sunken); color: var(--ui-text-muted); font-size: 13px; line-height: 16px; letter-spacing: 0; }
+
+.motif-badge { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 160px; }
+.motif-badge > span { display: flex; align-items: center; height: 26px; padding-inline: 10px; border-radius: var(--ui-radius-full); font-size: 12px; line-height: 16px; font-weight: 600; }
+.motif-badge-success { background: var(--ui-intent-success-bg); color: var(--ui-intent-success-fg); }
+.motif-badge-warning { background: var(--ui-intent-warning-bg); color: var(--ui-intent-warning-fg); }
+.motif-badge-danger { background: var(--ui-intent-danger-bg); color: var(--ui-intent-danger-fg); }
+.motif-badge-selected { background: var(--ui-bg-accent); color: var(--ui-text-on-accent); }
+
+.motif-card { display: flex; flex-direction: column; gap: 10px; width: 192px; padding: 14px; border-radius: 14px; background: var(--ui-bg-surface); box-shadow: inset 0 0 0 1px var(--ui-border-subtle), 0 4px 12px -2px rgb(29 27 25 / 0.07); }
+.motif-card-head { display: flex; flex-direction: column; gap: 2px; }
+.motif-card-title { font-weight: 600; }
+.motif-card-meta { font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+.motif-card-line { width: 150px; height: 6px; border-radius: 3px; background: var(--ui-bg-elevated); }
+.motif-card-status { display: flex; align-items: center; align-self: start; height: 22px; padding-inline: 8px; border-radius: var(--ui-radius-full); background: var(--ui-intent-success-bg); color: var(--ui-intent-success-fg); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0; }
+
+.motif-empty-state { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.motif-empty-state-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-bottom: 4px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); color: var(--ui-text-muted); }
+.motif-empty-state-title { font-weight: 600; }
+.motif-empty-state-body { font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+.motif-empty-state-action { display: flex; align-items: center; height: 26px; margin-top: 6px; padding-inline: 12px; border-radius: var(--ui-radius-full); box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0; }
+
+.motif-meter { display: flex; flex-direction: column; gap: 10px; width: 192px; }
+.motif-meter-head { display: flex; align-items: baseline; justify-content: space-between; }
+.motif-meter-label { font-size: 12px; font-weight: 600; }
+.motif-meter-value { font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+.motif-meter-track { display: flex; height: 10px; border-radius: var(--ui-radius-full); background: var(--ui-bg-sunken); overflow: clip; }
+.motif-meter-track > span { width: 72%; border-radius: var(--ui-radius-full); background: var(--ui-intent-warning-fg); }
+
+.motif-progress { display: flex; align-items: center; gap: 16px; }
+.motif-progress-ring { flex-shrink: 0; }
+.motif-progress-ring circle { stroke: var(--ui-bg-sunken); }
+.motif-progress-ring path { stroke: var(--ui-bg-accent-legible); }
+.motif-progress-body { display: flex; flex-direction: column; gap: 8px; width: 110px; }
+.motif-progress-label { font-size: 12px; font-weight: 600; }
+.motif-progress-track { display: flex; height: 4px; border-radius: var(--ui-radius-full); background: var(--ui-bg-sunken); overflow: clip; }
+.motif-progress-track > span { width: 64%; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent-legible); }
+
+.motif-skeleton { --m-shimmer: linear-gradient(in oklab 100deg, var(--ui-bg-sunken) 0%, var(--ui-bg-elevated) 50%, var(--ui-bg-sunken) 100%); display: flex; gap: 12px; width: 192px; }
+.motif-skeleton-avatar { flex-shrink: 0; width: 36px; height: 36px; border-radius: var(--ui-radius-full); background: var(--m-shimmer); }
+.motif-skeleton-lines { display: flex; flex: 1; flex-direction: column; gap: 8px; padding-top: 4px; }
+.motif-skeleton-lines > span { height: 8px; border-radius: 4px; background: var(--m-shimmer); }

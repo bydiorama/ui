@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-clarify-public-variant-guidance-without-maintenance",
+  "date": "2026-11-13",
+  "item": "button",
+  "kind": "fix",
+  "summary": "Clarify public variant guidance without maintenance history",
+  "affects": [
+    "button"
+  ]
+}

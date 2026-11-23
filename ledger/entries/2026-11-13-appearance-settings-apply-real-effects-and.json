@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-appearance-settings-apply-real-effects-and",
+  "date": "2026-11-13",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Appearance uses compact native radio choices, aligned brand cards, Reset and a live preview. Desktop uses Popover; narrow or short viewports use Modal. One validated preference store drives every specimen and restores settings before paint. Effects now adds or removes actual grain, sheen and glow classes instead of hiding unrelated pseudo-elements. Keyboard focus remains visible, density leaves the settings stable, and storage is optional.",
+  "affects": [
+    "site:appearance",
+    "site:examples",
+    "site:preferences"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01M5D1CCKC5MQZ9JZJ83G954CR/p-5-0"
+  }
+}

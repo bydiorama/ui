@@ -272,7 +272,9 @@
         "data-slot",
         "field-lane"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Forms",
+      "docs": "registry/ui/combobox/combobox.doc.ts"
     },
     {
       "name": "media-toggle",
@@ -298,7 +300,9 @@
         "use-controllable-state",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Actions",
+      "docs": "registry/ui/media-toggle/media-toggle.doc.ts"
     },
     {
       "name": "theme-zero-css",
@@ -357,7 +361,9 @@
         "cn",
         "motion"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Actions",
+      "docs": "registry/ui/button/button.doc.ts"
     },
     {
       "name": "header",
@@ -385,7 +391,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/header/header.doc.ts"
     },
     {
       "name": "site-header",
@@ -411,7 +419,9 @@
         "sheet",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Navigation",
+      "docs": "registry/ui/site-header/site-header.doc.ts"
     },
     {
       "name": "input",
@@ -433,7 +443,9 @@
         "data-slot",
         "field-lane"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/input/input.doc.ts"
     },
     {
       "name": "popover",
@@ -459,7 +471,9 @@
         "data-slot",
         "menu-surface"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/popover/popover.doc.ts"
     },
     {
       "name": "toast",
@@ -485,7 +499,9 @@
         "button",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Feedback",
+      "docs": "registry/ui/toast/toast.doc.ts"
     },
     {
       "name": "tooltip",
@@ -509,7 +525,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/tooltip/tooltip.doc.ts"
     },
     {
       "name": "modal",
@@ -533,7 +551,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/modal/modal.doc.ts"
     },
     {
       "name": "multiselect",
@@ -559,7 +579,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/multiselect/multiselect.doc.ts"
     },
     {
       "name": "select",
@@ -585,7 +607,9 @@
         "data-slot",
         "field-lane"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/select/select.doc.ts"
     },
     {
       "name": "avatar",
@@ -605,7 +629,9 @@
         "cn",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/avatar/avatar.doc.ts"
     },
     {
       "name": "badge",
@@ -625,7 +651,9 @@
         "cn",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/badge/badge.doc.ts"
     },
     {
       "name": "banner",
@@ -650,7 +678,9 @@
         "button",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Feedback",
+      "docs": "registry/ui/banner/banner.doc.ts"
     },
     {
       "name": "card",
@@ -678,7 +708,9 @@
         "fade",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/card/card.doc.ts"
     },
     {
       "name": "calendar",
@@ -704,7 +736,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/calendar/calendar.doc.ts"
     },
     {
       "name": "menu",
@@ -729,7 +763,9 @@
         "menu-surface",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/menu/menu.doc.ts"
     },
     {
       "name": "context-menu",
@@ -754,7 +790,9 @@
         "menu",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/context-menu/context-menu.doc.ts"
     },
     {
       "name": "date-picker",
@@ -782,7 +820,9 @@
         "data-slot",
         "field-lane"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/date-picker/date-picker.doc.ts"
     },
     {
       "name": "color-picker",
@@ -810,7 +850,9 @@
         "input",
         "data-slot"
       ],
-      "status": "beta"
+      "status": "experimental",
+      "category": "Forms",
+      "docs": "registry/ui/color-picker/color-picker.doc.ts"
     },
     {
       "name": "card-sorting",
@@ -837,7 +879,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Data",
+      "docs": "registry/ui/card-sorting/card-sorting.doc.ts"
     },
     {
       "name": "checkbox",
@@ -863,7 +907,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/checkbox/checkbox.doc.ts"
     },
     {
       "name": "radio",
@@ -886,7 +932,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/radio/radio.doc.ts"
     },
     {
       "name": "switch",
@@ -909,7 +957,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/switch/switch.doc.ts"
     },
     {
       "name": "sparkline",
@@ -930,7 +980,9 @@
         "viz",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/sparkline/sparkline.doc.ts"
     },
     {
       "name": "status-matrix",
@@ -951,7 +1003,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/status-matrix/status-matrix.doc.ts"
     },
     {
       "name": "chart",
@@ -978,7 +1032,9 @@
         "table",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/chart/chart.doc.ts"
     },
     {
       "name": "graph",
@@ -1034,7 +1090,9 @@
         "dot-pattern",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/diagram/diagram.doc.ts"
     },
     {
       "name": "network",
@@ -1068,7 +1126,9 @@
         "table",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/network/network.doc.ts"
     },
     {
       "name": "network-canvas",
@@ -1078,12 +1138,18 @@
         {
           "path": "registry/ui/network/network-canvas.tsx",
           "target": "ui/network-canvas.tsx"
+        },
+        {
+          "path": "registry/ui/network/network-canvas.doc.ts",
+          "target": "ui/network-canvas.doc.ts"
         }
       ],
       "registryDependencies": [
         "network"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/ui/network/network-canvas.doc.ts"
     },
     {
       "name": "stat-tiles",
@@ -1107,7 +1173,9 @@
         "skeleton",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/blocks/stat-tiles/stat-tiles.doc.ts"
     },
     {
       "name": "chart-card",
@@ -1128,7 +1196,9 @@
         "stat-tiles",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/blocks/chart-card/chart-card.doc.ts"
     },
     {
       "name": "knowledge-graph-explorer",
@@ -1158,7 +1228,9 @@
         "network",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Data",
+      "docs": "registry/blocks/knowledge-graph-explorer/knowledge-graph-explorer.doc.ts"
     },
     {
       "name": "meter",
@@ -1179,7 +1251,9 @@
         "viz",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Display",
+      "docs": "registry/ui/meter/meter.doc.ts"
     },
     {
       "name": "progress",
@@ -1200,7 +1274,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/progress/progress.doc.ts"
     },
     {
       "name": "sidebar",
@@ -1227,7 +1303,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/sidebar/sidebar.doc.ts"
     },
     {
       "name": "nav-rail",
@@ -1252,7 +1330,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/nav-rail/nav-rail.doc.ts"
     },
     {
       "name": "drawer",
@@ -1277,7 +1357,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/drawer/drawer.doc.ts"
     },
     {
       "name": "sheet",
@@ -1301,7 +1383,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Overlays",
+      "docs": "registry/ui/sheet/sheet.doc.ts"
     },
     {
       "name": "slider",
@@ -1328,7 +1412,9 @@
         "use-controllable-state",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/slider/slider.doc.ts"
     },
     {
       "name": "range-slider",
@@ -1353,7 +1439,9 @@
         "slider",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/range-slider/range-slider.doc.ts"
     },
     {
       "name": "tabs",
@@ -1377,7 +1465,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Navigation",
+      "docs": "registry/ui/tabs/tabs.doc.ts"
     },
     {
       "name": "accordion",
@@ -1402,7 +1492,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Feedback",
+      "docs": "registry/ui/accordion/accordion.doc.ts"
     },
     {
       "name": "textarea",
@@ -1424,7 +1516,9 @@
         "data-slot",
         "field-lane"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Forms",
+      "docs": "registry/ui/textarea/textarea.doc.ts"
     },
     {
       "name": "aspect-ratio",
@@ -1444,7 +1538,9 @@
         "cn",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/aspect-ratio/aspect-ratio.doc.ts"
     },
     {
       "name": "image-overlay",
@@ -1465,7 +1561,9 @@
         "aspect-ratio",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/image-overlay/image-overlay.doc.ts"
     },
     {
       "name": "thumbnail",
@@ -1489,7 +1587,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/thumbnail/thumbnail.doc.ts"
     },
     {
       "name": "image-upload",
@@ -1515,7 +1615,9 @@
         "data-slot",
         "field-lane"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/image-upload/image-upload.doc.ts"
     },
     {
       "name": "image-edit",
@@ -1541,7 +1643,9 @@
         "motion",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Media",
+      "docs": "registry/ui/image-edit/image-edit.doc.ts"
     },
     {
       "name": "skeleton",
@@ -1561,7 +1665,9 @@
         "cn",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/skeleton/skeleton.doc.ts"
     },
     {
       "name": "dot-pattern",
@@ -1581,7 +1687,9 @@
         "cn",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Utilities",
+      "docs": "registry/ui/dot-pattern/dot-pattern.doc.ts"
     },
     {
       "name": "fade",
@@ -1603,7 +1711,9 @@
         "use-scroll-edges",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Utilities",
+      "docs": "registry/ui/fade/fade.doc.ts"
     },
     {
       "name": "empty-state",
@@ -1623,7 +1733,9 @@
         "cn",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Display",
+      "docs": "registry/ui/empty-state/empty-state.doc.ts"
     },
     {
       "name": "table",
@@ -1650,7 +1762,9 @@
         "skeleton",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Data",
+      "docs": "registry/ui/table/table.doc.ts"
     },
     {
       "name": "chat-composer",
@@ -1677,7 +1791,9 @@
         "button",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-composer/chat-composer.doc.ts"
     },
     {
       "name": "chat-message",
@@ -1699,7 +1815,9 @@
         "button",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-message/chat-message.doc.ts"
     },
     {
       "name": "chat-progress",
@@ -1729,7 +1847,9 @@
         "status-matrix",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-progress/chat-progress.doc.ts"
     },
     {
       "name": "chat-run-dock",
@@ -1754,7 +1874,9 @@
         "status-matrix",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-run-dock/chat-run-dock.doc.ts"
     },
     {
       "name": "chat-sources",
@@ -1784,7 +1906,9 @@
         "status-matrix",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-sources/chat-sources.doc.ts"
     },
     {
       "name": "chat-tasks",
@@ -1814,7 +1938,9 @@
         "status-matrix",
         "data-slot"
       ],
-      "status": "experimental"
+      "status": "experimental",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-tasks/chat-tasks.doc.ts"
     },
     {
       "name": "chat-widget",
@@ -1837,7 +1963,9 @@
         "fade",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-widget/chat-widget.doc.ts"
     },
     {
       "name": "chat-questionnaire",
@@ -1865,7 +1993,9 @@
         "button",
         "data-slot"
       ],
-      "status": "stable"
+      "status": "stable",
+      "category": "Conversation",
+      "docs": "registry/ui/chat-questionnaire/chat-questionnaire.doc.ts"
     },
     {
       "name": "static-rendering",

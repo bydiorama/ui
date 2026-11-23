@@ -1,6 +1,7 @@
 /** Typed documentation for Badge (CONVENTIONS §11). */
 
 export const badgeDoc = {
+  lead: "Gives a status a name, so colour does not have to explain it alone.",
   name: "Badge",
   status: "stable",
   summary: "A short status or selection label. Seven variants, two sizes, pill or rounded, with an optional trailing slot.",

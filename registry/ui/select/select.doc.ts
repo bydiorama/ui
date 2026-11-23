@@ -1,6 +1,7 @@
 /** Typed documentation for Select (CONVENTIONS §11). */
 
 export const selectDoc = {
+  lead: "Chooses a value from a list.",
   name: "Select",
   status: "stable",
   summary:

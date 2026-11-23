@@ -6,6 +6,7 @@
  */
 
 export const emptyStateDoc = {
+  lead: "Explains what is missing and gives the reader a useful next step.",
   name: "EmptyState",
   status: "stable",
   summary:

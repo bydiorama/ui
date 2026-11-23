@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-derive-enclosed-tab-corners-from-track",
+  "date": "2026-11-12",
+  "item": "tabs",
+  "kind": "visual",
+  "summary": "Derive enclosed tab corners from track radius, padding and stroke so brand themes remain concentric without changing density.",
+  "affects": [
+    "tabs"
+  ]
+}

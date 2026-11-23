@@ -1,6 +1,7 @@
 /** Typed documentation for Combobox (CONVENTIONS §11). */
 
 export const comboboxDoc = {
+  lead: "Finds and chooses an option by typing or browsing.",
   name: "Combobox",
   status: "experimental",
   summary:

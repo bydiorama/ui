@@ -1,0 +1,75 @@
+---
+import { Grid, ListBulleted, Search } from "griddy-icons";
+import catalog from "../data/catalog.generated.json";
+import { Motif } from "./motifs";
+
+// What each family is for, in one line beside its tiles.
+const purpose: Record<string, string> = {
+  Actions: "Things you press to make something happen.",
+  Forms: "Fields and controls that take a value, each with its label, hint and error.",
+  Navigation: "Ways to move between places, and to know where you are.",
+  Overlays: "Panels that sit above the page and step aside when you are done.",
+  Display: "Show a person, a value or a state without asking anything back.",
+  Feedback: "Tell people what happened, and what they can do next.",
+  Media: "Frame, label, adjust and upload images.",
+  Data: "Compare, sort and explore numbers and the relations between things, each with a table behind the picture.",
+  Conversation: "The parts of a conversation with an agent, from the first message to the work it hands back.",
+  Utilities: "Quiet layers that help a composition hold together.",
+};
+const families = catalog.categories
+  .map(category => ({ category, slug: category.toLowerCase(), purpose: purpose[category], items: catalog.items.filter(item => item.category === category) }))
+  .filter(family => family.items.length > 0);
+const total = catalog.items.length;
+const statuses = ["All", "Stable", "Experimental"];
+---
+<section class="catalog" aria-label="Component library" data-gallery data-view="grid">
+  <div class="catalog-toolbar">
+    <div class="catalog-toolbar-row">
+      <label class="catalog-search">
+        <Search size={18} aria-hidden="true" />
+        <span class="sr-only">Find a component</span>
+        <input id="component-filter" type="search" placeholder={`Search ${total} components`} autocomplete="off" spellcheck="false" data-gallery-query />
+        <kbd aria-hidden="true">/</kbd>
+      </label>
+      <div class="catalog-controls">
+        <div class="catalog-segments" role="group" aria-label="Filter status">
+          {statuses.map(status => <button type="button" data-status-filter={status} aria-pressed={status === "All" ? "true" : "false"}>{status}</button>)}
+        </div>
+        <div class="catalog-segments catalog-view" role="group" aria-label="View">
+          <button type="button" data-view="grid" aria-pressed="true" aria-label="Grid"><Grid size={16} aria-hidden="true" /></button>
+          <button type="button" data-view="list" aria-pressed="false" aria-label="List"><ListBulleted size={16} aria-hidden="true" /></button>
+        </div>
+      </div>
+    </div>
+    <div class="catalog-segments catalog-track" role="group" aria-label="Filter family">
+      <button type="button" data-category="All" aria-pressed="true">All<span aria-hidden="true">{total}</span></button>
+      {families.map(family => <button type="button" data-category={family.category} aria-pressed="false">{family.category}<span aria-hidden="true">{family.items.length}</span></button>)}
+    </div>
+  </div>
+
+  <div class="catalog-families">
+    {families.map(family => (
+      <section class="catalog-family" id={family.slug} aria-labelledby={`family-${family.slug}`} data-gallery-family={family.category}>
+        <header class="catalog-family-head">
+          <div class="catalog-family-title"><h2 id={`family-${family.slug}`}>{family.category}</h2><span>{family.items.length}</span></div>
+          <p>{family.purpose}</p>
+        </header>
+        <div class="catalog-grid">
+          {family.items.map(item => (
+            <article class="catalog-tile" data-gallery-item data-category={item.category} data-status={item.status} data-search={`${item.title} ${item.name} ${item.category} ${item.lead}`}>
+              <div class="catalog-tile-well" aria-hidden="true"><Motif name={item.name} /></div>
+              <div class="catalog-tile-caption">
+                <div class="catalog-tile-title">
+                  <a href={`/components/${item.name}/`}>{item.title}</a>
+                  {item.status === "experimental" && <span class="catalog-tile-status">Experimental</span>}
+                </div>
+                <p>{item.lead}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+  <p class="catalog-empty" data-gallery-empty role="status" hidden>No matching components. Try a different word or choose another family.</p>
+</section>

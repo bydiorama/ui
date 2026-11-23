@@ -1,7 +1,7 @@
-import { forwardRef, useId, type HTMLAttributes } from "react";
+import { Fragment, forwardRef, useId, type HTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
-import { areaPath, columns, extent, linePath, seriesPoints, type Domain, type PlotBox } from "@/lib/viz";
+import { areaPath, columns, extent, linePath, seriesRuns, type Domain, type PlotBox } from "@/lib/viz";
 
 import type { OwnedSlot } from "@/lib/data-slot";
 /**
@@ -59,12 +59,12 @@ const RING_R = 6;
  * is 6px, so the right, top and bottom edges leave room for it; the left edge
  * only has to hold the round cap of a 2px stroke.
  */
-function plotBox(width: number, height: number): PlotBox {
-  return { width, height, inset: { top: RING_R, right: RING_R + 2, bottom: RING_R, left: 2 } };
+function plotBox(width: number, height: number, hasIsolatedStart: boolean): PlotBox {
+  return { width, height, inset: { top: RING_R, right: RING_R + 2, bottom: RING_R, left: hasIsolatedStart ? MARKER_R : 2 } };
 }
 
 interface SparklineOwnProps {
-  /** The series, oldest first. Non-finite values are dropped, not drawn as 0. */
+  /** Oldest first. Missing readings retain their positions and break the trend. */
   data: readonly number[];
   /**
    * Required — the accessible name, naming WHAT is measured ("Posters
@@ -202,30 +202,44 @@ function Trend({
   const own = extent(data);
   const span: Domain | undefined =
     domain && own ? [Math.min(domain[0], own[0]), Math.max(domain[1], own[1])] : undefined;
-  const points = seriesPoints(data, plotBox(width, height), span);
+  // A reading isolated at the start needs room for its bare dot, rather
+  // than just the line cap. Finite, uninterrupted series keep their insets.
+  const hasIsolatedStart = Number.isFinite(data[0]) && !Number.isFinite(data[1]);
+  const runs = seriesRuns(data, plotBox(width, height, hasIsolatedStart), span);
+  const points = runs.flat();
   if (points.length === 0) return null;
   const last = points[points.length - 1]!;
 
-  // One point is not a trend: the sheet draws it as the bare dot, centred,
-  // with no ring (there is no line for the ring to separate it from).
+  // One point is a bare dot, with no line to separate it from. A one-sample
+  // series is centred; a lone reading among gaps keeps its sample position.
   if (points.length === 1) {
     return <circle data-slot="sparkline-marker" cx={last.x} cy={last.y} r={MARKER_R} className={FILL[series]} />;
   }
 
   return (
     <>
-      {hasArea && <path data-slot="sparkline-area" d={areaPath(points, height)} className={WASH[series]} />}
-      <path
-        data-slot="sparkline-line"
-        d={linePath(points)}
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        // The stroke scale's thick step (ADR 0020 §2): 2px at theme zero, and
-        // it follows a brand's stroke knob. A width is never a utility here.
-        style={{ strokeWidth: "var(--ui-stroke-thick)" }}
-        className={STROKE[series]}
-      />
+      {runs.map((run, index) => {
+        const first = run[0]!;
+        if (run.length === 1) {
+          // The end marker below already shows the final isolated reading.
+          if (first === last && hasEndMarker) return null;
+          return <circle key={index} data-slot="sparkline-point" cx={first.x} cy={first.y} r={MARKER_R} className={FILL[series]} />;
+        }
+        return <Fragment key={index}>
+          {hasArea && <path data-slot="sparkline-area" d={areaPath(run, height)} className={WASH[series]} />}
+          <path
+            data-slot="sparkline-line"
+            d={linePath(run)}
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            // The stroke scale's thick step (ADR 0020 §2): 2px at theme zero,
+            // following a brand's stroke knob instead of a literal utility.
+            style={{ strokeWidth: "var(--ui-stroke-thick)" }}
+            className={STROKE[series]}
+          />
+        </Fragment>;
+      })}
       {hasEndMarker && (
         <>
           <circle data-slot="sparkline-marker-ring" cx={last.x} cy={last.y} r={RING_R} className="fill-surface" />

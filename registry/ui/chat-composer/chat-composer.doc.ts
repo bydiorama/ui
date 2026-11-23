@@ -1,6 +1,7 @@
 /** Typed documentation for ChatComposer (CONVENTIONS §11). */
 
 export const chatComposerDoc = {
+  lead: "Writes a message, adds context and controls a running response.",
   name: "ChatComposer",
   status: "stable",
   summary:

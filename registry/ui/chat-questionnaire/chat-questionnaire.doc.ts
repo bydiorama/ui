@@ -1,6 +1,7 @@
 /** Typed documentation for ChatQuestionnaire (CONVENTIONS §11). */
 
 export const chatQuestionnaireDoc = {
+  lead: "Collects a structured answer inside a conversation.",
   name: "ChatQuestionnaire",
   status: "stable",
   summary:

@@ -9,6 +9,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "prepack": "tsc -p tsconfig.build.json",
     "prepublishOnly": "tsc -p tsconfig.build.json",
     "lock": "node --experimental-strip-types bin/ui.ts lock",
     "sync": "node --experimental-strip-types bin/ui.ts sync",

@@ -1,6 +1,7 @@
 /** Typed documentation for MediaToggle (CONVENTIONS §11). */
 
 export const mediaToggleDoc = {
+  lead: "Pauses and resumes media with a clear state and a named action.",
   name: "MediaToggle",
   status: "experimental",
   summary:

@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-preserve-missing-sample-positions-and-gaps",
+  "date": "2026-11-13",
+  "item": "sparkline",
+  "kind": "fix",
+  "summary": "Sparkline preserves the positions of NaN, infinite and sparse samples. Line and area paths break at missing readings, isolated readings remain visible, columns leave empty slots, and the last measured marker stays at its sample position. Complete series retain their geometry. The public example shows the default line beside a metric using the same readings as Chart.",
+  "affects": [
+    "prop:data",
+    "slot:sparkline-line",
+    "slot:sparkline-area",
+    "slot:sparkline-column",
+    "slot:sparkline-marker",
+    "slot:sparkline-point"
+  ]
+}

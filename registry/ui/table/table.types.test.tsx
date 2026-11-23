@@ -123,3 +123,11 @@ export function ThereIsNoRowActivation() {
     <Table {...base} onRowActivate={() => {}} />
   );
 }
+
+export function RowDetailsKeepTheRowType() {
+  return <>
+    <Table {...base} rowDetails={row => <p>{row.name}</p>} />
+    {/* @ts-expect-error — the detail slot receives Designer, not a loosely typed record. */}
+    <Table {...base} rowDetails={row => row.missingProperty} />
+  </>;
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-public-references-stay-minimal-and-appearance",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Public references use a minimal preview, installation, API and accessibility template without per-component changelogs. Prop tables preserve names and stack on phones; navigation labels share a left edge. Appearance now composes library Button, Popover, RadioGroup and Switch, with an explicit CSS scheme that wins under every brand. Browser checks compare rendered colors and saved preferences. The corresponding Paper component and appearance variants are updated.",
+  "affects": [
+    "site:component-reference",
+    "site:appearance",
+    "skill:add-component",
+    "skill:review-ui"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01M5D1CCKC5MQZ9JZJ83G954CR/p-5-0"
+  }
+}

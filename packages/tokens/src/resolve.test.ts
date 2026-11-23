@@ -1330,6 +1330,17 @@ test("categorical slots are distinct tokens in fixed order — no slot repeats a
   }
 });
 
+test("control shape is independent of surface radii and preserves soft defaults", () => {
+  const soft = resolveTheme(THEME_ZERO, { scheme: "light" }).theme;
+  const full = resolveTheme({ ...THEME_ZERO, shape: { controlShape: "full", radiusPx: { sm: 6, md: 12 } } }, { scheme: "light" }).theme;
+  assert.equal(soft["--ui-control-radius-md"], soft["--ui-radius-md"]);
+  assert.equal(full["--ui-control-radius-md"], full["--ui-radius-full"]);
+  assert.equal(full["--ui-radius-sm"], "6px");
+  assert.equal(full["--ui-radius-md"], "12px");
+  assert.equal(full["--ui-field-shape-inset"], "var(--ui-space-xs)");
+  assert.ok(validateSeed({ ...THEME_ZERO, shape: { controlShape: "round" as "full" } }).some(issue => issue.path === "shape.controlShape"));
+});
+
 // ── Surface steps on an achromatic surface ──────────────────────────────
 
 /** The roles that are "the surface, a little lighter or darker". */

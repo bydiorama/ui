@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-add-live-public-previews-for-every",
+  "date": "2026-11-13",
+  "item": "system",
+  "kind": "addition",
+  "summary": "Add live public previews for every component and block",
+  "affects": []
+}

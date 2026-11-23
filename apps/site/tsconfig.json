@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.paths.generated.json",
+  "compilerOptions": { "types": ["astro/client", "node"] },
+  "include": ["src/**/*", ".astro/types.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

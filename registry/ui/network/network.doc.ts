@@ -1,6 +1,7 @@
 /** Typed documentation for Network (CONVENTIONS §11). */
 
 export const networkDoc = {
+  lead: "Explores relationships between connected items.",
   name: "Network",
   status: "experimental",
   summary:

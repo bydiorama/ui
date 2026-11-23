@@ -1,6 +1,7 @@
 /** Typed documentation for Popover (CONVENTIONS §11). */
 
 export const popoverDoc = {
+  lead: "Keeps supporting content close to the control that opens it.",
   name: "Popover",
   status: "stable",
   summary:

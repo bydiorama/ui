@@ -1,0 +1,152 @@
+---
+import "../../styles/home.css";
+import "../../styles/detail.css";
+import Base from "../../layouts/Base.astro";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Close } from "griddy-icons";
+import { Badge } from "@/ui/badge";
+import { catalog, type Item } from "../../lib/catalog";
+import { hasExample } from "../../components/Specimen";
+import { Stage } from "../../components/detail/Stage";
+import { PropsReference } from "../../components/detail/PropsReference";
+import { Code } from "astro:components";
+import { InstallPill } from "../../home/InstallPill";
+import { changeLabels, contrastSwatches, keycaps, neighbours, shortDate } from "../../lib/detail";
+import { installCommand } from "../../lib/install";
+const sources = import.meta.glob<string>("../../examples/*.tsx", { eager: true, query: "?raw", import: "default" });
+export function getStaticPaths() { return catalog.items.map(item => ({ params: { name: item.name }, props: { item } })); }
+const { item } = Astro.props as { item: Item };
+const { docs } = item;
+const hasSpecimen = hasExample(item.name);
+const exampleSource = sources[`../../examples/${item.name}.tsx`] ?? "";
+const { nearby, next } = neighbours(item);
+// A few docs spell the column `keys`, not `key`; read either rather than draw an empty keycap.
+const keyboard = (docs.a11y.keyboard ?? []).map(row => ({ key: row.key ?? (row as unknown as { keys?: string }).keys ?? "", does: row.does }));
+const { swatches, total: contrastTotal } = contrastSwatches(item);
+const changes = item.changes.slice(0, 5);
+const propCount = Object.keys(docs.props).length;
+const doItems = docs.do ?? [], dontItems = docs.dont ?? [];
+const sections = [
+  ...(doItems.length || dontItems.length ? [{ id: "usage", label: "Usage" }] : []),
+  ...(propCount ? [{ id: "props", label: "API reference" }] : []),
+  { id: "accessibility", label: "Accessibility" },
+  ...(changes.length ? [{ id: "changes", label: "Changes" }] : []),
+];
+const status = item.status === "stable" ? "success" : "neutral";
+const statusLabel = item.status[0]!.toUpperCase() + item.status.slice(1);
+---
+<Base title={item.title} description={item.lead}>
+  <div class="detail-page">
+    <header class="detail-head">
+      <div class="detail-head-title">
+        <nav aria-label="Breadcrumb" class="detail-crumbs">
+          <ol>
+            <li><a href="/components/">Components</a></li>
+            <li><a href={`/components/#${item.category.toLowerCase()}`}>{item.category}</a></li>
+          </ol>
+          <Badge variant={status} size="sm" shape="full">{statusLabel}</Badge>
+        </nav>
+        <h1>{item.title}</h1>
+        <p class="detail-lede">{item.lead}</p>
+      </div>
+      <div class="detail-head-tools">
+        <InstallPill command={installCommand(item.name)} client:idle />
+        <div class="detail-links">
+          <a href={`/components/${item.name}.md`}>Read as Markdown</a>
+          <a href={`https://github.com/bydiorama/ui/blob/main/${item.files[0]?.path}`}>View source<ArrowUpRight aria-hidden="true" /></a>
+        </div>
+      </div>
+    </header>
+
+    {hasSpecimen && <section class="preview-frame" aria-label="Live example"><Stage name={item.name} client:load><Code slot="code" code={exampleSource.trim()} lang="tsx" theme="css-variables" /></Stage><noscript><style>.code-copy { display: none; }</style></noscript></section>}
+
+    <div class="detail-body">
+      <aside class="detail-rail">
+        <nav aria-label="On this page">
+          <h2>On this page</h2>
+          {sections.map(section => <a href={`#${section.id}`}>{section.label}</a>)}
+        </nav>
+        <nav aria-label={`More in ${item.category}`}>
+          <h2>More in {item.category}</h2>
+          {nearby.map(entry => (
+            <a href={`/components/${entry.name}/`} aria-current={entry.name === item.name ? "page" : undefined}>
+              {entry.title}
+              {entry.status === "experimental" && <Badge variant="neutral" size="sm" shape="full">Experimental</Badge>}
+            </a>
+          ))}
+          <a href="/components/" class="detail-all">All {catalog.items.length} components<ArrowRight aria-hidden="true" /></a>
+        </nav>
+      </aside>
+
+      <article class="detail-main">
+        {(doItems.length > 0 || dontItems.length > 0) && <section aria-labelledby="usage">
+          <header class="detail-section-head"><h2 id="usage">Usage</h2><p>When to reach for {item.title}, and what to leave alone.</p></header>
+          <div class="usage">
+            {doItems.length > 0 && <div class="usage-column">
+              <h3><span class="usage-mark" data-tone="do"><Check aria-hidden="true" /></span>Do</h3>
+              <ul>{doItems.map(text => <li>{text}</li>)}</ul>
+            </div>}
+            {dontItems.length > 0 && <div class="usage-column">
+              <h3><span class="usage-mark" data-tone="dont"><Close aria-hidden="true" /></span>Don't</h3>
+              <ul>{dontItems.map(text => <li>{text}</li>)}</ul>
+            </div>}
+          </div>
+        </section>}
+
+        {propCount > 0 && <section aria-labelledby="props">
+          <header class="detail-section-head detail-section-head-split">
+            <div><h2 id="props">API reference</h2><p>Every prop with the reason it exists.</p></div>
+            <span class="detail-count">{propCount} {propCount === 1 ? "prop" : "props"}</span>
+          </header>
+          <PropsReference title={item.title} props={docs.props} client:load />
+          <noscript><style>.props-more, .prop-disclosure { display: none; } .props-table [data-collapsed] { display: table-row !important; }</style><div class="props-notes-fallback">{Object.entries(docs.props).filter(([, prop]) => prop.notes).map(([name, prop]) => <details class="reference-details"><summary>{name} details</summary><p>{prop.notes}</p></details>)}</div></noscript>
+        </section>}
+
+        <section aria-labelledby="accessibility">
+          <header class="detail-section-head"><h2 id="accessibility">Accessibility</h2><p>{docs.a11y.role ? `Role: ${docs.a11y.role}. ` : ""}Keyboard behaviour and measured contrast in both schemes.</p></header>
+          {keyboard.length > 0 && <table class="keys">
+            <caption class="sr-only">{item.title} keyboard shortcuts</caption>
+            <thead class="sr-only"><tr><th scope="col">Key</th><th scope="col">What happens</th></tr></thead>
+            <tbody>{keyboard.map(row => <tr><th scope="row"><span class="keys-caps">{keycaps(row.key).map(({ key, note }) => <><kbd>{key}</kbd>{note && <span class="keys-note">{note}</span>}</>)}</span></th><td>{row.does}</td></tr>)}</tbody>
+          </table>}
+          {swatches.length > 0 && <div class="contrast">
+            <div class="contrast-head"><h3>Contrast, measured in both schemes</h3><span>Light · dark, {swatches.length} of {contrastTotal} pairs</span></div>
+            <ul class="contrast-swatches">{swatches.map(pair => <li>
+              <div class="contrast-chip" style={`--contrast-fg: var(${pair.fg}); --contrast-bg: var(${pair.bg});`} aria-hidden="true">Aa</div>
+              <div class="contrast-caption"><span>{pair.role ?? pair.fg}</span><span>{pair.light.toFixed(2)} · {pair.dark.toFixed(2)}</span></div>
+            </li>)}</ul>
+          </div>}
+          {docs.knownGaps?.length ? <details class="reference-details detail-gaps"><summary>Known limits</summary><ul class="doc-list">{docs.knownGaps.map(text => <li>{text}</li>)}</ul></details> : null}
+        </section>
+
+        {changes.length > 0 && <section aria-labelledby="changes">
+          <header class="detail-section-head detail-section-head-split">
+            <h2 id="changes">Changes</h2>
+            <a class="detail-more" href="/changelog/">Full changelog<ArrowUpRight aria-hidden="true" /></a>
+          </header>
+          <ul class="changes">{changes.map(change => <li>
+            <time datetime={change.date}>{shortDate(change.date)}</time>
+            <Badge variant={change.kind === "addition" ? "success" : "neutral"} size="sm" shape="full">{changeLabels[change.kind] ?? change.kind}</Badge>
+            <p>{change.summary}</p>
+          </li>)}</ul>
+        </section>}
+
+        <nav class="pager" aria-label="More components">
+          <a class="pager-card" href="/components/"><span><ArrowLeft aria-hidden="true" />Back to</span><strong>All components</strong></a>
+          {next && <a class="pager-card" data-side="next" href={`/components/${next.name}/`}><span>Next in {item.category}<ArrowRight aria-hidden="true" /></span><strong>{next.title}</strong></a>}
+        </nav>
+      </article>
+    </div>
+  </div>
+  <script>
+    // The rail marks the section being read; the first is current until the page moves.
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('.detail-rail nav:first-child a[href^="#"]')];
+    const mark = (id: string) => links.forEach(link => link.href.endsWith(`#${id}`) ? link.setAttribute("aria-current", "location") : link.removeAttribute("aria-current"));
+    if (links[0]) mark(links[0].hash.slice(1));
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      const id = visible?.target.getAttribute("aria-labelledby");
+      if (id) mark(id);
+    }, { rootMargin: "-15% 0px -70% 0px" });
+    document.querySelectorAll(".detail-main > section[aria-labelledby]").forEach(section => observer.observe(section));
+  </script>
+</Base>

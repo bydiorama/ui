@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-public-site-restores-paper-headline-ink",
+  "date": "2026-11-12",
+  "item": "system",
+  "kind": "visual",
+  "summary": "Public site restores Paper headline ink, hero CTA spacing, gallery row rhythm and outline action; tablet navigation obeys breakpoint order. Documentation table styles are scoped to reference tables and primary navigation marks only one current destination.",
+  "affects": [
+    "site:home",
+    "site:component-reference",
+    "site:navigation"
+  ]
+}

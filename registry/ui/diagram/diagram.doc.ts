@@ -1,6 +1,7 @@
 /** Typed documentation for Diagram (CONVENTIONS §11). */
 
 export const diagramDoc = {
+  lead: "A read-only node-link viewer — pipelines, lineage, org charts, dependency and state graphs — where every node is real UI.",
   name: "Diagram",
   status: "experimental",
   summary:

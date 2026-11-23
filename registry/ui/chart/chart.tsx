@@ -60,6 +60,15 @@ export type ChartSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export type ChartSize = "md" | "sm";
 
+/**
+ * `framed` (default): the full frame — title, takeaway, table toggle, legend
+ * and both axes on a bordered surface. `plain`: the plot alone, on whatever
+ * ground it sits on — an illustrative or ambient chart whose context the page
+ * already gives. The title, takeaway and data table stay in the document for
+ * assistive technology; only their printing is dropped.
+ */
+export type ChartVariant = "framed" | "plain";
+
 /** What `onSelect` receives: the category, its row, and the series when known. */
 export interface ChartSelection<Row> {
   /** The category's position in `data`. */
@@ -794,6 +803,14 @@ interface ChartOwnProps<Row> {
    */
   isStacked?: boolean | { isPercent: boolean };
   size?: ChartSize;
+  /**
+   * `plain` prints the plot alone: no frame, head, legend, axes, direct
+   * labels or table toggle. `label` and `description` still name and
+   * describe the figure, and the data table is rendered visually hidden, so
+   * a plain chart says exactly what a framed one does to a screen reader.
+   * Use it where the page around the chart already says what it shows.
+   */
+  variant?: ChartVariant;
   /** `Intl.NumberFormat` options for values and ticks. Never a format string. */
   format?: Intl.NumberFormatOptions;
   /** The locale for `format`. Pass it when the server's may differ from the reader's. */
@@ -842,6 +859,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     headline,
     isStacked = false,
     size = "md",
+    variant = "framed",
     format: formatOptions,
     locale,
     isLoading = false,
@@ -1062,7 +1080,9 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
   // plot does not widen a frame after hydration. Measurement below catches
   // the names the guess lets through.
   const plainlyTooLong = series.some((s) => s.label.length * GLYPH_MIN > LABEL_LANE - LABEL_OFFSET);
+  const isPlain = variant === "plain";
   const hasDirectLabels =
+    !isPlain &&
     layout === "point" &&
     !isScatter &&
     !isStacked &&
@@ -1303,14 +1323,21 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
     <figure
       ref={frameRef}
       data-slot="chart"
+      data-variant={variant}
       data-layout={layout}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       aria-busy={isLoading || undefined}
-      className={cn("flex flex-col gap-lg rounded-md border border-edge-subtle bg-surface p-xl", className)}
+      className={cn(
+        isPlain ? "relative flex flex-col" : "flex flex-col gap-lg rounded-md border border-edge-subtle bg-surface p-xl",
+        className,
+      )}
       {...rest}
     >
-      <div data-slot="chart-head" className="flex items-start gap-lg">
+      {/* Plain keeps the head in the document — it names and describes the
+          figure — but prints none of it, and has no toggle: its table is
+          always present, visually hidden, below the plot. */}
+      <div data-slot="chart-head" className={isPlain ? "sr-only" : "flex items-start gap-lg"}>
         <div className="flex min-w-0 flex-1 flex-col">
           <span id={titleId} data-slot="chart-title" className="font-body text-label-md text-ink-primary">
             {label}
@@ -1328,7 +1355,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
             </div>
           )}
         </div>
-        <Button
+        {!isPlain && <Button
           data-slot="chart-table-toggle"
           variant="secondary"
           size="md"
@@ -1338,10 +1365,10 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
           isDisabled={isLoading}
           icon={<ChartTable aria-hidden />}
           onClick={() => setIsTable((t) => !t)}
-        />
+        />}
       </div>
 
-      {isTable ? (
+      {isTable && !isPlain ? (
         <ChartDataTable
           caption={label}
           xLabel={xLabel}
@@ -1352,7 +1379,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
         />
       ) : (
         <>
-          {allSeries.length > 1 && (
+          {allSeries.length > 1 && !isPlain && (
             // The legend band is the frame's width and 24px tall. Entries sit
             // flush inside it: two 8px inline paddings are the legend's 16px
             // gap, and the list pulls out 8px at each end so the keys keep
@@ -1425,7 +1452,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
           )}
 
           <div data-slot="chart-plot-row" className="flex gap-sm">
-            {isHorizontal ? (
+            {isPlain ? null : isHorizontal ? (
               // The sheet's 168px, but never more than 40% of the row: at 320px a
               // fixed lane left the bars 8px (the stand-in screen). 40% only
               // binds below a 420px row, so the drawn width is untouched.
@@ -1462,7 +1489,9 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
             </div>
             )}
 
-            <div data-slot="chart-plot-column" className="relative flex min-w-0 flex-1 flex-col gap-sm pt-sm">
+            {/* pt-sm centres the value axis's 16px labels on their gridlines;
+                a plain chart has no labels, so its plot starts at the top. */}
+            <div data-slot="chart-plot-column" className={cn("relative flex min-w-0 flex-1 flex-col gap-sm", !isPlain && "pt-sm")}>
               <div
                 ref={plotRef}
                 data-slot="chart-plot"
@@ -1567,7 +1596,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                 {active && !isHorizontal && <ChartTooltip ctx={ctx} index={active.index} plot={plotRef} frame={frame} />}
               </div>
 
-              {!isHorizontal && (
+              {!isHorizontal && !isPlain && (
               <div data-slot="chart-x-axis" aria-hidden="true" style={{ width: plotWidth }} className="relative h-4">
                 {!isLoading &&
                   xTicks.map(({ key, x: tickX, label: tickLabel, edge }) => {
@@ -1592,6 +1621,16 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
               )}
             </div>
           </div>
+          {isPlain && !isLoading && (
+            <PlainTable
+              caption={label}
+              xLabel={xLabel}
+              categories={xTexts ?? categories}
+              series={allSeries}
+              format={format}
+              area={ctx.area}
+            />
+          )}
         </>
       )}
 
@@ -1766,6 +1805,53 @@ interface TableRow {
   id: string;
   category: string;
   values: number[];
+}
+
+/**
+ * A plain chart's table: the same facts as ChartDataTable, as a native table
+ * inside a visually hidden wrapper. Not the Table component — its scroll
+ * region becomes a tab stop whenever it overflows, and a 1px box always
+ * overflows, so it would put a nameless, invisible stop in the tab order.
+ */
+function PlainTable({
+  caption,
+  xLabel,
+  categories,
+  series,
+  format,
+  area,
+}: {
+  caption: string;
+  xLabel: string;
+  categories: string[];
+  series: ResolvedSeries[];
+  format: (v: number) => string;
+  area: { label: string; values: number[] } | null;
+}) {
+  const cell = (v: number | undefined) => (v !== undefined && Number.isFinite(v) ? format(v) : "—");
+  return (
+    <div data-slot="chart-table" className="sr-only">
+      <table>
+        <caption>{caption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{xLabel}</th>
+            {series.map((s) => <th key={s.key} scope="col">{s.label}</th>)}
+            {area && <th scope="col">{area.label}</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {categories.map((c, i) => (
+            <tr key={i}>
+              <th scope="row">{c}</th>
+              {series.map((s) => <td key={s.key}>{cell(s.values[i])}</td>)}
+              {area && <td>{cell(area.values[i])}</td>}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 /** The chart's data as a Table: the alternative that holds every fact. */

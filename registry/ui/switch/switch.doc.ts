@@ -1,6 +1,7 @@
 /** Typed documentation for Switch (CONVENTIONS §11). */
 
 export const switchDoc = {
+  lead: "Changes a setting as soon as you turn it on or off.",
   name: "Switch",
   status: "stable",
   summary:

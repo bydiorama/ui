@@ -80,8 +80,12 @@ export async function listRegistryItems(source: { registryPath?: string; urlTemp
   if (source.registryPath) {
     raw = await readFile(join(source.registryPath, "registry.json"), "utf8");
   } else if (source.urlTemplate && /\/r\/\{name\}\.json$/.test(source.urlTemplate)) {
-    const url = source.urlTemplate.replace(/\/r\/\{name\}\.json$/, "/registry.json");
-    const res = await fetch(url);
+    const sibling = source.urlTemplate.replace("{name}", "registry");
+    let res = await fetch(sibling);
+    // The public site serves the index beside its items. GitHub remains a
+    // supported mirror with the historical index one directory higher.
+    if (res.status === 404) res = await fetch(source.urlTemplate.replace(/\/r\/\{name\}\.json$/, "/registry.json"));
+    const url = res.url || sibling;
     if (!res.ok) throw new Error(`Fetching ${url} failed: ${res.status} ${res.statusText}`);
     raw = await res.text();
   } else {

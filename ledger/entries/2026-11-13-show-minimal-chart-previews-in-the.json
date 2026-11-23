@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-show-minimal-chart-previews-in-the",
+  "date": "2026-11-13",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Home and catalog tiles show a minimal, static preview composed from the real BarChart: bars only, without headings, axes, grid, tooltip or controls. Its single series locally binds the data colour to the active brand\u2019s contrast-adjusted accent; the shared categorical palette and full interactive reference remain intact. Browser checks verify actual bar colours for every brand and scheme, live appearance changes, four complete visible bars and consistent tile frames.",
+  "affects": [
+    "site:home",
+    "site:catalog",
+    "site:chart-preview"
+  ]
+}

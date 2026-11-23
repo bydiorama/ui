@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-suppress-native-button-appearance-so-the",
+  "date": "2026-11-12",
+  "item": "button",
+  "kind": "fix",
+  "summary": "Suppress native button appearance so the library ring owns the edge without platform decoration.",
+  "affects": [
+    "button"
+  ]
+}

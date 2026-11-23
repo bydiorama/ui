@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-13-feature-chart-and-show-sparkline-beside",
+  "date": "2026-11-13",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The public homepage features the full Chart in the former Sparkline position, following the recorded design review. Sparkline remains in the complete catalog and its reference, demonstrated beside a completed-project metric with the same August\u2013November data and series ink as Chart. Browser assertions protect the featured component and the relationship between examples.",
+  "affects": [
+    "site:home",
+    "site:component-previews"
+  ]
+}

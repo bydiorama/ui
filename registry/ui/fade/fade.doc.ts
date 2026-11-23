@@ -6,6 +6,7 @@
  */
 
 export const fadeDoc = {
+  lead: "Softens an edge to show that content continues beyond it.",
   name: "Fade",
   status: "stable",
   summary:

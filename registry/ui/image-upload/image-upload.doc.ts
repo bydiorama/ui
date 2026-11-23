@@ -6,6 +6,7 @@
  */
 
 export const imageUploadDoc = {
+  lead: "Adds images and explains the state of each upload.",
   name: "ImageUpload",
   status: "stable",
   summary:

@@ -1,6 +1,7 @@
 /** Typed documentation for Sheet (CONVENTIONS §11). */
 
 export const sheetDoc = {
+  lead: "Opens a panel from the side without losing the page behind it.",
   name: "Sheet",
   status: "stable",
   summary:

@@ -1,6 +1,7 @@
 /** Typed documentation for NavRail (CONVENTIONS §11). */
 
 export const navRailDoc = {
+  lead: "Keeps the main destinations in a compact column.",
   name: "NavRail",
   status: "stable",
   summary:

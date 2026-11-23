@@ -1,0 +1,246 @@
+---
+import { ArrowRight, ChartLineUp, Colors, Grid, Layers, MagicWand } from "griddy-icons";
+import "../styles/home.css";
+import Base from "../layouts/Base.astro";
+import { fx } from "@/lib/fx";
+import { Fade } from "@/ui/fade";
+import { catalog } from "../lib/catalog";
+import { copy } from "../lib/copy";
+import { InstallPill } from "../home/InstallPill";
+import { LookDock } from "../home/LookDock";
+import { UseCaseStage } from "../home/UseCaseStage";
+import { ThemePair } from "../home/ThemePair";
+import { ExplodedButton } from "../home/ExplodedButton";
+import { ChartTile, EffectsTile, GradientPicker, StatusMarksTile } from "../home/BoxTiles";
+import { Faq } from "../home/Faq";
+import { CardFan } from "../home/CardFan";
+
+const reel = ["eye.", "system.", "code."];
+const statement = "One library for the screens you ship. Copy a component in, give it your brand, and let an agent do the repetitive work.";
+
+const skills = [
+  { name: "craft", note: "Radii, shadows, press states" },
+  { name: "effects", note: "Glass, grain, gradients" },
+  { name: "app-motion", note: "Motion inside an app" },
+  { name: "visual-review", note: "Diff a screen against its design" },
+  { name: "motion-media", note: "Demo videos and stills" },
+];
+
+// The five most recent changes, one per component, each named by what kind
+// of change it was ("Fix in Switch"), as a changelog row reads at a glance.
+// An `addition` is something added TO a component, not a new component, so
+// it reads "New in Switch", never "Switch added".
+const changeHeadline: Record<string, (title: string) => string> = {
+  addition: title => `New in ${title}`,
+  fix: title => `Fix in ${title}`,
+  visual: title => `${title} restyled`,
+  token: title => `Token change in ${title}`,
+  decision: title => `Decision on ${title}`,
+  breaking: title => `Breaking change in ${title}`,
+};
+const changes = [...new Map(catalog.items
+  .flatMap(item => item.changes.map(change => ({ ...change, name: item.name, headline: (changeHeadline[change.kind] ?? (title => `${title} changed`))(item.title) })))
+  .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
+  .reverse()
+  .map(change => [change.name, change] as const)).values()]
+  .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id))
+  .slice(0, 5);
+const shortDate = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" });
+
+const terminal = [
+  { kind: "dim", text: "+ cn: lib/cn.ts (added)" },
+  { kind: "dim", text: "+ use-controllable-state: hooks/use-controllable-state.ts (added)" },
+  { kind: "dim", text: "+ motion: lib/motion.ts (added)" },
+  { kind: "dim", text: "+ chrome-control: lib/chrome-control.ts (added)" },
+  { kind: "dim", text: "+ data-slot: lib/data-slot.ts (added)" },
+  { kind: "dim", text: "+ calendar: ui/calendar.tsx (added), ui/calendar.doc.ts (added)" },
+  { kind: "dim", text: "+ field-lane: lib/field-lane.ts (added)" },
+  { kind: "done", text: "date-picker: ui/date-picker.tsx (added), ui/date-picker.doc.ts (added)" },
+  { kind: "gap", text: "" },
+  { kind: "plain", text: "npm dependencies to install:" },
+  { kind: "plain", text: "    clsx@^2.1.1 tailwind-merge@^3.6.0 griddy-icons@^0.2.0 @base-ui/react@1.7.0" },
+];
+---
+<Base>
+  <div class="home">
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title" class="hero-title">
+        <span class="sr-only">{copy.title}</span>
+        <span class="hero-your" aria-hidden="true">Your</span>
+        <span class="hero-reel" aria-hidden="true" data-reel>
+          <span class="hero-reel-sizer">{reel.map(word => <span>{word}</span>)}</span>
+          <span class="hero-reel-window"><span class="hero-reel-track">
+            {[...reel, ...reel, ...reel].map((word, index) => <span class="hero-reel-word" data-index={index}>{word}</span>)}
+          </span><Fade side="top" size="lg" ground="base" /><Fade side="bottom" size="lg" ground="base" /></span>
+        </span>
+      </h1>
+      <div class="hero-body">
+        <p class="hero-lead">{copy.intro}</p>
+        <div class="hero-actions">
+          <InstallPill command={copy.install} client:idle />
+          <a class="hero-browse" href="/components/">Browse components<ArrowRight aria-hidden="true" /></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="looks" id="looks" aria-label="Change the look">
+      <LookDock client:load />
+      <p class="looks-caption">Change the look. This whole page is built from the library, so it follows.</p>
+    </section>
+
+    <section class="use-cases" aria-label="Example screens" data-reveal>
+      <div class={`use-case-ground ${fx("gradient")}`} data-fx-on="grain" aria-hidden="true"></div>
+      <UseCaseStage client:visible />
+    </section>
+
+    <section class="statement" aria-label="What it is">
+      <p class="statement-text" data-words>{statement.split(" ").map((word, index) => <span class="statement-word" style={`--w:${index}`}>{word} </span>)}</p>
+    </section>
+
+    <section class="features" aria-label="How it works">
+      <article class="feature" data-reveal>
+        <div class="feature-text">
+          <div>
+            <h2>One command, and the code is yours.</h2>
+            <p>Components arrive as source with their typed docs. A lockfile tells a deliberate fork from a stale copy.</p>
+          </div>
+          <a class="feature-link" href="/docs/#install">Read the CLI guide<ArrowRight aria-hidden="true" /></a>
+        </div>
+        <div class="feature-visual">
+          <div class={`feature-well feature-well-wash ${fx("gradient")}`} data-fx-on="grain">
+            <figure class="terminal" aria-label="Adding the date picker with the Diorama CLI">
+              <div class="terminal-bar" aria-hidden="true"><span></span><span></span><span></span><em>invoices-app — -zsh — 80×24</em></div>
+              <pre class="terminal-body"><span class="terminal-line terminal-command" style="--i:0"><span class="terminal-prompt">invoices-app %</span> <span class="terminal-typed">npx @bydiorama/ui add date-picker</span></span>
+<span class="terminal-line" style="--i:1"> </span>
+{terminal.map((line, index) => <><span class:list={["terminal-line", `terminal-${line.kind}`]} style={`--i:${index + 2}`}>{line.kind === "done" && <span class="terminal-check">✓ </span>}{line.text || " "}</span>{"\n"}</>)}<span class="terminal-line" style={`--i:${terminal.length + 2}`}> </span>
+<span class="terminal-line" style={`--i:${terminal.length + 3}`}><span class="terminal-prompt">invoices-app %</span> <span class="terminal-cursor" aria-hidden="true">█</span></span></pre>
+            </figure>
+          </div>
+        </div>
+      </article>
+
+      <article class="feature feature-reversed" data-reveal>
+        <div class="feature-text">
+          <div>
+            <h2>Every part is yours to open.</h2>
+            <p>Every part of a component is a token you can read and change: the label, the hairline ring, the surface, the focus outline.</p>
+          </div>
+          <a class="feature-link" href="/components/button/">See the Button source<ArrowRight aria-hidden="true" /></a>
+        </div>
+        <div class="feature-visual">
+          <div class="feature-well feature-well-base"><ExplodedButton client:visible /></div>
+        </div>
+      </article>
+
+      <article class="feature" data-reveal>
+        <div class="feature-text">
+          <div>
+            <h2>Seven colours in. A whole theme out.</h2>
+            <p>The resolver derives every role in light and dark, and checks the contrast as it goes. Every component ships tested under a second brand.</p>
+          </div>
+          <a class="feature-link" href="#looks">Change this page's look<ArrowRight aria-hidden="true" /></a>
+        </div>
+        <div class="feature-visual"><ThemePair client:visible /></div>
+      </article>
+    </section>
+
+    <section class="box" aria-labelledby="box-title">
+      <header class="box-head" data-reveal>
+        <h2 id="box-title">Also in the box.</h2>
+        <p>Effects, gradients, charts and agent skills ship the same way a button does: as source you own, tested under more than one brand.</p>
+      </header>
+      <div class="box-row box-row-two">
+        <article class="box-tile" data-reveal>
+          <div class={`box-well box-well-effects ${fx("gradient")}`} data-fx-on="grain"><EffectsTile client:visible /></div>
+          <div class="box-caption"><h3><Layers aria-hidden="true" />Effects</h3><p>Six finishes, each one class on a component's root. Text on glass still clears contrast over anything behind it.</p></div>
+        </article>
+        <article class="box-tile" data-reveal>
+          <div class={`box-well gradient-ground ${fx("gradient")}`} data-fx-on="grain"><GradientPicker client:visible /></div>
+          <div class="box-caption"><h3><Colors aria-hidden="true" />Gradient backgrounds</h3><p>A WebGL background in your brand's two colours. Five looks, and a quiet zone that keeps the copy legible.</p></div>
+        </article>
+      </div>
+      <div class="box-row box-row-three">
+        <article class="box-tile" data-reveal>
+          <div class="box-well box-well-chart"><ChartTile client:visible /></div>
+          <div class="box-caption"><h3><ChartLineUp aria-hidden="true" />Charts</h3><p>Bar, line, area, scatter and histogram, drawn in the theme's own roles. Sparklines and meters too.</p></div>
+        </article>
+        <article class="box-tile" data-reveal>
+          <div class="box-well box-well-list">
+            <ul class="skill-list" aria-label="Agent skills">{skills.map(skill => <li><code>{skill.name}</code><span>{skill.note}</span></li>)}</ul>
+          </div>
+          <div class="box-caption"><h3><MagicWand aria-hidden="true" />Agent skills</h3><p>Your coding agent learns the library's rules, so it builds with the system and not around it.</p></div>
+        </article>
+        <article class="box-tile" data-reveal>
+          <div class="box-well box-well-list">
+            <ol class="change-list" aria-label="Latest changes">{changes.map(change => <li><a href={`/changelog/#${change.id}`}><time datetime={change.date}>{shortDate.format(new Date(change.date))}</time><span>{change.headline}</span></a></li>)}</ol>
+          </div>
+          <div class="box-caption"><h3><Layers aria-hidden="true" />Changelog</h3><p>Every change to a component is recorded, so you and your agent know what moved before you sync.</p></div>
+        </article>
+      </div>
+      <article class="box-tile box-tile-wide" data-reveal>
+        <div class="box-well box-well-marks"><StatusMarksTile client:visible /></div>
+        <div class="box-caption"><h3><Grid aria-hidden="true" />Status marks</h3><p>A small screen of dots that says what an agent is doing. The live states loop, then settle on done, failed or stopped. Hover one to play it.</p></div>
+      </article>
+    </section>
+
+    <section class="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title" data-reveal>Before you build.</h2>
+      <div data-reveal><Faq client:visible /></div>
+    </section>
+
+    <section class="outro" aria-labelledby="outro-title">
+      <div class="outro-head" data-reveal>
+        <h2 id="outro-title">Go on, touch it.</h2>
+        <p>These are live components. Drag the cards, flip the switch, press the button, change the look.</p>
+      </div>
+      <div class="card-fan-stage" data-reveal><CardFan client:visible /></div>
+      <div class="outro-wordmark" aria-hidden="true"><p data-fx-on="ink">Diorama UI</p><Fade side="bottom" size="lg" ground="base" /></div>
+    </section>
+  </div>
+</Base>
+
+<script>
+  // Scroll reveals, the hero reel and the header's scrolled state. Every
+  // piece is presentation only: without this script the page is complete
+  // and still.
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const root = document.documentElement;
+  root.dataset.motion = "ready";
+
+  const reveal = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      (entry.target as HTMLElement).dataset.revealed = "";
+      reveal.unobserve(entry.target);
+    }
+  }, { rootMargin: "0px 0px -12% 0px" });
+  document.querySelectorAll("[data-reveal]").forEach(element => reveal.observe(element));
+
+  // The reel holds three copies of the words and starts on the middle copy,
+  // so it can always step forward; when it reaches the third copy it jumps
+  // back one copy with the transition off, which looks the same.
+  const reel = document.querySelector<HTMLElement>("[data-reel]");
+  if (reel) {
+    const words = 3;
+    let index = words + 1;
+    const set = (next: number, animate: boolean) => {
+      index = next;
+      reel.toggleAttribute("data-instant", !animate);
+      reel.style.setProperty("--reel-index", String(index));
+      reel.querySelectorAll<HTMLElement>(".hero-reel-word").forEach(word => word.toggleAttribute("data-current", Number(word.dataset.index) === index));
+    };
+    set(index, false);
+    let timer = 0;
+    const tick = () => {
+      set(index + 1, true);
+      if (index >= words * 2) window.setTimeout(() => set(index - words, false), 700);
+    };
+    const run = () => {
+      window.clearInterval(timer);
+      if (!reduce.matches && document.visibilityState === "visible") timer = window.setInterval(tick, 2600);
+    };
+    run();
+    reduce.addEventListener("change", run);
+    document.addEventListener("visibilitychange", run);
+  }
+</script>

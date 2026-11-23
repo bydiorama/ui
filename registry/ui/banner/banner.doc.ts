@@ -1,6 +1,7 @@
 /** Typed documentation for Banner (CONVENTIONS §11). */
 
 export const bannerDoc = {
+  lead: "Puts a message and its next action where they can be seen together.",
   name: "Banner",
   status: "stable",
   summary:

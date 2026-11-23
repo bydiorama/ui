@@ -66,6 +66,16 @@ export const States: Story = {
   ),
 };
 
+/** Missing periods keep their space in every form, as they do in Chart. */
+export const MissingReadings: Story = {
+  render: () => (
+    <div className="flex w-96 flex-col gap-xl rounded-md border border-edge-subtle bg-surface p-xl">
+      {(["line", "area", "column"] as const).map(variant => <Row key={variant} name={variant}><Sparkline data={[12, 18, Number.NaN, 20, 24]} label={`Projects, ${variant}`} description="Rose from 12 to 24; the third reading is missing." variant={variant} /></Row>)}
+      <Row name="Latest gap"><Sparkline data={[12, 18, 15, Number.NaN]} label="Last measured projects" description="The last measured value was 15; the newest reading is missing." /></Row>
+    </div>
+  ),
+};
+
 const STRESS_BRAND: ThemeSeed = {
   colors: {
     bg: "#fffdf5", surface: "#ffffff", muted: "#f4ecd8",

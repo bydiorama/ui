@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-omitted-input-shape-follows-the-brand",
+  "date": "2026-11-12",
+  "item": "input",
+  "kind": "addition",
+  "summary": "Omitted Input shape follows the brand control shape with matching capsule and trailing-control insets; explicit shapes still override it.",
+  "affects": [
+    "input"
+  ]
+}

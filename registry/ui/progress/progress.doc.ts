@@ -1,6 +1,7 @@
 /** Typed documentation for Progress (CONVENTIONS §11). */
 
 export const progressDoc = {
+  lead: "Shows how far a task has come and what is still in progress.",
   name: "Progress",
   status: "stable",
   summary:

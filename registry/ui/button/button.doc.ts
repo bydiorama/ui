@@ -6,10 +6,11 @@
  */
 
 export const buttonDoc = {
+  lead: "Starts an action. Give it a clear label and let the emphasis follow the task.",
   name: "Button",
   status: "stable",
   summary:
-    "The primary action control. Five types, three sizes, two shapes, five content arrangements. SOFT is the default shape: the design's Rounded Full is the alternative, not the baseline, and having that inverted is why three components appeared to need a button nobody had defined.",
+    "The primary action control. Five types, three sizes, two shapes, five content arrangements. Theme zero defaults to soft; a brand may choose full: the design's Rounded Full is the alternative, not the baseline, and having that inverted is why three components appeared to need a button nobody had defined.",
 
   anatomy: [
     { part: "root", slot: "button", notes: "The <button>. Carries variant, size and state data attributes." },
@@ -31,7 +32,7 @@ Button
       type: '"primary" | "secondary" | "outline" | "ghost" | "danger" | "inverse"',
       default: '"primary"',
       notes:
-        "primary is the brand-blue filled action; secondary is the quiet edge (border-subtle); outline is the SAME shape with a CONFORMANT edge (border-control, 3.11:1) — the reason to reach for it over secondary is that something depends on identifying its boundary; ghost has no chrome until hover; danger is the subtle red surface, not a solid red fill; inverse is outline's shape for --ui-bg-inverse bands (a footer, a dark CTA band — #36): ring, label AND focus outline in --ui-text-inverse (the page's focus colour measured 2.88:1 light / 1.37:1 dark on the band, so focus takes the band's ink: 15.53:1 in both), hover/press on the band's own -hover/-active, disabled in --ui-text-inverse-muted. It follows the band when the scheme flips; it is not for media grounds. Every type is either a fill with a matching edge or an edge on nothing — a fill with NO edge is not a button here, it is the chrome control (`@/lib/chrome-control`).",
+        "primary uses the brand fill for the main action. secondary provides a quiet decorative edge; use outline when the boundary must identify the control. ghost stays unboxed until hover. danger uses a subtle danger surface for destructive actions. inverse is designed for inverse-background bands, such as a footer or call to action, and follows that band's colors when the scheme changes.",
     },
     size: {
       type: '"lg" | "md" | "sm"',
@@ -40,9 +41,7 @@ Button
     },
     shape: {
       type: '"soft" | "full"',
-      default: '"soft"',
-      notes:
-        "soft is the DEFAULT and full is the alternative — the design's own legend calls them \"Default (soft border radius)\" and \"Rounded Full\", which is where the value names now come from. The soft radius SCALES: 4px at sm (the sheet's Small Rounded column), 8px at md and lg (as Header, Sheet and Calendar draw their 32px controls). Only lg is derived; it follows md rather than inventing a third step. This axis shipped INVERTED, with the fully-rounded shape as the default, which is why every button placed anywhere came out a pill and the soft control the design actually draws looked like an invention each time it was needed.",
+      notes: "Omitted follows the brand's controlShape (soft in theme zero). Explicit soft or full overrides the brand. Soft uses radius-sm for sm, radius-md for md/lg; full uses radius-full. The default control radii are independent of panel radii and never change control height or density.",
     },
     isDisabled: { type: "boolean", default: "false", notes: "Non-interactive, removed from the tab order. The disabled treatment is PER VARIANT: primary, secondary, outline and danger flatten to the --ui-bg-elevated chip the sheet's Disabled frame draws; ghost keeps no fill and no ring and takes only the disabled ink (--ui-text-disabled), because a control with no chrome at rest turned into a grey slab — the heaviest thing in its row — the moment it disabled (#27)." },
     isBusy: {

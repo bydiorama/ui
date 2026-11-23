@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { MARKER_SHAPES, arcPath, bins, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerKeyPath, markerPath, pointPositions, round, seriesPoints, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
+import { MARKER_SHAPES, arcPath, bins, bandPath, barPath, rowBarPath, ratioOf, areaPath, columnPath, columns, extent, finite, formatNumber, groupedBars, labelIndices, linearScale, linePath, markerKeyPath, markerPath, pointPositions, round, seriesPoints, seriesRuns, stackSeries, valueAxis, timeTicks, tickDateFormat, pointDateFormat, timePositions } from "./viz.ts";
 
 const BOX = { width: 160, height: 40, inset: { top: 6, right: 8, bottom: 6, left: 2 } } as const;
 
@@ -40,6 +40,19 @@ test("seriesPoints centres a single point, as the sheet's one-point state does",
   assert.deepEqual(seriesPoints([], BOX), []);
 });
 
+test("seriesRuns retains missing and sparse slots on one shared sample axis", () => {
+  assert.deepEqual(seriesRuns([0, 5, Number.NaN, 10, 5], BOX, [0, 10]), [
+    [{ x: 2, y: 34 }, { x: 39.5, y: 20 }],
+    [{ x: 114.5, y: 6 }, { x: 152, y: 20 }],
+  ]);
+  assert.deepEqual(seriesRuns([0, , 10] as number[], BOX), [
+    [{ x: 2, y: 34 }], [{ x: 152, y: 6 }],
+  ]);
+  assert.deepEqual(seriesRuns([42], BOX), [[{ x: 80, y: 20 }]]);
+  assert.deepEqual(seriesRuns([Number.NaN], BOX, [0, 10]), []);
+  assert.deepEqual(seriesRuns([], BOX), []);
+});
+
 test("linePath and areaPath are byte-identical across calls (server = client)", () => {
   const pts = seriesPoints([3, 1, 4, 1, 5, 9, 2, 6], BOX);
   assert.equal(linePath(pts), linePath(seriesPoints([3, 1, 4, 1, 5, 9, 2, 6], BOX)));
@@ -61,6 +74,16 @@ test("columns always include zero, keep a gap, and cap their width", () => {
   // because the domain starts at ZERO, not at the minimum.
   assert.match(cols[2]!.path, /^M152 40V4a4/);
   assert.match(cols[0]!.path, /^M0 40V30\.67a4/);
+});
+
+test("missing columns reserve their sample positions rather than closing up", () => {
+  const options = { width: 160, height: 40, gap: 2, maxWidth: 8, radius: 4 };
+  const complete = columns([1, 2, 3, 4, 5], options);
+  const missing = columns([1, Number.NaN, 3, Number.POSITIVE_INFINITY, 5], options);
+  assert.equal(missing.length, complete.length);
+  assert.equal(missing[1]!.path, "");
+  assert.equal(missing[3]!.path, "");
+  for (const i of [0, 2, 4]) assert.equal(missing[i]!.path, complete[i]!.path);
 });
 
 test("negative columns hang below zero with their data end rounded", () => {

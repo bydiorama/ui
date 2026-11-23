@@ -1,0 +1,75 @@
+/* Forms — Paper: Family / Forms. */
+
+/* Shared parts: a resting field, the typing caret, a floating list. */
+.motif-field { display: flex; align-items: center; justify-content: space-between; height: 36px; padding-inline: 12px; border-radius: 10px; box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); font-weight: 500; }
+.motif-field svg { color: var(--ui-text-muted); }
+.motif-field-typing { justify-content: flex-start; gap: 2px; }
+.motif-caret { flex-shrink: 0; width: 1.5px; height: 16px; background: var(--ui-text-primary); }
+.motif-dropdown { display: flex; flex-direction: column; gap: 6px; width: 180px; align-self: flex-start; margin-top: 28px; }
+.motif-dropdown-panel { display: flex; flex-direction: column; padding: 4px; border-radius: 12px; background: var(--ui-bg-surface); box-shadow: var(--motif-float); }
+.motif-dropdown-panel > span { display: flex; align-items: center; justify-content: space-between; height: 28px; padding-inline: 8px; border-radius: 8px; font-weight: 500; }
+.motif-dropdown-panel > .is-active { background: var(--ui-bg-elevated); }
+
+/* Checkbox and radio rows. */
+.motif-choices { display: flex; flex-direction: column; gap: 14px; }
+.motif-choices > span { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.motif-checkbox-box, .motif-radio-dot { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 18px; height: 18px; box-shadow: inset 0 0 0 1.5px var(--ui-border-default); }
+.motif-checkbox-box { border-radius: 5px; }
+.motif-radio-dot { border-radius: var(--ui-radius-full); }
+.motif-checkbox-box.is-checked, .motif-radio-dot.is-checked { background: var(--ui-bg-accent-legible); box-shadow: none; color: var(--ui-text-on-emphasis); }
+.motif-radio-dot.is-checked > span { width: 7px; height: 7px; border-radius: var(--ui-radius-full); background: var(--ui-text-on-emphasis); }
+
+.motif-calendar { display: flex; flex-direction: column; gap: 10px; width: 164px; }
+.motif-calendar-head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; }
+.motif-calendar-head > span + span { font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+.motif-calendar-days, .motif-date-picker-panel { display: grid; justify-content: space-between; }
+.motif-calendar-days { grid-template-columns: repeat(7, 18px); gap: 6px 0; }
+.motif-calendar-days > span, .motif-date-picker-panel > span { aspect-ratio: 1; background: var(--ui-bg-elevated); }
+.motif-calendar-days > span { border-radius: 6px; }
+.motif-calendar-days > .is-today { background: none; box-shadow: inset 0 0 0 1.5px var(--ui-text-primary); }
+.motif-calendar-days > .is-selected, .motif-date-picker-panel > .is-selected { background: var(--ui-bg-accent); }
+
+.motif-date-picker-panel { grid-template-columns: repeat(7, 16px); gap: 5px 0; padding: 10px; border-radius: 12px; background: var(--ui-bg-surface); box-shadow: var(--motif-float); }
+.motif-date-picker-panel > span { border-radius: 5px; }
+
+/* The picker's field and hue strip are colour itself, not theme roles: the
+   field runs from white to the brand accent's hue at full chroma, then to black. */
+.motif-color-picker { display: flex; flex-direction: column; gap: 10px; width: 160px; }
+.motif-color-picker-field { position: relative; height: 92px; border-radius: 10px; background: linear-gradient(in oklab 180deg, transparent, black), linear-gradient(in oklab 90deg, white, oklch(from var(--ui-bg-accent) 0.68 0.14 h)); }
+.motif-color-picker-field > span { position: absolute; left: 84px; top: 22px; width: 14px; height: 14px; border-radius: var(--ui-radius-full); box-shadow: inset 0 0 0 2.5px white, 0 1px 3px rgb(29 27 25 / 0.4); }
+.motif-color-picker-hue { position: relative; height: 10px; border-radius: var(--ui-radius-full); background: linear-gradient(in oklab 90deg, #F2545B 0%, #F2C94C 16.67%, #6FCF97 33.33%, #56CCF2 50%, #4F6BF2 66.67%, #BB6BD9 83.33%, #F2545B 100%); }
+.motif-color-picker-hue > span { position: absolute; left: 84px; top: -3px; width: 16px; height: 16px; border-radius: var(--ui-radius-full); background: white; box-shadow: 0 1px 3px rgb(29 27 25 / 0.3); }
+.motif-color-picker-value { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+.motif-color-picker-value > span { width: 16px; height: 16px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent); }
+
+.motif-input { display: flex; flex-direction: column; gap: 8px; width: 196px; }
+.motif-input-label { font-size: 12px; font-weight: 600; }
+.motif-input-field { height: 40px; box-shadow: inset 0 0 0 1.5px var(--ui-bg-accent-legible); }
+.motif-input-hint { font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+
+.motif-multiselect { display: flex; align-items: center; justify-content: space-between; width: 212px; height: 44px; padding: 0 12px 0 6px; border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); color: var(--ui-text-muted); }
+.motif-multiselect-chips { display: flex; gap: 4px; }
+.motif-multiselect-chips > span { display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 8px 0 10px; border-radius: 8px; background: var(--ui-bg-elevated); font-size: 12px; font-weight: 500; color: var(--ui-text-primary); }
+.motif-multiselect-chips svg { color: var(--ui-text-muted); }
+
+.motif-slider { display: flex; flex-direction: column; gap: 14px; width: 184px; }
+.motif-range-slider { gap: 18px; }
+.motif-range-slider-values { display: flex; justify-content: space-between; font-weight: 600; }
+.motif-slider-value { font-size: 36px; line-height: 36px; font-weight: 550; letter-spacing: -0.04em; }
+.motif-slider-track { position: relative; height: 16px; }
+.motif-slider-track::before { content: ""; position: absolute; inset: 6px 0; border-radius: var(--ui-radius-full); background: var(--ui-bg-sunken); }
+.motif-slider-fill { position: absolute; top: 6px; height: 4px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent); }
+.motif-range-slider .motif-slider-fill { border-radius: 0; }
+.motif-slider-thumb { position: absolute; top: 0; width: 16px; height: 16px; border-radius: var(--ui-radius-full); background: var(--ui-bg-surface); box-shadow: inset 0 0 0 2px var(--ui-bg-accent-legible), 0 1px 3px rgb(29 27 25 / 0.2); }
+
+.motif-switch { display: flex; flex-direction: column; gap: 16px; width: 172px; }
+.motif-switch > span { display: flex; align-items: center; justify-content: space-between; font-weight: 500; }
+.motif-switch-track { display: flex; flex-shrink: 0; width: 36px; height: 20px; padding: 2px; border-radius: var(--ui-radius-full); background: var(--ui-bg-sunken); }
+.motif-switch-track > span { width: 16px; height: 16px; border-radius: var(--ui-radius-full); background: var(--ui-bg-surface); box-shadow: 0 1px 2px rgb(29 27 25 / 0.15); }
+.motif-switch-track.is-on { justify-content: flex-end; background: var(--ui-bg-accent-legible); }
+.motif-switch-track.is-on > span { box-shadow: none; }
+
+.motif-textarea { display: flex; flex-direction: column; gap: 6px; width: 200px; }
+.motif-textarea-field { position: relative; height: 88px; padding: 10px 12px; border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); line-height: 18px; font-weight: 500; }
+.motif-textarea-grip { position: absolute; right: 6px; bottom: 6px; width: 8px; height: 8px; border-right: 1.5px solid var(--ui-border-default); border-bottom: 1.5px solid var(--ui-border-default); border-bottom-right-radius: 3px; }
+.motif-textarea-count { align-self: flex-end; font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }

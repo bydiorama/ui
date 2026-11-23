@@ -1,6 +1,7 @@
 /** Typed documentation for Tooltip (CONVENTIONS §11). */
 
 export const tooltipDoc = {
+  lead: "A short label that appears on hover or focus and names a control that cannot name itself.",
   name: "Tooltip",
   status: "stable",
   summary:

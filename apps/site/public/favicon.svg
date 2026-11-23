@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Mirrors the Paper favicon artboard. Literal colours, because an SVG asset cannot read CSS variables:
+       #1D1B19 is the light value of the ui-bg-inverse token, the tile; the "UI" fill runs #1D1B19 to #648792 to #1D1B19 as in the design.
+       The glyphs are outlines, so the mark does not depend on Aspekta being installed. -->
+  <defs>
+    <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="6.29" y1="14.29" x2="25.71" y2="17.71">
+      <stop offset="0" stop-color="#1D1B19"/>
+      <stop offset=".5" stop-color="#648792"/>
+      <stop offset="1" stop-color="#1D1B19"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="#1D1B19"/>
+  <path fill="url(#g)" d="M9.0 9.27V18.1C9.0 21.7 11.2 23.9 14.8 23.9C18.4 23.9 20.6 21.7 20.6 18.1V9.27H18.37V18.37C18.37 20.58 17.01 21.93 14.8 21.93C12.59 21.93 11.23 20.58 11.23 18.37V9.27Z"/>
+  <path fill="url(#g)" d="M21.8 9.27H24.03V23.77H21.8Z"/>
+</svg>

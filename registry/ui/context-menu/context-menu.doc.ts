@@ -1,6 +1,7 @@
 /** Typed documentation for ContextMenu (CONVENTIONS §11). */
 
 export const contextMenuDoc = {
+  lead: "Offers actions for the item under the pointer.",
   name: "ContextMenu",
   status: "stable",
   summary:

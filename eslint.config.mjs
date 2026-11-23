@@ -73,6 +73,9 @@ export default tseslint.config(
       "registry.json",
       "**/storybook-static/**",
       "**/*.generated.css",
+      "**/.astro/**",
+      // Linked local worktrees are separate checkouts, not this project's source.
+      "wt-*/**",
     ],
   },
   ...tseslint.configs.recommended,

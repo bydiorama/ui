@@ -1,0 +1,35 @@
+---
+import "../../styles/home.css";
+import "../../styles/catalog.css";
+import Base from "../../layouts/Base.astro";
+import Gallery from "../../components/Gallery.astro";
+import { Fade } from "@/ui/fade";
+import { CardFan } from "../../home/CardFan";
+import { LookDock } from "../../home/LookDock";
+import catalog from "../../data/catalog.generated.json";
+
+const families = new Set(catalog.items.map(item => item.category)).size;
+---
+<Base title="Components">
+  <div class="catalog-page">
+    <header class="catalog-head">
+      <div class="catalog-head-title">
+        <p class="catalog-eyebrow">{catalog.items.length} components · {families} families</p>
+        <h1>Components</h1>
+      </div>
+      <p class="catalog-lede">Start with the part you need. See how it behaves, read the reasoning, and bring the source into your project.</p>
+    </header>
+    <LookDock client:load isFloatingOnly />
+    <Gallery />
+  </div>
+  <div class="home catalog-outro">
+    <section class="outro" aria-labelledby="outro-title">
+      <div class="outro-head">
+        <h2 id="outro-title">Go on, touch it.</h2>
+        <p>These are live components. Drag the cards, flip the switch, press the button, change the look.</p>
+      </div>
+      <div class="card-fan-stage"><CardFan client:visible /></div>
+      <div class="outro-wordmark" aria-hidden="true"><p data-fx-on="ink">Diorama UI</p><Fade side="bottom" size="lg" ground="base" /></div>
+    </section>
+  </div>
+</Base>

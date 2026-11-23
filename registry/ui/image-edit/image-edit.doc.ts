@@ -6,6 +6,7 @@
  */
 
 export const imageEditDoc = {
+  lead: "Adjusts an image before it is used.",
   name: "ImageEdit",
   status: "stable",
   summary:

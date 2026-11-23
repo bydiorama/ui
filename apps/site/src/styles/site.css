@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@import "../../../../registry/themes/theme-zero/theme-zero.css";
+@import "./presets.generated.css";
+@import "../../../../registry/lib/fx/fx.css";
+@import "../../../../registry/lib/shader/shader.css";
+@source "../../../../registry";
+
+@font-face { font-family: Aspekta; font-style: normal; font-weight: 100 900; font-display: swap; src: url("/fonts/aspekta/AspektaVF.woff2") format("woff2"); }
+
+@layer base {
+  html { background: var(--ui-bg-base); color: var(--ui-text-primary); font-family: var(--ui-font-body); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-synthesis: none; scroll-padding-top: calc(var(--ui-space-4xl) + var(--ui-space-lg)); }
+  body { @apply text-body-md;  margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  button, select, summary { cursor: pointer; }
+  button, input, select { font: inherit; }
+  code, pre, kbd { font-family: inherit; }
+  button:focus-visible, a:focus-visible, summary:focus-visible, select:focus-visible, input:focus-visible { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: var(--ui-focus-ring-offset); }
+  h1, h2, h3, p { margin: 0; }
+  [hidden] { display: none !important; }
+}
+
+/* Unlayered, like the emitted themes: the reader’s explicit scheme wins. */
+html[data-site-scheme="light"] { color-scheme: light; }
+html[data-site-scheme="dark"] { color-scheme: dark; }
+/* A nested brand scope (the home page's theme pair, a look swatch) emits
+   `color-scheme: light dark`, which would hand it back to the OS. */
+html[data-site-scheme="light"] [data-site-brand] { color-scheme: light; }
+html[data-site-scheme="dark"] [data-site-brand] { color-scheme: dark; }
+
+/* The header sticks, and is clear until the page moves under it: then it
+   takes the page's own ground at 85% with a blur and a hairline foot, so it
+   reads as a pane over the content rather than a bar painted on top of it. */
+.site-header { position: sticky; top: 0; z-index: var(--ui-z-sticky); transition: background-color var(--ui-duration-base) var(--ui-ease-default); }
+.site-header[data-scrolled] { background: var(--ui-bg-affix); }
+/* Under the pinned bar, a Fade in the bar's own affix ground: content
+   dissolves into the bar instead of meeting a hard edge. Shown once the page
+   has moved under it. */
+.site-header-fade { position: absolute; top: 100%; left: 0; right: 0; height: var(--ui-space-3xl); pointer-events: none; opacity: 0; transition: opacity var(--ui-duration-base) var(--ui-ease-default); }
+.site-header[data-scrolled] .site-header-fade { opacity: 1; }
+/* Effects on: the bar is glass over what scrolls beneath it. */
+html[data-site-effects="on"] .site-header[data-scrolled] { background: var(--ui-bg-glass); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); }
+html[data-site-effects="on"] .site-header-fade { display: none; }
+@media (prefers-reduced-transparency: reduce) { html[data-site-effects="on"] .site-header[data-scrolled] { background: var(--ui-bg-affix); backdrop-filter: none; } }
+.site-header-inner { min-height: 72px; max-width: 1120px; margin: 0 auto; padding: 0 var(--ui-space-xl); box-sizing: content-box; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--ui-space-xl); }
+.wordmark { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; line-height: 18px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; justify-self: start; }
+.desktop-nav, .header-tools { display: flex; align-items: center; gap: 28px; }
+.desktop-nav { @apply text-label-md; color: var(--ui-text-muted); }
+.desktop-nav a { transition: color var(--ui-duration-fast) var(--ui-ease-default); }
+.desktop-nav a[aria-current="page"], .desktop-nav a:hover { color: var(--ui-text-primary); }
+.header-tools { @apply text-body-sm; justify-self: end; gap: var(--ui-space-sm); }
+.header-tools kbd { @apply text-label-sm;  border-radius: var(--ui-radius-sm); background: var(--ui-bg-sunken); padding: 0 var(--ui-space-xs); color: var(--ui-text-muted); }
+.github-link svg { width: 16px; height: 16px; }
+.github-link .github-link-arrow { width: 12px; height: 12px; color: var(--ui-text-muted); }
+.start-link { color: var(--ui-text-muted); }
+.mobile-nav { display: none; }
+.skip-link { position: fixed; left: 16px; top: 8px; transform: translateY(-150%); background: var(--ui-bg-base); padding: var(--ui-space-sm) var(--ui-space-lg); z-index: var(--ui-z-tooltip); }
+.skip-link:focus { transform: translateY(0); }
+.home-content, .page-content { max-width: 1440px; margin: 0 auto; padding: calc(var(--ui-space-4xl) + var(--ui-space-3xl) + var(--ui-space-sm)) var(--ui-space-4xl) var(--ui-space-4xl); }
+.home-content { display: flex; flex-direction: column; gap: calc(2 * var(--ui-space-3xl)); }
+.lead { max-width: 640px; display: flex; flex-direction: column; gap: var(--ui-space-2xl); }
+.lead h1 { @apply text-display-md;  }
+.lead h1 span { display: block; }
+.lead .browse-link { margin-top: 0; }
+.install-line { display: flex; align-items: center; gap: var(--ui-space-md); min-width: 0; }
+.install-line code { @apply text-body-md;  overflow-wrap: anywhere; }
+.install-line button, .code-heading button { @apply text-label-sm;  color: var(--ui-text-muted); flex-shrink: 0; min-height: 28px; padding: 2px var(--ui-space-xs); }
+/* A look change resolves in one paint, without every control tweening between themes. */
+html[data-appearance-changing] *, html[data-appearance-changing] *::before, html[data-appearance-changing] *::after { transition: none !important; }
+.specimen-well { min-height: 240px; min-width: 0; background: light-dark(var(--ui-bg-elevated), var(--ui-bg-surface)); border-radius: var(--ui-radius-lg); display: flex; align-items: center; justify-content: center; padding: var(--ui-space-xl); }
+.specimen-well > astro-island { display: contents; }
+/* Keep the chart's server-rendered width inside the example until its
+   ResizeObserver measures the live plot column. */
+.specimen-well [data-slot="chart-plot"] > svg { max-width: 100%; height: auto; }
+.specimen-well [data-slot="chart-x-axis"] { max-width: 100%; overflow: clip; }
+.specimen-stack { display: flex; min-width: 0; flex-direction: column; align-items: center; gap: var(--ui-space-md); }
+.example-explorer { container-type: inline-size; }
+.example-explorer [data-slot="knowledge-graph-explorer-toolbar"] > div:first-child { width: 100%; max-width: 320px; min-width: 0; }
+.example-explorer [data-slot="combobox"] { min-width: 0; }
+@container (max-width: 600px) {
+  .example-explorer [data-slot="knowledge-graph-explorer-body"] { flex-direction: column; }
+  .example-explorer [data-slot="knowledge-graph-explorer-detail"] { width: 100%; max-height: 240px; }
+}
+.specimen-well:has([data-slot="calendar"]) { padding-inline: var(--ui-space-xs); }
+.specimen-row { display: flex; align-items: center; justify-content: center; gap: var(--ui-space-sm); flex-wrap: wrap; }
+.specimen-field { width: min(100%, 240px); }
+.specimen-tabs { width: auto; gap: 0; }
+.specimen-tabs [role="tabpanel"] { position: absolute; width: 1px; height: 1px; overflow: hidden; }
+.browse-link:hover, .reference-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.browse-link { @apply text-label-md;  display: inline-flex; gap: var(--ui-space-sm); margin-top: calc(var(--ui-space-xl) + var(--ui-space-xs)); min-height: 24px; align-items: center; }
+.philosophy { border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); padding-top: var(--ui-space-3xl); display: grid; grid-template-columns: 1fr 1fr; gap: var(--ui-space-4xl); }
+.philosophy h2 { @apply text-title-lg;  }
+.philosophy p { @apply text-body-lg;  color: var(--ui-text-secondary); max-width: 540px; margin-bottom: var(--ui-space-lg); }
+.philosophy a { display: inline-block; margin-top: var(--ui-space-sm); @apply text-label-md; }
+.site-footer { @apply text-label-md; max-width: 1120px; min-height: 72px; box-sizing: content-box; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: var(--ui-space-xl); padding: 0 var(--ui-space-xl); color: var(--ui-text-muted); }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 28px; }
+.site-footer a { transition: color var(--ui-duration-fast) var(--ui-ease-default); }
+.site-footer a:hover { color: var(--ui-text-primary); }
+.page-content { padding-top: calc(var(--ui-space-4xl) + var(--ui-space-sm)); }
+.page-intro { max-width: 640px; margin-bottom: var(--ui-space-3xl); }
+.page-intro h1 { @apply text-display-md;  margin-bottom: var(--ui-space-md); }
+.page-intro p { @apply text-body-lg;  color: var(--ui-text-muted); }
+.search-heading { display: flex; align-items: center; justify-content: space-between; }
+.search-results { list-style: none; margin: 0; padding: 0; overflow-y: auto; max-height: 50vh; }
+.search-results a { display: flex; flex-direction: column; gap: var(--ui-space-xs); padding: var(--ui-space-md) var(--ui-space-sm); border-radius: var(--ui-radius-md); }
+.search-results a:hover { background: var(--ui-bg-hover); }
+.search-results span { @apply text-body-sm;  color: var(--ui-text-muted); }
+.code-frame { border-radius: var(--ui-radius-md); background: var(--ui-bg-surface); margin: var(--ui-space-lg) 0; overflow: hidden; }
+.code-heading { @apply text-label-sm;  display: flex; align-items: center; justify-content: space-between; padding: var(--ui-space-md) var(--ui-space-lg) 0; color: var(--ui-text-muted); }
+pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padding: var(--ui-space-lg); margin: 0; }
+.doc-list { list-style: none; padding: 0; margin: 0; }
+.doc-list li { padding: var(--ui-space-md) 0; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.prose-page { max-width: 800px; padding: calc(var(--ui-space-4xl) + var(--ui-space-lg)) var(--ui-space-xl); margin: auto; }
+.prose-page h1 { @apply text-display-md;  margin-bottom: var(--ui-space-xl); }
+.prose-page h2 { @apply text-title-md;  margin: calc(var(--ui-space-2xl) + var(--ui-space-sm)) 0 var(--ui-space-lg); }
+.prose-page p { @apply text-body-lg;  color: var(--ui-text-secondary); margin: var(--ui-space-lg) 0; }
+.prose-page a:not(.button) { text-decoration: underline; text-underline-offset: 4px; }
+.reference-link { display: inline-flex; align-items: center; gap: var(--ui-space-sm); }
+.reference-link svg { width: 16px; height: 16px; }
+.changelog-entry { padding: var(--ui-space-xl) 0; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.changelog-entry h2 { @apply text-body-lg;  margin: var(--ui-space-sm) 0; }
+.changelog-entry time { @apply text-body-sm;  color: var(--ui-text-muted); }
+/* Effects are opt-in on the example roots; the underlying component is the floor. */
+
+@media (max-width: 1000px) {
+  .desktop-nav { gap: var(--ui-space-lg); }
+  .start-link, .header-tools kbd { display: none; }
+  .home-content, .page-content { padding-inline: var(--ui-space-2xl); }
+  .site-footer { padding-inline: var(--ui-space-2xl); }
+}
+@media (max-width: 700px) {
+  .site-header-inner { min-height: 56px; padding-inline: var(--ui-space-lg); grid-template-columns: 1fr auto; gap: var(--ui-space-lg); }
+  .desktop-nav, .github-link, .header-tools kbd { display: none; }
+  .mobile-nav { display: block; }
+  .mobile-nav summary { list-style: none; @apply text-label-md; padding: 6px 0; }
+  .mobile-nav summary::-webkit-details-marker { display: none; }
+  .mobile-nav nav { position: absolute; left: 16px; right: 16px; top: 56px; display: flex; flex-direction: column; padding: var(--ui-space-lg); gap: var(--ui-space-lg); background: var(--ui-bg-surface); border-radius: var(--ui-radius-lg); box-shadow: var(--ui-shadow-lg); }
+  .home-content { padding: calc(var(--ui-space-3xl) + var(--ui-space-sm)) var(--ui-space-lg) var(--ui-space-3xl); gap: calc(var(--ui-space-3xl) + var(--ui-space-sm)); }
+  .lead { gap: var(--ui-space-xl); }
+  .lead h1 { @apply text-title-lg;  }
+  .specimen-well { min-height: 200px; }
+  .philosophy { grid-template-columns: 1fr; gap: var(--ui-space-xl); padding-top: var(--ui-space-2xl); }
+  .philosophy h2 { @apply text-title-lg;  }
+  .philosophy p { @apply text-body-md;  }
+  .site-footer { display: block; padding: var(--ui-space-xl) var(--ui-space-lg); }
+  .site-footer nav { margin-top: var(--ui-space-lg); gap: var(--ui-space-lg); }
+  .page-content { padding: var(--ui-space-3xl) var(--ui-space-lg); }
+
+  .prose-page { padding: var(--ui-space-3xl) var(--ui-space-lg); }
+}
+
+/* The component detail page lives in detail.css; these two are shared with its examples and no-JS fallback. */
+.reference-details > summary { @apply text-body-sm; color: var(--ui-text-muted); min-height: 24px; }
+.example-accordion { width: min(100%, 420px); }
+
+
+

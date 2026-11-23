@@ -1,6 +1,7 @@
 /** Typed documentation for Checkbox (CONVENTIONS §11). */
 
 export const checkboxDoc = {
+  lead: "Selects independent options, on their own or as part of a group.",
   name: "Checkbox",
   status: "stable",
   summary:

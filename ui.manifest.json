@@ -297,6 +297,30 @@
       "status": "stable"
     },
     {
+      "name": "eslint-preset",
+      "type": "file",
+      "description": "ESLint flat-config preset carrying Diorama's import boundaries into a consumer app: griddy-icons only (no other icon set), no second component library or design language, and the motion limits of CONVENTIONS §8 / ADR 0018 (no framer-motion, no motion/react component API, no GSAP without a licensing decision; motion/mini is allowed). Dependency-free plain objects: spread the default export into your flat config, or build your own no-restricted-imports from the exported restrictedImports lists (ESLint replaces, never merges, a rule's options). Package names are exact `paths`, never gitignore-style `patterns`, so @/lib/motion is never caught by a rule meant for the motion package.",
+      "files": [
+        {
+          "path": "registry/tooling/eslint/eslint.diorama.mjs",
+          "target": "~/eslint.diorama.mjs"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "visual-diff",
+      "type": "file",
+      "description": "Dependency-free visual diff of a running app against 1× design exports (Figma or Paper), the script behind the diorama-visual-review skill. Each case opens a route, drives it into the design's state with Playwright, screenshots the page or one element at DPR 1, crops element references to their opaque box (shadow bleed) or an explicit refCrop, compares on a canvas in the same browser and writes ref/actual/diff PNGs plus report.html with a wipe slider. Cases module (--cases, default scripts/visual-cases.mjs), references folder (--refs, default design/references), output (--out, default visual) and BASE_URL are configurable; Playwright is resolved from the app, which needs it as a dev dependency.",
+      "files": [
+        {
+          "path": "registry/tooling/visual-diff/visual-diff.mjs",
+          "target": "~/scripts/visual-diff.mjs"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
       "name": "button",
       "type": "ui",
       "description": "The primary action control. Five variants (primary, secondary, outline, ghost, danger), three sizes (44/32/24px), pill or rounded, plus icon-only and full-width forms. Icon-only buttons require an aria-label at the type level. isBusy keeps focus but swallows activation (the double-submit guard), unlike isDisabled, which leaves the tab order. `render` makes it a link (or the router's Link) with every state intact; `buttonClassName()` is the same recipe for markup React does not own.",
@@ -1608,7 +1632,7 @@
     {
       "name": "chat-composer",
       "type": "ui",
-      "description": "The message box of the agent chat: one frame holding an attachment tray, an auto-growing text region and a control row. A compact pill at rest, squaring to radius-xl the moment the text wraps \u2014 the layout switch is measured from the rendered line boxes, not declared, because a composer cannot know in advance whether a sentence will wrap. Send carries the state of the conversation: disabled while the field is blank, accent when sendable, and an inverse-filled Stop while the agent answers. Enter submits, Shift+Enter opens a line, and an Enter committing an IME candidate does neither.",
+      "description": "The message box of the agent chat: one frame holding an attachment tray, an auto-growing text region and a control row. A compact pill at rest, squaring to radius-xl the moment the text wraps — the layout switch is measured from the rendered line boxes, not declared, because a composer cannot know in advance whether a sentence will wrap. Send carries the state of the conversation: disabled while the field is blank, accent when sendable, and an inverse-filled Stop while the agent answers. Enter submits, Shift+Enter opens a line, and an Enter committing an IME candidate does neither.",
       "files": [
         {
           "path": "registry/ui/chat-composer/chat-composer.tsx",
@@ -1772,7 +1796,7 @@
     {
       "name": "chat-widget",
       "type": "ui",
-      "description": "The artifact container \u2014 the thing the agent hands you to take away. One shell with two payload families: TEXT (a header naming the artifact, prose capped at 320px behind a fade, a Copy/Edit bar) and MEDIA (a stage at a fixed ratio, an optional frame rail and caption, an Edit/Download bar). One component because the container, the action bar and the dark treatment are identical across both. bg-elevated, radius-lg, an 8px inset and NO border \u2014 the fill alone is the boundary, and the media's radius-md is concentric with it by construction. The body becomes a named, focusable region only WHILE it scrolls, so a short draft puts no tab stop in front of the reader.",
+      "description": "The artifact container — the thing the agent hands you to take away. One shell with two payload families: TEXT (a header naming the artifact, prose capped at 320px behind a fade, a Copy/Edit bar) and MEDIA (a stage at a fixed ratio, an optional frame rail and caption, an Edit/Download bar). One component because the container, the action bar and the dark treatment are identical across both. bg-elevated, radius-lg, an 8px inset and NO border — the fill alone is the boundary, and the media's radius-md is concentric with it by construction. The body becomes a named, focusable region only WHILE it scrolls, so a short draft puts no tab stop in front of the reader.",
       "files": [
         {
           "path": "registry/ui/chat-widget/chat-widget.tsx",
@@ -1795,7 +1819,7 @@
     {
       "name": "chat-questionnaire",
       "type": "ui",
-      "description": "The agent asking, inside the thread: a question followed by tappable options \u2014 text rows or image tiles. Single-select commits on tap; multi-select collects and confirms; answering collapses it to a receipt where the question stays and the answer becomes a selected Badge. It has NO container, no fill and no action bar, which is why it is not a ChatWidget payload. Selection follows Card Sorting: the fill does NOT move, a 1.5px border-focus edge and a check in the same blue carry the state \u2014 which also keeps selection (an edge) and hover (a fill) on different channels by construction.",
+      "description": "The agent asking, inside the thread: a question followed by tappable options — text rows or image tiles. Single-select commits on tap; multi-select collects and confirms; answering collapses it to a receipt where the question stays and the answer becomes a selected Badge. It has NO container, no fill and no action bar, which is why it is not a ChatWidget payload. Selection follows Card Sorting: the fill does NOT move, a 1.5px border-focus edge and a check in the same blue carry the state — which also keeps selection (an edge) and hover (a fill) on different channels by construction.",
       "files": [
         {
           "path": "registry/ui/chat-questionnaire/chat-questionnaire.tsx",
@@ -1852,6 +1876,33 @@
         {
           "path": "registry/skills/effects/SKILL.md",
           "target": ".claude/skills/diorama-effects/SKILL.md"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "visual-review",
+      "type": "skill",
+      "description": "Agent skill: checking a screen built with @bydiorama/ui against its design — 1× exports of frames and key components (shadow bleed cropped by alpha, explicit crops for opaque margins), the exact state reproduced by script, a canvas diff in the same browser (the visual-diff item), reading the red rather than the number, measuring with getBoundingClientRect against the design tool's layout values before fixing, and the traps already paid for (strokes inside the box, masks only with a reason, an empty collapsed element still taking a flex gap, the text style before the font, a blocked asset host).",
+      "files": [
+        {
+          "path": "registry/skills/visual-review/SKILL.md",
+          "target": ".claude/skills/diorama-visual-review/SKILL.md"
+        }
+      ],
+      "registryDependencies": [
+        "visual-diff"
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "app-motion",
+      "type": "skill",
+      "description": "Agent skill: motion in an app built with @bydiorama/ui — Diorama components and effects own their motion (tokens, never double-animated); product interactions use transitions.dev snippets installed and credited in the app under their licence (the skill ships no snippet code); one snippet per element, no nested accordions, digit swaps restored to plain text, replay by reflow, JS timing read from CSS variables, reduced motion for JS-driven motion, motion never the only feedback, and a review method (10% playback, every state).",
+      "files": [
+        {
+          "path": "registry/skills/app-motion/SKILL.md",
+          "target": ".claude/skills/diorama-app-motion/SKILL.md"
         }
       ],
       "status": "experimental"

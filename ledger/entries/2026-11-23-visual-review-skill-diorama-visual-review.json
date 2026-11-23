@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-visual-review-skill-diorama-visual-review",
+  "date": "2026-11-23",
+  "item": "visual-review",
+  "kind": "addition",
+  "summary": "New product skill diorama-visual-review (experimental, depends on visual-diff): comparing an app against its design — 1× exports of frames and key components, shadow-bleed and opaque-margin crops, scripted state reproduction, reading the red rather than the number (glyph outline = rasterisation, doubled element = offset, red block = missing/mis-sized part), measuring with getBoundingClientRect against the design tool's layout values before fixing, exporting through tool calls when the asset host 403s, and the traps paid for in the first consumer (strokes inside the box, masks only with a reason, an empty collapsed element still taking a flex gap, the text style before the font).",
+  "affects": [
+    "item:visual-review",
+    "item:visual-diff"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-setup-docs-and-skills-from-the",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Gaps from the first consumer app. README Quick start: Tailwind v4 needs no @source for installed items in a standard app — its scanner reads the project root and skips only node_modules and git-ignored paths, and CLI targets (src/ui, src/lib, src/hooks) are inside it (measured with Tailwind 4.3.5's scanner: all 40 installed files found without the consumer's three @source lines); @source is documented only for git-ignored install folders, sources outside the root and a narrowed source(). README also documents the eslint-preset and the visual-review/app-motion skills. Authoring skills: ui-demo-page gains three traps (nested .t-acc descendant selector, digit-swap debris in DOM text, a 0.5px border adding height on a fixed row); design-component §7 gains asset export through tool calls when the asset host is blocked (Paper get_jsx for SVG nodes, Figma use_figma + exportAsync SVG_STRING, rasters cropped from a saved get_screenshot); review-ui points at the visual-review method for comparing against design exports. Adds .github/pull_request_template.md.",
+  "affects": [
+    "skill:ui-demo-page",
+    "skill:design-component",
+    "skill:review-ui",
+    "docs:README"
+  ],
+  "migration": {
+    "manual": "Optional: an app whose @source lines point at src/ui, src/lib or src/hooks inside its own root, not git-ignored, can delete them; keep them if any of the three README cases applies."
+  }
+}

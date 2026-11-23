@@ -16,7 +16,7 @@ rules and its loop resets.
 | Ground = `DotGrid` recipe (16px gap, 2px dot, `border-subtle` ink) on `bg-elevated` / `bg-base` | The library's own dot pattern, not an invented texture |
 | One block, x 40–1032 · y 40–760, three 320-wide columns, 16 px gutters, edges on dots at 8 + 16n (design px) | Review 2: connect the components to the dot pattern; more compact and contained, no empty corners |
 | One cursor, no name tag, the macOS arrow | Review 2: remove the multiple cursors and the user indicator |
-| No captions or logos outside the UI | ui-motion-media art direction |
+| No captions or logos outside the UI | motion-media art direction |
 | One action at a time | Stageshow bento rule 11: motion needs one place to lead |
 | Reset = in-place reverse stagger while the cursor leaves | Stageshow loops: undo in place, last change first, ~80 ms apart |
 

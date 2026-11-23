@@ -45,8 +45,8 @@ for s in light dark; do
   PLAYWRIGHT_MODULE="$PWD/apps/storybook/node_modules/playwright/index.mjs" \
   PAGE=design/motion/library-showcase/previews/library-showcase$([ $s = dark ] && echo -dark).html \
   OUT=design/motion/library-showcase/exports/videos/library-showcase-$s-1600x1200-60fps.mp4 \
-  node .claude/skills/ui-video-render/scripts/render-seek.mjs
+  node registry/skills/video-render/scripts/render-seek.mjs
 done
 node design/motion/library-showcase/scripts/stills.mjs
-python3 -I .claude/skills/ui-video-render/scripts/seam.py design/motion/library-showcase/exports/videos/*.mp4
+python3 -I registry/skills/video-render/scripts/seam.py design/motion/library-showcase/exports/videos/*.mp4
 ```

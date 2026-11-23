@@ -105,6 +105,13 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   `h-field-*` / `px-field-inset-*` for fields — never `h-11` or `h-12`, which
   `[data-ui-density]` cannot reach. A portalled panel leaves the density
   subtree, so pass `data-ui-density` to its popup part too.
+- **Rows and their type follow density too** (ADR 0025). A list or nav row
+  takes `px-row-inset py-row-block-inset` and `min-h-row` / `min-h-nav-row`,
+  never `p-md` or `min-h-9`; a part that should be smaller under compact
+  names a **stepped role** (`text-row`, `text-nav-row`, `text-field-label`)
+  instead of the table role it renders at default. Never re-bind a table
+  role under `[data-ui-density]`: a brand scope re-declares it and resets
+  the subtree.
 - **A type role is a composite** (ADR 0020 §3): `text-<role>` sets size,
   weight, leading and tracking. Do not add `font-*`, `leading-*` or
   `tracking-*` beside it. Every story fails if an element renders another

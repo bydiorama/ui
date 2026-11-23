@@ -48,6 +48,28 @@ export const Playground: Story = { render: () => <Rail /> };
 export const Matrix: Story = { render: () => <Rail /> };
 
 /**
+ * Under `data-ui-density="compact"` (ADR 0025): 32px rows at 13px, labels on
+ * a 16px lane. Nothing is passed to the rail — the density tokens and the
+ * stepped `text-nav-row` role do it, and the type-role check holds every row
+ * to body-sm here rather than body-lg.
+ */
+export const Compact: Story = {
+  render: () => (
+    <div data-ui-density="compact">
+      <Sidebar label="Primary">
+        <Sidebar.Search label="Search" />
+        <Sidebar.Section label="Brand" isCollapsible>
+          <Sidebar.Item href="#brand-concept">Brand Concept</Sidebar.Item>
+          <Sidebar.Item href="#brand-guidelines" isCurrent>Brand Guidelines</Sidebar.Item>
+        </Sidebar.Section>
+        <Sidebar.Item href="#exports" trailing={<Badge>3</Badge>}>Exports</Sidebar.Item>
+        <Sidebar.Item href="#templates">Templates</Sidebar.Item>
+      </Sidebar>
+    </div>
+  ),
+};
+
+/**
  * The sheet's mobile composition, and the reason a row is a SLOT rather than a
  * link: the header band holds two controls, one row holds a search field and
  * the last holds a progress bar. None of those are navigation, and forcing

@@ -183,7 +183,13 @@ function NavRailItem({
       className: cn(
         // The shared chrome control's geometry — 32px square, radius-md, a
         // 16px glyph — and none of its colour. `relative` is for the marker.
-        "relative flex size-8 shrink-0 items-center justify-center rounded-md",
+        //
+        // The side is density-bound (ADR 0025): 32px at default and
+        // comfortable, 28px under compact — the chrome control's compact
+        // step. Comfortable does not grow it: a 36px square does not fit the
+        // 48px rail. `self-center` keeps a 28px square on the rail's axis; at
+        // 32px it fills the column and does nothing.
+        "relative flex size-nav-rail-item shrink-0 self-center items-center justify-center rounded-md",
         "[&_svg]:size-4 [&_svg]:shrink-0",
         "text-ink-nav-muted",
         "transition-[background-color,color]", motionMicro,

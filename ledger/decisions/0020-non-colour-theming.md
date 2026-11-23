@@ -1,6 +1,7 @@
 # 0020 — Non-colour theming: strokes and type are brand knobs, density is a mode
 
-**Status:** accepted · 2026-09-24 · amends 0006, 0009, 0010
+**Status:** accepted · 2026-09-24 · amends 0006, 0009, 0010 · §4 amended by 0025:
+rows, NavRail squares and a stepped set of type roles now follow density
 
 ## The finding
 

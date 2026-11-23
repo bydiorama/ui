@@ -161,7 +161,7 @@ const SidebarNav = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
           className={cn(
             isLabelHidden
               ? "sr-only"
-              : "px-md pt-xs pb-sm text-label-sm font-body text-ink-nav-muted uppercase",
+              : "px-row-inset pt-xs pb-sm text-label-sm font-body text-ink-nav-muted uppercase",
           )}
         >
           {label}
@@ -238,7 +238,7 @@ function SidebarLayer({ children, id, title, backLabel, className, ...rest }: Si
       </div>
       <p
         data-slot="sidebar-layer-title"
-        className="flex min-h-9 items-center p-md text-body-lg font-body leading-normal text-ink-nav"
+        className="flex min-h-nav-row items-center px-row-inset py-row-block-inset text-nav-row font-body leading-normal text-ink-nav"
       >
         {/* Same `sidebar-text` slot every other labelled part uses, so the
             lane is one selector away for a test and for a consumer. */}
@@ -320,10 +320,13 @@ function SidebarSection({
    * changes with the viewport. title-sm rendered at 12.17px in the browser
    * suite, and worst of all on a phone, which is the one viewport where the
    * sheet actually draws this rail at 16.
+   *
+   * Spelled `text-nav-row`, the density-stepped role (ADR 0025): body-lg at
+   * default and comfortable, body-sm (13px) under compact. Both are fixed.
    */
   const headingClass =
-    "flex min-h-9 w-full items-center justify-between gap-sm rounded-sm p-md " +
-    "text-body-lg font-body font-bold leading-normal text-ink-nav";
+    "flex min-h-nav-row w-full items-center justify-between gap-sm rounded-sm px-row-inset py-row-block-inset " +
+    "text-nav-row font-body font-bold leading-normal text-ink-nav";
 
   const triggerClass = cn(
     headingClass,
@@ -489,15 +492,21 @@ function SidebarItem({
           : onClick,
       className: cn(
         // The sheet's row: p-md (12+12) around a 16px line at leading-normal
-        // (21.6px) measures 45.6 — its drawn 46. min-h-9 (36px) is a floor for
-        // a caller who puts something shorter in the slot, and still clears
+        // (21.6px) measures 45.6 — its drawn 46. The 36px floor is for a
+        // caller who puts something shorter in the slot, and still clears
         // SC 2.5.8's 24px.
-        "flex min-h-9 items-center justify-between gap-sm rounded-sm p-md",
+        //
+        // All three are density-bound (ADR 0025): under compact the inline
+        // inset drops to sm (the 16px lane the compact search text sits on),
+        // the block inset to xs and the floor to 32px, which then sets the
+        // row's height around a 13px `text-nav-row`.
+        "flex min-h-nav-row items-center justify-between gap-sm rounded-sm px-row-inset py-row-block-inset",
         // Same 16px size as the section heading (see headingClass on why it is
         // body-lg and not the fluid title-sm); the levels differ by weight and
         // ink, since they share an inset. `leading-normal` keeps the sheet's
         // 46px row — a declared exception to body-lg's 1.55 (ADR 0020 §3).
-        "text-body-lg font-body leading-normal no-underline",
+        // `text-nav-row` is body-lg here and body-sm under compact (ADR 0025).
+        "text-nav-row font-body leading-normal no-underline",
         inSection ? "text-ink-nav-muted" : "text-ink-nav",
         isLink && [
           "cursor-pointer transition-[background-color,color]", motionMicro,
@@ -623,7 +632,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
           </span>
         )}
         <span className="flex min-w-0 flex-1 flex-col gap-xs">
-          <span data-slot="sidebar-profile-name" className="truncate text-body-lg font-body font-bold leading-normal text-ink-nav">
+          <span data-slot="sidebar-profile-name" className="truncate text-nav-row font-body font-bold leading-normal text-ink-nav">
             {name}
           </span>
           {email && (
@@ -692,7 +701,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
           placeholder={placeholder}
           className={cn(
             "min-w-0 flex-1 bg-transparent outline-none",
-            "text-body-md font-body text-ink-nav",
+            "text-row font-body text-ink-nav",
             "placeholder:text-ink-placeholder",
           )}
           {...rest}
@@ -739,7 +748,7 @@ function SidebarHeading({ children, className, ...rest }: SidebarHeadingProps) {
     <p
       data-slot="sidebar-heading"
       className={cn(
-        "flex p-md text-button-sm font-body text-ink-nav-muted",
+        "flex px-row-inset py-row-block-inset text-button-sm font-body text-ink-nav-muted",
         className,
       )}
       {...rest}

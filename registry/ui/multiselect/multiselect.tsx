@@ -23,7 +23,7 @@ export type MultiselectSize = "lg" | "md" | "sm";
 
 const SIZE = {
   lg: "h-field-lg px-lg text-body-md",
-  md: "h-field-md px-md text-body-md",
+  md: "h-field-md px-md text-row",
   sm: "h-field-sm px-sm text-caption",
 } as const satisfies Record<MultiselectSize, string>;
 
@@ -117,7 +117,7 @@ export function Multiselect({
           id={labelId}
           data-slot="multiselect-label"
           className={cn(
-            "px-sm text-label-md font-body text-ink-secondary",
+            "px-sm text-field-label font-body text-ink-secondary",
             isLabelHidden && "sr-only",
           )}
         >
@@ -261,7 +261,10 @@ export function Multiselect({
                       disabled: item.isDisabled,
                       "data-slot": "multiselect-option",
                       className: cn(
-                        "flex cursor-pointer items-center gap-sm rounded-sm p-md",
+                        // The menu row's density-bound geometry (ADR 0025);
+                        // the type is already 12px and does not step.
+                        "flex cursor-pointer items-center gap-sm rounded-sm",
+                        "min-h-row px-row-inset py-row-block-inset",
                         "text-button-sm font-body text-ink-primary",
                         "data-[highlighted]:bg-hover data-[selected]:bg-elevated",
                         "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",

@@ -50,7 +50,7 @@ export type ComboboxSurface = "page" | "chrome";
  */
 const SIZE = {
   lg: "h-field-lg gap-sm py-sm text-body-md",
-  md: "h-field-md gap-xs py-sm text-body-md",
+  md: "h-field-md gap-xs py-sm text-row",
   sm: "h-field-sm gap-xs py-xs text-caption",
 } as const satisfies Record<ComboboxSize, string>;
 
@@ -85,8 +85,10 @@ const SURFACE = {
  * label span inside it, so the row still renders exactly its role (ADR 0020 §3).
  */
 const OPTION = cn(
-  "flex cursor-pointer items-center gap-sm rounded-sm p-md select-none",
-  "text-body-md font-body text-ink-primary no-underline",
+  "flex cursor-pointer items-center gap-sm rounded-sm select-none",
+  // Density-bound, as Select's row is (ADR 0025).
+  "min-h-row px-row-inset py-row-block-inset",
+  "text-row font-body text-ink-primary no-underline",
   "transition-[background-color]", motionMicro,
   // Pointer hover can still land Base UI's highlight on a disabled row; the
   // sheet draws a disabled row with NO highlight, so it never takes the fill.
@@ -576,7 +578,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         <label
           htmlFor={inputId}
           data-slot="combobox-label"
-          className={cn("px-sm text-label-md font-body text-ink-secondary", isLabelHidden && "sr-only")}
+          className={cn("px-sm text-field-label font-body text-ink-secondary", isLabelHidden && "sr-only")}
         >
           {label}
           {isRequired && (
@@ -715,7 +717,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                     "data-status": status?.kind,
                     className: status
                       ? cn(
-                          "flex items-center gap-sm p-md text-body-md font-body",
+                          "flex items-center gap-sm px-row-inset py-row-block-inset min-h-row text-row font-body",
                           status.kind === "error" ? "text-ink-primary" : "text-ink-muted",
                         )
                       : "sr-only",

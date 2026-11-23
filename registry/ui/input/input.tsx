@@ -48,7 +48,7 @@ export type InputShape = "soft" | "full";
  */
 const SIZE = {
   lg: "h-field-lg gap-sm py-sm text-body-md",
-  md: "h-field-md gap-xs py-sm text-body-md",
+  md: "h-field-md gap-xs py-sm text-row",
   sm: "h-field-sm gap-xs py-xs text-caption",
 } as const satisfies Record<InputSize, string>;
 
@@ -185,7 +185,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         data-slot="label"
         htmlFor={inputId}
         className={cn(
-          "text-label-md font-body text-ink-secondary",
+          "text-field-label font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
           // accessibility tree and still be clickable as a target.
           isLabelHidden && "sr-only",

@@ -165,7 +165,7 @@ export function DatePicker({
           id={labelId}
           data-slot="date-picker-label"
           className={cn(
-            "text-label-md font-body text-ink-secondary",
+            "text-field-label font-body text-ink-secondary",
             // Bare text inside a rounded surface takes the inset (§6) — but
             // the two are alternatives, not layers: `sr-only` resets padding
             // to 0 and a later `px-sm` puts 16px of it back, so a "hidden"

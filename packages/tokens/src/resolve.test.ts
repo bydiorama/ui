@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type BrandableToken, type FixedToken } from "./contract.ts";
-import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES } from "./base.ts";
-import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, GLASS_OVERLAY_CLOSE, glassOverlayAlpha, TYPE_ROLES, WEIGHT_LADDER, ACHROMATIC_CHROMA, BORROWED_STEP_CHROMA_MAX, surfaceSteps } from "./resolve.ts";
+import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES, ROW_SIZES } from "./base.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, GLASS_OVERLAY_CLOSE, glassOverlayAlpha, TYPE_ROLES, STEPPED_ROLES, WEIGHT_LADDER, ACHROMATIC_CHROMA, BORROWED_STEP_CHROMA_MAX, surfaceSteps } from "./resolve.ts";
 import { AA_TEXT, contrastRatio, flatten, shiftL, toOklch, towardL, withAlpha } from "./color.ts";
 import { BASE_SIZE_INFO_BELOW, SEED_BOUNDS, validateSeed } from "./seed.ts";
 import { NEUTRAL } from "./palette.ts";
@@ -1196,6 +1196,60 @@ test("every density step is 4px on the grid, and nothing goes under the 24px flo
   assert.equal(heightPx(c["--ui-control-sm-height"]), 24, "compact action sm holds at the floor");
   assert.equal(heightPx(d["--ui-control-lg-height"]) - heightPx(c["--ui-control-lg-height"]), DENSITY_STEP_PX);
   assert.equal(heightPx(CONTROL_SIZES.comfortable["--ui-field-lg-height"]) - heightPx(d["--ui-field-lg-height"]), DENSITY_STEP_PX);
+});
+
+// ── Rows and dense type (ADR 0025) ─────────────────────────────────────────
+
+test("rows: default is the drawn geometry, so default rendering cannot move", () => {
+  const d = ROW_SIZES.default;
+  assert.equal(d["--ui-row-inset"], "var(--ui-space-md)", "menu/option/Sidebar rows were p-md");
+  assert.equal(d["--ui-row-block-inset"], "var(--ui-space-md)");
+  assert.equal(d["--ui-row-min-height"], "0px", "a list row had no floor — its padding drew it");
+  assert.equal(heightPx(d["--ui-nav-row-min-height"]), 36, "Sidebar rows were min-h-9");
+  assert.equal(heightPx(d["--ui-nav-rail-item-size"]), 32, "NavRail squares were size-8");
+  assert.equal(d["--ui-type-step"], "0");
+  for (const [token, value] of Object.entries(d)) assert.equal(FIXED_TOKEN_VALUES[token as FixedToken], value);
+  // Comfortable leaves rows as drawn: ~46px rows already clear 44px.
+  assert.deepEqual(ROW_SIZES.comfortable, d);
+});
+
+test("rows: compact is a 32px row, the nav floor and rail square step 4px, nothing under 24px", () => {
+  const c = ROW_SIZES.compact;
+  assert.equal(heightPx(c["--ui-row-min-height"]), 32);
+  assert.equal(heightPx(c["--ui-nav-row-min-height"]), 32);
+  assert.equal(heightPx(ROW_SIZES.default["--ui-nav-row-min-height"]) - heightPx(c["--ui-nav-row-min-height"]), DENSITY_STEP_PX);
+  assert.equal(heightPx(c["--ui-nav-rail-item-size"]), 28);
+  for (const token of ["--ui-row-min-height", "--ui-nav-row-min-height", "--ui-nav-rail-item-size"] as const) {
+    assert.ok(heightPx(c[token]) >= CONTROL_FLOOR_PX, `${token} is under SC 2.5.8's floor`);
+  }
+  assert.equal(c["--ui-type-step"], "1");
+});
+
+test("the dense roles are additive: 13 and 12 at the regular weight, scaled like the rest", () => {
+  assert.deepEqual(
+    { ...TYPE_ROLES["--ui-text-dense-md"] },
+    { px: 13, leading: 1.35, weight: WEIGHT_LADDER.regular, tracking: "-0.02em" },
+  );
+  assert.deepEqual(
+    { ...TYPE_ROLES["--ui-text-dense-sm"] },
+    { px: 12, leading: 1.35, weight: WEIGHT_LADDER.regular, tracking: "-0.02em" },
+  );
+  const zero = resolveTheme(THEME_ZERO).theme;
+  assert.equal(zero["--ui-text-dense-md"], "0.8125rem");
+  assert.equal(zero["--ui-text-dense-md-weight"], "400");
+  const big = resolveTheme({ ...THEME_ZERO, typography: { ...THEME_ZERO.typography, baseSize: 18 } }).theme;
+  // Rounded to 4 places in rem, as every role is (13.5px → 0.8438rem).
+  assert.ok(Math.abs(parseFloat(big["--ui-text-dense-sm"]) * 16 - 12 * 18 / 16) < 0.01);
+});
+
+test("every stepped role steps between two rows of the table, never up", () => {
+  for (const [name, step] of Object.entries(STEPPED_ROLES)) {
+    const from = TYPE_ROLES[`--ui-text-${step.default}` as keyof typeof TYPE_ROLES];
+    const to = TYPE_ROLES[`--ui-text-${step.compact}` as keyof typeof TYPE_ROLES];
+    assert.ok(from && to, `${name} names a role the table does not have`);
+    assert.ok(to.px <= from.px, `${name} grows under compact (${from.px} → ${to.px})`);
+    assert.ok(to.px >= 12, `${name} steps under the 12px floor (ADR 0009)`);
+  }
 });
 
 // ── Categorical data slots (ADR 0023) ───────────────────────────────────────

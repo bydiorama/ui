@@ -76,15 +76,59 @@ export const CHOICE_ROW_MIN_HEIGHT: Record<Density, string> = {
   comfortable: "var(--ui-hit-area-min)",
 };
 
+type RowToken = Extract<FixedToken, "--ui-row-inset" | "--ui-row-block-inset" | "--ui-row-min-height" | "--ui-nav-row-min-height" | "--ui-nav-rail-item-size" | "--ui-type-step">;
+
+/** The compact list row, as the first dense consumer drew it: 32px, the
+ *  default `control-md`. A designed number rather than a derived one — at
+ *  default a list row has no height of its own, only padding (12 + 21.7 + 12
+ *  ≈ 46px), so there is nothing to step from. */
+const COMPACT_ROW_PX = 32;
+/** A Sidebar row's floor as drawn (min-h-9), and the NavRail square. */
+const NAV_ROW_PX = 36;
+const NAV_RAIL_ITEM_PX = 32;
+
+/**
+ * Rows (ADR 0025): menu, context-menu and option rows, Sidebar rows and the
+ * NavRail square, plus the switch a density-stepped type role reads.
+ *
+ * Default reproduces what each row drew before it read a token — p-md, no
+ * list-row floor, min-h-9, size-8 — so default rendering does not move.
+ * Compact makes a row 32px: the block inset drops to xs so the floor, not
+ * the padding, sets the height, and the inline inset drops one step to sm,
+ * which lands a Sidebar label on the same 16px lane the compact search
+ * field's text sits on (8 body + 4 + compact field-md's 4). The nav floor and
+ * the rail square step by DENSITY_STEP_PX like every control. Comfortable
+ * leaves rows as drawn: at ~46px they already clear the 44px touch target,
+ * and a 36px rail square would not fit the 48px rail.
+ */
+function rowSizes(density: Density): Record<RowToken, string> {
+  const isCompact = density === "compact";
+  const step = isCompact ? -1 : 0;
+  return {
+    "--ui-row-inset": isCompact ? "var(--ui-space-sm)" : "var(--ui-space-md)",
+    "--ui-row-block-inset": isCompact ? "var(--ui-space-xs)" : "var(--ui-space-md)",
+    "--ui-row-min-height": isCompact ? `${COMPACT_ROW_PX / 16}rem` : "0px",
+    "--ui-nav-row-min-height": `${Math.max(CONTROL_FLOOR_PX, NAV_ROW_PX + step * DENSITY_STEP_PX) / 16}rem`,
+    "--ui-nav-rail-item-size": `${Math.max(CONTROL_FLOOR_PX, NAV_RAIL_ITEM_PX + step * DENSITY_STEP_PX) / 16}rem`,
+    "--ui-type-step": isCompact ? "1" : "0",
+  };
+}
+
+export const ROW_SIZES: Record<Density, Record<RowToken, string>> = {
+  compact: rowSizes("compact"),
+  default: rowSizes("default"),
+  comfortable: rowSizes("comfortable"),
+};
+
 /**
  * Every token a `[data-ui-density]` block re-binds, per density. The
  * emitters read THIS, so a density-bound token cannot be emitted on a brand
  * scope (which would reset an inherited density) or left out of a mode.
  */
 export const DENSITY_TOKENS: Record<Density, Record<string, string>> = {
-  compact: { ...CONTROL_SIZES.compact, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.compact },
-  default: { ...CONTROL_SIZES.default, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.default },
-  comfortable: { ...CONTROL_SIZES.comfortable, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.comfortable },
+  compact: { ...CONTROL_SIZES.compact, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.compact, ...ROW_SIZES.compact },
+  default: { ...CONTROL_SIZES.default, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.default, ...ROW_SIZES.default },
+  comfortable: { ...CONTROL_SIZES.comfortable, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.comfortable, ...ROW_SIZES.comfortable },
 };
 
 /** Typed as a total record, so a token added to the contract without a value
@@ -176,6 +220,8 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   "--ui-hit-area-touch": "44px",
   // Density-bound — see CHOICE_ROW_MIN_HEIGHT.
   "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.default,
+  // Density-bound — see ROW_SIZES.
+  ...ROW_SIZES.default,
 
   "--ui-measure-prose": "70ch",
   "--ui-measure-narrative": "60ch",

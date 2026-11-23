@@ -354,6 +354,9 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-button-lg",
   "--ui-text-button-sm",
   "--ui-text-figure",
+  // The dense family (ADR 0025): 13 and 12 at the regular weight.
+  "--ui-text-dense-md",
+  "--ui-text-dense-sm",
   // Each role's weight, leading and tracking (ADR 0020 §3). The table in
   // `TYPE_ROLES` is the source of truth; these make it reach the page, and
   // the Tailwind emitter hangs them on the size utility as v4 companions, so
@@ -372,6 +375,8 @@ export const BRANDABLE_TOKENS = [
   "--ui-text-button-lg-weight", "--ui-text-button-lg-leading", "--ui-text-button-lg-tracking",
   "--ui-text-button-sm-weight", "--ui-text-button-sm-leading", "--ui-text-button-sm-tracking",
   "--ui-text-figure-weight", "--ui-text-figure-leading", "--ui-text-figure-tracking",
+  "--ui-text-dense-md-weight", "--ui-text-dense-md-leading", "--ui-text-dense-md-tracking",
+  "--ui-text-dense-sm-weight", "--ui-text-dense-sm-leading", "--ui-text-dense-sm-tracking",
   // The weight ladder and the trackings, brandable so an explicit
   // `font-medium` or `tracking-tight` follows the brand's face too: a static
   // face has no 450/550 cut, and a face with its own spacing wants no −0.02em.
@@ -464,6 +469,18 @@ export const FIXED_TOKENS = [
   // them: it is the row's own height, which compact lets fall to its content
   // while the TARGET stays at --ui-hit-area-min (CONVENTIONS §10).
   "--ui-choice-row-min-height",
+
+  // List and nav ROWS (ADR 0025), density-bound like the control sizes. The
+  // inline and block insets of a menu, option or Sidebar row; the floor of a
+  // list row (none at default, where padding draws the 46px row; 32px under
+  // compact) and of a Sidebar row; the side of a NavRail square.
+  "--ui-row-inset", "--ui-row-block-inset",
+  "--ui-row-min-height", "--ui-nav-row-min-height",
+  "--ui-nav-rail-item-size",
+  // The density-bound switch a STEPPED type role reads (ADR 0025): 0, or 1
+  // under compact. A number, never a size — so it is safe to inherit across
+  // a brand scope, which the role tokens themselves are not.
+  "--ui-type-step",
 
   // Measure
   "--ui-measure-prose", "--ui-measure-narrative", "--ui-measure-dense",

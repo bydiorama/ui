@@ -88,6 +88,13 @@ them. Three knobs and one mode now reach components, each behind a gate:
       keeps the exceptions current.
 - [x] **Control sizes and density** — two families (control, field) and
       `[data-ui-density]` modes, floored at 24px.
+- [x] **Dense rows and type** (ADR 0025) — menu, option and Sidebar rows
+      are 32px under compact, NavRail squares 28px, field labels and md
+      values step through three density-stepped roles; `dense-md` /
+      `dense-sm` join the table. Open: the compact field step (36px md
+      against a 34px dense design) is a ladder decision, not taken.
+- [ ] **Regenerate the `density` visual baselines** (both schemes, both
+      platforms): its compact Input steps under ADR 0025.
 - [x] **`check:token-consumers`** — a contract token nothing reads fails
       unless declared with a reason. 79 are declared; twelve colour roles,
       `--ui-weight-book` and two leadings are listed for review, not settled.

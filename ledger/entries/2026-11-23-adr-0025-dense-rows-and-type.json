@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-adr-0025-dense-rows-and-type",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0025 (amends ADR 0020 §4, extends ADR 0009's table additively): density now reaches list and nav rows, NavRail squares and a stepped set of type roles. Additive dense roles were chosen over re-binding existing roles under [data-ui-density], because a brand scope re-declares every role token and would reset a compact subtree (finding I2) and type attributes are brand decisions (ADR 0020 §1). The compact field step stays 4px (36px md), recorded as an open ladder decision. CONVENTIONS §6 gains the rule: rows read the row tokens, a part that steps names a stepped role, and no table role is ever re-bound by a density block.",
+  "affects": [
+    "decision:0025",
+    "decision:0020",
+    "decision:0009"
+  ]
+}

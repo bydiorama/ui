@@ -391,7 +391,42 @@ export const TYPE_ROLES = {
   // fluid: title-lg shrinks to ~17px on a phone inside a tile that does not
   // shrink. 24/30 at 600; components add `tabular-nums` themselves.
   "--ui-text-figure": { px: 24, leading: 1.25, weight: 600, tracking: "-0.02em" },
+  // The DENSE family (ADR 0025): regular-weight running text at the sizes a
+  // 28–32px row holds. The table had a 13px and a 12px step only at 500 and
+  // 600 (body-sm, label-*, caption), so a dense screen that wanted 13 or 12
+  // REGULAR wrote `text-[13px]/4 font-normal` at the call site — the first
+  // dense consumer did, eleven times. Additive: no existing role moves.
+  "--ui-text-dense-md": { px: 13, leading: 1.35, weight: 400, tracking: "-0.02em" },
+  "--ui-text-dense-sm": { px: 12, leading: 1.35, weight: 400, tracking: "-0.02em" },
 } as const;
+
+/** A role's name as the utilities spell it: `--ui-text-body-md` → `body-md`. */
+export type TypeRoleName = keyof typeof TYPE_ROLES extends `--ui-text-${infer Name}` ? Name : never;
+
+/**
+ * Density-stepped roles (ADR 0025): a role whose VALUE is one table role at
+ * default and comfortable density and another under compact.
+ *
+ * Not new rows of the table — each is a choice BETWEEN two rows, made by the
+ * density mode. The Tailwind emitter composes each attribute as
+ * `calc(A + (B − A) × var(--ui-type-step))`, where `--ui-type-step` is the
+ * density-bound switch (0, or 1 under compact). The mix is evaluated on the
+ * element that names the utility, against the role tokens IN SCOPE there, so
+ * a brand's baseSize and weights reach the stepped value at every nesting —
+ * including a brand scope inside a compact page, which re-binding the role
+ * tokens themselves under `[data-ui-density]` would reset (ADR 0020, I2).
+ *
+ * Every step stays inside the table: what a compact row renders is always a
+ * role the table already authorises, never an interpolated size.
+ */
+export const STEPPED_ROLES = {
+  /** A row of text: a menu, context-menu or option row's label, and the value in a md field. */
+  row: { default: "body-md", compact: "dense-md" },
+  /** A Sidebar row: items, section headings, a layer's title, the profile name. */
+  "nav-row": { default: "body-lg", compact: "body-sm" },
+  /** A field's visible label: Input, Textarea, Select, Multiselect, Combobox, DatePicker. */
+  "field-label": { default: "label-md", compact: "label-sm" },
+} as const satisfies Record<string, { default: TypeRoleName; compact: TypeRoleName }>;
 
 /** Roles that scale with the viewport. Body and below stay fixed, because
  *  fluid body text makes line length unpredictable. */

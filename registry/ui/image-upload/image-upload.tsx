@@ -156,7 +156,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           // stack in a form. The sheet draws weight 550 here and 500 on
           // Input; following Input is what keeps a form from having two
           // label styles. Flagged in needsDesign.
-          "text-label-md font-body text-ink-secondary",
+          "text-field-label font-body text-ink-secondary",
           isLabelHidden && "sr-only",
         )}
       >

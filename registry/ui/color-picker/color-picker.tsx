@@ -376,7 +376,7 @@ export function ColorPicker({
           id={labelId}
           data-slot="color-picker-label"
           className={cn(
-            "text-label-md font-body text-ink-secondary",
+            "text-field-label font-body text-ink-secondary",
             // The swatch variant has no visible text; its label is the
             // trigger's aria-label, so the visible one would be a duplicate.
             isLabelHidden || variant === "swatch" ? "sr-only" : "px-sm",

@@ -9,7 +9,8 @@ export {
 
 // The curated palette (ADR 0008) and the authored type table (ADR 0009).
 export { RAMPS, BRAND, NEUTRAL, DARK, BLUE, ORANGE, LAVENDER, GREEN, RED } from "./palette.ts";
-export { TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
+export { TYPE_ROLES, STEPPED_ROLES, WEIGHT_LADDER } from "./resolve.ts";
+export type { TypeRoleName } from "./resolve.ts";
 export type {
   BrandableToken,
   SchemeOnlyToken,
@@ -46,7 +47,7 @@ export {
 export type { Scheme, ResolveOptions, ResolveResult, ResolvedPair, ContrastAdjustment } from "./resolve.ts";
 
 // Non-brandable tokens.
-export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES, CONTROL_SIZES, CHOICE_ROW_MIN_HEIGHT, DENSITY_TOKENS, CONTROL_FLOOR_PX, DENSITY_STEP_PX } from "./base.ts";
+export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES, CONTROL_SIZES, CHOICE_ROW_MIN_HEIGHT, ROW_SIZES, DENSITY_TOKENS, CONTROL_FLOOR_PX, DENSITY_STEP_PX } from "./base.ts";
 export type { Density } from "./base.ts";
 
 // Emitters.

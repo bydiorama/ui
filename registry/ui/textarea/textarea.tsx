@@ -53,7 +53,7 @@ const SURFACE = {
  */
 const SIZE = {
   lg: "px-field-inset-lg py-sm text-body-md",
-  md: "px-field-inset-md py-sm text-body-md",
+  md: "px-field-inset-md py-sm text-row",
   sm: "px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<TextareaSize, string>;
 
@@ -160,7 +160,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         data-slot="label"
         htmlFor={textareaId}
         className={cn(
-          "text-label-md font-body text-ink-secondary",
+          "text-field-label font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
           // accessibility tree and still be clickable as a target.
           isLabelHidden && "sr-only",

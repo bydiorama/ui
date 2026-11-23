@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-dense-type-and-row-tokens-follow",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "token",
+  "summary": "Dense screens get tokens (ADR 0025). Two ADDITIVE type roles join the table and the contract: --ui-text-dense-md (13/1.35/400) and --ui-text-dense-sm (12/1.35/400), each with -weight/-leading/-tracking, brandable and scaled by baseSize like every role — utilities text-dense-md / text-dense-sm. Three density-STEPPED roles are emitted into the Tailwind theme from the new STEPPED_ROLES table: text-row (body-md → dense-md), text-nav-row (body-lg → body-sm) and text-field-label (label-md → label-sm); each attribute is calc(A + (B − A) × var(--ui-type-step)), evaluated on the element, so a brand scope nested inside a compact page steps against its own role tokens. Six fixed, density-bound tokens join every [data-ui-density] block (ROW_SIZES): --ui-row-inset (12 → 8 under compact), --ui-row-block-inset (12 → 4), --ui-row-min-height (0 → 32px), --ui-nav-row-min-height (36 → 32px), --ui-nav-rail-item-size (32 → 28px) and --ui-type-step (0 → 1); comfortable equals default. Utilities px-row-inset, py-row-block-inset, min-h-row, min-h-nav-row, size-nav-rail-item. Default values reproduce what each row drew before (p-md, no floor, min-h-9, size-8), so default rendering is unchanged. Like every density-bound key they are kept off nested brand scopes by toCss. cn's merge config knows every new name. Exported: STEPPED_ROLES, TypeRoleName, ROW_SIZES. Re-emit any brand theme (toCss / `bydiorama-ui theme`) or update theme-zero.css BEFORE syncing the components that read these: a stale theme has none of the utilities, so a synced row loses its padding and inherits its parent's type.",
+  "affects": [
+    "token:--ui-text-dense-md",
+    "token:--ui-text-dense-sm",
+    "token:--ui-row-inset",
+    "token:--ui-row-block-inset",
+    "token:--ui-row-min-height",
+    "token:--ui-nav-row-min-height",
+    "token:--ui-nav-rail-item-size",
+    "token:--ui-type-step",
+    "item:theme-zero-css",
+    "item:cn"
+  ]
+}

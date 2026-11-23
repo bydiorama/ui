@@ -12,5 +12,8 @@
     "html_handling": "force-trailing-slash",
     // Unknown paths get the built 404 page, with a 404 status.
     "not_found_handling": "404-page"
-  }
+  },
+  // Pull request builds run `wrangler preview`, which refuses a config without
+  // this block. Empty: previews inherit the assets and compatibility settings above.
+  "previews": {}
 }

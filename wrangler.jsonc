@@ -1,0 +1,19 @@
+{
+  // The public library site (apps/site) as a Worker that serves static assets only.
+  // `name` must match the Worker connected in the Cloudflare dashboard.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ui",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    // Built by `pnpm site:build`. public/_headers in the site is picked up from here.
+    "directory": "./apps/site/dist",
+    // The site is built with trailingSlash: "always", so /components/button/ is
+    // components/button/index.html, and /components/button is redirected to it.
+    "html_handling": "force-trailing-slash",
+    // Unknown paths get the built 404 page, with a 404 status.
+    "not_found_handling": "404-page"
+  },
+  // Pull request builds run `wrangler preview`, which refuses a config without
+  // this block. Empty: previews inherit the assets and compatibility settings above.
+  "previews": {}
+}

@@ -77,22 +77,32 @@ two jobs:
 
 ### Install a component
 
-> **Nothing here is on npm yet.** `@bydiorama/ui` (the CLI) and
-> `@bydiorama/tokens` are both unpublished — `npx @bydiorama/ui …` returns
-> E404 (issue #30). The paths below are the ones that work today.
-
-The primary channel is this registry's own CLI, run from a checkout of this
-repo against your app. `add` resolves an item and its registry dependencies,
+The primary channel is this registry's own CLI, published to npm as
+[`@bydiorama/ui`](https://www.npmjs.com/package/@bydiorama/ui) (Node ≥ 22,
+no dependencies). Run it inside your app. `add` resolves an item and its registry dependencies,
 writes their source through your own `components.json` aliases and
 `tsconfig.json` `@/*` mapping, locks what it installed into `ui.lock.json`
 (so drift tracking starts at install, not as an afterthought), and prints the
 npm dependencies left for you to install:
 
-```bash
-# from a bydiorama/ui checkout
-node --experimental-strip-types packages/cli/bin/ui.ts add button \
-  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+Your `components.json` names the registry once, next to its `aliases`:
+
+```json
+"registries": {
+  "@bydiorama": "https://raw.githubusercontent.com/bydiorama/ui/main/r/{name}.json"
+}
 ```
+
+```bash
+npx @bydiorama/ui add button
+```
+
+`add` locks at `main`'s current commit, which it asks GitHub's API for. That
+API allows 60 anonymous calls an hour per IP address, so on a shared CI
+runner it can answer 403: pass the commit yourself with `--revision <sha>`.
+To install from a checkout instead — an unmerged branch, say — run
+`node --experimental-strip-types packages/cli/bin/ui.ts add button --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"`
+from the checkout.
 
 It never overwrites a local edit without `--force`, and never overwrites a
 declared fork at all — the two things a generic registry client cannot
@@ -123,8 +133,7 @@ Components style themselves with token utilities (`bg-surface`,
 registry item:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts add theme-zero-css \
-  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+npx @bydiorama/ui add theme-zero-css
 ```
 
 and is imported once, after Tailwind:
@@ -253,8 +262,7 @@ library, CSS-first motion (CONVENTIONS §7–8) — ship as an ESLint flat-confi
 preset, so the app is held to them too:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts add eslint-preset \
-  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+npx @bydiorama/ui add eslint-preset
 ```
 
 ```js
@@ -305,7 +313,7 @@ ADR 0027.
 and their combinations — instead of overwriting your edits:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts sync --cwd ../my-app --registry-path .
+npx @bydiorama/ui sync
 ```
 
 See the [CLI README](packages/cli/README.md) for the full drift model.

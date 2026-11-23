@@ -15,8 +15,7 @@ Never skip from "read" to "fix".
 
 ## Setup, once per app
 
-1. Install the script (from a `bydiorama/ui` checkout, like any item):
-   `node --experimental-strip-types packages/cli/bin/ui.ts add visual-diff --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"`
+1. Install the script, like any item, from the app: `npx @bydiorama/ui add visual-diff`
    — the skill comes from the `ui` plugin, the script from the registry, so
    install it even when the skill is already loaded. It lands at
    `scripts/visual-diff.mjs`; its header documents every option.

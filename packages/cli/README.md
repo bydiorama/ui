@@ -11,16 +11,14 @@ broadcast a consumer has to remember to read.
 `theme` turns a brand seed into the installable theme stylesheet, so a
 branded app needs no emitter script of its own.
 
-Published to npm as `@bydiorama/ui` (zero runtime dependencies, Node ≥ 22)
-by [`release-cli.yml`](../../.github/workflows/release-cli.yml); the first
-release is 0.1.0 (issue #30). From inside a consumer app:
+Published to npm as [`@bydiorama/ui`](https://www.npmjs.com/package/@bydiorama/ui)
+(zero runtime dependencies, Node ≥ 22) since 0.1.0; later versions come from
+[`release-cli.yml`](../../.github/workflows/release-cli.yml). From inside a
+consumer app:
 
 ```sh
 npx @bydiorama/ui <command> [...flags]
 ```
-
-If [npmjs.com/package/@bydiorama/ui](https://www.npmjs.com/package/@bydiorama/ui)
-shows no version yet, `npx` returns E404: run it from a checkout (below).
 
 `--cwd` defaults to the directory you run it in. The published `bin` is
 compiled JS (`dist/`, built by `prepublishOnly` from `tsconfig.build.json`)
@@ -259,15 +257,16 @@ token is stored anywhere, and each version carries a provenance statement.
    tag that does not match the version, tests the CLI, builds `dist/`, runs
    the compiled binary once, and publishes.
 
-**The first release is published by hand,** because npm can only attach a
-trusted publisher to a package that already exists. Once, by someone who can
-publish to the `@bydiorama` npm organisation:
+**The first release (0.1.0, 2026-11-23) was published by hand,** because npm
+can only attach a trusted publisher to a package that already exists. For a
+new package in this repo, the same applies — once, by someone who can publish
+to the `@bydiorama` npm organisation, with a 2FA code:
 
 ```sh
 npm login                         # an account in the bydiorama npm org
 cd packages/cli
 pnpm install                      # from the repo root first, if not done
-npm publish --access public       # prepublishOnly builds dist/
+npm publish --access public --otp=<code from your authenticator app>
 ```
 
 Then on npmjs.com, **@bydiorama/ui › Settings › Trusted publishing**: add

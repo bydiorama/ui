@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-cli-sends-github-token-to-the",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "fix",
+  "summary": "@bydiorama/ui 0.1.1: the CLI's two GitHub API calls now authenticate when they can and say why they failed when they cannot. `add` without --revision (repos/bydiorama/ui/commits/main) and `sync` without --registry-path (the contents listing of ledger/entries) were anonymous, and GitHub allows 60 anonymous API calls an hour per IP address, so on a shared machine they answered 403 (seen 2026-11-23 testing 0.1.0: `add button` failed with \"Could not resolve the registry's current revision from the GitHub API (403)\", `sync` with \"Listing ledger entries failed: 403 Forbidden\"). Both now send `Authorization: Bearer <token>` when GITHUB_TOKEN (or, if that is unset or blank, GH_TOKEN) is set, and always send `User-Agent: bydiorama-ui-cli`, which GitHub requires. The token goes only to api.github.com, never to raw.githubusercontent.com, and is never printed. A 403 or 429 whose x-ratelimit-remaining is 0, or whose body says rate limit, now prints the cause (anonymous or authenticated, and when it resets) and the ways out: set GITHUB_TOKEN, or pass --revision <sha> to `add` (no API call), or use --registry-path for `sync`. A 403 that is not a rate limit shows GitHub's own message instead, and a 401 with a token set says the token was rejected. `add` also refuses a 200 answer that is not a commit sha instead of locking it. The calls live in packages/cli/src/github-api.ts, tested with a fake fetch.",
+  "affects": [
+    "package:cli",
+    "docs:README"
+  ],
+  "migration": {
+    "manual": "Optional. Where `npx @bydiorama/ui add` or `sync` runs on a shared machine, set GITHUB_TOKEN (in GitHub Actions: `env: { GITHUB_TOKEN: ${{ github.token }} }`), or keep passing --revision <sha> to `add`."
+  }
+}

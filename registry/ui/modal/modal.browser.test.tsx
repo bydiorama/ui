@@ -103,9 +103,14 @@ describe("The behaviour layer does the behaviour", () => {
     await vi.waitFor(() => expect(surface()!.contains(document.activeElement)).toBe(true));
 
     await userEvent.keyboard("{Escape}");
-    await vi.waitFor(() => expect(surface()).toBeNull());
+    // The surface unmounts only after its exit transition, and focus returns
+    // after that. vi.waitFor's default 1s cap lost that race on a loaded CI
+    // runner (the surface still read data-ending-style), as Drawer's and
+    // Select's closes did; 2s is their cap too. A close that never finishes,
+    // or focus that never comes back, still fails.
+    await vi.waitFor(() => expect(surface()).toBeNull(), { timeout: 2000 });
     // Focus falling to <body> strands a keyboard user at the top of the page.
-    expect(document.activeElement).toBe(t);
+    await vi.waitFor(() => expect(document.activeElement).toBe(t), { timeout: 2000 });
   });
 
   test("the page behind is inert while open", async () => {
@@ -149,7 +154,7 @@ describe("The behaviour layer does the behaviour", () => {
     expect(surface()).not.toBeNull();
 
     await userEvent.click(document.querySelector<HTMLElement>('[data-slot="modal-close"]')!);
-    await vi.waitFor(() => expect(surface()).toBeNull());
+    await vi.waitFor(() => expect(surface()).toBeNull(), { timeout: 2000 });
   });
 
   test("Modal.Close dismisses", async () => {
@@ -158,7 +163,7 @@ describe("The behaviour layer does the behaviour", () => {
 
     const close = document.querySelector<HTMLElement>('[data-slot="modal-close"]')!;
     await userEvent.click(close);
-    await vi.waitFor(() => expect(surface()).toBeNull());
+    await vi.waitFor(() => expect(surface()).toBeNull(), { timeout: 2000 });
   });
 
   test("onOpenChange reports a boolean, not the library's event object", async () => {

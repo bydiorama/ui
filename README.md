@@ -97,9 +97,19 @@ Your `components.json` names the registry once, next to its `aliases`:
 npx @bydiorama/ui add button
 ```
 
-`add` locks at `main`'s current commit, which it asks GitHub's API for. That
-API allows 60 anonymous calls an hour per IP address, so on a shared CI
-runner it can answer 403: pass the commit yourself with `--revision <sha>`.
+`add` locks at `main`'s current commit, which it asks GitHub's API for (and
+`sync` lists the ledger through the same API). That API allows 60 anonymous
+calls an hour per IP address, so on a shared machine — a CI runner, a cloud
+session — it can answer 403. Two ways out: set `GITHUB_TOKEN` (or
+`GH_TOKEN`) to any GitHub token, and the CLI authenticates and gets 5,000
+calls an hour; or pass the commit yourself with `--revision <sha>`, and `add`
+makes no API call at all:
+
+```bash
+GITHUB_TOKEN="$(gh auth token)" npx @bydiorama/ui add button
+npx @bydiorama/ui add button --revision "$(git ls-remote https://github.com/bydiorama/ui main | cut -f1)"
+```
+
 To install from a checkout instead — an unmerged branch, say — run
 `node --experimental-strip-types packages/cli/bin/ui.ts add button --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"`
 from the checkout.

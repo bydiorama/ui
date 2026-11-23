@@ -2,7 +2,7 @@
 https://github.com/jakubkrehel/make-interfaces-feel-better
 
 The predecessor of the `better-ui` skill above; the same principles inform
-registry/skills/ui-craft/SKILL.md, so its notice is reproduced here too.
+registry/skills/craft/SKILL.md, so its notice is reproduced here too.
 
 MIT License
 

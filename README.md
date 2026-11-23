@@ -32,7 +32,8 @@ tooling that keeps consumers in sync — distributed as source you own.**
   (169 pairs, both schemes), every story runs through axe, interaction
   contracts run in a real browser, and visual baselines cover every
   component in both colour schemes.
-- **Agent-ready.** [`AGENTS.md`](AGENTS.md), distributable agent skills, and
+- **Agent-ready.** [`AGENTS.md`](AGENTS.md), an agent plugin with ten skills
+  ([`plugins/ui`](plugins/ui/README.md)), and
   a dependency-free `pnpm verify` a fresh clone (or a fresh agent) can run
   before installing anything.
 
@@ -76,22 +77,32 @@ two jobs:
 
 ### Install a component
 
-> **Nothing here is on npm yet.** `@bydiorama/ui` (the CLI) and
-> `@bydiorama/tokens` are both unpublished — `npx @bydiorama/ui …` returns
-> E404 (issue #30). The paths below are the ones that work today.
-
-The primary channel is this registry's own CLI, run from a checkout of this
-repo against your app. `add` resolves an item and its registry dependencies,
+The primary channel is this registry's own CLI, published to npm as
+[`@bydiorama/ui`](https://www.npmjs.com/package/@bydiorama/ui) (Node ≥ 22,
+no dependencies). Run it inside your app. `add` resolves an item and its registry dependencies,
 writes their source through your own `components.json` aliases and
 `tsconfig.json` `@/*` mapping, locks what it installed into `ui.lock.json`
 (so drift tracking starts at install, not as an afterthought), and prints the
 npm dependencies left for you to install:
 
-```bash
-# from a bydiorama/ui checkout
-node --experimental-strip-types packages/cli/bin/ui.ts add button \
-  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+Your `components.json` names the registry once, next to its `aliases`:
+
+```json
+"registries": {
+  "@bydiorama": "https://raw.githubusercontent.com/bydiorama/ui/main/r/{name}.json"
+}
 ```
+
+```bash
+npx @bydiorama/ui add button
+```
+
+`add` locks at `main`'s current commit, which it asks GitHub's API for. That
+API allows 60 anonymous calls an hour per IP address, so on a shared CI
+runner it can answer 403: pass the commit yourself with `--revision <sha>`.
+To install from a checkout instead — an unmerged branch, say — run
+`node --experimental-strip-types packages/cli/bin/ui.ts add button --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"`
+from the checkout.
 
 It never overwrites a local edit without `--force`, and never overwrites a
 declared fork at all — the two things a generic registry client cannot
@@ -122,8 +133,7 @@ Components style themselves with token utilities (`bg-surface`,
 registry item:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts add theme-zero-css \
-  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+npx @bydiorama/ui add theme-zero-css
 ```
 
 and is imported once, after Tailwind:
@@ -252,8 +262,7 @@ library, CSS-first motion (CONVENTIONS §7–8) — ship as an ESLint flat-confi
 preset, so the app is held to them too:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts add eslint-preset \
-  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+npx @bydiorama/ui add eslint-preset
 ```
 
 ```js
@@ -276,10 +285,26 @@ installed component imports.
 
 ### Check it against the design
 
-Install the `visual-review` skill (it brings the `visual-diff` script): it
-diffs the running app against 1× exports of the design's frames and
-components, and teaches the agent to read the result. The `app-motion` skill
-covers motion beyond what the components already do.
+Install the `visual-diff` item and the `ui` agent plugin. The plugin's
+`ui:visual-review` skill diffs the running app against 1× exports of the
+design's frames and components with that script, and teaches the agent to
+read the result. `ui:app-motion` covers motion beyond what the components
+already do.
+
+### Agent skills
+
+The skills ship as one agent plugin, `ui`, for Claude Code, claude.ai and
+Cowork — not through the registry. In Claude Code:
+
+```
+/plugin marketplace add bydiorama/ui
+/plugin install ui@diorama-ui
+```
+
+In claude.ai or Cowork: **Customize › Plugins › Add › Add marketplace**,
+enter `bydiorama/ui`, then add `ui`. It follows `main`. The skill list is in
+[`plugins/ui/README.md`](plugins/ui/README.md); why it works this way is
+ADR 0027.
 
 ### Stay in sync
 
@@ -288,7 +313,7 @@ covers motion beyond what the components already do.
 and their combinations — instead of overwriting your edits:
 
 ```bash
-node --experimental-strip-types packages/cli/bin/ui.ts sync --cwd ../my-app --registry-path .
+npx @bydiorama/ui sync
 ```
 
 See the [CLI README](packages/cli/README.md) for the full drift model.
@@ -338,7 +363,8 @@ registry.json, r/    GENERATED — never hand-edited
 registry/            the distributed source itself
   ui/                one directory per component, five files each
   lib/ hooks/        utilities and hooks
-  fonts/ skills/     Aspekta (OFL); agent skills, per ADR 0013
+  fonts/ skills/     Aspekta (OFL); agent skills — the source (ADR 0013)
+plugins/ui/          the `ui` agent plugin — skills GENERATED from registry/skills (ADR 0027)
   visual/            the visual-regression matrix and its baselines
 packages/tokens/     @bydiorama/tokens — token contract, resolver, emitters
 packages/cli/        the consumer-side CLI — add, lock, sync

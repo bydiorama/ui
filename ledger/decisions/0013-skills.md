@@ -1,6 +1,6 @@
 # 0013 — One skill tree, two audiences; `.claude/skills/` is generated
 
-**Status:** accepted · 2026-08-04
+**Status:** accepted · 2026-08-04 · amended by ADR 0027 (shipped skills travel as the `ui` agent plugin; names lose the `diorama-` prefix; reference files may ship)
 
 ## Context
 

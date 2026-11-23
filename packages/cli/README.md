@@ -11,10 +11,10 @@ broadcast a consumer has to remember to read.
 `theme` turns a brand seed into the installable theme stylesheet, so a
 branded app needs no emitter script of its own.
 
-**Not on npm yet** (issue #30): the package is prepared to publish as
-`@bydiorama/ui` (zero runtime dependencies, Node ≥ 22), but `npx @bydiorama/ui`
-returns E404 until it is. Run it from a checkout (below). Once published, from
-inside a consumer app it will be:
+Published to npm as [`@bydiorama/ui`](https://www.npmjs.com/package/@bydiorama/ui)
+(zero runtime dependencies, Node ≥ 22) since 0.1.0; later versions come from
+[`release-cli.yml`](../../.github/workflows/release-cli.yml). From inside a
+consumer app:
 
 ```sh
 npx @bydiorama/ui <command> [...flags]
@@ -206,7 +206,7 @@ item type needs no special case:
 | Shape | Looks like | Resolves to |
 | --- | --- | --- |
 | **Alias** | `ui/header.tsx`, `lib/cn.ts` | The first segment is a key in `components.json` `aliases`, mapped through `tsconfig.json`'s `@/*` — `ui/header.tsx` → `src/components/ui/header.tsx`. |
-| **Literal** | `.claude/skills/diorama-ui-craft/SKILL.md`, `~/public/fonts/aspekta/aspekta.css` | A path from the consumer root, as-is. Literal means the first segment starts with `.`, or the target starts with `~/` (shadcn's own project-root marker, for a root path with no leading dot). |
+| **Literal** | `.claude/settings.json`, `~/public/fonts/aspekta/aspekta.css` | A path from the consumer root, as-is. Literal means the first segment starts with `.`, or the target starts with `~/` (shadcn's own project-root marker, for a root path with no leading dot). |
 
 The split is by shape, not by "was it found in `aliases`". An alias-shaped
 target whose alias is missing still fails with `No alias "…" in
@@ -244,3 +244,32 @@ consumer (`service-portal`) today, and building coordination machinery for
 a single consumer is the over-engineering the plan explicitly warns against.
 This package is the mechanism those two pieces will call into once there's
 a second consumer to justify them.
+
+## Releasing
+
+Releases are published by GitHub Actions with npm **trusted publishing**: npm
+checks that the upload comes from this repo's `release-cli.yml`, so no npm
+token is stored anywhere, and each version carries a provenance statement.
+
+1. Bump `"version"` in `packages/cli/package.json` and merge to `main`.
+2. Tag that commit `cli-v<version>` and push the tag:
+   `git tag cli-v0.1.1 && git push origin cli-v0.1.1`. The workflow refuses a
+   tag that does not match the version, tests the CLI, builds `dist/`, runs
+   the compiled binary once, and publishes.
+
+**The first release (0.1.0, 2026-11-23) was published by hand,** because npm
+can only attach a trusted publisher to a package that already exists. For a
+new package in this repo, the same applies — once, by someone who can publish
+to the `@bydiorama` npm organisation, with a 2FA code:
+
+```sh
+npm login                         # an account in the bydiorama npm org
+cd packages/cli
+pnpm install                      # from the repo root first, if not done
+npm publish --access public --otp=<code from your authenticator app>
+```
+
+Then on npmjs.com, **@bydiorama/ui › Settings › Trusted publishing**: add
+GitHub Actions with organisation `bydiorama`, repository `ui` and workflow
+`release-cli.yml`. In the same settings, set publishing access to require 2FA
+and disallow tokens, so the workflow is the only way to publish from then on.

@@ -1,5 +1,5 @@
 ---
-name: diorama-effects
+name: effects
 description: Applying @bydiorama/ui's effects layer — glass, grain, sheen, glow, shimmer, ink, and the optional shaders: the parametric gradient ground and halo — to components in a consumer app. Use when someone asks for glass or frosted panels, grain or texture, a shine or sweep on a button, a glow, shimmering status text, gradient headings, an animated gradient or WebGL background, a hero or empty-state ground, a halo while something loads, "make it feel premium", or when adding shaders, WebGL or liquid glass to a Diorama UI.
 ---
 

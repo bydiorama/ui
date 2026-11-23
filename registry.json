@@ -1917,69 +1917,6 @@
           "target": "ui/chat-questionnaire.doc.ts"
         }
       ]
-    },
-    {
-      "name": "static-rendering",
-      "type": "registry:file",
-      "description": "Agent skill: using @bydiorama/ui in Astro, SSR and static-export apps — which components are static-safe, which need a client:* directive, why compound components cannot be composed from .astro files and the wrapper pattern that fixes it, and the install traps (prettier, focus styles, paths outside src/ui). Issue #34.",
-      "files": [
-        {
-          "path": "registry/skills/static-rendering/SKILL.md",
-          "type": "registry:file",
-          "target": ".claude/skills/diorama-static-rendering/SKILL.md"
-        }
-      ]
-    },
-    {
-      "name": "ui-craft",
-      "type": "registry:file",
-      "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",
-      "files": [
-        {
-          "path": "registry/skills/ui-craft/SKILL.md",
-          "type": "registry:file",
-          "target": ".claude/skills/diorama-ui-craft/SKILL.md"
-        }
-      ]
-    },
-    {
-      "name": "effects",
-      "type": "registry:file",
-      "description": "Agent skill: applying the effects layer in a consumer app (ADR 0022) — glass, grain, sheen, glow, shimmer and ink from `fx`, and the optional shaders from `shader` (the parametric gradient ground, halo): the class-on-the-root pattern, setup order (@layer fx after Tailwind and the theme; startShaders() once), which effect for which job, what the layer already guarantees (per-brand glass tint, a ground's quiet zone, reduced motion/transparency, forced colours) and the traps already paid for (refraction, halo clipping, sheen on pale accents, iOS canvas clipping).",
-      "files": [
-        {
-          "path": "registry/skills/effects/SKILL.md",
-          "type": "registry:file",
-          "target": ".claude/skills/diorama-effects/SKILL.md"
-        }
-      ]
-    },
-    {
-      "name": "visual-review",
-      "type": "registry:file",
-      "description": "Agent skill: checking a screen built with @bydiorama/ui against its design — 1× exports of frames and key components (shadow bleed cropped by alpha, explicit crops for opaque margins), the exact state reproduced by script, a canvas diff in the same browser (the visual-diff item), reading the red rather than the number, measuring with getBoundingClientRect against the design tool's layout values before fixing, and the traps already paid for (strokes inside the box, masks only with a reason, an empty collapsed element still taking a flex gap, the text style before the font, a blocked asset host).",
-      "registryDependencies": [
-        "@bydiorama/visual-diff"
-      ],
-      "files": [
-        {
-          "path": "registry/skills/visual-review/SKILL.md",
-          "type": "registry:file",
-          "target": ".claude/skills/diorama-visual-review/SKILL.md"
-        }
-      ]
-    },
-    {
-      "name": "app-motion",
-      "type": "registry:file",
-      "description": "Agent skill: motion in an app built with @bydiorama/ui — Diorama components and effects own their motion (tokens, never double-animated); product interactions use transitions.dev snippets installed and credited in the app under their licence (the skill ships no snippet code); one snippet per element, no nested accordions, digit swaps restored to plain text, replay by reflow, JS timing read from CSS variables, reduced motion for JS-driven motion, motion never the only feedback, and a review method (10% playback, every state).",
-      "files": [
-        {
-          "path": "registry/skills/app-motion/SKILL.md",
-          "type": "registry:file",
-          "target": ".claude/skills/diorama-app-motion/SKILL.md"
-        }
-      ]
     }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-ui-plugin-ships-design-and-motion-skills",
+  "date": "2026-11-23",
+  "item": "design-component",
+  "kind": "addition",
+  "summary": "Five skills that only loaded inside bydiorama/ui now ship in the `ui` plugin (ADR 0027): ui:design-component (designing a component in Paper against the system) and the demo-media set — ui:motion-media, ui:demo-page, ui:video-render and ui:stills-render, renamed from their ui- prefixed directories and carrying their render scripts and reference pages. griddy-icons-in-paper left this repo; its source is bydiorama/internal-skills (public in bydiorama/skills).",
+  "affects": [
+    "item:design-component",
+    "item:motion-media",
+    "item:demo-page",
+    "item:video-render",
+    "item:stills-render"
+  ]
+}

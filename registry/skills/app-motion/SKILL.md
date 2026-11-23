@@ -1,5 +1,5 @@
 ---
-name: diorama-app-motion
+name: app-motion
 description: Adding motion to an app built with @bydiorama/ui — who owns which animation, how to bring in transitions.dev snippets for product interactions without breaking their licence, and the integration traps (one snippet per element, nested accordions, digit swaps, replay, JS timing, reduced motion). Use when animating a count, label, icon, row, panel or toast in an app, when asked to "add motion", "make it feel alive", or to install transitions.dev, when an animation does not play twice or plays on the wrong element, or when reviewing motion.
 ---
 
@@ -10,7 +10,7 @@ Two owners, never both on one element:
 | Moves | Owned by | You do |
 | --- | --- | --- |
 | A Diorama component — Modal, Menu, Popover, Tooltip, Select, Switch, Checkbox, Accordion, Toast, Drawer… | the component, from the motion tokens | nothing. Do not add a transition, keyframe or snippet class to it or its parts |
-| An effect — shimmering status text, a sheen, a glow | the effects layer, `fx("shimmer")` etc. | apply the class (the `diorama-effects` skill) |
+| An effect — shimmering status text, a sheen, a glow | the effects layer, `fx("shimmer")` etc. | apply the class (the `effects` skill) |
 | A product interaction the library has no component for — a count changing, a label swapping, a row folding away, an icon toggling, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
 
 Check the first two rows before reaching for the third: a snippet layered on
@@ -19,7 +19,7 @@ declarations on one element do not combine — one silently wins.
 
 ## Tokens, not numbers
 
-The craft rules for timing are `diorama-ui-craft` rules 6–11 (transitions
+The craft rules for timing are `craft` rules 6–11 (transitions
 for interaction, keyframes for one-shots, exits softer than enters, icon
 cross-fades, tokens for every duration). In app code that means:
 
@@ -83,7 +83,7 @@ republishing.
   digit spans leaves the old digit in the DOM text: "1 2 1" for copy-paste,
   find-in-page, screen readers and tests. When it settles, restore plain
   `textContent`, and give the element an `aria-label` with the value.
-- **Icon swaps keep both glyphs** in the DOM, cross-faded (`diorama-ui-craft`
+- **Icon swaps keep both glyphs** in the DOM, cross-faded (`craft`
   rule 10), hidden from assistive tech; the button's label carries the state.
 
 ## JavaScript-driven motion

@@ -152,7 +152,7 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 - *Design side, for reference rather than as a rule of this file:* a sheet
   should carry the real glyph with its layer named for the export, so it says
   which icon it means instead of leaving that to whoever implements it. See the
-  `griddy-icons-in-paper` skill. (Making that binding here would need an ADR —
+  `griddy-icons-in-paper` skill (in `bydiorama/skills`). (Making that binding here would need an ADR —
   see § Changing these rules.)
 - **The component sizes the slot; the icon library does not.** `griddy-icons`
   renders `width="24" height="24"` as presentation *attributes*, so an
@@ -449,8 +449,8 @@ never a feature of one (ADR 0022).
 Several craft rules above (concentric radii, shadows-for-elevation,
 press-scale, stagger restraint, hit-area patterns) are adapted from
 [jakubkrehel/skills](https://github.com/jakubkrehel/skills) (MIT) — see
-`CREDITS.md`. The distributable version of these rules is the `ui-craft`
-registry item.
+`CREDITS.md`. The distributable version of these rules is the `craft`
+skill in the `ui` agent plugin (`ui:craft`, ADR 0027).
 
 ## Changing these rules
 

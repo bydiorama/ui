@@ -49,7 +49,7 @@ node design/motion/brand-grid-reveal/scripts/sync-timeline.mjs
 PLAYWRIGHT_MODULE=/absolute/path/to/playwright/index.mjs \
 CHROMIUM_EXECUTABLE=/absolute/path/to/chromium \
 node design/motion/brand-grid-reveal/scripts/render.mjs
-python3 -I registry/skills/ui-video-render/scripts/seam.py \
+python3 -I registry/skills/video-render/scripts/seam.py \
   design/motion/brand-grid-reveal/exports/videos/brand-grid-reveal-light-1600x1200-60fps.mp4
 pnpm verify
 ```

@@ -73,7 +73,7 @@ Anything the sheet could not answer goes into the doc's `needsDesign`.
 - [ ] `pnpm test`
 - [ ] `pnpm test:browser` — interaction contracts and every story through axe
 - [ ] `pnpm test:visual` — both schemes
-- [ ] `pnpm registry:build` / `pnpm skills:build` re-run after manifest or skill edits; no hand edits to `registry.json`, `r/` or `.claude/skills/`
+- [ ] `pnpm registry:build` / `pnpm skills:build` re-run after manifest or skill edits; no hand edits to `registry.json`, `r/`, `.claude/skills/` or `plugins/ui/skills/`
 - [ ] A new or changed gate was shown to fail first (probe noted below)
 
 ## Notes for the reviewer

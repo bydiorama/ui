@@ -3,8 +3,10 @@
 // One source of truth: every skill in this repo lives in `registry/skills/`.
 // The manifest — not the folder — decides which ones ship, exactly as it does
 // for components (stories and tests live under `registry/` and are never
-// distributed). `.claude/skills/` is GENERATED from this tree so the agents
-// working in this repo load the same text the repo publishes.
+// distributed). Two trees are GENERATED from it: `.claude/skills/` (every
+// skill, so the agents working in this repo load the same text the repo
+// publishes) and `plugins/ui/skills/` (the shipped ones — the `ui` agent
+// plugin, ADR 0027).
 //
 // Dependency-free, like every other check here: it must run in a cold clone.
 
@@ -15,8 +17,18 @@ import { ROOT, readManifest } from "./manifest.mjs";
 export const SKILL_SOURCE_DIR = join(ROOT, "registry/skills");
 export const SKILL_INSTALL_DIR = join(ROOT, ".claude/skills");
 
-/** Distributed skills are namespaced; a consumer's .claude/skills is shared. */
-export const DISTRIBUTED_PREFIX = "diorama-";
+/**
+ * The agent plugin (ADR 0027). Its manifest and the marketplace that lists it
+ * are hand-written; its `skills/` folder and README are generated.
+ */
+export const PLUGIN_NAME = "ui";
+export const PLUGIN_DIR = join(ROOT, "plugins", PLUGIN_NAME);
+export const PLUGIN_SKILLS_DIR = join(PLUGIN_DIR, "skills");
+export const PLUGIN_MANIFEST = join(PLUGIN_DIR, ".claude-plugin/plugin.json");
+export const MARKETPLACE_MANIFEST = join(ROOT, ".claude-plugin/marketplace.json");
+
+/** Where a shipped skill's SKILL.md lands in the plugin — its manifest target. */
+export const pluginTarget = (dir) => `plugins/${PLUGIN_NAME}/skills/${dir}/SKILL.md`;
 
 /**
  * Minimal YAML front matter reader — key: value pairs only, which is all the
@@ -68,8 +80,8 @@ export function readSkills() {
 
 /**
  * Every file in a skill's directory other than SKILL.md, relative to it —
- * reference scripts and pages an authoring skill points at. Distributed skills
- * may not have any (they ship exactly one file; `check:skills` enforces it).
+ * reference scripts and pages a skill points at. They travel with the skill,
+ * into `.claude/skills/` and, for a shipped skill, into the plugin.
  */
 export function skillReferences(skill) {
   const root = join(SKILL_SOURCE_DIR, skill.dir), out = [];
@@ -86,10 +98,16 @@ export function skillReferences(skill) {
 }
 
 /**
- * Where a skill lands in `.claude/skills/`. Distributed skills use their
- * namespaced front-matter name — the SAME directory a consumer installs into,
- * so this repo dogfoods the exact path it publishes.
+ * Where a skill lands: its front-matter name, which `check:skills` pins to the
+ * directory. No prefix — the plugin namespaces shipped skills itself
+ * (`ui:craft`), and authoring skills only ever load in this repo.
  */
 export function installName(skill) {
   return skill.parsed?.fields.name ?? skill.dir;
+}
+
+/** The first sentence of a description, for the generated plugin README. */
+export function firstSentence(description) {
+  const at = description.search(/[.](\s|$)/);
+  return at === -1 ? description : description.slice(0, at + 1);
 }

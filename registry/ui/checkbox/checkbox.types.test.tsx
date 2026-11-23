@@ -17,6 +17,8 @@ export function Valid() {
         Mixed
       </Checkbox>
       <Checkbox isDisabled>Disabled</Checkbox>
+      {/* Hidden, not omitted: the children are still required and still the name. */}
+      <Checkbox isLabelHidden>Select Brief A</Checkbox>
       {/* The ref goes to the input, not a wrapper — it must be focusable and
           readable by a form library (CONVENTIONS §5). */}
       <Checkbox ref={ref} name="terms" value="accepted">
@@ -35,6 +37,10 @@ export function Invalid() {
       {/* The label IS the accessible name. There is no nameless form. */}
       {/* @ts-expect-error children is required */}
       <Checkbox />
+
+      {/* Hiding the label does not make it optional — it is still the name. */}
+      {/* @ts-expect-error children is required even when the label is hidden */}
+      <Checkbox isLabelHidden />
 
       {/* `checked` is the native prop; the contract prop is `isChecked`, so
           the two cannot be set independently and drift (CONVENTIONS §1). */}

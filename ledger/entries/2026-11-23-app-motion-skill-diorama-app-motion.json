@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-app-motion-skill-diorama-app-motion",
+  "date": "2026-11-23",
+  "item": "app-motion",
+  "kind": "addition",
+  "summary": "New product skill diorama-app-motion (experimental): motion in a consumer app — Diorama components and effects own their motion and are never double-animated; product interactions use transitions.dev snippets installed and credited in the app under the Transitions.dev License, which forbids republishing the collection, so the skill ships no snippet code; one snippet per element, no nested accordions (descendant selector), digit swaps restored to plain textContent, replay by reflow, JS timers reading durations from CSS variables, an explicit reduced-motion check for JS-driven motion, motion never the only feedback channel, and a review method (10% playback, every state).",
+  "affects": [
+    "item:app-motion"
+  ]
+}

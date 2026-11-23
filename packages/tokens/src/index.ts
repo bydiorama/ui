@@ -9,7 +9,8 @@ export {
 
 // The curated palette (ADR 0008) and the authored type table (ADR 0009).
 export { RAMPS, BRAND, NEUTRAL, DARK, BLUE, ORANGE, LAVENDER, GREEN, RED } from "./palette.ts";
-export { TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
+export { TYPE_ROLES, STEPPED_ROLES, WEIGHT_LADDER } from "./resolve.ts";
+export type { TypeRoleName } from "./resolve.ts";
 export type {
   BrandableToken,
   SchemeOnlyToken,
@@ -19,7 +20,7 @@ export type {
 } from "./contract.ts";
 
 // What an author supplies.
-export { SEED_BOUNDS, SAFE_SEED_VALUE, clamp, validateSeed } from "./seed.ts";
+export { SEED_BOUNDS, SAFE_SEED_VALUE, BASE_SIZE_INFO_BELOW, clamp, validateSeed } from "./seed.ts";
 export type {
   ThemeSeed,
   SeedColors,
@@ -46,7 +47,7 @@ export {
 export type { Scheme, ResolveOptions, ResolveResult, ResolvedPair, ContrastAdjustment } from "./resolve.ts";
 
 // Non-brandable tokens.
-export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES, CONTROL_SIZES, CONTROL_FLOOR_PX, DENSITY_STEP_PX } from "./base.ts";
+export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES, CONTROL_SIZES, CHOICE_ROW_MIN_HEIGHT, ROW_SIZES, DENSITY_TOKENS, CONTROL_FLOOR_PX, DENSITY_STEP_PX } from "./base.ts";
 export type { Density } from "./base.ts";
 
 // Emitters.
@@ -68,6 +69,11 @@ export type { Rgb, Oklch } from "./color.ts";
 // Tailwind v4 `@theme inline` emitter.
 export { toTailwindTheme } from "./emit/tailwind.ts";
 export type { TailwindOptions } from "./emit/tailwind.ts";
+
+// The installable stylesheet — header, `@theme inline`, token layer — that
+// both theme-zero.css and `bydiorama-ui theme` write.
+export { toThemeStylesheet } from "./emit/stylesheet.ts";
+export type { StylesheetOptions } from "./emit/stylesheet.ts";
 
 // TypeScript-constants emitter — for contexts with no CSS variable
 // resolution (email HTML, PDF/canvas, chart palettes).

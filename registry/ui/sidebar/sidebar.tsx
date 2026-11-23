@@ -22,6 +22,7 @@ import { motionMicro, motionStandard } from "@/lib/motion";
 import { chromeControl } from "@/lib/chrome-control";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Rows inside a Section are list items; rows outside one are not.
  *
@@ -48,7 +49,7 @@ const LayerContext = createContext<{
   close: () => void;
 }>({ active: null, open: () => {}, close: () => {} });
 
-export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Required — a page may carry several navigations (primary, breadcrumb, a
@@ -160,7 +161,7 @@ const SidebarNav = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
           className={cn(
             isLabelHidden
               ? "sr-only"
-              : "px-md pt-xs pb-sm text-label-sm font-body text-ink-nav-muted uppercase",
+              : "px-row-inset pt-xs pb-sm text-label-sm font-body text-ink-nav-muted uppercase",
           )}
         >
           {label}
@@ -171,7 +172,7 @@ const SidebarNav = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
   );
 });
 
-export type SidebarMainProps = HTMLAttributes<HTMLDivElement>;
+export type SidebarMainProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The navigation itself — everything the rail shows at rest.
@@ -187,7 +188,7 @@ function SidebarMain({ className, ...rest }: SidebarMainProps) {
   return <div data-slot="sidebar-main" className={cn("flex min-h-0 flex-1 flex-col", className)} {...rest} />;
 }
 
-export interface SidebarLayerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface SidebarLayerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   children: ReactNode;
   /** Matched against the Sidebar's `layer`, and against Profile's `layer`. */
   id: string;
@@ -237,7 +238,7 @@ function SidebarLayer({ children, id, title, backLabel, className, ...rest }: Si
       </div>
       <p
         data-slot="sidebar-layer-title"
-        className="flex min-h-9 items-center p-md text-body-lg font-body leading-normal text-ink-nav"
+        className="flex min-h-nav-row items-center px-row-inset py-row-block-inset text-nav-row font-body leading-normal text-ink-nav"
       >
         {/* Same `sidebar-text` slot every other labelled part uses, so the
             lane is one selector away for a test and for a consumer. */}
@@ -250,7 +251,7 @@ function SidebarLayer({ children, id, title, backLabel, className, ...rest }: Si
   );
 }
 
-export type SidebarGroupProps = HTMLAttributes<HTMLDivElement>;
+export type SidebarGroupProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The header band — the sheet's `Nav Group`. Holds controls rather than
@@ -266,7 +267,7 @@ function SidebarGroup({ className, ...rest }: SidebarGroupProps) {
   );
 }
 
-export interface SidebarSectionProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface SidebarSectionProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   children: ReactNode;
   label: string;
   /**
@@ -319,10 +320,13 @@ function SidebarSection({
    * changes with the viewport. title-sm rendered at 12.17px in the browser
    * suite, and worst of all on a phone, which is the one viewport where the
    * sheet actually draws this rail at 16.
+   *
+   * Spelled `text-nav-row`, the density-stepped role (ADR 0026): body-lg at
+   * default and comfortable, body-sm (13px) under compact. Both are fixed.
    */
   const headingClass =
-    "flex min-h-9 w-full items-center justify-between gap-sm rounded-sm p-md " +
-    "text-body-lg font-body font-bold leading-normal text-ink-nav";
+    "flex min-h-nav-row w-full items-center justify-between gap-sm rounded-sm px-row-inset py-row-block-inset " +
+    "text-nav-row font-body font-bold leading-normal text-ink-nav";
 
   const triggerClass = cn(
     headingClass,
@@ -417,7 +421,7 @@ function SidebarSection({
   );
 }
 
-export interface SidebarItemProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+export interface SidebarItemProps extends Omit<HTMLAttributes<HTMLElement>, "children">, OwnedSlot {
   children: ReactNode;
   /**
    * Makes the row a link. WITHOUT it the row is a plain slot — the sheet puts
@@ -488,15 +492,21 @@ function SidebarItem({
           : onClick,
       className: cn(
         // The sheet's row: p-md (12+12) around a 16px line at leading-normal
-        // (21.6px) measures 45.6 — its drawn 46. min-h-9 (36px) is a floor for
-        // a caller who puts something shorter in the slot, and still clears
+        // (21.6px) measures 45.6 — its drawn 46. The 36px floor is for a
+        // caller who puts something shorter in the slot, and still clears
         // SC 2.5.8's 24px.
-        "flex min-h-9 items-center justify-between gap-sm rounded-sm p-md",
+        //
+        // All three are density-bound (ADR 0026): under compact the inline
+        // inset drops to sm (the 16px lane the compact search text sits on),
+        // the block inset to xs and the floor to 32px, which then sets the
+        // row's height around a 13px `text-nav-row`.
+        "flex min-h-nav-row items-center justify-between gap-sm rounded-sm px-row-inset py-row-block-inset",
         // Same 16px size as the section heading (see headingClass on why it is
         // body-lg and not the fluid title-sm); the levels differ by weight and
         // ink, since they share an inset. `leading-normal` keeps the sheet's
         // 46px row — a declared exception to body-lg's 1.55 (ADR 0020 §3).
-        "text-body-lg font-body leading-normal no-underline",
+        // `text-nav-row` is body-lg here and body-sm under compact (ADR 0026).
+        "text-nav-row font-body leading-normal no-underline",
         inSection ? "text-ink-nav-muted" : "text-ink-nav",
         isLink && [
           "cursor-pointer transition-[background-color,color]", motionMicro,
@@ -557,7 +567,7 @@ function SidebarItem({
   return inSection ? <li className="contents">{row}</li> : row;
 }
 
-export interface SidebarProfileProps extends Omit<HTMLAttributes<HTMLButtonElement>, "children"> {
+export interface SidebarProfileProps extends Omit<HTMLAttributes<HTMLButtonElement>, "children">, OwnedSlot {
   /** The person's name. 16px/600 in primary nav ink, clamped to one line. */
   name: string;
   /**
@@ -622,7 +632,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
           </span>
         )}
         <span className="flex min-w-0 flex-1 flex-col gap-xs">
-          <span data-slot="sidebar-profile-name" className="truncate text-body-lg font-body font-bold leading-normal text-ink-nav">
+          <span data-slot="sidebar-profile-name" className="truncate text-nav-row font-body font-bold leading-normal text-ink-nav">
             {name}
           </span>
           {email && (
@@ -637,7 +647,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
   );
 });
 
-export interface SidebarSearchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
+export interface SidebarSearchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size">, OwnedSlot {
   /**
    * Required — it is the accessible name, and it is VISUALLY HIDDEN by
    * default because the sheet draws a placeholder and no label. A placeholder
@@ -691,7 +701,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
           placeholder={placeholder}
           className={cn(
             "min-w-0 flex-1 bg-transparent outline-none",
-            "text-body-md font-body text-ink-nav",
+            "text-row font-body text-ink-nav",
             "placeholder:text-ink-placeholder",
           )}
           {...rest}
@@ -708,7 +718,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
   );
 }
 
-export type SidebarSlotProps = HTMLAttributes<HTMLDivElement>;
+export type SidebarSlotProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * A row that holds a CONTROL rather than a label — a Button, an Input, a
@@ -724,7 +734,7 @@ function SidebarSlot({ className, ...rest }: SidebarSlotProps) {
   return <div data-slot="sidebar-slot" className={cn("flex flex-col px-xs py-xs", className)} {...rest} />;
 }
 
-export type SidebarHeadingProps = HTMLAttributes<HTMLParagraphElement>;
+export type SidebarHeadingProps = HTMLAttributes<HTMLParagraphElement> & OwnedSlot;
 
 /**
  * A standalone group label — the sheet's "Select brand".
@@ -738,7 +748,7 @@ function SidebarHeading({ children, className, ...rest }: SidebarHeadingProps) {
     <p
       data-slot="sidebar-heading"
       className={cn(
-        "flex p-md text-button-sm font-body text-ink-nav-muted",
+        "flex px-row-inset py-row-block-inset text-button-sm font-body text-ink-nav-muted",
         className,
       )}
       {...rest}
@@ -751,9 +761,11 @@ function SidebarHeading({ children, className, ...rest }: SidebarHeadingProps) {
 }
 
 /** Flexible gap — the sheet's `Spacer`. Pushes what follows to the bottom. */
-function SidebarSpacer() {
-  return <div data-slot="sidebar-spacer" aria-hidden="true" className="flex-1" />;
-}
+// Takes no props, and is TYPED as taking OwnedSlot so a caller's `data-slot`
+// is a compile error rather than silently dropped (@/lib/data-slot).
+const SidebarSpacer: (props: OwnedSlot) => ReactElement = () => (
+  <div data-slot="sidebar-spacer" aria-hidden="true" className="flex-1" />
+);
 
 /** The sheet's 16px chevron. Rotates rather than swapping glyphs. */
 function Chevron({ isOpen }: { isOpen: boolean }) {

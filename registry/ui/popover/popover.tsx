@@ -6,6 +6,7 @@ import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode 
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place.
  *
@@ -32,7 +33,7 @@ const forBaseUI = <T,>(props: object) => props as T;
 export type PopoverSide = "top" | "right" | "bottom" | "left";
 export type PopoverAlign = "start" | "center" | "end";
 
-export interface PopoverProps {
+export interface PopoverProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit to let the popover own it. */
   isOpen?: boolean;
@@ -73,7 +74,7 @@ function PopoverRoot({ children, isOpen, defaultIsOpen, onOpenChange, isModal }:
   );
 }
 
-export interface PopoverTriggerProps {
+export interface PopoverTriggerProps extends OwnedSlot {
   children?: ReactNode;
   /**
    * Slot: the element that opens the popover — usually a `<Button>`. Passed
@@ -98,7 +99,7 @@ function PopoverTrigger({ children, render, className }: PopoverTriggerProps) {
   );
 }
 
-export interface PopoverPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface PopoverPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   /** Preferred side. Flips automatically when it would collide. */
   side?: PopoverSide;
   align?: PopoverAlign;
@@ -187,7 +188,7 @@ function PopoverPanel({
  */
 const UNBOXED_INSET = "px-sm";
 
-export type PopoverTitleProps = HTMLAttributes<HTMLHeadingElement>;
+export type PopoverTitleProps = HTMLAttributes<HTMLHeadingElement> & OwnedSlot;
 
 function PopoverTitle({ className, ...rest }: PopoverTitleProps) {
   return (
@@ -203,7 +204,7 @@ function PopoverTitle({ className, ...rest }: PopoverTitleProps) {
   );
 }
 
-export type PopoverDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
+export type PopoverDescriptionProps = HTMLAttributes<HTMLParagraphElement> & OwnedSlot;
 
 function PopoverDescription({ className, ...rest }: PopoverDescriptionProps) {
   return (
@@ -223,7 +224,7 @@ function PopoverDescription({ className, ...rest }: PopoverDescriptionProps) {
   );
 }
 
-export interface PopoverCloseProps {
+export interface PopoverCloseProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that dismisses the popover. Never wrapped (§3). */
   render?: ReactElement;

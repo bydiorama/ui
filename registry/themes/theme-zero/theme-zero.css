@@ -180,6 +180,28 @@
   --text-figure--font-weight: var(--ui-text-figure-weight);
   --text-figure--line-height: var(--ui-text-figure-leading);
   --text-figure--letter-spacing: var(--ui-text-figure-tracking);
+  --text-dense-md: var(--ui-text-dense-md);
+  --text-dense-md--font-weight: var(--ui-text-dense-md-weight);
+  --text-dense-md--line-height: var(--ui-text-dense-md-leading);
+  --text-dense-md--letter-spacing: var(--ui-text-dense-md-tracking);
+  --text-dense-sm: var(--ui-text-dense-sm);
+  --text-dense-sm--font-weight: var(--ui-text-dense-sm-weight);
+  --text-dense-sm--line-height: var(--ui-text-dense-sm-leading);
+  --text-dense-sm--letter-spacing: var(--ui-text-dense-sm-tracking);
+
+  /* Density-stepped type roles — one table role at default, another under compact. */
+  --text-row: calc(var(--ui-text-body-md) + (var(--ui-text-dense-md) - var(--ui-text-body-md)) * var(--ui-type-step));
+  --text-row--font-weight: calc(var(--ui-text-body-md-weight) + (var(--ui-text-dense-md-weight) - var(--ui-text-body-md-weight)) * var(--ui-type-step));
+  --text-row--line-height: calc(var(--ui-text-body-md-leading) + (var(--ui-text-dense-md-leading) - var(--ui-text-body-md-leading)) * var(--ui-type-step));
+  --text-row--letter-spacing: calc(var(--ui-text-body-md-tracking) + (var(--ui-text-dense-md-tracking) - var(--ui-text-body-md-tracking)) * var(--ui-type-step));
+  --text-nav-row: calc(var(--ui-text-body-lg) + (var(--ui-text-body-sm) - var(--ui-text-body-lg)) * var(--ui-type-step));
+  --text-nav-row--font-weight: calc(var(--ui-text-body-lg-weight) + (var(--ui-text-body-sm-weight) - var(--ui-text-body-lg-weight)) * var(--ui-type-step));
+  --text-nav-row--line-height: calc(var(--ui-text-body-lg-leading) + (var(--ui-text-body-sm-leading) - var(--ui-text-body-lg-leading)) * var(--ui-type-step));
+  --text-nav-row--letter-spacing: calc(var(--ui-text-body-lg-tracking) + (var(--ui-text-body-sm-tracking) - var(--ui-text-body-lg-tracking)) * var(--ui-type-step));
+  --text-field-label: calc(var(--ui-text-label-md) + (var(--ui-text-label-sm) - var(--ui-text-label-md)) * var(--ui-type-step));
+  --text-field-label--font-weight: calc(var(--ui-text-label-md-weight) + (var(--ui-text-label-sm-weight) - var(--ui-text-label-md-weight)) * var(--ui-type-step));
+  --text-field-label--line-height: calc(var(--ui-text-label-md-leading) + (var(--ui-text-label-sm-leading) - var(--ui-text-label-md-leading)) * var(--ui-type-step));
+  --text-field-label--letter-spacing: calc(var(--ui-text-label-md-tracking) + (var(--ui-text-label-sm-tracking) - var(--ui-text-label-md-tracking)) * var(--ui-type-step));
 
   /* radius namespace. */
   --radius-sm: var(--ui-radius-sm);
@@ -222,6 +244,13 @@
   --spacing-field-inset-sm: var(--ui-field-sm-inset);
   --spacing-field-inset-md: var(--ui-field-md-inset);
   --spacing-field-inset-lg: var(--ui-field-lg-inset);
+
+  /* Row sizing. */
+  --spacing-row-inset: var(--ui-row-inset);
+  --spacing-row-block-inset: var(--ui-row-block-inset);
+  --spacing-row: var(--ui-row-min-height);
+  --spacing-nav-row: var(--ui-nav-row-min-height);
+  --spacing-nav-rail-item: var(--ui-nav-rail-item-size);
 
   /* Stroke widths. */
   --default-border-width: var(--ui-stroke-default);
@@ -323,6 +352,13 @@
   --ui-field-lg-inset: var(--ui-space-md);
   --ui-hit-area-min: 24px;
   --ui-hit-area-touch: 44px;
+  --ui-choice-row-min-height: var(--ui-hit-area-min);
+  --ui-row-inset: var(--ui-space-md);
+  --ui-row-block-inset: var(--ui-space-md);
+  --ui-row-min-height: 0px;
+  --ui-nav-row-min-height: 2.25rem;
+  --ui-nav-rail-item-size: 2rem;
+  --ui-type-step: 0;
   --ui-measure-prose: 70ch;
   --ui-measure-narrative: 60ch;
   --ui-measure-dense: 90ch;
@@ -480,6 +516,8 @@
   --ui-text-button-lg: 1rem;
   --ui-text-button-sm: 0.75rem;
   --ui-text-figure: 1.5rem;
+  --ui-text-dense-md: 0.8125rem;
+  --ui-text-dense-sm: 0.75rem;
   --ui-text-display-lg-weight: 500;
   --ui-text-display-lg-leading: 1.35;
   --ui-text-display-lg-tracking: -0.02em;
@@ -522,6 +560,12 @@
   --ui-text-figure-weight: 600;
   --ui-text-figure-leading: 1.25;
   --ui-text-figure-tracking: -0.02em;
+  --ui-text-dense-md-weight: 400;
+  --ui-text-dense-md-leading: 1.35;
+  --ui-text-dense-md-tracking: -0.02em;
+  --ui-text-dense-sm-weight: 400;
+  --ui-text-dense-sm-leading: 1.35;
+  --ui-text-dense-sm-tracking: -0.02em;
   --ui-weight-regular: 400;
   --ui-weight-book: 450;
   --ui-weight-medium: 500;
@@ -561,6 +605,13 @@
   --ui-field-md-inset: var(--ui-space-xs);
   --ui-field-lg-height: 2.75rem;
   --ui-field-lg-inset: var(--ui-space-sm);
+  --ui-choice-row-min-height: 0px;
+  --ui-row-inset: var(--ui-space-sm);
+  --ui-row-block-inset: var(--ui-space-xs);
+  --ui-row-min-height: 2rem;
+  --ui-nav-row-min-height: 2rem;
+  --ui-nav-rail-item-size: 1.75rem;
+  --ui-type-step: 1;
 }
 
 [data-ui-density="comfortable"] {
@@ -576,6 +627,13 @@
   --ui-field-md-inset: var(--ui-space-md);
   --ui-field-lg-height: 3.25rem;
   --ui-field-lg-inset: var(--ui-space-lg);
+  --ui-choice-row-min-height: var(--ui-hit-area-min);
+  --ui-row-inset: var(--ui-space-md);
+  --ui-row-block-inset: var(--ui-space-md);
+  --ui-row-min-height: 0px;
+  --ui-nav-row-min-height: 2.25rem;
+  --ui-nav-rail-item-size: 2rem;
+  --ui-type-step: 0;
 }
 
 [data-ui-density="default"] {
@@ -591,6 +649,13 @@
   --ui-field-md-inset: var(--ui-space-sm);
   --ui-field-lg-height: 3rem;
   --ui-field-lg-inset: var(--ui-space-md);
+  --ui-choice-row-min-height: var(--ui-hit-area-min);
+  --ui-row-inset: var(--ui-space-md);
+  --ui-row-block-inset: var(--ui-space-md);
+  --ui-row-min-height: 0px;
+  --ui-nav-row-min-height: 2.25rem;
+  --ui-nav-rail-item-size: 2rem;
+  --ui-type-step: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

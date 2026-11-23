@@ -14,7 +14,7 @@ import { join } from "node:path";
 import { ROOT } from "./lib/manifest.mjs";
 import { classesIn, stripComments, walk } from "./lib/classes.mjs";
 
-const { toTailwindTheme, TYPE_ROLES } = await import(
+const { toTailwindTheme, TYPE_ROLES, STEPPED_ROLES } = await import(
   join(ROOT, "packages/tokens/src/index.ts")
 );
 
@@ -25,7 +25,12 @@ const { toTailwindTheme, TYPE_ROLES } = await import(
  * the end of the table caught it, and the gate demanded `--color-figure` —
  * a correct utility rejected because the list of roles lived here twice.
  */
-const TYPE_SIZE_NAMES = Object.keys(TYPE_ROLES).map((t) => t.replace(/^--ui-text-/, ""));
+// The density-stepped roles (ADR 0026) — `text-row`, `text-nav-row` — are
+// sizes in the same namespace, minted from STEPPED_ROLES by the emitter.
+const TYPE_SIZE_NAMES = [
+  ...Object.keys(TYPE_ROLES).map((t) => t.replace(/^--ui-text-/, "")),
+  ...Object.keys(STEPPED_ROLES),
+];
 const TYPE_SIZE = new RegExp(`^text-(${TYPE_SIZE_NAMES.join("|")})$`);
 
 const declared = new Set(

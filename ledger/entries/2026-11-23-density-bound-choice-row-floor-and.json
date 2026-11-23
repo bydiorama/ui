@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-density-bound-choice-row-floor-and",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "token",
+  "summary": "New fixed token --ui-choice-row-min-height: the LAYOUT floor of a choice row, re-bound by [data-ui-density] like the control sizes — var(--ui-hit-area-min) (24px) at default and comfortable, 0px under compact. Checkbox, Radio and Switch read it instead of min-h-6, so a compact row falls to its content (19–20px) and a dense table is no longer forced to 24px rows. The TARGET stays ≥ 24px in every mode: each label carries a transparent ::before (relative isolate, centred, min-height --ui-hit-area-min, full width, z below the row's content so clicks on the box/track/text still land on them). Modes nest by inheritance — default inside compact restores the 24px row. Default and comfortable rendering are pixel-identical. Exported as CHOICE_ROW_MIN_HEIGHT and DENSITY_TOKENS (the emitters now read DENSITY_TOKENS). Re-emit any brand theme (toCss) or update theme-zero.css together with these components: with a stale theme the property resolves to nothing and the row falls to its content at every density, though the ::before still keeps the 24px target.",
+  "affects": [
+    "token:--ui-choice-row-min-height",
+    "token:--ui-hit-area-min",
+    "item:theme-zero-css",
+    "item:checkbox",
+    "item:radio",
+    "item:switch"
+  ]
+}

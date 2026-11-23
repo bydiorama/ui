@@ -88,8 +88,9 @@ export function menuPanel(className?: string): string {
 /**
  * A row.
  *
- * `text-body-md` — Select's option role, so a menu and a select list on one
- * page set their rows in one type (#22). The sheet draws 16/600 and this
+ * `text-row` — Select's option role, so a menu and a select list on one
+ * page set their rows in one type (#22). It is `body-md` at default density
+ * and steps to `dense-md` under compact (ADR 0026). The sheet draws 16/600 and this
  * shipped as `text-body-lg`; a members table with a role Select and a row
  * Menu on every line then read as two type systems side by side, a size
  * apart, in what is the same kind of popup, list and gesture. Matched BY
@@ -119,8 +120,15 @@ export function menuPanel(className?: string): string {
  */
 export function menuItem(className?: string): string {
   return cn(
-    "flex w-full cursor-pointer items-center justify-between gap-sm rounded-sm p-md",
-    "text-body-md font-body",
+    // Density-bound geometry (ADR 0026). At default the tokens are p-md and
+    // no floor, so the row is still the padding-drawn ~46px; under compact
+    // the block inset drops to xs and the 32px floor sets the height, the
+    // inline inset to sm. `text-row` is body-md at default and dense-md
+    // (13/400) under compact — the first dense consumer passed
+    // `className="p-sm text-body-sm"` to every row to get this.
+    "flex w-full cursor-pointer items-center justify-between gap-sm rounded-sm",
+    "min-h-row px-row-inset py-row-block-inset",
+    "text-row font-body",
     "text-ink-primary select-none",
     "[&_svg]:size-4 [&_svg]:shrink-0",
     "transition-[background-color,color]", motionMicro,
@@ -154,10 +162,11 @@ export function menuSeparator(className?: string): string {
   return cn("my-sm h-px bg-transparent", className);
 }
 
-/** A group heading. Quieter and smaller than a row; never interactive. */
+/** A group heading. Quieter and smaller than a row; never interactive.
+ *  On the rows' inline lane and their block inset at every density. */
 export function menuGroupLabel(className?: string): string {
   return cn(
-    "px-md pt-md pb-sm",
+    "px-row-inset pt-row-block-inset pb-sm",
     "text-label-sm font-body text-ink-muted",
     className,
   );

@@ -2,11 +2,12 @@
 
 import { Select as BaseSelect } from "@base-ui/react/select";
 import { Check, ChevronDown } from "griddy-icons";
-import { useId, type ComponentPropsWithoutRef } from "react";
+import { useId, useRef, useState, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `modal.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -35,7 +36,7 @@ export type SelectSize = "lg" | "md" | "sm";
  */
 const SIZE = {
   lg: "h-field-lg gap-sm px-field-inset-lg py-sm text-body-md",
-  md: "h-field-md gap-xs px-field-inset-md py-sm text-body-md",
+  md: "h-field-md gap-xs px-field-inset-md py-sm text-row",
   sm: "h-field-sm gap-xs px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<SelectSize, string>;
 
@@ -52,7 +53,7 @@ export interface SelectItem {
   isDisabled?: boolean;
 }
 
-export interface SelectProps {
+export interface SelectProps extends OwnedSlot {
   /**
    * Required — a placeholder is not a label. It disappears the moment a value
    * is chosen, taking the field's name with it (CONVENTIONS §10).
@@ -109,6 +110,19 @@ export function Select({
   const optionId = useId();
   const invalid = Boolean(errorText);
 
+  /**
+   * The density the TRIGGER sits in, carried onto the popup (ADR 0026).
+   *
+   * The list portals to <body>, which leaves a `[data-ui-density]` subtree
+   * (ADR 0020 §4), and Select — unlike Menu or Popover — has no popup part a
+   * caller could hand the attribute to. So it is read off the trigger's
+   * nearest ancestor when the list opens. Nothing is set without one, so a
+   * page with no density attribute renders exactly as before, and one that
+   * sets it on <body> is unaffected: the portal inherits the same value.
+   */
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [density, setDensity] = useState<string | undefined>(undefined);
+
   // Both are announced when both exist: an error rarely makes the guidance
   // irrelevant, and dropping it mid-correction is exactly when it is needed.
   const describedBy =
@@ -122,6 +136,9 @@ export function Select({
         ...(defaultValue !== undefined ? { defaultValue } : {}),
         disabled: isDisabled,
         ...(onValueChange ? { onValueChange: (next: string | null) => onValueChange(next) } : {}),
+        onOpenChange: (open: boolean) => {
+          if (open) setDensity(triggerRef.current?.closest("[data-ui-density]")?.getAttribute("data-ui-density") ?? undefined);
+        },
       })}
     >
       <div data-slot="select" className={cn("flex w-full min-w-56 flex-col gap-sm", className)}>
@@ -130,7 +147,7 @@ export function Select({
           id={labelId}
           data-slot="select-label"
           className={cn(
-            "px-sm text-label-md font-body text-ink-secondary",
+            "px-sm text-field-label font-body text-ink-secondary",
             isLabelHidden && "sr-only",
           )}
         >
@@ -138,6 +155,7 @@ export function Select({
         </span>
 
         <BaseSelect.Trigger
+          ref={triggerRef}
           {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.Trigger>>({
             "data-slot": "select-trigger",
             "aria-labelledby": labelId,
@@ -207,6 +225,7 @@ export function Select({
             <BaseSelect.Popup
               {...forBaseUI<ComponentPropsWithoutRef<typeof BaseSelect.Popup>>({
                 "data-slot": "select-panel",
+                ...(density ? { "data-ui-density": density } : {}),
                 className: cn(
                   // radius-md over a 4px inset around radius-sm rows:
                   // 4 + 4 = 8, concentric exactly (§6).
@@ -252,8 +271,13 @@ export function Select({
                         // four rows draw it and as both of Multiselect's do.
                         // The fourth (GVO-0) is drawn py-lg and is the outlier;
                         // flagged rather than followed.
-                        "flex cursor-pointer items-center gap-sm rounded-sm p-md",
-                        "text-body-md font-body text-ink-primary",
+                        //
+                        // The geometry and `text-row` are the menu row's density-
+                        // bound ones (ADR 0026): p-md and body-md at default,
+                        // a 32px row at dense-md under compact.
+                        "flex cursor-pointer items-center gap-sm rounded-sm",
+                        "min-h-row px-row-inset py-row-block-inset",
+                        "text-row font-body text-ink-primary",
                         "data-[highlighted]:bg-hover",
                         "data-[selected]:font-bold",
                         "data-[disabled]:cursor-not-allowed data-[disabled]:text-ink-disabled",

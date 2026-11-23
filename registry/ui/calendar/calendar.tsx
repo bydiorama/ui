@@ -18,6 +18,7 @@ import { motionMicro } from "@/lib/motion";
 import { chromeControl } from "@/lib/chrome-control";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * A month grid for picking one date.
  *
@@ -87,7 +88,7 @@ const YEAR_ROWS = 9;
 const YEARS_PER_PAGE = YEAR_COLUMNS * YEAR_ROWS;
 const YEAR_RADIUS = (YEARS_PER_PAGE - 1) / 2;
 
-export interface CalendarProps extends Omit<HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange"> {
+export interface CalendarProps extends Omit<HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange">, OwnedSlot {
   /** Required — names the grid, which is otherwise announced as "grid". */
   label: string;
   /** Controlled selection. `null` means nothing is selected. */

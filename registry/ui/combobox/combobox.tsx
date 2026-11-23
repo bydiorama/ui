@@ -26,6 +26,7 @@ import { menuGroupLabel } from "@/lib/menu-surface";
 import { motionMicro } from "@/lib/motion";
 import { Fade } from "@/ui/fade";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in select.tsx — one shim, contained to this file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -49,7 +50,7 @@ export type ComboboxSurface = "page" | "chrome";
  */
 const SIZE = {
   lg: "h-field-lg gap-sm py-sm text-body-md",
-  md: "h-field-md gap-xs py-sm text-body-md",
+  md: "h-field-md gap-xs py-sm text-row",
   sm: "h-field-sm gap-xs py-xs text-caption",
 } as const satisfies Record<ComboboxSize, string>;
 
@@ -84,8 +85,10 @@ const SURFACE = {
  * label span inside it, so the row still renders exactly its role (ADR 0020 §3).
  */
 const OPTION = cn(
-  "flex cursor-pointer items-center gap-sm rounded-sm p-md select-none",
-  "text-body-md font-body text-ink-primary no-underline",
+  "flex cursor-pointer items-center gap-sm rounded-sm select-none",
+  // Density-bound, as Select's row is (ADR 0026).
+  "min-h-row px-row-inset py-row-block-inset",
+  "text-row font-body text-ink-primary no-underline",
   "transition-[background-color]", motionMicro,
   // Pointer hover can still land Base UI's highlight on a disabled row; the
   // sheet draws a disabled row with NO highlight, so it never takes the fill.
@@ -141,7 +144,7 @@ interface ComboboxContextValue {
 }
 const ComboboxContext = createContext<ComboboxContextValue | null>(null);
 
-export interface ComboboxProps {
+export interface ComboboxProps extends OwnedSlot {
   /** Required — a placeholder is not a label (§10). */
   label: string;
   isLabelHidden?: boolean;
@@ -575,7 +578,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         <label
           htmlFor={inputId}
           data-slot="combobox-label"
-          className={cn("px-sm text-label-md font-body text-ink-secondary", isLabelHidden && "sr-only")}
+          className={cn("px-sm text-field-label font-body text-ink-secondary", isLabelHidden && "sr-only")}
         >
           {label}
           {isRequired && (
@@ -714,7 +717,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                     "data-status": status?.kind,
                     className: status
                       ? cn(
-                          "flex items-center gap-sm p-md text-body-md font-body",
+                          "flex items-center gap-sm px-row-inset py-row-block-inset min-h-row text-row font-body",
                           status.kind === "error" ? "text-ink-primary" : "text-ink-muted",
                         )
                       : "sr-only",
@@ -836,7 +839,7 @@ function SignatureProbe({ signature, sigRef }: { signature: string; sigRef: { cu
   return null;
 }
 
-export interface ComboboxActionProps {
+export interface ComboboxActionProps extends OwnedSlot {
   /** The row's text. A function receives what is typed: `(q) => \`Search everything for “${q}”\``. */
   children: ReactNode | ((query: string) => ReactNode);
   /** Slot: a leading glyph, never wrapped (§3). */

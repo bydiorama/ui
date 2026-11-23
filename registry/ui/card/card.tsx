@@ -17,6 +17,7 @@ import { useScrollEdges } from "@/hooks/use-scroll-edges";
 import { Button } from "@/ui/button";
 import { Fade } from "@/ui/fade";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * The inset that makes a 16px-radius surface work — identical to Popover's,
  * and for the same reason: bare text sitting flush at the padding crowds the
@@ -51,7 +52,7 @@ interface CardContextValue {
 
 const CardContext = createContext<CardContextValue | null>(null);
 
-export interface CardProps extends HTMLAttributes<HTMLElement> {
+export interface CardProps extends HTMLAttributes<HTMLElement>, OwnedSlot {
   children: ReactNode;
   /** @default "raised" */
   surface?: CardSurface | undefined;
@@ -133,7 +134,7 @@ const CardRoot = forwardRef<HTMLElement, CardProps>(function Card(
   );
 });
 
-export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   /** The card's title. */
   children: ReactNode;
   /**
@@ -250,7 +251,7 @@ function CardHeader({
   );
 }
 
-export type CardBodyProps = HTMLAttributes<HTMLDivElement>;
+export type CardBodyProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The region between header and footer. Optional for a short card — boxed
@@ -318,7 +319,7 @@ function CardBody({ children, className, ...rest }: CardBodyProps) {
   );
 }
 
-export type CardFooterProps = HTMLAttributes<HTMLDivElement>;
+export type CardFooterProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The action row. `justify-between` is the sheet's layout — a dismissing

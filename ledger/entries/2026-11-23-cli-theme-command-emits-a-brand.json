@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-cli-theme-command-emits-a-brand",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "addition",
+  "summary": "The CLI's `theme` command emits a brand seed's theme stylesheet, so a branded app no longer hand-writes a script that imports ../ui/packages/tokens/src/index.ts and calls resolveThemePair + toTailwindTheme + toCss. `bydiorama-ui theme --seed <.ts|.json> --out <css> [--scheme auto|light|dark] [--check] [--export <name>]` resolves the seed and writes the @theme inline map plus the :root token layer under a GENERATED header that names the regenerate command; `--check` writes nothing and exits 1 when the file is stale, the brand twin of check:theme-css. The composition is a new @bydiorama/tokens export, toThemeStylesheet(pair, { header, scheme }), which scripts/build-theme-css.mjs now uses too, so a brand file and theme-zero.css are the same composition (theme-zero.css is byte-identical). A seed with `error` issues writes nothing and exits 1; `info` issues are printed and the file is written. The CLI keeps zero runtime dependencies: @bydiorama/tokens is unpublished (issue #30) and ships TypeScript Node will not strip inside node_modules, so it is read from a checkout, either --registry-path <checkout> or the packages/tokens beside a CLI running from one. Run from node_modules with neither, the command fails with an error naming both.",
+  "affects": [
+    "package:cli",
+    "package:tokens",
+    "emitter:stylesheet",
+    "script:build-theme-css"
+  ],
+  "migration": {
+    "manual": "Optional. Replace an app's hand-written theme script with `node --experimental-strip-types <checkout>/packages/cli/bin/ui.ts theme --cwd <app> --seed <seed file> --out <css>`, and add the same command with --check to CI. The output differs from a hand-assembled file only in its header (and in anything that script did differently from theme-zero.css). See packages/cli/README.md."
+  }
+}

@@ -44,6 +44,7 @@ import { Button } from "@/ui/button";
 import { Popover } from "@/ui/popover";
 import { StatusMatrix } from "@/ui/status-matrix";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 // ---------------------------------------------------------------- data
 
 /**
@@ -152,7 +153,7 @@ function useChatSources(part: string): ChatSourcesContextValue {
   return ctx;
 }
 
-export interface ChatSourcesProviderProps {
+export interface ChatSourcesProviderProps extends OwnedSlot {
   children: ReactNode;
   /** The turn's sources, in the order the block lists them. */
   sources: readonly ChatSource[];
@@ -247,7 +248,7 @@ function SourceLink({ source, className, children, slot, extra }: SourceLinkProp
 // ---------------------------------------------------------------- citation
 
 export interface ChatSourcesCitationProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "type" | "disabled"> {
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "type" | "disabled">, OwnedSlot {
   /**
    * The source(s) this clause leans on, by id. Two or more share ONE pill
    * ("2, 5") rather than stacking two. Non-empty by type: a marker that
@@ -857,7 +858,7 @@ type ChatSourcesLayoutProps =
       cardCount?: number;
     };
 
-export type ChatSourcesProps = ChatSourcesBaseProps & ChatSourcesLayoutProps;
+export type ChatSourcesProps = ChatSourcesBaseProps & ChatSourcesLayoutProps & OwnedSlot;
 
 /**
  * The block under the answer, above the actions row: everything the turn read.

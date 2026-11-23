@@ -3,6 +3,7 @@ import { forwardRef, useId, type InputHTMLAttributes, type ReactElement } from "
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type InputSize = "lg" | "md" | "sm";
 
 /** The ground the field is cut from — see the `surface` prop (ADR 0017). */
@@ -47,7 +48,7 @@ export type InputShape = "soft" | "full";
  */
 const SIZE = {
   lg: "h-field-lg gap-sm py-sm text-body-md",
-  md: "h-field-md gap-xs py-sm text-body-md",
+  md: "h-field-md gap-xs py-sm text-row",
   sm: "h-field-sm gap-xs py-xs text-caption",
 } as const satisfies Record<InputSize, string>;
 
@@ -134,7 +135,7 @@ interface InputBaseProps
   iconEnd?: ReactElement;
 }
 
-export type InputProps = InputBaseProps;
+export type InputProps = InputBaseProps & OwnedSlot;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   {
@@ -184,7 +185,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         data-slot="label"
         htmlFor={inputId}
         className={cn(
-          "text-label-md font-body text-ink-secondary",
+          "text-field-label font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
           // accessibility tree and still be clickable as a target.
           isLabelHidden && "sr-only",

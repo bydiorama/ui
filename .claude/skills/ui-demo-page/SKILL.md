@@ -168,6 +168,9 @@ and leaves unseen.
 | Trap | Rule |
 | --- | --- |
 | Moving this skill, or its reference pages, to the product tier | That would install the transitions.dev snippets into other people's repositories. That is distribution, not use in our own product, so read the Transitions.dev terms first. The same goes for pulling the snippets out into a shared motion file or package |
+| An accordion nested inside an accordion | The accordion snippet opens its panel with `.t-acc[data-open="true"] .t-acc-panel` — a DESCENDANT selector, so an open outer root matches every inner panel and they all open at once. Never nest `.t-acc`; for rows entering and leaving a list, use a separate presence wrapper with its own class (a grid-rows fold keyed on `data-leaving`) |
+| A digit swap that leaves the old digit behind | A number animation that injects old + new digit spans leaves the outgoing digit in the DOM text after it finishes: the count reads "1 2 1" to copy-paste, find-in-page, screen readers and tests. When it settles (a timer reading the snippet's duration variable), drop the spans and restore plain `textContent`; keep the value in `aria-label` |
+| A 0.5px border on a fixed-height row | CSS adds the border to the box — a 124px row became 125–126px — while Figma draws an inside stroke within it (check the stroke's alignment in whatever tool drew it). Draw the hairline as an inset `outline` (negative `outline-offset`) or an inset `box-shadow` so the row keeps the design's height |
 | Tooltips cropped inside a scrolling column | Flip them below (`.t-tt--below`) where the top would clip |
 | The native caret in a slowed render | It blinks in real time, so at ×8 slow-down it flickers. `caret-color: transparent` in demo mode plus a drawn caret |
 | Overflowing typed text | Scroll the field with the text and fade the left edge; a static line reads broken |

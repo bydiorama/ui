@@ -9,6 +9,7 @@ import { motionMicro } from "@/lib/motion";
 import { Calendar } from "@/ui/calendar";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `select.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -30,7 +31,7 @@ const forBaseUI = <T,>(props: object) => props as T;
  */
 const CONTROL = "h-field-lg gap-sm px-field-inset-lg py-sm";
 
-export interface DatePickerProps {
+export interface DatePickerProps extends OwnedSlot {
   /**
    * Required — a placeholder is not a label. It disappears the moment a date
    * is chosen, taking the field's name with it (CONVENTIONS §10).
@@ -164,7 +165,7 @@ export function DatePicker({
           id={labelId}
           data-slot="date-picker-label"
           className={cn(
-            "text-label-md font-body text-ink-secondary",
+            "text-field-label font-body text-ink-secondary",
             // Bare text inside a rounded surface takes the inset (§6) — but
             // the two are alternatives, not layers: `sr-only` resets padding
             // to 0 and a later `px-sm` puts 16px of it back, so a "hidden"

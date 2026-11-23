@@ -91,6 +91,29 @@ export const Open: Story = {
   ),
 };
 
+/**
+ * A dense menu (ADR 0026): the attribute on the PANEL, because the panel
+ * portals out of any compact subtree it is opened from. Rows are 32px at
+ * 13/400 with no className.
+ */
+export const Compact: Story = {
+  render: () => (
+    <div className="min-h-[300px]" data-ui-density="compact">
+      <Menu defaultIsOpen>
+        <Trigger />
+        <Menu.Panel data-ui-density="compact">
+          <Menu.Group label="Comment">
+            <Menu.Item onSelect={fn()}>Resolve</Menu.Item>
+            <Menu.Item onSelect={fn()}>Assign to me</Menu.Item>
+          </Menu.Group>
+          <Menu.Separator />
+          <Menu.Item isDisabled>Delete</Menu.Item>
+        </Menu.Panel>
+      </Menu>
+    </div>
+  ),
+};
+
 export const WithGroupsAndStates: Story = {
   render: () => (
     <div className="min-h-[420px]">

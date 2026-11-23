@@ -4,6 +4,7 @@ import { Close } from "griddy-icons";
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 const childrenToArray = Children.toArray;
 
 interface ThumbnailBaseProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
@@ -39,7 +40,7 @@ type ThumbnailRemoveProps =
   | { onRemove?: undefined; removeLabel?: undefined }
   | { onRemove: () => void; removeLabel: string };
 
-export type ThumbnailProps = ThumbnailBaseProps & ThumbnailRemoveProps;
+export type ThumbnailProps = ThumbnailBaseProps & ThumbnailRemoveProps & OwnedSlot;
 
 const ThumbnailRoot = forwardRef<HTMLSpanElement, ThumbnailProps>(function Thumbnail(
   { src, alt, isLoading = false, onRemove, removeLabel, className, ...rest },
@@ -160,7 +161,7 @@ interface ThumbnailGroupBaseProps extends HTMLAttributes<HTMLSpanElement> {
  * reads "plus four" and the user learns nothing about what those four are.
  */
 export type ThumbnailGroupProps = ThumbnailGroupBaseProps &
-  ({ max?: undefined; overflowLabel?: undefined } | { max: number; overflowLabel: string });
+  ({ max?: undefined; overflowLabel?: undefined } | { max: number; overflowLabel: string }) & OwnedSlot;
 
 function ThumbnailGroup({
   children,

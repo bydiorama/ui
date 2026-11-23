@@ -21,10 +21,11 @@ import { Fade } from "@/ui/fade";
 import { useIsStuck } from "@/hooks/use-is-stuck";
 import { motionMicro, motionStandard } from "@/lib/motion";
 
+import type { OwnedSlot, SlotSeam } from "@/lib/data-slot";
 /** Rows inside Header.Nav are list items; controls in Start/End are not. */
 const InNav = createContext(false);
 
-export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+export interface HeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Pins the bar to the top of its scroll container and lets it change into
@@ -232,8 +233,8 @@ const HeaderRoot = forwardRef<HTMLElement, HeaderProps>(function Header(
   );
 });
 
-export type HeaderStartProps = HTMLAttributes<HTMLDivElement>;
-export type HeaderEndProps = HTMLAttributes<HTMLDivElement>;
+export type HeaderStartProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
+export type HeaderEndProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /** Leading controls — a brand switcher, a back button. */
 function HeaderStart({ className, ...rest }: HeaderStartProps) {
@@ -245,7 +246,13 @@ function HeaderEnd({ className, ...rest }: HeaderEndProps) {
   return <div data-slot="header-end" className={cn("flex shrink-0 items-center gap-sm", className)} {...rest} />;
 }
 
-export interface HeaderMenuButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+/**
+ * `SlotSeam` — a composition seam (ADR 0014 §5), as on Button: a bar
+ * composed from Header gives the control its own part name — SiteHeader's is
+ * `site-header-menu`. Typed rather than obtained through spread order, which
+ * every other part's `data-slot` is closed against (`@/lib/data-slot`).
+ */
+export interface HeaderMenuButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children">, SlotSeam {
   /**
    * Required — it is the accessible name, and "Menu" is not one. Say what it
    * opens: "Open primary navigation".
@@ -274,7 +281,10 @@ export interface HeaderMenuButtonProps extends Omit<ButtonHTMLAttributes<HTMLBut
  * a second source that could disagree with it.
  */
 const HeaderMenuButton = forwardRef<HTMLButtonElement, HeaderMenuButtonProps>(
-  function HeaderMenuButton({ label, className, type = "button", children, ...rest }, ref) {
+  function HeaderMenuButton(
+    { "data-slot": dataSlot = "header-menu-button", label, className, type = "button", children, ...rest },
+    ref,
+  ) {
     // TEXT FORM (#33): given children, the control is the word itself — no
     // surface, label-md, a 44px target — for a site bar where a boxed glyph
     // would be the only shape besides the CTA. `label` is still the
@@ -285,7 +295,7 @@ const HeaderMenuButton = forwardRef<HTMLButtonElement, HeaderMenuButtonProps>(
         <button
           ref={ref}
           type={type}
-          data-slot="header-menu-button"
+          data-slot={dataSlot}
           aria-label={label}
           className={cn(
             "inline-flex h-11 shrink-0 cursor-pointer items-center rounded-sm px-sm",
@@ -303,7 +313,7 @@ const HeaderMenuButton = forwardRef<HTMLButtonElement, HeaderMenuButtonProps>(
       <button
         ref={ref}
         type={type}
-        data-slot="header-menu-button"
+        data-slot={dataSlot}
         aria-label={label}
         className={chromeControl(className)}
         {...rest}
@@ -319,11 +329,13 @@ const HeaderMenuButton = forwardRef<HTMLButtonElement, HeaderMenuButtonProps>(
  * on both sides of the nav row, which is what centres the row while leaving
  * the two control groups pinned to their edges.
  */
-function HeaderSpacer() {
-  return <div data-slot="header-spacer" aria-hidden="true" className="flex-1" />;
-}
+// Takes no props, and is TYPED as taking OwnedSlot so a caller's `data-slot`
+// is a compile error rather than silently dropped (@/lib/data-slot).
+const HeaderSpacer: (props: OwnedSlot) => ReactElement = () => (
+  <div data-slot="header-spacer" aria-hidden="true" className="flex-1" />
+);
 
-export interface HeaderNavProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+export interface HeaderNavProps extends Omit<HTMLAttributes<HTMLElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Required — a page carries several navigations and `<nav>` landmarks are
@@ -373,7 +385,7 @@ function HeaderNav({ children, label, className, ...rest }: HeaderNavProps) {
 export type HeaderItemVariant = "default" | "quiet";
 
 export interface HeaderItemProps
-  extends Omit<AnchorHTMLAttributes<HTMLElement>, "children" | "href" | "type"> {
+  extends Omit<AnchorHTMLAttributes<HTMLElement>, "children" | "href" | "type">, OwnedSlot {
   children: ReactNode;
   /** `quiet` for a marketing bar: label-md, no fill, ink-only states. */
   variant?: HeaderItemVariant;

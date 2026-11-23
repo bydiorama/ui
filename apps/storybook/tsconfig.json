@@ -9,6 +9,7 @@
       "@bydiorama/tokens": ["../../packages/tokens/src/index.ts"],
       "@bydiorama/tokens/*": ["../../packages/tokens/src/*"],
       "@/lib/cn": ["../../registry/lib/cn/cn.ts"],
+      "@/lib/data-slot": ["../../registry/lib/data-slot/data-slot.ts"],
       "@/lib/chrome-control": ["../../registry/lib/chrome-control/chrome-control.ts"],
       "@/lib/compose-event-handlers": [
         "../../registry/lib/compose-event-handlers/compose-event-handlers.ts"

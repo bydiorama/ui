@@ -17,11 +17,19 @@
  * too, and names the part that drifted.
  */
 
-const ROLES = [
-  "display-lg", "display-md", "title-lg", "title-md", "title-sm",
-  "body-lg", "body-md", "body-sm", "label-md", "label-sm", "caption",
-  "button-lg", "button-sm", "figure",
-] as const;
+import { STEPPED_ROLES, TYPE_ROLES, type TypeRoleName } from "@bydiorama/tokens";
+
+/** Every row of the table, read from it — a role added there is checked here
+ *  without a second list to keep in step. */
+const ROLES = Object.keys(TYPE_ROLES).map((token) => token.replace("--ui-text-", "")) as TypeRoleName[];
+
+/**
+ * The density-stepped roles (ADR 0026): `text-row` renders one table role at
+ * default and another under compact, switched by `--ui-type-step`. Each is
+ * held to the role it resolves to IN SCOPE — read off the element, so a
+ * compact story is checked against the compact role.
+ */
+const STEPPED = Object.entries(STEPPED_ROLES) as [string, { default: TypeRoleName; compact: TypeRoleName }][];
 
 type Attribute = "weight" | "leading" | "tracking";
 
@@ -77,30 +85,38 @@ export function typeRoleViolations(root: ParentNode = document.body): string[] {
   const out: string[] = [];
   const excused = (el: Element, attribute: Attribute) =>
     Boolean(TYPE_ROLE_EXCEPTIONS[el.getAttribute("data-slot") ?? ""]?.[attribute]);
+  const targets: [utility: string, el: Element, role: TypeRoleName][] = [];
   for (const role of ROLES) {
-    for (const el of root.querySelectorAll(`.text-${role}`)) {
-      const style = getComputedStyle(el);
-      const size = parseFloat(style.fontSize);
-      const want = {
-        weight: parseFloat(style.getPropertyValue(`--ui-text-${role}-weight`)),
-        leading: parseFloat(style.getPropertyValue(`--ui-text-${role}-leading`)),
-        tracking: parseFloat(style.getPropertyValue(`--ui-text-${role}-tracking`)),
-      };
-      // No tokens in scope means no stylesheet, not a drift — nothing to say.
-      if (Number.isNaN(want.weight)) continue;
+    for (const el of root.querySelectorAll(`.text-${role}`)) targets.push([role, el, role]);
+  }
+  for (const [name, step] of STEPPED) {
+    for (const el of root.querySelectorAll(`.text-${name}`)) {
+      const compact = parseFloat(getComputedStyle(el).getPropertyValue("--ui-type-step")) >= 1;
+      targets.push([name, el, compact ? step.compact : step.default]);
+    }
+  }
+  for (const [utility, el, role] of targets) {
+    const style = getComputedStyle(el);
+    const size = parseFloat(style.fontSize);
+    const want = {
+      weight: parseFloat(style.getPropertyValue(`--ui-text-${role}-weight`)),
+      leading: parseFloat(style.getPropertyValue(`--ui-text-${role}-leading`)),
+      tracking: parseFloat(style.getPropertyValue(`--ui-text-${role}-tracking`)),
+    };
+    // No tokens in scope means no stylesheet, not a drift — nothing to say.
+    if (Number.isNaN(want.weight)) continue;
 
-      const weight = parseFloat(style.fontWeight);
-      if (weight !== want.weight && !excused(el, "weight")) {
-        out.push(`${describe(el)} is text-${role} at weight ${weight}; the role is ${want.weight}`);
-      }
-      const leading = style.lineHeight === "normal" ? Number.NaN : parseFloat(style.lineHeight);
-      if (!(Math.abs(leading - size * want.leading) <= SLACK_PX) && !excused(el, "leading")) {
-        out.push(`${describe(el)} is text-${role} at line-height ${style.lineHeight}; the role is ${want.leading} (${(size * want.leading).toFixed(2)}px)`);
-      }
-      const tracking = style.letterSpacing === "normal" ? 0 : parseFloat(style.letterSpacing);
-      if (!(Math.abs(tracking - size * want.tracking) <= SLACK_PX) && !excused(el, "tracking")) {
-        out.push(`${describe(el)} is text-${role} at letter-spacing ${style.letterSpacing}; the role is ${want.tracking}em`);
-      }
+    const weight = parseFloat(style.fontWeight);
+    if (weight !== want.weight && !excused(el, "weight")) {
+      out.push(`${describe(el)} is text-${utility} at weight ${weight}; the role (${role}) is ${want.weight}`);
+    }
+    const leading = style.lineHeight === "normal" ? Number.NaN : parseFloat(style.lineHeight);
+    if (!(Math.abs(leading - size * want.leading) <= SLACK_PX) && !excused(el, "leading")) {
+      out.push(`${describe(el)} is text-${utility} at line-height ${style.lineHeight}; the role (${role}) is ${want.leading} (${(size * want.leading).toFixed(2)}px)`);
+    }
+    const tracking = style.letterSpacing === "normal" ? 0 : parseFloat(style.letterSpacing);
+    if (!(Math.abs(tracking - size * want.tracking) <= SLACK_PX) && !excused(el, "tracking")) {
+      out.push(`${describe(el)} is text-${utility} at letter-spacing ${style.letterSpacing}; the role (${role}) is ${want.tracking}em`);
     }
   }
   return out;

@@ -106,6 +106,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),
+      "@/lib/data-slot": join(root, "registry/lib/data-slot/data-slot.ts"),
       "@/lib/chrome-control": join(root, "registry/lib/chrome-control/chrome-control.ts"),
       "@/lib/compose-event-handlers": join(
         root,

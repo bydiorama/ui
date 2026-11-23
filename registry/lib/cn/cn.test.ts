@@ -45,6 +45,27 @@ test("the figure role is a size: it merges with sizes and keeps the colour", () 
   assert.ok(!has(merged, "text-label-sm"), `both sizes survived: ${merged}`);
 });
 
+test("the dense and density-stepped roles are sizes: they merge with sizes and keep the colour", () => {
+  // ADR 0026. `text-row`, `text-nav-row` and `text-field-label` are outside
+  // every name pattern the group had; read as colours, each would delete the
+  // ink beside it — or be deleted by it.
+  for (const role of ["dense-md", "dense-sm", "row", "nav-row", "field-label"]) {
+    const kept = cn(`text-${role}`, "text-ink-primary");
+    assert.ok(has(kept, `text-${role}`) && has(kept, "text-ink-primary"), `one was dropped: ${kept}`);
+    const merged = cn(`text-${role}`, "text-body-sm");
+    assert.ok(!has(merged, `text-${role}`) && has(merged, "text-body-sm"), `both sizes survived: ${merged}`);
+  }
+});
+
+test("the row insets and floors merge like any spacing step — a consumer's p-sm displaces them", () => {
+  const row = cn("px-row-inset py-row-block-inset min-h-row", "p-sm min-h-0");
+  assert.ok(!has(row, "px-row-inset") && !has(row, "py-row-block-inset") && !has(row, "min-h-row"), `a row default survived: ${row}`);
+  const nav = cn("min-h-nav-row", "min-h-12");
+  assert.ok(!has(nav, "min-h-nav-row"), nav);
+  const rail = cn("size-nav-rail-item", "size-10");
+  assert.ok(!has(rail, "size-nav-rail-item"), rail);
+});
+
 test("two leadings merge, including the custom step", () => {
   const result = cn("leading-flat", "leading-snug");
   assert.ok(!has(result, "leading-flat"), `both leadings survived: ${result}`);

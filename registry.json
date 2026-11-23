@@ -99,6 +99,18 @@
       ]
     },
     {
+      "name": "data-slot",
+      "type": "registry:lib",
+      "description": "The data-slot ownership types (CONVENTIONS §5, ADR 0014). Every part sets its own data-slot AFTER the props it forwards, because contract attributes win — so a caller's data-slot was silently overwritten. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so omitting it changes nothing: OwnedSlot declares it as never, which makes passing one a compile error, and every exported component's props intersect it. SlotSeam is the typed exception for an atom a larger component renders as one of its own parts (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget). Types only — nothing ships at runtime.",
+      "files": [
+        {
+          "path": "registry/lib/data-slot/data-slot.ts",
+          "type": "registry:lib",
+          "target": "lib/data-slot.ts"
+        }
+      ]
+    },
+    {
       "name": "fx",
       "type": "registry:lib",
       "description": "The effects layer's CSS materials and its vocabulary (ADR 0022): glass (with edge, inner and specular), grain, sheen, glow, shimmer and ink, applied as a class on a component's ROOT through the typed fx() helper — <Card className={fx(\"glass\", \"edge\")}> — and reaching the part they paint through data-slot, so no component grows a prop. One stylesheet per effect under styles/fx/, imported through fx.css after Tailwind and the theme, all inside `@layer fx` so an effect outranks a component's utilities while the app's unlayered CSS still outranks the effect. Glass paints --ui-bg-glass, a tint the resolver derives per brand and scheme so primary and muted ink clear AA over anything behind it (needs a theme emitted with the glass pair — theme zero's stylesheet carries it). The floor of every effect is the component: reduced transparency, forced colours and reduced motion hand each property back with revert-layer. EFFECTS is the single source of what exists, what each is for and where it applies; check:fx holds the stylesheets to it. The two shader effects — the parametric gradient ground and halo — are named here and shipped by the optional `shader` item. sweep(element) plays sheen's one-shot pass of light.",
@@ -242,7 +254,8 @@
         "@bydiorama/menu-surface",
         "@bydiorama/fade",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/use-scroll-edges"
+        "@bydiorama/use-scroll-edges",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -268,7 +281,8 @@
         "@bydiorama/cn",
         "@bydiorama/chrome-control",
         "@bydiorama/compose-event-handlers",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -292,6 +306,30 @@
           "path": "registry/themes/theme-zero/theme-zero.css",
           "type": "registry:file",
           "target": "~/src/styles/theme-zero.css"
+        }
+      ]
+    },
+    {
+      "name": "eslint-preset",
+      "type": "registry:file",
+      "description": "ESLint flat-config preset carrying Diorama's import boundaries into a consumer app: griddy-icons only (no other icon set), no second component library or design language, and the motion limits of CONVENTIONS §8 / ADR 0018 (no framer-motion, no motion/react component API, no GSAP without a licensing decision; motion/mini is allowed). Dependency-free plain objects: spread the default export into your flat config, or build your own no-restricted-imports from the exported restrictedImports lists (ESLint replaces, never merges, a rule's options). Package names are exact `paths`, never gitignore-style `patterns`, so @/lib/motion is never caught by a rule meant for the motion package.",
+      "files": [
+        {
+          "path": "registry/tooling/eslint/eslint.diorama.mjs",
+          "type": "registry:file",
+          "target": "~/eslint.diorama.mjs"
+        }
+      ]
+    },
+    {
+      "name": "visual-diff",
+      "type": "registry:file",
+      "description": "Dependency-free visual diff of a running app against 1× design exports (Figma or Paper), the script behind the diorama-visual-review skill. Each case opens a route, drives it into the design's state with Playwright, screenshots the page or one element at DPR 1, crops element references to their opaque box (shadow bleed) or an explicit refCrop, compares on a canvas in the same browser and writes ref/actual/diff PNGs plus report.html with a wipe slider. Cases module (--cases, default scripts/visual-cases.mjs), references folder (--refs, default design/references), output (--out, default visual) and BASE_URL are configurable; Playwright is resolved from the app, which needs it as a dev dependency.",
+      "files": [
+        {
+          "path": "registry/tooling/visual-diff/visual-diff.mjs",
+          "type": "registry:file",
+          "target": "~/scripts/visual-diff.mjs"
         }
       ]
     },
@@ -332,7 +370,8 @@
         "@bydiorama/chrome-control",
         "@bydiorama/fade",
         "@bydiorama/use-is-stuck",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -358,7 +397,8 @@
         "@bydiorama/motion",
         "@bydiorama/button",
         "@bydiorama/header",
-        "@bydiorama/sheet"
+        "@bydiorama/sheet",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -379,7 +419,8 @@
       "description": "Single-line text field with its label, helper text and error message as one accessible unit. Three sizes (48/40/32px), leading and trailing slots. The label prop is required by the type system — a placeholder is not a label. errorText wires aria-invalid and aria-describedby together so the two cannot drift apart.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -403,7 +444,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -429,7 +471,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
-        "@bydiorama/button"
+        "@bydiorama/button",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -453,7 +496,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -477,7 +521,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -503,7 +548,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/badge",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -528,7 +574,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -548,7 +595,8 @@
       "type": "registry:ui",
       "description": "A person or entity as a photo or their initials. Circle or rounded, three sizes. `name` is required in both forms — it is the image's alt text and the source of the initials. Initials are aria-hidden and the full name exposed separately, so a screen reader announces the person rather than spelling out letters.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -568,7 +616,8 @@
       "type": "registry:ui",
       "description": "A short status or selection label. Six variants (selected, unselected, neutral, success, warning, danger), two sizes, pill or rounded, with an optional trailing slot. Renders a span and takes no interaction props: anything actionable is a real button passed into iconEnd, keeping the accessible name at the call site.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -593,7 +642,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
-        "@bydiorama/button"
+        "@bydiorama/button",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -621,7 +671,8 @@
         "@bydiorama/use-controllable-state",
         "@bydiorama/use-scroll-edges",
         "@bydiorama/button",
-        "@bydiorama/fade"
+        "@bydiorama/fade",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -647,7 +698,8 @@
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
         "@bydiorama/chrome-control",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -672,7 +724,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/menu-surface"
+        "@bydiorama/menu-surface",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -697,7 +750,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/menu-surface",
-        "@bydiorama/menu"
+        "@bydiorama/menu",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -724,7 +778,8 @@
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
         "@bydiorama/calendar",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -752,7 +807,8 @@
         "@bydiorama/use-controllable-state",
         "@bydiorama/motion",
         "@bydiorama/button",
-        "@bydiorama/input"
+        "@bydiorama/input",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -779,7 +835,8 @@
         "@bydiorama/use-controllable-state",
         "@bydiorama/button",
         "@bydiorama/compose-event-handlers",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -805,7 +862,8 @@
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
         "@bydiorama/compose-event-handlers",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -828,7 +886,8 @@
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
         "@bydiorama/compose-event-handlers",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -851,7 +910,8 @@
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
         "@bydiorama/compose-event-handlers",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -872,7 +932,8 @@
       "description": "An inline, axis-free trend in one of the eight categorical data slots — line, area or columns, at the sheet's 160×40 or 120×32. One image to assistive technology (role=img), named by a required label and described by a required, person-written description: the one chart allowed to ship without a data table (ADR 0023 §4). Server-safe and deterministic; ships no handlers.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/viz"
+        "@bydiorama/viz",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -893,7 +954,8 @@
       "description": "The dot-matrix status mark: a 5×5 screen of dots at four levels on which each run state is a signal — waiting, typing, thinking, working, streaming and progress loop on one shared clock at --ui-stagger-step; done, failed and stopped draw once and hold in their intent ink. Every tick each dot fades a level and the signal re-lights what it touches, so status changes hand over in place. isHeld and reduced motion draw the key frame; the first render is that frame, so it is server-safe. Decorative beside a status line, or role=img with a label.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -920,7 +982,8 @@
         "@bydiorama/cn",
         "@bydiorama/viz",
         "@bydiorama/button",
-        "@bydiorama/table"
+        "@bydiorama/table",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -976,7 +1039,8 @@
         "@bydiorama/use-controllable-state",
         "@bydiorama/use-graph-viewport",
         "@bydiorama/button",
-        "@bydiorama/dot-pattern"
+        "@bydiorama/dot-pattern",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1006,7 +1070,8 @@
         "@bydiorama/use-graph-viewport",
         "@bydiorama/button",
         "@bydiorama/dot-pattern",
-        "@bydiorama/table"
+        "@bydiorama/table",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1050,7 +1115,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/skeleton"
+        "@bydiorama/skeleton",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1071,7 +1137,8 @@
       "description": "The Chart frame with a stat tile's figure and change under its title, so the card says how much, and whether that is good, before the plot is read. The description stays required and stays the chart's accessible description; it is no longer printed. By default one fading area (Chart.Areas wash=\"fade\"); any Chart mark goes in as children. Below the head it is the Chart, untouched.",
       "registryDependencies": [
         "@bydiorama/chart",
-        "@bydiorama/stat-tiles"
+        "@bydiorama/stat-tiles",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1101,7 +1168,8 @@
         "@bydiorama/button",
         "@bydiorama/checkbox",
         "@bydiorama/combobox",
-        "@bydiorama/network"
+        "@bydiorama/network",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1122,7 +1190,8 @@
       "description": "One value against a range — a gauge, not a task. An 8px bar or the sheet's 80px ring with role=meter, the clamped value and an aria-valuetext equal to the printed reading. Warning and danger states require their own words (the type enforces it), a target is a solid rule that requires its label, and no reading requires emptyText rather than an invented zero. Server-safe; ships no handlers.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/viz"
+        "@bydiorama/viz",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1143,7 +1212,8 @@
       "description": "A determinate progress bar with an optional label and percentage, in two track heights (16/8px). A div with role=progressbar and the three ARIA value attributes, because unlike a checkbox or a button a progress bar has no native behaviour to inherit. The value is clamped and the clamped value is what is announced.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1170,7 +1240,8 @@
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
         "@bydiorama/chrome-control",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1195,7 +1266,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/chrome-control",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1220,7 +1292,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1244,7 +1317,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1271,7 +1345,8 @@
         "@bydiorama/cn",
         "@bydiorama/chrome-control",
         "@bydiorama/motion",
-        "@bydiorama/use-controllable-state"
+        "@bydiorama/use-controllable-state",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1296,7 +1371,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/slider"
+        "@bydiorama/slider",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1320,7 +1396,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1345,7 +1422,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1366,7 +1444,8 @@
       "description": "Multi-line text field with its label, helper text and error message as one accessible unit. The control surface is Input's, so the two stack in a form without a seam; height comes from the native rows attribute and grows with a vertical drag. The label prop is required by the type system — a placeholder is not a label. errorText wires aria-invalid and aria-describedby together so the two cannot drift apart.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1386,7 +1465,8 @@
       "type": "registry:ui",
       "description": "A media frame whose height comes from its width. Six named ratios from the sheet — square, story, portrait, landscape, card, screen — over a recessed well, clipped to the soft radius. A child <img> is sized and cropped from the outside, so the call site is just src and alt. The vocabulary is closed on purpose: 'story' means the same shape wherever it is written, and nobody has to remember which way round 9/16 goes.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1407,7 +1487,8 @@
       "description": "A picture with content on top of it. `scrim` darkens the bottom edge and holds a caption; `full` covers the frame, blurs it and centres an action. It IS an AspectRatio frame rather than a copy of one. The veil's strength is a conformance floor, not a taste setting: it is the point at which the caption's inks clear AA over the brightest possible photograph, which is the only guarantee a component putting text on unknown images can make.",
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/aspect-ratio"
+        "@bydiorama/aspect-ratio",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1431,7 +1512,8 @@
       ],
       "registryDependencies": [
         "@bydiorama/cn",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1456,7 +1538,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/progress",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1482,7 +1565,8 @@
         "@bydiorama/cn",
         "@bydiorama/slider",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/motion"
+        "@bydiorama/motion",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1502,7 +1586,8 @@
       "type": "registry:ui",
       "description": "A placeholder standing in for content that has not arrived. One element, no variants, sized entirely from the outside with className — the same shape as shadcn/ui's Skeleton, so a consumer's intuition transfers, and deliberately not a vocabulary: a `lines` or `variant` prop only re-describes the layout the skeleton is standing in for, and that layout is already written beside it. Defaults to a full-width bar at body height so a bare <Skeleton /> is visible rather than a 0px box, fills with the same recessed well Table's own loading bars use, and pulses under motion-safe. aria-hidden by default — the announcement belongs on the region that is loading, as aria-busy, which only the caller can place.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1522,7 +1607,8 @@
       "type": "registry:ui",
       "description": "A decorative dot-grid layer for canvas grounds — the texture behind the Creative Editor stage and the Library's business-card previews. One aria-hidden SVG that fills its container absolutely and paints evenly spaced circular dots, nothing else: no ground of its own, no edge, no pointer target. Geometry defaults transcribe the shipped Paper shader recipe (2px dots on a 16px pitch) and are plain-number props (gap, dotSize); the dot ink is border-subtle carried as currentColor, so className retints it with any ink utility, and the caller's container keeps its own background showing through between the dots. Paper draws this with a WebGL shader; the tiled-SVG rendering is the same geometry with no runtime dependency, crisp at any DPR and printable.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1544,7 +1630,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/fade-ramp",
-        "@bydiorama/use-scroll-edges"
+        "@bydiorama/use-scroll-edges",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1564,7 +1651,8 @@
       "type": "registry:ui",
       "description": "The absence of content, explained: a mark on a 32px well, a sentence saying what is missing, a second saying why, and the control that fixes it. Every part but the title is optional and the action is a real Button, rendered exactly as passed. It announces nothing on its own — a container that swaps it in for content the reader was looking at owns that decision, which is why Table marks the cell it renders this into aria-live.",
       "registryDependencies": [
-        "@bydiorama/cn"
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1591,7 +1679,8 @@
         "@bydiorama/checkbox",
         "@bydiorama/use-controllable-state",
         "@bydiorama/motion",
-        "@bydiorama/skeleton"
+        "@bydiorama/skeleton",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1618,7 +1707,8 @@
         "@bydiorama/motion",
         "@bydiorama/compose-event-handlers",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/button"
+        "@bydiorama/button",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1640,7 +1730,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
-        "@bydiorama/button"
+        "@bydiorama/button",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1670,7 +1761,8 @@
         "@bydiorama/button",
         "@bydiorama/fade",
         "@bydiorama/progress",
-        "@bydiorama/status-matrix"
+        "@bydiorama/status-matrix",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1695,7 +1787,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/button",
-        "@bydiorama/status-matrix"
+        "@bydiorama/status-matrix",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1725,7 +1818,8 @@
         "@bydiorama/use-controllable-state",
         "@bydiorama/button",
         "@bydiorama/popover",
-        "@bydiorama/status-matrix"
+        "@bydiorama/status-matrix",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1755,7 +1849,8 @@
         "@bydiorama/button",
         "@bydiorama/badge",
         "@bydiorama/chat-widget",
-        "@bydiorama/status-matrix"
+        "@bydiorama/status-matrix",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1778,7 +1873,8 @@
         "@bydiorama/cn",
         "@bydiorama/motion",
         "@bydiorama/aspect-ratio",
-        "@bydiorama/fade"
+        "@bydiorama/fade",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1806,7 +1902,8 @@
         "@bydiorama/use-controllable-state",
         "@bydiorama/aspect-ratio",
         "@bydiorama/badge",
-        "@bydiorama/button"
+        "@bydiorama/button",
+        "@bydiorama/data-slot"
       ],
       "files": [
         {
@@ -1854,6 +1951,33 @@
           "path": "registry/skills/effects/SKILL.md",
           "type": "registry:file",
           "target": ".claude/skills/diorama-effects/SKILL.md"
+        }
+      ]
+    },
+    {
+      "name": "visual-review",
+      "type": "registry:file",
+      "description": "Agent skill: checking a screen built with @bydiorama/ui against its design — 1× exports of frames and key components (shadow bleed cropped by alpha, explicit crops for opaque margins), the exact state reproduced by script, a canvas diff in the same browser (the visual-diff item), reading the red rather than the number, measuring with getBoundingClientRect against the design tool's layout values before fixing, and the traps already paid for (strokes inside the box, masks only with a reason, an empty collapsed element still taking a flex gap, the text style before the font, a blocked asset host).",
+      "registryDependencies": [
+        "@bydiorama/visual-diff"
+      ],
+      "files": [
+        {
+          "path": "registry/skills/visual-review/SKILL.md",
+          "type": "registry:file",
+          "target": ".claude/skills/diorama-visual-review/SKILL.md"
+        }
+      ]
+    },
+    {
+      "name": "app-motion",
+      "type": "registry:file",
+      "description": "Agent skill: motion in an app built with @bydiorama/ui — Diorama components and effects own their motion (tokens, never double-animated); product interactions use transitions.dev snippets installed and credited in the app under their licence (the skill ships no snippet code); one snippet per element, no nested accordions, digit swaps restored to plain text, replay by reflow, JS timing read from CSS variables, reduced motion for JS-driven motion, motion never the only feedback, and a review method (10% playback, every state).",
+      "files": [
+        {
+          "path": "registry/skills/app-motion/SKILL.md",
+          "type": "registry:file",
+          "target": ".claude/skills/diorama-app-motion/SKILL.md"
         }
       ]
     }

@@ -5,6 +5,7 @@ import { Minus, TrendDown, TrendUp } from "griddy-icons";
 import { cn } from "@/lib/cn";
 import { Skeleton } from "@/ui/skeleton";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /*
  * StatTiles — the first block (Phase 3, `registry/blocks/`). A block composes
  * components; it owns no behaviour layer (ADR 0012, check:boundaries) and no
@@ -18,7 +19,7 @@ export type StatPolarity = "up-is-good" | "down-is-good";
 /** Literal class maps: Tailwind sees only whole class names. */
 const TONE = { good: "text-success", bad: "text-danger", flat: "text-ink-muted" } as const;
 
-export interface StatDeltaProps {
+export interface StatDeltaProps extends OwnedSlot {
   /**
    * The signed change, as a FRACTION for the default percent format
    * (0.12 = 12%). Printed unsigned: the glyph carries the direction, and a
@@ -174,7 +175,7 @@ interface StatTileOwnProps {
   ref?: Ref<HTMLDivElement>;
 }
 
-export type StatTileProps = StatTileOwnProps & Omit<HTMLAttributes<HTMLDivElement>, keyof StatTileOwnProps>;
+export type StatTileProps = StatTileOwnProps & Omit<HTMLAttributes<HTMLDivElement>, keyof StatTileOwnProps> & OwnedSlot;
 
 /**
  * One tile: label, figure, change, and an optional trend at the end. A
@@ -255,7 +256,7 @@ interface StatTilesOwnProps {
   ref?: Ref<HTMLDListElement>;
 }
 
-export type StatTilesProps = StatTilesOwnProps & Omit<HTMLAttributes<HTMLDListElement>, keyof StatTilesOwnProps>;
+export type StatTilesProps = StatTilesOwnProps & Omit<HTMLAttributes<HTMLDListElement>, keyof StatTilesOwnProps> & OwnedSlot;
 
 /**
  * A row of headline numbers in ONE surface frame, tiles separated by
@@ -288,7 +289,7 @@ export const StatTiles = Object.assign(StatTilesRoot, { Tile: StatTile });
 
 /* ── Figure (shared with ChartCard) ────────────────────────────────────── */
 
-export interface StatFigureProps {
+export interface StatFigureProps extends OwnedSlot {
   /** The formatted figure ("2,370"). */
   value: string;
   delta?: StatDeltaProps;

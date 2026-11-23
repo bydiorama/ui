@@ -19,6 +19,7 @@ import { motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { Slider } from "@/ui/slider";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * What the crop is FOR, which is what decides its shape.
  *
@@ -87,7 +88,7 @@ interface ImageEditOwnProps {
 
 export interface ImageEditProps
   extends ImageEditOwnProps,
-    Omit<HTMLAttributes<HTMLDivElement>, keyof ImageEditOwnProps> {}
+    Omit<HTMLAttributes<HTMLDivElement>, keyof ImageEditOwnProps>, OwnedSlot {}
 
 /** How far one arrow press moves the image, in stage pixels. */
 const NUDGE = 8;

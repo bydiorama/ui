@@ -300,8 +300,10 @@ export interface ResolveResult {
   theme: ResolvedTheme;
   /** Empty when the author's colours all cleared AA unaided. */
   adjustments: ContrastAdjustment[];
-  /** Non-recoverable seed problems. A seed with issues still resolves — using
-   *  fallbacks — so a bad value degrades rather than blanking a page. */
+  /** Seed problems (`severity: "error"`), plus explanations of valid values
+   *  authors are known to misread (`"info"`). A seed with issues still
+   *  resolves — using fallbacks — so a bad value degrades rather than
+   *  blanking a page. */
   issues: SeedValidationIssue[];
 }
 
@@ -389,7 +391,42 @@ export const TYPE_ROLES = {
   // fluid: title-lg shrinks to ~17px on a phone inside a tile that does not
   // shrink. 24/30 at 600; components add `tabular-nums` themselves.
   "--ui-text-figure": { px: 24, leading: 1.25, weight: 600, tracking: "-0.02em" },
+  // The DENSE family (ADR 0026): regular-weight running text at the sizes a
+  // 28–32px row holds. The table had a 13px and a 12px step only at 500 and
+  // 600 (body-sm, label-*, caption), so a dense screen that wanted 13 or 12
+  // REGULAR wrote `text-[13px]/4 font-normal` at the call site — the first
+  // dense consumer did, eleven times. Additive: no existing role moves.
+  "--ui-text-dense-md": { px: 13, leading: 1.35, weight: 400, tracking: "-0.02em" },
+  "--ui-text-dense-sm": { px: 12, leading: 1.35, weight: 400, tracking: "-0.02em" },
 } as const;
+
+/** A role's name as the utilities spell it: `--ui-text-body-md` → `body-md`. */
+export type TypeRoleName = keyof typeof TYPE_ROLES extends `--ui-text-${infer Name}` ? Name : never;
+
+/**
+ * Density-stepped roles (ADR 0026): a role whose VALUE is one table role at
+ * default and comfortable density and another under compact.
+ *
+ * Not new rows of the table — each is a choice BETWEEN two rows, made by the
+ * density mode. The Tailwind emitter composes each attribute as
+ * `calc(A + (B − A) × var(--ui-type-step))`, where `--ui-type-step` is the
+ * density-bound switch (0, or 1 under compact). The mix is evaluated on the
+ * element that names the utility, against the role tokens IN SCOPE there, so
+ * a brand's baseSize and weights reach the stepped value at every nesting —
+ * including a brand scope inside a compact page, which re-binding the role
+ * tokens themselves under `[data-ui-density]` would reset (ADR 0020, I2).
+ *
+ * Every step stays inside the table: what a compact row renders is always a
+ * role the table already authorises, never an interpolated size.
+ */
+export const STEPPED_ROLES = {
+  /** A row of text: a menu, context-menu or option row's label, and the value in a md field. */
+  row: { default: "body-md", compact: "dense-md" },
+  /** A Sidebar row: items, section headings, a layer's title, the profile name. */
+  "nav-row": { default: "body-lg", compact: "body-sm" },
+  /** A field's visible label: Input, Textarea, Select, Multiselect, Combobox, DatePicker. */
+  "field-label": { default: "label-md", compact: "label-sm" },
+} as const satisfies Record<string, { default: TypeRoleName; compact: TypeRoleName }>;
 
 /** Roles that scale with the viewport. Body and below stay fixed, because
  *  fluid body text makes line length unpredictable. */
@@ -508,6 +545,83 @@ function typeAttributes(seed: ThemeSeed): Record<TypeAttributeToken, string> {
 
 // ── The derivation ──────────────────────────────────────────────────────
 
+/**
+ * Below this OKLCH chroma a colour is grey. One 8-bit sRGB unit off the grey
+ * axis is already more than this (`#fffffe` measures 0.0013), so nothing an
+ * author can type as a tint falls under it — only a value that IS neutral
+ * (`#ffffff`, `#fafafa`) does. Theme zero's lightest warm step, neutral-98
+ * (`#FDFCFB`, 0.0017), is a tint and stays one.
+ */
+export const ACHROMATIC_CHROMA = 0.001;
+
+/**
+ * The most chroma a borrowed hue brings to the surface steps. The warm-grey
+ * ramp theme zero authors those steps from carries 0.005–0.0105 between
+ * neutral-95 and neutral-80 (its elevated … active); 0.012 is that ramp with
+ * a little headroom. A saturated page (a yellow ground behind white cards)
+ * must tint its hover, not turn it into a second accent.
+ */
+export const BORROWED_STEP_CHROMA_MAX = 0.012;
+
+export interface SurfaceSteps {
+  /** The surface moved `delta` in OKLCH lightness — `shiftL`, from the base. */
+  shift(delta: number): string;
+  /** The surface moved a fraction `t` of the way to `to`'s lightness — `towardL`. */
+  toward(to: string, t: number): string;
+}
+
+/**
+ * The surface steps — every role that is "the surface, a little lighter or
+ * darker" — and what they are derived FROM.
+ *
+ * `shiftL` keeps hue and chroma and only moves lightness, so a pure-white
+ * surface produced pure-grey steps whatever the page around it was: a warm
+ * `#f3f1ec` page with `#ffffff` cards derived hover `#eeeeee`, active
+ * `#dedede`, selected `#d4d4d4` — cold greys on a warm UI, the one place
+ * the brand's temperature was lost. White is a perfectly reasonable thing to
+ * author for a card; it is not a statement that the card's hover is grey.
+ *
+ * So an achromatic surface takes its hue — and the page's chroma, capped —
+ * from the PAGE (`bg`), not from `muted`:
+ *  - `bg` is the ground every surface sits on, and what a step is read
+ *    against; the derivation already decides direction (`up`) and the light
+ *    field on it.
+ *  - `muted` "may be light or dark independently of the page" (seed.ts): a
+ *    slate block on a cream page is a deliberate second colour, and borrowing
+ *    it would tint a light hover slate-blue.
+ * A neutral page leaves the steps neutral — that UI is grey on purpose. A
+ * surface with any hue of its own gets `shiftL`/`towardL` on itself, so its
+ * steps are exactly what they always were (theme zero's included). Only the
+ * steps change; `--ui-bg-surface` is still the authored value. Lightness is
+ * the same as the grey step's, so the separations are too, and every
+ * measured floor — elevated against surface, the field pairs, the contrast
+ * audit — runs afterwards on the values that ship.
+ *
+ * This also warms the light scheme the resolver DERIVES for a dark-only
+ * brand: `deriveCounterpart` gives it a pure-white surface on a page tinted
+ * with the accent's hue, so its steps now carry that hue too.
+ */
+export function surfaceSteps(surface: string, page: string): SurfaceSteps {
+  const s = toOklch(surface);
+  const p = toOklch(page);
+  if (!s || !p || s.C >= ACHROMATIC_CHROMA || p.C < ACHROMATIC_CHROMA) {
+    return { shift: (delta) => shiftL(surface, delta), toward: (to, t) => towardL(surface, to, t) };
+  }
+  // Built from OKLCH, never from a hex of the tinted base: at the top of the
+  // range (a white card, L = 1) no tint is representable, so the base would
+  // round-trip to #ffffff and every step would come back grey again. The tint
+  // only exists once a step has moved lightness away from the edge.
+  const C = Math.min(p.C, BORROWED_STEP_CHROMA_MAX);
+  const at = (L: number) => formatColor(oklchToRgb({ L: Math.min(1, Math.max(0, L)), C, h: p.h, a: s.a }));
+  return {
+    shift: (delta) => at(s.L + delta),
+    toward: (to, t) => {
+      const target = toOklch(to);
+      return target ? at(s.L + (target.L - s.L) * t) : surface;
+    },
+  };
+}
+
 function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   const dark = isDark(colors.bg);
   // Which way "raised" and "recessed" point — decided on the BACKGROUND,
@@ -549,6 +663,11 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     : `linear-gradient(in oklab 270deg, ${accent} 0%, ${accent} 100%)`;
 
 
+  // Every surface STEP (elevated, sunken, hover, active, selected, the dark
+  // page field) is a lightness move from the surface — carrying the page's
+  // hue when the surface has none of its own. See `surfaceSteps`.
+  const steps = surfaceSteps(colors.surface, colors.bg);
+
   /**
    * The raised surface, and the two ways the obvious one-liner was wrong.
    *
@@ -576,10 +695,11 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
    *    thing it floats over.
    */
   const elevated = (() => {
-    const raised = shiftL(colors.surface, dark ? 0.03 : 0.02);
+    const raised = steps.shift(dark ? 0.03 : 0.02);
     if (contrastRatio(raised, colors.surface) >= 1.02) return raised;
-    return shiftL(colors.surface, -0.03);
+    return steps.shift(-0.03);
   })();
+  const sunken = steps.shift(dark ? -0.03 : -0.04);
 
   /**
    * FIELDS ARE A GROUND-AND-STATE MATRIX, not one fill (ADR 0017).
@@ -611,7 +731,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   // as a column of holes cut through the panel. Halfway between the two
   // panel steps it equals no ground a field can land on, and, as in light
   // (where the white field IS the white page), the hairline draws its edge.
-  const field = dark ? towardL(colors.surface, elevated, 0.5) : colors.bg;
+  const field = dark ? steps.toward(elevated, 0.5) : colors.bg;
   const fieldDisabled = separateFrom(field, 1.12);
   const fieldChrome = separateFrom(elevated, 1.08);
   const fieldChromeDisabled = separateFrom(fieldChrome, 1.12);
@@ -769,7 +889,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
   // this value: two copies of the expression drifted the moment one of them
   // was written from memory, and a ramp anchored 0.2 off the floor starts
   // under it.
-  const accentLegible = legibleOn(accent, shiftL(colors.surface, dark ? -0.03 : -0.04), 3);
+  const accentLegible = legibleOn(accent, sunken, 3);
 
   // The SLIDER's fill. Two stops along the brand's OWN accent, stepping away
   // from the ink, so every brand gets the pale-to-deep sweep the design asks
@@ -874,7 +994,7 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-base": colors.bg,
     "--ui-bg-surface": colors.surface,
     "--ui-bg-elevated": elevated,
-    "--ui-bg-sunken": shiftL(colors.surface, dark ? -0.03 : -0.04),
+    "--ui-bg-sunken": sunken,
     // A field is RECESSED from whatever contains it, and the surface scale
     // inverts between schemes: in light that means the page's lightest value.
     // In dark it USED to mean going further down than any panel, which read
@@ -898,13 +1018,13 @@ function derive(seed: ThemeSeed, colors: SeedColors): ResolvedTheme {
     "--ui-bg-field-chrome-disabled": fieldChromeDisabled,
     "--ui-bg-muted": colors.muted,
     "--ui-bg-overlay": withAlpha(dark ? "#000000" : colors.textPrimary, 0.55),
-    "--ui-bg-hover": shiftL(colors.surface, up * 0.05),
-    "--ui-bg-active": shiftL(colors.surface, up * 0.1),
+    "--ui-bg-hover": steps.shift(up * 0.05),
+    "--ui-bg-active": steps.shift(up * 0.1),
     // Between hover and active in size, and — unlike `sunken` — it follows
     // `up`, so it darkens a light track and LIGHTENS a dark one. A selected
     // item has to read as chosen in both schemes, and "recessed" only reads
     // in the one where the page has room below the surface.
-    "--ui-bg-selected": shiftL(colors.surface, up * 0.13),
+    "--ui-bg-selected": steps.shift(up * 0.13),
     "--ui-bg-accent": accent,
     // Same "step away from your own ink" rule as emphasis, for the same
     // reason: keeps the label's contrast monotonic across all three states.
@@ -1233,6 +1353,7 @@ export function resolveTheme(seed: ThemeSeed, options: ResolveOptions = {}): Res
   if (options.authored && "--ui-focus-ring" in options.authored) {
     issues.push({
       path: "authored.--ui-focus-ring",
+      severity: "error",
       message:
         "is derived from --ui-focus-ring-color, -width and -offset and is always recomposed — " +
         "author --ui-focus-ring-color instead, this value is discarded",

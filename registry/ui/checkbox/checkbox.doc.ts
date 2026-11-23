@@ -30,6 +30,7 @@ export const checkboxDoc = {
   composition: `
 Checkbox
 ├─ children           ReactNode (required) — the label AND the accessible name
+├─ isLabelHidden?     visually hides the label; it stays the name
 ├─ isChecked?         controlled
 ├─ defaultIsChecked?  uncontrolled
 └─ isIndeterminate?   always controlled — only the caller knows the children
@@ -41,6 +42,12 @@ Checkbox
       required: true,
       notes:
         "Required. The whole row is one <label>, so the name comes from the DOM rather than an aria-label that can drift from what is on screen.",
+    },
+    isLabelHidden: {
+      type: "boolean",
+      default: "false",
+      notes:
+        "Visually hides the label without removing it from the accessibility tree — the same prop, and the same sr-only placement, as Switch: on the label, or on the label-and-description block when there is a description. For a box whose meaning the layout already carries, like a table row's selection checkbox ('Select Brief A'). The row is then the 18px box in a 24px target; the name is still the children.",
     },
     isChecked: { type: "boolean", notes: "Controlled. Omit and the component owns its state." },
     defaultIsChecked: { type: "boolean", default: "false", notes: "Uncontrolled starting state." },
@@ -67,25 +74,27 @@ Checkbox
     "Pass the visible label as children — it becomes the accessible name for free.",
     "Use isIndeterminate on a 'select all' whose children are partly selected, and drive it from the children's state.",
     "Prefer uncontrolled (defaultIsChecked) inside a plain form; the input participates natively.",
+    "In a table row, keep the label and hide it (isLabelHidden) — 'Select Brief A' is what a screen reader needs, even where the row itself says which brief it is.",
   ],
 
   dont: [
     "Do not render a checkbox without children. There is no nameless form — the type requires it.",
     "Do not pass both isChecked and defaultIsChecked and expect the second to matter; the hook warns in development if a component switches modes.",
     "Do not set indeterminate through a ref yourself — it is a DOM property with no attribute, and the component already writes it in an effect.",
+    "Do not drop the label for a box-only checkbox, or pass aria-label instead — use isLabelHidden, which keeps the name in the DOM.",
     "Do not rely on the box alone as the target. The label is the target; keeping it short does not shrink the 24px floor.",
   ],
 
   a11y: {
     role: "checkbox (native). Mixed state comes from the `indeterminate` DOM property, which maps to aria-checked=\"mixed\" without an ARIA attribute.",
-    name: "The children, via the wrapping <label>. No aria-label is used or needed.",
+    name: "The children, via the wrapping <label>. No aria-label is used or needed — isLabelHidden clips the text with sr-only rather than removing it, so the name survives.",
     keyboard: [
       { key: "Tab", does: "Moves focus to the input, which is clipped but never hidden from the tab order." },
       { key: "Space", does: "Toggles. Native implicit activation — no JS key handler exists, and none should." },
       { key: "Enter", does: "Nothing, per the platform. Enter submits the form; a checkbox that toggled on Enter would be the odd one out." },
     ],
     target:
-      "The sheet's row is 19px tall — under the 24px floor of WCAG 2.5.8. The <label> is padded to min-h-6 so the whole row, box and text together, is one 24px target. The painted box stays 18px, as designed.",
+      "The sheet's row is 19px tall — under the 24px floor of WCAG 2.5.8. The <label> is held at --ui-choice-row-min-height (24px, = --ui-hit-area-min, at default and comfortable density) so the whole row, box and text together, is one 24px target. The painted box stays 18px, as designed. Under [data-ui-density=\"compact\"] the ROW may be shorter — --ui-choice-row-min-height falls to 0, so a dense table's row is not forced to 24px by its 18px box — and the TARGET is carried apart from it: a transparent ::before on the <label>, centred, at least --ui-hit-area-min tall and the row's full width, sitting under the row's content (isolate + z below) so a click on the box or text still lands on it. Measured by hit-testing in density.browser.test.tsx: under compact the row is under 24px and the target is not.",
     contrastPairs: [
       { fg: "--ui-text-on-accent", bg: "--ui-bg-accent", floor: "non-text", role: "the tick on a checked box" },
       { fg: "--ui-text-primary", bg: "--ui-bg-sunken", floor: "non-text", role: "the dash on a mixed box" },

@@ -133,16 +133,56 @@ and is imported once, after Tailwind:
 @import "./theme-zero.css";
 ```
 
-A **brand** theme is not a file — it is the same two emitters run with the
-brand's seed. Until `@bydiorama/tokens` is published, import them by path from
-a checkout; this is the supported interim seam both current consumers use:
+**Tailwind must see the installed source — and normally already does.**
+Components style themselves with utilities, which Tailwind v4 only emits for
+class names it finds by scanning files. Its automatic detection scans the
+project root — Vite's `root` with `@tailwindcss/vite`, the working directory
+for the PostCSS plugin and the CLI — and skips `node_modules`, anything your
+`.gitignore` excludes, binaries and CSS. The CLI installs into `src/ui`,
+`src/lib` and `src/hooks` (your `components.json` aliases), which is inside
+that root and not ignored, so **a standard app needs no `@source` line**.
+Measured with Tailwind 4.3.5's scanner on the first consumer: all 40 installed
+files were scanned without its three `@source` lines. Add one only when
+detection cannot reach the files, pointing at the folder relative to the
+stylesheet:
 
-```ts
-import { resolveThemePair, toCss, toTailwindTheme } from "../ui/packages/tokens/src/index.ts";
+| Situation | Fix |
+| --- | --- |
+| The install folder is git-ignored (a generated or vendored path) | `@source "../ui";` — an explicit `@source` is scanned even when ignored |
+| The source lives outside the root: a monorepo package, a shared folder, a sibling checkout | `@source "../../../packages/ui";` (this repo's Storybook does exactly this for `registry/`) |
+| The stylesheet narrows the base: `@import "tailwindcss" source("../app")` or `source(none)` | `@source` each folder the installed items land in |
 
-const pair = resolveThemePair(BRAND_SEED);
-const css = [toTailwindTheme(), toCss(pair, { scope: ":root", scheme: "auto" })].join("\n");
+The symptom of a miss is quiet: components render unstyled or half-styled,
+and nothing errors. A utility built at runtime from a template string is
+missed in every setup — that is why the library keeps class names literal.
+
+A **brand** theme is the same file generated from the brand's seed: write a
+`ThemeSeed` (a `.ts` module exporting it, or a `.json`), then let the CLI emit
+the stylesheet — the same `@theme inline` map and token layer theme zero
+ships, under a GENERATED header that names the command to regenerate it:
+
+```bash
+node --experimental-strip-types ../ui/packages/cli/bin/ui.ts theme \
+  --cwd . --seed theme/brand.seed.ts --out src/styles/brand-theme.css
 ```
+
+```css
+@import "tailwindcss";
+@import "./brand-theme.css";
+```
+
+Add the same command with `--check` to CI: it exits 1 when the committed CSS
+no longer matches the seed (or the tokens it resolves through), the way
+`pnpm check:theme-css` guards theme zero. `--scheme light|dark` forces a
+scheme instead of following the OS. `@bydiorama/tokens` is unpublished, so
+the command reads it from the checkout it runs from (or `--registry-path`);
+there is no hand-written emitter script to keep in step any more. See
+[`packages/cli/README.md`](packages/cli/README.md#theme---seed-file---out-css).
+
+`typography.baseSize` is the scale's 16px reference, **not** the body size:
+body copy is the 14px row, so `baseSize: 13` gives 11.375px body text. The
+table is on `SeedTypography.baseSize`, and `theme` prints an `info` note for
+anything under 15.
 
 ### Use it
 
@@ -153,6 +193,93 @@ import { Button } from "@/ui/button";
   Save changes
 </Button>;
 ```
+
+### Dense screens
+
+Density is a mode, not a size prop (ADR 0020 §4, ADR 0026). Set
+`data-ui-density="compact"` and every control, field, row and stepped type
+role under it re-binds — no `className` per component. What compact gives,
+measured in Chromium against theme zero:
+
+| Part | Default | Compact |
+|---|---|---|
+| Button `lg` / `md` / `sm` | 44 / 32 / 24px | 40 / 28 / 24px (24 is the SC 2.5.8 floor) |
+| Input, Select, Multiselect, Combobox field `lg` / `md` / `sm` | 48 / 40 / 32px | 44 / 36 / 28px |
+| Field label (`text-field-label`) | 13px / 600 | 12px / 600 |
+| Field value at `md` (`text-row`) | 14px | 13px (`lg` keeps 14, `sm` 12) |
+| Textarea `md` | 14px value, 8px inset | 13px value, 4px inset |
+| Menu, ContextMenu, Select / Combobox option row | ~46px, 14px / 400 | **32px**, 13px / 400, 8px inline inset |
+| Multiselect option row | drawn by its 12px padding, 12px / 600 | **32px**, type unchanged |
+| Sidebar item, section heading, layer title | 46px, 16px | **32px**, 13px; labels on a 16px lane |
+| Sidebar search | 40px, 14px | 36px, 13px |
+| NavRail item | 32px square | 28px square |
+| Checkbox, Radio, Switch row | 24px | 19–20px (target stays 24px) |
+| Tabs | 24px tab in a 32px list | unchanged |
+
+Apply it to the whole app on `<body>` — portalled panels inherit it from
+there:
+
+```html
+<body data-ui-density="compact">
+```
+
+or to a subtree, such as a dense inspector inside a default page. A
+**portalled** surface (Menu, Popover, Modal, Sheet, Drawer, ContextMenu)
+leaves that subtree, so pass the attribute to its popup part too
+(CONVENTIONS §6); Select carries its trigger's density onto its list by
+itself. `data-ui-density="default"` inside a compact subtree restores the
+drawn sizes.
+
+```tsx
+<aside data-ui-density="compact">
+  <Menu>
+    <Menu.Trigger render={<Button size="md">Actions</Button>} />
+    <Menu.Panel data-ui-density="compact">
+      <Menu.Item onSelect={archive}>Archive</Menu.Item>
+    </Menu.Panel>
+  </Menu>
+</aside>
+```
+
+For 13px or 12px **regular** text in your own screens, use `text-dense-md`
+and `text-dense-sm` rather than `text-[13px] font-normal`: they follow a
+brand's `baseSize` and weights like every other role.
+
+### Lint the boundaries
+
+The library's own import rules — griddy-icons only, no second component
+library, CSS-first motion (CONVENTIONS §7–8) — ship as an ESLint flat-config
+preset, so the app is held to them too:
+
+```bash
+node --experimental-strip-types packages/cli/bin/ui.ts add eslint-preset \
+  --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"
+```
+
+```js
+// eslint.config.mjs
+import tseslint from "typescript-eslint";
+import diorama from "./eslint.diorama.mjs";
+
+export default tseslint.config(
+  ...tseslint.configs.recommended,
+  ...diorama, // after the presets it should override
+);
+```
+
+It is plain objects with no plugin. If your config also sets
+`no-restricted-imports`, ESLint keeps only the LAST object's options — merge
+instead, from the exported `restrictedImports.paths` and `.patterns`. Add
+package names to `paths`, never to `patterns`: patterns match like
+`.gitignore`, so `"motion"` there also catches `@/lib/motion`, which every
+installed component imports.
+
+### Check it against the design
+
+Install the `visual-review` skill (it brings the `visual-diff` script): it
+diffs the running app against 1× exports of the design's frames and
+components, and teaches the agent to read the result. The `app-motion` skill
+covers motion beyond what the components already do.
 
 ### Stay in sync
 

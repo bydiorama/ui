@@ -240,6 +240,16 @@ sheet, whose dark half may still show the mid-grey ramp.
   entry for the implementation uses it as provenance. Anything you could not
   resolve goes to the user *and* into the doc's `needsDesign`, which
   `pnpm design:gaps` collects.
+- **An asset URL that will not download is not a reason to redraw the asset.**
+  Cloud sessions often cannot reach a design tool's asset host — Figma's MCP
+  asset URLs return 403 there — so get the bytes back AS TEXT through a tool
+  call instead. Vectors: in Paper, `get_jsx` on the SVG node returns its
+  markup; in Figma, `use_figma` running
+  `await node.exportAsync({ format: "SVG_STRING" })` returns the SVG source.
+  Rasters: `get_screenshot` of the node (Figma: with `enableBase64Response`),
+  saved to disk, then cropped to the asset's box with a script. Never retype
+  base64 or path data by hand — one transposed character is a different
+  image that still renders.
 - `finish_working_on_nodes` when done. Never leave node IDs in user-facing text.
 
 **Sweep the board before you call it done — a screenshot cannot see any of

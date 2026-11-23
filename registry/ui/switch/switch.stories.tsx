@@ -107,3 +107,28 @@ export const SettingsRows: Story = {
     </div>
   ),
 };
+
+/**
+ * One switch in its own colour — the agent toggle beside ordinary ones. The
+ * ON track reads `--ui-switch-track-on-bg` (rest) and
+ * `--ui-switch-track-on-hover-bg` (pointer), both declared on the Switch's
+ * root with the accent roles as defaults, so they are set on the Switch
+ * itself. A data-category role stands in for the product's own violet here;
+ * an app passes its own role, never a hex.
+ */
+export const OnColour: Story = {
+  render: () => (
+    <div className="flex flex-col gap-md">
+      <Switch defaultIsChecked onCheckedChange={fn()}>
+        Notify me (accent, the default)
+      </Switch>
+      <Switch
+        defaultIsChecked
+        onCheckedChange={fn()}
+        className="[--ui-switch-track-on-bg:var(--ui-data-cat-3-solid)] [--ui-switch-track-on-hover-bg:var(--ui-data-cat-3-fg)]"
+      >
+        Let the agent act on my behalf
+      </Switch>
+    </div>
+  ),
+};

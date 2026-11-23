@@ -67,13 +67,19 @@ const twMerge = extendTailwindMerge({
         "control-inset-sm", "control-inset-md", "control-inset-lg",
         "field-sm", "field-md", "field-lg",
         "field-inset-sm", "field-inset-md", "field-inset-lg",
+        // Rows (ADR 0026) — list and nav row insets and floors, the rail square.
+        "row", "row-inset", "row-block-inset", "nav-row", "nav-rail-item",
       ],
     },
     classGroups: {
       // The type roles (--text-* namespace in the emitted theme). They must
       // sit in `font-size` — see the conflict override above.
       "font-size": [
-        { text: [(value: string) => /^(display|title|body|label|button)-(lg|md|sm)$/.test(value) || value === "caption" || value === "figure"] },
+        //
+        // The dense family and the density-stepped roles (ADR 0026) are
+        // listed by name: `text-row` and `text-nav-row` read as a colour to
+        // the merger otherwise, and the next ink class would delete them.
+        { text: [(value: string) => /^(display|title|body|label|button|dense)-(lg|md|sm)$/.test(value) || ["caption", "figure", "row", "nav-row", "field-label"].includes(value)] },
       ],
       // The ink roles. Namespaced `ink-*` precisely so this rule can be a
       // prefix match instead of a list that drifts.

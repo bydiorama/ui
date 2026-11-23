@@ -18,6 +18,7 @@ import { cn } from "@/lib/cn";
 import { motionStandard } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `modal.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -50,7 +51,7 @@ const SNAP_DISTANCE_PX = 48;
 /** Lets the handle close a drawer that owns its own state. */
 const DrawerClose_ = createContext<(() => void) | null>(null);
 
-export interface DrawerProps {
+export interface DrawerProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit to let the drawer own it. */
   isOpen?: boolean;
@@ -116,7 +117,7 @@ function DrawerRoot({ children, isOpen, defaultIsOpen, onOpenChange, isDismissab
   );
 }
 
-export interface DrawerTriggerProps {
+export interface DrawerTriggerProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that opens it. Passed through, never wrapped (§3). */
   render?: ReactElement;
@@ -148,7 +149,7 @@ export type DrawerFocusTarget = RefObject<HTMLElement | null> | (() => HTMLEleme
 const toBaseFocus = (target: DrawerFocusTarget) =>
   typeof target === "function" ? () => target() ?? true : target;
 
-export interface DrawerPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title" | "aria-label"> {
+export interface DrawerPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title" | "aria-label">, OwnedSlot {
   /**
    * Refused, not overridden — `label` sets it. See the identical note in
    * `sheet.tsx`: TypeScript lets any UNDECLARED hyphenated attribute through,
@@ -377,7 +378,7 @@ function DrawerPanel({
   );
 }
 
-export type DrawerHeaderProps = HTMLAttributes<HTMLDivElement>;
+export type DrawerHeaderProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The 48px chrome band, drawn on this component's own sheet and missing from
@@ -410,7 +411,7 @@ function DrawerHeader({ className, ...rest }: DrawerHeaderProps) {
   );
 }
 
-export type DrawerTitleProps = HTMLAttributes<HTMLHeadingElement>;
+export type DrawerTitleProps = HTMLAttributes<HTMLHeadingElement> & OwnedSlot;
 
 function DrawerTitle({ className, ...rest }: DrawerTitleProps) {
   return (
@@ -428,7 +429,7 @@ function DrawerTitle({ className, ...rest }: DrawerTitleProps) {
   );
 }
 
-export type DrawerBodyProps = HTMLAttributes<HTMLDivElement>;
+export type DrawerBodyProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /** The content region. Scrolls when the drawer hits its cap. */
 function DrawerBody({ className, ...rest }: DrawerBodyProps) {
@@ -441,7 +442,7 @@ function DrawerBody({ className, ...rest }: DrawerBodyProps) {
   );
 }
 
-export type DrawerFooterProps = HTMLAttributes<HTMLDivElement>;
+export type DrawerFooterProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The action region. Buttons STACK, full width — unlike Modal's row, because
@@ -458,7 +459,7 @@ function DrawerFooter({ className, ...rest }: DrawerFooterProps) {
   );
 }
 
-export interface DrawerCloseProps {
+export interface DrawerCloseProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that dismisses. Never wrapped (§3). */
   render?: ReactElement;

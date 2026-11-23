@@ -13,7 +13,7 @@ export const selectDoc = {
     { part: "value", slot: "select-value", notes: "The chosen label, or the placeholder in placeholder ink." },
     { part: "icon", slot: "select-icon", notes: "The chevron. Decorative — the trigger's name comes from the label." },
     { part: "panel", slot: "select-panel", notes: "radius-md over a 4px inset around radius-sm rows — concentric exactly, 4 + 4 = 8 (§6). bg-surface, a 1px edge, shadow-md. Capped to --available-height and scrolls internally (§7c)." },
-    { part: "option", slot: "select-option", notes: "p-md, radius-sm when highlighted or selected — a touch target as well as a line of text. With a description it is named by its label (aria-labelledby) and described by the second line (aria-describedby)." },
+    { part: "option", slot: "select-option", notes: "The menu row's density-bound geometry and `text-row`: p-md and body-md at default, a 32px row at 13/400 under compact (ADR 0026). The list portals to <body>, so on open it copies the trigger's nearest data-ui-density onto itself — no prop needed. radius-sm when highlighted or selected — a touch target as well as a line of text. With a description it is named by its label (aria-labelledby) and described by the second line (aria-describedby)." },
     { part: "option text", slot: "select-option-text", notes: "The label-over-description stack, 4px apart — Radio's." },
     { part: "option description", slot: "select-option-description", notes: "The optional second line: caption in muted ink (disabled ink on a disabled row). Wraps rather than truncates. Rendered in the popup only, never in the trigger." },
     { part: "indicator", slot: "select-indicator", notes: "The tick on the chosen row." },

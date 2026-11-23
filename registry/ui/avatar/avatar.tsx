@@ -2,6 +2,7 @@ import { Children, forwardRef, type HTMLAttributes, type ReactNode } from "react
 
 import { cn } from "@/lib/cn";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 const childrenToArray = Children.toArray;
 
 export type AvatarSize = "lg" | "md" | "sm";
@@ -152,7 +153,7 @@ type AvatarStatusProps =
   | { status?: undefined; statusLabel?: undefined }
   | { status: AvatarStatus; statusLabel: string };
 
-export type AvatarProps = (AvatarImageProps | AvatarInitialsProps) & AvatarStatusProps;
+export type AvatarProps = (AvatarImageProps | AvatarInitialsProps) & AvatarStatusProps & OwnedSlot;
 
 /** First letters of the first and last word, capped at two. */
 function initialsFrom(name: string): string {
@@ -273,7 +274,7 @@ type AvatarGroupOverflowProps =
   | { max?: undefined; overflowLabel?: undefined }
   | { max: number; overflowLabel: string };
 
-export type AvatarGroupProps = AvatarGroupBaseProps & AvatarGroupOverflowProps;
+export type AvatarGroupProps = AvatarGroupBaseProps & AvatarGroupOverflowProps & OwnedSlot;
 
 /**
  * A stack of avatars, overlapping by the sheet's 4px.

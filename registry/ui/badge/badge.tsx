@@ -2,6 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactElement, type ReactNode } fr
 
 import { cn } from "@/lib/cn";
 
+import type { SlotSeam } from "@/lib/data-slot";
 export type BadgeVariant = "selected" | "unselected" | "neutral" | "info" | "success" | "warning" | "danger";
 export type BadgeSize = "md" | "sm";
 /**
@@ -110,7 +111,14 @@ type FakeInteractionProps =
   | "onKeyUp"
   | "tabIndex";
 
-export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, FakeInteractionProps> {
+/**
+ * `SlotSeam` — a composition seam (ADR 0014 §5), as on Button: a larger
+ * component that renders a Badge as one of its own parts gives it that
+ * part's name — ChatQuestionnaire's answer is `chat-questionnaire-answer`.
+ * Typed rather than obtained through spread order, which every other
+ * component's `data-slot` is closed against (`@/lib/data-slot`).
+ */
+export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, FakeInteractionProps>, SlotSeam {
   variant?: BadgeVariant;
   size?: BadgeSize;
   shape?: BadgeShape;
@@ -130,13 +138,22 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, FakeIn
  * common accessibility defect in tag components.
  */
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
-  { variant = "unselected", size = "sm", shape = "full", iconEnd, className, children, ...rest },
+  {
+    "data-slot": dataSlot = "badge",
+    variant = "unselected",
+    size = "sm",
+    shape = "full",
+    iconEnd,
+    className,
+    children,
+    ...rest
+  },
   ref,
 ) {
   return (
     <span
       ref={ref}
-      data-slot="badge"
+      data-slot={dataSlot}
       data-variant={variant}
       data-size={size}
       className={cn(

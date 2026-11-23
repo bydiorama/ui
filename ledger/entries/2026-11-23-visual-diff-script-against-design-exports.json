@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-visual-diff-script-against-design-exports",
+  "date": "2026-11-23",
+  "item": "visual-diff",
+  "kind": "addition",
+  "summary": "New file item visual-diff (~/scripts/visual-diff.mjs): the dependency-free visual diff the first consumer used to find an 8–12px drift nobody had seen, generalised. Renders each case (route + scripted setup, page or element) at DPR 1, crops element references to their opaque box or an explicit refCrop, diffs on a canvas in the same browser, writes ref/actual/diff PNGs and report.html. Configurable cases module (--cases), references folder (--refs), output (--out), BASE_URL and THRESHOLD; optional CONFIG export for default viewport, injected CSS, reset, settle time and node links; Playwright resolved from the app. Exits non-zero when a case errors.",
+  "affects": [
+    "item:visual-diff"
+  ]
+}

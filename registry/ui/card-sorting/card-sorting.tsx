@@ -28,6 +28,7 @@ import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * A reorderable list of cards.
  *
@@ -136,7 +137,7 @@ function useSorting(part: string): SortingContext {
   return value;
 }
 
-export interface CardSortingProps extends Omit<HTMLAttributes<HTMLUListElement>, "onChange"> {
+export interface CardSortingProps extends Omit<HTMLAttributes<HTMLUListElement>, "onChange">, OwnedSlot {
   children: ReactNode;
   /**
    * Required — the list needs a name, and "list, 4 items" says nothing about
@@ -504,7 +505,7 @@ function containsHandle(node: ReactNode): boolean {
   );
 }
 
-export interface CardSortingItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "id"> {
+export interface CardSortingItemProps extends Omit<HTMLAttributes<HTMLLIElement>, "id">, OwnedSlot {
   children: ReactNode;
   /** Stable identity. This is what `order` is made of, so an index will break. */
   id: string;
@@ -584,7 +585,7 @@ function CardSortingItem({ children, id, label, className, onClick, ...rest }: C
 export type CardSortingHandleProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "children" | "id" | "type" | "disabled" | "aria-label" | "aria-labelledby" | "aria-pressed"
->;
+> & OwnedSlot;
 
 /**
  * The grip, wired. Shared by the default leading grip and a placed

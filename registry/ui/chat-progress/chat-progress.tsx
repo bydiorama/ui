@@ -12,6 +12,7 @@ import { Fade } from "@/ui/fade";
 import { Progress } from "@/ui/progress";
 import { StatusMatrix, type StatusMatrixStatus } from "@/ui/status-matrix";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * The forms, lightest first.
  *
@@ -254,14 +255,16 @@ type ChatProgressTypingProps = Omit<ChatProgressBaseProps, "icon" | "duration" |
   onOpenChange?: undefined;
 };
 
-export type ChatProgressProps =
-  | ChatProgressTypingProps
-  | (ChatProgressBaseProps &
-      ChatProgressFormProps &
-      ChatProgressReceiptProps &
-      RetryPair &
-      ChatProgressStopProps &
-      ChatProgressDisclosureProps & { who?: undefined });
+export type ChatProgressProps = OwnedSlot &
+  (
+    | ChatProgressTypingProps
+    | (ChatProgressBaseProps &
+        ChatProgressFormProps &
+        ChatProgressReceiptProps &
+        RetryPair &
+        ChatProgressStopProps &
+        ChatProgressDisclosureProps & { who?: undefined })
+  );
 
 /**
  * The union, flattened for internal use.

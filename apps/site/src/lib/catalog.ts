@@ -6,7 +6,7 @@ export interface Item {
   status: string; lead: string;
   files: { path: string; target: string }[];
   dependencies: string[]; registryDependencies: string[];
-  contrast: { role?: string; floor: string; light: number; dark: number }[] | null;
+  contrast: { role?: string; fg: string; bg: string; floor: string; light: number; dark: number }[] | null;
   docs: {
     summary: string; composition?: string; design?: string;
     anatomy: { part: string; slot?: string | null; notes?: string }[];

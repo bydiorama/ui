@@ -15,7 +15,8 @@ for (const item of readManifest().items.filter(isPublicItem)) {
   const reference = join(out, `components/${item.name}/index.html`);
   if (existsSync(reference)) {
     const html = readFileSync(reference, "utf8");
-    if (!html.includes('id="preview"') || !html.includes('class="example-code"')) errors.push(`${item.name}: public references must include a preview and its example source.`);
+    // The stage holds the live example, and the example's source is highlighted into the page at build time.
+    if (!html.includes('class="preview-frame"') || !html.includes('class="astro-code')) errors.push(`${item.name}: public references must include a preview and its example source.`);
   }
 }
 const index = JSON.parse(readFileSync(join(out, "r/registry.json"), "utf8"));

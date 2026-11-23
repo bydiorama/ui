@@ -50,7 +50,7 @@ const headerButton = buttonClassName({ variant: "secondary", size: "sm", shape: 
         <nav class="desktop-nav" aria-label="Main navigation">{nav.map(item => <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>{item.label}</a>)}</nav>
         <div class="header-tools">
           <Search entries={searchEntries} client:idle />
-          <a class:list={[headerButton, "github-link"]} href={copy.repository}><Github aria-hidden="true" />GitHub<ArrowUpRight class="github-link-arrow" aria-hidden="true" /></a>
+          <a class:list={[headerButton, "github-link"]} href={copy.repository}><Github aria-hidden="true" />GitHub<ArrowUpRight className="github-link-arrow" aria-hidden="true" /></a>
           <a class:list={[headerButton, "start-link"]} href="/docs/">Get started</a>
           <details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation">{nav.map(item => <a href={item.href}>{item.label}</a>)}<a href={copy.repository}>GitHub</a></nav></details>
         </div>

@@ -42,8 +42,23 @@ const chip = () => document.querySelector<HTMLElement>('[data-slot="tooltip"][da
 const anyChip = () => document.querySelector<HTMLElement>('[data-slot="tooltip"]');
 const trigger = () => document.querySelector<HTMLElement>('[data-slot="tooltip-trigger"]')!;
 
+/**
+ * Wait for the transition to EXIST, then until nothing is running — the same
+ * helper as drawer.browser.test.tsx. Base UI writes `transition: none` on a
+ * surface for the frame it opens in, so `getAnimations()` read on that frame is
+ * empty and a one-shot `Promise.all` resolves at once: the caller then measures
+ * the chip mid-scale (23.70px for a 24.19px chip), which failed the 24px-floor
+ * test on a loaded CI runner.
+ */
 async function settled(element: Element) {
-  await Promise.all(element.getAnimations().map((a) => a.finished.catch(() => undefined)));
+  for (let i = 0; i < 3 && element.getAnimations().length === 0; i++) {
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  }
+  for (let i = 0; i < 5; i++) {
+    const running = element.getAnimations();
+    if (running.length === 0) break;
+    await Promise.all(running.map((a) => a.finished.catch(() => undefined)));
+  }
 }
 
 

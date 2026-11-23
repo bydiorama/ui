@@ -52,6 +52,12 @@ async function settled(el: Element) {
   }
 }
 
+/**
+ * A fixed pause, for asserting that something does NOT happen (the panel stays
+ * open). Never for asserting that it closes: the exit transition runs before the
+ * panel unmounts, and on a loaded CI runner that took longer than this pause —
+ * "closes" is `expect.poll(() => panel()).toBeNull()` instead.
+ */
 const rest = () => new Promise((r) => setTimeout(r, 260));
 
 afterEach(() => {
@@ -228,9 +234,8 @@ describe("Drawer comes from the bottom and is built to be grabbed", () => {
     await userEvent.click(trigger());
     await settled(panel()!);
     await drag(handle(), 140);
-    await rest();
     // 140 clears the 96px distance threshold on its own.
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
@@ -254,8 +259,7 @@ describe("Drawer comes from the bottom and is built to be grabbed", () => {
       Object.defineProperty(ev, "timeStamp", { value: down + 20 });
       h.dispatchEvent(ev);
     });
-    await rest();
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
   });
 
   test("TAPPING the handle closes it — the alternative SC 2.5.7 requires", async () => {
@@ -265,8 +269,7 @@ describe("Drawer comes from the bottom and is built to be grabbed", () => {
     // A pointer user who cannot drag must still have a way out, and it has to
     // be the same control rather than a second one hidden elsewhere.
     await userEvent.click(handle());
-    await rest();
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
   });
 
   test("the handle is keyboard-operable, and does not trap a drag mid-flight", async () => {
@@ -276,8 +279,7 @@ describe("Drawer comes from the bottom and is built to be grabbed", () => {
     const h = handle();
     h.focus();
     await userEvent.keyboard("{Enter}");
-    await rest();
-    expect(panel()).toBeNull();
+    await expect.poll(() => panel()).toBeNull();
   });
 
   test("the entrance ACTUALLY animates the panel's position", async () => {

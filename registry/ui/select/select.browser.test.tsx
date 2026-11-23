@@ -108,10 +108,16 @@ describe("Select is a named listbox, and Base UI provides the behaviour", () => 
     await settled(panel()!);
     expect(panel()).not.toBeNull();
     await userEvent.keyboard("{Escape}");
-    await new Promise((r) => setTimeout(r, 250));
     // Focus falling to <body> after a dismiss is the classic hand-rolled
     // listbox failure.
-    expect(document.activeElement).toBe(t);
+    //
+    //
+    // Poll, never a fixed pause: focus returns only once the exit transition
+    // has run. A 250ms sleep lost that race on a loaded CI runner, with focus
+    // still on the highlighted option (as Drawer's closes did). The panel stays
+    // in the DOM after closing, so "closed" is read from the trigger.
+    await vi.waitFor(() => expect(t.getAttribute("aria-expanded")).toBe("false"), { timeout: 2000 });
+    await vi.waitFor(() => expect(document.activeElement).toBe(t), { timeout: 2000 });
   });
 
   test("errorText marks the field invalid and is announced", () => {

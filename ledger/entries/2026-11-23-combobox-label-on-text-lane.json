@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-combobox-label-on-text-lane",
+  "date": "2026-11-23",
+  "item": "combobox",
+  "kind": "visual",
+  "summary": "Combobox's label, helper and error move from a fixed 8px (px-sm) to the text lane, for either shape. The label, helper and error now start where the typed text does: the control's hairline plus its inline padding (lib/field-lane), so they share one edge at every size and density. At default density that is 13.5px at lg and 9.5px at md and sm.",
+  "affects": [
+    "slot:combobox-label",
+    "slot:combobox-helper",
+    "slot:combobox-error"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-image-upload-label-on-text-lane",
+  "date": "2026-11-23",
+  "item": "image-upload",
+  "kind": "visual",
+  "summary": "ImageUpload's label and helper move onto a default Input's text lane (lg, the brand's shape), so a form stacking the two keeps one label edge, as the doc promises.",
+  "affects": [
+    "slot:image-upload-label",
+    "slot:image-upload-helper"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+  }
+}

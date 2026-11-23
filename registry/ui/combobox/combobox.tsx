@@ -22,6 +22,7 @@ import {
 
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { menuGroupLabel } from "@/lib/menu-surface";
 import { motionMicro } from "@/lib/motion";
 import { Fade } from "@/ui/fade";
@@ -573,12 +574,12 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         data-slot="combobox"
         className={cn("flex w-full min-w-56 flex-col gap-sm", className)}
       >
-        {/* Bare text inside a rounded surface takes the inset (§6) — Select's
-            and Multiselect's label, the listbox-picker family. */}
+        {/* On the control's text lane (lib/field-lane), the same edge the
+            typed text starts at, for either shape. */}
         <label
           htmlFor={inputId}
           data-slot="combobox-label"
-          className={cn("px-sm text-field-label font-body text-ink-secondary", isLabelHidden && "sr-only")}
+          className={cn("text-field-label font-body text-ink-secondary", isLabelHidden ? "sr-only" : fieldLane(size, shape))}
         >
           {label}
           {isRequired && (
@@ -817,12 +818,12 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
         </BaseCombobox.Portal>
 
         {errorText && (
-          <p data-slot="combobox-error" id={errorId} className="px-sm text-caption font-body text-danger">
+          <p data-slot="combobox-error" id={errorId} className={cn(fieldLane(size, shape), "text-caption font-body text-danger")}>
             {errorText}
           </p>
         )}
         {helperText && (
-          <p data-slot="combobox-helper" id={helperId} className="px-sm text-caption font-body text-ink-muted">
+          <p data-slot="combobox-helper" id={helperId} className={cn(fieldLane(size, shape), "text-caption font-body text-ink-muted")}>
             {helperText}
           </p>
         )}

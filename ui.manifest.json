@@ -90,6 +90,18 @@
       ]
     },
     {
+      "name": "field-lane",
+      "type": "lib",
+      "description": "The field family's text lane: the inline padding that starts a field's label, helper and error at the same edge as the text typed in the control. Written on the same density and stroke tokens as the control's own padding, so it moves with data-ui-density and a brand's hairline. Shared by Input, Textarea, Select, Combobox and DatePicker so the family gives one answer.",
+      "files": [
+        {
+          "path": "registry/lib/field-lane/field-lane.ts",
+          "target": "lib/field-lane.ts"
+        }
+      ],
+      "status": "stable"
+    },
+    {
       "name": "compose-event-handlers",
       "type": "lib",
       "description": "Composes a consumer event handler with component-owned behaviour. The consumer runs first and may prevent optional internal behaviour with preventDefault; non-cancellable safety invariants stay outside the helper.",
@@ -257,7 +269,8 @@
         "fade",
         "use-controllable-state",
         "use-scroll-edges",
-        "data-slot"
+        "data-slot",
+        "field-lane"
       ],
       "status": "experimental"
     },
@@ -417,14 +430,15 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "data-slot"
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable"
     },
     {
       "name": "popover",
       "type": "ui",
-      "description": "A panel anchored to a trigger, for secondary content that should not take over the page. Compound: Trigger, Panel, Title, Description, Close. Positioning, focus restoration, dismissal and ARIA wiring come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. Bare text inside the 32px-radius panel is inset one step; boxed children sit flush.",
+      "description": "A panel anchored to a trigger, for secondary content that should not take over the page. Compound: Trigger, Panel, Title, Description, Close, and for a list panel (variant=\"list\") Search, List, Row and Footer. Positioning, focus restoration, dismissal and ARIA wiring come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. Bare text inside the 32px-radius panel is inset one step; boxed children sit flush.",
       "files": [
         {
           "path": "registry/ui/popover/popover.tsx",
@@ -436,12 +450,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui/react@1.7.0"
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
         "cn",
         "motion",
-        "data-slot"
+        "data-slot",
+        "menu-surface"
       ],
       "status": "stable"
     },
@@ -566,7 +582,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "data-slot"
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable"
     },
@@ -762,7 +779,8 @@
         "use-controllable-state",
         "calendar",
         "motion",
-        "data-slot"
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable"
     },
@@ -1403,7 +1421,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "data-slot"
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable"
     },
@@ -1493,7 +1512,8 @@
         "cn",
         "progress",
         "motion",
-        "data-slot"
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable"
     },

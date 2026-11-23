@@ -10,6 +10,7 @@ import {
 import { AlertCircle, Close, Plus, Upload } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 import { Progress } from "@/ui/progress";
 
@@ -155,9 +156,11 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           // Input's own label, verbatim, because this IS a field and the two
           // stack in a form. The sheet draws weight 550 here and 500 on
           // Input; following Input is what keeps a form from having two
-          // label styles. Flagged in needsDesign.
+          // label styles. Flagged in needsDesign. The dropzone has no text
+          // lane of its own, so the label takes a default Input's (lg, the
+          // brand's shape), and a form stacking the two has one label edge.
           "text-field-label font-body text-ink-secondary",
-          isLabelHidden && "sr-only",
+          isLabelHidden ? "sr-only" : fieldLane("lg", "themed"),
         )}
       >
         {label}
@@ -322,6 +325,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           data-slot="image-upload-helper"
           className={cn(
             "text-caption font-body",
+            fieldLane("lg", "themed"),
             // The sheet turns the constraints red once one of them is broken,
             // which is right: they stop being guidance and become the reason.
             state === "rejected" ? "text-danger" : "text-ink-muted",

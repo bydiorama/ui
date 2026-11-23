@@ -5,6 +5,7 @@ import { Check, ChevronDown } from "griddy-icons";
 import { useId, useRef, useState, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 
 import type { OwnedSlot } from "@/lib/data-slot";
@@ -142,13 +143,14 @@ export function Select({
       })}
     >
       <div data-slot="select" className={cn("flex w-full min-w-56 flex-col gap-sm", className)}>
-        {/* Bare text inside a rounded surface takes the inset (§6). */}
+        {/* On the control's text lane (lib/field-lane): label, value and
+            helper start at one edge. */}
         <span
           id={labelId}
           data-slot="select-label"
           className={cn(
-            "px-sm text-field-label font-body text-ink-secondary",
-            isLabelHidden && "sr-only",
+            "text-field-label font-body text-ink-secondary",
+            isLabelHidden ? "sr-only" : fieldLane(size),
           )}
         >
           {label}
@@ -331,12 +333,12 @@ export function Select({
         </BaseSelect.Portal>
 
         {errorText && (
-          <p data-slot="select-error" id={errorId} className="px-sm text-caption font-body text-danger">
+          <p data-slot="select-error" id={errorId} className={cn(fieldLane(size), "text-caption font-body text-danger")}>
             {errorText}
           </p>
         )}
         {helperText && (
-          <p data-slot="select-helper" id={helperId} className="px-sm text-caption font-body text-ink-muted">
+          <p data-slot="select-helper" id={helperId} className={cn(fieldLane(size), "text-caption font-body text-ink-muted")}>
             {helperText}
           </p>
         )}

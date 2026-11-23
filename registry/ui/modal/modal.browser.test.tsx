@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act, useRef } from "react";
 import type { ReactElement } from "react";
@@ -214,15 +214,15 @@ describe("The surface paints the designed dialog", () => {
 
     const titleEl = document.querySelector<HTMLElement>('[data-slot="modal-title"]')!;
     const title = getComputedStyle(titleEl);
-    // title-sm, at the role's OWN weight (ADR 0020 §3) — which is the 600 the
-    // redraw asks for, so no type-role exception is declared. title-sm is
-    // FLUID (ADR 0009), so its size is compared to Card's title below rather
-    // than pinned here; the weight is not fluid and is read off the role.
-    expect(titleEl.classList.contains("text-title-sm")).toBe(true);
-    expect(title.fontWeight).toBe(
-      getComputedStyle(titleEl).getPropertyValue("--ui-text-title-sm-weight").trim(),
-    );
+    // A FIXED 16px (#51): body-lg, never the fluid title-sm, which reached
+    // ~12px on a phone. At title-sm's 600 and 1.35 (declared exceptions).
+    expect(titleEl.classList.contains("text-body-lg")).toBe(true);
+    expect(title.fontSize).toBe("16px");
     expect(title.fontWeight).toBe("600");
+    expect(Number.parseFloat(title.lineHeight) / Number.parseFloat(title.fontSize)).toBeCloseTo(1.35, 2);
+    // The surface's own child: space-xs above and below, px-sm either side.
+    expect([title.paddingTop, title.paddingBottom]).toEqual(["4px", "4px"]);
+    expect([title.paddingLeft, title.paddingRight]).toEqual(["8px", "8px"]);
 
     const description = getComputedStyle(
       document.querySelector('[data-slot="modal-description"]')!,
@@ -361,7 +361,7 @@ describe("Modal wears Card's surface (#23)", () => {
     expect(modal.boxShadow).toBe(card.boxShadow);
   });
 
-  test("the title is Card.Header's title: same role, size, weight and inset", async () => {
+  test("the title is Card.Header's title, except that it does not shrink: weight, leading, tracking and inset", async () => {
     mount(<ModalBesideCard />);
     await settled(surface()!);
     const modalTitle = document.querySelector<HTMLElement>('[data-slot="modal-title"]')!;
@@ -369,11 +369,18 @@ describe("Modal wears Card's surface (#23)", () => {
     const m = getComputedStyle(modalTitle);
     const c = getComputedStyle(cardTitle);
 
-    // Same viewport, same fluid role: these must be equal to the pixel.
-    expect(m.fontSize).toBe(c.fontSize);
+    // Card's title is title-sm, which is FLUID; the dialog's is 16px fixed
+    // (#51). So the size is compared to title-sm's CAP, and everything else
+    // to Card's title as rendered.
+    expect(m.fontSize).toBe("16px");
+    expect(Number.parseFloat(c.fontSize)).toBeLessThanOrEqual(16);
     expect(m.fontWeight).toBe(c.fontWeight);
-    expect(m.lineHeight).toBe(c.lineHeight);
-    expect(m.letterSpacing).toBe(c.letterSpacing);
+    const ratio = (s: CSSStyleDeclaration) => Number.parseFloat(s.lineHeight) / Number.parseFloat(s.fontSize);
+    expect(ratio(m)).toBeCloseTo(ratio(c), 2);
+    expect(Number.parseFloat(m.letterSpacing) / 16).toBeCloseTo(
+      Number.parseFloat(c.letterSpacing) / Number.parseFloat(c.fontSize),
+      3,
+    );
     expect(m.fontFamily).toBe(c.fontFamily);
 
     // Card puts its unboxed inset on the HEADER, Modal on the title itself
@@ -387,6 +394,23 @@ describe("Modal wears Card's surface (#23)", () => {
         Number.parseFloat(getComputedStyle(cardTitle).paddingLeft),
       1,
     );
+  });
+
+  test("on a phone the title stays 16px while Card's fluid title shrinks (#51)", async () => {
+    // The fluid role reads the VIEWPORT, so narrow the test frame itself.
+    const before = { width: window.innerWidth, height: window.innerHeight };
+    await page.viewport(375, 812);
+    try {
+      mount(<ModalBesideCard />);
+      await settled(surface()!);
+      const modal = getComputedStyle(document.querySelector('[data-slot="modal-title"]')!);
+      const card = getComputedStyle(document.querySelector('[data-slot="card-title"]')!);
+      expect(window.innerWidth).toBe(375);
+      expect(modal.fontSize).toBe("16px");
+      expect(Number.parseFloat(card.fontSize)).toBeLessThan(15);
+    } finally {
+      await page.viewport(before.width, before.height);
+    }
   });
 
   test("the description shares the title's left edge", async () => {

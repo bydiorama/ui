@@ -1,6 +1,7 @@
 import { forwardRef, useId, type TextareaHTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 
 import type { OwnedSlot } from "@/lib/data-slot";
@@ -162,8 +163,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         className={cn(
           "text-field-label font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
-          // accessibility tree and still be clickable as a target.
-          isLabelHidden && "sr-only",
+          // accessibility tree and still be clickable as a target. Otherwise
+          // on the control's text lane (lib/field-lane), as Input's is.
+          isLabelHidden ? "sr-only" : fieldLane(size),
         )}
       >
         {label}
@@ -262,12 +264,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       </div>
 
       {errorText && (
-        <p data-slot="error" id={errorId} className="text-caption font-body text-danger">
+        <p data-slot="error" id={errorId} className={cn("text-caption font-body text-danger", fieldLane(size))}>
           {errorText}
         </p>
       )}
       {helperText && (
-        <p data-slot="helper" id={helperId} className="text-caption font-body text-ink-muted">
+        <p data-slot="helper" id={helperId} className={cn("text-caption font-body text-ink-muted", fieldLane(size))}>
           {helperText}
         </p>
       )}

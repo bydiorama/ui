@@ -19,7 +19,7 @@ export const networkDoc = {
     { part: "dimmed node", slot: "network-node", notes: "Outside the selected neighbourhood, or off the highlight path: opacity 32%, and its name turns muted at full opacity so it still reads." },
     { part: "label", slot: "network-label", notes: "label-sm 600 primary on a bg-base pill, 4px inline, centred 26px below the centre in a 180px lane, truncated." },
     { part: "edge", slot: "network-edge", notes: "Centre to centre, both ends stopped 26px out; 2px border-control with the sheet's 8×8 arrow head. Active: text-primary. Inferred: text-muted at 1.5px, no head — never dashed." },
-    { part: "edge label", slot: "network-edge-label", notes: "label-sm 400 muted on a bg-base pill at the midpoint. Active: 600 primary. An inferred edge reads \"colleague of · inferred\"." },
+    { part: "edge label", slot: "network-edge-label", notes: "footnote (12px, 400) muted on a bg-base pill at the midpoint. Active: label-sm 600 primary. An inferred edge reads \"colleague of · inferred\"." },
     { part: "expand chip", slot: "network-expand", notes: "\"+N\" for `hiddenNeighbours`, 4px right of the focus ring: 24px tall, at least 32 wide, 8px inline, 2px gap, rounded-full, bg-elevated, a 1px border-control edge so it reads on the canvas (sheet fix, 2026-11-12). Plus key or a press calls onExpandRequest." },
     { part: "controls", slot: "network-controls", notes: "Network.Controls, 16px from the bottom right: Zoom in, Zoom out, Fit — the shared 32px chrome control." },
     { part: "table", slot: "network-table", notes: "Table sm: Node, Relation, Neighbour, Type — one row per edge, then one per unconnected node." },

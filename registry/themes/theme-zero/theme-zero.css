@@ -168,6 +168,10 @@
   --text-caption--font-weight: var(--ui-text-caption-weight);
   --text-caption--line-height: var(--ui-text-caption-leading);
   --text-caption--letter-spacing: var(--ui-text-caption-tracking);
+  --text-footnote: var(--ui-text-footnote);
+  --text-footnote--font-weight: var(--ui-text-footnote-weight);
+  --text-footnote--line-height: var(--ui-text-footnote-leading);
+  --text-footnote--letter-spacing: var(--ui-text-footnote-tracking);
   --text-button-lg: var(--ui-text-button-lg);
   --text-button-lg--font-weight: var(--ui-text-button-lg-weight);
   --text-button-lg--line-height: var(--ui-text-button-lg-leading);
@@ -513,6 +517,7 @@
   --ui-text-label-md: 0.8125rem;
   --ui-text-label-sm: 0.75rem;
   --ui-text-caption: 0.75rem;
+  --ui-text-footnote: 0.75rem;
   --ui-text-button-lg: 1rem;
   --ui-text-button-sm: 0.75rem;
   --ui-text-figure: 1.5rem;
@@ -551,6 +556,9 @@
   --ui-text-caption-weight: 600;
   --ui-text-caption-leading: 1.35;
   --ui-text-caption-tracking: -0.02em;
+  --ui-text-footnote-weight: 400;
+  --ui-text-footnote-leading: 1.35;
+  --ui-text-footnote-tracking: -0.02em;
   --ui-text-button-lg-weight: 600;
   --ui-text-button-lg-leading: 1;
   --ui-text-button-lg-tracking: -0.02em;

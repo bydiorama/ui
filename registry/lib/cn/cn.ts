@@ -79,7 +79,7 @@ const twMerge = extendTailwindMerge({
         // The dense family and the density-stepped roles (ADR 0026) are
         // listed by name: `text-row` and `text-nav-row` read as a colour to
         // the merger otherwise, and the next ink class would delete them.
-        { text: [(value: string) => /^(display|title|body|label|button|dense)-(lg|md|sm)$/.test(value) || ["caption", "figure", "row", "nav-row", "field-label"].includes(value)] },
+        { text: [(value: string) => /^(display|title|body|label|button|dense)-(lg|md|sm)$/.test(value) || ["caption", "footnote", "figure", "row", "nav-row", "field-label"].includes(value)] },
       ],
       // The ink roles. Namespaced `ink-*` precisely so this rule can be a
       // prefix match instead of a list that drifts.

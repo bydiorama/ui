@@ -254,3 +254,137 @@ describe("Popover's entrance is animated, not merely declared", () => {
     expect(running).toContain("scale");
   });
 });
+
+describe("variant=\"list\" is Menu's surface with dense rows (#55)", () => {
+  function List({ maxRows, withSearch = true }: { maxRows?: number; withSearch?: boolean }) {
+    return (
+      <Popover>
+        <Popover.Trigger>Tags</Popover.Trigger>
+        <Popover.Panel variant="list" aria-label="Tags">
+          {withSearch && <Popover.Search label="Filter tags" />}
+          <Popover.List {...(maxRows !== undefined ? { maxRows } : {})} aria-label="Tags">
+            {["Brand audit", "Brand guidelines", "Brand refresh 2027", "Embrace", "Exports", "Templates"].map((t) => (
+              <Popover.Row key={t} {...(t === "Brand audit" ? { trailing: <svg data-testid="check" /> } : {})}>{t}</Popover.Row>
+            ))}
+          </Popover.List>
+          <Popover.Footer>
+            <Popover.Row icon={<svg data-testid="plus" />}>Create tag</Popover.Row>
+          </Popover.Footer>
+        </Popover.Panel>
+      </Popover>
+    );
+  }
+
+  test("the panel is Menu's surface: 280 wide, radius-md, bg-surface, no padding of its own", async () => {
+    mount(<List />);
+    await userEvent.click(trigger());
+    const p = panel()!;
+    await settled(p);
+    const style = getComputedStyle(p);
+    expect(p.getAttribute("data-variant")).toBe("list");
+    expect(style.borderRadius).toBe("8px");
+    expect(p.getBoundingClientRect().width).toBe(280);
+    expect(style.minWidth).not.toBe("320px");
+    expect(style.paddingTop).toBe("0px");
+    expect(style.paddingLeft).toBe("0px");
+    expect(style.rowGap).toBe("normal");
+    expect(style.overflow).toBe("hidden");
+    // bg-surface, not the content panel's bg-elevated.
+    expect(style.backgroundColor).not.toBe("rgb(246, 243, 240)");
+    expect(style.boxShadow).not.toBe("none");
+  });
+
+  test("it is still a dialog, named by the caller", async () => {
+    mount(<List />);
+    await userEvent.click(trigger());
+    const p = panel()!;
+    expect(p.getAttribute("role")).toBe("dialog");
+    expect(p.getAttribute("aria-label")).toBe("Tags");
+  });
+
+  test("the search takes initial focus, is labelled, and is a 36px row under a hairline", async () => {
+    mount(<List />);
+    await userEvent.click(trigger());
+    const p = panel()!;
+    await settled(p);
+    const input = p.querySelector<HTMLInputElement>('[data-slot="popover-search"] input')!;
+    expect(document.activeElement).toBe(input);
+    expect(input.labels?.[0]?.textContent).toBe("Filter tags");
+    const row = p.querySelector<HTMLElement>('[data-slot="popover-search"]')!;
+    expect(row.getBoundingClientRect().height).toBe(36);
+    expect(getComputedStyle(row).borderBottomWidth).toBe("1px");
+  });
+
+  test("without a search, focus goes to the panel as before", async () => {
+    mount(<List withSearch={false} />);
+    await userEvent.click(trigger());
+    const p = panel()!;
+    await settled(p);
+    expect(p.contains(document.activeElement)).toBe(true);
+  });
+
+  test("rows are DENSE: 32px, and every label, glyph and the search glyph share a 12px lane", async () => {
+    mount(<List />);
+    await userEvent.click(trigger());
+    const p = panel()!;
+    await settled(p);
+    // Measured inside the panel's 1px border, where the sheet measures.
+    const left = p.getBoundingClientRect().left + p.clientLeft;
+    const lane = (el: Element) => Math.round(el.getBoundingClientRect().left - left);
+    const rows = Array.from(p.querySelectorAll<HTMLElement>('[data-slot="popover-list"] [data-slot="popover-row"]'));
+    for (const row of rows) expect(row.getBoundingClientRect().height).toBe(32);
+    // Flush: no gap between rows.
+    expect(rows[1]!.getBoundingClientRect().top - rows[0]!.getBoundingClientRect().bottom).toBeCloseTo(0, 0);
+    expect(lane(rows[0]!.querySelector('[data-slot="popover-row-label"]')!)).toBe(12);
+    expect(lane(p.querySelector('[data-slot="popover-search"] svg')!)).toBe(12);
+    expect(lane(p.querySelector('[data-testid="plus"]')!)).toBe(12);
+    // The typed text and the footer's label share the second lane.
+    expect(lane(p.querySelector('[data-slot="popover-search"] input')!)).toBe(
+      lane(p.querySelector('[data-slot="popover-footer"] [data-slot="popover-row-label"]')!),
+    );
+  });
+
+  test("maxRows caps the LIST, which scrolls; the search and footer stay put", async () => {
+    mount(<List maxRows={4} />);
+    await userEvent.click(trigger());
+    const p = panel()!;
+    await settled(p);
+    const list = p.querySelector<HTMLElement>('[data-slot="popover-list"]')!;
+    // 4 × 32 + 4 + 4.
+    expect(list.getBoundingClientRect().height).toBe(136);
+    expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
+    expect(getComputedStyle(list).overflowY).toBe("auto");
+    expect(getComputedStyle(p.querySelector('[data-slot="popover-footer"]')!).borderTopWidth).toBe("1px");
+  });
+
+  test("a row is a real button, and the caller's highlight paints Menu's fill", async () => {
+    function Highlighted() {
+      return (
+        <Popover defaultIsOpen>
+          <Popover.Trigger>Tags</Popover.Trigger>
+          <Popover.Panel variant="list" aria-label="Tags">
+            <Popover.List>
+              <Popover.Row isHighlighted>On</Popover.Row>
+              <Popover.Row>Off</Popover.Row>
+            </Popover.List>
+          </Popover.Panel>
+        </Popover>
+      );
+    }
+    mount(<Highlighted />);
+    const [on, off] = Array.from(document.querySelectorAll<HTMLElement>('[data-slot="popover-row"]'));
+    expect(on!.tagName).toBe("BUTTON");
+    expect(on!.getAttribute("type")).toBe("button");
+    expect(getComputedStyle(on!).backgroundColor).not.toBe(getComputedStyle(off!).backgroundColor);
+  });
+
+  test("the content variant is unchanged", async () => {
+    mount(<Basic />);
+    await userEvent.click(trigger());
+    const p = panel()!;
+    await settled(p);
+    expect(p.getAttribute("data-variant")).toBe("content");
+    expect(getComputedStyle(p).borderRadius).toBe("16px");
+    expect(getComputedStyle(p).padding).toBe("16px");
+  });
+});

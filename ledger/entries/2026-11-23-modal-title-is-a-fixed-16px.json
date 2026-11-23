@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-modal-title-is-a-fixed-16px",
+  "date": "2026-11-23",
+  "item": "modal",
+  "kind": "visual",
+  "summary": "Modal.Title is a FIXED 16px (issue #51): body-lg at title-sm's 600 weight and 1.35 leading, replacing the fluid title-sm, which resolved to ~12px on a phone — smaller than the 14px fields a dialog holds. A dialog is a fixed-width surface, the rule lib/menu-surface already records for menus. On a desktop, where title-sm reaches its 16px cap, nothing moves. When the title is the surface's own child it also takes py-xs, so the bare heading clears the 16px corner on both axes as px-sm does horizontally. Consumers carrying the temporary [data-slot=\"modal-title\"] font-size and padding-block patch can delete it.",
+  "affects": [
+    "slot:modal-title",
+    "token:--ui-text-body-lg",
+    "token:--ui-text-title-sm-leading"
+  ]
+}

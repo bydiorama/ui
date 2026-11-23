@@ -94,7 +94,7 @@ export function StatDelta({
     <span data-slot="stat-delta" data-direction={direction} data-tone={tone} className={cn("flex items-center gap-xs", TONE[tone])}>
       <Glyph size={16} aria-hidden="true" className="shrink-0" />
       {direction === "flat" ? (
-        <span data-slot="stat-comparison" className="font-body text-label-sm font-regular text-ink-muted">
+        <span data-slot="stat-comparison" className="font-body text-footnote text-ink-muted">
           {flatLabel} {comparison}
         </span>
       ) : (
@@ -109,7 +109,7 @@ export function StatDelta({
               </>
             )}
           </span>
-          <span data-slot="stat-comparison" className="font-body text-label-sm font-regular text-ink-muted">
+          <span data-slot="stat-comparison" className="font-body text-footnote text-ink-muted">
             {comparison}
           </span>
         </>
@@ -205,7 +205,7 @@ function StatTile({ label, value, delta, trend, isLoading = false, emptyText = "
       )}
       {...rest}
     >
-      <dt data-slot="stat-label" className="col-start-1 font-body text-label-sm font-regular text-ink-muted">
+      <dt data-slot="stat-label" className="col-start-1 font-body text-footnote text-ink-muted">
         {label}
       </dt>
       <dd data-slot="stat-value" className="col-start-1 flex h-7.5 items-center">
@@ -222,7 +222,7 @@ function StatTile({ label, value, delta, trend, isLoading = false, emptyText = "
           <Skeleton className="h-3 w-18" />
         </dd>
       ) : isEmpty ? (
-        <dd data-slot="stat-empty" className="col-start-1 font-body text-label-sm font-regular text-ink-muted">
+        <dd data-slot="stat-empty" className="col-start-1 font-body text-footnote text-ink-muted">
           {emptyText}
         </dd>
       ) : delta ? (

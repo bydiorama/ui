@@ -879,8 +879,9 @@ function NetworkSvg({
             data-slot="network-edge-label"
             style={{ left: e.mid.x, top: e.mid.y }}
             className={cn(
-              "absolute -translate-x-1/2 -translate-y-1/2 rounded-sm bg-base px-xs font-body text-label-sm whitespace-nowrap",
-              e.isActive ? "text-ink-primary" : "font-regular text-ink-muted",
+              "absolute -translate-x-1/2 -translate-y-1/2 rounded-sm bg-base px-xs font-body whitespace-nowrap",
+              // A footnote at rest; an active edge's label steps up to label-sm's 600 (#59).
+              e.isActive ? "text-label-sm text-ink-primary" : "text-footnote text-ink-muted",
               e.isDimmed && "opacity-32",
             )}
           >

@@ -384,6 +384,12 @@ export const TYPE_ROLES = {
   "--ui-text-label-md": { px: 13, leading: 1.3, weight: 600, tracking: "-0.02em" },
   "--ui-text-label-sm": { px: 12, leading: 1.3, weight: 600, tracking: "-0.02em" },
   "--ui-text-caption": { px: 12, leading: 1.35, weight: 600, tracking: "-0.02em" },
+  // Quiet supporting text at the floor — field help, a table footnote, a
+  // legal line, a timestamp, a chart tick (#59, decided on the Footnote role
+  // sheet, 2026-11-23). Caption's size, leading and tracking at REGULAR
+  // weight: at 600 a line under a control reads as a second label. Thirteen
+  // parts drew 12/400 through declared exceptions before it had a name.
+  "--ui-text-footnote": { px: 12, leading: 1.35, weight: 400, tracking: "-0.02em" },
   "--ui-text-button-lg": { px: 16, leading: 1, weight: 600, tracking: "-0.02em" },
   "--ui-text-button-sm": { px: 12, leading: 1, weight: 600, tracking: "-0.02em" },
   // A headline number in a fixed-width surface — a stat tile, a chart

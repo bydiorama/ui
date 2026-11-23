@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-select-label-on-text-lane",
+  "date": "2026-11-23",
+  "item": "select",
+  "kind": "visual",
+  "summary": "Select's label, helper and error move from a fixed 8px (px-sm) to the text lane. The label, helper and error now start where the typed text does: the control's hairline plus its inline padding (lib/field-lane), so they share one edge at every size and density. At default density that is 13.5px at lg and 9.5px at md and sm. The fixed 8px was 1.5px short at md and 5.5px short at lg.",
+  "affects": [
+    "slot:select-label",
+    "slot:select-helper",
+    "slot:select-error"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+  }
+}

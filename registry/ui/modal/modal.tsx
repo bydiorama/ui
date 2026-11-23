@@ -275,12 +275,22 @@ function ModalTitle({ className, ...rest }: ModalTitleProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Title>>(rest)}
       data-slot="modal-title"
       className={cn(
-        // Card.Header's title, set the same way: title-sm (whose role weight
-        // is the 600 the redraw asks for, so no exception) inset by Card's
-        // unboxed inset. It was title-lg — the loudest thing on the screen
-        // for a one-line question in a 416px dialog (#23).
+        // A FIXED 16px, never a title role (#51). The title roles are fluid
+        // (ADR 0009) and title-sm resolves to ~12px on a phone — smaller than
+        // the 14px fields the dialog holds — while a dialog is a fixed-width
+        // surface the viewport does not shrink. That is the rule
+        // lib/menu-surface records for menus. body-lg is the 16px fixed role;
+        // it keeps title-sm's 600 and its 1.35 leading (declared type-role
+        // exceptions), so on a desktop, where title-sm reaches its 16px cap,
+        // the title reads exactly as Card.Header's. It was title-lg before
+        // #23 — the loudest thing on the screen for a one-line question.
         UNBOXED_INSET,
-        "text-title-sm font-body text-ink-primary",
+        "text-body-lg font-body font-bold leading-(--ui-text-title-sm-leading) text-ink-primary",
+        // The surface's own child gets a block inset of space-xs, so the
+        // bare heading sits off the 16px corner arc vertically as px-sm keeps
+        // it off horizontally (#51). A title inside a consumer's own header
+        // row is that row's business.
+        "[[data-slot=modal-surface]>&]:py-xs",
         className,
       )}
     />

@@ -113,6 +113,7 @@ export default defineConfig({
         "registry/lib/compose-event-handlers/compose-event-handlers.ts",
       ),
       "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
+      "@/lib/field-lane": join(root, "registry/lib/field-lane/field-lane.ts"),
       "@/lib/motion": join(root, "registry/lib/motion/motion.ts"),
       "@/lib/fade-ramp": join(root, "registry/lib/fade-ramp/fade-ramp.ts"),
       "@/lib/viz": join(root, "registry/lib/viz/viz.ts"),

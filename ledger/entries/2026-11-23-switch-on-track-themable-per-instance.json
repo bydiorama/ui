@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-switch-on-track-themable-per-instance",
+  "date": "2026-11-23",
+  "item": "switch",
+  "kind": "addition",
+  "summary": "Switch's ON track reads two component custom properties (CONVENTIONS §6), declared on the root with today's accent roles as defaults: --ui-switch-track-on-bg (var(--ui-bg-accent-legible)) and --ui-switch-track-on-hover-bg (var(--ui-bg-accent-hover)). Set them on the Switch itself — className=\"[--ui-switch-track-on-bg:var(--ui-…)]\" or style — to give one switch its own colour (a violet agent toggle) instead of an unlayered override; an ancestor cannot set them, because the root's declaration wins. Off and disabled are unaffected. Default rendering is pixel-identical.",
+  "affects": [
+    "css-var:--ui-switch-track-on-bg",
+    "css-var:--ui-switch-track-on-hover-bg",
+    "slot:track"
+  ]
+}

@@ -5,13 +5,13 @@ export const modalDoc = {
   name: "Modal",
   status: "stable",
   summary:
-    "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Second component on the Base UI behaviour layer, deliberately the same shape as Popover. Its surface is deliberately Card's — same 24px corner, border-subtle hairline, shadow-md and title-sm header — so a dialog raised over cards reads as the same object as them (#23, the owner's redraw of the portal's 'Remove member' confirm). Only the ground (bg-surface: the scrim already separates it from the page) and the gap (gap-2xl) differ.",
+    "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Second component on the Base UI behaviour layer, deliberately the same shape as Popover. Its surface is deliberately Card's — same 16px corner (radius-lg, #40), border-subtle hairline, shadow-md and 600-weight header — so a dialog raised over cards reads as the same object as them (#23, the owner's redraw of the portal's 'Remove member' confirm). Only the ground (bg-surface: the scrim already separates it from the page), the gap (gap-2xl) and the title's size differ: a dialog is a fixed-width surface, so its title is a fixed 16px where Card's fluid title-sm shrinks to ~12px on a phone (#51).",
 
   anatomy: [
     { part: "trigger", slot: "modal-trigger", notes: "The control that opens it. Pass your own element via `render` — never wrapped." },
     { part: "scrim", slot: "modal-scrim", notes: "The backdrop. Uses --ui-scrim, a scheme-only role: a warm 16% veil in light, a heavier black in dark." },
     { part: "surface", slot: "modal-surface", notes: "The dialog. Card's surface class for class — radius-lg (issue #40), a 1px border-subtle hairline and shadow-md — on bg-surface, with p-lg and gap-2xl. Centred, width-capped by size, and scrolls internally." },
-    { part: "title", slot: "modal-title", notes: "Card.Header's title: title-sm at the role's own 600, inset by Card's unboxed px-sm. Becomes the dialog's accessible name automatically." },
+    { part: "title", slot: "modal-title", notes: "A FIXED 16px: body-lg at title-sm's 600 (a declared type-role exception) and body-lg's own 1.55 leading, never the fluid title-sm, which resolves to ~12px on a phone — smaller than the fields the dialog holds (#51). On a desktop it matches Card.Header's title in size, weight and tracking; its line is 24.8px against Card's 21.6px. Inset by Card's unboxed px-sm, plus py-xs when it is the surface's own child, so the bare heading clears the corner arc on both axes. Becomes the dialog's accessible name automatically." },
     { part: "description", slot: "modal-description", notes: "body-md in secondary ink, inset px-sm with the title so the two share a left edge (CONVENTIONS §6). Wired to aria-describedby automatically." },
     { part: "footer", slot: "modal-footer", notes: "The action row, `justify-between` per the sheet." },
     { part: "close", slot: "modal-close", notes: "Any control that dismisses. Takes an element via `render`." },

@@ -74,6 +74,10 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   composed with the consumer first; `preventDefault()` cancels optional
   component behaviour, while safety invariants still run. `className` is
   merged and `style` is shallow-merged (ADR 0014).
+- **`data-slot` is component-owned**: every component's props declare it
+  `never` (`OwnedSlot` in `@/lib/data-slot`), so passing one is a type error
+  rather than a silently dropped value — consumers target a part with their
+  own `data-*` or `data-testid`.
 
 ## 6. Styling
 
@@ -101,6 +105,13 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   `h-field-*` / `px-field-inset-*` for fields — never `h-11` or `h-12`, which
   `[data-ui-density]` cannot reach. A portalled panel leaves the density
   subtree, so pass `data-ui-density` to its popup part too.
+- **Rows and their type follow density too** (ADR 0026). A list or nav row
+  takes `px-row-inset py-row-block-inset` and `min-h-row` / `min-h-nav-row`,
+  never `p-md` or `min-h-9`; a part that should be smaller under compact
+  names a **stepped role** (`text-row`, `text-nav-row`, `text-field-label`)
+  instead of the table role it renders at default. Never re-bind a table
+  role under `[data-ui-density]`: a brand scope re-declares it and resets
+  the subtree.
 - **A type role is a composite** (ADR 0020 §3): `text-<role>` sets size,
   weight, leading and tracking. Do not add `font-*`, `leading-*` or
   `tracking-*` beside it. Every story fails if an element renders another
@@ -141,7 +152,7 @@ No library prefix on component names — it is `Button`, not `UiButton`.
 - *Design side, for reference rather than as a rule of this file:* a sheet
   should carry the real glyph with its layer named for the export, so it says
   which icon it means instead of leaving that to whoever implements it. See the
-  `griddy-icons-in-paper` skill. (Making that binding here would need an ADR —
+  `griddy-icons-in-paper` skill (in `bydiorama/skills`). (Making that binding here would need an ADR —
   see § Changing these rules.)
 - **The component sizes the slot; the icon library does not.** `griddy-icons`
   renders `width="24" height="24"` as presentation *attributes*, so an
@@ -438,8 +449,8 @@ never a feature of one (ADR 0022).
 Several craft rules above (concentric radii, shadows-for-elevation,
 press-scale, stagger restraint, hit-area patterns) are adapted from
 [jakubkrehel/skills](https://github.com/jakubkrehel/skills) (MIT) — see
-`CREDITS.md`. The distributable version of these rules is the `ui-craft`
-registry item.
+`CREDITS.md`. The distributable version of these rules is the `craft`
+skill in the `ui` agent plugin (`ui:craft`, ADR 0027).
 
 ## Changing these rules
 

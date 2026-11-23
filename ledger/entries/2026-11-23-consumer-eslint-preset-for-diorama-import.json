@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-consumer-eslint-preset-for-diorama-import",
+  "date": "2026-11-23",
+  "item": "eslint-preset",
+  "kind": "addition",
+  "summary": "New file item eslint-preset: an ESLint flat-config preset (~/eslint.diorama.mjs) that carries the library's import boundaries into a consumer app — griddy-icons only (lucide, heroicons, radix icons, react-icons, phosphor, tabler, font awesome…), no second component library or design language (Radix, MUI, Chakra, Headless UI, Mantine, antd…; Base UI stays allowed), and CONVENTIONS §8 / ADR 0018 motion limits (framer-motion, motion, motion/react*, gsap blocked; motion/mini allowed). Plain objects, no plugin; exports restrictedImports so an app that sets no-restricted-imports itself can merge rather than be overwritten. Package names are exact `paths`: the first consumer's gitignore-style `patterns: [\"motion\"]` also matched @/lib/motion. Tested against fixture imports in both directions and against a copy of the consumer app (no false positives).",
+  "affects": [
+    "item:eslint-preset"
+  ],
+  "migration": {
+    "manual": "Optional. Install eslint-preset and spread it into eslint.config.mjs after your presets; delete a hand-written copy of these rules, and move any package name you kept in `patterns` into `paths`."
+  }
+}

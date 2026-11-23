@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-chart-supporting-text-is-footnote",
+  "date": "2026-11-23",
+  "item": "chart",
+  "kind": "visual",
+  "summary": "Chart ticks, legend names and tooltip series names are set in the new footnote role instead of label-sm with a font-regular override (#59). The size and weight are unchanged (12px, 400). The leading moves from label-sm's 1.3 to footnote's 1.35, so a line is 16.2px instead of 15.6px. A legend entry keeps its 4px block padding around the taller line, so it measures 24.2px instead of 24; it still clears the 24px target.",
+  "affects": [
+    "slot:chart-tick",
+    "slot:chart-legend-label",
+    "slot:chart-tooltip-label",
+    "slot:chart-legend-item"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+  }
+}

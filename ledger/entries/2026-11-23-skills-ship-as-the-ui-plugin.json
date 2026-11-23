@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-skills-ship-as-the-ui-plugin",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "breaking",
+  "summary": "Product skills now ship as the `ui` agent plugin (marketplace `diorama-ui`, ADR 0027), not through the registry: registry.json and r/ no longer carry them, so the CLI cannot install them and `sync` reports a locked skill as missing-upstream. Names lose their prefix — diorama-ui-craft → ui:craft, diorama-effects → ui:effects, diorama-app-motion → ui:app-motion, diorama-visual-review → ui:visual-review, diorama-static-rendering → ui:static-rendering. The manifest item ui-craft is renamed craft. visual-review no longer pulls in visual-diff; install that script yourself.",
+  "affects": [
+    "component:ui-craft",
+    "component:effects",
+    "component:app-motion",
+    "component:visual-review",
+    "component:static-rendering",
+    "item:craft",
+    "item:visual-diff"
+  ],
+  "migration": {
+    "manual": "In each app: delete .claude/skills/diorama-*/ (the CLI-installed copies) and remove the ui-craft, effects, app-motion, visual-review and static-rendering entries from ui.lock.json. Then install the plugin once per person: in Claude Code `/plugin marketplace add bydiorama/ui` and `/plugin install ui@diorama-ui`; in claude.ai or Cowork, Customize › Plugins › Add marketplace `bydiorama/ui`, then add `ui`. Update any AGENTS.md or CLAUDE.md that names a diorama-* skill. Keep visual-diff installed if you use visual-review."
+  }
+}

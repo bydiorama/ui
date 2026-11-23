@@ -9,12 +9,12 @@ precisely.
 Full licence texts for everything in this section live in `licenses/`. MIT
 requires the copyright notice **and** the permission notice to travel with
 substantial portions, so naming the licence is not enough on its own — and
-where the adapted material is itself DISTRIBUTED (the `ui-craft` skill), the
+where the adapted material is itself DISTRIBUTED (the `craft` skill), the
 notice is installed beside it rather than left behind in this file.
 
 - **[jakubkrehel/skills](https://github.com/jakubkrehel/skills)** — © 2026
   Jakub Krehel, MIT. The craft rules in
-  `registry/skills/ui-craft/SKILL.md` are adapted from the `better-ui`,
+  `registry/skills/craft/SKILL.md` are adapted from the `better-ui`,
   `better-accessibility` and `better-colors` skills: concentric radius,
   shadows-for-elevation, image outlines, interruptible transitions,
   press-scale 0.96, stagger restraint, icon state rules, and hit-area
@@ -36,9 +36,9 @@ notice is installed beside it rather than left behind in this file.
   modification, but not republishing the collection (or a substantial part of
   it) as a transitions library, motion pack or animation kit. Full terms:
   <https://transitions.dev/terms.html>. The motion demo pages
-  (`registry/skills/ui-demo-page/reference/*.html` and `design/motion/*/`) use
+  (`registry/skills/demo-page/reference/*.html` and `design/motion/*/`) use
   its CSS transitions, verbatim or adapted and marked `transitions.dev` in the
-  source, along with its motion tokens. The `ui-demo-page` skill points agents at its
+  source, along with its motion tokens. The `demo-page` skill points agents at its
   `transitions-dev`, `transitions-polish` and `transitions-ui-generation`
   skills (verified 2026-10-20). Licence: `licenses/transitions-dev.LICENSE.txt`.
   The effects layer's timings (`registry/lib/shader/shader.css`,

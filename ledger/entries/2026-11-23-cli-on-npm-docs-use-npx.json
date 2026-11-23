@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-cli-on-npm-docs-use-npx",
+  "date": "2026-11-23",
+  "item": "visual-review",
+  "kind": "fix",
+  "summary": "@bydiorama/ui 0.1.0 is on npm, so install instructions use `npx @bydiorama/ui …` from inside the app instead of running the CLI from a bydiorama/ui checkout: the README quick start, theme-zero-css, eslint-preset and sync, and the visual-review skill's setup step (`npx @bydiorama/ui add visual-diff`). The README names the components.json `registries` entry the CLI reads, and the --revision fallback for when GitHub's anonymous API limit answers 403.",
+  "affects": [
+    "item:visual-review",
+    "package:@bydiorama/ui"
+  ]
+}

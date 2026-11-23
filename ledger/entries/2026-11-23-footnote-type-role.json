@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-footnote-type-role",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "token",
+  "summary": "New type role --ui-text-footnote (Tailwind: text-footnote), issue #59. It is 12px fixed, 400, leading 1.35, tracking −0.02em: quiet supporting text at the size floor, set next to a 600 label or figure (a scale, a predicate, a comparison, a count). It brings the -weight, -leading and -tracking companions every role carries. It replaces the 13 declared label-sm-at-400 exceptions (ADR 0020, amendment of 2026-11-23). cn() merges it as a font-size.",
+  "affects": [
+    "token:--ui-text-footnote",
+    "token:--ui-text-footnote-weight",
+    "token:--ui-text-footnote-leading",
+    "token:--ui-text-footnote-tracking"
+  ],
+  "migration": {
+    "manual": "A brand theme regenerated with resolveThemePair gets the role automatically; a hand-written theme must add the four tokens. A consumer writing `text-label-sm font-regular` for supporting text can use `text-footnote` instead."
+  },
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+  }
+}

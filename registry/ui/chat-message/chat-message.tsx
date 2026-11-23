@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { Button } from "@/ui/button";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * The type scale a message is set at.
  *
@@ -69,7 +70,7 @@ type SenderRetryProps =
   | { onRetryAction?: undefined; retryLabel?: undefined }
   | { onRetryAction: () => void; retryLabel: string };
 
-export type ChatMessageSenderProps = SenderBaseProps & SenderStatusProps & SenderRetryProps;
+export type ChatMessageSenderProps = SenderBaseProps & SenderStatusProps & SenderRetryProps & OwnedSlot;
 
 /**
  * The person's turn: a right-aligned `bg-elevated` bubble, capped at a share
@@ -196,7 +197,7 @@ type ReceiverRetryProps =
   | { onRetryAction?: undefined; retryLabel?: undefined }
   | { onRetryAction: () => void; retryLabel: string };
 
-export type ChatMessageReceiverProps = ReceiverBaseProps & ReceiverRetryProps;
+export type ChatMessageReceiverProps = ReceiverBaseProps & ReceiverRetryProps & OwnedSlot;
 
 /**
  * The agent's turn: no bubble, no avatar, the full column.

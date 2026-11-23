@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-14-modal-centres-by-auto-margins-not",
+  "date": "2026-11-14",
+  "item": "modal",
+  "kind": "fix",
+  "summary": "Modal.Surface is centred with `fixed inset-0 m-auto h-fit` instead of `top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`. A transform is painted exactly where it lands, so whenever the viewport and the dialog differed in height by an odd pixel (or the fluid title's fractional line height pushed the footer off the grid) the whole surface sat on a half pixel, and every 1.5px hairline inside it split that half pixel unevenly: the outline Cancel button's bottom edge read visibly heavier than its top, the field's ring likewise, and only 'sometimes', because it moved with the window height and the content. Layout offsets are snapped to the pixel grid at paint, so auto-margin centring cannot do it. Same centre, same widths and caps, same scale-98 enter. Pinned by modal.visual.test.tsx, which walks a footer outline button through 0, 0.25, 0.5 and 0.75px offsets and asserts its top and bottom edges paint as mirror images (three of the four failed before), and by a contract test that the surface carries no transform at rest and stays centred. The Button's hairline itself is unchanged: on fractional device-pixel ratios (Windows 125/150%, browser zoom) a 1.5px ring still cannot land on whole pixels, which is a separate decision about ADR 0020's stroke.",
+  "affects": [
+    "component:modal",
+    "slot:modal-surface"
+  ],
+  "migration": {
+    "manual": "None for callers. A copy that overrides Modal.Surface's position through `className` (top/left/translate) should drop the translate as well, or it reintroduces the half-pixel offset. The modal visual baselines move by up to half a pixel and must be regenerated with the Generate visual baselines workflow."
+  }
+}

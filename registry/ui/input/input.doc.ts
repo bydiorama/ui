@@ -14,7 +14,7 @@ export const inputDoc = {
 
   anatomy: [
     { part: "field", slot: "field", notes: "The wrapper. Owns the vertical rhythm between label, control and messages." },
-    { part: "label", slot: "label", notes: "Always rendered. isLabelHidden makes it visually hidden, never absent." },
+    { part: "label", slot: "label", notes: "Always rendered. isLabelHidden makes it visually hidden, never absent. text-field-label: label-md (13/600) at default, label-sm (12/600) under compact density (ADR 0026). On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density." },
     { part: "control", slot: "control", notes: "The bordered surface. Carries the border, background, focus ring and data-size/data-shape/data-invalid/data-disabled." },
     { part: "input", slot: "input", notes: "The native <input>. Transparent and borderless — the control draws the chrome." },
     { part: "error", slot: "error", notes: "Rendered before helper so the correction is read first." },
@@ -41,7 +41,7 @@ Input   size? lg|md|sm · shape? soft|full
         "Required by the type system, not by review. A placeholder is not a label — it vanishes the moment the user types, taking the field's name with it.",
     },
     isLabelHidden: { type: "boolean", default: "false", notes: "Visually hidden, still in the accessibility tree and still a click target." },
-    size: { type: '"lg" | "md" | "sm"', default: '"lg"', notes: "48 / 40 / 32px with a 14 / 14 / 12px value (body-md, body-md, caption). All clear the 24px target floor; lg is the touch size for primary forms. md moved from caption to body-md (#16): the owner's frames draw every 40px field value at 14px, and a row mixing Input and Select at md read as two type styles. sm stays caption — the field tokens carry no type step (ADR 0020 §4 keeps type out of density), and a 14px value's 21.7px line in a compact 28px field would leave 3px of block padding." },
+    size: { type: '"lg" | "md" | "sm"', default: '"lg"', notes: "48 / 40 / 32px with a 14 / 14 / 12px value (body-md, body-md, caption). All clear the 24px target floor; lg is the touch size for primary forms. md moved from caption to body-md (#16): the owner's frames draw every 40px field value at 14px, and a row mixing Input and Select at md read as two type styles. Under compact density the md value steps to dense-md (13px) through the stepped text-row role (ADR 0026); lg keeps body-md. sm stays caption, and a 14px value's 21.7px line in a compact 28px field would leave 3px of block padding." },
     shape: {
       type: '"soft" | "full"',
 

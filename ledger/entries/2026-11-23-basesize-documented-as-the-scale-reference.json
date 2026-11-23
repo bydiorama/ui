@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-basesize-documented-as-the-scale-reference",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "addition",
+  "summary": "baseSize is documented as what it is, the type scale's 16px reference, not the body size, and validateSeed now explains a small one. Its JSDoc said \"Body size in px. Drives the whole type scale\"; a consumer set 13 expecting 13px body and got --ui-text-body-md 11.375px, because baseSize multiplies the authored table (ADR 0009) by baseSize / 16 and body copy is the table's 14px row. SeedTypography.baseSize now carries the mapping table (baseSize to body-lg, body-md, body-sm and label-sm px, 13 to 20) and the inverse (B px body needs baseSize B × 16 / 14). SeedValidationIssue gains a required `severity: \"error\" | \"info\"`: every existing issue is `error` (an unusable value the resolver fell back on); a baseSize under BASE_SIZE_INFO_BELOW (15, exported) adds an `info` issue stating the resolved body-md, body-sm and label-sm/caption sizes, that they sit under the scale's 12px floor, and the baseSize that would give the body size the author typed. resolveTheme returns it in `issues` like any other.",
+  "affects": [
+    "seed:typography.baseSize",
+    "package:tokens"
+  ],
+  "migration": {
+    "manual": "Nothing breaks for code that reads issues. Code that treated ANY issue as a failure should now fail only on `severity === \"error\"` and print `info`. A seed with baseSize under 15 that was chosen expecting that body size: set baseSize to the wanted body px × 16 / 14."
+  }
+}

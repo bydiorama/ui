@@ -1,8 +1,10 @@
 import { forwardRef, useId, type InputHTMLAttributes, type ReactElement } from "react";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type InputSize = "lg" | "md" | "sm";
 
 /** The ground the field is cut from — see the `surface` prop (ADR 0017). */
@@ -47,7 +49,7 @@ export type InputShape = "soft" | "full";
  */
 const SIZE = {
   lg: "h-field-lg gap-sm py-sm text-body-md",
-  md: "h-field-md gap-xs py-sm text-body-md",
+  md: "h-field-md gap-xs py-sm text-row",
   sm: "h-field-sm gap-xs py-xs text-caption",
 } as const satisfies Record<InputSize, string>;
 
@@ -140,7 +142,7 @@ interface InputBaseProps
   iconEnd?: ReactElement;
 }
 
-export type InputProps = InputBaseProps;
+export type InputProps = InputBaseProps & OwnedSlot;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   {
@@ -172,6 +174,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   // and announces fine — so the message drives the state rather than trusting
   // callers to keep two props in sync.
   const invalid = isInvalid || Boolean(errorText);
+  // The label, helper and error follow the control's own inline padding:
+  // a given shape picks its map, and no shape follows the brand's.
+  const lane = fieldLane(size, shape ?? "themed");
 
   // Both are announced when both exist: an error rarely makes the guidance
   // irrelevant, and dropping it mid-correction is exactly when it is needed.
@@ -190,10 +195,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         data-slot="label"
         htmlFor={inputId}
         className={cn(
-          "text-label-md font-body text-ink-secondary",
+          "text-field-label font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
-          // accessibility tree and still be clickable as a target.
-          isLabelHidden && "sr-only",
+          // accessibility tree and still be clickable as a target. Otherwise
+          // on the control's text lane, so the label, the typed value and the
+          // helper start at one edge (lib/field-lane). Alternatives, not
+          // layers: sr-only zeroes padding that the lane would put back.
+          isLabelHidden ? "sr-only" : lane,
         )}
       >
         {label}
@@ -283,12 +291,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
 
       {errorText && (
-        <p data-slot="error" id={errorId} className="text-caption font-body text-danger">
+        <p data-slot="error" id={errorId} className={cn("text-caption font-body text-danger", lane)}>
           {errorText}
         </p>
       )}
       {helperText && (
-        <p data-slot="helper" id={helperId} className="text-caption font-body text-ink-muted">
+        <p data-slot="helper" id={helperId} className={cn("text-caption font-body text-ink-muted", lane)}>
           {helperText}
         </p>
       )}

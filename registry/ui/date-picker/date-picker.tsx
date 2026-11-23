@@ -5,10 +5,12 @@ import { ChevronDown, ChevronUp } from "griddy-icons";
 import { useId, useRef, type ComponentPropsWithoutRef } from "react";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 import { Calendar } from "@/ui/calendar";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `select.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -30,7 +32,7 @@ const forBaseUI = <T,>(props: object) => props as T;
  */
 const CONTROL = "h-field-lg gap-sm px-field-inset-lg py-sm";
 
-export interface DatePickerProps {
+export interface DatePickerProps extends OwnedSlot {
   /**
    * Required — a placeholder is not a label. It disappears the moment a date
    * is chosen, taking the field's name with it (CONVENTIONS §10).
@@ -164,15 +166,13 @@ export function DatePicker({
           id={labelId}
           data-slot="date-picker-label"
           className={cn(
-            "text-label-md font-body text-ink-secondary",
-            // Bare text inside a rounded surface takes the inset (§6) — but
+            "text-field-label font-body text-ink-secondary",
+            // On the control's text lane (lib/field-lane) — but
             // the two are alternatives, not layers: `sr-only` resets padding
             // to 0 and a later `px-sm` puts 16px of it back, so a "hidden"
-            // label ends up a 16px-wide clipped box instead of a 1px one.
-            // Harmless, and the kind of harmless that makes the next person
-            // doubt the utility works. (Select, Multiselect and Input still
-            // compose them the layered way.)
-            isLabelHidden ? "sr-only" : "px-sm",
+            // label ends up a wide clipped box instead of a 1px one. Every
+            // field in the family composes them this way now.
+            isLabelHidden ? "sr-only" : fieldLane("lg"),
           )}
         >
           {label}
@@ -280,12 +280,12 @@ export function DatePicker({
         </BasePopover.Portal>
 
         {errorText && (
-          <p data-slot="date-picker-error" id={errorId} className="px-sm text-caption font-body text-danger">
+          <p data-slot="date-picker-error" id={errorId} className={cn(fieldLane("lg"), "text-caption font-body text-danger")}>
             {errorText}
           </p>
         )}
         {helperText && (
-          <p data-slot="date-picker-helper" id={helperId} className="px-sm text-caption font-body text-ink-muted">
+          <p data-slot="date-picker-helper" id={helperId} className={cn(fieldLane("lg"), "text-caption font-body text-ink-muted")}>
             {helperText}
           </p>
         )}

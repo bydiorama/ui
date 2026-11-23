@@ -3,6 +3,7 @@ import { Fragment, forwardRef, useId, type HTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { areaPath, columns, extent, linePath, seriesRuns, type Domain, type PlotBox } from "@/lib/viz";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * The eight ordinal categorical slots (ADR 0023). A series takes a slot in
  * fixed order and keeps it; a sparkline beside a full chart should take the
@@ -101,7 +102,7 @@ interface SparklineOwnProps {
 
 export interface SparklineProps
   extends SparklineOwnProps,
-    Omit<HTMLAttributes<HTMLDivElement>, keyof SparklineOwnProps | "children" | "role"> {}
+    Omit<HTMLAttributes<HTMLDivElement>, keyof SparklineOwnProps | "children" | "role">, OwnedSlot {}
 
 /**
  * An inline, axis-free trend.

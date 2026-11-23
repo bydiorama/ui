@@ -13,6 +13,11 @@
       "description": "Registry namespace consumers reference, e.g. @bydiorama."
     },
     "homepage": { "type": "string", "format": "uri" },
+    "renamed": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Old item name → new item name. Ledger history is immutable, so entries written under an old name stay valid (check:ledger accepts the keys). ADR 0027."
+    },
     "items": {
       "type": "array",
       "items": { "$ref": "#/$defs/item" }
@@ -35,7 +40,7 @@
         },
         "type": {
           "enum": ["ui", "lib", "hook", "block", "theme", "file", "skill", "style"],
-          "description": "Mapped to registry:<type> in the generated registry."
+          "description": "Mapped to registry:<type> in the generated registry. `skill` is the exception: skills ship in the `ui` agent plugin (plugins/ui), not through the registry (ADR 0027)."
         },
         "description": { "type": "string", "minLength": 1 },
         "category": {
@@ -56,7 +61,7 @@
               },
               "target": {
                 "type": "string",
-                "description": "Path inside the consuming app. Alias-shaped (`ui/button.tsx`): the first segment is a key in the consumer's components.json `aliases`. Literal: a first segment starting with `.` (`.claude/skills/<name>/SKILL.md`) or a `~/` prefix (`~/public/...`, shadcn's project-root marker) is a path from the consumer root, used as-is. A non-dot root path like `public/...` without `~/` is read as an alias and fails. Never `..` or absolute."
+                "description": "Path inside the consuming app — or, for a `skill`, inside this repo's plugin (`plugins/ui/skills/<name>/SKILL.md`, ADR 0027). Alias-shaped (`ui/button.tsx`): the first segment is a key in the consumer's components.json `aliases`. Literal: a first segment starting with `.` (`.claude/skills/<name>/SKILL.md`) or a `~/` prefix (`~/public/...`, shadcn's project-root marker) is a path from the consumer root, used as-is. A non-dot root path like `public/...` without `~/` is read as an alias and fails. Never `..` or absolute."
               }
             }
           }

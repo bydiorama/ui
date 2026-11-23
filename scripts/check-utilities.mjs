@@ -14,7 +14,7 @@ import { join } from "node:path";
 import { ROOT } from "./lib/manifest.mjs";
 import { classesIn, stripComments, walk } from "./lib/classes.mjs";
 
-const { toTailwindTheme, TYPE_ROLES } = await import(
+const { toTailwindTheme, TYPE_ROLES, STEPPED_ROLES } = await import(
   join(ROOT, "packages/tokens/src/index.ts")
 );
 
@@ -25,7 +25,12 @@ const { toTailwindTheme, TYPE_ROLES } = await import(
  * the end of the table caught it, and the gate demanded `--color-figure` —
  * a correct utility rejected because the list of roles lived here twice.
  */
-const TYPE_SIZE_NAMES = Object.keys(TYPE_ROLES).map((t) => t.replace(/^--ui-text-/, ""));
+// The density-stepped roles (ADR 0026) — `text-row`, `text-nav-row` — are
+// sizes in the same namespace, minted from STEPPED_ROLES by the emitter.
+const TYPE_SIZE_NAMES = [
+  ...Object.keys(TYPE_ROLES).map((t) => t.replace(/^--ui-text-/, "")),
+  ...Object.keys(STEPPED_ROLES),
+];
 const TYPE_SIZE = new RegExp(`^text-(${TYPE_SIZE_NAMES.join("|")})$`);
 
 const declared = new Set(
@@ -317,6 +322,13 @@ const sources = walk(join(ROOT, "registry"))
 const componentProps = new Set(
   sources.filter((f) => !f.isStory).flatMap((f) => [...f.declares]),
 );
+// The effects layer declares its knobs in its STYLESHEETS, on the effect's
+// class (`.fx-gradient { --ui-fx-gradient-angle: auto; }`), not in a component. A
+// story or an app overriding one reaches a real declaration.
+for (const file of walk(join(ROOT, "registry/lib"), [], /\.css$/)) {
+  const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, " ");
+  for (const m of css.matchAll(/(--ui-fx-[\w-]+)\s*:/g)) componentProps.add(m[1]);
+}
 
 for (const { rel, source, classes, isStory } of sources) {
   checkedFiles++;

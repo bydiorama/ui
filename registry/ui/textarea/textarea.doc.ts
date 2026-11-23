@@ -14,7 +14,7 @@ export const textareaDoc = {
 
   anatomy: [
     { part: "field", slot: "field", notes: "The wrapper. Owns the vertical rhythm between label, control and messages." },
-    { part: "label", slot: "label", notes: "Always rendered. isLabelHidden makes it visually hidden, never absent." },
+    { part: "label", slot: "label", notes: "Always rendered. isLabelHidden makes it visually hidden, never absent. On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density." },
     { part: "control", slot: "control", notes: "The bordered surface. Carries the border, background, focus ring and data-invalid/data-disabled. It has no height of its own — the textarea's height is the box's height, so a resize drag grows it." },
     { part: "textarea", slot: "textarea", notes: "The native <textarea>. Transparent and borderless, and it carries the INSET padding — Input puts that on the control instead. See forwarding." },
     { part: "error", slot: "error", notes: "Rendered before helper so the correction is read first." },

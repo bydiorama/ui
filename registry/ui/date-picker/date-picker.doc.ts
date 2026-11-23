@@ -9,7 +9,7 @@ export const datePickerDoc = {
 
   anatomy: [
     { part: "root", slot: "date-picker", notes: "Label, field, panel and messages as one accessible unit. flex column, gap-sm." },
-    { part: "label", slot: "date-picker-label", notes: "Required. px-sm — bare text inside a rounded surface takes the inset (§6). isLabelHidden renders it sr-only rather than omitting it." },
+    { part: "label", slot: "date-picker-label", notes: "Required. isLabelHidden renders it sr-only rather than omitting it. On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density." },
     { part: "trigger", slot: "date-picker-trigger", notes: "Input's lg control, character for character: h-12, px-md, radius-md, 1.5px border-subtle on bg-field. The browser test compares it to a live Select rather than to a number." },
     { part: "value", slot: "date-picker-value", notes: "The formatted date, or the placeholder in ink-placeholder. Truncates rather than wrapping — the control has one line." },
     { part: "icon", slot: "date-picker-icon", notes: "Chevron down closed, up open. A second channel beside aria-expanded." },

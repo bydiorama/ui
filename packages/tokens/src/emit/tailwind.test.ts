@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { toTailwindTheme } from "./tailwind.ts";
 import { BRANDABLE_TOKENS } from "../contract.ts";
-import { TYPE_ROLES } from "../resolve.ts";
+import { STEPPED_ROLES, TYPE_ROLES } from "../resolve.ts";
 
 /**
  * Two contract tokens must never collapse to one utility name.
@@ -64,5 +64,36 @@ test("every role in the type table is a size, never an ink", () => {
     const role = token.replace(/^--ui-text-/, "");
     assert.match(theme, new RegExp(`--text-${role}: var\\(${token}\\);`), `${role} is not a size`);
     assert.doesNotMatch(theme, new RegExp(`--color-ink-${role}:`), `${role} became a colour`);
+  }
+});
+
+test("a stepped role mixes its two table roles on --ui-type-step, attribute by attribute (ADR 0026)", () => {
+  const theme = toTailwindTheme();
+  for (const [name, step] of Object.entries(STEPPED_ROLES)) {
+    const a = `--ui-text-${step.default}`;
+    const b = `--ui-text-${step.compact}`;
+    const mix = (x: string, y: string) =>
+      `calc(var(${x}) + (var(${y}) - var(${x})) * var(--ui-type-step))`.replace(/[()*+]/g, "\\$&");
+    assert.match(theme, new RegExp(`--text-${name}: ${mix(a, b)};`));
+    assert.match(theme, new RegExp(`--text-${name}--font-weight: ${mix(`${a}-weight`, `${b}-weight`)};`));
+    assert.match(theme, new RegExp(`--text-${name}--line-height: ${mix(`${a}-leading`, `${b}-leading`)};`));
+    assert.match(theme, new RegExp(`--text-${name}--letter-spacing: ${mix(`${a}-tracking`, `${b}-tracking`)};`));
+    // A stepped role's name must not also be a COLOUR: Tailwind resolves
+    // `text-<name>` against both namespaces, and `text-nav` would have
+    // painted the row in the rail's background colour.
+    assert.doesNotMatch(theme, new RegExp(`--color-${name}:`));
+  }
+});
+
+test("the row sizes are purpose-named spacing (ADR 0026)", () => {
+  const theme = toTailwindTheme();
+  for (const [key, token] of [
+    ["row-inset", "--ui-row-inset"],
+    ["row-block-inset", "--ui-row-block-inset"],
+    ["row", "--ui-row-min-height"],
+    ["nav-row", "--ui-nav-row-min-height"],
+    ["nav-rail-item", "--ui-nav-rail-item-size"],
+  ] as const) {
+    assert.match(theme, new RegExp(`--spacing-${key}: var\\(${token}\\);`));
   }
 });

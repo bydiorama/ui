@@ -198,6 +198,15 @@ comment compiles a dead rule. Harmless, but don't let it fool a grep-count.
 - Matrix story vs the Paper export, both schemes, at two sizes. Still manual:
   the visual baselines let a small element change ENTIRELY under
   `allowedMismatchedPixelRatio`, so green is evidence about large surfaces only.
+  **Compare against a design export by diffing, not by looking** — the
+  `visual-review` skill is the method: 1× exports
+  of the frame and its key parts, the state reproduced by script, a canvas
+  diff in the same browser (`registry/tooling/visual-diff/visual-diff.mjs`,
+  shipped as the `visual-diff` item), then read the red — glyph outline is
+  rasterisation, a doubled element is an offset, a red block is a missing or
+  mis-sized part — and measure with `getBoundingClientRect` against the
+  design's layout values before proposing a fix. A baseline diff tells you
+  the component moved; only this tells you it moved away from the design.
 - **Looking is how findings enter; arithmetic is how they stay.** A perceptual
   finding ("the fill sits closer to the left than the top") is a hypothesis.
   Discharge it exactly one of two ways: promote it to a law in

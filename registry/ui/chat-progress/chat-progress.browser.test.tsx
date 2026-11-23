@@ -673,6 +673,31 @@ describe("ChatProgress — parallel lanes", () => {
     expect(getComputedStyle(lanes[0]!).borderRadius).toBe("8px");
   });
 
+  test("a live clock past a minute stays on one line and keeps the root row's height (#52)", () => {
+    const { q } = mount(
+      <div style={{ width: "530px" }}>
+        <ChatProgress form="steps" label="Researching grid systems" duration="42 s" steps={CHAIN} />
+      </div>,
+    );
+    const summary = q("chat-progress-summary")!;
+    const clock = summary.querySelector<HTMLElement>('[data-slot="chat-progress-clock"]')!;
+    const before = rect(summary).height;
+    const lineHeight = rect(clock).height;
+
+    for (const duration of ["1 min 12 s", "1 Min. 12 s", "12 min 48 s"]) {
+      rerender(
+        <div style={{ width: "530px" }}>
+          <ChatProgress form="steps" label="Researching grid systems" duration={duration} steps={CHAIN} />
+        </div>,
+      );
+      const grown = summary.querySelector<HTMLElement>('[data-slot="chat-progress-clock"]')!;
+      expect(getComputedStyle(grown).whiteSpace).toBe("nowrap");
+      expect(rect(grown).height).toBe(lineHeight);
+      expect(rect(grown).width).toBeGreaterThan(40);
+      expect(rect(summary).height).toBe(before);
+    }
+  });
+
   test("the root's clock sits over the lanes' clocks", () => {
     const { all, q } = mount(
       <div style={{ width: "530px" }}>

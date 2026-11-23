@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/cn";
 import { motionStandard } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `modal.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -124,7 +125,7 @@ interface SheetPanelValue {
 
 const SheetPanel_ = createContext<SheetPanelValue | null>(null);
 
-export interface SheetProps {
+export interface SheetProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit to let the sheet own it. */
   isOpen?: boolean;
@@ -181,7 +182,7 @@ function SheetRoot({ children, isOpen, defaultIsOpen, onOpenChange, isDismissabl
   );
 }
 
-export interface SheetTriggerProps {
+export interface SheetTriggerProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that opens it. Passed through, never wrapped (§3). */
   render?: ReactElement;
@@ -202,7 +203,7 @@ function SheetTrigger({ children, render, className }: SheetTriggerProps) {
   );
 }
 
-export interface SheetPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title" | "aria-label"> {
+export interface SheetPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title" | "aria-label">, OwnedSlot {
   /**
    * Refused, not overridden. `label` sets aria-label, so a second one would be
    * silently discarded, and a dialog quietly announcing the wrong name is the
@@ -403,7 +404,7 @@ const HAIRLINE = {
     "inset-shadow-[0_1px_0_transparent] group-data-[overflow-bottom]/sheet:inset-shadow-[0_1px_0_var(--ui-border-subtle)]",
 } as const;
 
-export type SheetHeaderProps = HTMLAttributes<HTMLDivElement>;
+export type SheetHeaderProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The 48px chrome band at the top of the panel. Pinned — it does not scroll
@@ -437,7 +438,7 @@ function SheetHeader({ className, ...rest }: SheetHeaderProps) {
   );
 }
 
-export type SheetTitleProps = HTMLAttributes<HTMLHeadingElement>;
+export type SheetTitleProps = HTMLAttributes<HTMLHeadingElement> & OwnedSlot;
 
 /**
  * Drawer.Title's values exactly, because both came from the same drawing.
@@ -460,7 +461,7 @@ function SheetTitle({ className, ...rest }: SheetTitleProps) {
   );
 }
 
-export type SheetBodyProps = HTMLAttributes<HTMLDivElement>;
+export type SheetBodyProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The content region, and the ONLY part that scrolls.
@@ -539,7 +540,7 @@ function SheetBody({ className, children, ...rest }: SheetBodyProps) {
   );
 }
 
-export type SheetFooterProps = HTMLAttributes<HTMLDivElement>;
+export type SheetFooterProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The action region. Pinned.
@@ -564,7 +565,7 @@ function SheetFooter({ className, ...rest }: SheetFooterProps) {
   );
 }
 
-export interface SheetCloseProps {
+export interface SheetCloseProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that dismisses. Never wrapped (§3). */
   render?: ReactElement;

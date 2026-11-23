@@ -38,7 +38,8 @@ side, which is the whole reason this step exists.
   reads as a draft.
 - **Never hand-draw an icon.** Extract the real glyph from the installed icon
   set and name its layer after the export — the **`griddy-icons-in-paper`**
-  skill is the method. A drawn approximation looks close enough to approve and
+  skill is the method (public in `bydiorama/skills`; Diorama installs it as
+  `bydiorama:griddy-icons-in-paper`). A drawn approximation looks close enough to approve and
   is not what ships, and an icon layer called `SVG` has lost the one thing the
   sheet knew: which glyph it is.
 
@@ -240,6 +241,16 @@ sheet, whose dark half may still show the mid-grey ramp.
   entry for the implementation uses it as provenance. Anything you could not
   resolve goes to the user *and* into the doc's `needsDesign`, which
   `pnpm design:gaps` collects.
+- **An asset URL that will not download is not a reason to redraw the asset.**
+  Cloud sessions often cannot reach a design tool's asset host — Figma's MCP
+  asset URLs return 403 there — so get the bytes back AS TEXT through a tool
+  call instead. Vectors: in Paper, `get_jsx` on the SVG node returns its
+  markup; in Figma, `use_figma` running
+  `await node.exportAsync({ format: "SVG_STRING" })` returns the SVG source.
+  Rasters: `get_screenshot` of the node (Figma: with `enableBase64Response`),
+  saved to disk, then cropped to the asset's box with a script. Never retype
+  base64 or path data by hand — one transposed character is a different
+  image that still renders.
 - `finish_working_on_nodes` when done. Never leave node IDs in user-facing text.
 
 **Sweep the board before you call it done — a screenshot cannot see any of
@@ -350,7 +361,7 @@ Conventions that come with it:
 | `fontFamily` set once on the artboard | **Neither does font.** Every text node needs its own `font-family: var(--ui-font-body)`, or all of them render `system-ui` — the whole board in the wrong face, and nothing looks broken. Sweep it: `find_nodes` for `font-family: "system-ui, sans-serif"` must return **0** |
 | Reaching for mono for numbers or token names | There is no mono face (ADR 0011). Numeric alignment is `font-variant-numeric: tabular-nums`; token strings get a `bg-sunken` / `radius-sm` inset in the body face |
 | A label at 11px because it "reads as a caption" | 12px is the floor and `--ui-text-caption` **is** 12px. ADR 0009 §2 records the 11px specimen as an annotation error — do not re-derive it |
-| `--ui-bg-emphasis` for a selected chip, segment or row | The chosen item in a set is `--ui-bg-selected`, as Tabs draws it. Emphasis is a filled action; only the single primary action in a view gets a filled accent (`ui-craft` 18) |
+| `--ui-bg-emphasis` for a selected chip, segment or row | The chosen item in a set is `--ui-bg-selected`, as Tabs draws it. Emphasis is a filled action; only the single primary action in a view gets a filled accent (`craft` 18) |
 | An invented shadow | Paper has no shadow token type, so paste the resolved `--ui-shadow-*` value and put the role in the layer name — that name is the only record the implementer gets |
 | Reading dark values off the Paper token list | It is light-only. Resolve from `packages/tokens` (§ 2) |
 | Hover and selected drawn from `--ui-bg-hover` and `--ui-bg-selected` | Identical in light (`#EDE8E3`). Two states that must differ and don't = a missing token, not a design choice |

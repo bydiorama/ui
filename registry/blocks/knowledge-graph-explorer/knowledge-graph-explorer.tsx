@@ -12,6 +12,7 @@ import { Checkbox } from "@/ui/checkbox";
 import { Combobox, type ComboboxItemGroup } from "@/ui/combobox";
 import { Network, type NetworkRenderer, type NetworkSlot, type NetworkType } from "@/ui/network";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /* Literal class maps: Tailwind sees only whole class names. */
 const SWATCH = {
   1: "bg-data-cat-1-solid", 2: "bg-data-cat-2-solid", 3: "bg-data-cat-3-solid", 4: "bg-data-cat-4-solid",
@@ -24,7 +25,7 @@ const CHIP = {
   7: "bg-data-cat-7-bg border-data-cat-7-solid", 8: "bg-data-cat-8-bg border-data-cat-8-solid",
 } as const satisfies Record<NetworkSlot, string>;
 
-export interface KnowledgeGraphExplorerProps<D = unknown> extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onSelect"> {
+export interface KnowledgeGraphExplorerProps<D = unknown> extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onSelect">, OwnedSlot {
   /** Names the drawing. */
   label: string;
   /** The takeaway, read before the drawing. */
@@ -181,13 +182,13 @@ export function KnowledgeGraphExplorer<D = unknown>({
             "size-auto h-auto w-full justify-start gap-sm rounded-sm bg-transparent p-sm text-start font-body enabled:hover:bg-hover",
           )}
         >
-          <span data-slot="knowledge-graph-explorer-verb" className="w-24 shrink-0 truncate text-label-sm font-regular text-ink-muted">
+          <span data-slot="knowledge-graph-explorer-verb" className="w-24 shrink-0 truncate text-footnote text-ink-muted">
             {e.label ?? "links to"}
           </span>
           <span aria-hidden="true" className={cn("size-2 shrink-0 rounded-full", t ? SWATCH[t.slot] : "bg-edge-control")} />
           <span className="min-w-0 truncate text-label-md text-ink-primary">{other?.label ?? otherId}</span>
           {e.isInferred && (
-            <span data-slot="knowledge-graph-explorer-verb" className="shrink-0 text-label-sm font-regular text-ink-muted">
+            <span data-slot="knowledge-graph-explorer-verb" className="shrink-0 text-footnote text-ink-muted">
               {inferredLabel}
             </span>
           )}
@@ -250,7 +251,7 @@ export function KnowledgeGraphExplorer<D = unknown>({
           ))}
         </fieldset>
         <div className="ms-auto flex items-center gap-md">
-          <span data-slot="knowledge-graph-explorer-shown" className="font-body text-label-sm font-regular text-ink-muted">
+          <span data-slot="knowledge-graph-explorer-shown" className="font-body text-footnote text-ink-muted">
             {shownText(visibleNodes.length, total ?? nodes.length)}
           </span>
           <Button
@@ -281,7 +282,7 @@ export function KnowledgeGraphExplorer<D = unknown>({
                     onClick={() => goBack(i)}
                     className={cn(
                       chromeControl(),
-                      "size-auto h-auto bg-transparent px-0 text-label-sm font-regular text-ink-muted enabled:hover:bg-transparent enabled:hover:text-ink-primary",
+                      "size-auto h-auto bg-transparent px-0 text-footnote text-ink-muted enabled:hover:bg-transparent enabled:hover:text-ink-primary",
                     )}
                   >
                     {byId.get(id)?.label ?? id}
@@ -358,7 +359,7 @@ export function KnowledgeGraphExplorer<D = unknown>({
                   .map((s, i) => (
                     <div key={s.title} className="flex flex-col gap-[2px]">
                       <p className={cn("px-sm pb-xs text-label-sm text-ink-primary", i > 0 && "pt-sm")}>
-                        {s.title} <span data-slot="knowledge-graph-explorer-count" className="font-regular text-ink-muted">{s.list.length}</span>
+                        {s.title} <span data-slot="knowledge-graph-explorer-count" className="text-footnote text-ink-muted">{s.list.length}</span>
                       </p>
                       <ul aria-label={s.title} className="flex flex-col gap-[2px]">
                         {s.list.map((e) => relationRow(e, s.far(e)))}

@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-chat-progress-clock-never-wraps",
+  "date": "2026-11-23",
+  "item": "chat-progress",
+  "kind": "fix",
+  "summary": "ChatProgress: the clock lane is a 40px MINIMUM that never wraps (issue #52). A live duration past a minute (\"1 min 12 s\", German \"1 Min. 12 s\") is about 60px of caption; the fixed w-10 broke it onto two lines and grew the root row mid-run. Clock is now min-w-10 whitespace-nowrap on every row (root, steps, lanes), matching the status row's clock; short durations still occupy exactly 40px, so every lane stays aligned. A long clock grows leftward into the label, which truncates.",
+  "affects": [
+    "slot:chat-progress-clock"
+  ]
+}

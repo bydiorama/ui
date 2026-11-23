@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type ReactElement,
   type HTMLAttributes,
   type KeyboardEvent,
   type MouseEvent,
@@ -53,6 +54,7 @@ import {
 import { Button } from "@/ui/button";
 import { Table, type TableColumn } from "@/ui/table";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** One of the eight ordinal data slots (ADR 0023 §5). */
 export type ChartSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
@@ -316,7 +318,7 @@ function valueText(ctx: ChartContextValue, si: number, index: number): string {
 
 /* ── Marks ─────────────────────────────────────────────────────────────── */
 
-export interface ChartBarsProps {
+export interface ChartBarsProps extends OwnedSlot {
   /**
    * `horizontal` is the Bar sheet's ranked rows: names on the left, the value
    * at each bar's tip, no axis. One series only, never stacked — grouped and
@@ -490,13 +492,17 @@ function SeriesLines({ series, values }: { series: ResolvedSeries[]; values: (s:
   );
 }
 
-/** One 2px line per series. */
-function Lines() {
+/**
+ * One 2px line per series. Takes no props, and is TYPED as taking OwnedSlot
+ * so a caller's `data-slot` is a compile error rather than silently dropped
+ * (@/lib/data-slot).
+ */
+const Lines: (props: OwnedSlot) => ReactElement = () => {
   const ctx = useChart("Lines");
   return <SeriesLines series={ctx.series} values={(s, si) => (ctx.stacks ? ctx.stacks[si]!.map((v) => v.y1) : s.values)} />;
-}
+};
 
-export interface ChartAreasProps {
+export interface ChartAreasProps extends OwnedSlot {
   /**
    * `flat` (default) is the slot's own wash role. `fade` is the Line sheet's
    * fading area: the series colour at 28% under the line, clear at the
@@ -555,18 +561,20 @@ function Areas({ wash = "flat" }: ChartAreasProps) {
 const BUBBLE_MIN = 4;
 const BUBBLE_MAX = 16;
 
-export type ChartDotsProps =
-  | { areaKey?: never; areaLabel?: never }
-  | {
-      /**
-       * A third measure, read from each row, drawn as the dot's AREA — a
-       * bubble chart. Zero or less draws the smallest dot.
-       */
-      areaKey: string;
-      /** Required with areaKey: the measure's name in the tooltip, the
-       *  announcement and the table ("Searches"). */
-      areaLabel: string;
-    };
+export type ChartDotsProps = OwnedSlot &
+  (
+    | { areaKey?: never; areaLabel?: never }
+    | {
+        /**
+         * A third measure, read from each row, drawn as the dot's AREA — a
+         * bubble chart. Zero or less draws the smallest dot.
+         */
+        areaKey: string;
+        /** Required with areaKey: the measure's name in the tooltip, the
+         *  announcement and the table ("Searches"). */
+        areaLabel: string;
+      }
+  );
 
 /**
  * A dot per row per series, placed by x and y: a scatter plot, or with
@@ -615,24 +623,26 @@ function DotsMark() {
  * target, a threshold); `at` draws it down the plot at a category or a date
  * (an event: "Repositioned", a launch). Never both.
  */
-export type ChartRuleProps =
-  | {
-      /** Where the rule crosses the value axis. It is included in the axis domain. */
-      value: number;
-      at?: never;
-      /** Required — a rule with no words is a line nobody can read ("Target 340"). */
-      label: string;
-    }
-  | {
-      /**
-       * Where the rule crosses the x axis: a category's name, a `Date` on a
-       * time axis, or a number on a linear one (inside the axis). Drawn top to
-       * bottom, labelled at its top. With a value rule it quarters a scatter.
-       */
-      at: string | Date | number;
-      value?: never;
-      label: string;
-    };
+export type ChartRuleProps = OwnedSlot &
+  (
+    | {
+        /** Where the rule crosses the value axis. It is included in the axis domain. */
+        value: number;
+        at?: never;
+        /** Required — a rule with no words is a line nobody can read ("Target 340"). */
+        label: string;
+      }
+    | {
+        /**
+         * Where the rule crosses the x axis: a category's name, a `Date` on a
+         * time axis, or a number on a linear one (inside the axis). Drawn top to
+         * bottom, labelled at its top. With a value rule it quarters a scatter.
+         */
+        at: string | Date | number;
+        value?: never;
+        label: string;
+      }
+  );
 
 /** The narrowest average a label-sm glyph runs in Aspekta, near 6px: a name
  *  longer than the lane at THIS width cannot fit whatever its letters. */
@@ -807,7 +817,7 @@ interface ChartOwnProps<Row> {
 }
 
 export type ChartProps<Row> = ChartOwnProps<Row> &
-  Omit<HTMLAttributes<HTMLElement>, keyof ChartOwnProps<Row> | "title">;
+  Omit<HTMLAttributes<HTMLElement>, keyof ChartOwnProps<Row> | "title"> & OwnedSlot;
 
 /**
  * A chart frame: title and takeaway, the view-as-table toggle, the legend, a
@@ -1356,8 +1366,9 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                   <li key={s.key} className="flex">
                     {/* A native checkbox: checked is shown. The label is the
                         24px target (SC 2.5.8): 4px block padding around the
-                        line, with a 24px floor because label-sm's line is
-                        15.6px, not the sheet's 16 — the tooltip chip's pair.
+                        footnote's 16.2px line (#59), so 24.2, with a 24px
+                        floor. The padding, not the floor, is what authors the
+                        inset (the geometry law) — the tooltip chip's pair.
                         It paints the hover and the focus ring. */}
                     <label
                       data-slot="chart-legend-item"
@@ -1401,7 +1412,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                       </svg>
                       <span
                         data-slot="chart-legend-label"
-                        className={cn("font-body font-regular text-label-sm", isShown ? "text-ink-secondary" : "text-ink-muted")}
+                        className={cn("font-body text-footnote", isShown ? "text-ink-secondary" : "text-ink-muted")}
                       >
                         {s.label}
                       </span>
@@ -1426,7 +1437,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                       data-slot="chart-tick"
                       // pt-sm on the plot column: each name centres on its 24px bar.
                       style={{ top: i * ROW_PITCH + 8, height: ROW_HEIGHT }}
-                      className="absolute inset-x-0 flex items-center font-body font-regular text-label-sm text-ink-muted"
+                      className="absolute inset-x-0 flex items-center font-body text-footnote text-ink-muted"
                     >
                       <span className="truncate" title={c}>{c}</span>
                     </span>
@@ -1443,7 +1454,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                     // The plot column starts 8px lower (pt-sm), so a 16px label
                     // whose top is at y(t) is centred on its gridline.
                     style={{ top: round(y(t)) }}
-                    className="absolute end-0 font-body font-regular text-label-sm whitespace-nowrap tabular-nums text-ink-muted"
+                    className="absolute end-0 font-body text-footnote whitespace-nowrap tabular-nums text-ink-muted"
                   >
                     {isPercent ? formatShare(t) : format(t)}
                   </span>
@@ -1571,7 +1582,7 @@ function ChartRoot<Row>(props: ChartProps<Row>) {
                               ? { insetInlineEnd: 0 }
                               : { insetInlineStart: tickX, transform: "translateX(-50%)" }
                         }
-                        className="absolute top-0 font-body font-regular text-label-sm whitespace-nowrap tabular-nums text-ink-muted"
+                        className="absolute top-0 font-body text-footnote whitespace-nowrap tabular-nums text-ink-muted"
                       >
                         {tickLabel}
                       </span>
@@ -1735,7 +1746,7 @@ function ChartTooltip({
                   <svg aria-hidden="true" focusable="false" width="8" height="8" viewBox="0 0 8 8" className="shrink-0">
                     <path d={markerKeyPath(s.shape, 8)} className={FILL[s.slot]} />
                   </svg>
-                  <span data-slot="chart-tooltip-label" className="flex-1 font-body font-regular text-label-sm text-ink-muted">
+                  <span data-slot="chart-tooltip-label" className="flex-1 font-body text-footnote text-ink-muted">
                     {s.label}
                   </span>
                   <span data-slot="chart-tooltip-value" className="ps-md font-body text-label-sm tabular-nums text-ink-primary">
@@ -1815,7 +1826,7 @@ export type BarChartProps<Row> = Omit<ChartProps<Row>, "children" | "xScale"> & 
   (
     | { orientation?: "vertical" }
     | { orientation: "horizontal"; series: readonly [ChartSeries<Row>]; isStacked?: false }
-  );
+  ) & OwnedSlot;
 
 /** Grouped (or, with `isStacked`, stacked) vertical bars; or, with
  *  `orientation="horizontal"`, one series as ranked rows. */
@@ -1839,7 +1850,7 @@ export function LineChart<Row>(props: Omit<ChartProps<Row>, "children">) {
 /** AreaChart's props. A fading wash is for overlaid areas only: the type
  *  refuses it on stacked bands, where it would vanish at each seam. */
 export type AreaChartProps<Row> = Omit<ChartProps<Row>, "children"> &
-  ({ isStacked?: false; wash?: "flat" | "fade" } | { isStacked: true | { isPercent: boolean }; wash?: "flat" });
+  ({ isStacked?: false; wash?: "flat" | "fade" } | { isStacked: true | { isPercent: boolean }; wash?: "flat" }) & OwnedSlot;
 
 /** Washes under lines; with `isStacked`, stacked bands. */
 export function AreaChart<Row>({ wash, ...props }: AreaChartProps<Row>) {
@@ -1854,7 +1865,7 @@ export function AreaChart<Row>({ wash, ...props }: AreaChartProps<Row>) {
  * ScatterPlot's props: a linear x axis, and with `areaKey` a bubble chart.
  * One to eight series, each a set of readings at its own x and y.
  */
-export type ScatterPlotProps<Row> = Omit<ChartProps<Row>, "children" | "xScale" | "isStacked"> & ChartDotsProps;
+export type ScatterPlotProps<Row> = Omit<ChartProps<Row>, "children" | "xScale" | "isStacked"> & ChartDotsProps & OwnedSlot;
 
 /** Dots placed by x and y — the market map's quadrant, or a correlation.
  *  Add `Chart.Rule` children through `Chart` + `Chart.Dots` to quarter it. */
@@ -1878,7 +1889,7 @@ export type HistogramProps = Omit<
   countLabel?: string;
   /** `Intl.NumberFormat` options for the bin edges ("€10–€20"). */
   binFormat?: Intl.NumberFormatOptions;
-};
+} & OwnedSlot;
 
 /**
  * A distribution: readings binned on nice edges and counted, drawn as bars

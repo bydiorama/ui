@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-cli-release-workflow-with-trusted-publishing",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "addition",
+  "summary": "The CLI gets a release path to npm (issue #30): .github/workflows/release-cli.yml publishes packages/cli as @bydiorama/ui on a cli-v<version> tag, with npm trusted publishing (no stored token, provenance attached). It refuses a tag that does not match the version, tests the CLI and runs the compiled binary before publishing. The tarball no longer includes the test files. The first version, 0.1.0, is published by hand, because npm attaches a trusted publisher only to a package that exists; packages/cli/README.md § Releasing has the steps.",
+  "affects": [
+    "package:@bydiorama/ui"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-select-list-carries-its-trigger-density",
+  "date": "2026-11-23",
+  "item": "select",
+  "kind": "addition",
+  "summary": "Select's option list portals to <body>, which leaves a [data-ui-density] subtree, and Select has no popup part a caller could pass the attribute to. On open it now reads the trigger's nearest [data-ui-density] and sets the same value on its panel (data-slot=select-panel), so a Select inside a compact inspector opens a compact list. With no ancestor attribute nothing is set, so default rendering is unchanged; with density on <body> the value is the one the portal already inherited. No new prop.",
+  "affects": [
+    "item:select"
+  ]
+}

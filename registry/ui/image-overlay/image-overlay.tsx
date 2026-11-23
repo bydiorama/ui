@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 // error the moment it is copied out. `check:dependencies` enforces it.
 import { AspectRatio, type AspectRatioName } from "@/ui/aspect-ratio";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Where the veil sits.
  *
@@ -15,7 +16,7 @@ import { AspectRatio, type AspectRatioName } from "@/ui/aspect-ratio";
  */
 export type ImageOverlayVariant = "scrim" | "full";
 
-export interface ImageOverlayProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface ImageOverlayProps extends Omit<HTMLAttributes<HTMLDivElement>, "children">, OwnedSlot {
   src: string;
   /**
    * Required, and empty for a decorative picture. An image with a caption over
@@ -119,7 +120,7 @@ const ImageOverlayRoot = forwardRef<HTMLDivElement, ImageOverlayProps>(function 
  * veil's own padding. The sheet draws exactly that difference and it is the
  * kind of 4px that gets lost the moment it has to be remembered.
  */
-function ImageOverlayTitle({ className, ...rest }: HTMLAttributes<HTMLParagraphElement>) {
+function ImageOverlayTitle({ className, ...rest }: HTMLAttributes<HTMLParagraphElement> & OwnedSlot) {
   return (
     <p
       data-slot="image-overlay-title"
@@ -146,7 +147,7 @@ function ImageOverlayTitle({ className, ...rest }: HTMLAttributes<HTMLParagraphE
 }
 
 /** The caption's second line — quieter, and still TEXT, so still AA. */
-function ImageOverlayDescription({ className, ...rest }: HTMLAttributes<HTMLParagraphElement>) {
+function ImageOverlayDescription({ className, ...rest }: HTMLAttributes<HTMLParagraphElement> & OwnedSlot) {
   return (
     <p
       data-slot="image-overlay-description"

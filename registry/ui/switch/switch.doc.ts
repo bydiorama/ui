@@ -8,7 +8,7 @@ export const switchDoc = {
     "A control that takes effect immediately, unlike a Checkbox, which states an intention the surrounding form later submits. A native input with role=switch, so it is announced as on/off.",
 
   anatomy: [
-    { part: "root", slot: "switch", notes: "The <label>. Carries data-state (on | off) and data-disabled, and IS the target — padded to 24px while the track stays 20px." },
+    { part: "root", slot: "switch", notes: "The <label>. Carries data-state (on | off) and data-disabled, and IS the target — padded to 24px while the track stays 20px. Declares --ui-switch-track-on-bg and --ui-switch-track-on-hover-bg." },
     { part: "input", slot: "input", notes: "The real <input type=\"checkbox\" role=\"switch\">, clipped but focusable and in the form. The forwarded ref lands here (§5)." },
     { part: "track", slot: "track", notes: "36x20 pill. aria-hidden — the input carries the semantics." },
     { part: "thumb", slot: "thumb", notes: "16px circle. Travels by transform, so the track's geometry never changes." },
@@ -39,18 +39,30 @@ Switch
       notes: "A line under the label: body-sm in --ui-text-muted (5.93:1 light, 4.94:1 dark), gap-xs below, --ui-text-disabled when disabled. Inside the <label>, so it is part of the hit target; announced as the input's DESCRIPTION (aria-describedby), with the name pinned to the label text (aria-labelledby) so a long description is never read as the name. A caller's own aria-describedby is kept beside it. With a description the row aligns to the top and the control sits on the label's first line.",
     },
     onCheckedChange: { type: "(isChecked: boolean) => void", notes: "Fires on every change in both modes. The raw onChange is forwarded and runs after ours (§5)." },
+    "--ui-switch-track-on-bg": {
+      type: "CSS custom property",
+      default: "var(--ui-bg-accent-legible)",
+      notes: "The ON track's fill and edge. The sanctioned way (§6) to give ONE switch its own colour — a violet agent toggle beside the accent ones — instead of an unlayered override that fights the component's selectors. Declared on the root, so set it on the Switch itself: className=\"[--ui-switch-track-on-bg:var(--ui-…)]\" (cn() lets the caller's class win) or style. Setting it on an ANCESTOR does nothing — the root's own declaration wins over an inherited value. Pass a role, not a hex, and keep it 3:1 against the page: the track is a control boundary (SC 1.4.11), and check:contrast only measures the default.",
+    },
+    "--ui-switch-track-on-hover-bg": {
+      type: "CSS custom property",
+      default: "var(--ui-bg-accent-hover)",
+      notes: "The ON track under the pointer. Separate because the hover paints a different colour from rest: override --ui-switch-track-on-bg alone and the themed switch turns back to the accent on hover. Set both together.",
+    },
   },
 
   do: [
     "Use a Switch for something that takes effect the moment it is flipped; use a Checkbox inside a form that is submitted later.",
     "Pass the visible label as children — it becomes the accessible name for free.",
     "Keep the label a statement of what is ON ('Show job title'), not an instruction.",
+    "Theme one switch's ON colour with --ui-switch-track-on-bg and --ui-switch-track-on-hover-bg, set on the Switch itself.",
   ],
 
   dont: [
     "Do not put a Switch in a form that needs saving; that is a Checkbox.",
     "Do not render one without children — there is no nameless form, and the type requires it.",
     "Do not add on/off text inside the track; the label already says what it does, and the role announces the state.",
+    "Do not override the track with an unlayered `[data-slot=track]` rule — it outranks every state, disabled included. Use the two custom properties.",
   ],
 
   a11y: {
@@ -61,7 +73,7 @@ Switch
       { key: "Space", does: "Toggles. Native implicit activation — no JS key handler exists." },
       { key: "Enter", does: "Nothing, per the platform, exactly as for Checkbox." },
     ],
-    target: "The track is 36x20; the <label> is padded to min-h-6 so the row clears the 24px floor of WCAG 2.5.8.",
+    target: "The track is 36x20; the <label> is held at --ui-choice-row-min-height (24px, = --ui-hit-area-min, at default and comfortable density) so the row clears the 24px floor of WCAG 2.5.8. Under [data-ui-density=\"compact\"] the ROW may be shorter — --ui-choice-row-min-height falls to 0, so a dense table's row is not forced to 24px by its 20px track — and the TARGET is carried apart from it: a transparent ::before on the <label>, centred, at least --ui-hit-area-min tall and the row's full width, sitting under the row's content (isolate + z below) so a click on the track or text still lands on it. Measured by hit-testing in density.browser.test.tsx: under compact the row is under 24px and the target is not.",
     contrastPairs: [
       { fg: "--ui-bg-accent-legible", bg: "--ui-bg-base", floor: "non-text", role: "the ON track against the page" },
       { fg: "--ui-border-strong", bg: "--ui-bg-base", floor: "non-text", role: "the OFF track against the page" },

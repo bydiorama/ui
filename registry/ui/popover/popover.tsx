@@ -1,11 +1,27 @@
 "use client";
 
 import { Popover as BasePopover } from "@base-ui/react/popover";
-import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useId,
+  useRef,
+  type ComponentPropsWithoutRef,
+  type HTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+  type Ref,
+  type RefObject,
+} from "react";
+import { useRender } from "@base-ui/react/use-render";
+import { Search } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { menuItem } from "@/lib/menu-surface";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place.
  *
@@ -32,7 +48,7 @@ const forBaseUI = <T,>(props: object) => props as T;
 export type PopoverSide = "top" | "right" | "bottom" | "left";
 export type PopoverAlign = "start" | "center" | "end";
 
-export interface PopoverProps {
+export interface PopoverProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit to let the popover own it. */
   isOpen?: boolean;
@@ -73,7 +89,7 @@ function PopoverRoot({ children, isOpen, defaultIsOpen, onOpenChange, isModal }:
   );
 }
 
-export interface PopoverTriggerProps {
+export interface PopoverTriggerProps extends OwnedSlot {
   children?: ReactNode;
   /**
    * Slot: the element that opens the popover — usually a `<Button>`. Passed
@@ -98,7 +114,39 @@ function PopoverTrigger({ children, render, className }: PopoverTriggerProps) {
   );
 }
 
-export interface PopoverPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+/**
+ * What a list panel's parts share: the search field registers itself here so
+ * the panel can hand it initial focus. A content panel leaves it empty.
+ */
+const PanelContext = createContext<{ searchRef: RefObject<HTMLInputElement | null> | null }>({ searchRef: null });
+
+export type PopoverPanelVariant = "content" | "list";
+
+/** The panel surface per variant; everything else about the popup is shared. */
+const PANEL_SURFACE: Record<PopoverPanelVariant, string> = {
+  // radius-lg (16), Card's corner (issue #40). A radius-md (8) boxed child at
+  // p-lg (16) is no longer concentric (§6 would ask for 24); the 2026-10-29
+  // owner review accepted that — cards, popovers and dialogs draw at 16
+  // platform-wide, and the 24 read as too round.
+  content: "min-w-80 gap-lg rounded-lg p-lg overflow-y-auto bg-elevated",
+  // Menu's surface (lib/menu-surface's menuPanel), not a second recipe (#55):
+  // radius-md (8) over radius-sm rows at a 4px inset is concentric exactly,
+  // and #40's 16px is for windows that hold content, not for lists. No
+  // padding of its own: Search, List and Footer each carry theirs, so the
+  // hairlines between them run edge to edge. The LIST scrolls, not the panel,
+  // so the search row and the footer stay put.
+  list: "w-70 rounded-md overflow-hidden bg-surface",
+};
+
+export interface PopoverPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
+  /**
+   * `content` (default) is a small window: a title, a description, a field or
+   * a banner, at p-lg on Card's surface. `list` is a picker: an optional
+   * Popover.Search, a Popover.List of dense rows and an optional
+   * Popover.Footer, on Menu's surface, 280px wide (#55). Either way it is a
+   * dialog. The rows' keyboard model is the caller's.
+   */
+  variant?: PopoverPanelVariant;
   /** Preferred side. Flips automatically when it would collide. */
   side?: PopoverSide;
   align?: PopoverAlign;
@@ -124,8 +172,10 @@ function PopoverPanel({
   sideOffset = 8,
   alignOffset = 0,
   container,
+  variant = "content",
   ...rest
 }: PopoverPanelProps) {
+  const searchRef = useRef<HTMLInputElement | null>(null);
   return (
     <BasePopover.Portal {...(container ? { container } : {})}>
       <BasePopover.Positioner
@@ -144,19 +194,23 @@ function PopoverPanel({
         className="z-(--ui-z-dropdown)"
       >
         <BasePopover.Popup
+          // A list panel opens with its search field focused, so typing
+          // filters at once; without a search it falls back to Base UI's
+          // default, the popup itself. Set BEFORE the rest spread: a caller
+          // that passes its own initialFocus through it (ChatSources'
+          // preview passes false, so focus stays on the marker) wins.
+          initialFocus={() => searchRef.current ?? true}
           {...forBaseUI<ComponentPropsWithoutRef<typeof BasePopover.Popup>>(rest)}
           data-slot="popover-panel"
+          data-variant={variant}
           className={cn(
-            // radius-lg (16), Card's corner (issue #40). A radius-md (8) boxed
-            // child at p-lg (16) is no longer concentric (§6 would ask for 24);
-            // the 2026-10-29 owner review accepted that — cards, popovers and
-            // dialogs draw at 16 platform-wide, and the 24 read as too round.
-            "flex min-w-80 flex-col gap-lg rounded-lg p-lg",
+            "flex flex-col",
+            PANEL_SURFACE[variant],
             // Never larger than the space Base UI measured. Flipping and
             // shifting reposition a panel; they cannot shrink one, so a tall
             // popover on a short window runs off the bottom without this (§7c).
-            "max-h-(--available-height) max-w-(--available-width) overflow-y-auto",
-            "bg-elevated border border-edge-subtle shadow-md",
+            "max-h-(--available-height) max-w-(--available-width)",
+            "border border-edge-subtle shadow-md",
             // The panel is the thing that must be identifiable against the
             // page (SC 1.4.11): bg-elevated alone measures 1.11:1 on white,
             // so the hairline and the shadow carry the boundary, not the fill.
@@ -170,7 +224,9 @@ function PopoverPanel({
             className,
           )}
         >
-          {children}
+          <PanelContext.Provider value={{ searchRef: variant === "list" ? searchRef : null }}>
+            {children}
+          </PanelContext.Provider>
         </BasePopover.Popup>
       </BasePopover.Positioner>
     </BasePopover.Portal>
@@ -187,7 +243,7 @@ function PopoverPanel({
  */
 const UNBOXED_INSET = "px-sm";
 
-export type PopoverTitleProps = HTMLAttributes<HTMLHeadingElement>;
+export type PopoverTitleProps = HTMLAttributes<HTMLHeadingElement> & OwnedSlot;
 
 function PopoverTitle({ className, ...rest }: PopoverTitleProps) {
   return (
@@ -203,7 +259,7 @@ function PopoverTitle({ className, ...rest }: PopoverTitleProps) {
   );
 }
 
-export type PopoverDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
+export type PopoverDescriptionProps = HTMLAttributes<HTMLParagraphElement> & OwnedSlot;
 
 function PopoverDescription({ className, ...rest }: PopoverDescriptionProps) {
   return (
@@ -223,7 +279,7 @@ function PopoverDescription({ className, ...rest }: PopoverDescriptionProps) {
   );
 }
 
-export interface PopoverCloseProps {
+export interface PopoverCloseProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that dismisses the popover. Never wrapped (§3). */
   render?: ReactElement;
@@ -244,10 +300,181 @@ function PopoverClose({ children, render, className }: PopoverCloseProps) {
   );
 }
 
+export interface PopoverSearchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size">, OwnedSlot {
+  /**
+   * Required: the accessible name, visually hidden. The row draws a
+   * placeholder and a glyph, and a placeholder is not a label (§10).
+   */
+  label: string;
+  ref?: Ref<HTMLInputElement>;
+}
+
+/**
+ * The list panel's search row: a bare input on a 36px row with a bottom
+ * hairline and no field box, because the panel is the box (#55).
+ *
+ * px-md, so the glyph sits on the rows' 12px text lane (the list's 4px inset
+ * plus a row's 8). The typed text then starts at 36px, the same lane as a
+ * footer row's label after its glyph. It takes the panel's initial focus.
+ * Filtering is the caller's, as is the list it filters.
+ */
+function PopoverSearch({ label, className, placeholder = "Search", ref, ...rest }: PopoverSearchProps) {
+  const id = useId();
+  const { searchRef } = useContext(PanelContext);
+  return (
+    <div
+      data-slot="popover-search"
+      className={cn(
+        "flex h-9 shrink-0 items-center gap-sm px-md",
+        "border-b border-edge-subtle",
+        // The row draws the focus indicator, so the bare input inside may
+        // carry outline-none: the bottom hairline takes the focus colour and
+        // the caret is in the field (§6).
+        "transition-[border-color]", motionMicro,
+        "focus-within:border-edge-focus",
+        "focus-within:forced-colors:outline focus-within:forced-colors:outline-focus",
+        className,
+      )}
+    >
+      <Search aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <input
+        ref={(node) => {
+          if (searchRef) searchRef.current = node;
+          if (typeof ref === "function") ref(node);
+          else if (ref) (ref as RefObject<HTMLInputElement | null>).current = node;
+        }}
+        id={id}
+        type="search"
+        placeholder={placeholder}
+        className={cn(
+          "min-w-0 flex-1 bg-transparent outline-none",
+          "text-body-md font-body text-ink-primary",
+          "placeholder:text-ink-placeholder",
+        )}
+        {...rest}
+      />
+    </div>
+  );
+}
+
+/** A row's height in a list panel: the min-h-8 floor (32px). */
+const ROW_REM = 2;
+
+export interface PopoverListProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
+  /**
+   * Caps the list at this many rows, then scrolls. 4 rows is 4 × 32 + 8:
+   * the rows plus the list's own 4px inset top and bottom. Omit it and the
+   * list grows until the panel reaches the space Base UI measured.
+   */
+  maxRows?: number;
+}
+
+/** The list panel's scrolling body: p-xs around rows that stack flush. */
+function PopoverList({ maxRows, className, style, ...rest }: PopoverListProps) {
+  return (
+    <div
+      data-slot="popover-list"
+      className={cn("flex min-h-0 flex-1 flex-col overflow-y-auto p-xs", className)}
+      style={{
+        ...(maxRows !== undefined
+          ? { maxHeight: `calc(${maxRows} * ${ROW_REM}rem + 2 * var(--ui-space-xs))` }
+          : {}),
+        ...style,
+      }}
+      {...rest}
+    />
+  );
+}
+
+export interface PopoverRowProps extends Omit<HTMLAttributes<HTMLElement>, "children">, OwnedSlot {
+  children: ReactNode;
+  /** Slot: a leading glyph, 16px, decorative. Never wrapped (§3). */
+  icon?: ReactElement;
+  /** Slot: a trailing mark, such as the selected check, or a count. */
+  trailing?: ReactElement;
+  /**
+   * The row the caller's keyboard model points at. Popover owns no listbox:
+   * the caller moves the highlight (or Combobox does, #17) and says which row
+   * it is on, and the row paints Menu's highlight for it.
+   */
+  isHighlighted?: boolean;
+  isDisabled?: boolean;
+  /**
+   * Slot: the element to render instead of the default `<button>`, such as
+   * an `<a>` or a router link. Passed through, never wrapped (§3).
+   */
+  render?: ReactElement;
+}
+
+/**
+ * A row in a list panel: Menu's item recipe, DENSE.
+ *
+ * Menu's rows are 46px (p-md around a 21.7px line). A list panel is a picker
+ * of many short names, so its rows are px-sm py-xs on a 32px floor, and the
+ * label lands on a 12px lane (4 + 8) shared with the search glyph and a footer
+ * row's glyph. Menu keeps its own rows; the density belongs to this panel.
+ */
+function PopoverRow({ children, icon, trailing, isHighlighted, isDisabled, render, className, ...rest }: PopoverRowProps) {
+  return useRender({
+    render,
+    defaultTagName: "button",
+    props: {
+      ...(render ? {} : { type: "button" as const }),
+      ...(rest as HTMLAttributes<HTMLElement>),
+      "data-slot": "popover-row",
+      "data-highlighted": isHighlighted || undefined,
+      "data-disabled": isDisabled || undefined,
+      ...(isDisabled ? { "aria-disabled": true as const } : {}),
+      className: menuItem(
+        cn(
+          "min-h-8 px-sm py-xs text-start",
+          // Menu's highlight is set by its behaviour layer; here the pointer
+          // and focus set it too, since the caller's model may not.
+          "not-data-[disabled]:hover:bg-hover",
+          "focus-visible:shadow-(--ui-focus-ring) focus-visible:outline-none",
+          "focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus",
+          className,
+        ),
+      ),
+      children: (
+        <>
+          <span className="flex min-w-0 items-center gap-sm">
+            {icon}
+            <span data-slot="popover-row-label" className="truncate">
+              {children}
+            </span>
+          </span>
+          {trailing}
+        </>
+      ),
+    },
+  });
+}
+
+export type PopoverFooterProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
+
+/** The list panel's foot: p-xs under a top hairline. Holds rows or a button pair. */
+function PopoverFooter({ className, ...rest }: PopoverFooterProps) {
+  return (
+    <div
+      data-slot="popover-footer"
+      className={cn("flex shrink-0 flex-col border-t border-edge-subtle p-xs", className)}
+      {...rest}
+    />
+  );
+}
+
 export const Popover = Object.assign(PopoverRoot, {
   Trigger: PopoverTrigger,
   Panel: PopoverPanel,
   Title: PopoverTitle,
   Description: PopoverDescription,
   Close: PopoverClose,
+  Search: PopoverSearch,
+  List: PopoverList,
+  Row: PopoverRow,
+  Footer: PopoverFooter,
 });

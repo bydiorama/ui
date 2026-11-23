@@ -18,6 +18,7 @@ import { Button } from "@/ui/button";
 import { Header } from "@/ui/header";
 import { Sheet } from "@/ui/sheet";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export interface SiteHeaderBrand {
   /**
    * The organisation's name. It is the link's accessible name — never "Home"
@@ -46,7 +47,7 @@ export interface SiteHeaderCta {
   href: string;
 }
 
-export interface SiteHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "title"> {
+export interface SiteHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "title">, OwnedSlot {
   brand: SiteHeaderBrand;
   items: SiteHeaderItem[];
   /**

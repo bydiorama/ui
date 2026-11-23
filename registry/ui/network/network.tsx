@@ -47,6 +47,7 @@ import { Button } from "@/ui/button";
 import { DotPattern } from "@/ui/dot-pattern";
 import { Table, type TableColumn } from "@/ui/table";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** The eight categorical slots. A ninth type is never a generated hue: it folds into Other. */
 export type NetworkSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
@@ -93,7 +94,7 @@ export interface NetworkRenderEdge {
   isFocused: boolean;
 }
 
-export interface NetworkRendererProps {
+export interface NetworkRendererProps extends OwnedSlot {
   nodes: readonly NetworkRenderNode[];
   edges: readonly NetworkRenderEdge[];
   view: View;
@@ -106,7 +107,7 @@ export interface NetworkRendererProps {
  */
 export type NetworkRenderer = ComponentType<NetworkRendererProps>;
 
-export interface NetworkProps<D = unknown> extends Omit<HTMLAttributes<HTMLElement>, "children" | "onSelect"> {
+export interface NetworkProps<D = unknown> extends Omit<HTMLAttributes<HTMLElement>, "children" | "onSelect">, OwnedSlot {
   /** The title. Names the figure and the keyboard region. */
   label: string;
   /** The takeaway, written by a person. The figure's accessible description. */
@@ -878,8 +879,9 @@ function NetworkSvg({
             data-slot="network-edge-label"
             style={{ left: e.mid.x, top: e.mid.y }}
             className={cn(
-              "absolute -translate-x-1/2 -translate-y-1/2 rounded-sm bg-base px-xs font-body text-label-sm whitespace-nowrap",
-              e.isActive ? "text-ink-primary" : "font-regular text-ink-muted",
+              "absolute -translate-x-1/2 -translate-y-1/2 rounded-sm bg-base px-xs font-body whitespace-nowrap",
+              // A footnote at rest; an active edge's label steps up to label-sm's 600 (#59).
+              e.isActive ? "text-label-sm text-ink-primary" : "text-footnote text-ink-muted",
               e.isDimmed && "opacity-32",
             )}
           >
@@ -983,7 +985,7 @@ function NetworkTable<D>({
 
 /* --------------------------------------------------------------- overlays */
 
-export interface NetworkControlsProps extends HTMLAttributes<HTMLDivElement> {
+export interface NetworkControlsProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   zoomInLabel?: string;
   zoomOutLabel?: string;
   fitLabel?: string;

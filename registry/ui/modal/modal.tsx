@@ -6,6 +6,7 @@ import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode,
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `popover.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -61,7 +62,7 @@ const SIZE = {
   lg: "max-w-dialog-lg",
 } as const satisfies Record<ModalSize, string>;
 
-export interface ModalProps {
+export interface ModalProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit to let the modal own it. */
   isOpen?: boolean;
@@ -117,7 +118,7 @@ function ModalRoot({ children, isOpen, defaultIsOpen, onOpenChange, isDismissabl
   );
 }
 
-export interface ModalTriggerProps {
+export interface ModalTriggerProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the element that opens the modal. Passed through, never wrapped (§3). */
   render?: ReactElement;
@@ -138,7 +139,7 @@ function ModalTrigger({ children, render, className }: ModalTriggerProps) {
   );
 }
 
-export interface ModalSurfaceProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface ModalSurfaceProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   size?: ModalSize;
   /**
    * Where to portal the dialog. Defaults to `document.body`.
@@ -203,7 +204,17 @@ function ModalSurface({
           // Selects — which portal to <body> and are this panel's SIBLINGS,
           // so only the scale keeps them in front. Carrying no z at all was
           // the bug: it put the whole dialog under the affix Header.
-          "fixed top-1/2 left-1/2 z-(--ui-z-modal) -translate-x-1/2 -translate-y-1/2",
+          //
+          // CENTRED BY AUTO MARGINS, NOT BY A TRANSLATE. `inset-0` spans the
+          // containing block, `h-fit` gives the box back its own height, and
+          // `m-auto` splits what is left. It used to be
+          // `top-1/2 left-1/2 -translate-1/2`, and a transform is painted
+          // exactly where it lands: whenever the viewport and the dialog
+          // differed in height by an odd pixel, the whole surface sat on a
+          // half pixel and every 1.5px hairline in it split unevenly — the
+          // outline Cancel button's bottom edge read heavier than its top.
+          // A layout offset is snapped to the grid at paint; a translate is not.
+          "fixed inset-0 z-(--ui-z-modal) m-auto h-fit",
           // `w-full` against the containing block, floored so it cannot collapse.
           // 100vw was wrong: a `fixed` element resolves against the nearest
           // TRANSFORMED ancestor, not the viewport, and Storybook's docs blocks
@@ -256,7 +267,7 @@ function ModalSurface({
   );
 }
 
-export type ModalTitleProps = HTMLAttributes<HTMLHeadingElement>;
+export type ModalTitleProps = HTMLAttributes<HTMLHeadingElement> & OwnedSlot;
 
 function ModalTitle({ className, ...rest }: ModalTitleProps) {
   return (
@@ -264,19 +275,30 @@ function ModalTitle({ className, ...rest }: ModalTitleProps) {
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseDialog.Title>>(rest)}
       data-slot="modal-title"
       className={cn(
-        // Card.Header's title, set the same way: title-sm (whose role weight
-        // is the 600 the redraw asks for, so no exception) inset by Card's
-        // unboxed inset. It was title-lg — the loudest thing on the screen
-        // for a one-line question in a 416px dialog (#23).
+        // A FIXED 16px, never a title role (#51). The title roles are fluid
+        // (ADR 0009) and title-sm resolves to ~12px on a phone — smaller than
+        // the 14px fields the dialog holds — while a dialog is a fixed-width
+        // surface the viewport does not shrink. That is the rule
+        // lib/menu-surface records for menus. body-lg is the 16px fixed role,
+        // at title-sm's 600 (a declared type-role exception) so it still
+        // heads the dialog, and at body-lg's own 1.55 leading: at title-sm's
+        // 1.35 the footer's 1.5px button hairline painted unevenly at some
+        // sub-pixel offsets (modal.visual.test.tsx). It was title-lg before
+        // #23 — the loudest thing on the screen for a one-line question.
         UNBOXED_INSET,
-        "text-title-sm font-body text-ink-primary",
+        "text-body-lg font-body font-bold text-ink-primary",
+        // The surface's own child gets a block inset of space-xs, so the
+        // bare heading sits off the 16px corner arc vertically as px-sm keeps
+        // it off horizontally (#51). A title inside a consumer's own header
+        // row is that row's business.
+        "[[data-slot=modal-surface]>&]:py-xs",
         className,
       )}
     />
   );
 }
 
-export type ModalDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
+export type ModalDescriptionProps = HTMLAttributes<HTMLParagraphElement> & OwnedSlot;
 
 function ModalDescription({ className, ...rest }: ModalDescriptionProps) {
   return (
@@ -294,7 +316,7 @@ function ModalDescription({ className, ...rest }: ModalDescriptionProps) {
   );
 }
 
-export type ModalFooterProps = HTMLAttributes<HTMLDivElement>;
+export type ModalFooterProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The action row. `justify-between` is the sheet's own layout — the dismissing
@@ -311,7 +333,7 @@ function ModalFooter({ className, ...rest }: ModalFooterProps) {
   );
 }
 
-export interface ModalCloseProps {
+export interface ModalCloseProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that dismisses. Never wrapped (§3). */
   render?: ReactElement;

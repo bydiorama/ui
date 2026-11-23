@@ -9,6 +9,7 @@ import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -247,7 +248,7 @@ type SliderInlineVariantProps = {
   incrementIcon?: never;
 };
 
-export type SliderProps = SliderBaseProps & (SliderTrackVariantProps | SliderInlineVariantProps);
+export type SliderProps = SliderBaseProps & (SliderTrackVariantProps | SliderInlineVariantProps) & OwnedSlot;
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const single = (next: number | readonly number[]) =>

@@ -1,0 +1,71 @@
+name: Release CLI
+
+# Publishes packages/cli to npm as @bydiorama/ui, with npm trusted publishing:
+# GitHub proves to npm which repo and workflow is asking, so no npm token is
+# stored anywhere. npm must list this repo and this file (release-cli.yml) as
+# the package's trusted publisher — set on npmjs.com, package Settings.
+#
+# Release: bump packages/cli/package.json "version", merge to main, then push
+# a tag `cli-v<that version>` (git tag cli-v0.1.1 && git push origin cli-v0.1.1).
+# The tag must match the version, or nothing is published.
+#
+# npm cannot set up a trusted publisher for a package that does not exist yet,
+# so the FIRST version (0.1.0) is published by hand; see packages/cli/README.md.
+
+on:
+  push:
+    tags: ["cli-v*"]
+
+permissions:
+  contents: read
+  id-token: write # the OIDC token npm trusted publishing exchanges
+
+concurrency:
+  group: release-cli
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or later; Node 22 ships npm 10.
+      - name: npm with trusted publishing
+        run: npm install -g npm@11 && npm --version
+
+      - name: Tag matches the package version
+        working-directory: packages/cli
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "cli-v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match packages/cli version ${version} — expected cli-v${version}"
+            exit 1
+          fi
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Test the CLI
+        run: node --experimental-strip-types --test "packages/cli/src/**/*.test.ts"
+
+      # prepublishOnly compiles dist/. Run the compiled binary before it ships:
+      # Node refuses to strip types inside node_modules, so dist/ is what
+      # every `npx @bydiorama/ui` actually runs.
+      - name: Build and smoke-test the published binary
+        working-directory: packages/cli
+        run: pnpm run build && node dist/bin/ui.js --help
+
+      # Provenance is attached automatically with trusted publishing.
+      - name: Publish
+        working-directory: packages/cli
+        run: npm publish --access public

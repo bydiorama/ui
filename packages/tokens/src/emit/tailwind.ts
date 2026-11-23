@@ -16,7 +16,7 @@
  */
 
 import { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS, type BrandableToken } from "../contract.ts";
-import { TYPE_ROLES } from "../resolve.ts";
+import { STEPPED_ROLES, TYPE_ROLES } from "../resolve.ts";
 
 /** Dimension/composite tokens whose prefixes collide with colour families.
  *  Mapping these into `--color-*` would mint utilities like `bg-nav-width` —
@@ -150,6 +150,27 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
     }),
   );
 
+  // Density-stepped roles (ADR 0026): `text-row` is body-md at default and
+  // dense-md under compact. Each attribute is a mix of the two roles' tokens
+  // on `--ui-type-step` (0 or 1), evaluated on the element that names the
+  // utility — so it reads the role tokens in scope THERE, and a brand scope
+  // between the density attribute and the row keeps its own baseSize and
+  // weights. At step 0 the mix is exactly the default role (A + (B − A) × 0).
+  const mix = (a: string, b: string) => `calc(var(${a}) + (var(${b}) - var(${a})) * var(--ui-type-step))`;
+  push(
+    "Density-stepped type roles — one table role at default, another under compact.",
+    (Object.entries(STEPPED_ROLES) as [string, { default: string; compact: string }][]).flatMap(([name, step]) => {
+      const from = `--ui-text-${step.default}`;
+      const to = `--ui-text-${step.compact}`;
+      return [
+        [`--text-${name}`, mix(from, to)] as [string, string],
+        ...(Object.entries(COMPANIONS) as [keyof typeof COMPANIONS, string][]).map(
+          ([attr, prop]) => [`--text-${name}--${prop}`, mix(`${from}-${attr}`, `${to}-${attr}`)] as [string, string],
+        ),
+      ];
+    }),
+  );
+
   for (const [prefix, namespace] of SHAPE_NAMESPACES) {
     const entries = BRANDABLE_TOKENS.filter((t) => t.startsWith(prefix)).map(
       (t) => [`${namespace}${t.slice(prefix.length)}`, `var(${t})`] as [string, string],
@@ -186,6 +207,18 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
       return [`--spacing-${family}-${part === "inset" ? "inset-" : ""}${size}`, `var(${t})`] as [string, string];
     }),
   );
+
+  // Rows (ADR 0026): `px-row-inset py-row-block-inset min-h-row` for a menu
+  // or option row, `min-h-nav-row` for a Sidebar row, `size-nav-rail-item`
+  // for a NavRail square. Purpose-named for the same reason as the control
+  // sizes, and re-bound by `[data-ui-density]` the same way.
+  push("Row sizing.", [
+    ["--spacing-row-inset", "var(--ui-row-inset)"],
+    ["--spacing-row-block-inset", "var(--ui-row-block-inset)"],
+    ["--spacing-row", "var(--ui-row-min-height)"],
+    ["--spacing-nav-row", "var(--ui-nav-row-min-height)"],
+    ["--spacing-nav-rail-item", "var(--ui-nav-rail-item-size)"],
+  ]);
 
   // Stroke widths (ADR 0020 §2). Tailwind 4 resolves `border-<name>`,
   // `ring-<name>` and `outline-<name>` against these width namespaces (after

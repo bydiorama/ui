@@ -38,7 +38,7 @@ to be read, owned and modified downstream.
 | `pnpm registry:build` | Regenerate `registry.json` and `r/*.json` from the manifest |
 | `pnpm check:registry` | Fail if the generated registry is stale (CI runs this) |
 | `pnpm check:licensing` | Fail on non-distributable fonts or paid-tier assets |
-| `pnpm skills:build` | Regenerate `.claude/skills/` from `registry/skills/` |
+| `pnpm skills:build` | Regenerate `.claude/skills/` and the `ui` plugin (`plugins/ui/`) from `registry/skills/` |
 | `pnpm check:skills` | Fail on a broken skill contract or a stale generated copy |
 | `pnpm check:boundaries` | Fail if the behaviour layer leaks into a public signature |
 | `pnpm check:motion` | Fail on a literal duration, an unguarded keyframe, or undocumented motion |
@@ -78,7 +78,7 @@ These are not style preferences; violating them breaks consumers:
 ## Effects
 
 Glass, grain, sheen, glow, shimmer and ink (`registry/lib/fx`) and the
-optional aurora and halo shaders (`registry/lib/shader`) are applied as a
+optional shaders — the parametric `gradient` ground and halo (`registry/lib/shader`) are applied as a
 class on a component's root — `className={fx("glass")}` — never as a prop
 (CONVENTIONS §12, ADR 0022). Adding or changing one: the row in `EFFECTS`
 first, then its stylesheet, then `pnpm check:fx` and the two browser tests
@@ -116,13 +116,20 @@ or test totals.
 ## Skills
 
 **`registry/skills/` is the source of truth for every skill. `.claude/skills/`
-is generated — never edit it.** The manifest decides which skills ship to
-consumers, the same way it decides which components do (ADR 0013).
+and `plugins/ui/skills/` are generated — never edit them.** The manifest
+decides which skills ship, the same way it decides which components do
+(ADR 0013). Shipped skills travel as the **`ui` agent plugin** (marketplace
+`diorama-ui`, `.claude-plugin/marketplace.json`), never through the registry
+or the CLI (ADR 0027).
 
-| Tier | Teaches | In the manifest | Front-matter name |
+| Tier | Teaches | In the manifest | Ships as |
 |---|---|---|---|
-| Authoring | building this library | no | the directory name |
-| Product | using `@bydiorama/ui` | `type: "skill"` | `diorama-<directory>` |
+| Authoring | building this library | no | — (loads only here) |
+| Product | using the system in an app, in Paper, in demo media | `type: "skill"` | `ui:<directory>` |
+
+A skill's front-matter name is its directory, with no prefix. Do not install
+the `ui` plugin while working here — `.claude/skills/` already loads the same
+skills.
 
 Creating or editing one is the **`create-skill`** skill
 (`registry/skills/create-skill/SKILL.md`) — invoke it rather than copying an

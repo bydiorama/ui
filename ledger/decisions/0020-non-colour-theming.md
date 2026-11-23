@@ -1,6 +1,7 @@
 # 0020 — Non-colour theming: strokes and type are brand knobs, density is a mode
 
-**Status:** accepted · 2026-09-24 · amends 0006, 0009, 0010
+**Status:** accepted · 2026-09-24 · amends 0006, 0009, 0010 · §4 amended by 0026:
+rows, NavRail squares and a stepped set of type roles now follow density
 
 ## The finding
 
@@ -239,3 +240,46 @@ but two components (`chat-questionnaire`'s selection ring,
 with no token to reach for — closing the gap needs a design decision (a
 general offset scale, or a declared exception), not a rule change bundled
 into a hardening pass.
+
+## Amendment — a footnote role (2026-11-23, #59)
+
+Between September and November thirteen parts declared the same deviation:
+`text-label-sm` at 400 instead of the role's 600. They were chart ticks,
+legend names and tooltip series names; diagram edge labels, node
+descriptions and list notes; network edge labels; the knowledge-graph
+explorer's verbs, counts and "shown" status; and the stat tile's label,
+comparison and empty line. One reason repeated thirteen times was a
+missing role, not thirteen designed differences.
+
+**Decision (maintainer, 2026-11-23, Paper sheet "Type — Footnote role").**
+A new role, `footnote`: **12px fixed, 400, leading 1.35, tracking
+−0.02em**. It is quiet supporting text at the size floor (ADR 0009). It
+has the same size as `label-sm` and `caption`, and it differs from each in
+what it is:
+
+| Role | Weight | Leading | For |
+|---|---|---|---|
+| `label-sm` | 600 | 1.3 | A small label that names something |
+| `caption` | 600 | 1.35 | Text under media and figures |
+| `footnote` | 400 | 1.35 | Supporting text next to a 600 label or figure: a scale, a predicate, a comparison, a count |
+
+- All thirteen parts adopt `text-footnote`, and their exceptions are
+  removed. `TYPE_ROLE_EXCEPTIONS` drops from 23 entries to 10.
+- **Edge labels** use two roles rather than an exception. At rest a diagram
+  or network edge label is `text-footnote`. An active edge's label is
+  `text-label-sm`, so it steps up to 600 when its edge is selected or on
+  the path.
+- Leading moves from 1.3 to 1.35: a 12px line is now 16.2px instead of
+  15.6px. That matches the Chart Anatomy sheet's 12/16 more closely. The
+  visual baselines that move are recorded in the ledger.
+- Two inline notes stay weight-only, `font-regular` with no role class:
+  the explorer's type count inside a Checkbox label, and the diagram list
+  note that follows a node name. They inherit their parent's size, so a
+  role class would change that size.
+- `cn()` lists `footnote` in the font-size group. It is a name that no
+  size pattern matches, so without the entry `tailwind-merge` would drop a
+  colour class merged after it.
+- `footnote` and ADR 0026's `dense-sm` hold the same values (12 / 400 /
+  1.35). They stay two roles because they do different jobs: `footnote`
+  is supporting text at every density, and `dense-sm` is a dense screen's
+  body type. A brand can retune one without moving the other.

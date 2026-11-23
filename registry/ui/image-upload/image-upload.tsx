@@ -10,9 +10,11 @@ import {
 import { AlertCircle, Close, Plus, Upload } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 import { Progress } from "@/ui/progress";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * The dropzone's state, as ONE closed union rather than three booleans.
  *
@@ -66,7 +68,7 @@ interface ImageUploadOwnProps {
 
 export interface ImageUploadProps
   extends ImageUploadOwnProps,
-    Omit<HTMLAttributes<HTMLDivElement>, keyof ImageUploadOwnProps> {}
+    Omit<HTMLAttributes<HTMLDivElement>, keyof ImageUploadOwnProps>, OwnedSlot {}
 
 /** The dropzone's outer edge, per state. */
 const EDGE = {
@@ -154,9 +156,11 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           // Input's own label, verbatim, because this IS a field and the two
           // stack in a form. The sheet draws weight 550 here and 500 on
           // Input; following Input is what keeps a form from having two
-          // label styles. Flagged in needsDesign.
-          "text-label-md font-body text-ink-secondary",
-          isLabelHidden && "sr-only",
+          // label styles. Flagged in needsDesign. The dropzone has no text
+          // lane of its own, so the label takes a default Input's (lg, the
+          // brand's shape), and a form stacking the two has one label edge.
+          "text-field-label font-body text-ink-secondary",
+          isLabelHidden ? "sr-only" : fieldLane("lg", "themed"),
         )}
       >
         {label}
@@ -321,6 +325,7 @@ const ImageUploadRoot = forwardRef<HTMLDivElement, ImageUploadProps>(function Im
           data-slot="image-upload-helper"
           className={cn(
             "text-caption font-body",
+            fieldLane("lg", "themed"),
             // The sheet turns the constraints red once one of them is broken,
             // which is right: they stop being guidance and become the reason.
             state === "rejected" ? "text-danger" : "text-ink-muted",
@@ -350,7 +355,7 @@ type ImageUploadFileCancel =
 
 export type ImageUploadFileProps = ImageUploadFileOwnProps &
   ImageUploadFileCancel &
-  Omit<HTMLAttributes<HTMLDivElement>, keyof ImageUploadFileOwnProps | "onCancel">;
+  Omit<HTMLAttributes<HTMLDivElement>, keyof ImageUploadFileOwnProps | "onCancel"> & OwnedSlot;
 
 /**
  * One file, mid-upload.
@@ -460,7 +465,7 @@ function ImageUploadFile({
   );
 }
 
-export interface ImageUploadGridProps extends HTMLAttributes<HTMLDivElement> {
+export interface ImageUploadGridProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   children: ReactNode;
 }
 
@@ -487,7 +492,7 @@ function ImageUploadGrid({ children, className, ...rest }: ImageUploadGridProps)
 }
 
 export interface ImageUploadAddProps
-  extends Omit<HTMLAttributes<HTMLButtonElement>, "children"> {
+  extends Omit<HTMLAttributes<HTMLButtonElement>, "children">, OwnedSlot {
   /** Required: the tile is a plus glyph and nothing else. */
   label: string;
   isDisabled?: boolean;

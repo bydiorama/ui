@@ -2,6 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactElement } from "react";
 
 import { cn } from "@/lib/cn";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 interface EmptyStateOwnProps {
   /**
    * Slot: the mark. The component owns the 32px well it sits on and sizes the
@@ -29,7 +30,7 @@ interface EmptyStateOwnProps {
 
 export interface EmptyStateProps
   extends EmptyStateOwnProps,
-    Omit<HTMLAttributes<HTMLDivElement>, keyof EmptyStateOwnProps> {}
+    Omit<HTMLAttributes<HTMLDivElement>, keyof EmptyStateOwnProps>, OwnedSlot {}
 
 /**
  * The absence of content, explained.

@@ -12,6 +12,7 @@ import { Button } from "@/ui/button";
 import { ChatWidget } from "@/ui/chat-widget";
 import { StatusMatrix } from "@/ui/status-matrix";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Where the plan stands as a whole.
  *
@@ -163,7 +164,7 @@ type ChatTasksLiveProps = {
   getDropLabel?: undefined;
 };
 
-export type ChatTasksProps = ChatTasksBaseProps & (ChatTasksProposedProps | ChatTasksLiveProps);
+export type ChatTasksProps = ChatTasksBaseProps & (ChatTasksProposedProps | ChatTasksLiveProps) & OwnedSlot;
 
 /**
  * The union, flattened for internal use — every field optional here, and the

@@ -7,6 +7,7 @@ import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode 
 import { cn } from "@/lib/cn";
 import { menuPanel, menuItem, menuSeparator, menuGroupLabel } from "@/lib/menu-surface";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -17,7 +18,7 @@ const forBaseUI = <T,>(props: object) => props as T;
 export type MenuSide = "top" | "right" | "bottom" | "left";
 export type MenuAlign = "start" | "center" | "end";
 
-export interface MenuProps {
+export interface MenuProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit and the menu owns it. */
   isOpen?: boolean;
@@ -56,7 +57,7 @@ function MenuRoot({ children, isOpen, defaultIsOpen, onOpenChange, isModal }: Me
   );
 }
 
-export interface MenuTriggerProps {
+export interface MenuTriggerProps extends OwnedSlot {
   children?: ReactNode;
   /**
    * Slot: the control that opens the menu — usually a `<Button>`. Passed
@@ -81,7 +82,7 @@ function MenuTrigger({ children, render, className }: MenuTriggerProps) {
   );
 }
 
-export interface MenuPanelProps extends HTMLAttributes<HTMLDivElement> {
+export interface MenuPanelProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   side?: MenuSide;
   align?: MenuAlign;
   sideOffset?: number;
@@ -131,7 +132,7 @@ function MenuPanel({
   );
 }
 
-export interface MenuItemProps {
+export interface MenuItemProps extends OwnedSlot {
   children: ReactNode;
   /** Slot: a leading glyph. The component sizes it to 16 (§7). */
   icon?: ReactElement;
@@ -173,7 +174,7 @@ function MenuItemPart({ children, icon, trailing, isDisabled = false, onSelect, 
   );
 }
 
-export type MenuSeparatorProps = HTMLAttributes<HTMLDivElement>;
+export type MenuSeparatorProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 function MenuSeparatorPart({ className, ...rest }: MenuSeparatorProps) {
   return (
@@ -185,7 +186,7 @@ function MenuSeparatorPart({ className, ...rest }: MenuSeparatorProps) {
   );
 }
 
-export interface MenuGroupProps extends HTMLAttributes<HTMLDivElement> {
+export interface MenuGroupProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   /** Names the group for assistive tech and draws its heading. */
   label?: string;
 }
@@ -212,7 +213,7 @@ function MenuGroupPart({ label, children, className, ...rest }: MenuGroupProps) 
   );
 }
 
-export interface MenuSubProps {
+export interface MenuSubProps extends OwnedSlot {
   children: ReactNode;
 }
 
@@ -221,7 +222,7 @@ function MenuSub({ children }: MenuSubProps) {
   return <BaseMenu.SubmenuRoot>{children}</BaseMenu.SubmenuRoot>;
 }
 
-export interface MenuSubTriggerProps {
+export interface MenuSubTriggerProps extends OwnedSlot {
   children: ReactNode;
   icon?: ReactElement;
   isDisabled?: boolean;

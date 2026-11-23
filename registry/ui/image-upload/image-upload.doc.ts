@@ -14,7 +14,7 @@ export const imageUploadDoc = {
 
   anatomy: [
     { part: "root", slot: "image-upload", notes: "The field. Owns className and the ref, and carries data-status and data-dragging so a consumer or a test can see the state without reading classes." },
-    { part: "label", slot: "image-upload-label", notes: "A real <label> for the input. Input's label styling verbatim, so the two fields stack in a form without a seam." },
+    { part: "label", slot: "image-upload-label", notes: "A real <label> for the input. Input's label styling verbatim, on a default Input's text lane (lg, the brand's shape), so the two fields stack in a form without a seam. The helper sits on the same lane." },
     { part: "input", slot: "image-upload-input", notes: "The real <input type=\"file\">, visually hidden. It is the field: accessible name, disabled state, accept, aria-invalid and aria-describedby all live here." },
     { part: "dropzone", slot: "image-upload-dropzone", notes: "The 152px target. Owns the drag events and the outer edge, which is what changes on drag-over and on rejection." },
     { part: "well", slot: "image-upload-well", notes: "The inner surface the prompt sits on. Washes to accent-subtle while a file is over the target." },

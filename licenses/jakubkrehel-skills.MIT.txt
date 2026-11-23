@@ -1,4 +1,4 @@
-The craft rules in registry/skills/ui-craft/SKILL.md are adapted from
+The craft rules in registry/skills/craft/SKILL.md are adapted from
 "skills" by Jakub Krehel — https://github.com/jakubkrehel/skills
 
 MIT License

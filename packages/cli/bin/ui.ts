@@ -16,6 +16,11 @@
  *                     every registry item that has files installed.
  *   sync [--json]     Diff every locked item against the registry's current
  *                     content and report status + applicable ledger entries.
+ *   theme --seed <file> --out <css>
+ *                     Resolve a brand ThemeSeed (.ts/.json) into the same
+ *                     installable stylesheet theme-zero.css is. `--check`
+ *                     fails if the file is stale. Needs a bydiorama/ui
+ *                     checkout for @bydiorama/tokens (src/theme.ts).
  *
  * Flags (all commands):
  *   --cwd <path>              Consumer app root. Default: process.cwd().
@@ -25,6 +30,7 @@
  *                              the consumer's own components.json).
  */
 
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
@@ -32,9 +38,11 @@ import { resolveTargetPath } from "../src/target-path.ts";
 import { listRegistryItems, localRegistrySource, remoteRegistrySource, type RegistrySource } from "../src/registry-source.ts";
 import { localLedgerSource, remoteLedgerSource, type LedgerSource } from "../src/ledger-source.ts";
 import { readLockfile, writeLockfile } from "../src/lockfile.ts";
+import { resolveRemoteRevision } from "../src/github-api.ts";
 import { lockItem } from "../src/lock.ts";
 import { syncAll, type FileReader } from "../src/sync.ts";
 import { addItems, type FileWriter } from "../src/add.ts";
+import { nodeThemeIo, resolveTokensEntry, runTheme, THEME_SCHEMES, type ThemeScheme } from "../src/theme.ts";
 
 import { initProject, readProjectConfig } from "../src/project-config.ts";
 
@@ -115,19 +123,15 @@ function makeFileWriter(cwd: string): FileWriter {
  * serves main, so that IS the revision being installed (within the raw CDN's
  * few minutes of cache). A local checkout has git right there, so requiring
  * an explicit sha costs one flag and keeps this CLI's no-shelling-out rule.
+ * The API call sends GITHUB_TOKEN / GH_TOKEN when set and explains a rate
+ * limit (src/github-api.ts).
  */
 async function resolveAddRevision(flags: Record<string, string | boolean>): Promise<string> {
   if (typeof flags.revision === "string") return flags.revision;
   if (typeof flags["registry-path"] === "string") {
     throw new Error("--revision <git-sha> is required with --registry-path (run `git rev-parse HEAD` in the checkout).");
   }
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/main`, {
-    headers: { accept: "application/vnd.github.sha" },
-  });
-  if (!res.ok) {
-    throw new Error(`Could not resolve the registry's current revision from the GitHub API (${res.status}) — pass --revision <git-sha>.`);
-  }
-  return (await res.text()).trim();
+  return resolveRemoteRevision(GITHUB_OWNER, GITHUB_REPO, "main");
 }
 
 async function cmdAdd(itemNames: string[], flags: Record<string, string | boolean>) {
@@ -276,6 +280,57 @@ async function cmdSync(flags: Record<string, string | boolean>) {
   }
 }
 
+async function cmdTheme(flags: Record<string, string | boolean>) {
+  const cwd = typeof flags.cwd === "string" ? flags.cwd : process.cwd();
+  if (typeof flags.seed !== "string" || typeof flags.out !== "string") throw new Error(HELP.theme);
+  const scheme = flags.scheme === undefined ? "auto" : flags.scheme;
+  if (typeof scheme !== "string" || !(THEME_SCHEMES as readonly string[]).includes(scheme)) {
+    throw new Error(`--scheme must be one of ${THEME_SCHEMES.join(", ")}.`);
+  }
+  const tokensEntry = resolveTokensEntry({
+    registryPath: typeof flags["registry-path"] === "string" ? flags["registry-path"] : undefined,
+    cliModuleUrl: import.meta.url,
+    exists: existsSync,
+  });
+
+  const result = await runTheme(
+    {
+      cwd,
+      seed: flags.seed,
+      out: flags.out,
+      scheme: scheme as ThemeScheme,
+      check: flags.check === true,
+      exportName: typeof flags.export === "string" ? flags.export : undefined,
+    },
+    nodeThemeIo(tokensEntry),
+  );
+
+  for (const issue of result.issues) {
+    console.error(`${issue.severity === "info" ? "ℹ" : "✗"} ${result.seedLabel} ${issue.path}: ${issue.message}`);
+  }
+  // One token can be moved against several grounds; name each once.
+  const moved = (["light", "dark"] as const)
+    .map((scheme) => [scheme, [...new Set(result.adjustments[scheme].map((a) => a.token))]] as const)
+    .filter(([, tokens]) => tokens.length > 0);
+  if (moved.length) {
+    console.log(
+      `  the contrast audit moved these off the seed's colours to clear AA — ${moved.map(([scheme, tokens]) => `${scheme}: ${tokens.join(", ")}`).join("; ")}`,
+    );
+  }
+
+  if (result.status === "rejected") {
+    console.error(`✗ ${result.outLabel} not ${flags.check === true ? "checked" : "written"}: fix the seed's errors above first.`);
+    process.exitCode = 1;
+  } else if (result.status === "stale") {
+    console.error(`✗ ${result.outLabel} is stale — run \`${result.command}\`.`);
+    process.exitCode = 1;
+  } else if (result.status === "current") {
+    console.log(`✓ ${result.outLabel} matches ${result.seedLabel}`);
+  } else {
+    console.log(`wrote ${result.outLabel} from ${result.seedLabel}`);
+  }
+}
+
 const HELP: Record<string, string> = {
   init: `Usage: bydiorama-ui init [--src <source-directory>]
 
@@ -290,6 +345,7 @@ Commands:
   add <item...>   Install items and their registry dependencies, then lock them.
   lock <item...>  Record already-installed items in ui.lock.json (or --all).
   sync            Report drift for every locked item, with applicable ledger entries.
+  theme           Emit a brand seed's theme stylesheet (or --check it is current).
 
 Flags (all commands):
   --cwd <path>               Consumer app root (default: the current directory).
@@ -308,7 +364,12 @@ prints the npm packages left for you to install.
                     never overwritten.
   --revision <sha>  The bydiorama/ui commit the files come from, recorded in the
                     lock. Use the SHA in your registry URL, or
-                    \`git -C <checkout> rev-parse HEAD\` with --registry-path.`,
+                    \`git -C <checkout> rev-parse HEAD\` with --registry-path.
+                    Omitted, \`add\` asks the GitHub API for main's sha.
+
+Environment:
+  GITHUB_TOKEN      A GitHub token (or GH_TOKEN) sent to the GitHub API, which
+                    allows only 60 anonymous calls an hour per IP address.`,
   lock: `Usage: bydiorama-ui lock (<item...> | --all) --revision <sha>
 
 Records the current hash of each installed item's files, so \`sync\` can tell an
@@ -329,7 +390,37 @@ comment, so reinstall byte-exact with \`add <item> --force --revision <sha>\`.`,
 Diffs every locked item against the registry and prints its status — current,
 stale, modified, forked, or a combination — with the ledger entries that apply.
 
-  --json  Machine-readable output.`,
+  --json  Machine-readable output.
+
+Environment:
+  GITHUB_TOKEN  A GitHub token (or GH_TOKEN) sent when listing the ledger
+                through the GitHub API, which allows only 60 anonymous calls
+                an hour per IP address. --registry-path avoids the API.`,
+  theme: `Usage: bydiorama-ui theme --seed <file> --out <css> [--scheme auto|light|dark]
+                          [--check] [--export <name>] [--registry-path <checkout>]
+
+Resolves a brand ThemeSeed and writes the stylesheet an app imports once, after
+\`@import "tailwindcss";\` — the Tailwind v4 \`@theme inline\` map plus the token
+layer, exactly what theme-zero.css is for Diorama's own theme, with a GENERATED
+header naming the command that regenerates it.
+
+  --seed <file>       A .ts/.mts/.js/.mjs module exporting a ThemeSeed (\`default\`,
+                      \`seed\`, or its only seed-shaped export), or a .json seed.
+                      Relative to --cwd.
+  --out <css>         The stylesheet to write. Relative to --cwd.
+  --scheme <scheme>   auto (default) follows prefers-color-scheme; light or dark
+                      force it.
+  --check             Write nothing; exit 1 if <css> differs from what the seed
+                      resolves to now. For CI.
+  --export <name>     The export to read when the module has several seeds.
+  --registry-path     The bydiorama/ui checkout to read @bydiorama/tokens from.
+                      Default: the checkout this CLI runs from. The tokens are
+                      unpublished (issue #30), so a CLI installed from npm needs
+                      this flag.
+
+Seed issues are printed; an \`error\` (an unsafe or unusable value) writes nothing
+and exits 1, an \`info\` (a valid value that resolves to something easy to
+misread, like a small baseSize) is printed and the file is still written.`,
 };
 
 async function main() {
@@ -361,6 +452,8 @@ async function main() {
     await cmdLock(rest, flags);
   } else if (command === "sync") {
     await cmdSync(flags);
+  } else if (command === "theme") {
+    await cmdTheme(flags);
   } else {
     console.error(HELP.general);
     process.exitCode = 1;

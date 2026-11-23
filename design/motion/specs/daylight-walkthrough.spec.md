@@ -40,7 +40,7 @@ uniformity (no vignette).
 
 | Decision | Why |
 | --- | --- |
-| Start from `ui-demo-page/reference/daylight-demo.html`, not from blank | It *is* this product: the same screen, real interactions with transitions.dev snippets, a choreographed `runDemo()`, and composition hooks. The skill says to adapt its references |
+| Start from `demo-page/reference/daylight-demo.html`, not from blank | It *is* this product: the same screen, real interactions with transitions.dev snippets, a choreographed `runDemo()`, and composition hooks. The skill says to adapt its references |
 | Sync the page to `5F5-0` / `EYV-0` as **one CSS layer appended last** (plus one markup change for the quick-add prompt) | The reference was built from an earlier revision. Diffing it node by node against Paper found real drift (table in the storyboard). One layer keeps the change reviewable against the reference |
 | Verify the sync by re-running the diff | 68 text nodes matched with the design's weight, size and colour. The remaining position flags are measurement artefacts (padded containers and inline spans against Paper's tight text boxes) |
 | Frame = the draft exactly: 1600×1200, screen at (44, 109) 1:1, no bleed | The skill's default composition bleeds off the frame at 1024×768. The draft is the newer art direction and the contract |
@@ -103,11 +103,11 @@ design/motion/
 
 ## 6 · Reproduce
 
-From the repo root, with `T=registry/skills/ui-video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill), with the venv from the banner spec:
+From the repo root, with `T=registry/skills/video-render/scripts/python` (the tools lived in `design/motion/tools/` until they moved into the skill), with the venv from the banner spec:
 
 ```sh
 PY=~/.cache/ui-motion/venv/bin/python
-T=registry/skills/ui-video-render/scripts/python
+T=registry/skills/video-render/scripts/python
 PAGE=design/motion/daylight-walkthrough/daylight-walkthrough.html
 OUT=design/motion/daylight-walkthrough/exports
 CAP=/tmp/walk-cap

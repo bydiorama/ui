@@ -1,5 +1,5 @@
 ---
-name: diorama-static-rendering
+name: static-rendering
 description: Using @bydiorama/ui in static or server-rendered frameworks — Astro, SSR, static export — where React components ship as HTML and only some hydrate. Use when deciding which components need a client:* directive, when a control looks right but does nothing (or looks wrong) before hydration, when composing compound components from .astro files, or when setting up a new Astro/SSR app on the registry (prettier, focus styles, installed paths).
 ---
 
@@ -37,7 +37,7 @@ Notes that cost someone a bug:
 
 The `fx` effects (glass, grain, sheen, glow, shimmer, ink) are CSS on a
 class: static-safe on every component above, before and without hydration.
-The `shader` effects (aurora, halo) need `startShaders()` in a client
+The `shader` effects (gradient, halo) need `startShaders()` in a client
 script — not a hydrated component. It is safe to import on the server (it
 does nothing there) and leaves every component exactly as rendered until it
 runs, so a static page shows the plain fill, never a gap:

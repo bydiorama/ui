@@ -1289,6 +1289,104 @@
       "role": "the label"
     }
   ],
+  "ColorPicker": [
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 17.17,
+      "dark": 17.89,
+      "role": "the hex in the field"
+    },
+    {
+      "fg": "--ui-text-placeholder",
+      "bg": "--ui-bg-field",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 5.83,
+      "role": "the placeholder"
+    },
+    {
+      "fg": "--ui-text-secondary",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 13.88,
+      "dark": 12.09,
+      "role": "the label"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.93,
+      "dark": 7.02,
+      "role": "the helper text"
+    },
+    {
+      "fg": "--ui-intent-danger-fg",
+      "bg": "--ui-bg-base",
+      "floor": "text",
+      "light": 5.94,
+      "dark": 8.63,
+      "role": "the error message"
+    },
+    {
+      "fg": "--ui-text-muted",
+      "bg": "--ui-bg-elevated",
+      "floor": "text",
+      "light": 5.36,
+      "dark": 5.68,
+      "role": "the swatch group label"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-field-chrome",
+      "floor": "text",
+      "light": 14.11,
+      "dark": 16.05,
+      "role": "the hex and opacity fields' text"
+    },
+    {
+      "fg": "--ui-border-strong",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.36,
+      "dark": 5.68,
+      "role": "a swatch's resting edge and hover ring — the only boundary a swatch the colour of the panel has"
+    },
+    {
+      "fg": "--ui-text-primary",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 15.53,
+      "dark": 13.9,
+      "role": "the selected swatch's ring"
+    },
+    {
+      "fg": "--ui-border-focus",
+      "bg": "--ui-bg-elevated",
+      "floor": "non-text",
+      "light": 5.39,
+      "dark": 9.82,
+      "role": "the focus ring on the area thumb, a track thumb or a swatch"
+    },
+    {
+      "fg": "--ui-border-subtle",
+      "bg": "--ui-bg-base",
+      "floor": "decorative",
+      "light": 1.47,
+      "dark": 1.34,
+      "role": "the alpha checker and the field's resting edge"
+    },
+    {
+      "fg": "--ui-border-default",
+      "bg": "--ui-bg-field",
+      "floor": "decorative",
+      "light": 2.14,
+      "dark": 1.91,
+      "role": "the trigger chip's edge"
+    }
+  ],
   "Combobox": [
     {
       "fg": "--ui-text-primary",

@@ -1,8 +1,10 @@
 import { forwardRef, useId, type TextareaHTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
+import { fieldLane } from "@/lib/field-lane";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type TextareaSize = "lg" | "md" | "sm";
 
 /** The ground the field is cut from — see the `surface` prop (ADR 0017). */
@@ -52,7 +54,7 @@ const SURFACE = {
  */
 const SIZE = {
   lg: "px-field-inset-lg py-sm text-body-md",
-  md: "px-field-inset-md py-sm text-body-md",
+  md: "px-field-inset-md py-sm text-row",
   sm: "px-field-inset-sm py-xs text-caption",
 } as const satisfies Record<TextareaSize, string>;
 
@@ -110,7 +112,7 @@ interface TextareaBaseProps
   isResizable?: boolean;
 }
 
-export type TextareaProps = TextareaBaseProps;
+export type TextareaProps = TextareaBaseProps & OwnedSlot;
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
   {
@@ -159,10 +161,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         data-slot="label"
         htmlFor={textareaId}
         className={cn(
-          "text-label-md font-body text-ink-secondary",
+          "text-field-label font-body text-ink-secondary",
           // Visually hidden, not `hidden` — the label must still reach the
-          // accessibility tree and still be clickable as a target.
-          isLabelHidden && "sr-only",
+          // accessibility tree and still be clickable as a target. Otherwise
+          // on the control's text lane (lib/field-lane), as Input's is.
+          isLabelHidden ? "sr-only" : fieldLane(size),
         )}
       >
         {label}
@@ -261,12 +264,12 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       </div>
 
       {errorText && (
-        <p data-slot="error" id={errorId} className="text-caption font-body text-danger">
+        <p data-slot="error" id={errorId} className={cn("text-caption font-body text-danger", fieldLane(size))}>
           {errorText}
         </p>
       )}
       {helperText && (
-        <p data-slot="helper" id={helperId} className="text-caption font-body text-ink-muted">
+        <p data-slot="helper" id={helperId} className={cn("text-caption font-body text-ink-muted", fieldLane(size))}>
           {helperText}
         </p>
       )}

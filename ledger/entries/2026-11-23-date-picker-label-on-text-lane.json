@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-date-picker-label-on-text-lane",
+  "date": "2026-11-23",
+  "item": "date-picker",
+  "kind": "visual",
+  "summary": "DatePicker's label, helper and error move from a fixed 8px (px-sm) to the text lane of its lg trigger, 13.5px at default density. They line up with the date shown in the trigger, as every field's do.",
+  "affects": [
+    "slot:date-picker-label",
+    "slot:date-picker-helper",
+    "slot:date-picker-error"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+  }
+}

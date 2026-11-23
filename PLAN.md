@@ -88,6 +88,13 @@ them. Three knobs and one mode now reach components, each behind a gate:
       keeps the exceptions current.
 - [x] **Control sizes and density** — two families (control, field) and
       `[data-ui-density]` modes, floored at 24px.
+- [x] **Dense rows and type** (ADR 0026) — menu, option and Sidebar rows
+      are 32px under compact, NavRail squares 28px, field labels and md
+      values step through three density-stepped roles; `dense-md` /
+      `dense-sm` join the table. Open: the compact field step (36px md
+      against a 34px dense design) is a ladder decision, not taken.
+- [ ] **Regenerate the `density` visual baselines** (both schemes, both
+      platforms): its compact Input steps under ADR 0026.
 - [x] **`check:token-consumers`** — a contract token nothing reads fails
       unless declared with a reason. 79 are declared; twelve colour roles,
       `--ui-weight-book` and two leadings are listed for review, not settled.
@@ -232,7 +239,7 @@ and `registry/lib/shader/shader.browser.test.tsx`, in Chromium on SwiftShader.
       colours, reduced motion and reduced transparency (asserted per pair).
 - [x] Glass's tint is a resolver token, derived per brand against a floor
       that counts the material's own light (theme zero: 0.90 / 0.92).
-- [x] `shader` — aurora and halo, optional, one WebGL2 context, server-safe;
+- [x] `shader` — the parametric `gradient` ground — wash, sweep, fold, rise, dawn (ADR 0025; aurora retired) — and halo, optional, one WebGL2 context, server-safe;
       the guard holds every inked part at its floor on drawn pixels, in both
       schemes and under the pale-yellow stress brand, and the test proves it
       can fail.
@@ -429,10 +436,8 @@ five page designs are exported to `design/paper/`.
 - [ ] Search on Pagefind's JS API behind our own dialog.
 - [ ] Deploy on Cloudflare Workers Static Assets with a preview per pull
       request. `ui.manifest.json`'s `homepage` becomes the site.
-- [ ] Publish `@bydiorama/ui` to npm (decision 4). The site may not print an
-      install command that needs a checkout of this repo. Until publication,
-      the downloadable compiled tarball is the working preview route; CI
-      smoke-tests that packed artifact through npm exec.
+- [x] Publish `@bydiorama/ui` to npm (decision 4). 0.1.0, 2026-11-23. The site may not print an
+      install command that needs a checkout of this repo.
 
 Gates added to CI in this step, each a script and not a review habit:
 
@@ -580,9 +585,11 @@ in its own source — both corrected by measurement rather than by argument.
 ## Phase 5 — governance and agent ops · **partial**
 
 - [x] Changesets configured; ledger discipline is the strongest part of the repo.
-- [x] Six skills, `check:skills` gating the contract and the generated
-      `.claude/skills/` copies (ADR 0013). One is distributed (`ui-craft` →
-      `diorama-ui-craft`); five are authoring-only.
+- [x] Thirteen skills, `check:skills` gating the contract and the generated
+      `.claude/skills/` and `plugins/ui/` copies (ADR 0013). Ten ship as the
+      `ui` agent plugin (ADR 0027); three are authoring-only. The plugin's
+      `add`/`sync` commands and the drift hook are unblocked now that the
+      CLI is on npm (0.1.0); not built yet.
 - [ ] **Scheduled agent routines** — the weekly dependency / a11y / doc-drift
       sweep. Nothing exists. A doc-drift sweep would have caught this file's
       predecessor.
@@ -605,9 +612,9 @@ component, nothing tells it the upstream changed. Four parts:
    hash is what separates *stale* from *deliberately forked*; without it every
    drift report is noise, and noisy reports get muted. **Done.**
 3. **`npx @bydiorama/ui sync`** — `packages/cli`. Working end to end: the last
-   run reported 22 current, 4 stale, 0 modified. Still `"private": true` and
-   unpublished, deliberately — a public npm name is a real external commitment.
-   **Done.**
+   run reported 22 current, 4 stale, 0 modified. Publishing was decided on
+   2026-11-23: `release-cli.yml` publishes on a `cli-v*` tag with npm trusted
+   publishing; 0.1.0 was published by hand on 2026-11-23. **Done.**
 4. **Non-optional consumption** — a consumer CI gate failing on unapplied
    `breaking`/`a11y` entries, a SessionStart hook injecting the delta, and
    `ledger.since(revision)` as an MCP tool. **Not built, correctly:** all three

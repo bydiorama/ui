@@ -14,6 +14,7 @@ import { cn } from "@/lib/cn";
 import { maskRamp, paintRamp, type FadeRampDirection } from "@/lib/fade-ramp";
 import { scrollDistances } from "@/hooks/use-scroll-edges";
 
+import type { SlotSeam } from "@/lib/data-slot";
 export type FadeSide = "top" | "bottom" | "left" | "right";
 export type FadeSize = "sm" | "md" | "lg";
 export type FadeGround = "base" | "surface" | "elevated" | "sunken" | "affix";
@@ -117,7 +118,10 @@ export type FadeProps = {
    * fade at an edge the content sits flush against.
    */
   scrollContainer?: HTMLElement | null;
-} & Omit<HTMLAttributes<HTMLSpanElement>, "children">;
+} & Omit<HTMLAttributes<HTMLSpanElement>, "children"> &
+  // A composition seam (ADR 0014 §5): ChatWidget renders its scroll fade as
+  // its own part, `chat-widget-fade`.
+  SlotSeam;
 
 /** Hermite smoothstep: the strength eases in and out, no corner at either end. */
 const ease = (p: number) => p * p * (3 - 2 * p);
@@ -150,6 +154,7 @@ export const Fade = forwardRef<HTMLSpanElement, FadeProps>(function Fade(
     ground = "surface",
     isVisible = true,
     scrollContainer,
+    "data-slot": dataSlot = "fade",
     className,
     style,
     ...rest
@@ -248,7 +253,7 @@ export const Fade = forwardRef<HTMLSpanElement, FadeProps>(function Fade(
   return (
     <span
       ref={attachRef}
-      data-slot="fade"
+      data-slot={dataSlot}
       data-side={side}
       data-size={size}
       data-ground={ground}

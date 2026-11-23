@@ -17,11 +17,19 @@
  * too, and names the part that drifted.
  */
 
-const ROLES = [
-  "display-lg", "display-md", "title-lg", "title-md", "title-sm",
-  "body-lg", "body-md", "body-sm", "label-md", "label-sm", "caption",
-  "button-lg", "button-sm", "figure",
-] as const;
+import { STEPPED_ROLES, TYPE_ROLES, type TypeRoleName } from "@bydiorama/tokens";
+
+/** Every row of the table, read from it — a role added there is checked here
+ *  without a second list to keep in step. */
+const ROLES = Object.keys(TYPE_ROLES).map((token) => token.replace("--ui-text-", "")) as TypeRoleName[];
+
+/**
+ * The density-stepped roles (ADR 0026): `text-row` renders one table role at
+ * default and another under compact, switched by `--ui-type-step`. Each is
+ * held to the role it resolves to IN SCOPE — read off the element, so a
+ * compact story is checked against the compact role.
+ */
+const STEPPED = Object.entries(STEPPED_ROLES) as [string, { default: TypeRoleName; compact: TypeRoleName }][];
 
 type Attribute = "weight" | "leading" | "tracking";
 
@@ -47,20 +55,10 @@ export const TYPE_ROLE_EXCEPTIONS: Record<string, Partial<Record<Attribute, stri
     weight: "The name heads its row; at body-lg's 500 it would read lighter than the 600 email beneath it.",
     leading: "The profile is a rail row like the items below it, at the same leading-normal, so the rail keeps the sheet's heights.",
   },
+  "modal-title": {
+    weight: "A dialog title is 16px FIXED, so it is set in body-lg rather than the fluid title-sm (#51), at title-sm's 600 so it still heads the dialog.",
+  },
   "chat-message-bubble": { leading: "The sender's voice is set tighter (1.35) than the receiver's 1.55 — the pair's signature at the same size." },
-  "chart-tick": { weight: "Ticks are 12/16 at 400 (Chart Anatomy sheet): the scale recedes so the marks and the 600 values carry the weight. The sheet proposes a data-tick role; until it exists this is the declared difference." },
-  "chart-legend-label": { weight: "Legend names sit at the ticks' 400, one step under the 600 title, so the key reads as reference rather than as a heading (Chart Anatomy sheet)." },
-  "chart-tooltip-label": { weight: "A tooltip row's series name is 400 beside its 600 value, so the number is what the eye lands on (Chart Anatomy sheet)." },
-  "diagram-edge-label": { weight: "An edge's predicate is label-sm at 400, muted, so the 600 node labels it runs between stay what the eye lands on; an active edge's label returns to the role's 600 (Diagram sheet, Edge label)." },
-  "diagram-node-description": { weight: "A node's second line is 12/16 at 400, muted, under its 600 label (Diagram sheet, Node)." },
-  "diagram-list-note": { weight: "The list's group and \"No relations\" notes sit at the description's 400 under the 600 node name." },
-  "network-edge-label": { weight: "An edge's predicate is label-sm at 400, muted, under the 600 node labels; on an active edge it returns to 600 (Network sheet, Edges)." },
-  "knowledge-graph-explorer-verb": { weight: "A relation row's verb and its \"inferred\" tag are 400, muted, beside the 600 name they qualify (Network sheet, Explorer detail panel)." },
-  "knowledge-graph-explorer-shown": { weight: "\"7 of 1,284 shown\" is a quiet status at 400, muted, at the end of the toolbar (Network sheet, Explorer toolbar)." },
-  "knowledge-graph-explorer-count": { weight: "A count beside a type or a heading is 400, muted, so the 600 name stays the label (Network sheet, Explorer)." },
-  "stat-label": { weight: "A tile's label is label-sm at 400, muted, so the 600 figure under it is what the eye lands on (Stat tiles and Chart card sheet)." },
-  "stat-comparison": { weight: "The comparison (\"vs 1971\") is 400 beside the change's 600: the change is the reading, the comparison its reference." },
-  "stat-empty": { weight: "\"No reading yet\" sits where the change line would, at the comparison's 400." },
   textarea: { leading: "The box is rows × leading, and the sheet's 128px is drawn at leading-snug at every size." },
 };
 
@@ -77,30 +75,38 @@ export function typeRoleViolations(root: ParentNode = document.body): string[] {
   const out: string[] = [];
   const excused = (el: Element, attribute: Attribute) =>
     Boolean(TYPE_ROLE_EXCEPTIONS[el.getAttribute("data-slot") ?? ""]?.[attribute]);
+  const targets: [utility: string, el: Element, role: TypeRoleName][] = [];
   for (const role of ROLES) {
-    for (const el of root.querySelectorAll(`.text-${role}`)) {
-      const style = getComputedStyle(el);
-      const size = parseFloat(style.fontSize);
-      const want = {
-        weight: parseFloat(style.getPropertyValue(`--ui-text-${role}-weight`)),
-        leading: parseFloat(style.getPropertyValue(`--ui-text-${role}-leading`)),
-        tracking: parseFloat(style.getPropertyValue(`--ui-text-${role}-tracking`)),
-      };
-      // No tokens in scope means no stylesheet, not a drift — nothing to say.
-      if (Number.isNaN(want.weight)) continue;
+    for (const el of root.querySelectorAll(`.text-${role}`)) targets.push([role, el, role]);
+  }
+  for (const [name, step] of STEPPED) {
+    for (const el of root.querySelectorAll(`.text-${name}`)) {
+      const compact = parseFloat(getComputedStyle(el).getPropertyValue("--ui-type-step")) >= 1;
+      targets.push([name, el, compact ? step.compact : step.default]);
+    }
+  }
+  for (const [utility, el, role] of targets) {
+    const style = getComputedStyle(el);
+    const size = parseFloat(style.fontSize);
+    const want = {
+      weight: parseFloat(style.getPropertyValue(`--ui-text-${role}-weight`)),
+      leading: parseFloat(style.getPropertyValue(`--ui-text-${role}-leading`)),
+      tracking: parseFloat(style.getPropertyValue(`--ui-text-${role}-tracking`)),
+    };
+    // No tokens in scope means no stylesheet, not a drift — nothing to say.
+    if (Number.isNaN(want.weight)) continue;
 
-      const weight = parseFloat(style.fontWeight);
-      if (weight !== want.weight && !excused(el, "weight")) {
-        out.push(`${describe(el)} is text-${role} at weight ${weight}; the role is ${want.weight}`);
-      }
-      const leading = style.lineHeight === "normal" ? Number.NaN : parseFloat(style.lineHeight);
-      if (!(Math.abs(leading - size * want.leading) <= SLACK_PX) && !excused(el, "leading")) {
-        out.push(`${describe(el)} is text-${role} at line-height ${style.lineHeight}; the role is ${want.leading} (${(size * want.leading).toFixed(2)}px)`);
-      }
-      const tracking = style.letterSpacing === "normal" ? 0 : parseFloat(style.letterSpacing);
-      if (!(Math.abs(tracking - size * want.tracking) <= SLACK_PX) && !excused(el, "tracking")) {
-        out.push(`${describe(el)} is text-${role} at letter-spacing ${style.letterSpacing}; the role is ${want.tracking}em`);
-      }
+    const weight = parseFloat(style.fontWeight);
+    if (weight !== want.weight && !excused(el, "weight")) {
+      out.push(`${describe(el)} is text-${utility} at weight ${weight}; the role (${role}) is ${want.weight}`);
+    }
+    const leading = style.lineHeight === "normal" ? Number.NaN : parseFloat(style.lineHeight);
+    if (!(Math.abs(leading - size * want.leading) <= SLACK_PX) && !excused(el, "leading")) {
+      out.push(`${describe(el)} is text-${utility} at line-height ${style.lineHeight}; the role (${role}) is ${want.leading} (${(size * want.leading).toFixed(2)}px)`);
+    }
+    const tracking = style.letterSpacing === "normal" ? 0 : parseFloat(style.letterSpacing);
+    if (!(Math.abs(tracking - size * want.tracking) <= SLACK_PX) && !excused(el, "tracking")) {
+      out.push(`${describe(el)} is text-${utility} at letter-spacing ${style.letterSpacing}; the role (${role}) is ${want.tracking}em`);
     }
   }
   return out;

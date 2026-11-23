@@ -9,7 +9,8 @@ import {
   type ThemeSeed,
 } from "@bydiorama/tokens";
 
-import { InfoCircle } from "griddy-icons";
+import { useState } from "react";
+import { Check, InfoCircle, Plus } from "griddy-icons";
 
 import { Banner } from "@/ui/banner/banner.tsx";
 import { Button } from "@/ui/button/button.tsx";
@@ -110,6 +111,47 @@ export const WithActions: Story = {
   ),
 };
 
+const TAGS = ["Brand audit", "Brand guidelines", "Brand refresh 2027", "Embrace", "Exports", "Templates"];
+
+/**
+ * The list panel (#55): a tag picker. Search filters, the rows toggle, the
+ * footer creates. Popover owns no listbox: the filtering and the selection
+ * are this story's own state, as they are the caller's in an app.
+ */
+const TagPicker = ({ label = "Tags" }: { label?: string }) => {
+  const [query, setQuery] = useState("bra");
+  const [selected, setSelected] = useState<string[]>(["Brand audit", "Brand refresh 2027"]);
+  const shown = TAGS.filter((t) => t.toLowerCase().includes(query.toLowerCase()));
+  return (
+    <Popover onOpenChange={fn()}>
+      <Popover.Trigger render={<Button variant="secondary">{label}</Button>} />
+      <Popover.Panel variant="list" aria-label={label}>
+        <Popover.Search label="Filter tags" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <Popover.List maxRows={4} aria-label="Tags">
+          {shown.map((tag) => {
+            const isOn = selected.includes(tag);
+            return (
+              <Popover.Row
+                key={tag}
+                aria-pressed={isOn}
+                {...(isOn ? { trailing: <Check aria-hidden="true" /> } : {})}
+                onClick={() => setSelected((s) => (isOn ? s.filter((t) => t !== tag) : [...s, tag]))}
+              >
+                {tag}
+              </Popover.Row>
+            );
+          })}
+        </Popover.List>
+        <Popover.Footer>
+          <Popover.Row icon={<Plus aria-hidden="true" className="text-ink-muted" />}>{`Create tag “${query}”`}</Popover.Row>
+        </Popover.Footer>
+      </Popover.Panel>
+    </Popover>
+  );
+};
+
+export const ListPanel: Story = { render: () => <TagPicker /> };
+
 const STRESS_BRAND: ThemeSeed = {
   colors: {
     bg: "#fffdf5",
@@ -129,12 +171,15 @@ export const BrandThemed: Story = {
     const Panel = ({ style, title }: { style: React.CSSProperties; title: string }) => (
       <div style={style} className="flex-1 rounded-lg bg-base p-xl">
         <p className="pb-md text-caption text-ink-muted">{title}</p>
-        <Popover onOpenChange={fn()}>
-          <Popover.Trigger render={<Button>Open popover</Button>} />
-          <Popover.Panel>
-            <SheetContent />
-          </Popover.Panel>
-        </Popover>
+        <div className="flex items-center gap-md">
+          <Popover onOpenChange={fn()}>
+            <Popover.Trigger render={<Button>Open popover</Button>} />
+            <Popover.Panel>
+              <SheetContent />
+            </Popover.Panel>
+          </Popover>
+          <TagPicker label={`Tags — ${title}`} />
+        </div>
       </div>
     );
     return (

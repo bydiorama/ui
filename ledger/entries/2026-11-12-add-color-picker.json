@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-12-add-color-picker",
+  "date": "2026-11-12",
+  "item": "color-picker",
+  "kind": "addition",
+  "summary": "ColorPicker (beta): a colour field that opens a saturation × brightness area, a hue track, an optional opacity track, a hex field and optional preset swatches. Live value, upper-case hex, no Save / Cancel. The field trigger is compared against a live Select at every size, and the swatch variant is a real icon-only Button. The 2D area is a role=slider with a two-axis keyboard contract and keeps its hue at black and grey. Swatches are a native radio group, so focus and selection are one swatch. The review corrected the sheet before the build: the swatch edge was border-default (1.94:1 light, 1.49:1 dark on bg-elevated) and is now border-strong (5.36 / 5.68); the track gradients sat half a thumb out of step with the value and now sit on the thumb centre's travel (8px in at each end); the fields sat on bg-field inside a bg-elevated panel and now use the chrome ground (ADR 0017) at Input sm's 400 weight; and the area and tracks were a fixed 288px inside a 286px content box (320 − 2 × 16 padding − 2 × 1 border) and now fill it. Two defects found by tests: the palette-only initial focus used a selector list, which matched the first radio rather than the checked one; and font-semibold rendered the swatch group label at 550 against label-sm's 600.",
+  "affects": [
+    "item:color-picker",
+    "slot:color-picker",
+    "slot:color-picker-trigger",
+    "slot:color-picker-panel",
+    "slot:color-picker-area",
+    "slot:color-picker-swatch",
+    "prop:hasAlpha",
+    "prop:swatches",
+    "prop:isPaletteOnly",
+    "prop:container"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/476R-0"
+  }
+}

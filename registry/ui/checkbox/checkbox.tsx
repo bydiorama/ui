@@ -15,6 +15,7 @@ import { motionMicro } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type CheckboxState = "checked" | "unchecked" | "mixed";
 export type CheckboxLabelPlacement = "end" | "start";
 
@@ -33,6 +34,12 @@ interface CheckboxOwnProps {
    * one `<label>`, so there is no way to render a nameless checkbox.
    */
   children: ReactNode;
+  /**
+   * Renders the label visually hidden rather than omitting it (§10). It stays
+   * the accessible name — for a checkbox whose meaning the surrounding layout
+   * already carries, like a table row's selection box.
+   */
+  isLabelHidden?: boolean;
   /** Controlled checked state. Omit to let the component own it. */
   isChecked?: boolean;
   /** Starting state when uncontrolled. */
@@ -71,7 +78,7 @@ export interface CheckboxProps
     Omit<
       InputHTMLAttributes<HTMLInputElement>,
       keyof CheckboxOwnProps | "type" | "checked" | "defaultChecked" | "disabled" | "size"
-    > {}
+    >, OwnedSlot {}
 
 /**
  * A single checkbox with its label as one control.
@@ -88,6 +95,7 @@ export interface CheckboxProps
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox(
   {
     children,
+    isLabelHidden = false,
     isChecked,
     defaultIsChecked = false,
     isIndeterminate = false,
@@ -156,7 +164,20 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
         // which is what the sheet draws (its row is `align-items: center`).
         // The trade is that a label wrapping to several lines centres against
         // the box rather than aligning to its first line — see knownGaps.
-        "min-h-6",
+        //
+        // The 24px is the density-bound row floor (= --ui-hit-area-min, except
+        // under compact, where a dense table's row may fall to the box).
+        "min-h-(--ui-choice-row-min-height)",
+        // The TARGET is carried separately from the row, so a compact row
+        // (--ui-choice-row-min-height falls to 0 under
+        // [data-ui-density="compact"]) still clears SC 2.5.8: a transparent
+        // ::before on the label, centred, at least --ui-hit-area-min tall and
+        // the row's full width (CONVENTIONS §10, ui-craft rule 14). At default
+        // density the row is already 24px, so the box coincides with the
+        // label's own. It sits BELOW the row's content (z below, inside the
+        // label's own stacking context — `isolate`), so a click on the text or
+        // the control still lands on that element, not on the pseudo.
+        "relative isolate before:absolute before:inset-x-0 before:top-1/2 before:z-(--ui-z-below) before:h-full before:min-h-(--ui-hit-area-min) before:-translate-y-1/2",
         isDisabled ? "cursor-not-allowed" : "cursor-pointer",
         className,
       )}
@@ -242,7 +263,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
       </span>
 
       {hasDescription ? (
-        <span data-slot="text" className="flex min-w-0 flex-1 flex-col gap-xs">
+        <span data-slot="text" className={cn("flex min-w-0 flex-1 flex-col gap-xs", isLabelHidden && "sr-only")}>
           <span
             id={labelId}
             data-slot="label"
@@ -263,6 +284,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           data-slot="label"
           className={cn(
             "text-label-md font-body",
+            isLabelHidden && "sr-only",
             labelPlacement === "start" && "min-w-0 flex-1",
             isDisabled ? "text-ink-disabled" : "text-ink-primary",
           )}

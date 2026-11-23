@@ -101,7 +101,7 @@ export function buildIndex(manifest) {
     $schema: "https://ui.shadcn.com/schema/registry.json",
     name: manifest.name,
     homepage: manifest.homepage,
-    items: manifest.items.map((item) => ({
+    items: registryItems(manifest).map((item) => ({
       name: item.name,
       type: registryType(item.type),
       description: item.description,
@@ -137,11 +137,18 @@ export function buildItem(manifest, item) {
   };
 }
 
+/**
+ * What the registry transport carries. Skills are not in it: they ship in the
+ * `ui` agent plugin (plugins/ui, ADR 0027). A skill copied into an app by the
+ * CLI would compete with the plugin's copy of the same skill.
+ */
+export const registryItems = (manifest) => manifest.items.filter((item) => item.type !== "skill");
+
 /** Every generated artifact, as a path → JSON-text map. */
 export function buildAll(manifest) {
   const out = new Map();
   out.set(REGISTRY_PATH, `${JSON.stringify(buildIndex(manifest), null, 2)}\n`);
-  for (const item of manifest.items) {
+  for (const item of registryItems(manifest)) {
     out.set(join(ITEM_DIR, `${item.name}.json`), `${JSON.stringify(buildItem(manifest, item), null, 2)}\n`);
   }
   return out;

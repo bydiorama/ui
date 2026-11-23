@@ -13,10 +13,11 @@ import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** Rows inside a Section are list items; rows outside one are not. */
 const InSection = createContext(false);
 
-export interface NavRailProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+export interface NavRailProps extends Omit<HTMLAttributes<HTMLElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Required, and — unlike Sidebar's — it can never be shown. There is no room
@@ -112,7 +113,7 @@ const NavRailRoot = forwardRef<HTMLElement, NavRailProps>(function NavRail(
   );
 });
 
-export interface NavRailItemProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "title"> {
+export interface NavRailItemProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "title">, OwnedSlot {
   /**
    * REQUIRED, and required because the label is invisible. A row with no glyph
    * at this width is a blank square — there is no text to fall back to, which
@@ -182,7 +183,13 @@ function NavRailItem({
       className: cn(
         // The shared chrome control's geometry — 32px square, radius-md, a
         // 16px glyph — and none of its colour. `relative` is for the marker.
-        "relative flex size-8 shrink-0 items-center justify-center rounded-md",
+        //
+        // The side is density-bound (ADR 0026): 32px at default and
+        // comfortable, 28px under compact — the chrome control's compact
+        // step. Comfortable does not grow it: a 36px square does not fit the
+        // 48px rail. `self-center` keeps a 28px square on the rail's axis; at
+        // 32px it fills the column and does nothing.
+        "relative flex size-nav-rail-item shrink-0 self-center items-center justify-center rounded-md",
         "[&_svg]:size-4 [&_svg]:shrink-0",
         "text-ink-nav-muted",
         "transition-[background-color,color]", motionMicro,
@@ -217,7 +224,7 @@ function NavRailItem({
   return inSection ? <li className="contents">{row}</li> : row;
 }
 
-export interface NavRailSectionProps extends Omit<HTMLAttributes<HTMLUListElement>, "title"> {
+export interface NavRailSectionProps extends Omit<HTMLAttributes<HTMLUListElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Required, and always invisible. This is where Sidebar's first level GOES:
@@ -248,7 +255,7 @@ function NavRailSection({ children, label, className, ...rest }: NavRailSectionP
   );
 }
 
-export type NavRailSlotProps = HTMLAttributes<HTMLDivElement>;
+export type NavRailSlotProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * A row holding a CONTROL the caller supplies — the expand toggle that swaps
@@ -274,9 +281,11 @@ function NavRailSlot({ className, ...rest }: NavRailSlotProps) {
 }
 
 /** Flexible gap. Pushes what follows to the bottom of the rail. */
-function NavRailSpacer() {
-  return <div data-slot="nav-rail-spacer" aria-hidden="true" className="flex-1" />;
-}
+// Takes no props, and is TYPED as taking OwnedSlot so a caller's `data-slot`
+// is a compile error rather than silently dropped (@/lib/data-slot).
+const NavRailSpacer: (props: OwnedSlot) => ReactElement = () => (
+  <div data-slot="nav-rail-spacer" aria-hidden="true" className="flex-1" />
+);
 
 export const NavRail = Object.assign(NavRailRoot, {
   Section: NavRailSection,

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { resolveThemePair } from "../resolve.ts";
 import { THEME_ZERO } from "../themes/zero.ts";
 import { BRANDABLE_TOKENS } from "../contract.ts";
-import { CONTROL_SIZES, FIXED_TOKEN_VALUES } from "../base.ts";
+import { DENSITY_TOKENS, FIXED_TOKEN_VALUES } from "../base.ts";
 import { toCss, toStyleObject } from "./css.ts";
 
 const pair = resolveThemePair(THEME_ZERO);
@@ -95,6 +95,27 @@ test("density modes are emitted as attribute blocks, default included (ADR 0020 
   assert.doesNotMatch(toCss(resolveThemePair(THEME_ZERO), { scope: "[data-ui-theme=x]", includeBase: false }), /data-ui-density/);
 });
 
+test("the choice-row floor is density-bound: 24px by default, released only under compact", () => {
+  const css = toCss(resolveThemePair(THEME_ZERO));
+  // The row keeps its target floor everywhere but compact, where a dense
+  // table's rows may fall to their content — the TARGET is carried by a
+  // pseudo-element on the label, not by this height.
+  assert.match(css, /:root \{[^]*?--ui-choice-row-min-height: var\(--ui-hit-area-min\);/);
+  assert.match(css, /\[data-ui-density="compact"\] \{[^}]*--ui-choice-row-min-height: 0px;/);
+  assert.match(css, /\[data-ui-density="comfortable"\] \{[^}]*--ui-choice-row-min-height: var\(--ui-hit-area-min\);/);
+  // `default` is emitted too, so a default subtree inside a compact one
+  // restores the floor by inheritance.
+  assert.match(css, /\[data-ui-density="default"\] \{[^}]*--ui-choice-row-min-height: var\(--ui-hit-area-min\);/);
+  // Every density-bound token is in every mode, or a mode inherits the last.
+  for (const density of ["compact", "comfortable"] as const) {
+    assert.deepEqual(Object.keys(DENSITY_TOKENS[density]).sort(), Object.keys(DENSITY_TOKENS.default).sort());
+  }
+  // The default block IS the fixed table.
+  for (const [token, value] of Object.entries(DENSITY_TOKENS.default)) {
+    assert.equal(FIXED_TOKEN_VALUES[token as keyof typeof FIXED_TOKEN_VALUES], value, token);
+  }
+});
+
 test("a nested scope never re-declares control/field sizes, even with includeBase (review finding I2)", () => {
   // Density works by INHERITANCE: an ancestor `[data-ui-density="compact"]`
   // sets these custom properties, and anything nested inherits them — unless
@@ -105,7 +126,7 @@ test("a nested scope never re-declares control/field sizes, even with includeBas
   // density back to default for anything under it, silently.
   const css = toCss(resolveThemePair(THEME_ZERO), { scope: '[data-ui-theme="acme"]', includeBase: true });
   const scopeBlock = css.slice(css.indexOf('[data-ui-theme="acme"] {'), css.indexOf("\n}\n") + 3);
-  for (const key of Object.keys(CONTROL_SIZES.default)) {
+  for (const key of Object.keys(DENSITY_TOKENS.default)) {
     assert.ok(!scopeBlock.includes(`${key}:`), `nested scope must not declare ${key}, or it overrides an inherited density`);
   }
   // :root is the one place they DO belong — a document with no density

@@ -14,6 +14,7 @@ import { motionMicro } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type RadioGroupOrientation = "vertical" | "horizontal";
 
 /**
@@ -104,7 +105,7 @@ interface RadioGroupOwnProps {
 
 export interface RadioGroupProps
   extends RadioGroupOwnProps,
-    Omit<FieldsetHTMLAttributes<HTMLFieldSetElement>, keyof RadioGroupOwnProps> {}
+    Omit<FieldsetHTMLAttributes<HTMLFieldSetElement>, keyof RadioGroupOwnProps>, OwnedSlot {}
 
 /**
  * One choice from a set that stays visible.
@@ -255,7 +256,7 @@ export interface RadioProps
     Omit<
       InputHTMLAttributes<HTMLInputElement>,
       keyof RadioOwnProps | "type" | "checked" | "defaultChecked" | "disabled" | "name" | "size"
-    > {}
+    >, OwnedSlot {}
 
 /**
  * One option inside a `<RadioGroup>`.
@@ -288,8 +289,20 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(function Radio(
         "group inline-flex min-w-0 gap-sm",
         // The visible circle is 18px and the text line is 17px, so the row
         // would be a 19px target — under SC 2.5.8's 24px floor. The label is
-        // the target and it is padded out to 24; the circle stays 18.
-        "min-h-6",
+        // the target and it is padded out to 24; the circle stays 18. The 24
+        // is the density-bound row floor (= --ui-hit-area-min, except under
+        // compact, where a dense table's row may fall to the circle).
+        "min-h-(--ui-choice-row-min-height)",
+        // The TARGET is carried separately from the row, so a compact row
+        // (--ui-choice-row-min-height falls to 0 under
+        // [data-ui-density="compact"]) still clears SC 2.5.8: a transparent
+        // ::before on the label, centred, at least --ui-hit-area-min tall and
+        // the row's full width (CONVENTIONS §10, ui-craft rule 14). At default
+        // density the row is already 24px, so the box coincides with the
+        // label's own. It sits BELOW the row's content (z below, inside the
+        // label's own stacking context — `isolate`), so a click on the text or
+        // the control still lands on that element, not on the pseudo.
+        "relative isolate before:absolute before:inset-x-0 before:top-1/2 before:z-(--ui-z-below) before:h-full before:min-h-(--ui-hit-area-min) before:-translate-y-1/2",
         // One line centres against the circle. Two lines must not: the circle
         // belongs beside the LABEL, not floating between the label and the
         // description, so a described row aligns to the top instead — where an

@@ -10,6 +10,7 @@ import { Checkbox } from "@/ui/checkbox";
 import { Skeleton } from "@/ui/skeleton";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type TableSize = "lg" | "md" | "sm";
 export type TableLayout = "fixed" | "auto";
 export type TableSortDirection = "ascending" | "descending";
@@ -203,7 +204,7 @@ interface NonSelectableProps {
   onSelectionChange?: never;
 }
 
-export type TableProps<Row> = TableBaseProps<Row> & (SelectableProps<Row> | NonSelectableProps);
+export type TableProps<Row> = TableBaseProps<Row> & (SelectableProps<Row> | NonSelectableProps) & OwnedSlot;
 
 /**
  * A data surface built from hairlines, not fills.

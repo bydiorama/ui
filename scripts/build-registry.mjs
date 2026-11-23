@@ -8,9 +8,9 @@
 // them straight out of the repo. `--check` is what stops them drifting from the
 // manifest — the same contract a lockfile has.
 
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
-import { dirname, relative } from "node:path";
-import { readManifest, buildAll, binaryViolations, ROOT } from "./lib/manifest.mjs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import { readManifest, buildAll, binaryViolations, ROOT, ITEM_DIR } from "./lib/manifest.mjs";
 
 const check = process.argv.includes("--check");
 const manifest = readManifest();
@@ -24,12 +24,20 @@ if (binaries.length) {
 }
 const artifacts = buildAll(manifest);
 
+// An item that leaves the registry (removed, renamed, or a skill moved to the
+// plugin — ADR 0027) must take its r/<name>.json with it. Left behind, it is
+// still served, and a consumer's `add` would install what no longer ships.
+const orphans = existsSync(ITEM_DIR)
+  ? readdirSync(ITEM_DIR).map((f) => join(ITEM_DIR, f)).filter((p) => p.endsWith(".json") && !artifacts.has(p))
+  : [];
+
 if (check) {
   const stale = [];
   for (const [path, content] of artifacts) {
     const current = existsSync(path) ? readFileSync(path, "utf8") : null;
     if (current !== content) stale.push(relative(ROOT, path));
   }
+  for (const path of orphans) stale.push(`${relative(ROOT, path)} (no longer generated — delete it)`);
   if (stale.length) {
     console.error("Generated registry is stale:");
     for (const f of stale) console.error(`  ${f}`);
@@ -40,6 +48,10 @@ if (check) {
   process.exit(0);
 }
 
+for (const path of orphans) {
+  rmSync(path);
+  console.log(`removed ${relative(ROOT, path)}`);
+}
 for (const [path, content] of artifacts) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content);

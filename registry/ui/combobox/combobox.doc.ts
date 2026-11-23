@@ -9,7 +9,7 @@ export const comboboxDoc = {
 
   anatomy: [
     { part: "root", slot: "combobox", notes: "The field column: label, control, then error and helper text. The panel portals INTO this node, so a brand scope around the field reaches the panel." },
-    { part: "label", slot: "combobox-label", notes: "A real <label for> naming the input. label-md, text-secondary, Select's px-sm inset — the listbox-picker family, not the bare Input. sr-only when isLabelHidden, never removed." },
+    { part: "label", slot: "combobox-label", notes: "A real <label for> naming the input. label-md, text-secondary, on the control's text lane for either shape (lib/field-lane), as every field's label is. sr-only when isLabelHidden, never removed." },
     { part: "control", slot: "combobox-control", notes: "Input's control, unchanged: h-field-lg/md/sm, px-field-inset-*, the 1.5px border-subtle hairline, bg-field, the two-stop focus ring via focus-within. Open is focused, so the open field always carries the ring." },
     { part: "icon", slot: "(caller's element)", notes: "Optional leading slot, never wrapped (§3). Sized to 16px and muted ink by the control." },
     { part: "input", slot: "combobox-input", notes: "The <input role=\"combobox\">. Keeps focus the whole time. Value at the field's type step, weight 500; the ref lands here (§5)." },
@@ -27,7 +27,7 @@ export const comboboxDoc = {
     { part: "retry", slot: "combobox-retry", notes: "\"Try again\" under a list error: a real option row with a leading RefreshCw, so the keyboard reaches it. Runs onRetry; commits nothing; keeps the list open." },
     { part: "action region", slot: "combobox-action-region", notes: "Pinned below the rows (sticky to the bottom of the scrolling list, on the panel's fill), 8px of space above, no rule. While the list scrolls, a Fade (bottom, md, ground surface) sits just above it; hidden at the scroll end and when the list fits." },
     { part: "action", slot: "combobox-action", notes: "ComboboxAction: the option recipe with a leading icon slot. role=option, last in arrow order, Enter runs it with the query and closes. Never a value." },
-    { part: "error / helper", slot: "combobox-error / combobox-helper", notes: "caption, px-sm. Error first, both in aria-describedby." },
+    { part: "error / helper", slot: "combobox-error / combobox-helper", notes: "caption, on the same text lane as the label. Error first, both in aria-describedby." },
   ],
 
   composition: `
@@ -135,7 +135,6 @@ Combobox   label (required) / isLabelHidden?
   needsDesign: [
     "OPEN — highlight contrast. The highlighted row is bg-hover at 1.19:1 (light) / 1.21:1 (dark) against the panel — Select's and Menu's value. Acceptable for a select; a combobox is driven by the keyboard far more, and the fill is the only visible indicator of position. Decide whether the family's highlight should get stronger.",
     "OPEN — panel row size per field size. Rows are body-md / p-md at every field size, as Select's are, so an sm field (32px) opens 46px rows. Confirm, or size the panel with the field.",
-    "OPEN — one inset rule for the field family. Label, error and helper take Select's px-sm inset; Input's label sits flush (card.doc.ts already records the alignment gap). Combobox follows Select because it is the same family; choose one rule for all four fields.",
     "OPEN — the pill inset. shape=\"full\" insets one space step wider (16 / 12 / 12) and rounds the clear square, derived from Input's own pill (#18). Whatever #18 lands for Input wins; the popup stays radius-md under a pill field.",
     "OPEN — one empty treatment. Combobox's empty state is a status row on the option recipe (body-md, p-md, text-muted); Multiselect's is button-sm at px-lg. Reconcile.",
     "OPEN — matched-substring emphasis, option descriptions, leading option icons and virtualised long lists are not drawn. Bold is already the selection channel, so a bolded match would collide with it — a different channel is needed if emphasis is wanted.",

@@ -34,7 +34,7 @@ node design/motion/button-showcase/scripts/validate.mjs
 PAGE=design/motion/button-showcase/previews/button-showcase.html \
 OUT=design/motion/button-showcase/exports/videos/button-showcase-light-1600x1200-60fps.mp4 \
 BEATS=0.4,1.15,1.8,2.3,3,4.8,6.2,8.2,9.2 \
-node registry/skills/ui-video-render/scripts/render-seek.mjs
+node registry/skills/video-render/scripts/render-seek.mjs
 python3 design/motion/button-showcase/scripts/review.py
 node design/motion/button-showcase/scripts/stills.mjs
 ```

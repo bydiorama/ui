@@ -12,6 +12,7 @@ import { Fade } from "@/ui/fade";
 import { Progress } from "@/ui/progress";
 import { StatusMatrix, type StatusMatrixStatus } from "@/ui/status-matrix";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * The forms, lightest first.
  *
@@ -254,14 +255,16 @@ type ChatProgressTypingProps = Omit<ChatProgressBaseProps, "icon" | "duration" |
   onOpenChange?: undefined;
 };
 
-export type ChatProgressProps =
-  | ChatProgressTypingProps
-  | (ChatProgressBaseProps &
-      ChatProgressFormProps &
-      ChatProgressReceiptProps &
-      RetryPair &
-      ChatProgressStopProps &
-      ChatProgressDisclosureProps & { who?: undefined });
+export type ChatProgressProps = OwnedSlot &
+  (
+    | ChatProgressTypingProps
+    | (ChatProgressBaseProps &
+        ChatProgressFormProps &
+        ChatProgressReceiptProps &
+        RetryPair &
+        ChatProgressStopProps &
+        ChatProgressDisclosureProps & { who?: undefined })
+  );
 
 /**
  * The union, flattened for internal use.
@@ -514,12 +517,18 @@ function deepestRunning(steps?: ChatProgressStep[]): string | null {
 
 /* ─── Shared lanes ────────────────────────────────────────────────────────── */
 
-/** The 40px clock lane: caption, tabular, right-aligned. Empty keeps its width. */
+/**
+ * The 40px clock lane: caption, tabular, right-aligned. Empty keeps its width.
+ * 40 is the lane's MINIMUM and the clock never wraps: past a minute a live
+ * duration reads "1 min 12 s" (German "1 Min. 12 s"), about 60px, and a fixed
+ * w-10 broke it onto two lines, growing the root row mid-run (#52). It grows
+ * leftward into the label, which truncates; short clocks still align.
+ */
 function Clock({ children }: { children?: string | undefined }) {
   return (
     <span
       data-slot="chat-progress-clock"
-      className="w-10 shrink-0 text-end font-body text-caption text-ink-muted tabular-nums"
+      className="min-w-10 shrink-0 text-end font-body text-caption whitespace-nowrap text-ink-muted tabular-nums"
     >
       {children}
     </span>
@@ -653,7 +662,7 @@ function StatusRow({
         // MINIMUM, not its width.
         <span
           data-slot="chat-progress-clock"
-          className="min-w-10 shrink-0 text-end font-body text-caption text-ink-muted tabular-nums"
+          className="min-w-10 shrink-0 text-end font-body text-caption whitespace-nowrap text-ink-muted tabular-nums"
         >
           {duration}
         </span>

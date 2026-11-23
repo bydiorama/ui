@@ -1,5 +1,5 @@
 {
-  "sourceHash": "b60e165c64878bdd092dde032d4ae76c24f00301f2ec0c40a24160d6660022a9",
+  "sourceHash": "e223a5b1bc599b12276a5226b7551afb57a023bc4f123631491f4de720aa6d0e",
   "categories": [
     "Actions",
     "Forms",
@@ -257,7 +257,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -624,7 +625,8 @@
       ],
       "dependencies": [],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -636,6 +638,30 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -919,7 +945,8 @@
       ],
       "dependencies": [],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -1301,7 +1328,8 @@
       ],
       "dependencies": [],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -1370,6 +1398,30 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -1825,7 +1877,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -3233,7 +3286,8 @@
         "cn",
         "use-controllable-state",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -3697,7 +3751,8 @@
         "use-controllable-state",
         "use-scroll-edges",
         "button",
-        "fade"
+        "fade",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -4130,7 +4185,8 @@
         "use-controllable-state",
         "button",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -4437,7 +4493,7 @@
           {
             "part": "legend",
             "slot": "chart-legend",
-            "notes": "Only for two or more series. Each entry is a native checkbox in a 24px label (8px inline padding, radius-sm, entries flush in a 24px band): checked is shown. An 8px key in the series' marker SHAPE and slot colour, the shape scaled to fill the box on its longer side so no point is clipped, then the name in label-sm 400, secondary ink; a hidden series keeps its key as a 1.5px round-joined outline, inset half the stroke so it stays inside the box and its name drops to muted. Hover fills the entry bg-hover; keyboard focus draws the focus ring on it. Hovering a shown entry dims every other series' marks to 0.32 (the Bar sheet's Interaction row), instantly."
+            "notes": "Only for two or more series. Each entry is a native checkbox in a 24px label (8px inline padding, radius-sm, entries flush in a 24px band): checked is shown. An 8px key in the series' marker SHAPE and slot colour, the shape scaled to fill the box on its longer side so no point is clipped, then the name in footnote (12px, 400), secondary ink; a hidden series keeps its key as a 1.5px round-joined outline, inset half the stroke so it stays inside the box and its name drops to muted. Hover fills the entry bg-hover; keyboard focus draws the focus ring on it. Hovering a shown entry dims every other series' marks to 0.32 (the Bar sheet's Interaction row), instantly."
           },
           {
             "part": "hidden series",
@@ -4447,7 +4503,7 @@
           {
             "part": "y axis",
             "slot": "chart-y-axis",
-            "notes": "32px column of ticks, label-sm 400, muted, tabular figures, right-aligned and centred on their gridlines. Horizontal bars: a 168px lane of category names instead, one per row, capped at 40% of the row on a narrow frame, truncated (the full name is the span's title and is in the table view)."
+            "notes": "32px column of ticks, footnote (12px, 400), muted, tabular figures, right-aligned and centred on their gridlines. Horizontal bars: a 168px lane of category names instead, one per row, capped at 40% of the row on a narrow frame, truncated (the full name is the span's title and is in the table view)."
           },
           {
             "part": "plot",
@@ -4517,7 +4573,7 @@
           {
             "part": "tooltip",
             "slot": "chart-tooltip",
-            "notes": "bg-elevated, border-subtle, shadow-md, radius-md, 8/12 inset. The category in label-sm 600, then key · name (400, muted) · value (600, primary, tabular). Follows the pointer and the keyboard. aria-hidden: the announcer speaks. Positioned by the behaviour layer against a virtual anchor (the band, or the crosshair), fixed on the --ui-z-tooltip layer so a clipping ancestor cannot cut it, portalled into the chart's own figure so a brand theme still reaches it, and capped to the space the positioner measured."
+            "notes": "bg-elevated, border-subtle, shadow-md, radius-md, 8/12 inset. The category in label-sm 600, then key · name (footnote, muted) · value (600, primary, tabular). Follows the pointer and the keyboard. aria-hidden: the announcer speaks. Positioned by the behaviour layer against a virtual anchor (the band, or the crosshair), fixed on the --ui-z-tooltip layer so a clipping ancestor cannot cut it, portalled into the chart's own figure so a brand theme still reaches it, and capped to the space the positioner measured."
           },
           {
             "part": "x axis",
@@ -4767,7 +4823,7 @@
           "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",
           "Forced-colours fills for slots 3–8 (135°, cross, horizontal, vertical, grid, outline) extend the anatomy sheet's two; confirmed by the maintainer on 2026-11-10 and not yet drawn back onto the sheet.",
           "Forced colours: bars and legend keys are hatched; lines and areas still rely on marker shape alone, since a hatched stroke is not drawn on any sheet.",
-          "Ticks, legend names and tooltip names are label-sm at weight 400, declared as type-role deviations until the sheet's proposed data-tick role exists.",
+          "Ticks, legend names and tooltip names are set in the footnote role (12px, 400, #59), which replaces the sheet's proposed data-tick role.",
           "The proposed --ui-data-grid / -axis / -label / -highlight roles are not added: they alias border-subtle, border-default, text-muted and bg-hover, and ADR 0023 §5 keeps aliases out until a chart needs a value none has.",
           "The area wash is the slot's -bg role (14% alpha); the sheet draws 10%.",
           "The fading wash's 28% is a constant in the component, not a token: it is the slot's own solid colour at an opacity, as the Line sheet draws it. In forced colours it relies on the line and marker, like every area.",
@@ -4801,7 +4857,8 @@
         "cn",
         "viz",
         "button",
-        "table"
+        "table",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -4886,6 +4943,23 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-chart-supporting-text-is-footnote",
+          "date": "2026-11-23",
+          "item": "chart",
+          "kind": "visual",
+          "summary": "Chart ticks, legend names and tooltip series names are set in the new footnote role instead of label-sm with a font-regular override (#59). The size and weight are unchanged (12px, 400). The leading moves from label-sm's 1.3 to footnote's 1.35, so a line is 16.2px instead of 15.6px. A legend entry keeps its 4px block padding around the taller line, so it measures 24.2px instead of 24; it still clears the 24px target.",
+          "affects": [
+            "slot:chart-tick",
+            "slot:chart-legend-label",
+            "slot:chart-tooltip-label",
+            "slot:chart-legend-item"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -5370,7 +5444,8 @@
       "dependencies": [],
       "registryDependencies": [
         "chart",
-        "stat-tiles"
+        "stat-tiles",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -5842,7 +5917,8 @@
         "motion",
         "compose-event-handlers",
         "use-controllable-state",
-        "button"
+        "button",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -6316,7 +6392,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -6799,7 +6876,8 @@
         "button",
         "fade",
         "progress",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -6908,6 +6986,17 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-chat-progress-clock-never-wraps",
+          "date": "2026-11-23",
+          "item": "chat-progress",
+          "kind": "fix",
+          "summary": "ChatProgress: the clock lane is a 40px MINIMUM that never wraps (issue #52). A live duration past a minute (\"1 min 12 s\", German \"1 Min. 12 s\") is about 60px of caption; the fixed w-10 broke it onto two lines and grew the root row mid-run. Clock is now min-w-10 whitespace-nowrap on every row (root, steps, lanes), matching the status row's clock; short durations still occupy exactly 40px, so every lane stays aligned. A long clock grows leftward into the label, which truncates.",
+          "affects": [
+            "slot:chat-progress-clock"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -7351,7 +7440,8 @@
         "use-controllable-state",
         "aspect-ratio",
         "badge",
-        "button"
+        "button",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -7760,7 +7850,8 @@
       "registryDependencies": [
         "cn",
         "button",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -8349,7 +8440,8 @@
         "use-controllable-state",
         "button",
         "popover",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -8506,6 +8598,17 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-citation-tap-close-stays-closed",
+          "date": "2026-11-23",
+          "item": "chat-sources",
+          "kind": "fix",
+          "summary": "ChatSources.Citation: on touch, a second tap that closes the preview now keeps it closed. Closing hands focus back to the marker once the panel has left (~150ms), and keyboard focus on the marker opens the preview; when the browser judged that returning focus :focus-visible (seen with synthetic touch events, and left to a heuristic otherwise), the preview reopened. The tap-to-close path now swallows that one returning focus, as Escape already did — unless the marker already has focus, in which case no return is coming. The browser test now also checks the preview is still closed after the focus return; read only at 50ms, it passed or failed with the machine's speed.",
+          "affects": [
+            "item:chat-sources"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -8970,7 +9073,8 @@
         "button",
         "badge",
         "chat-widget",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -9441,7 +9545,8 @@
         "cn",
         "motion",
         "aspect-ratio",
-        "fade"
+        "fade",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -9478,6 +9583,30 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -9708,12 +9837,17 @@
             "notes": "children. The accessible name, natively."
           }
         ],
-        "composition": "Checkbox\n├─ children           ReactNode (required) — the label AND the accessible name\n├─ isChecked?         controlled\n├─ defaultIsChecked?  uncontrolled\n└─ isIndeterminate?   always controlled — only the caller knows the children",
+        "composition": "Checkbox\n├─ children           ReactNode (required) — the label AND the accessible name\n├─ isLabelHidden?     visually hides the label; it stays the name\n├─ isChecked?         controlled\n├─ defaultIsChecked?  uncontrolled\n└─ isIndeterminate?   always controlled — only the caller knows the children",
         "props": {
           "children": {
             "type": "ReactNode",
             "required": true,
             "notes": "Required. The whole row is one <label>, so the name comes from the DOM rather than an aria-label that can drift from what is on screen."
+          },
+          "isLabelHidden": {
+            "type": "boolean",
+            "default": "false",
+            "notes": "Visually hides the label without removing it from the accessibility tree — the same prop, and the same sr-only placement, as Switch: on the label, or on the label-and-description block when there is a description. For a box whose meaning the layout already carries, like a table row's selection checkbox ('Select Brief A'). The row is then the 18px box in a 24px target; the name is still the children."
           },
           "isChecked": {
             "type": "boolean",
@@ -9751,17 +9885,19 @@
         "do": [
           "Pass the visible label as children — it becomes the accessible name for free.",
           "Use isIndeterminate on a 'select all' whose children are partly selected, and drive it from the children's state.",
-          "Prefer uncontrolled (defaultIsChecked) inside a plain form; the input participates natively."
+          "Prefer uncontrolled (defaultIsChecked) inside a plain form; the input participates natively.",
+          "In a table row, keep the label and hide it (isLabelHidden) — 'Select Brief A' is what a screen reader needs, even where the row itself says which brief it is."
         ],
         "dont": [
           "Do not render a checkbox without children. There is no nameless form — the type requires it.",
           "Do not pass both isChecked and defaultIsChecked and expect the second to matter; the hook warns in development if a component switches modes.",
           "Do not set indeterminate through a ref yourself — it is a DOM property with no attribute, and the component already writes it in an effect.",
+          "Do not drop the label for a box-only checkbox, or pass aria-label instead — use isLabelHidden, which keeps the name in the DOM.",
           "Do not rely on the box alone as the target. The label is the target; keeping it short does not shrink the 24px floor."
         ],
         "a11y": {
           "role": "checkbox (native). Mixed state comes from the `indeterminate` DOM property, which maps to aria-checked=\"mixed\" without an ARIA attribute.",
-          "name": "The children, via the wrapping <label>. No aria-label is used or needed.",
+          "name": "The children, via the wrapping <label>. No aria-label is used or needed — isLabelHidden clips the text with sr-only rather than removing it, so the name survives.",
           "keyboard": [
             {
               "key": "Tab",
@@ -9776,7 +9912,7 @@
               "does": "Nothing, per the platform. Enter submits the form; a checkbox that toggled on Enter would be the odd one out."
             }
           ],
-          "target": "The sheet's row is 19px tall — under the 24px floor of WCAG 2.5.8. The <label> is padded to min-h-6 so the whole row, box and text together, is one 24px target. The painted box stays 18px, as designed.",
+          "target": "The sheet's row is 19px tall — under the 24px floor of WCAG 2.5.8. The <label> is held at --ui-choice-row-min-height (24px, = --ui-hit-area-min, at default and comfortable density) so the whole row, box and text together, is one 24px target. The painted box stays 18px, as designed. Under [data-ui-density=\"compact\"] the ROW may be shorter — --ui-choice-row-min-height falls to 0, so a dense table's row is not forced to 24px by its 18px box — and the TARGET is carried apart from it: a transparent ::before on the <label>, centred, at least --ui-hit-area-min tall and the row's full width, sitting under the row's content (isolate + z below) so a click on the box or text still lands on it. Measured by hit-testing in density.browser.test.tsx: under compact the row is under 24px and the target is not.",
           "contrastPairs": [
             {
               "fg": "--ui-text-on-accent",
@@ -9834,7 +9970,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -9871,6 +10008,33 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-density-bound-choice-row-floor-and",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "token",
+          "summary": "New fixed token --ui-choice-row-min-height: the LAYOUT floor of a choice row, re-bound by [data-ui-density] like the control sizes — var(--ui-hit-area-min) (24px) at default and comfortable, 0px under compact. Checkbox, Radio and Switch read it instead of min-h-6, so a compact row falls to its content (19–20px) and a dense table is no longer forced to 24px rows. The TARGET stays ≥ 24px in every mode: each label carries a transparent ::before (relative isolate, centred, min-height --ui-hit-area-min, full width, z below the row's content so clicks on the box/track/text still land on them). Modes nest by inheritance — default inside compact restores the 24px row. Default and comfortable rendering are pixel-identical. Exported as CHOICE_ROW_MIN_HEIGHT and DENSITY_TOKENS (the emitters now read DENSITY_TOKENS). Re-emit any brand theme (toCss) or update theme-zero.css together with these components: with a stale theme the property resolves to nothing and the row falls to its content at every density, though the ::before still keeps the 24px target.",
+          "affects": [
+            "token:--ui-choice-row-min-height",
+            "token:--ui-hit-area-min",
+            "item:theme-zero-css",
+            "item:checkbox",
+            "item:radio",
+            "item:switch"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-checkbox-islabelhidden-mirroring-switch",
+          "date": "2026-11-23",
+          "item": "checkbox",
+          "kind": "addition",
+          "summary": "Checkbox takes isLabelHidden, mirroring Switch exactly: the label (or, with a description, the label-and-description block) is clipped with sr-only and stays the accessible name. For a box whose meaning the layout already carries — a table row's selection checkbox. Default rendering is unchanged.",
+          "affects": [
+            "prop:isLabelHidden"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -10086,6 +10250,530 @@
       ]
     },
     {
+      "name": "color-picker",
+      "title": "ColorPicker",
+      "type": "ui",
+      "category": "Forms",
+      "status": "experimental",
+      "lead": "Chooses a colour through a visual field or an exact value.",
+      "docs": {
+        "lead": "Chooses a colour through a visual field or an exact value.",
+        "name": "ColorPicker",
+        "status": "beta",
+        "summary": "A colour field that opens an editor: a saturation × brightness area, a hue track, an optional opacity track, a hex field and optional preset swatches. The value is live — every move emits, and there is no Save / Cancel. Composed from what the system already owns: the trigger is Select's field (or Button's icon-only box), the panel is Popover's surface, the tracks are Base UI's slider behaviour and the fields are Input. The 2D area is the one new control.",
+        "anatomy": [
+          {
+            "part": "root",
+            "slot": "color-picker",
+            "notes": "Label, trigger, panel and messages as one unit. Carries data-variant and data-size."
+          },
+          {
+            "part": "label",
+            "slot": "color-picker-label",
+            "notes": "Required. Visible on the field variant; on the swatch variant it is sr-only and becomes the trigger's aria-label together with the value."
+          },
+          {
+            "part": "trigger",
+            "slot": "color-picker-trigger",
+            "notes": "field: Select's control on the field ladder — h-field-lg / md / sm (48 / 40 / 32), 1.5px border-subtle on bg-field. swatch: a real Button (secondary, icon-only, 44 / 32 / 24)."
+          },
+          {
+            "part": "chip",
+            "slot": "color-picker-chip",
+            "notes": "The current colour, 20 / 20 / 16 in the field and 24 / 20 / 16 in the swatch trigger. bg-sunken when empty. Its 1px border-default edge is decorative — the hex beside it names the colour."
+          },
+          {
+            "part": "value",
+            "slot": "color-picker-value",
+            "notes": "Upper-case hex, body-md / caption at 500 with tabular figures; the placeholder at 400 in ink-placeholder."
+          },
+          {
+            "part": "icon",
+            "slot": "color-picker-icon",
+            "notes": "ChevronDown closed, ChevronUp open — Combobox's convention."
+          },
+          {
+            "part": "panel",
+            "slot": "color-picker-panel",
+            "notes": "Popover's surface at w-80, p-lg, radius-lg, bg-elevated, border-subtle, shadow-md — at gap-md, because its parts are one control."
+          },
+          {
+            "part": "area",
+            "slot": "color-picker-area",
+            "notes": "Fills the panel — 286 × 160 inside its 1px border — radius-md. x is saturation, y is brightness, over the pure hue. role=slider with a two-axis keyboard contract."
+          },
+          {
+            "part": "thumb",
+            "slot": "color-picker-area-thumb",
+            "notes": "16px, filled with the colour it picks; 2px ink-on-media inner ring and 1px bg-media outer ring, so one of the two clears any ground."
+          },
+          {
+            "part": "hue",
+            "slot": "color-picker-hue",
+            "notes": "16px track, sRGB spectrum whose stops sit on the thumb's centre travel (8px to width − 8)."
+          },
+          {
+            "part": "alpha",
+            "slot": "color-picker-alpha",
+            "notes": "hasAlpha only. The opaque colour fading to transparent over an 8px checker."
+          },
+          {
+            "part": "fields",
+            "slot": "color-picker-fields",
+            "notes": "Input sm on the chrome ground (ADR 0017 — the panel is bg-elevated): hex, and with hasAlpha a 64px opacity field."
+          },
+          {
+            "part": "swatches",
+            "slot": "color-picker-swatches",
+            "notes": "Optional group label (label-sm, 600, ink-muted) over a wrapping row of 24px swatches at gap-sm."
+          },
+          {
+            "part": "swatch",
+            "slot": "color-picker-swatch",
+            "notes": "A label painted with the colour, holding a visually hidden native radio. Every state is a ring outside it."
+          },
+          {
+            "part": "error",
+            "slot": "color-picker-error",
+            "notes": "Before the helper, so a correction is read first."
+          },
+          {
+            "part": "helper",
+            "slot": "color-picker-helper",
+            "notes": "Persistent guidance."
+          }
+        ],
+        "composition": "ColorPicker   label (required)\n              value? / defaultValue? / onValueChange?\n              isOpen? / defaultIsOpen? / onOpenChange?\n              variant? (\"field\" | \"swatch\") / size? (\"lg\" | \"md\" | \"sm\")\n              hasAlpha? / swatches? / swatchesLabel? / isPaletteOnly?\n              placeholder? / helperText? / errorText? / isDisabled? / isLabelHidden?\n              container?",
+        "props": {
+          "label": {
+            "type": "string",
+            "required": true,
+            "notes": "Required — a placeholder is not a label. On the swatch variant it is the trigger's accessible name, read with the value: 'Accent colour, #1B6C84'."
+          },
+          "isLabelHidden": {
+            "type": "boolean",
+            "default": "false",
+            "notes": "Visually hidden, never omitted."
+          },
+          "value": {
+            "type": "string | null",
+            "notes": "Controlled: #RRGGBB, or #RRGGBBAA with hasAlpha. Accepts #RGB / #RRGGBB / #RRGGBBAA in any case; emits upper-case. null is empty."
+          },
+          "defaultValue": {
+            "type": "string | null",
+            "default": "null",
+            "notes": "Uncontrolled starting value."
+          },
+          "onValueChange": {
+            "type": "(value: string | null) => void",
+            "notes": "Fires on EVERY move, so a preview can follow the thumb. There is no once-per-gesture callback — see knownGaps."
+          },
+          "isOpen": {
+            "type": "boolean",
+            "notes": "Controlled open state."
+          },
+          "defaultIsOpen": {
+            "type": "boolean",
+            "default": "false",
+            "notes": "Uncontrolled starting state."
+          },
+          "onOpenChange": {
+            "type": "(isOpen: boolean) => void",
+            "notes": "Fires for the trigger, Escape and an outside press."
+          },
+          "variant": {
+            "type": "\"field\" | \"swatch\"",
+            "default": "\"field\"",
+            "notes": "field is a form field; swatch is the chip alone in Button's icon-only box, for toolbars where the hex is noise."
+          },
+          "size": {
+            "type": "\"lg\" | \"md\" | \"sm\"",
+            "default": "\"lg\"",
+            "notes": "The trigger only. The panel has one size — a 2D control that shrinks with density stops being usable."
+          },
+          "hasAlpha": {
+            "type": "boolean",
+            "default": "false",
+            "notes": "Adds the opacity track and field. The value always carries eight digits when it is on."
+          },
+          "swatches": {
+            "type": "readonly ColorSwatch[]",
+            "notes": "{ value, label }. The label is the swatch's accessible name — 'Brand blue', not a hex."
+          },
+          "swatchesLabel": {
+            "type": "string",
+            "default": "\"Swatches\"",
+            "notes": "The group's visible name, and the radio group's accessible one."
+          },
+          "isPaletteOnly": {
+            "type": "boolean",
+            "default": "false",
+            "notes": "Swatches only — for brand settings and tags, where a free colour is the wrong answer. Focus opens on the checked swatch."
+          },
+          "placeholder": {
+            "type": "string",
+            "default": "\"Pick a colour\"",
+            "notes": "What the empty field shows. Not the accessible name."
+          },
+          "isDisabled": {
+            "type": "boolean",
+            "default": "false",
+            "notes": "The native attribute; never pointer-events: none."
+          },
+          "helperText": {
+            "type": "string",
+            "notes": "Announced through aria-describedby alongside any error."
+          },
+          "errorText": {
+            "type": "string",
+            "notes": "Its presence sets aria-invalid and the danger edge."
+          },
+          "container": {
+            "type": "HTMLElement | null",
+            "notes": "Where to portal the panel. A panel on document.body leaves a brand scope behind; pass the themed element."
+          }
+        },
+        "do": [
+          "Name the field for what the colour is FOR — 'Accent colour', not 'Colour'.",
+          "Give every swatch a human label. The radio announces it; a hex read aloud is noise.",
+          "Debounce in the consumer if a change is expensive — onValueChange is a live stream by design.",
+          "Use isPaletteOnly when only approved colours are allowed, rather than validating a free colour afterwards."
+        ],
+        "dont": [
+          "Do not wrap the picker in a Save / Cancel flow of its own. A consumer that needs confirmation holds the value in its dialog.",
+          "Do not use the swatch variant in a form — with no visible text it has no visible label.",
+          "Do not pass palette steps as swatch labels. 'blue-40' is a token name, not a colour name."
+        ],
+        "a11y": {
+          "role": "A button owning a popover named by the label. Inside: a 2D slider (role=slider, aria-valuetext for both axes), two native range inputs from Base UI, two text fields and a native radio group.",
+          "name": "field: aria-labelledby the label and the value. swatch: aria-label '<label>, <value>'. The area is 'Saturation and brightness'; the tracks 'Hue' and 'Opacity'; the fields 'Hex' and 'Opacity'.",
+          "keyboard": [
+            {
+              "key": "Enter / Space / ArrowDown",
+              "does": "Opens the panel. Focus lands on the area — on the checked swatch when isPaletteOnly."
+            },
+            {
+              "key": "Arrows (area)",
+              "does": "Left / Right move saturation, Up / Down brightness, by 1; Shift makes it 10."
+            },
+            {
+              "key": "Home / End (area)",
+              "does": "Saturation to 0 / 100."
+            },
+            {
+              "key": "PageUp / PageDown (area)",
+              "does": "Brightness by 10."
+            },
+            {
+              "key": "Arrows (tracks)",
+              "does": "One step (1° / 1%); PageUp / PageDown and Shift ten; Home / End to the ends — Base UI's slider contract."
+            },
+            {
+              "key": "Enter (hex)",
+              "does": "Commits the typed hex. Unparseable text reverts on commit."
+            },
+            {
+              "key": "Escape (hex, edited)",
+              "does": "Restores the field's text and keeps the panel open. A second Escape closes it."
+            },
+            {
+              "key": "ArrowUp / ArrowDown (opacity field)",
+              "does": "±1%, Shift ±10."
+            },
+            {
+              "key": "Arrows (swatches)",
+              "does": "A native radio group: move AND select in reading order, so the value follows the keyboard."
+            },
+            {
+              "key": "Escape",
+              "does": "Closes the panel; focus returns to the trigger. Nothing is reverted — nothing was pending."
+            }
+          ],
+          "focus": "Every focus indicator is the two-stop --ui-focus-ring: on the area it is drawn on the THUMB, because that is where the arrows act; on a swatch it replaces the selected ring, which loses nothing because a focused radio is the checked one.",
+          "contrastPairs": [
+            {
+              "fg": "--ui-text-primary",
+              "bg": "--ui-bg-field",
+              "floor": "text",
+              "role": "the hex in the field"
+            },
+            {
+              "fg": "--ui-text-placeholder",
+              "bg": "--ui-bg-field",
+              "floor": "text",
+              "role": "the placeholder"
+            },
+            {
+              "fg": "--ui-text-secondary",
+              "bg": "--ui-bg-base",
+              "floor": "text",
+              "role": "the label"
+            },
+            {
+              "fg": "--ui-text-muted",
+              "bg": "--ui-bg-base",
+              "floor": "text",
+              "role": "the helper text"
+            },
+            {
+              "fg": "--ui-intent-danger-fg",
+              "bg": "--ui-bg-base",
+              "floor": "text",
+              "role": "the error message"
+            },
+            {
+              "fg": "--ui-text-muted",
+              "bg": "--ui-bg-elevated",
+              "floor": "text",
+              "role": "the swatch group label"
+            },
+            {
+              "fg": "--ui-text-primary",
+              "bg": "--ui-bg-field-chrome",
+              "floor": "text",
+              "role": "the hex and opacity fields' text"
+            },
+            {
+              "fg": "--ui-border-strong",
+              "bg": "--ui-bg-elevated",
+              "floor": "non-text",
+              "role": "a swatch's resting edge and hover ring — the only boundary a swatch the colour of the panel has"
+            },
+            {
+              "fg": "--ui-text-primary",
+              "bg": "--ui-bg-elevated",
+              "floor": "non-text",
+              "role": "the selected swatch's ring"
+            },
+            {
+              "fg": "--ui-border-focus",
+              "bg": "--ui-bg-elevated",
+              "floor": "non-text",
+              "role": "the focus ring on the area thumb, a track thumb or a swatch"
+            },
+            {
+              "fg": "--ui-border-subtle",
+              "bg": "--ui-bg-base",
+              "floor": "decorative",
+              "role": "the alpha checker and the field's resting edge",
+              "why": "The checker is a texture that makes see-through legible, not a boundary; the field is identified by its fill, label and padding (ADR 0010)."
+            },
+            {
+              "fg": "--ui-border-default",
+              "bg": "--ui-bg-field",
+              "floor": "decorative",
+              "role": "the trigger chip's edge",
+              "why": "The hex beside the chip names the colour, so the chip's edge carries no information the value does not."
+            }
+          ]
+        },
+        "needsDesign": [
+          "The thumb rings reuse --ui-text-on-media and --ui-bg-media — the contract's only scheme-invariant pair, chosen for media rather than a control. Confirm the reuse, or mint a --ui-thumb-ring pair that aliases them.",
+          "Narrow screens: §7a makes Drawer the mobile surface, and a 16px thumb is under the 44px touch size. The touch layout is not drawn."
+        ],
+        "knownGaps": [
+          "No commit callback. onValueChange fires on every move; Slider, which this composes, has no public commit event either, so a second name is a Slider change first.",
+          "No eyedropper: the EyeDropper API is Chromium-only and griddy has no pipette glyph.",
+          "Hex only. No RGB / HSL fields, no format switch, no saved or recent swatches.",
+          "An empty picker opens on white at hue 0 and emits nothing until a control moves."
+        ],
+        "motion": "The field transitions border-color and box-shadow at --ui-duration-fast / --ui-ease-out; the panel fades and scales from 98% via data-[starting-style] / data-[ending-style], with `scale` named in the list. Thumb and swatch rings transition box-shadow on the same timing. The thumbs themselves do not animate position — they follow the pointer.",
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/476R-0"
+      },
+      "files": [
+        {
+          "path": "registry/ui/color-picker/color-picker.tsx",
+          "target": "ui/color-picker.tsx"
+        },
+        {
+          "path": "registry/ui/color-picker/color-picker.doc.ts",
+          "target": "ui/color-picker.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "use-controllable-state",
+        "motion",
+        "button",
+        "input",
+        "data-slot"
+      ],
+      "contrast": [
+        {
+          "fg": "--ui-text-primary",
+          "bg": "--ui-bg-field",
+          "floor": "text",
+          "light": 17.17,
+          "dark": 17.89,
+          "role": "the hex in the field"
+        },
+        {
+          "fg": "--ui-text-placeholder",
+          "bg": "--ui-bg-field",
+          "floor": "text",
+          "light": 5.93,
+          "dark": 5.83,
+          "role": "the placeholder"
+        },
+        {
+          "fg": "--ui-text-secondary",
+          "bg": "--ui-bg-base",
+          "floor": "text",
+          "light": 13.88,
+          "dark": 12.09,
+          "role": "the label"
+        },
+        {
+          "fg": "--ui-text-muted",
+          "bg": "--ui-bg-base",
+          "floor": "text",
+          "light": 5.93,
+          "dark": 7.02,
+          "role": "the helper text"
+        },
+        {
+          "fg": "--ui-intent-danger-fg",
+          "bg": "--ui-bg-base",
+          "floor": "text",
+          "light": 5.94,
+          "dark": 8.63,
+          "role": "the error message"
+        },
+        {
+          "fg": "--ui-text-muted",
+          "bg": "--ui-bg-elevated",
+          "floor": "text",
+          "light": 5.36,
+          "dark": 5.68,
+          "role": "the swatch group label"
+        },
+        {
+          "fg": "--ui-text-primary",
+          "bg": "--ui-bg-field-chrome",
+          "floor": "text",
+          "light": 14.11,
+          "dark": 16.05,
+          "role": "the hex and opacity fields' text"
+        },
+        {
+          "fg": "--ui-border-strong",
+          "bg": "--ui-bg-elevated",
+          "floor": "non-text",
+          "light": 5.36,
+          "dark": 5.68,
+          "role": "a swatch's resting edge and hover ring — the only boundary a swatch the colour of the panel has"
+        },
+        {
+          "fg": "--ui-text-primary",
+          "bg": "--ui-bg-elevated",
+          "floor": "non-text",
+          "light": 15.53,
+          "dark": 13.9,
+          "role": "the selected swatch's ring"
+        },
+        {
+          "fg": "--ui-border-focus",
+          "bg": "--ui-bg-elevated",
+          "floor": "non-text",
+          "light": 5.39,
+          "dark": 9.82,
+          "role": "the focus ring on the area thumb, a track thumb or a swatch"
+        },
+        {
+          "fg": "--ui-border-subtle",
+          "bg": "--ui-bg-base",
+          "floor": "decorative",
+          "light": 1.47,
+          "dark": 1.34,
+          "role": "the alpha checker and the field's resting edge"
+        },
+        {
+          "fg": "--ui-border-default",
+          "bg": "--ui-bg-field",
+          "floor": "decorative",
+          "light": 2.14,
+          "dark": 1.91,
+          "role": "the trigger chip's edge"
+        }
+      ],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-12-add-color-picker",
+          "date": "2026-11-12",
+          "item": "color-picker",
+          "kind": "addition",
+          "summary": "ColorPicker (beta): a colour field that opens a saturation × brightness area, a hue track, an optional opacity track, a hex field and optional preset swatches. Live value, upper-case hex, no Save / Cancel. The field trigger is compared against a live Select at every size, and the swatch variant is a real icon-only Button. The 2D area is a role=slider with a two-axis keyboard contract and keeps its hue at black and grey. Swatches are a native radio group, so focus and selection are one swatch. The review corrected the sheet before the build: the swatch edge was border-default (1.94:1 light, 1.49:1 dark on bg-elevated) and is now border-strong (5.36 / 5.68); the track gradients sat half a thumb out of step with the value and now sit on the thumb centre's travel (8px in at each end); the fields sat on bg-field inside a bg-elevated panel and now use the chrome ground (ADR 0017) at Input sm's 400 weight; and the area and tracks were a fixed 288px inside a 286px content box (320 − 2 × 16 padding − 2 × 1 border) and now fill it. Two defects found by tests: the palette-only initial focus used a selector list, which matched the first radio rather than the checked one; and font-semibold rendered the swatch group label at 550 against label-sm's 600.",
+          "affects": [
+            "item:color-picker",
+            "slot:color-picker",
+            "slot:color-picker-trigger",
+            "slot:color-picker-panel",
+            "slot:color-picker-area",
+            "slot:color-picker-swatch",
+            "prop:hasAlpha",
+            "prop:swatches",
+            "prop:isPaletteOnly",
+            "prop:container"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/476R-0"
+          }
+        }
+      ]
+    },
+    {
       "name": "combobox",
       "title": "Combobox",
       "type": "ui",
@@ -10106,7 +10794,7 @@
           {
             "part": "label",
             "slot": "combobox-label",
-            "notes": "A real <label for> naming the input. label-md, text-secondary, Select's px-sm inset — the listbox-picker family, not the bare Input. sr-only when isLabelHidden, never removed."
+            "notes": "A real <label for> naming the input. label-md, text-secondary, on the control's text lane for either shape (lib/field-lane), as every field's label is. sr-only when isLabelHidden, never removed."
           },
           {
             "part": "control",
@@ -10196,7 +10884,7 @@
           {
             "part": "error / helper",
             "slot": "combobox-error / combobox-helper",
-            "notes": "caption, px-sm. Error first, both in aria-describedby."
+            "notes": "caption, on the same text lane as the label. Error first, both in aria-describedby."
           }
         ],
         "composition": "Combobox   label (required) / isLabelHidden?\n           items (required)   ComboboxItem[] | ComboboxItemGroup[]\n                              ComboboxItem      { value, label, href?, isDisabled? }\n                              ComboboxItemGroup { label, items: ComboboxItem[] }\n           value? / defaultValue? / onValueChange?          committed value, by item value\n           inputValue? / defaultInputValue? / onInputValueChange?   the text (async hook)\n           onSubmitText?                                    Enter with nothing highlighted\n           filter?   (item, query) => boolean | null        null = items already filtered\n           isLoading? / loadingMessage?\n           emptyMessage?   string | (query) => string\n           listError? / onRetry? / retryLabel?               the LIST failed, not the field\n           resultsMessage?   (count) => string\n           action?   <ComboboxAction icon? onAction={(query) => …}>\n                       string | (query) => ReactNode\n                     </ComboboxAction>\n           size? / shape? / surface? / icon? / hasTrigger?\n           placeholder? / isDisabled? / isRequired? / helperText? / errorText?\n           triggerLabel? / clearLabel? / linkRender? / container? / className?",
@@ -10432,7 +11120,6 @@
         "needsDesign": [
           "OPEN — highlight contrast. The highlighted row is bg-hover at 1.19:1 (light) / 1.21:1 (dark) against the panel — Select's and Menu's value. Acceptable for a select; a combobox is driven by the keyboard far more, and the fill is the only visible indicator of position. Decide whether the family's highlight should get stronger.",
           "OPEN — panel row size per field size. Rows are body-md / p-md at every field size, as Select's are, so an sm field (32px) opens 46px rows. Confirm, or size the panel with the field.",
-          "OPEN — one inset rule for the field family. Label, error and helper take Select's px-sm inset; Input's label sits flush (card.doc.ts already records the alignment gap). Combobox follows Select because it is the same family; choose one rule for all four fields.",
           "OPEN — the pill inset. shape=\"full\" insets one space step wider (16 / 12 / 12) and rounds the clear square, derived from Input's own pill (#18). Whatever #18 lands for Input wins; the popup stays radius-md under a pill field.",
           "OPEN — one empty treatment. Combobox's empty state is a status row on the option recipe (body-md, p-md, text-muted); Multiselect's is button-sm at px-lg. Reconcile.",
           "OPEN — matched-substring emphasis, option descriptions, leading option icons and virtualised long lists are not drawn. Bold is already the selection channel, so a bolded match would collide with it — a different channel is needed if emphasis is wanted.",
@@ -10474,7 +11161,9 @@
         "menu-surface",
         "fade",
         "use-controllable-state",
-        "use-scroll-edges"
+        "use-scroll-edges",
+        "data-slot",
+        "field-lane"
       ],
       "contrast": [
         {
@@ -10583,6 +11272,45 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-combobox-label-on-text-lane",
+          "date": "2026-11-23",
+          "item": "combobox",
+          "kind": "visual",
+          "summary": "Combobox's label, helper and error move from a fixed 8px (px-sm) to the text lane, for either shape. The label, helper and error now start where the typed text does: the control's hairline plus its inline padding (lib/field-lane), so they share one edge at every size and density. At default density that is 13.5px at lg and 9.5px at md and sm.",
+          "affects": [
+            "slot:combobox-label",
+            "slot:combobox-helper",
+            "slot:combobox-error"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -10868,7 +11596,8 @@
       "registryDependencies": [
         "cn",
         "menu-surface",
-        "menu"
+        "menu",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -10897,6 +11626,29 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -11098,7 +11850,7 @@
           {
             "part": "label",
             "slot": "date-picker-label",
-            "notes": "Required. px-sm — bare text inside a rounded surface takes the inset (§6). isLabelHidden renders it sr-only rather than omitting it."
+            "notes": "Required. isLabelHidden renders it sr-only rather than omitting it. On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density."
           },
           {
             "part": "trigger",
@@ -11340,7 +12092,9 @@
         "cn",
         "use-controllable-state",
         "calendar",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "contrast": [
         {
@@ -11401,6 +12155,45 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-date-picker-label-on-text-lane",
+          "date": "2026-11-23",
+          "item": "date-picker",
+          "kind": "visual",
+          "summary": "DatePicker's label, helper and error move from a fixed 8px (px-sm) to the text lane of its lg trigger, 13.5px at default density. They line up with the date shown in the trigger, as every field's do.",
+          "affects": [
+            "slot:date-picker-label",
+            "slot:date-picker-helper",
+            "slot:date-picker-error"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -11636,7 +12429,7 @@
           {
             "part": "node",
             "slot": "diagram-node",
-            "notes": "160px wide, at least 56 tall (72 with a two-line description), bg-surface, a 1.5px border-strong ring, radius-md, 12px inline. The label in label-md primary, one line; the description in label-sm 400 muted, clamped at two lines. `renderNode` replaces the content, never the frame."
+            "notes": "160px wide, at least 56 tall (72 with a two-line description), bg-surface, a 1.5px border-strong ring, radius-md, 12px inline. The label in label-md primary, one line; the description in footnote (12px, 400) muted, clamped at two lines. `renderNode` replaces the content, never the frame."
           },
           {
             "part": "selected node",
@@ -11661,7 +12454,7 @@
           {
             "part": "edge label",
             "slot": "diagram-edge-label",
-            "notes": "label-sm 400 muted on a pill of the ground it sits on (bg-base, or bg-surface inside a group), 4px inline. Active: 600, primary, on bg-surface."
+            "notes": "footnote (12px, 400) muted on a pill of the ground it sits on (bg-base, or bg-surface inside a group), 4px inline. Active: label-sm 600, primary, on bg-surface."
           },
           {
             "part": "group",
@@ -11948,7 +12741,8 @@
         "use-controllable-state",
         "use-graph-viewport",
         "button",
-        "dot-pattern"
+        "dot-pattern",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -12033,6 +12827,22 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-diagram-supporting-text-is-footnote",
+          "date": "2026-11-23",
+          "item": "diagram",
+          "kind": "visual",
+          "summary": "Diagram node descriptions, list notes and resting edge labels are set in the footnote role instead of label-sm with a font-regular override (#59). An active edge's label is label-sm at 600, as before, now by role rather than by an exception. The size and weight are unchanged (12px, 400). The leading moves from label-sm's 1.3 to footnote's 1.35, so a line is 16.2px instead of 15.6px.",
+          "affects": [
+            "slot:diagram-edge-label",
+            "slot:diagram-node-description",
+            "slot:diagram-list-note"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -12228,7 +13038,8 @@
       ],
       "dependencies": [],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -12537,7 +13348,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -12909,7 +13721,8 @@
       ],
       "dependencies": [],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -13173,7 +13986,8 @@
       "registryDependencies": [
         "cn",
         "fade-ramp",
-        "use-scroll-edges"
+        "use-scroll-edges",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -13185,6 +13999,30 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -13572,7 +14410,8 @@
         "chrome-control",
         "fade",
         "use-is-stuck",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -13641,6 +14480,30 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -14236,7 +15099,8 @@
         "cn",
         "slider",
         "use-controllable-state",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -14617,7 +15481,8 @@
       "dependencies": [],
       "registryDependencies": [
         "cn",
-        "aspect-ratio"
+        "aspect-ratio",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -14771,7 +15636,7 @@
           {
             "part": "label",
             "slot": "image-upload-label",
-            "notes": "A real <label> for the input. Input's label styling verbatim, so the two fields stack in a form without a seam."
+            "notes": "A real <label> for the input. Input's label styling verbatim, on a default Input's text lane (lg, the brand's shape), so the two fields stack in a form without a seam. The helper sits on the same lane."
           },
           {
             "part": "input",
@@ -15037,7 +15902,9 @@
       "registryDependencies": [
         "cn",
         "progress",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "contrast": [
         {
@@ -15145,6 +16012,44 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-image-upload-label-on-text-lane",
+          "date": "2026-11-23",
+          "item": "image-upload",
+          "kind": "visual",
+          "summary": "ImageUpload's label and helper move onto a default Input's text lane (lg, the brand's shape), so a form stacking the two keeps one label edge, as the doc promises.",
+          "affects": [
+            "slot:image-upload-label",
+            "slot:image-upload-helper"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -15320,7 +16225,7 @@
           {
             "part": "label",
             "slot": "label",
-            "notes": "Always rendered. isLabelHidden makes it visually hidden, never absent."
+            "notes": "Always rendered. isLabelHidden makes it visually hidden, never absent. text-field-label: label-md (13/600) at default, label-sm (12/600) under compact density (ADR 0026). On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density."
           },
           {
             "part": "control",
@@ -15358,7 +16263,7 @@
           "size": {
             "type": "\"lg\" | \"md\" | \"sm\"",
             "default": "\"lg\"",
-            "notes": "48 / 40 / 32px with a 14 / 14 / 12px value (body-md, body-md, caption). All clear the 24px target floor; lg is the touch size for primary forms. md moved from caption to body-md (#16): the owner's frames draw every 40px field value at 14px, and a row mixing Input and Select at md read as two type styles. sm stays caption — the field tokens carry no type step (ADR 0020 §4 keeps type out of density), and a 14px value's 21.7px line in a compact 28px field would leave 3px of block padding."
+            "notes": "48 / 40 / 32px with a 14 / 14 / 12px value (body-md, body-md, caption). All clear the 24px target floor; lg is the touch size for primary forms. md moved from caption to body-md (#16): the owner's frames draw every 40px field value at 14px, and a row mixing Input and Select at md read as two type styles. Under compact density the md value steps to dense-md (13px) through the stepped text-row role (ADR 0026); lg keeps body-md. sm stays caption, and a 14px value's 21.7px line in a compact 28px field would leave 3px of block padding."
           },
           "shape": {
             "type": "\"soft\" | \"full\"",
@@ -15505,7 +16410,9 @@
       "dependencies": [],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "contrast": [
         {
@@ -15574,6 +16481,45 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-input-label-on-text-lane",
+          "date": "2026-11-23",
+          "item": "input",
+          "kind": "visual",
+          "summary": "Input's label, helper and error move off the box edge onto the text lane. The label, helper and error now start where the typed text does: the control's hairline plus its inline padding (lib/field-lane), so they share one edge at every size and density. At default density that is 13.5px at lg and 9.5px at md and sm. A full (capsule) field's lane is 4px further in, and a field with no shape follows the brand's --ui-field-shape-inset.",
+          "affects": [
+            "slot:label",
+            "slot:helper",
+            "slot:error"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -15876,7 +16822,7 @@
           {
             "part": "toolbar",
             "slot": "knowledge-graph-explorer-toolbar",
-            "notes": "24px apart: the search (Combobox md, 320 wide, a Search glyph, no trigger, label visually hidden), the type filter, then at the end \"7 of 1,284 shown\" (label-sm 400 muted) and the table toggle (Button secondary md, icon-only, ChartTable)."
+            "notes": "24px apart: the search (Combobox md, 320 wide, a Search glyph, no trigger, label visually hidden), the type filter, then at the end \"7 of 1,284 shown\" (footnote, muted) and the table toggle (Button secondary md, icon-only, ChartTable)."
           },
           {
             "part": "type filter",
@@ -15886,7 +16832,7 @@
           {
             "part": "history",
             "slot": "knowledge-graph-explorer-history",
-            "notes": "A <nav> named \"History, <label>\" — the explorer's own label keeps two explorers' landmarks apart: the steps so far, ChevronRightSmall between them, 4px apart. Earlier steps are buttons (label-sm 400 muted, primary on hover) that go back and drop what came after; the current one is 600 primary, aria-current=\"location\"."
+            "notes": "A <nav> named \"History, <label>\" — the explorer's own label keeps two explorers' landmarks apart: the steps so far, ChevronRightSmall between them, 4px apart. Earlier steps are buttons (footnote, muted, primary on hover) that go back and drop what came after; the current one is 600 primary, aria-current=\"location\"."
           },
           {
             "part": "canvas",
@@ -15911,7 +16857,7 @@
           {
             "part": "relations",
             "slot": "knowledge-graph-explorer-relation",
-            "notes": "Under a border-subtle rule, 12px down: \"Relations 4\" and, when there are any, \"Linked from 1\". Rows 2px apart, 8px inset, radius-sm, bg-hover on hover: the verb in a 96px lane (400 muted), an 8px swatch, the name (label-md primary), \"inferred\" when it is, and ChevronRightSmall. A row selects that neighbour."
+            "notes": "Under a border-subtle rule, 12px down: \"Relations 4\" and, when there are any, \"Linked from 1\". Rows 2px apart, 8px inset, radius-sm, bg-hover on hover: the verb in a 96px lane (footnote, muted), an 8px swatch, the name (label-md primary), \"inferred\" when it is, and ChevronRightSmall. A row selects that neighbour."
           },
           {
             "part": "expand",
@@ -16058,7 +17004,8 @@
         "button",
         "checkbox",
         "combobox",
-        "network"
+        "network",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -16087,6 +17034,22 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-explorer-supporting-text-is-footnote",
+          "date": "2026-11-23",
+          "item": "knowledge-graph-explorer",
+          "kind": "visual",
+          "summary": "The explorer's relation verbs, its 'shown' status, the section counts and the history crumbs are set in the footnote role instead of label-sm with a font-regular override (#59). The history crumbs had the same override with no declared exception. The size and weight are unchanged (12px, 400). The leading moves from label-sm's 1.3 to footnote's 1.35, so a line is 16.2px instead of 15.6px.",
+          "affects": [
+            "slot:knowledge-graph-explorer-verb",
+            "slot:knowledge-graph-explorer-shown",
+            "slot:knowledge-graph-explorer-count"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -16312,7 +17275,8 @@
         "cn",
         "chrome-control",
         "compose-event-handlers",
-        "use-controllable-state"
+        "use-controllable-state",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -16458,7 +17422,7 @@
           {
             "part": "item",
             "slot": "menu-item",
-            "notes": "role=menuitem. p-md, radius-sm, text-body-md in primary ink — Select's option role, matched BY ROLE so the size, weight and leading cannot drift apart: two panels on one page should be one panel. Carries data-highlighted from the behaviour layer, which is what the arrow keys move."
+            "notes": "role=menuitem. p-md, radius-sm, body-md in primary ink at default; under data-ui-density=\"compact\" a 32px row at 13/400 with an 8px inline inset, from the density-bound row tokens and the stepped `text-row` role (ADR 0026) — no className needed. Pass data-ui-density to Menu.Panel too when the menu opens from a compact subtree: the panel portals out of it — Select's option role, matched BY ROLE so the size, weight and leading cannot drift apart: two panels on one page should be one panel. Carries data-highlighted from the behaviour layer, which is what the arrow keys move."
           },
           {
             "part": "item label",
@@ -16649,7 +17613,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "menu-surface"
+        "menu-surface",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -16686,6 +17651,29 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-20-glass-takes-its-thickness-from-the",
@@ -17072,7 +18060,8 @@
       "dependencies": [],
       "registryDependencies": [
         "cn",
-        "viz"
+        "viz",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -17246,7 +18235,7 @@
         "lead": "Pauses the current task for a decision.",
         "name": "Modal",
         "status": "stable",
-        "summary": "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Second component on the Base UI behaviour layer, deliberately the same shape as Popover. Its surface is deliberately Card's — same 24px corner, border-subtle hairline, shadow-md and title-sm header — so a dialog raised over cards reads as the same object as them (#23, the owner's redraw of the portal's 'Remove member' confirm). Only the ground (bg-surface: the scrim already separates it from the page) and the gap (gap-2xl) differ.",
+        "summary": "A dialog that takes over the page: scrim behind, focus trapped inside, focus restored to the trigger on close. Second component on the Base UI behaviour layer, deliberately the same shape as Popover. Its surface is deliberately Card's — same 16px corner (radius-lg, #40), border-subtle hairline, shadow-md and 600-weight header — so a dialog raised over cards reads as the same object as them (#23, the owner's redraw of the portal's 'Remove member' confirm). Only the ground (bg-surface: the scrim already separates it from the page), the gap (gap-2xl) and the title's size differ: a dialog is a fixed-width surface, so its title is a fixed 16px where Card's fluid title-sm shrinks to ~12px on a phone (#51).",
         "anatomy": [
           {
             "part": "trigger",
@@ -17266,7 +18255,7 @@
           {
             "part": "title",
             "slot": "modal-title",
-            "notes": "Card.Header's title: title-sm at the role's own 600, inset by Card's unboxed px-sm. Becomes the dialog's accessible name automatically."
+            "notes": "A FIXED 16px: body-lg at title-sm's 600 (a declared type-role exception) and body-lg's own 1.55 leading, never the fluid title-sm, which resolves to ~12px on a phone — smaller than the fields the dialog holds (#51). On a desktop it matches Card.Header's title in size, weight and tracking; its line is 24.8px against Card's 21.6px. Inset by Card's unboxed px-sm, plus py-xs when it is the surface's own child, so the bare heading clears the corner arc on both axes. Becomes the dialog's accessible name automatically."
           },
           {
             "part": "description",
@@ -17405,7 +18394,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -17434,6 +18424,33 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-modal-title-is-a-fixed-16px",
+          "date": "2026-11-23",
+          "item": "modal",
+          "kind": "visual",
+          "summary": "Modal.Title is a FIXED 16px (issue #51): body-lg at title-sm's 600 weight and body-lg's own 1.55 leading, replacing the fluid title-sm, which resolved to ~12px on a phone — smaller than the 14px fields a dialog holds. A dialog is a fixed-width surface, the rule lib/menu-surface already records for menus. On a desktop, where title-sm reaches its 16px cap, only the line grows (21.6px to 24.8px): at title-sm's 1.35 the footer button's hairline painted unevenly at some sub-pixel offsets. When the title is the surface's own child it also takes py-xs, so the bare heading clears the 16px corner on both axes as px-sm does horizontally. Consumers carrying the temporary [data-slot=\"modal-title\"] font-size and padding-block patch can delete it.",
+          "affects": [
+            "slot:modal-title",
+            "token:--ui-text-body-lg"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-14-modal-centres-by-auto-margins-not",
+          "date": "2026-11-14",
+          "item": "modal",
+          "kind": "fix",
+          "summary": "Modal.Surface is centred with `fixed inset-0 m-auto h-fit` instead of `top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`. A transform is painted exactly where it lands, so whenever the viewport and the dialog differed in height by an odd pixel (or the fluid title's fractional line height pushed the footer off the grid) the whole surface sat on a half pixel, and every 1.5px hairline inside it split that half pixel unevenly: the outline Cancel button's bottom edge read visibly heavier than its top, the field's ring likewise, and only 'sometimes', because it moved with the window height and the content. Layout offsets are snapped to the pixel grid at paint, so auto-margin centring cannot do it. Same centre, same widths and caps, same scale-98 enter. Pinned by modal.visual.test.tsx, which walks a footer outline button through 0, 0.25, 0.5 and 0.75px offsets and asserts its top and bottom edges paint as mirror images (three of the four failed before), and by a contract test that the surface carries no transform at rest and stays centred. The Button's hairline itself is unchanged: on fractional device-pixel ratios (Windows 125/150%, browser zoom) a 1.5px ring still cannot land on whole pixels, which is a separate decision about ADR 0020's stroke.",
+          "affects": [
+            "component:modal",
+            "slot:modal-surface"
+          ],
+          "migration": {
+            "manual": "None for callers. A copy that overrides Modal.Surface's position through `className` (top/left/translate) should drop the translate as well, or it reintroduces the half-pixel offset. The modal visual baselines move by up to half a pixel and must be regenerated with the Generate visual baselines workflow."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -17652,7 +18669,7 @@
           {
             "part": "label",
             "slot": "multiselect-label",
-            "notes": "Names the trigger via aria-labelledby. Takes the unboxed inset."
+            "notes": "Names the trigger via aria-labelledby. On the trigger's text lane: its hairline plus its own inline padding, so it starts where the trigger's text does."
           },
           {
             "part": "trigger",
@@ -17773,6 +18790,7 @@
           ]
         },
         "knownGaps": [
+          "The trigger pads with spacing steps (px-lg / px-md / px-sm), not the density field insets the rest of the field family uses, so it does not follow data-ui-density. The label follows the trigger's own padding, so the two still line up.",
           "Nine design defects were corrected rather than transcribed — see the ledger entry. Most consequential: an 11px chip label (below the 12px floor), a 1.51:1 tick, and four palette steps where intent/accent roles exist.",
           "Chips are Badge components rather than Base UI's Chip parts, so the arrow-key navigation BETWEEN chips that Base UI offers is not adopted. Removal is still fully keyboard operable via each chip's button.",
           "The option row reuses Checkbox's visual language but not the component; the two could drift. A shared visual primitive would fix it and does not exist yet.",
@@ -17799,7 +18817,8 @@
       "registryDependencies": [
         "cn",
         "badge",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -17828,6 +18847,43 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-multiselect-label-on-text-lane",
+          "date": "2026-11-23",
+          "item": "multiselect",
+          "kind": "visual",
+          "summary": "Multiselect's label moves from a fixed 8px (px-sm) to its trigger's text lane: the hairline plus the trigger's own inline padding (px-lg, px-md, px-sm by size), so it starts where the trigger's text does.",
+          "affects": [
+            "slot:multiselect-label"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -18073,7 +19129,7 @@
           {
             "part": "item",
             "slot": "nav-rail-item",
-            "notes": "A 32px square at radius-md with a 16px glyph — the chrome control's geometry and none of its colour, because the page's bg-elevated/ink-primary is exactly what the nav family exists to avoid. An <a> when given href, a <button> otherwise."
+            "notes": "A 32px square at radius-md with a 16px glyph — 28px under compact density, the chrome control's compact step, centred on the rail (ADR 0026) — the chrome control's geometry and none of its colour, because the page's bg-elevated/ink-primary is exactly what the nav family exists to avoid. An <a> when given href, a <button> otherwise."
           },
           {
             "part": "slot",
@@ -18216,7 +19272,8 @@
       "registryDependencies": [
         "cn",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -18253,6 +19310,29 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-20-glass-takes-its-thickness-from-the",
@@ -18522,7 +19602,7 @@
           {
             "part": "edge label",
             "slot": "network-edge-label",
-            "notes": "label-sm 400 muted on a bg-base pill at the midpoint. Active: 600 primary. An inferred edge reads \"colleague of · inferred\"."
+            "notes": "footnote (12px, 400) muted on a bg-base pill at the midpoint. Active: label-sm 600 primary. An inferred edge reads \"colleague of · inferred\"."
           },
           {
             "part": "expand chip",
@@ -18859,7 +19939,8 @@
         "use-graph-viewport",
         "button",
         "dot-pattern",
-        "table"
+        "table",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -18992,6 +20073,20 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-network-edge-label-is-footnote",
+          "date": "2026-11-23",
+          "item": "network",
+          "kind": "visual",
+          "summary": "A resting network edge label is set in the footnote role, and an active one in label-sm at 600, instead of label-sm with a font-regular override (#59). The size and weight are unchanged (12px, 400). The leading moves from label-sm's 1.3 to footnote's 1.35, so a line is 16.2px instead of 15.6px.",
+          "affects": [
+            "slot:network-edge-label"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -19324,9 +20419,34 @@
             "part": "close",
             "slot": "popover-close",
             "notes": "Optional dismiss control. Takes an element via `render`."
+          },
+          {
+            "part": "list panel",
+            "slot": "popover-panel[data-variant=list]",
+            "notes": "variant=\"list\" (#55): Menu's surface, not Card's. 280px wide (w-70, capped by --available-width), radius-md over radius-sm rows at a 4px inset (concentric exactly), bg-surface, a border-subtle hairline, shadow-md, and no padding of its own, so the hairlines between Search, List and Footer run edge to edge."
+          },
+          {
+            "part": "search",
+            "slot": "popover-search",
+            "notes": "A bare input on a 36px row, px-md, under a bottom hairline; no field box, because the panel is the box. The glyph sits on the rows' 12px lane, and the typed text lines up with a footer row's label. It takes the panel's initial focus. The bottom hairline takes the focus colour, so the bare input may carry outline-none (§6)."
+          },
+          {
+            "part": "list",
+            "slot": "popover-list",
+            "notes": "p-xs around rows that stack flush. It scrolls, not the panel, so the search and the footer stay put. maxRows caps it: 4 rows is 4 × 32 + 8."
+          },
+          {
+            "part": "row",
+            "slot": "popover-row",
+            "notes": "Menu's item recipe, DENSE: px-sm py-xs on a 32px floor, body-md. The label lands on a 12px lane (the list's 4 plus the row's 8). A real <button> by default, or the element passed to `render`. isHighlighted paints Menu's highlight for the caller's keyboard model."
+          },
+          {
+            "part": "footer",
+            "slot": "popover-footer",
+            "notes": "p-xs under a top hairline. Holds rows (\"Create tag\") or a button pair."
           }
         ],
-        "composition": "Popover                      isOpen? / defaultIsOpen? / onOpenChange? / isModal?\n├─ Popover.Trigger           render={<Button>…</Button>}\n└─ Popover.Panel             side? align? sideOffset? alignOffset?\n   ├─ Popover.Title          inset — bare text\n   ├─ Popover.Description    inset — bare text\n   ├─ Banner                 flush — the sheet's info well IS the Banner component\n   ├─ <any boxed child>      flush — an Input, a card\n   └─ Popover.Close          render={<Button>…</Button>}",
+        "composition": "Popover                      isOpen? / defaultIsOpen? / onOpenChange? / isModal?\n├─ Popover.Trigger           render={<Button>…</Button>}\n└─ Popover.Panel             side? align? sideOffset? alignOffset?\n   ├─ Popover.Title          inset — bare text\n   ├─ Popover.Description    inset — bare text\n   ├─ Banner                 flush — the sheet's info well IS the Banner component\n   ├─ <any boxed child>      flush — an Input, a card\n   └─ Popover.Close          render={<Button>…</Button>}\n\nPopover.Panel variant=\"list\"  (#55)\n├─ Popover.Search            label (required, visually hidden)\n├─ Popover.List              maxRows?\n│  └─ Popover.Row            icon? trailing? isHighlighted? isDisabled? render?\n└─ Popover.Footer\n   └─ Popover.Row            e.g. \"Create tag\"",
         "props": {
           "container": {
             "type": "HTMLElement | null",
@@ -19348,6 +20468,24 @@
           "isModal": {
             "type": "boolean",
             "notes": "Traps focus and blocks the page behind. A hint is not modal; a short form usually is."
+          },
+          "variant": {
+            "type": "\"content\" | \"list\"",
+            "default": "\"content\"",
+            "notes": "On Panel. content is a small window at p-lg on Card's surface. list is a picker on Menu's surface: Search, List and Footer, with dense 32px rows (#55). Both are dialogs. In a list panel the rows' keyboard model, the filtering and the selection are the caller's (or Combobox's, #17)."
+          },
+          "List.maxRows": {
+            "type": "number",
+            "notes": "Caps the list at this many 32px rows plus its 8px of inset, then it scrolls. Omit it and the list grows until the panel reaches the space Base UI measured."
+          },
+          "Row.isHighlighted": {
+            "type": "boolean",
+            "notes": "The row the caller's keyboard model points at. Paints Menu's highlight (bg-hover). Pointer hover and keyboard focus paint it too."
+          },
+          "Search.label": {
+            "type": "string",
+            "required": true,
+            "notes": "The input's accessible name, visually hidden. A placeholder is not a label (§10)."
           },
           "side": {
             "type": "\"top\" | \"right\" | \"bottom\" | \"left\"",
@@ -19372,12 +20510,14 @@
           "Pass your own control into Trigger's `render` — a Button, usually — so the trigger keeps its own accessible name.",
           "Give every panel a Popover.Title; it becomes the panel's accessible name with no aria-label to keep in sync.",
           "Let boxed children (info wells, inputs) sit flush; use Title/Description for bare text so the inset is applied for you.",
-          "Use isModal for a panel containing a form, so focus cannot escape behind it."
+          "Use isModal for a panel containing a form, so focus cannot escape behind it.",
+          "Use variant=\"list\" for a picker of short names, such as tags, assignees or a project, and give the panel an aria-label, since a list panel has no Title."
         ],
         "dont": [
           "Do not import Base UI types into your own props — `check:boundaries` fails the build, and it is what keeps the layer swappable (ADR 0002).",
           "Do not use a Popover for a message that must be acknowledged — that is a Modal.",
           "Do not add padding to bare text yourself; Title and Description already carry the inset, and doubling it breaks the alignment with boxed children.",
+          "Do not give list rows Menu's 46px padding back with a className; the density is the list panel's, and the 12px lane the search glyph sits on depends on it.",
           "Do not reach for a Popover as a tooltip. A tooltip is hover-triggered and non-interactive; this is a focusable dialog."
         ],
         "a11y": {
@@ -19425,6 +20565,8 @@
           "The panel is capped to --available-height / --available-width (§7c) so a tall popover cannot run off a short window. Neither the cap nor the resulting internal scroll is drawn — the sheet draws one panel short enough that neither applies.",
           "No arrow. Base UI provides Popover.Arrow; the sheet draws none, so none is exposed yet.",
           "No dark-scheme values for the panel are drawn — the resolver derives them, unverified against a design.",
+          "A list panel owns no listbox: arrow keys, the highlighted row and selection are the caller's. If three consumers rebuild the same keyboard model, that is a component, not this variant (#55).",
+          "The list panel's dark scheme is not drawn; it uses Menu's roles, which are audited.",
           "The actions row is composed at the call site rather than being a Popover.Actions part — the sheet sits it flush at the panel padding while title and description take the inset, so it is deliberately not wrapped."
         ],
         "motion": "The panel fades and scales from 98% at --ui-duration-fast with --ui-ease-out, through `data-[starting-style]`/`data-[ending-style]`. `scale` is named in the transition list for the same reason as Modal's — Tailwind v4 writes it standalone, and a list naming `transform` left this panel snapping open.",
@@ -19441,11 +20583,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui/react@1.7.0"
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "menu-surface"
       ],
       "contrast": [
         {
@@ -19474,6 +20619,52 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-popover-list-panel",
+          "date": "2026-11-23",
+          "item": "popover",
+          "kind": "addition",
+          "summary": "Popover.Panel takes variant=\"content\" | \"list\" (issue #55). content is the default and unchanged. list is a picker on Menu's surface: 280px wide, radius-md, bg-surface, hairline, shadow-md, and no padding of its own. It comes with four new parts. Popover.Search is a bare input on a 36px row under a hairline, and takes initial focus. Popover.List is p-xs, scrolls, and maxRows caps it. Popover.Row is Menu's item recipe made dense: px-sm py-xs on a 32px floor, so every label and glyph sits on a 12px lane. Popover.Footer is p-xs under a top hairline. It is still a dialog; the rows' keyboard model, filtering and selection are the caller's.",
+          "affects": [
+            "prop:variant",
+            "prop:maxRows",
+            "prop:isHighlighted",
+            "slot:popover-panel",
+            "slot:popover-search",
+            "slot:popover-list",
+            "slot:popover-row",
+            "slot:popover-row-label",
+            "slot:popover-footer"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4878-0"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-20-glass-takes-its-thickness-from-the",
@@ -19816,7 +21007,8 @@
       "dependencies": [],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -19845,6 +21037,30 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -20212,7 +21428,7 @@
               "does": "Leaves the group entirely rather than moving to the next option."
             }
           ],
-          "targetSize": "The row is the target and is at least 24px tall, clearing SC 2.5.8. The circle alone would be 18 beside a 17px line — a 19px target, which is the arithmetic the min-height exists to fix.",
+          "targetSize": "The row is the target and is at least 24px tall, clearing SC 2.5.8. The circle alone would be 18 beside a 17px line — a 19px target, which is the arithmetic the min-height (--ui-choice-row-min-height, 24px at default and comfortable density) exists to fix. Under [data-ui-density=\"compact\"] the ROW may be shorter — --ui-choice-row-min-height falls to 0, so a dense table's row is not forced to 24px by its 18px circle — and the TARGET is carried apart from it: a transparent ::before on the <label>, centred, at least --ui-hit-area-min tall and the row's full width, sitting under the row's content (isolate + z below) so a click on the circle or text still lands on it. Measured by hit-testing in density.browser.test.tsx: under compact the row is under 24px and the target is not.",
           "focus": "The clipped input takes focus and the painted circle shows it: --ui-focus-ring outside the edge, plus the edge itself switching to --ui-border-focus. A forced-colors outline runs alongside, because the ring is a box-shadow and forced colours flatten it away.",
           "liveRegion": "None. Selection is announced by the platform as the focused radio changes, and an error added later is picked up through aria-describedby on the input the reader is standing on.",
           "contrastPairs": [
@@ -20294,7 +21510,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -20354,6 +21571,22 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-density-bound-choice-row-floor-and",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "token",
+          "summary": "New fixed token --ui-choice-row-min-height: the LAYOUT floor of a choice row, re-bound by [data-ui-density] like the control sizes — var(--ui-hit-area-min) (24px) at default and comfortable, 0px under compact. Checkbox, Radio and Switch read it instead of min-h-6, so a compact row falls to its content (19–20px) and a dense table is no longer forced to 24px rows. The TARGET stays ≥ 24px in every mode: each label carries a transparent ::before (relative isolate, centred, min-height --ui-hit-area-min, full width, z below the row's content so clicks on the box/track/text still land on them). Modes nest by inheritance — default inside compact restores the 24px row. Default and comfortable rendering are pixel-identical. Exported as CHOICE_ROW_MIN_HEIGHT and DENSITY_TOKENS (the emitters now read DENSITY_TOKENS). Re-emit any brand theme (toCss) or update theme-zero.css together with these components: with a stale theme the property resolves to nothing and the row falls to its content at every density, though the ::before still keeps the 24px target.",
+          "affects": [
+            "token:--ui-choice-row-min-height",
+            "token:--ui-hit-area-min",
+            "item:theme-zero-css",
+            "item:checkbox",
+            "item:radio",
+            "item:switch"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -20694,7 +21927,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "slider"
+        "slider",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -20886,7 +22120,7 @@
           {
             "part": "label",
             "slot": "select-label",
-            "notes": "Names the trigger via aria-labelledby. sr-only when isLabelHidden, never removed."
+            "notes": "Names the trigger via aria-labelledby. sr-only when isLabelHidden, never removed. On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density."
           },
           {
             "part": "trigger",
@@ -20911,7 +22145,7 @@
           {
             "part": "option",
             "slot": "select-option",
-            "notes": "p-md, radius-sm when highlighted or selected — a touch target as well as a line of text. With a description it is named by its label (aria-labelledby) and described by the second line (aria-describedby)."
+            "notes": "The menu row's density-bound geometry and `text-row`: p-md and body-md at default, a 32px row at 13/400 under compact (ADR 0026). The list portals to <body>, so on open it copies the trigger's nearest data-ui-density onto itself — no prop needed. radius-sm when highlighted or selected — a touch target as well as a line of text. With a description it is named by its label (aria-labelledby) and described by the second line (aria-describedby)."
           },
           {
             "part": "option text",
@@ -21078,7 +22312,9 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "contrast": [
         {
@@ -21131,6 +22367,56 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-select-list-carries-its-trigger-density",
+          "date": "2026-11-23",
+          "item": "select",
+          "kind": "addition",
+          "summary": "Select's option list portals to <body>, which leaves a [data-ui-density] subtree, and Select has no popup part a caller could pass the attribute to. On open it now reads the trigger's nearest [data-ui-density] and sets the same value on its panel (data-slot=select-panel), so a Select inside a compact inspector opens a compact list. With no ancestor attribute nothing is set, so default rendering is unchanged; with density on <body> the value is the one the portal already inherited. No new prop.",
+          "affects": [
+            "item:select"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-select-label-on-text-lane",
+          "date": "2026-11-23",
+          "item": "select",
+          "kind": "visual",
+          "summary": "Select's label, helper and error move from a fixed 8px (px-sm) to the text lane. The label, helper and error now start where the typed text does: the control's hairline plus its inline padding (lib/field-lane), so they share one edge at every size and density. At default density that is 13.5px at lg and 9.5px at md and sm. The fixed 8px was 1.5px short at md and 5.5px short at lg.",
+          "affects": [
+            "slot:select-label",
+            "slot:select-helper",
+            "slot:select-error"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -21533,7 +22819,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -21871,7 +23158,7 @@
           {
             "part": "sectionLabel",
             "slot": "sidebar-section-label",
-            "notes": "A <button> disclosure when isCollapsible, a <span> heading otherwise. 16px at bold weight in --ui-nav-ink."
+            "notes": "A <button> disclosure when isCollapsible, a <span> heading otherwise. 16px at bold weight in --ui-nav-ink; 13px and a 32px row under compact density (ADR 0026)."
           },
           {
             "part": "sublist",
@@ -21881,7 +23168,7 @@
           {
             "part": "item",
             "slot": "sidebar-item",
-            "notes": "A row: p-md, radius-sm, 46px tall as drawn. An <a> when given href, a <div> otherwise. Carries data-current and aria-current=\"page\"."
+            "notes": "A row: p-md, radius-sm, 46px tall as drawn at 16px. Under data-ui-density=\"compact\" it is 32px at 13px (text-nav-row → body-sm) with its label on a 16px lane, the compact search field's (ADR 0026). An <a> when given href, a <div> otherwise. Carries data-current and aria-current=\"page\"."
           },
           {
             "part": "spacer",
@@ -22086,7 +23373,8 @@
         "cn",
         "use-controllable-state",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -22123,6 +23411,29 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-20-glass-takes-its-thickness-from-the",
@@ -22658,7 +23969,8 @@
         "motion",
         "button",
         "header",
-        "sheet"
+        "sheet",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -22897,7 +24209,8 @@
       ],
       "dependencies": [],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -22909,6 +24222,30 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-data-slot-is-component-owned-at",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "breaking",
+          "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+          "affects": [
+            "item:data-slot",
+            "prop:data-slot",
+            "item:popover",
+            "item:badge",
+            "item:header",
+            "item:progress",
+            "item:fade",
+            "item:aspect-ratio",
+            "item:skeleton",
+            "item:chat-widget",
+            "item:color-picker"
+          ],
+          "migration": {
+            "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -23050,7 +24387,7 @@
           {
             "part": "root",
             "slot": "slider",
-            "notes": "The group, and where className lands. Named so an effect can reach a part from it (ADR 0022): fx(\"aurora\") on a track Slider paints its fill. Before 2026-11-06 this slot named the header row, and the root had none."
+            "notes": "The group, and where className lands. Named so an effect can reach a part from it (ADR 0022): fx(\"sheen\") on a Slider lights its fill. Before 2026-11-06 this slot named the header row, and the root had none."
           },
           {
             "part": "header",
@@ -23361,7 +24698,8 @@
         "cn",
         "chrome-control",
         "motion",
-        "use-controllable-state"
+        "use-controllable-state",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -23987,7 +25325,8 @@
       "dependencies": [],
       "registryDependencies": [
         "cn",
-        "viz"
+        "viz",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -24227,7 +25566,7 @@
           {
             "part": "label",
             "slot": "stat-label",
-            "notes": "<dt>. label-sm at 400, muted. Stays printed while loading."
+            "notes": "<dt>. footnote (12px, 400), muted. Stays printed while loading."
           },
           {
             "part": "value",
@@ -24237,7 +25576,7 @@
           {
             "part": "change line",
             "slot": "stat-delta",
-            "notes": "16px TrendUp / TrendDown / Minus glyph, 4px gap, the change in label-sm 600 in success or danger ink, the comparison in label-sm 400 muted. A zero change is the Minus glyph and \"No change vs …\", all muted."
+            "notes": "16px TrendUp / TrendDown / Minus glyph, 4px gap, the change in label-sm 600 in success or danger ink, the comparison in footnote muted. A zero change is the Minus glyph and \"No change vs …\", all muted."
           },
           {
             "part": "trend",
@@ -24361,7 +25700,7 @@
           "No tabular figures: Aspekta ships no `tnum` feature and its digits are proportional (367–602 units), so `tabular-nums` is a no-op in this face — figures right-align on their last digit but do not line up digit by digit, and a figure that changes in place changes width. Filed against the face (ADR 0011 item 5); pinned by registry/fonts/aspekta/aspekta.test.ts.",
           "The row's thresholds are container queries on the row itself (four across from 1120px, three from 840px), so they hold in any panel; the tile's sparkline moves under the text below 220px of tile content, which is read from the tile. A label longer than the sheet's 84px text column still wraps in a tile that keeps its sparkline beside it.",
           "The good/bad judgement is colour only for a screen reader: the direction is spoken (\"Up 12%\") and the polarity is not. A reader who needs it reads the label.",
-          "Label, comparison and empty text are label-sm at 400, declared as type-role deviations as Chart's ticks are."
+          "Label, comparison and empty text are set in the footnote role (12px, 400, #59), as Chart's ticks are."
         ],
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-13-0/44A4-0"
       },
@@ -24380,7 +25719,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "skeleton"
+        "skeleton",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -24425,6 +25765,22 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-stat-supporting-text-is-footnote",
+          "date": "2026-11-23",
+          "item": "stat-tiles",
+          "kind": "visual",
+          "summary": "A stat tile's label, comparison and empty line are set in the footnote role instead of label-sm with a font-regular override (#59). The size and weight are unchanged (12px, 400). The leading moves from label-sm's 1.3 to footnote's 1.35, so a line is 16.2px instead of 15.6px.",
+          "affects": [
+            "slot:stat-label",
+            "slot:stat-comparison",
+            "slot:stat-empty"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/47ZB-0"
+          }
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-stat-delta-percentage-points",
@@ -24732,7 +26088,8 @@
       "dependencies": [],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -25023,7 +26380,7 @@
           {
             "part": "root",
             "slot": "switch",
-            "notes": "The <label>. Carries data-state (on | off) and data-disabled, and IS the target — padded to 24px while the track stays 20px."
+            "notes": "The <label>. Carries data-state (on | off) and data-disabled, and IS the target — padded to 24px while the track stays 20px. Declares --ui-switch-track-on-bg and --ui-switch-track-on-hover-bg."
           },
           {
             "part": "input",
@@ -25083,17 +26440,29 @@
           "onCheckedChange": {
             "type": "(isChecked: boolean) => void",
             "notes": "Fires on every change in both modes. The raw onChange is forwarded and runs after ours (§5)."
+          },
+          "--ui-switch-track-on-bg": {
+            "type": "CSS custom property",
+            "default": "var(--ui-bg-accent-legible)",
+            "notes": "The ON track's fill and edge. The sanctioned way (§6) to give ONE switch its own colour — a violet agent toggle beside the accent ones — instead of an unlayered override that fights the component's selectors. Declared on the root, so set it on the Switch itself: className=\"[--ui-switch-track-on-bg:var(--ui-…)]\" (cn() lets the caller's class win) or style. Setting it on an ANCESTOR does nothing — the root's own declaration wins over an inherited value. Pass a role, not a hex, and keep it 3:1 against the page: the track is a control boundary (SC 1.4.11), and check:contrast only measures the default."
+          },
+          "--ui-switch-track-on-hover-bg": {
+            "type": "CSS custom property",
+            "default": "var(--ui-bg-accent-hover)",
+            "notes": "The ON track under the pointer. Separate because the hover paints a different colour from rest: override --ui-switch-track-on-bg alone and the themed switch turns back to the accent on hover. Set both together."
           }
         },
         "do": [
           "Use a Switch for something that takes effect the moment it is flipped; use a Checkbox inside a form that is submitted later.",
           "Pass the visible label as children — it becomes the accessible name for free.",
-          "Keep the label a statement of what is ON ('Show job title'), not an instruction."
+          "Keep the label a statement of what is ON ('Show job title'), not an instruction.",
+          "Theme one switch's ON colour with --ui-switch-track-on-bg and --ui-switch-track-on-hover-bg, set on the Switch itself."
         ],
         "dont": [
           "Do not put a Switch in a form that needs saving; that is a Checkbox.",
           "Do not render one without children — there is no nameless form, and the type requires it.",
-          "Do not add on/off text inside the track; the label already says what it does, and the role announces the state."
+          "Do not add on/off text inside the track; the label already says what it does, and the role announces the state.",
+          "Do not override the track with an unlayered `[data-slot=track]` rule — it outranks every state, disabled included. Use the two custom properties."
         ],
         "a11y": {
           "role": "switch, on a native checkbox input. The role changes only how it is ANNOUNCED — 'on/off' rather than 'checked' — which is the entire difference from Checkbox at this layer.",
@@ -25112,7 +26481,7 @@
               "does": "Nothing, per the platform, exactly as for Checkbox."
             }
           ],
-          "target": "The track is 36x20; the <label> is padded to min-h-6 so the row clears the 24px floor of WCAG 2.5.8.",
+          "target": "The track is 36x20; the <label> is held at --ui-choice-row-min-height (24px, = --ui-hit-area-min, at default and comfortable density) so the row clears the 24px floor of WCAG 2.5.8. Under [data-ui-density=\"compact\"] the ROW may be shorter — --ui-choice-row-min-height falls to 0, so a dense table's row is not forced to 24px by its 20px track — and the TARGET is carried apart from it: a transparent ::before on the <label>, centred, at least --ui-hit-area-min tall and the row's full width, sitting under the row's content (isolate + z below) so a click on the track or text still lands on it. Measured by hit-testing in density.browser.test.tsx: under compact the row is under 24px and the target is not.",
           "contrastPairs": [
             {
               "fg": "--ui-bg-accent-legible",
@@ -25163,7 +26532,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -25192,6 +26562,35 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-switch-on-track-themable-per-instance",
+          "date": "2026-11-23",
+          "item": "switch",
+          "kind": "addition",
+          "summary": "Switch's ON track reads two component custom properties (CONVENTIONS §6), declared on the root with today's accent roles as defaults: --ui-switch-track-on-bg (var(--ui-bg-accent-legible)) and --ui-switch-track-on-hover-bg (var(--ui-bg-accent-hover)). Set them on the Switch itself — className=\"[--ui-switch-track-on-bg:var(--ui-…)]\" or style — to give one switch its own colour (a violet agent toggle) instead of an unlayered override; an ancestor cannot set them, because the root's declaration wins. Off and disabled are unaffected. Default rendering is pixel-identical.",
+          "affects": [
+            "css-var:--ui-switch-track-on-bg",
+            "css-var:--ui-switch-track-on-hover-bg",
+            "slot:track"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-density-bound-choice-row-floor-and",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "token",
+          "summary": "New fixed token --ui-choice-row-min-height: the LAYOUT floor of a choice row, re-bound by [data-ui-density] like the control sizes — var(--ui-hit-area-min) (24px) at default and comfortable, 0px under compact. Checkbox, Radio and Switch read it instead of min-h-6, so a compact row falls to its content (19–20px) and a dense table is no longer forced to 24px rows. The TARGET stays ≥ 24px in every mode: each label carries a transparent ::before (relative isolate, centred, min-height --ui-hit-area-min, full width, z below the row's content so clicks on the box/track/text still land on them). Modes nest by inheritance — default inside compact restores the 24px row. Default and comfortable rendering are pixel-identical. Exported as CHOICE_ROW_MIN_HEIGHT and DENSITY_TOKENS (the emitters now read DENSITY_TOKENS). Re-emit any brand theme (toCss) or update theme-zero.css together with these components: with a stale theme the property resolves to nothing and the row falls to its content at every density, though the ::before still keeps the 24px target.",
+          "affects": [
+            "token:--ui-choice-row-min-height",
+            "token:--ui-hit-area-min",
+            "item:theme-zero-css",
+            "item:checkbox",
+            "item:radio",
+            "item:switch"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -25765,7 +27164,8 @@
         "checkbox",
         "use-controllable-state",
         "motion",
-        "skeleton"
+        "skeleton",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -26319,7 +27719,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -26604,7 +28005,7 @@
           {
             "part": "label",
             "slot": "label",
-            "notes": "Always rendered. isLabelHidden makes it visually hidden, never absent."
+            "notes": "Always rendered. isLabelHidden makes it visually hidden, never absent. On the control's text lane (lib/field-lane): it starts where the typed text does, so label, value, helper and error share one edge at every size and density."
           },
           {
             "part": "control",
@@ -26819,7 +28220,9 @@
       "dependencies": [],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "contrast": [
         {
@@ -26903,6 +28306,45 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-textarea-label-on-text-lane",
+          "date": "2026-11-23",
+          "item": "textarea",
+          "kind": "visual",
+          "summary": "Textarea's label, helper and error move off the box edge onto the text lane. The label, helper and error now start where the typed text does: the control's hairline plus its inline padding (lib/field-lane), so they share one edge at every size and density. At default density that is 13.5px at lg and 9.5px at md and sm.",
+          "affects": [
+            "slot:label",
+            "slot:helper",
+            "slot:error"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-23-menu-option-sidebar-rows-and-field",
+          "date": "2026-11-23",
+          "item": "system",
+          "kind": "visual",
+          "summary": "Rows, field labels and md field values follow compact density (ADR 0026); default and comfortable are unchanged (all visual cases byte-identical at default). Under data-ui-density=\"compact\": Menu and ContextMenu rows (the menu-surface recipe) and Select, Combobox and Multiselect options are 32px with an 8px inline inset, at 13/400 (text-row; Multiselect keeps its 12px type), and menu group labels ride the same lane; Sidebar items, section headings and the layer title are 32px at 13px (text-nav-row → body-sm), the profile name 13px, the search value 13px, every label on a 16px lane matching the compact search field; NavRail items are 28px squares centred on the rail (the slot keeps 32px); field labels of Input, Textarea, Select, Multiselect, Combobox, DatePicker, ColorPicker and ImageUpload are 12/600 (text-field-label → label-sm); the md value of Input, Select, Combobox, Multiselect and Textarea is 13px (text-row), lg keeps 14. A consumer that passed className=\"p-sm text-body-sm\" to Menu.Item for density can drop it; it still merges and wins if kept. The density visual case changes (its compact Input), so its baselines need regenerating. Requires the regenerated theme from the token entry of the same date.",
+          "affects": [
+            "item:menu-surface",
+            "item:menu",
+            "item:context-menu",
+            "item:select",
+            "item:combobox",
+            "item:multiselect",
+            "item:sidebar",
+            "item:nav-rail",
+            "item:input",
+            "item:textarea",
+            "item:date-picker",
+            "item:color-picker",
+            "item:image-upload"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -27302,7 +28744,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -27686,7 +29129,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "contrast": [
         {
@@ -28002,7 +29446,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "contrast": [
         {

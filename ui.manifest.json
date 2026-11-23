@@ -2,6 +2,9 @@
   "$schema": "./schemas/ui.manifest.schema.json",
   "name": "@bydiorama",
   "homepage": "https://github.com/bydiorama/ui",
+  "renamed": {
+    "ui-craft": "craft"
+  },
   "items": [
     {
       "name": "cn",
@@ -87,6 +90,18 @@
       ]
     },
     {
+      "name": "field-lane",
+      "type": "lib",
+      "description": "The field family's text lane: the inline padding that starts a field's label, helper and error at the same edge as the text typed in the control. Written on the same density and stroke tokens as the control's own padding, so it moves with data-ui-density and a brand's hairline. Shared by Input, Textarea, Select, Combobox and DatePicker so the family gives one answer.",
+      "files": [
+        {
+          "path": "registry/lib/field-lane/field-lane.ts",
+          "target": "lib/field-lane.ts"
+        }
+      ],
+      "status": "stable"
+    },
+    {
       "name": "compose-event-handlers",
       "type": "lib",
       "description": "Composes a consumer event handler with component-owned behaviour. The consumer runs first and may prevent optional internal behaviour with preventDefault; non-cancellable safety invariants stay outside the helper.",
@@ -99,9 +114,21 @@
       "status": "stable"
     },
     {
+      "name": "data-slot",
+      "type": "lib",
+      "description": "The data-slot ownership types (CONVENTIONS §5, ADR 0014). Every part sets its own data-slot AFTER the props it forwards, because contract attributes win — so a caller's data-slot was silently overwritten. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so omitting it changes nothing: OwnedSlot declares it as never, which makes passing one a compile error, and every exported component's props intersect it. SlotSeam is the typed exception for an atom a larger component renders as one of its own parts (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget). Types only — nothing ships at runtime.",
+      "files": [
+        {
+          "path": "registry/lib/data-slot/data-slot.ts",
+          "target": "lib/data-slot.ts"
+        }
+      ],
+      "status": "stable"
+    },
+    {
       "name": "fx",
       "type": "lib",
-      "description": "The effects layer's CSS materials and its vocabulary (ADR 0022): glass (with edge, inner and specular), grain, sheen, glow, shimmer and ink, applied as a class on a component's ROOT through the typed fx() helper — <Card className={fx(\"glass\", \"edge\")}> — and reaching the part they paint through data-slot, so no component grows a prop. One stylesheet per effect under styles/fx/, imported through fx.css after Tailwind and the theme, all inside `@layer fx` so an effect outranks a component's utilities while the app's unlayered CSS still outranks the effect. Glass paints --ui-bg-glass, a tint the resolver derives per brand and scheme so primary and muted ink clear AA over anything behind it (needs a theme emitted with the glass pair — theme zero's stylesheet carries it). The floor of every effect is the component: reduced transparency, forced colours and reduced motion hand each property back with revert-layer. EFFECTS is the single source of what exists, what each is for and where it applies; check:fx holds the stylesheets to it. The two shader effects, aurora and halo, are named here and shipped by the optional `shader` item. sweep(element) plays sheen's one-shot pass of light.",
+      "description": "The effects layer's CSS materials and its vocabulary (ADR 0022): glass (with edge, inner and specular), grain, sheen, glow, shimmer and ink, applied as a class on a component's ROOT through the typed fx() helper — <Card className={fx(\"glass\", \"edge\")}> — and reaching the part they paint through data-slot, so no component grows a prop. One stylesheet per effect under styles/fx/, imported through fx.css after Tailwind and the theme, all inside `@layer fx` so an effect outranks a component's utilities while the app's unlayered CSS still outranks the effect. Glass paints --ui-bg-glass, a tint the resolver derives per brand and scheme so primary and muted ink clear AA over anything behind it (needs a theme emitted with the glass pair — theme zero's stylesheet carries it). The floor of every effect is the component: reduced transparency, forced colours and reduced motion hand each property back with revert-layer. EFFECTS is the single source of what exists, what each is for and where it applies; check:fx holds the stylesheets to it. The two shader effects — the parametric gradient ground and halo — are named here and shipped by the optional `shader` item. sweep(element) plays sheen's one-shot pass of light.",
       "files": [
         {
           "path": "registry/lib/fx/fx.ts",
@@ -145,7 +172,7 @@
     {
       "name": "shader",
       "type": "lib",
-      "description": "The OPTIONAL shader runtime of the effects layer (ADR 0022): aurora (the brand colour moving through a fill or a ground) and halo (light travelling round a surface that works or listens). startShaders() — server-safe, reference-counted, returns its stop function — finds every .fx-aurora / .fx-halo root, mounts one canvas in the part the effect paints and draws it from tokens read where that part sits, through ONE shared WebGL2 context. A shader is admitted only if it paints pixels it owns, takes every input from a token, keeps the component as its floor and guards the contrast of the ink on its part per pixel; check:fx enforces the first two on the sources. The canvas draws the part's own rounded shape (iOS Safari drops a CSS clip on an animating canvas), covers the border box, sits under the part's content or directly after a track's fill so a Slider's thumb stays on top, and follows the component's own state transitions through registered properties (--ui-fx-on, --ui-fx-halo-strength). State is published on the root as data-fx-aurora / data-fx-halo (live, still, floor, lost, unsupported); reduced motion draws one chosen still frame and the loop sleeps when nothing moves. configureShaders() and sampleShader() exist for stories and contrast tests.",
+      "description": "The OPTIONAL shader runtime of the effects layer (ADR 0022, ADR 0025): the gradient — one PARAMETRIC moving ground written for this library — and halo (light travelling round a surface that works or listens). fx(\"gradient\") takes its look from a keyword token, --ui-fx-gradient-look: wash (a calm field), sweep (two big forms lit across their bodies), fold (light panes with lit rims), rise (a horizon with a crisp rim) or dawn (a soft horizon, light rising from below the frame); shared knobs tune any look — --ui-fx-gradient-angle, -sharpness, -scale, -chroma, -intensity, the quiet zone (-quiet, -quiet-x, -quiet-y) and -dissolve — and four knobs follow the look at auto (GRADIENT_PRESETS: angle, intensity, the quiet zone's size and height); knobs inherit, so a wrapper or brand scope can set them, the colours fall back to the scope's --ui-bg-base and --ui-bg-accent, numbers are read with their CSS unit and clamped to the range the GLSL is written for. Its palette is two tokens (--ui-fx-gradient-base, --ui-fx-gradient-light) with every other tone derived in OKLab; chroma falls with lightness and darker tones turn their hue away from yellow-green, so a pale-yellow brand's shadows go amber, not olive. Every pixel ends in a static one-step triangular dither, so slow ramps never band; a ground renders at full resolution and at most 30fps. startShaders() — server-safe, reference-counted, returns its stop function — finds every .fx-gradient / .fx-halo root, mounts one canvas in the part the effect paints and draws it from tokens read where that part sits, through ONE shared WebGL2 context. A shader is admitted only if it paints pixels it owns, takes every input from a token, keeps the component as its floor and keeps the ink on its part legible — the gradient by a QUIET ZONE of its exact base around the copy, so the ink keeps its audited contrast while the light elsewhere is free; check:fx enforces the first two on the sources, the browser test the last two on drawn pixels under the real text, for every look, scheme and the pale-yellow stress brand. Forced colours draw nothing (the floor). The gradient's floor is a still, faint CSS gradient of the same light. The aurora effect was retired 2026-11-22. The canvas draws the part's own rounded shape (iOS Safari drops a CSS clip on an animating canvas), covers the border box, and follows the component's own state transitions through a registered property (--ui-fx-halo-strength). State is published on the root as data-fx-gradient / data-fx-halo (live, still, floor, lost, unsupported); reduced motion draws one chosen still frame and the loop sleeps when nothing moves. configureShaders() and sampleShader() (pixels and the resolved uniform values) exist for stories and contrast tests.",
       "files": [
         {
           "path": "registry/lib/shader/shader.ts",
@@ -241,7 +268,9 @@
         "menu-surface",
         "fade",
         "use-controllable-state",
-        "use-scroll-edges"
+        "use-scroll-edges",
+        "data-slot",
+        "field-lane"
       ],
       "status": "experimental",
       "category": "Forms",
@@ -268,7 +297,8 @@
         "cn",
         "chrome-control",
         "compose-event-handlers",
-        "use-controllable-state"
+        "use-controllable-state",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Actions",
@@ -285,6 +315,30 @@
         }
       ],
       "status": "stable"
+    },
+    {
+      "name": "eslint-preset",
+      "type": "file",
+      "description": "ESLint flat-config preset carrying Diorama's import boundaries into a consumer app: griddy-icons only (no other icon set), no second component library or design language, and the motion limits of CONVENTIONS §8 / ADR 0018 (no framer-motion, no motion/react component API, no GSAP without a licensing decision; motion/mini is allowed). Dependency-free plain objects: spread the default export into your flat config, or build your own no-restricted-imports from the exported restrictedImports lists (ESLint replaces, never merges, a rule's options). Package names are exact `paths`, never gitignore-style `patterns`, so @/lib/motion is never caught by a rule meant for the motion package.",
+      "files": [
+        {
+          "path": "registry/tooling/eslint/eslint.diorama.mjs",
+          "target": "~/eslint.diorama.mjs"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "visual-diff",
+      "type": "file",
+      "description": "Dependency-free visual diff of a running app against 1× design exports (Figma or Paper), the script behind the diorama-visual-review skill. Each case opens a route, drives it into the design's state with Playwright, screenshots the page or one element at DPR 1, crops element references to their opaque box (shadow bleed) or an explicit refCrop, compares on a canvas in the same browser and writes ref/actual/diff PNGs plus report.html with a wipe slider. Cases module (--cases, default scripts/visual-cases.mjs), references folder (--refs, default design/references), output (--out, default visual) and BASE_URL are configurable; Playwright is resolved from the app, which needs it as a dev dependency.",
+      "files": [
+        {
+          "path": "registry/tooling/visual-diff/visual-diff.mjs",
+          "target": "~/scripts/visual-diff.mjs"
+        }
+      ],
+      "status": "experimental"
     },
     {
       "name": "button",
@@ -334,7 +388,8 @@
         "chrome-control",
         "fade",
         "use-is-stuck",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Navigation",
@@ -361,7 +416,8 @@
         "motion",
         "button",
         "header",
-        "sheet"
+        "sheet",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Navigation",
@@ -383,7 +439,9 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable",
       "category": "Forms",
@@ -392,7 +450,7 @@
     {
       "name": "popover",
       "type": "ui",
-      "description": "A panel anchored to a trigger, for secondary content that should not take over the page. Compound: Trigger, Panel, Title, Description, Close. Positioning, focus restoration, dismissal and ARIA wiring come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. Bare text inside the 32px-radius panel is inset one step; boxed children sit flush.",
+      "description": "A panel anchored to a trigger, for secondary content that should not take over the page. Compound: Trigger, Panel, Title, Description, Close, and for a list panel (variant=\"list\") Search, List, Row and Footer. Positioning, focus restoration, dismissal and ARIA wiring come from Base UI (ADR 0012), wrapped so no third-party type reaches a public prop signature. Bare text inside the 32px-radius panel is inset one step; boxed children sit flush.",
       "files": [
         {
           "path": "registry/ui/popover/popover.tsx",
@@ -404,11 +462,14 @@
         }
       ],
       "dependencies": [
-        "@base-ui/react@1.7.0"
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "menu-surface"
       ],
       "status": "stable",
       "category": "Overlays",
@@ -435,7 +496,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Feedback",
@@ -460,7 +522,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Overlays",
@@ -485,7 +548,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Overlays",
@@ -512,7 +576,8 @@
       "registryDependencies": [
         "cn",
         "badge",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Forms",
@@ -538,7 +603,9 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable",
       "category": "Forms",
@@ -559,7 +626,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Display",
@@ -580,7 +648,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Display",
@@ -606,7 +675,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Feedback",
@@ -635,7 +705,8 @@
         "use-controllable-state",
         "use-scroll-edges",
         "button",
-        "fade"
+        "fade",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Display",
@@ -662,7 +733,8 @@
         "cn",
         "use-controllable-state",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Forms",
@@ -688,7 +760,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "menu-surface"
+        "menu-surface",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Navigation",
@@ -714,7 +787,8 @@
       "registryDependencies": [
         "cn",
         "menu-surface",
-        "menu"
+        "menu",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Overlays",
@@ -742,11 +816,43 @@
         "cn",
         "use-controllable-state",
         "calendar",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable",
       "category": "Forms",
       "docs": "registry/ui/date-picker/date-picker.doc.ts"
+    },
+    {
+      "name": "color-picker",
+      "type": "ui",
+      "description": "A colour field that opens an editor: a saturation × brightness area, a hue track, an optional opacity track, a hex field and optional preset swatches. The value is live — every move emits upper-case hex, and there is no Save / Cancel. Composed from what the system already owns: the trigger is Select's field or Button's icon-only box, the panel is Popover's surface, the tracks are Base UI's slider and the fields are Input. The 2D area is the one new control, a role=slider with a two-axis keyboard contract; swatches are a native radio group, so focus and selection are one swatch.",
+      "files": [
+        {
+          "path": "registry/ui/color-picker/color-picker.tsx",
+          "target": "ui/color-picker.tsx"
+        },
+        {
+          "path": "registry/ui/color-picker/color-picker.doc.ts",
+          "target": "ui/color-picker.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@1.7.0",
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "use-controllable-state",
+        "motion",
+        "button",
+        "input",
+        "data-slot"
+      ],
+      "status": "experimental",
+      "category": "Forms",
+      "docs": "registry/ui/color-picker/color-picker.doc.ts"
     },
     {
       "name": "card-sorting",
@@ -770,7 +876,8 @@
         "use-controllable-state",
         "button",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Data",
@@ -797,7 +904,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Forms",
@@ -821,7 +929,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Forms",
@@ -845,7 +954,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Forms",
@@ -867,7 +977,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "viz"
+        "viz",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -889,7 +1000,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -917,7 +1029,8 @@
         "cn",
         "viz",
         "button",
-        "table"
+        "table",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -974,7 +1087,8 @@
         "use-controllable-state",
         "use-graph-viewport",
         "button",
-        "dot-pattern"
+        "dot-pattern",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -1009,7 +1123,8 @@
         "use-graph-viewport",
         "button",
         "dot-pattern",
-        "table"
+        "table",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -1055,7 +1170,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "skeleton"
+        "skeleton",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -1077,7 +1193,8 @@
       ],
       "registryDependencies": [
         "chart",
-        "stat-tiles"
+        "stat-tiles",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -1108,7 +1225,8 @@
         "button",
         "checkbox",
         "combobox",
-        "network"
+        "network",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Data",
@@ -1130,7 +1248,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "viz"
+        "viz",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Display",
@@ -1152,7 +1271,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Display",
@@ -1180,7 +1300,8 @@
         "cn",
         "use-controllable-state",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Navigation",
@@ -1206,7 +1327,8 @@
       "registryDependencies": [
         "cn",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Navigation",
@@ -1232,7 +1354,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Overlays",
@@ -1257,7 +1380,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Overlays",
@@ -1285,7 +1409,8 @@
         "cn",
         "chrome-control",
         "motion",
-        "use-controllable-state"
+        "use-controllable-state",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Forms",
@@ -1311,7 +1436,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "slider"
+        "slider",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Forms",
@@ -1336,7 +1462,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Navigation",
@@ -1362,7 +1489,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Feedback",
@@ -1384,7 +1512,9 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable",
       "category": "Forms",
@@ -1405,7 +1535,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Media",
@@ -1427,7 +1558,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "aspect-ratio"
+        "aspect-ratio",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Media",
@@ -1452,7 +1584,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Media",
@@ -1478,7 +1611,9 @@
       "registryDependencies": [
         "cn",
         "progress",
-        "motion"
+        "motion",
+        "data-slot",
+        "field-lane"
       ],
       "status": "stable",
       "category": "Media",
@@ -1505,7 +1640,8 @@
         "cn",
         "slider",
         "use-controllable-state",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Media",
@@ -1526,7 +1662,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Display",
@@ -1547,7 +1684,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Utilities",
@@ -1570,7 +1708,8 @@
       "registryDependencies": [
         "cn",
         "fade-ramp",
-        "use-scroll-edges"
+        "use-scroll-edges",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Utilities",
@@ -1591,7 +1730,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Display",
@@ -1619,7 +1759,8 @@
         "checkbox",
         "use-controllable-state",
         "motion",
-        "skeleton"
+        "skeleton",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Data",
@@ -1647,7 +1788,8 @@
         "motion",
         "compose-event-handlers",
         "use-controllable-state",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Conversation",
@@ -1670,7 +1812,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Conversation",
@@ -1701,7 +1844,8 @@
         "button",
         "fade",
         "progress",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Conversation",
@@ -1727,7 +1871,8 @@
       "registryDependencies": [
         "cn",
         "button",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Conversation",
@@ -1758,7 +1903,8 @@
         "use-controllable-state",
         "button",
         "popover",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Conversation",
@@ -1789,7 +1935,8 @@
         "button",
         "badge",
         "chat-widget",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "experimental",
       "category": "Conversation",
@@ -1813,7 +1960,8 @@
         "cn",
         "motion",
         "aspect-ratio",
-        "fade"
+        "fade",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Conversation",
@@ -1842,7 +1990,8 @@
         "use-controllable-state",
         "aspect-ratio",
         "badge",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable",
       "category": "Conversation",
@@ -1851,23 +2000,23 @@
     {
       "name": "static-rendering",
       "type": "skill",
-      "description": "Agent skill: using @bydiorama/ui in Astro, SSR and static-export apps — which components are static-safe, which need a client:* directive, why compound components cannot be composed from .astro files and the wrapper pattern that fixes it, and the install traps (prettier, focus styles, paths outside src/ui). Issue #34.",
+      "description": "Agent skill (the `ui` plugin): using @bydiorama/ui in Astro, SSR and static-export apps — which components are static-safe, which need a client:* directive, why compound components cannot be composed from .astro files and the wrapper pattern that fixes it, and the install traps (prettier, focus styles, paths outside src/ui). Issue #34.",
       "files": [
         {
           "path": "registry/skills/static-rendering/SKILL.md",
-          "target": ".claude/skills/diorama-static-rendering/SKILL.md"
+          "target": "plugins/ui/skills/static-rendering/SKILL.md"
         }
       ],
       "status": "stable"
     },
     {
-      "name": "ui-craft",
+      "name": "craft",
       "type": "skill",
-      "description": "Agent skill: the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",
+      "description": "Agent skill (the `ui` plugin): the craft rules for building interfaces with @bydiorama/ui — radii, elevation, motion, icons, hit areas, colour usage. Install so coding agents in your app apply the same polish standards as the design system itself. Adapted from jakubkrehel/skills (MIT), see CREDITS.md.",
       "files": [
         {
-          "path": "registry/skills/ui-craft/SKILL.md",
-          "target": ".claude/skills/diorama-ui-craft/SKILL.md"
+          "path": "registry/skills/craft/SKILL.md",
+          "target": "plugins/ui/skills/craft/SKILL.md"
         }
       ],
       "status": "stable"
@@ -1875,11 +2024,95 @@
     {
       "name": "effects",
       "type": "skill",
-      "description": "Agent skill: applying the effects layer in a consumer app (ADR 0022) — glass, grain, sheen, glow, shimmer and ink from `fx`, and the optional aurora and halo shaders from `shader`: the class-on-the-root pattern, setup order (@layer fx after Tailwind and the theme; startShaders() once), which effect for which job, what the layer already guarantees (per-brand glass tint, per-pixel contrast guard, reduced motion/transparency, forced colours) and the traps already paid for (refraction, halo clipping, sheen on pale accents, iOS canvas clipping).",
+      "description": "Agent skill (the `ui` plugin): applying the effects layer in a consumer app (ADR 0022) — glass, grain, sheen, glow, shimmer and ink from `fx`, and the optional shaders from `shader` (the parametric gradient ground, halo): the class-on-the-root pattern, setup order (@layer fx after Tailwind and the theme; startShaders() once), which effect for which job, what the layer already guarantees (per-brand glass tint, a ground's quiet zone, reduced motion/transparency, forced colours) and the traps already paid for (refraction, halo clipping, sheen on pale accents, iOS canvas clipping).",
       "files": [
         {
           "path": "registry/skills/effects/SKILL.md",
-          "target": ".claude/skills/diorama-effects/SKILL.md"
+          "target": "plugins/ui/skills/effects/SKILL.md"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "visual-review",
+      "type": "skill",
+      "description": "Agent skill (the `ui` plugin): checking a screen built with @bydiorama/ui against its design — 1× exports of frames and key components (shadow bleed cropped by alpha, explicit crops for opaque margins), the exact state reproduced by script, a canvas diff in the same browser (the visual-diff item), reading the red rather than the number, measuring with getBoundingClientRect against the design tool's layout values before fixing, and the traps already paid for (strokes inside the box, masks only with a reason, an empty collapsed element still taking a flex gap, the text style before the font, a blocked asset host).",
+      "files": [
+        {
+          "path": "registry/skills/visual-review/SKILL.md",
+          "target": "plugins/ui/skills/visual-review/SKILL.md"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "app-motion",
+      "type": "skill",
+      "description": "Agent skill (the `ui` plugin): motion in an app built with @bydiorama/ui — Diorama components and effects own their motion (tokens, never double-animated); product interactions use transitions.dev snippets installed and credited in the app under their licence (the skill ships no snippet code); one snippet per element, no nested accordions, digit swaps restored to plain text, replay by reflow, JS timing read from CSS variables, reduced motion for JS-driven motion, motion never the only feedback, and a review method (10% playback, every state).",
+      "files": [
+        {
+          "path": "registry/skills/app-motion/SKILL.md",
+          "target": "plugins/ui/skills/app-motion/SKILL.md"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "design-component",
+      "type": "skill",
+      "description": "Agent skill (the `ui` plugin): designing a component in Paper against the Diorama design system before anyone implements it — every state, every size, both colour schemes, the token workflow, the dark-scheme traps and the placeholder-data harness, ending in a handoff artboard.",
+      "files": [
+        {
+          "path": "registry/skills/design-component/SKILL.md",
+          "target": "plugins/ui/skills/design-component/SKILL.md"
+        }
+      ],
+      "status": "stable"
+    },
+    {
+      "name": "motion-media",
+      "type": "skill",
+      "description": "Agent skill (the `ui` plugin): the entry point for turning a Diorama UI design into presentation media — art direction (UI only, ≤60% frame width, vignette on the ground, no hard frame edges), default formats and file names, and the order of work across demo-page, video-render and stills-render.",
+      "files": [
+        {
+          "path": "registry/skills/motion-media/SKILL.md",
+          "target": "plugins/ui/skills/motion-media/SKILL.md"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "demo-page",
+      "type": "skill",
+      "description": "Agent skill (the `ui` plugin): building a live, scripted demo page from a Diorama screen design — transitions.dev snippets one per element, a looping walkthrough that ends on its first frame, per-component snippets, compositions, and the runSnippet / snippetRect / runComposition hooks the renderers call. Ships two reference pages.",
+      "files": [
+        {
+          "path": "registry/skills/demo-page/SKILL.md",
+          "target": "plugins/ui/skills/demo-page/SKILL.md"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "video-render",
+      "type": "skill",
+      "description": "Agent skill (the `ui` plugin): rendering a demo page into seamless-looping 60fps videos with Playwright and ffmpeg — time slowed ×8, 2× capture, the tail hold, framing maths, light and dark dim settings and the seam check. Ships the Node render scripts and a Python port; needs Playwright and ffmpeg.",
+      "files": [
+        {
+          "path": "registry/skills/video-render/SKILL.md",
+          "target": "plugins/ui/skills/video-render/SKILL.md"
+        }
+      ],
+      "status": "experimental"
+    },
+    {
+      "name": "stills-render",
+      "type": "skill",
+      "description": "Agent skill (the `ui` plugin): lossless 2× PNG stills of a demo page, one per video, frozen at the moment that tells its story and framed like the clip, with the cursor hidden. Ships the Node and Python still scripts.",
+      "files": [
+        {
+          "path": "registry/skills/stills-render/SKILL.md",
+          "target": "plugins/ui/skills/stills-render/SKILL.md"
         }
       ],
       "status": "experimental"

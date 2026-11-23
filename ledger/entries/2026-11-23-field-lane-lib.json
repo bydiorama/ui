@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-field-lane-lib",
+  "date": "2026-11-23",
+  "item": "field-lane",
+  "kind": "addition",
+  "summary": "New lib recipe, field-lane: the inline padding that puts a field's label, helper and error on the control's TEXT LANE, where the typed text starts. That lane is the control's hairline plus its inline padding, written on --ui-stroke-hairline and the --ui-field-*-inset density tokens, so it moves with data-ui-density and a brand's stroke. fieldLane(size, kind) covers the soft inset, the full capsule and Input's brand-themed shape. It settles Combobox's open question on one inset rule for the field family.",
+  "affects": [
+    "token:--ui-stroke-hairline",
+    "token:--ui-field-lg-inset",
+    "token:--ui-field-md-inset",
+    "token:--ui-field-sm-inset",
+    "token:--ui-field-shape-inset"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/14-0/4806-0"
+  }
+}

@@ -46,11 +46,13 @@ const ALLOWED = new Map([
   [/^--ui-text-(display-lg|display-md|title-lg|title-md)(-weight|-leading|-tracking)?$/, "Page-heading roles of the authored type table (ADR 0009), with their attributes (ADR 0020 §3). Components do not set page headings; consumer pages do. title-lg joined this list when Modal, its last component consumer, moved to Card's title-sm (#23)."],
 
   // ── Families whose consumers live outside registry/ by design ──
+  [/^--ui-text-dense-sm(-weight|-leading|-tracking)?$/, "The dense family's 12px regular step (ADR 0026): meta and secondary text on a consumer's dense screens, which the first dense consumer wrote as `text-[12px]/4 font-normal`. No component sets running 12/400 text — the 12px parts it would replace (captions, descriptions, chip labels) are drawn at 600 — so its consumers are app screens, like the page-heading roles above."],
+
   [/^--ui-data-/, "Categorical data colours (ADR 0006(a)) for consumer charts. The library ships no chart component."],
   [/^--ui-shadow-(xl|(sm|md|lg|xl)-up)$/, "Elevation roles ADR 0016 assigns to the editor's artboard (xl) and to bottom-anchored surfaces (-up). Their consumers are the editor, not a distributed component."],
   ["--ui-radius-2xl", "Top of the approved radius scale and of the brand's `radiusPx` knob. CONVENTIONS §6 names it for large panels; no distributed component draws one yet."],
   [/^--ui-z-(below|base)$/, "Ends of the stacking scale, for consumer layouts that need to sit under or reset to the page plane. Every floating surface in the library takes a positive role."],
-  [/^--ui-hit-area-(min|touch)$/, "WCAG 2.5.8 target sizes for consumer layouts. Inside the library the floor is enforced where sizes are DERIVED — the density modes clamp at 24px (ADR 0020 §4) — rather than read at a call site."],
+  ["--ui-hit-area-touch", "The recommended 44px touch target, for consumer layouts. Inside the library the floor is enforced where sizes are DERIVED — the density modes clamp at 24px (ADR 0020 §4) — and --ui-hit-area-min is read where a target is carried apart from its row (the choice rows' ::before)."],
 
   ["--ui-bg-glass-floor", "Never painted: the worst ground a glass surface can produce (ADR 0022). The resolver derives the glass alpha against it and check:contrast audits ink on it, the same role --ui-bg-affix-floor plays for the affix bar."],
   ["--ui-nav-bg-glass-floor", "Never painted: the worst ground a glass Sidebar or NavRail can produce (ADR 0022, amendment). The resolver derives the nav glass alpha against it and check:contrast audits nav ink on it."],

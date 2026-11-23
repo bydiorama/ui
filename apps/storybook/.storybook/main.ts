@@ -60,12 +60,14 @@ const config: StorybookConfig = {
         // The same specifiers a consumer's app would use, so stories exercise
         // the real import graph rather than a Storybook-only one.
         "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),
+        "@/lib/data-slot": join(root, "registry/lib/data-slot/data-slot.ts"),
         "@/lib/chrome-control": join(root, "registry/lib/chrome-control/chrome-control.ts"),
         "@/lib/compose-event-handlers": join(
           root,
           "registry/lib/compose-event-handlers/compose-event-handlers.ts",
         ),
         "@/lib/menu-surface": join(root, "registry/lib/menu-surface/menu-surface.ts"),
+        "@/lib/field-lane": join(root, "registry/lib/field-lane/field-lane.ts"),
         "@/lib/motion": join(root, "registry/lib/motion/motion.ts"),
         "@/lib/fade-ramp": join(root, "registry/lib/fade-ramp/fade-ramp.ts"),
         "@/lib/viz": join(root, "registry/lib/viz/viz.ts"),
@@ -80,7 +82,7 @@ const config: StorybookConfig = {
         "@/hooks/use-is-stuck": join(root, "registry/hooks/use-is-stuck/use-is-stuck.ts"),
         "@/hooks/use-scroll-edges": join(root, "registry/hooks/use-scroll-edges/use-scroll-edges.ts"),
         "@/hooks/use-graph-viewport": join(root, "registry/hooks/use-graph-viewport/use-graph-viewport.ts"),
-        ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "combobox", "diagram", "dot-pattern", "fade", "header", "menu", "network", "progress", "sheet", "skeleton", "slider", "table", "status-matrix", "popover", "chat-widget"),
+        ...uiItems("aspect-ratio", "badge", "button", "calendar", "chart", "checkbox", "combobox", "diagram", "dot-pattern", "fade", "header", "input", "menu", "network", "progress", "sheet", "skeleton", "slider", "table", "status-matrix", "popover", "chat-widget"),
         "@/ui": join(root, "registry/ui"),
         // A block imported BY another distributed file, in the consumer's
         // form (`components/blocks/<name>.tsx` is the install target).

@@ -2,6 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
+import type { SlotSeam } from "@/lib/data-slot";
 /**
  * The sheet's six named ratios, in its own order.
  *
@@ -42,7 +43,11 @@ const RATIO = {
   screen: "aspect-[16/9]",
 } as const satisfies Record<AspectRatioName, string>;
 
-export interface AspectRatioProps extends HTMLAttributes<HTMLDivElement> {
+/**
+ * `SlotSeam` — a composition seam (ADR 0014 §5): ImageOverlay is drawn ON
+ * this frame and names it `image-overlay`.
+ */
+export interface AspectRatioProps extends HTMLAttributes<HTMLDivElement>, SlotSeam {
   /** Defaults to the sheet's leading row. */
   ratio?: AspectRatioName;
   /**
@@ -62,13 +67,13 @@ export interface AspectRatioProps extends HTMLAttributes<HTMLDivElement> {
  * has no column to take.
  */
 export const AspectRatio = forwardRef<HTMLDivElement, AspectRatioProps>(function AspectRatio(
-  { ratio = "square", className, children, ...rest },
+  { ratio = "square", "data-slot": dataSlot = "aspect-ratio", className, children, ...rest },
   ref,
 ) {
   return (
     <div
       ref={ref}
-      data-slot="aspect-ratio"
+      data-slot={dataSlot}
       data-ratio={ratio}
       className={cn(
         "relative w-full overflow-clip rounded-md",

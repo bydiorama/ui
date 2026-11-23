@@ -10,6 +10,7 @@ import { AspectRatio } from "@/ui/aspect-ratio";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** How many answers the question takes. */
 export type ChatQuestionnaireMode = "single" | "multiple";
 
@@ -63,7 +64,7 @@ type ChatQuestionnaireVariantProps =
   | { variant?: "list"; options: ChatQuestionnaireOption[] }
   | { variant: "tiles"; options: ChatQuestionnaireTile[] };
 
-export type ChatQuestionnaireProps = ChatQuestionnaireBaseProps & ChatQuestionnaireVariantProps;
+export type ChatQuestionnaireProps = ChatQuestionnaireBaseProps & ChatQuestionnaireVariantProps & OwnedSlot;
 
 /**
  * The chosen option's edge and check.

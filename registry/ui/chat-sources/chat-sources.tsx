@@ -44,6 +44,7 @@ import { Button } from "@/ui/button";
 import { Popover } from "@/ui/popover";
 import { StatusMatrix } from "@/ui/status-matrix";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 // ---------------------------------------------------------------- data
 
 /**
@@ -152,7 +153,7 @@ function useChatSources(part: string): ChatSourcesContextValue {
   return ctx;
 }
 
-export interface ChatSourcesProviderProps {
+export interface ChatSourcesProviderProps extends OwnedSlot {
   children: ReactNode;
   /** The turn's sources, in the order the block lists them. */
   sources: readonly ChatSource[];
@@ -247,7 +248,7 @@ function SourceLink({ source, className, children, slot, extra }: SourceLinkProp
 // ---------------------------------------------------------------- citation
 
 export interface ChatSourcesCitationProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "type" | "disabled"> {
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "type" | "disabled">, OwnedSlot {
   /**
    * The source(s) this clause leans on, by id. Two or more share ONE pill
    * ("2, 5") rather than stacking two. Non-empty by type: a marker that
@@ -401,14 +402,21 @@ const ChatSourcesCitation = forwardRef<HTMLButtonElement, ChatSourcesCitationPro
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     if (event.key === "Enter" || event.key === " ") pressing.current = "keyboard";
   }
-  function handleClick() {
+  function handleClick(event: MouseEvent<HTMLButtonElement>) {
     // Touch has no hover, so a tap is the preview's toggle and a second tap
     // on its link follows it. Mouse and keyboard already have the preview
     // (hover, focus): their press is the stronger intent — unfold the block
     // at the source's row.
     if (pressing.current === "touch") {
-      if (isOpen) close();
-      else open();
+      if (isOpen) {
+        // Closing hands focus back to the marker once the panel has left, and
+        // focus on the marker opens the preview: swallow that one return, as
+        // Escape does, so the tap's dismissal stays dismissed. Unless the
+        // marker already has focus, a return is coming — from the preview or
+        // from the page (a tap need not move focus at all).
+        if (document.activeElement !== event.currentTarget) suppressFocusOpen.current = true;
+        close();
+      } else open();
     } else {
       open();
       if (current) reveal(current.id);
@@ -850,7 +858,7 @@ type ChatSourcesLayoutProps =
       cardCount?: number;
     };
 
-export type ChatSourcesProps = ChatSourcesBaseProps & ChatSourcesLayoutProps;
+export type ChatSourcesProps = ChatSourcesBaseProps & ChatSourcesLayoutProps & OwnedSlot;
 
 /**
  * The block under the answer, above the actions row: everything the turn read.

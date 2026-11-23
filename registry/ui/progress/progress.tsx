@@ -3,6 +3,7 @@ import { forwardRef, useId, type HTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { motionStandard } from "@/lib/motion";
 
+import type { SlotSeam } from "@/lib/data-slot";
 export type ProgressSize = "md" | "sm" | "xs";
 
 /**
@@ -48,7 +49,10 @@ interface ProgressOwnProps {
 
 export interface ProgressProps
   extends ProgressOwnProps,
-    Omit<HTMLAttributes<HTMLDivElement>, keyof ProgressOwnProps> {}
+    Omit<HTMLAttributes<HTMLDivElement>, keyof ProgressOwnProps>,
+    // A composition seam (ADR 0014 §5): ChatProgress and ImageUpload render
+    // a Progress as their own part and give it that part's name.
+    SlotSeam {}
 
 /**
  * A determinate progress bar.
@@ -68,6 +72,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
     hasValueText = false,
     size = "md",
     variant = "solid",
+    "data-slot": dataSlot = "progress",
     className,
     ...rest
   },
@@ -83,7 +88,7 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(function Progr
   return (
     <div
       ref={ref}
-      data-slot="progress"
+      data-slot={dataSlot}
       data-size={size}
       data-variant={variant}
       className={cn("flex w-full flex-col gap-sm", className)}

@@ -574,9 +574,10 @@ component, nothing tells it the upstream changed. Four parts:
    hash is what separates *stale* from *deliberately forked*; without it every
    drift report is noise, and noisy reports get muted. **Done.**
 3. **`npx @bydiorama/ui sync`** — `packages/cli`. Working end to end: the last
-   run reported 22 current, 4 stale, 0 modified. Still `"private": true` and
-   unpublished, deliberately — a public npm name is a real external commitment.
-   **Done.**
+   run reported 22 current, 4 stale, 0 modified. Publishing was decided on
+   2026-11-23: `release-cli.yml` publishes on a `cli-v*` tag with npm trusted
+   publishing, after a first release (0.1.0) by hand. **Done; first publish
+   pending.**
 4. **Non-optional consumption** — a consumer CI gate failing on unapplied
    `breaking`/`a11y` entries, a SessionStart hook injecting the delta, and
    `ledger.since(revision)` as an MCP tool. **Not built, correctly:** all three

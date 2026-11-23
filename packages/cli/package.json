@@ -18,7 +18,8 @@
     "dist",
     "src",
     "bin",
-    "tsconfig.build.json"
+    "tsconfig.build.json",
+    "!src/**/*.test.ts"
   ],
   "engines": {
     "node": ">=22"

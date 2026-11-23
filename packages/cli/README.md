@@ -11,14 +11,16 @@ broadcast a consumer has to remember to read.
 `theme` turns a brand seed into the installable theme stylesheet, so a
 branded app needs no emitter script of its own.
 
-**Not on npm yet** (issue #30): the package is prepared to publish as
-`@bydiorama/ui` (zero runtime dependencies, Node ≥ 22), but `npx @bydiorama/ui`
-returns E404 until it is. Run it from a checkout (below). Once published, from
-inside a consumer app it will be:
+Published to npm as `@bydiorama/ui` (zero runtime dependencies, Node ≥ 22)
+by [`release-cli.yml`](../../.github/workflows/release-cli.yml); the first
+release is 0.1.0 (issue #30). From inside a consumer app:
 
 ```sh
 npx @bydiorama/ui <command> [...flags]
 ```
+
+If [npmjs.com/package/@bydiorama/ui](https://www.npmjs.com/package/@bydiorama/ui)
+shows no version yet, `npx` returns E404: run it from a checkout (below).
 
 `--cwd` defaults to the directory you run it in. The published `bin` is
 compiled JS (`dist/`, built by `prepublishOnly` from `tsconfig.build.json`)
@@ -244,3 +246,31 @@ consumer (`service-portal`) today, and building coordination machinery for
 a single consumer is the over-engineering the plan explicitly warns against.
 This package is the mechanism those two pieces will call into once there's
 a second consumer to justify them.
+
+## Releasing
+
+Releases are published by GitHub Actions with npm **trusted publishing**: npm
+checks that the upload comes from this repo's `release-cli.yml`, so no npm
+token is stored anywhere, and each version carries a provenance statement.
+
+1. Bump `"version"` in `packages/cli/package.json` and merge to `main`.
+2. Tag that commit `cli-v<version>` and push the tag:
+   `git tag cli-v0.1.1 && git push origin cli-v0.1.1`. The workflow refuses a
+   tag that does not match the version, tests the CLI, builds `dist/`, runs
+   the compiled binary once, and publishes.
+
+**The first release is published by hand,** because npm can only attach a
+trusted publisher to a package that already exists. Once, by someone who can
+publish to the `@bydiorama` npm organisation:
+
+```sh
+npm login                         # an account in the bydiorama npm org
+cd packages/cli
+pnpm install                      # from the repo root first, if not done
+npm publish --access public       # prepublishOnly builds dist/
+```
+
+Then on npmjs.com, **@bydiorama/ui › Settings › Trusted publishing**: add
+GitHub Actions with organisation `bydiorama`, repository `ui` and workflow
+`release-cli.yml`. In the same settings, set publishing access to require 2FA
+and disallow tokens, so the workflow is the only way to publish from then on.

@@ -323,6 +323,7 @@
   --ui-field-lg-inset: var(--ui-space-md);
   --ui-hit-area-min: 24px;
   --ui-hit-area-touch: 44px;
+  --ui-choice-row-min-height: var(--ui-hit-area-min);
   --ui-measure-prose: 70ch;
   --ui-measure-narrative: 60ch;
   --ui-measure-dense: 90ch;
@@ -561,6 +562,7 @@
   --ui-field-md-inset: var(--ui-space-xs);
   --ui-field-lg-height: 2.75rem;
   --ui-field-lg-inset: var(--ui-space-sm);
+  --ui-choice-row-min-height: 0px;
 }
 
 [data-ui-density="comfortable"] {
@@ -576,6 +578,7 @@
   --ui-field-md-inset: var(--ui-space-md);
   --ui-field-lg-height: 3.25rem;
   --ui-field-lg-inset: var(--ui-space-lg);
+  --ui-choice-row-min-height: var(--ui-hit-area-min);
 }
 
 [data-ui-density="default"] {
@@ -591,6 +594,7 @@
   --ui-field-md-inset: var(--ui-space-sm);
   --ui-field-lg-height: 3rem;
   --ui-field-lg-inset: var(--ui-space-md);
+  --ui-choice-row-min-height: var(--ui-hit-area-min);
 }
 
 @media (prefers-reduced-motion: reduce) {

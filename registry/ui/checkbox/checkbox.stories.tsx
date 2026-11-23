@@ -173,3 +173,40 @@ export const SettingsRows: Story = {
     </div>
   ),
 };
+
+/**
+ * A table row's selection box: `isLabelHidden` keeps the label as the
+ * accessible name ("Select Brief A") and takes it off the screen, because the
+ * row already says which brief it is. Same prop, and same `sr-only`
+ * placement, as Switch.
+ */
+export const LabelHidden: Story = {
+  render: () => (
+    <table className="w-90 border-collapse text-start">
+      <thead>
+        <tr>
+          <th scope="col" className="py-sm pe-md text-start">
+            <Checkbox isLabelHidden isIndeterminate onCheckedChange={fn()}>
+              Select all briefs
+            </Checkbox>
+          </th>
+          <th scope="col" className="py-sm text-start text-label-md text-ink-muted">
+            Brief
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {["Brief A", "Brief B", "Brief C"].map((brief, i) => (
+          <tr key={brief}>
+            <td className="py-sm pe-md">
+              <Checkbox isLabelHidden defaultIsChecked={i === 0} onCheckedChange={fn()}>
+                {`Select ${brief}`}
+              </Checkbox>
+            </td>
+            <td className="py-sm text-body-sm text-ink-primary">{brief}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ),
+};

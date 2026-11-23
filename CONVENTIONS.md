@@ -74,6 +74,10 @@ No library prefix on component names — it is `Button`, not `UiButton`.
   composed with the consumer first; `preventDefault()` cancels optional
   component behaviour, while safety invariants still run. `className` is
   merged and `style` is shallow-merged (ADR 0014).
+- **`data-slot` is component-owned**: every component's props declare it
+  `never` (`OwnedSlot` in `@/lib/data-slot`), so passing one is a type error
+  rather than a silently dropped value — consumers target a part with their
+  own `data-*` or `data-testid`.
 
 ## 6. Styling
 

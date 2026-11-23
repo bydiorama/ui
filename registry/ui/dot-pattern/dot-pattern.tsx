@@ -2,6 +2,7 @@ import { forwardRef, useId, type SVGAttributes } from "react";
 
 import { cn } from "@/lib/cn";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type DotPatternProps = {
   /**
    * Pitch between dot centres, in px, on both axes. The default transcribes
@@ -16,7 +17,7 @@ export type DotPatternProps = {
    * distance from cell centre to dot edge (sheet, Gaps § Dot size).
    */
   dotSize?: number;
-} & Omit<SVGAttributes<SVGSVGElement>, "children">;
+} & Omit<SVGAttributes<SVGSVGElement>, "children"> & OwnedSlot;
 
 /**
  * A decorative dot-grid layer for canvas grounds — the texture behind the

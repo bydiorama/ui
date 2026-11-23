@@ -26,6 +26,7 @@ import { menuGroupLabel } from "@/lib/menu-surface";
 import { motionMicro } from "@/lib/motion";
 import { Fade } from "@/ui/fade";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in select.tsx — one shim, contained to this file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -141,7 +142,7 @@ interface ComboboxContextValue {
 }
 const ComboboxContext = createContext<ComboboxContextValue | null>(null);
 
-export interface ComboboxProps {
+export interface ComboboxProps extends OwnedSlot {
   /** Required — a placeholder is not a label (§10). */
   label: string;
   isLabelHidden?: boolean;
@@ -836,7 +837,7 @@ function SignatureProbe({ signature, sigRef }: { signature: string; sigRef: { cu
   return null;
 }
 
-export interface ComboboxActionProps {
+export interface ComboboxActionProps extends OwnedSlot {
   /** The row's text. A function receives what is typed: `(q) => \`Search everything for “${q}”\``. */
   children: ReactNode | ((query: string) => ReactNode);
   /** Slot: a leading glyph, never wrapped (§3). */

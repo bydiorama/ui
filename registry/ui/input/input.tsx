@@ -3,6 +3,7 @@ import { forwardRef, useId, type InputHTMLAttributes, type ReactElement } from "
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type InputSize = "lg" | "md" | "sm";
 
 /** The ground the field is cut from — see the `surface` prop (ADR 0017). */
@@ -134,7 +135,7 @@ interface InputBaseProps
   iconEnd?: ReactElement;
 }
 
-export type InputProps = InputBaseProps;
+export type InputProps = InputBaseProps & OwnedSlot;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   {

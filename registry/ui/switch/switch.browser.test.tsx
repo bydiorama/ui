@@ -274,3 +274,56 @@ describe("Switch description", () => {
     expect(getComputedStyle(disabled.label.querySelector('[data-slot="description"]')!).color).toBe(probe("--ui-text-disabled"));
   });
 });
+
+describe("Switch ON colour is themable per instance (§6 custom properties)", () => {
+  /**
+   * The gate (check:utilities rule C) proves the NAMES line up; only a
+   * rendered track proves the value reaches the paint — the default AND a
+   * caller's override, at rest and under the pointer.
+   */
+  test("by default the properties resolve to the accent roles the track always painted", async () => {
+    const { label, track } = mount(<Switch defaultIsChecked>Toggle</Switch>);
+    await settled(track);
+    expect(getComputedStyle(track).backgroundColor).toBe(tokenColor("--ui-bg-accent-legible"));
+    expect(getComputedStyle(track).borderTopColor).toBe(tokenColor("--ui-bg-accent-legible"));
+
+    await userEvent.hover(label);
+    await settled(track);
+    expect(getComputedStyle(track).backgroundColor).toBe(tokenColor("--ui-bg-accent-hover"));
+    await userEvent.unhover(label);
+  });
+
+  test("a caller's className override paints the ON track, at rest and on hover", async () => {
+    const { label, track } = mount(
+      <Switch
+        defaultIsChecked
+        className="[--ui-switch-track-on-bg:var(--ui-data-cat-3-solid)] [--ui-switch-track-on-hover-bg:var(--ui-data-cat-3-fg)]"
+      >
+        Agent
+      </Switch>,
+    );
+    await settled(track);
+    const violet = tokenColor("--ui-data-cat-3-solid");
+    expect(violet).not.toBe(tokenColor("--ui-bg-accent-legible"));
+    expect(getComputedStyle(track).backgroundColor).toBe(violet);
+    expect(getComputedStyle(track).borderTopColor).toBe(violet);
+
+    await userEvent.hover(label);
+    await settled(track);
+    expect(getComputedStyle(track).backgroundColor).toBe(tokenColor("--ui-data-cat-3-fg"));
+    await userEvent.unhover(label);
+  });
+
+  test("the override is the ON state only: off and disabled keep their roles", async () => {
+    const themed = "[--ui-switch-track-on-bg:var(--ui-data-cat-3-solid)]";
+    const off = mount(<Switch className={themed}>Agent</Switch>);
+    await settled(off.track);
+    expect(getComputedStyle(off.track).backgroundColor).toBe(tokenColor("--ui-border-strong"));
+    act(() => root?.unmount());
+    container?.remove();
+
+    const disabled = mount(<Switch isDisabled defaultIsChecked className={themed}>Agent</Switch>);
+    await settled(disabled.track);
+    expect(getComputedStyle(disabled.track).backgroundColor).toBe(tokenColor("--ui-bg-sunken"));
+  });
+});

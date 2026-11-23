@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/cn";
 import { motionMicro, motionStandard } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * What the run is doing, as the matrix draws it.
  *
@@ -360,7 +361,7 @@ type StatusMatrixStatusProps =
   | { status: Exclude<StatusMatrixStatus, "progress">; value?: undefined; max?: undefined }
   | { status: "progress"; value: number; max?: number };
 
-export type StatusMatrixProps = StatusMatrixBaseProps & StatusMatrixStatusProps;
+export type StatusMatrixProps = StatusMatrixBaseProps & StatusMatrixStatusProps & OwnedSlot;
 
 /** What a moving matrix carries between ticks. Written only in effects and ticks. */
 interface Run {

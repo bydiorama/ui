@@ -13,6 +13,7 @@ import { cn } from "@/lib/cn";
 import { Button } from "@/ui/button";
 import { StatusMatrix } from "@/ui/status-matrix";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 // ---------------------------------------------------------------- the dock
 
 /** One background run, as its dock row draws it. */
@@ -64,7 +65,7 @@ type ChatRunDockStopProps =
   | { onStopAction: (id: string) => void; stopLabel: (run: ChatRun) => string }
   | { onStopAction?: undefined; stopLabel?: undefined };
 
-export type ChatRunDockProps = ChatRunDockBaseProps & ChatRunDockStopProps;
+export type ChatRunDockProps = ChatRunDockBaseProps & ChatRunDockStopProps & OwnedSlot;
 
 /**
  * The background-run dock: work that outlives its turn, shown above the
@@ -228,7 +229,7 @@ type ChatRunMarkKindProps =
   | ({ kind: "finished"; retryLabel?: undefined; onRetryAction?: undefined } & ChatRunMarkActionProps)
   | ({ kind: "failed"; actionLabel?: undefined; onAction?: undefined } & ChatRunMarkRetryProps);
 
-export type ChatRunMarkProps = ChatRunMarkBaseProps & ChatRunMarkKindProps;
+export type ChatRunMarkProps = ChatRunMarkBaseProps & ChatRunMarkKindProps & OwnedSlot;
 
 /** Glyph and ink per kind. Literal class strings — Tailwind finds utilities by scanning source. */
 const MARK = {

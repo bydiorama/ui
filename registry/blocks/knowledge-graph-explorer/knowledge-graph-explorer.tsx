@@ -12,6 +12,7 @@ import { Checkbox } from "@/ui/checkbox";
 import { Combobox, type ComboboxItemGroup } from "@/ui/combobox";
 import { Network, type NetworkRenderer, type NetworkSlot, type NetworkType } from "@/ui/network";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /* Literal class maps: Tailwind sees only whole class names. */
 const SWATCH = {
   1: "bg-data-cat-1-solid", 2: "bg-data-cat-2-solid", 3: "bg-data-cat-3-solid", 4: "bg-data-cat-4-solid",
@@ -24,7 +25,7 @@ const CHIP = {
   7: "bg-data-cat-7-bg border-data-cat-7-solid", 8: "bg-data-cat-8-bg border-data-cat-8-solid",
 } as const satisfies Record<NetworkSlot, string>;
 
-export interface KnowledgeGraphExplorerProps<D = unknown> extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onSelect"> {
+export interface KnowledgeGraphExplorerProps<D = unknown> extends Omit<HTMLAttributes<HTMLDivElement>, "children" | "onSelect">, OwnedSlot {
   /** Names the drawing. */
   label: string;
   /** The takeaway, read before the drawing. */

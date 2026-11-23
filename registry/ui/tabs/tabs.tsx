@@ -6,6 +6,7 @@ import { createContext, useContext, type ComponentPropsWithoutRef, type HTMLAttr
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -23,7 +24,7 @@ const TabsShape = createContext<{ orientation: TabsOrientation; variant: TabsVar
   variant: "enclosed",
 });
 
-export interface TabsProps {
+export interface TabsProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled selection, by tab value. */
   value?: string;
@@ -84,7 +85,7 @@ function TabsRoot({
   );
 }
 
-export type TabsListProps = HTMLAttributes<HTMLDivElement>;
+export type TabsListProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 function TabsList({ className, ...rest }: TabsListProps) {
   const { orientation, variant } = useContext(TabsShape);
@@ -129,7 +130,7 @@ function TabsList({ className, ...rest }: TabsListProps) {
   );
 }
 
-export interface TabsTabProps extends Omit<HTMLAttributes<HTMLButtonElement>, "children"> {
+export interface TabsTabProps extends Omit<HTMLAttributes<HTMLButtonElement>, "children">, OwnedSlot {
   value: string;
   children: ReactNode;
   /** A count beside the label, as the sheet draws it on the selected tab. */
@@ -203,7 +204,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
   );
 }
 
-export interface TabsPanelProps extends HTMLAttributes<HTMLDivElement> {
+export interface TabsPanelProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   value: string;
   /**
    * Keeps the panel in the DOM while another tab is selected, hidden with the

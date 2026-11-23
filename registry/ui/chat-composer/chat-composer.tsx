@@ -21,6 +21,7 @@ import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { Button } from "@/ui/button";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * How the frame is arranged, and therefore what shape it takes.
  *
@@ -128,7 +129,7 @@ interface ChatComposerBaseProps
   dropLabel?: string;
 }
 
-export type ChatComposerProps = ChatComposerBaseProps;
+export type ChatComposerProps = ChatComposerBaseProps & OwnedSlot;
 
 /** How many rows the sheet lets the text grow to before it scrolls. */
 const DEFAULT_MAX_ROWS = 8;

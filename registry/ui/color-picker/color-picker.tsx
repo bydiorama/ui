@@ -19,6 +19,7 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in date-picker.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -196,7 +197,7 @@ const CHECKER: CSSProperties = {
 
 /* -------------------------------------------------------------------------- */
 
-export interface ColorPickerProps {
+export interface ColorPickerProps extends OwnedSlot {
   /**
    * Required — a placeholder is not a label (§10). The swatch variant shows no
    * text at all, so the label becomes its accessible name, with the value.
@@ -521,7 +522,6 @@ export function ColorPicker({
                       size="sm"
                       surface="chrome"
                       className="min-w-0 flex-1"
-                      data-slot="color-picker-hex"
                       spellCheck={false}
                       autoComplete="off"
                       value={draft ?? toHex(hsva, false)}
@@ -547,7 +547,6 @@ export function ColorPicker({
                         size="sm"
                         surface="chrome"
                         className="w-16 shrink-0"
-                        data-slot="color-picker-alpha-field"
                         inputMode="numeric"
                         autoComplete="off"
                         value={alphaDraft ?? `${Math.round(hsva.a * 100)}%`}

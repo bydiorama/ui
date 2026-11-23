@@ -459,6 +459,12 @@ export const FIXED_TOKENS = [
   // target for primary controls.
   "--ui-hit-area-min", "--ui-hit-area-touch",
 
+  // The LAYOUT floor of a choice row — Checkbox, Radio, Switch. Density-bound
+  // like the control sizes (re-bound by `[data-ui-density]`), but not one of
+  // them: it is the row's own height, which compact lets fall to its content
+  // while the TARGET stays at --ui-hit-area-min (CONVENTIONS §10).
+  "--ui-choice-row-min-height",
+
   // Measure
   "--ui-measure-prose", "--ui-measure-narrative", "--ui-measure-dense",
 

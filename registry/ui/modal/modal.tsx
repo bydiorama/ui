@@ -6,6 +6,7 @@ import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode,
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `popover.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -61,7 +62,7 @@ const SIZE = {
   lg: "max-w-dialog-lg",
 } as const satisfies Record<ModalSize, string>;
 
-export interface ModalProps {
+export interface ModalProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit to let the modal own it. */
   isOpen?: boolean;
@@ -117,7 +118,7 @@ function ModalRoot({ children, isOpen, defaultIsOpen, onOpenChange, isDismissabl
   );
 }
 
-export interface ModalTriggerProps {
+export interface ModalTriggerProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the element that opens the modal. Passed through, never wrapped (§3). */
   render?: ReactElement;
@@ -138,7 +139,7 @@ function ModalTrigger({ children, render, className }: ModalTriggerProps) {
   );
 }
 
-export interface ModalSurfaceProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface ModalSurfaceProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   size?: ModalSize;
   /**
    * Where to portal the dialog. Defaults to `document.body`.
@@ -266,7 +267,7 @@ function ModalSurface({
   );
 }
 
-export type ModalTitleProps = HTMLAttributes<HTMLHeadingElement>;
+export type ModalTitleProps = HTMLAttributes<HTMLHeadingElement> & OwnedSlot;
 
 function ModalTitle({ className, ...rest }: ModalTitleProps) {
   return (
@@ -286,7 +287,7 @@ function ModalTitle({ className, ...rest }: ModalTitleProps) {
   );
 }
 
-export type ModalDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
+export type ModalDescriptionProps = HTMLAttributes<HTMLParagraphElement> & OwnedSlot;
 
 function ModalDescription({ className, ...rest }: ModalDescriptionProps) {
   return (
@@ -304,7 +305,7 @@ function ModalDescription({ className, ...rest }: ModalDescriptionProps) {
   );
 }
 
-export type ModalFooterProps = HTMLAttributes<HTMLDivElement>;
+export type ModalFooterProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The action row. `justify-between` is the sheet's own layout — the dismissing
@@ -321,7 +322,7 @@ function ModalFooter({ className, ...rest }: ModalFooterProps) {
   );
 }
 
-export interface ModalCloseProps {
+export interface ModalCloseProps extends OwnedSlot {
   children?: ReactNode;
   /** Slot: the control that dismisses. Never wrapped (§3). */
   render?: ReactElement;

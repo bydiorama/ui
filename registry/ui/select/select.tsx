@@ -7,6 +7,7 @@ import { useId, type ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — see the identical note in
  * `modal.tsx`. This repo compiles with `exactOptionalPropertyTypes`; Base UI
@@ -52,7 +53,7 @@ export interface SelectItem {
   isDisabled?: boolean;
 }
 
-export interface SelectProps {
+export interface SelectProps extends OwnedSlot {
   /**
    * Required — a placeholder is not a label. It disappears the moment a value
    * is chosen, taking the field's name with it (CONVENTIONS §10).

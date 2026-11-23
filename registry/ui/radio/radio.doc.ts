@@ -146,7 +146,7 @@ RadioGroup
       { keys: "Tab (again)", does: "Leaves the group entirely rather than moving to the next option." },
     ],
     targetSize:
-      "The row is the target and is at least 24px tall, clearing SC 2.5.8. The circle alone would be 18 beside a 17px line — a 19px target, which is the arithmetic the min-height exists to fix.",
+      "The row is the target and is at least 24px tall, clearing SC 2.5.8. The circle alone would be 18 beside a 17px line — a 19px target, which is the arithmetic the min-height (--ui-choice-row-min-height, 24px at default and comfortable density) exists to fix. Under [data-ui-density=\"compact\"] the ROW may be shorter — --ui-choice-row-min-height falls to 0, so a dense table's row is not forced to 24px by its 18px circle — and the TARGET is carried apart from it: a transparent ::before on the <label>, centred, at least --ui-hit-area-min tall and the row's full width, sitting under the row's content (isolate + z below) so a click on the circle or text still lands on it. Measured by hit-testing in density.browser.test.tsx: under compact the row is under 24px and the target is not.",
     focus:
       "The clipped input takes focus and the painted circle shows it: --ui-focus-ring outside the edge, plus the edge itself switching to --ui-border-focus. A forced-colors outline runs alongside, because the ring is a box-shadow and forced colours flatten it away.",
     liveRegion:

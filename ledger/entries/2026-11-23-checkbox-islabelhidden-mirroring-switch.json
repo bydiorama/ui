@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-checkbox-islabelhidden-mirroring-switch",
+  "date": "2026-11-23",
+  "item": "checkbox",
+  "kind": "addition",
+  "summary": "Checkbox takes isLabelHidden, mirroring Switch exactly: the label (or, with a description, the label-and-description block) is clipped with sr-only and stays the accessible name. For a box whose meaning the layout already carries — a table row's selection checkbox. Default rendering is unchanged.",
+  "affects": [
+    "prop:isLabelHidden"
+  ]
+}

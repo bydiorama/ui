@@ -13,6 +13,7 @@ import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { Button } from "@/ui/button";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type BannerVariant = "neutral" | "info" | "success" | "warning" | "danger";
 
 /**
@@ -83,7 +84,7 @@ type DismissProps =
   | { onDismiss: () => void; dismissLabel: string }
   | { onDismiss?: never; dismissLabel?: never };
 
-export type BannerProps = BannerBaseProps & DismissProps;
+export type BannerProps = BannerBaseProps & DismissProps & OwnedSlot;
 
 /**
  * An inline message attached to the surface it belongs to — not a toast, not a
@@ -234,7 +235,7 @@ export type BannerActionProps = Omit<
 > & {
   /** The action's label — a verb for what happens: "Review layouts", "Renew licence". */
   children: ReactNode;
-};
+} & OwnedSlot;
 
 /**
  * The action a banner's `action` slot is filled with. It takes the banner's

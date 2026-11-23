@@ -99,6 +99,18 @@
       "status": "stable"
     },
     {
+      "name": "data-slot",
+      "type": "lib",
+      "description": "The data-slot ownership types (CONVENTIONS §5, ADR 0014). Every part sets its own data-slot AFTER the props it forwards, because contract attributes win — so a caller's data-slot was silently overwritten. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so omitting it changes nothing: OwnedSlot declares it as never, which makes passing one a compile error, and every exported component's props intersect it. SlotSeam is the typed exception for an atom a larger component renders as one of its own parts (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget). Types only — nothing ships at runtime.",
+      "files": [
+        {
+          "path": "registry/lib/data-slot/data-slot.ts",
+          "target": "lib/data-slot.ts"
+        }
+      ],
+      "status": "stable"
+    },
+    {
       "name": "fx",
       "type": "lib",
       "description": "The effects layer's CSS materials and its vocabulary (ADR 0022): glass (with edge, inner and specular), grain, sheen, glow, shimmer and ink, applied as a class on a component's ROOT through the typed fx() helper — <Card className={fx(\"glass\", \"edge\")}> — and reaching the part they paint through data-slot, so no component grows a prop. One stylesheet per effect under styles/fx/, imported through fx.css after Tailwind and the theme, all inside `@layer fx` so an effect outranks a component's utilities while the app's unlayered CSS still outranks the effect. Glass paints --ui-bg-glass, a tint the resolver derives per brand and scheme so primary and muted ink clear AA over anything behind it (needs a theme emitted with the glass pair — theme zero's stylesheet carries it). The floor of every effect is the component: reduced transparency, forced colours and reduced motion hand each property back with revert-layer. EFFECTS is the single source of what exists, what each is for and where it applies; check:fx holds the stylesheets to it. The two shader effects, aurora and halo, are named here and shipped by the optional `shader` item. sweep(element) plays sheen's one-shot pass of light.",
@@ -241,7 +253,8 @@
         "menu-surface",
         "fade",
         "use-controllable-state",
-        "use-scroll-edges"
+        "use-scroll-edges",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -266,7 +279,8 @@
         "cn",
         "chrome-control",
         "compose-event-handlers",
-        "use-controllable-state"
+        "use-controllable-state",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -328,7 +342,8 @@
         "chrome-control",
         "fade",
         "use-is-stuck",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -353,7 +368,8 @@
         "motion",
         "button",
         "header",
-        "sheet"
+        "sheet",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -373,7 +389,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -396,7 +413,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -421,7 +439,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -444,7 +463,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -467,7 +487,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -492,7 +513,8 @@
       "registryDependencies": [
         "cn",
         "badge",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -516,7 +538,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -535,7 +558,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -554,7 +578,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -578,7 +603,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -605,7 +631,8 @@
         "use-controllable-state",
         "use-scroll-edges",
         "button",
-        "fade"
+        "fade",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -630,7 +657,8 @@
         "cn",
         "use-controllable-state",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -654,7 +682,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "menu-surface"
+        "menu-surface",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -678,7 +707,8 @@
       "registryDependencies": [
         "cn",
         "menu-surface",
-        "menu"
+        "menu",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -704,7 +734,8 @@
         "cn",
         "use-controllable-state",
         "calendar",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -731,7 +762,8 @@
         "use-controllable-state",
         "motion",
         "button",
-        "input"
+        "input",
+        "data-slot"
       ],
       "status": "beta"
     },
@@ -757,7 +789,8 @@
         "use-controllable-state",
         "button",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -782,7 +815,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -804,7 +838,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -826,7 +861,8 @@
         "cn",
         "use-controllable-state",
         "compose-event-handlers",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -846,7 +882,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "viz"
+        "viz",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -866,7 +903,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -892,7 +930,8 @@
         "cn",
         "viz",
         "button",
-        "table"
+        "table",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -947,7 +986,8 @@
         "use-controllable-state",
         "use-graph-viewport",
         "button",
-        "dot-pattern"
+        "dot-pattern",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -980,7 +1020,8 @@
         "use-graph-viewport",
         "button",
         "dot-pattern",
-        "table"
+        "table",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1018,7 +1059,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "skeleton"
+        "skeleton",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1038,7 +1080,8 @@
       ],
       "registryDependencies": [
         "chart",
-        "stat-tiles"
+        "stat-tiles",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1067,7 +1110,8 @@
         "button",
         "checkbox",
         "combobox",
-        "network"
+        "network",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1087,7 +1131,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "viz"
+        "viz",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1107,7 +1152,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1133,7 +1179,8 @@
         "cn",
         "use-controllable-state",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1157,7 +1204,8 @@
       "registryDependencies": [
         "cn",
         "chrome-control",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1181,7 +1229,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1204,7 +1253,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1230,7 +1280,8 @@
         "cn",
         "chrome-control",
         "motion",
-        "use-controllable-state"
+        "use-controllable-state",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1254,7 +1305,8 @@
       "registryDependencies": [
         "cn",
         "use-controllable-state",
-        "slider"
+        "slider",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1277,7 +1329,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1301,7 +1354,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1321,7 +1375,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1340,7 +1395,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1360,7 +1416,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "aspect-ratio"
+        "aspect-ratio",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1383,7 +1440,8 @@
       ],
       "registryDependencies": [
         "cn",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1407,7 +1465,8 @@
       "registryDependencies": [
         "cn",
         "progress",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1432,7 +1491,8 @@
         "cn",
         "slider",
         "use-controllable-state",
-        "motion"
+        "motion",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1451,7 +1511,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1470,7 +1531,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1491,7 +1553,8 @@
       "registryDependencies": [
         "cn",
         "fade-ramp",
-        "use-scroll-edges"
+        "use-scroll-edges",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1510,7 +1573,8 @@
         }
       ],
       "registryDependencies": [
-        "cn"
+        "cn",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1536,7 +1600,8 @@
         "checkbox",
         "use-controllable-state",
         "motion",
-        "skeleton"
+        "skeleton",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1562,7 +1627,8 @@
         "motion",
         "compose-event-handlers",
         "use-controllable-state",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1583,7 +1649,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1612,7 +1679,8 @@
         "button",
         "fade",
         "progress",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1636,7 +1704,8 @@
       "registryDependencies": [
         "cn",
         "button",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1665,7 +1734,8 @@
         "use-controllable-state",
         "button",
         "popover",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1694,7 +1764,8 @@
         "button",
         "badge",
         "chat-widget",
-        "status-matrix"
+        "status-matrix",
+        "data-slot"
       ],
       "status": "experimental"
     },
@@ -1716,7 +1787,8 @@
         "cn",
         "motion",
         "aspect-ratio",
-        "fade"
+        "fade",
+        "data-slot"
       ],
       "status": "stable"
     },
@@ -1743,7 +1815,8 @@
         "use-controllable-state",
         "aspect-ratio",
         "badge",
-        "button"
+        "button",
+        "data-slot"
       ],
       "status": "stable"
     },

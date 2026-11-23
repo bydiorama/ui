@@ -21,7 +21,10 @@
  *   6. density reaches every field-height consumer, not only Input — Select,
  *      Multiselect, DatePicker, the Sidebar search and Textarea's inset
  *      (review finding M2: only Input, Button and the chrome control were
- *      measured before).
+ *      measured before);
+ *   7. a compact CHOICE ROW (Checkbox, Radio, Switch) may be shorter than
+ *      24px while its hit target is not — measured by hit-testing, because
+ *      the target is a pseudo-element no box measurement can see.
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { userEvent } from "@vitest/browser/context";
@@ -41,6 +44,9 @@ import { Multiselect, type MultiselectItem } from "@/ui/multiselect/multiselect.
 import { DatePicker } from "@/ui/date-picker/date-picker.tsx";
 import { Textarea } from "@/ui/textarea/textarea.tsx";
 import { Sidebar } from "@/ui/sidebar/sidebar.tsx";
+import { Checkbox } from "@/ui/checkbox/checkbox.tsx";
+import { Radio, RadioGroup } from "@/ui/radio/radio.tsx";
+import { Switch } from "@/ui/switch/switch.tsx";
 import { resolveThemePair, toCss, THEME_ZERO } from "@bydiorama/tokens";
 
 let container: HTMLDivElement | null = null;
@@ -331,5 +337,111 @@ describe("a brand scope does not reset an ancestor's density (review finding I2)
       </div>,
     );
     expect(height(control(c, "branded"))).toBe(40);
+  });
+});
+
+/**
+ * A dense table's rows were forced to 24px by the checkbox in them: the
+ * choice rows padded the LABEL to the target floor, so the row and the target
+ * were one box. Compact now releases the row (--ui-choice-row-min-height: 0)
+ * and carries the target on a ::before instead — so the two claims are
+ * measured separately. The row is a layout fact (offsetHeight); the target is
+ * a HIT-TESTING fact, so it is measured with elementFromPoint, the browser's
+ * own answer to "what does a pointer here land on". A pseudo-element hit
+ * resolves to its label; scanning a vertical line through the row and
+ * counting the span that lands inside the label is the target's height.
+ */
+describe("compact choice rows keep a 24px target (SC 2.5.8)", () => {
+  const ROWS = [
+    ["checkbox", <Checkbox key="c" isLabelHidden>Select Brief A</Checkbox>],
+    [
+      "radio",
+      <RadioGroup key="r" label="Brief" isLabelHidden>
+        <Radio value="a">Brief A</Radio>
+      </RadioGroup>,
+    ],
+    ["switch", <Switch key="s">Agent</Switch>],
+  ] as const;
+
+  /** The target's height: the run of points on the row's vertical centre line
+   *  whose hit lands in the label, sampled every 0.25px from 12px above to
+   *  12px below the row. Pseudo-element hits resolve to the label itself. */
+  function targetHeight(label: HTMLElement): number {
+    const box = label.getBoundingClientRect();
+    // Over the control — the left edge of the row plus a few px — so the
+    // probe crosses the box/track, the part a dense row is built around.
+    const x = box.left + 4;
+    const step = 0.25;
+    let hits = 0;
+    for (let y = box.top - 12; y <= box.bottom + 12; y += step) {
+      const hit = document.elementFromPoint(x, y);
+      if (hit && label.contains(hit)) hits++;
+    }
+    return hits * step;
+  }
+
+  for (const [name, row] of ROWS) {
+    test(`${name}: the row falls under 24px under compact, and the target does not`, () => {
+      // Padding around the row so the scan's margins land on the page, not
+      // on the edge of the viewport.
+      const c = mount(
+        <div data-ui-density="compact" className="p-xl">
+          {row}
+        </div>,
+      );
+      const label = c.querySelector<HTMLElement>(`[data-slot="${name}"]`)!;
+      expect(height(label)).toBeLessThan(24);
+      expect(targetHeight(label)).toBeGreaterThanOrEqual(24);
+    });
+
+    test(`${name}: default density is unchanged — the row IS the 24px target`, () => {
+      const c = mount(<div className="p-xl">{row}</div>);
+      const label = c.querySelector<HTMLElement>(`[data-slot="${name}"]`)!;
+      expect(height(label)).toBe(24);
+      // The pseudo coincides with the row, so the target is the row: 24px to
+      // within the scan's resolution (both edges sampled inclusively, and a
+      // hit test rounds to device pixels — 1px of slack, never 4).
+      expect(Math.abs(targetHeight(label) - 24)).toBeLessThanOrEqual(1);
+    });
+
+    test(`${name}: default inside compact restores the 24px row`, () => {
+      const c = mount(
+        <div data-ui-density="compact">
+          <div data-ui-density="default" className="p-xl">
+            {row}
+          </div>
+        </div>,
+      );
+      expect(height(c.querySelector(`[data-slot="${name}"]`))).toBe(24);
+    });
+  }
+
+  test("the pseudo sits under the row's content: a click on the box or text still lands on it", () => {
+    const c = mount(
+      <div data-ui-density="compact" className="p-xl">
+        <Checkbox>Select Brief A</Checkbox>
+      </div>,
+    );
+    for (const part of ["control", "label"]) {
+      const el = c.querySelector<HTMLElement>(`[data-slot="checkbox"] [data-slot="${part}"]`)!;
+      const r = el.getBoundingClientRect();
+      expect(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)).toBe(el);
+    }
+  });
+
+  test("a click in the extended margin toggles the control", () => {
+    const c = mount(
+      <div data-ui-density="compact" className="p-xl">
+        <Checkbox>Select Brief A</Checkbox>
+      </div>,
+    );
+    const label = c.querySelector<HTMLElement>('[data-slot="checkbox"]')!;
+    const input = label.querySelector<HTMLInputElement>('[data-slot="input"]')!;
+    const r = label.getBoundingClientRect();
+    // 1px above the visible row: outside the label's own box, inside the target.
+    const hit = document.elementFromPoint(r.left + 4, r.top - 1) as HTMLElement;
+    expect(hit).toBe(label);
+    act(() => hit.click());
+    expect(input.checked).toBe(true);
   });
 });

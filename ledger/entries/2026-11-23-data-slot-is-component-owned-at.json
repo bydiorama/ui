@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-data-slot-is-component-owned-at",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "breaking",
+  "summary": "data-slot is component-owned, and now the types say so. Every part sets its own data-slot after the props it forwards (contract props win, ADR 0014), so <Popover.Panel data-slot=\"tag-picker\"> compiled and silently rendered popover-panel. TypeScript does not check a hyphenated JSX attribute a props type leaves undeclared, so every exported component's props now intersect OwnedSlot (\"data-slot\"?: never) from the new lib item data-slot, and passing one is a compile error. Eight atoms that larger components render as their own parts are typed seams instead (SlotSeam, \"data-slot\"?: string — ADR 0014 §5): Button (unchanged), Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton and the ChatWidget root; they behave exactly as before. Found on the way: ColorPicker passed data-slot=\"color-picker-hex\" and \"color-picker-alpha-field\" to Input, which dropped both — the dead props are removed, the DOM is unchanged. registry/ui/data-slot.types.test.tsx walks every exported component, compound parts included, and fails naming any that accepts a caller's data-slot; data-slot.test.ts holds its import list to the tree. No runtime change anywhere.",
+  "affects": [
+    "item:data-slot",
+    "prop:data-slot",
+    "item:popover",
+    "item:badge",
+    "item:header",
+    "item:progress",
+    "item:fade",
+    "item:aspect-ratio",
+    "item:skeleton",
+    "item:chat-widget",
+    "item:color-picker"
+  ],
+  "migration": {
+    "manual": "Type errors only — nothing renders differently. Where a component now rejects data-slot, the value was already being overwritten: delete it and target the part with your own data-* attribute or data-testid (they pass through as before), or reach the component's own slot (e.g. [data-slot=popover-panel]). On the seams (Button, Badge, Header.MenuButton, Progress, Fade, AspectRatio, Skeleton, ChatWidget) data-slot is still accepted and still renames the part. Install the new lib/data-slot.ts with any updated component (it is a registryDependency of every component)."
+  }
+}

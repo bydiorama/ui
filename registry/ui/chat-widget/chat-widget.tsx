@@ -15,6 +15,7 @@ import { cn } from "@/lib/cn";
 import { AspectRatio, type AspectRatioName } from "@/ui/aspect-ratio";
 import { Fade } from "@/ui/fade";
 
+import type { OwnedSlot, SlotSeam } from "@/lib/data-slot";
 /**
  * The artifact container — the thing the agent hands you to take away.
  *
@@ -28,12 +29,17 @@ import { Fade } from "@/ui/fade";
  * container stops meaning "take this with you" and the thread turns into a
  * stack of boxes.
  */
-const ChatWidgetRoot = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  function ChatWidget({ className, children, ...rest }, ref) {
+const ChatWidgetRoot = forwardRef<
+  HTMLDivElement,
+  // A composition seam (ADR 0014 §5): ChatTasks IS a ChatWidget card and
+  // names the card `chat-tasks`.
+  HTMLAttributes<HTMLDivElement> & SlotSeam
+>(
+  function ChatWidget({ "data-slot": dataSlot = "chat-widget", className, children, ...rest }, ref) {
     return (
       <div
         ref={ref}
-        data-slot="chat-widget"
+        data-slot={dataSlot}
         className={cn("flex w-full flex-col gap-sm rounded-lg bg-elevated p-sm", className)}
         {...rest}
       >
@@ -43,7 +49,7 @@ const ChatWidgetRoot = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
   },
 );
 
-export interface ChatWidgetHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface ChatWidgetHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, "children">, OwnedSlot {
   /**
    * What the artifact IS — a filename, a post title. Truncates with an
    * ellipsis; it is the only part of this row that may shrink.
@@ -89,7 +95,7 @@ const ChatWidgetHeader = forwardRef<HTMLDivElement, ChatWidgetHeaderProps>(funct
   );
 });
 
-export interface ChatWidgetBodyProps extends HTMLAttributes<HTMLDivElement> {
+export interface ChatWidgetBodyProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   children: ReactNode;
   /**
    * The name of the scrollable region, used ONLY while the body actually
@@ -200,7 +206,7 @@ const ChatWidgetBody = forwardRef<HTMLDivElement, ChatWidgetBodyProps>(function 
   );
 });
 
-export interface ChatWidgetMediaProps extends HTMLAttributes<HTMLDivElement> {
+export interface ChatWidgetMediaProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   children: ReactNode;
   /**
    * The frame's shape. All frames in one widget share it — mixing ratios is
@@ -262,7 +268,7 @@ const ChatWidgetMedia = forwardRef<HTMLDivElement, ChatWidgetMediaProps>(functio
   );
 });
 
-export interface ChatWidgetRailProps extends Omit<HTMLAttributes<HTMLUListElement>, "children"> {
+export interface ChatWidgetRailProps extends Omit<HTMLAttributes<HTMLUListElement>, "children">, OwnedSlot {
   children: ReactNode;
   /** Accessible name of the frame list — "Frames", "Variations". */
   label: string;
@@ -296,7 +302,7 @@ const ChatWidgetRail = forwardRef<HTMLUListElement, ChatWidgetRailProps>(functio
  * The provenance line between the media and the bar — "Grounded in brand
  * palette · 2 sources".
  */
-const ChatWidgetCaption = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(
+const ChatWidgetCaption = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement> & OwnedSlot>(
   function ChatWidgetCaption({ className, children, ...rest }, ref) {
     return (
       <p
@@ -311,7 +317,7 @@ const ChatWidgetCaption = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLPa
   },
 );
 
-export interface ChatWidgetActionsProps extends HTMLAttributes<HTMLDivElement> {
+export interface ChatWidgetActionsProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   /** The leading verbs — `Button secondary · md`. Copy and Edit, or Edit and Download. */
   children: ReactNode;
   /** Slot: the trailing icon buttons — `Button ghost · md · isIconOnly`. */

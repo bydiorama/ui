@@ -47,6 +47,7 @@ import { useGraphViewport, type GraphViewport } from "@/hooks/use-graph-viewport
 import { Button } from "@/ui/button";
 import { DotPattern } from "@/ui/dot-pattern";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export type DiagramLayout = "layered" | "tree" | "radial" | "none";
@@ -58,7 +59,7 @@ export interface DiagramNodeState {
   isDimmed: boolean;
 }
 
-export interface DiagramGroupProps {
+export interface DiagramGroupProps extends OwnedSlot {
   /** The id member nodes name in their `parentId`. */
   id: string;
   /** Printed on the group, and read when focus enters it. */
@@ -85,7 +86,7 @@ function Group(props: DiagramGroupProps): null {
   return null;
 }
 
-export interface DiagramProps<D = unknown> extends Omit<HTMLAttributes<HTMLElement>, "children" | "onSelect"> {
+export interface DiagramProps<D = unknown> extends Omit<HTMLAttributes<HTMLElement>, "children" | "onSelect">, OwnedSlot {
   /** The title. Names the figure and the keyboard region. */
   label: string;
   /** The takeaway, written by a person. The figure's accessible description. */
@@ -862,7 +863,7 @@ function DiagramList<D>({
 
 /* -------------------------------------------------------------- overlays */
 
-export interface DiagramControlsProps extends HTMLAttributes<HTMLDivElement> {
+export interface DiagramControlsProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   zoomInLabel?: string;
   zoomOutLabel?: string;
   fitLabel?: string;
@@ -898,7 +899,7 @@ function clampRect(r: Box) {
 }
 
 /** The whole drawing at a glance with the visible part framed, bottom left. Decorative: aria-hidden. */
-function Minimap({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
+function Minimap({ className, ...rest }: HTMLAttributes<HTMLDivElement> & OwnedSlot) {
   const { viewport, content, boxes } = useDiagram("Minimap");
   if (!content) return null;
   const k = Math.min((MINI.width - 2 * MINI.pad) / Math.max(1, content.width), (MINI.height - 2 * MINI.pad) / Math.max(1, content.height));
@@ -932,7 +933,7 @@ function Minimap({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
 
 export type DiagramLegendKind = "relation" | "inferred" | "selected" | "group";
 
-export interface DiagramLegendProps extends HTMLAttributes<HTMLDivElement> {
+export interface DiagramLegendProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   /** Which rows to show. Default: what the drawing actually uses. */
   items?: readonly DiagramLegendKind[];
   labels?: Partial<Record<DiagramLegendKind, string>>;

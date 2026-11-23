@@ -46,7 +46,7 @@ export {
 export type { Scheme, ResolveOptions, ResolveResult, ResolvedPair, ContrastAdjustment } from "./resolve.ts";
 
 // Non-brandable tokens.
-export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES, CONTROL_SIZES, CONTROL_FLOOR_PX, DENSITY_STEP_PX } from "./base.ts";
+export { FIXED_TOKEN_VALUES, SCHEME_TOKEN_VALUES, REDUCED_MOTION_OVERRIDES, CONTROL_SIZES, CHOICE_ROW_MIN_HEIGHT, DENSITY_TOKENS, CONTROL_FLOOR_PX, DENSITY_STEP_PX } from "./base.ts";
 export type { Density } from "./base.ts";
 
 // Emitters.

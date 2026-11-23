@@ -3,6 +3,7 @@ import { forwardRef, useId, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type TextareaSize = "lg" | "md" | "sm";
 
 /** The ground the field is cut from — see the `surface` prop (ADR 0017). */
@@ -110,7 +111,7 @@ interface TextareaBaseProps
   isResizable?: boolean;
 }
 
-export type TextareaProps = TextareaBaseProps;
+export type TextareaProps = TextareaBaseProps & OwnedSlot;
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
   {

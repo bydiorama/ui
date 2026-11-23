@@ -11,6 +11,7 @@ import { motionMicro } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type SwitchLabelPlacement = "end" | "start";
 
 interface SwitchOwnProps {
@@ -50,7 +51,7 @@ export interface SwitchProps
     Omit<
       InputHTMLAttributes<HTMLInputElement>,
       keyof SwitchOwnProps | "type" | "checked" | "defaultChecked" | "disabled" | "size"
-    > {}
+    >, OwnedSlot {}
 
 /**
  * A control that takes effect immediately, unlike a Checkbox, which states an
@@ -98,7 +99,27 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
       className={cn(
         // items-center matches the sheet and keeps the label beside the track
         // rather than at the top of the 24px target (the Checkbox lesson).
-        "group min-h-6 gap-sm",
+        // The 24 is the density-bound row floor (= --ui-hit-area-min, except
+        // under compact, where a dense table's row may fall to the 20px track).
+        "group min-h-(--ui-choice-row-min-height) gap-sm",
+        // The TARGET is carried separately from the row, so a compact row
+        // (--ui-choice-row-min-height falls to 0 under
+        // [data-ui-density="compact"]) still clears SC 2.5.8: a transparent
+        // ::before on the label, centred, at least --ui-hit-area-min tall and
+        // the row's full width (CONVENTIONS §10, ui-craft rule 14). At default
+        // density the row is already 24px, so the box coincides with the
+        // label's own. It sits BELOW the row's content (z below, inside the
+        // label's own stacking context — `isolate`), so a click on the text or
+        // the control still lands on that element, not on the pseudo.
+        "relative isolate before:absolute before:inset-x-0 before:top-1/2 before:z-(--ui-z-below) before:h-full before:min-h-(--ui-hit-area-min) before:-translate-y-1/2",
+        // The ON track's colours, as component custom properties (§6) — the
+        // one sanctioned way to theme a single switch (a violet "agent"
+        // toggle) without an unlayered override. Declared HERE, on the root,
+        // so a caller overrides them on the same element through className
+        // or style, and their defaults are exactly the accent roles the
+        // track painted before the properties existed.
+        "[--ui-switch-track-on-bg:var(--ui-bg-accent-legible)]",
+        "[--ui-switch-track-on-hover-bg:var(--ui-bg-accent-hover)]",
         // `start` is the settings row: full width, label first, the track
         // pinned to the end in its fixed 36px lane. Reversed VISUALLY only —
         // the input stays before the track for the peer-* selectors.
@@ -144,10 +165,11 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
           // statically rendered switch still toggles its native input, and
           // painting from `checked` left it visually off until hydration.
           "bg-edge-strong border-edge-strong",
-          !isDisabled && "peer-checked:bg-accent-legible peer-checked:border-accent-legible",
+          !isDisabled && "peer-checked:bg-(--ui-switch-track-on-bg) peer-checked:border-(--ui-switch-track-on-bg)",
           !isDisabled && "group-hover:bg-edge-control group-hover:border-edge-control",
           // Both variants, so it outranks the off hover by specificity.
-          !isDisabled && "group-hover:peer-checked:bg-accent-hover group-hover:peer-checked:border-accent-hover",
+          !isDisabled &&
+            "group-hover:peer-checked:bg-(--ui-switch-track-on-hover-bg) group-hover:peer-checked:border-(--ui-switch-track-on-hover-bg)",
           isDisabled && "bg-sunken border-edge-subtle",
           // The thumb is the track's child, so the track carries its travel.
           // 17px, OFF the spacing scale on purpose: the inner track is 34

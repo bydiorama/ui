@@ -60,6 +60,7 @@ const config: StorybookConfig = {
         // The same specifiers a consumer's app would use, so stories exercise
         // the real import graph rather than a Storybook-only one.
         "@/lib/cn": join(root, "registry/lib/cn/cn.ts"),
+        "@/lib/data-slot": join(root, "registry/lib/data-slot/data-slot.ts"),
         "@/lib/chrome-control": join(root, "registry/lib/chrome-control/chrome-control.ts"),
         "@/lib/compose-event-handlers": join(
           root,

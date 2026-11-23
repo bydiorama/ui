@@ -6,10 +6,11 @@ import type { ComponentPropsWithoutRef, HTMLAttributes, ReactElement, ReactNode 
 import { cn } from "@/lib/cn";
 import { menuPanel } from "@/lib/menu-surface";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
-export interface ContextMenuProps {
+export interface ContextMenuProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit and the menu owns it. */
   isOpen?: boolean;
@@ -47,7 +48,7 @@ function ContextMenuRoot({ children, isOpen, defaultIsOpen, onOpenChange }: Cont
   );
 }
 
-export interface ContextMenuTriggerProps extends HTMLAttributes<HTMLDivElement> {
+export interface ContextMenuTriggerProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   children?: ReactNode;
   /** Slot: the region that responds to a right-click. Never wrapped (§3). */
   render?: ReactElement;
@@ -74,7 +75,7 @@ function ContextMenuTrigger({ children, render, className, ...rest }: ContextMen
   );
 }
 
-export interface ContextMenuPanelProps extends HTMLAttributes<HTMLDivElement> {
+export interface ContextMenuPanelProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   /**
    * Where to portal the panel. Defaults to `document.body`.
    *

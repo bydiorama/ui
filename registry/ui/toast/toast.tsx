@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { motionMicro, motionStandard } from "@/lib/motion";
 import { Button } from "@/ui/button";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Absorbs one impedance mismatch, in one place — same shim, same reasoning as
  * `popover.tsx`: this repo compiles with `exactOptionalPropertyTypes` and
@@ -79,7 +80,7 @@ export interface ToastManager {
   promise: <Value>(promise: Promise<Value>, options: ToastPromiseOptions<Value>) => Promise<Value>;
 }
 
-export interface ToastProviderProps {
+export interface ToastProviderProps extends OwnedSlot {
   children: ReactNode;
   /**
    * Visible toasts before the oldest is hidden — kept mounted and inert at
@@ -175,7 +176,7 @@ export function useToast(): ToastManager {
   );
 }
 
-export interface ToastViewportProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface ToastViewportProps extends Omit<HTMLAttributes<HTMLDivElement>, "children">, OwnedSlot {
   /**
    * Accessible name of the notifications landmark — the region F6 jumps to.
    * A string prop, not a default, because every user-visible string is one

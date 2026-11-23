@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Chart, type ChartProps } from "@/ui/chart";
 import { StatFigure, type StatDeltaProps } from "@/components/blocks/stat-tiles";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /*
  * ChartCard — a Chart whose head answers "how much, and is that good" before
  * the plot is read (Stat tiles and Chart card sheet). Below the head it IS
@@ -22,7 +23,7 @@ interface ChartCardOwnProps {
   children?: ReactNode;
 }
 
-export type ChartCardProps<Row> = ChartCardOwnProps & Omit<ChartProps<Row>, "children" | "headline" | keyof ChartCardOwnProps>;
+export type ChartCardProps<Row> = ChartCardOwnProps & Omit<ChartProps<Row>, "children" | "headline" | keyof ChartCardOwnProps> & OwnedSlot;
 
 /**
  * The Chart frame with the stat tile's figure and change under its title.

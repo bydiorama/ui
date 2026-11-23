@@ -12,6 +12,7 @@ import {
   HOVER_INTENT_SKIP_MS,
 } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -51,7 +52,7 @@ export type TooltipAlign = "start" | "center" | "end";
  */
 const TooltipContentId = createContext<string>("");
 
-export interface TooltipProviderProps {
+export interface TooltipProviderProps extends OwnedSlot {
   children: ReactNode;
 }
 
@@ -79,7 +80,7 @@ function TooltipProvider({ children }: TooltipProviderProps) {
   );
 }
 
-export interface TooltipProps {
+export interface TooltipProps extends OwnedSlot {
   children: ReactNode;
   /** Controlled open state. Omit to let the tooltip own it. */
   isOpen?: boolean;
@@ -126,7 +127,7 @@ function TooltipRoot({ children, isOpen, defaultIsOpen, onOpenChange, isDisabled
   );
 }
 
-export interface TooltipTriggerProps {
+export interface TooltipTriggerProps extends OwnedSlot {
   /**
    * Slot: the control the tooltip explains. REQUIRED, and it is the one prop
    * on this component that is not negotiable — a tooltip describes something
@@ -162,7 +163,7 @@ function TooltipTrigger({ render, className }: TooltipTriggerProps) {
   );
 }
 
-export interface TooltipContentProps extends HTMLAttributes<HTMLDivElement> {
+export interface TooltipContentProps extends HTMLAttributes<HTMLDivElement>, OwnedSlot {
   /** Preferred side. Flips automatically when it would collide. */
   side?: TooltipSide;
   align?: TooltipAlign;

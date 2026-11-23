@@ -7,6 +7,7 @@ import { ChevronDown } from "griddy-icons";
 import { cn } from "@/lib/cn";
 import { motionMicro, motionStandard } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type AccordionVariant = "plain" | "card";
 /** The heading level the trigger's <h*> renders at. No default is guessed. */
 export type AccordionHeadingLevel = 2 | 3 | 4 | 5 | 6;
@@ -53,7 +54,7 @@ const AccordionContext = createContext<AccordionContextValue>({
   headingLevel: 3,
 });
 
-export interface AccordionProps {
+export interface AccordionProps extends OwnedSlot {
   children: ReactNode;
   className?: string;
   variant?: AccordionVariant;
@@ -144,7 +145,7 @@ function AccordionRoot({
   );
 }
 
-export interface AccordionItemProps {
+export interface AccordionItemProps extends OwnedSlot {
   children: ReactNode;
   className?: string;
   /** Identifies the item in `value`. Defaults to its index if omitted. */
@@ -170,7 +171,7 @@ const AccordionItem = forwardRef<HTMLDivElement, AccordionItemProps>(function Ac
   );
 });
 
-export interface AccordionTriggerProps {
+export interface AccordionTriggerProps extends OwnedSlot {
   children: ReactNode;
   className?: string;
   /**
@@ -263,7 +264,7 @@ const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
   },
 );
 
-export interface AccordionPanelProps {
+export interface AccordionPanelProps extends OwnedSlot {
   children: ReactNode;
   className?: string;
 }

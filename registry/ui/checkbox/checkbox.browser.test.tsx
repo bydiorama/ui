@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act } from "react";
 import type { ReactElement } from "react";
@@ -404,5 +404,45 @@ describe("Checkbox description", () => {
     container?.remove();
     const disabled = mount(<Checkbox isDisabled description="Unavailable.">Embed Univers</Checkbox>);
     expect(getComputedStyle(disabled.label.querySelector('[data-slot="description"]')!).color).toBe(probe("--ui-text-disabled"));
+  });
+});
+
+describe("Checkbox isLabelHidden", () => {
+  /**
+   * Mirrors Switch: the label is clipped with sr-only, never removed, so the
+   * input keeps its name. The name is read through the accessibility tree
+   * (getByRole's accessible-name computation), not off the DOM text — a label
+   * hidden with display:none would still be in textContent and have no name.
+   */
+  test("the label is off the screen and still the accessible name", () => {
+    const { label, input, control } = mount(<Checkbox isLabelHidden>Select Brief A</Checkbox>);
+    const text = label.querySelector<HTMLElement>('[data-slot="label"]')!;
+
+    expect(page.getByRole("checkbox", { name: "Select Brief A", exact: true }).element()).toBe(input);
+    expect(input.getAttribute("aria-label")).toBeNull();
+    // sr-only: a 1px clipped box, still rendered — not display:none.
+    expect(getComputedStyle(text).display).not.toBe("none");
+    expect(text.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    // So the visible row is the box alone, still on the 24px target.
+    expect(label.getBoundingClientRect().width).toBe(control.getBoundingClientRect().width);
+    expect(label.getBoundingClientRect().height).toBeGreaterThanOrEqual(24);
+  });
+
+  test("with a description, the whole text block hides and the name stays the label", () => {
+    const { label, input } = mount(
+      <Checkbox isLabelHidden description="Sends at 09:00.">
+        Daily digest
+      </Checkbox>,
+    );
+    const block = label.querySelector<HTMLElement>('[data-slot="text"]')!;
+
+    expect(block.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    expect(page.getByRole("checkbox", { name: "Daily digest", exact: true }).element()).toBe(input);
+    expect(input.getAttribute("aria-describedby")).toBeTruthy();
+  });
+
+  test("off by default: the label is on screen", () => {
+    const { label } = mount(<Checkbox>Select Brief A</Checkbox>);
+    expect(label.querySelector<HTMLElement>('[data-slot="label"]')!.getBoundingClientRect().width).toBeGreaterThan(1);
   });
 });

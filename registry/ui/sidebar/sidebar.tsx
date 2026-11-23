@@ -22,6 +22,7 @@ import { motionMicro, motionStandard } from "@/lib/motion";
 import { chromeControl } from "@/lib/chrome-control";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * Rows inside a Section are list items; rows outside one are not.
  *
@@ -48,7 +49,7 @@ const LayerContext = createContext<{
   close: () => void;
 }>({ active: null, open: () => {}, close: () => {} });
 
-export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Required — a page may carry several navigations (primary, breadcrumb, a
@@ -171,7 +172,7 @@ const SidebarNav = forwardRef<HTMLElement, SidebarProps>(function Sidebar(
   );
 });
 
-export type SidebarMainProps = HTMLAttributes<HTMLDivElement>;
+export type SidebarMainProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The navigation itself — everything the rail shows at rest.
@@ -187,7 +188,7 @@ function SidebarMain({ className, ...rest }: SidebarMainProps) {
   return <div data-slot="sidebar-main" className={cn("flex min-h-0 flex-1 flex-col", className)} {...rest} />;
 }
 
-export interface SidebarLayerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface SidebarLayerProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   children: ReactNode;
   /** Matched against the Sidebar's `layer`, and against Profile's `layer`. */
   id: string;
@@ -250,7 +251,7 @@ function SidebarLayer({ children, id, title, backLabel, className, ...rest }: Si
   );
 }
 
-export type SidebarGroupProps = HTMLAttributes<HTMLDivElement>;
+export type SidebarGroupProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * The header band — the sheet's `Nav Group`. Holds controls rather than
@@ -266,7 +267,7 @@ function SidebarGroup({ className, ...rest }: SidebarGroupProps) {
   );
 }
 
-export interface SidebarSectionProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
+export interface SidebarSectionProps extends Omit<HTMLAttributes<HTMLDivElement>, "title">, OwnedSlot {
   children: ReactNode;
   label: string;
   /**
@@ -417,7 +418,7 @@ function SidebarSection({
   );
 }
 
-export interface SidebarItemProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
+export interface SidebarItemProps extends Omit<HTMLAttributes<HTMLElement>, "children">, OwnedSlot {
   children: ReactNode;
   /**
    * Makes the row a link. WITHOUT it the row is a plain slot — the sheet puts
@@ -557,7 +558,7 @@ function SidebarItem({
   return inSection ? <li className="contents">{row}</li> : row;
 }
 
-export interface SidebarProfileProps extends Omit<HTMLAttributes<HTMLButtonElement>, "children"> {
+export interface SidebarProfileProps extends Omit<HTMLAttributes<HTMLButtonElement>, "children">, OwnedSlot {
   /** The person's name. 16px/600 in primary nav ink, clamped to one line. */
   name: string;
   /**
@@ -637,7 +638,7 @@ const SidebarProfile = forwardRef<HTMLButtonElement, SidebarProfileProps>(functi
   );
 });
 
-export interface SidebarSearchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
+export interface SidebarSearchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size">, OwnedSlot {
   /**
    * Required — it is the accessible name, and it is VISUALLY HIDDEN by
    * default because the sheet draws a placeholder and no label. A placeholder
@@ -708,7 +709,7 @@ function SidebarSearch({ label, className, placeholder = "Search", ref, ...rest 
   );
 }
 
-export type SidebarSlotProps = HTMLAttributes<HTMLDivElement>;
+export type SidebarSlotProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * A row that holds a CONTROL rather than a label — a Button, an Input, a
@@ -724,7 +725,7 @@ function SidebarSlot({ className, ...rest }: SidebarSlotProps) {
   return <div data-slot="sidebar-slot" className={cn("flex flex-col px-xs py-xs", className)} {...rest} />;
 }
 
-export type SidebarHeadingProps = HTMLAttributes<HTMLParagraphElement>;
+export type SidebarHeadingProps = HTMLAttributes<HTMLParagraphElement> & OwnedSlot;
 
 /**
  * A standalone group label — the sheet's "Select brand".
@@ -751,9 +752,11 @@ function SidebarHeading({ children, className, ...rest }: SidebarHeadingProps) {
 }
 
 /** Flexible gap — the sheet's `Spacer`. Pushes what follows to the bottom. */
-function SidebarSpacer() {
-  return <div data-slot="sidebar-spacer" aria-hidden="true" className="flex-1" />;
-}
+// Takes no props, and is TYPED as taking OwnedSlot so a caller's `data-slot`
+// is a compile error rather than silently dropped (@/lib/data-slot).
+const SidebarSpacer: (props: OwnedSlot) => ReactElement = () => (
+  <div data-slot="sidebar-spacer" aria-hidden="true" className="flex-1" />
+);
 
 /** The sheet's 16px chevron. Rotates rather than swapping glyphs. */
 function Chevron({ isOpen }: { isOpen: boolean }) {

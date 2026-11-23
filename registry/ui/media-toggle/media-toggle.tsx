@@ -12,10 +12,11 @@ import { cn } from "@/lib/cn";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 export type MediaToggleSize = "md" | "lg";
 
 export interface MediaToggleProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "type" | "aria-label" | "aria-pressed"> {
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "type" | "aria-label" | "aria-pressed">, OwnedSlot {
   /**
    * The video (or audio) this control drives. With it, the toggle calls
    * `play()`/`pause()` itself and follows the element's own `play`/`pause`

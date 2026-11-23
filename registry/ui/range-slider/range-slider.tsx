@@ -7,13 +7,14 @@ import { cn } from "@/lib/cn";
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { SLIDER_SIZE, sliderThumbClass, type SliderSize } from "@/ui/slider";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
 /** Two ends, in order. A tuple rather than `number[]`: there are exactly two thumbs. */
 export type RangeSliderValue = readonly [number, number];
 
-export interface RangeSliderProps {
+export interface RangeSliderProps extends OwnedSlot {
   /** Required — names the GROUP. Each thumb is named separately, below. */
   label: string;
   isLabelHidden?: boolean;

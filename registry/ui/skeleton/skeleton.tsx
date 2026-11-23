@@ -2,7 +2,12 @@ import { forwardRef, type HTMLAttributes } from "react";
 
 import { cn } from "@/lib/cn";
 
-export type SkeletonProps = HTMLAttributes<HTMLDivElement>;
+import type { SlotSeam } from "@/lib/data-slot";
+/**
+ * `SlotSeam` — a composition seam (ADR 0014 §5): Table renders its loading
+ * bars as Skeletons named `table-skeleton`.
+ */
+export type SkeletonProps = HTMLAttributes<HTMLDivElement> & SlotSeam;
 
 /**
  * A placeholder standing in for content that has not arrived.
@@ -24,13 +29,13 @@ export type SkeletonProps = HTMLAttributes<HTMLDivElement>;
  * exists to record.
  */
 export const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>(function Skeleton(
-  { className, ...rest },
+  { "data-slot": dataSlot = "skeleton", className, ...rest },
   ref,
 ) {
   return (
     <div
       ref={ref}
-      data-slot="skeleton"
+      data-slot={dataSlot}
       /*
        * Before the spread, not after — the one deliberate exception to §5's
        * "contract props win".

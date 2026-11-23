@@ -3,6 +3,7 @@ import { forwardRef, useId, type HTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 import { arcPath, ratioOf } from "@/lib/viz";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /**
  * A reading that has crossed a limit. Each one REQUIRES its words
  * (`statusText`): the fill changes colour, and colour alone may not carry the
@@ -86,7 +87,7 @@ type NativeProps = Omit<
   keyof MeterBaseProps | "value" | "role" | "children" | "emptyText" | "status" | "target" | "shape"
 >;
 
-export type MeterProps = MeterBaseProps & ValueProps & StatusProps & ShapeProps & TargetProps & NativeProps;
+export type MeterProps = MeterBaseProps & ValueProps & StatusProps & ShapeProps & TargetProps & NativeProps & OwnedSlot;
 
 /**
  * One value against a range: a gauge, not a task. That is the line between

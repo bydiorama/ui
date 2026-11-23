@@ -55,6 +55,38 @@ export const CONTROL_SIZES: Record<Density, Record<SizeToken, string>> = {
   comfortable: controlSizes(1),
 };
 
+/**
+ * The layout floor of a choice row (Checkbox, Radio, Switch), per density.
+ *
+ * Default and comfortable hold the row at the 24px target floor, which is how
+ * every choice row has always been drawn: the 18px box or 20px track, padded
+ * out so the row IS the target. Compact releases it (`0px` — the row is as
+ * tall as its content, 19–20px) so a dense table's rows are not forced to
+ * 24px by a checkbox. The TARGET does not move: each choice row extends its
+ * hit area to --ui-hit-area-min with a pseudo-element on the label
+ * (CONVENTIONS §10, ui-craft rule 14), so SC 2.5.8 holds in every mode.
+ *
+ * Not in CONTROL_SIZES on purpose: those are control heights, and every one
+ * of them is floored at 24px. This is a row's LAYOUT, which is allowed under
+ * the floor precisely because the target is carried separately.
+ */
+export const CHOICE_ROW_MIN_HEIGHT: Record<Density, string> = {
+  compact: "0px",
+  default: "var(--ui-hit-area-min)",
+  comfortable: "var(--ui-hit-area-min)",
+};
+
+/**
+ * Every token a `[data-ui-density]` block re-binds, per density. The
+ * emitters read THIS, so a density-bound token cannot be emitted on a brand
+ * scope (which would reset an inherited density) or left out of a mode.
+ */
+export const DENSITY_TOKENS: Record<Density, Record<string, string>> = {
+  compact: { ...CONTROL_SIZES.compact, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.compact },
+  default: { ...CONTROL_SIZES.default, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.default },
+  comfortable: { ...CONTROL_SIZES.comfortable, "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.comfortable },
+};
+
 /** Typed as a total record, so a token added to the contract without a value
  *  here fails to compile — the same guarantee the resolver gives. */
 export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
@@ -142,6 +174,8 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   // extended via pseudo-element on the wrapping label/button.
   "--ui-hit-area-min": "24px",
   "--ui-hit-area-touch": "44px",
+  // Density-bound — see CHOICE_ROW_MIN_HEIGHT.
+  "--ui-choice-row-min-height": CHOICE_ROW_MIN_HEIGHT.default,
 
   "--ui-measure-prose": "70ch",
   "--ui-measure-narrative": "60ch",

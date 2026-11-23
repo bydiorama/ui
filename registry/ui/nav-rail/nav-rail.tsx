@@ -13,10 +13,11 @@ import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** Rows inside a Section are list items; rows outside one are not. */
 const InSection = createContext(false);
 
-export interface NavRailProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
+export interface NavRailProps extends Omit<HTMLAttributes<HTMLElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Required, and — unlike Sidebar's — it can never be shown. There is no room
@@ -112,7 +113,7 @@ const NavRailRoot = forwardRef<HTMLElement, NavRailProps>(function NavRail(
   );
 });
 
-export interface NavRailItemProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "title"> {
+export interface NavRailItemProps extends Omit<HTMLAttributes<HTMLElement>, "children" | "title">, OwnedSlot {
   /**
    * REQUIRED, and required because the label is invisible. A row with no glyph
    * at this width is a blank square — there is no text to fall back to, which
@@ -217,7 +218,7 @@ function NavRailItem({
   return inSection ? <li className="contents">{row}</li> : row;
 }
 
-export interface NavRailSectionProps extends Omit<HTMLAttributes<HTMLUListElement>, "title"> {
+export interface NavRailSectionProps extends Omit<HTMLAttributes<HTMLUListElement>, "title">, OwnedSlot {
   children: ReactNode;
   /**
    * Required, and always invisible. This is where Sidebar's first level GOES:
@@ -248,7 +249,7 @@ function NavRailSection({ children, label, className, ...rest }: NavRailSectionP
   );
 }
 
-export type NavRailSlotProps = HTMLAttributes<HTMLDivElement>;
+export type NavRailSlotProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
 /**
  * A row holding a CONTROL the caller supplies — the expand toggle that swaps
@@ -274,9 +275,11 @@ function NavRailSlot({ className, ...rest }: NavRailSlotProps) {
 }
 
 /** Flexible gap. Pushes what follows to the bottom of the rail. */
-function NavRailSpacer() {
-  return <div data-slot="nav-rail-spacer" aria-hidden="true" className="flex-1" />;
-}
+// Takes no props, and is TYPED as taking OwnedSlot so a caller's `data-slot`
+// is a compile error rather than silently dropped (@/lib/data-slot).
+const NavRailSpacer: (props: OwnedSlot) => ReactElement = () => (
+  <div data-slot="nav-rail-spacer" aria-hidden="true" className="flex-1" />
+);
 
 export const NavRail = Object.assign(NavRailRoot, {
   Section: NavRailSection,

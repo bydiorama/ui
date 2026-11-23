@@ -50,7 +50,7 @@ const ALLOWED = new Map([
   [/^--ui-shadow-(xl|(sm|md|lg|xl)-up)$/, "Elevation roles ADR 0016 assigns to the editor's artboard (xl) and to bottom-anchored surfaces (-up). Their consumers are the editor, not a distributed component."],
   ["--ui-radius-2xl", "Top of the approved radius scale and of the brand's `radiusPx` knob. CONVENTIONS §6 names it for large panels; no distributed component draws one yet."],
   [/^--ui-z-(below|base)$/, "Ends of the stacking scale, for consumer layouts that need to sit under or reset to the page plane. Every floating surface in the library takes a positive role."],
-  [/^--ui-hit-area-(min|touch)$/, "WCAG 2.5.8 target sizes for consumer layouts. Inside the library the floor is enforced where sizes are DERIVED — the density modes clamp at 24px (ADR 0020 §4) — rather than read at a call site."],
+  ["--ui-hit-area-touch", "The recommended 44px touch target, for consumer layouts. Inside the library the floor is enforced where sizes are DERIVED — the density modes clamp at 24px (ADR 0020 §4) — and --ui-hit-area-min is read where a target is carried apart from its row (the choice rows' ::before)."],
 
   ["--ui-bg-glass-floor", "Never painted: the worst ground a glass surface can produce (ADR 0022). The resolver derives the glass alpha against it and check:contrast audits ink on it, the same role --ui-bg-affix-floor plays for the affix bar."],
   ["--ui-nav-bg-glass-floor", "Never painted: the worst ground a glass Sidebar or NavRail can produce (ADR 0022, amendment). The resolver derives the nav glass alpha against it and check:contrast audits nav ink on it."],

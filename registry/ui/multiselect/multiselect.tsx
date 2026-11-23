@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { motionMicro } from "@/lib/motion";
 import { Badge } from "@/ui/badge";
 
+import type { OwnedSlot } from "@/lib/data-slot";
 /** See the identical note in popover.tsx — one shim, one file. */
 const forBaseUI = <T,>(props: object) => props as T;
 
@@ -32,7 +33,7 @@ export interface MultiselectItem {
   isDisabled?: boolean;
 }
 
-export interface MultiselectProps {
+export interface MultiselectProps extends OwnedSlot {
   /**
    * Required — every control has a name (§10). Use `isLabelHidden` when the
    * design shows none; a placeholder is not a label.

@@ -19,7 +19,7 @@ export type {
 } from "./contract.ts";
 
 // What an author supplies.
-export { SEED_BOUNDS, SAFE_SEED_VALUE, clamp, validateSeed } from "./seed.ts";
+export { SEED_BOUNDS, SAFE_SEED_VALUE, BASE_SIZE_INFO_BELOW, clamp, validateSeed } from "./seed.ts";
 export type {
   ThemeSeed,
   SeedColors,
@@ -68,6 +68,11 @@ export type { Rgb, Oklch } from "./color.ts";
 // Tailwind v4 `@theme inline` emitter.
 export { toTailwindTheme } from "./emit/tailwind.ts";
 export type { TailwindOptions } from "./emit/tailwind.ts";
+
+// The installable stylesheet — header, `@theme inline`, token layer — that
+// both theme-zero.css and `bydiorama-ui theme` write.
+export { toThemeStylesheet } from "./emit/stylesheet.ts";
+export type { StylesheetOptions } from "./emit/stylesheet.ts";
 
 // TypeScript-constants emitter — for contexts with no CSS variable
 // resolution (email HTML, PDF/canvas, chart palettes).

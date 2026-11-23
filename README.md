@@ -133,16 +133,33 @@ and is imported once, after Tailwind:
 @import "./theme-zero.css";
 ```
 
-A **brand** theme is not a file — it is the same two emitters run with the
-brand's seed. Until `@bydiorama/tokens` is published, import them by path from
-a checkout; this is the supported interim seam both current consumers use:
+A **brand** theme is the same file generated from the brand's seed: write a
+`ThemeSeed` (a `.ts` module exporting it, or a `.json`), then let the CLI emit
+the stylesheet — the same `@theme inline` map and token layer theme zero
+ships, under a GENERATED header that names the command to regenerate it:
 
-```ts
-import { resolveThemePair, toCss, toTailwindTheme } from "../ui/packages/tokens/src/index.ts";
-
-const pair = resolveThemePair(BRAND_SEED);
-const css = [toTailwindTheme(), toCss(pair, { scope: ":root", scheme: "auto" })].join("\n");
+```bash
+node --experimental-strip-types ../ui/packages/cli/bin/ui.ts theme \
+  --cwd . --seed theme/brand.seed.ts --out src/styles/brand-theme.css
 ```
+
+```css
+@import "tailwindcss";
+@import "./brand-theme.css";
+```
+
+Add the same command with `--check` to CI: it exits 1 when the committed CSS
+no longer matches the seed (or the tokens it resolves through), the way
+`pnpm check:theme-css` guards theme zero. `--scheme light|dark` forces a
+scheme instead of following the OS. `@bydiorama/tokens` is unpublished, so
+the command reads it from the checkout it runs from (or `--registry-path`);
+there is no hand-written emitter script to keep in step any more. See
+[`packages/cli/README.md`](packages/cli/README.md#theme---seed-file---out-css).
+
+`typography.baseSize` is the scale's 16px reference, **not** the body size:
+body copy is the 14px row, so `baseSize: 13` gives 11.375px body text. The
+table is on `SeedTypography.baseSize`, and `theme` prints an `info` note for
+anything under 15.
 
 ### Use it
 

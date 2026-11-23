@@ -34,7 +34,29 @@ export type NavStyle = "page" | "tinted" | "accent";
 export type WeightName = "regular" | "book" | "medium" | "semibold" | "bold";
 
 export interface SeedTypography {
-  /** Body size in px. Drives the whole type scale. */
+  /**
+   * The scale's 16px reference, in px — NOT the body size. Default 16.
+   *
+   * The type scale is an authored table (ADR 0009) drawn at a reference of
+   * 16, and `baseSize` multiplies every row by `baseSize / 16`. Body copy is
+   * `body-md`, the table's 14px row, so `baseSize: 13` gives 11.375px body
+   * text, not 13px. Clamped to 13–20 (`SEED_BOUNDS.baseSize`).
+   *
+   * | baseSize | body-lg / title-sm | body-md (body copy) | body-sm / label-md | label-sm / caption |
+   * |---------:|-------------------:|--------------------:|-------------------:|-------------------:|
+   * |       13 |                 13 |              11.375 |             10.563 |               9.75 |
+   * |       14 |                 14 |               12.25 |             11.375 |               10.5 |
+   * |       15 |                 15 |              13.125 |             12.188 |              11.25 |
+   * |   **16** |             **16** |              **14** |             **13** |             **12** |
+   * |       17 |                 17 |              14.875 |             13.813 |              12.75 |
+   * |       18 |                 18 |               15.75 |             14.625 |               13.5 |
+   * |       20 |                 20 |                17.5 |              16.25 |                 15 |
+   *
+   * (px; the fluid display/title roles scale the same way at their maximum.)
+   * To get body copy of B px, set `baseSize` to `B × 16 / 14` — 13px body is
+   * 14.857. Below 16 the label and caption rows fall under the scale's own
+   * 12px floor; `validateSeed` reports an `info` issue for anything under 15.
+   */
   baseSize?: number;
   /** Modular-scale ratio between steps. */
   ratio?: number;
@@ -158,17 +180,29 @@ export const SAFE_SEED_VALUE = /^[\w\s#(),.%/+*-]+$/;
 export interface SeedValidationIssue {
   path: string;
   message: string;
+  /**
+   * `error`: the value was unusable — unsafe, missing or not a number — and
+   * the resolver fell back. `info`: the value is valid and was used, but it
+   * resolves to something authors are known to misread (a `baseSize` under
+   * 15 shrinks body copy well below the number typed). A build may fail on
+   * `error`; it should print `info` and carry on.
+   */
+  severity: "error" | "info";
 }
 
-/** Structural + safety validation. Colour parseability is checked by the resolver,
- *  which can fall back; these issues cannot be recovered from. */
+/** Below this, `validateSeed` explains what `baseSize` actually resolves to. */
+export const BASE_SIZE_INFO_BELOW = 15;
+
+/** Structural + safety validation. Colour parseability is checked by the
+ *  resolver, which can fall back; `error` issues cannot be recovered from,
+ *  `info` issues explain a valid value (see `SeedValidationIssue.severity`). */
 export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
   const issues: SeedValidationIssue[] = [];
 
   const checkValue = (path: string, value: string | undefined) => {
     if (value === undefined) return;
     if (!SAFE_SEED_VALUE.test(value)) {
-      issues.push({ path, message: `contains characters that cannot be serialised into CSS safely` });
+      issues.push({ path, severity: "error", message: `contains characters that cannot be serialised into CSS safely` });
     }
   };
 
@@ -178,7 +212,7 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
   const checkNumber = (path: string, value: unknown) => {
     if (value === undefined) return;
     if (typeof value !== "number" || !Number.isFinite(value)) {
-      issues.push({ path, message: `must be a finite number — the resolver fell back to its default` });
+      issues.push({ path, severity: "error", message: `must be a finite number — the resolver fell back to its default` });
     }
   };
 
@@ -192,7 +226,7 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
     for (const key of requiredColors) {
       const value = colors[key];
       if (group === "colors" && (value === undefined || value === "")) {
-        issues.push({ path: `colors.${key}`, message: "is required" });
+        issues.push({ path: `colors.${key}`, severity: "error", message: "is required" });
         continue;
       }
       checkValue(`${group}.${key}`, value);
@@ -205,6 +239,23 @@ export function validateSeed(seed: ThemeSeed): SeedValidationIssue[] {
   checkValue("chrome.logoHeight", seed.chrome?.logoHeight);
 
   checkNumber("typography.baseSize", seed.typography?.baseSize);
+  // A VALID baseSize read as "body size" — which is what this field's doc
+  // used to say. A consumer set 13 expecting 13px body copy and got 11.375px.
+  const baseSize = seed.typography?.baseSize;
+  if (typeof baseSize === "number" && Number.isFinite(baseSize) && baseSize < BASE_SIZE_INFO_BELOW) {
+    const used = clamp(baseSize, SEED_BOUNDS.baseSize.min, SEED_BOUNDS.baseSize.max);
+    const px = (row: number) => `${Number(((row * used) / SEED_BOUNDS.baseSize.default).toFixed(3))}px`;
+    const forBody = Number(((baseSize * SEED_BOUNDS.baseSize.default) / 14).toFixed(3));
+    issues.push({
+      path: "typography.baseSize",
+      severity: "info",
+      message:
+        `${baseSize}${used !== baseSize ? ` (clamped to ${used})` : ""} is the type scale's 16px reference, not the body size: ` +
+        `body copy (--ui-text-body-md) resolves to ${px(14)}, body-sm to ${px(13)}, and label-sm and caption to ${px(12)}, ` +
+        `under the scale's 12px floor. For ${baseSize}px body copy, set baseSize to ${forBody}` +
+        `${forBody > SEED_BOUNDS.baseSize.max || forBody < SEED_BOUNDS.baseSize.min ? " (outside the 13–20 clamp — not reachable)" : ""}.`,
+    });
+  }
   checkNumber("typography.ratio", seed.typography?.ratio);
   checkNumber("chrome.contentWidthPx", seed.chrome?.contentWidthPx);
   checkNumber("shape.borderWidthPx", seed.shape?.borderWidthPx);

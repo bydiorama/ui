@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-23-surface-steps-on-an-achromatic-surface",
+  "date": "2026-11-23",
+  "item": "system",
+  "kind": "token",
+  "summary": "Surface steps on an achromatic surface take the page's hue. The resolver derived bg-elevated, bg-sunken, bg-hover, bg-active, bg-selected, the chrome field pair (and the dark page field) by moving the SURFACE's lightness, keeping its hue and chroma, so a pure-white card on a warm #f3f1ec page derived hover #eeeeee, active #dedede and selected #d4d4d4: cold greys on a warm UI. Now, when the surface's OKLCH chroma is under ACHROMATIC_CHROMA (0.001, below the least tint an 8-bit sRGB value can carry: #fffffe is 0.0013) and the page (bg) has hue, the steps are built at the same lightness with the page's hue and its chroma capped at BORROWED_STEP_CHROMA_MAX (0.012, theme zero's own warm-grey ramp across those steps with headroom). That example now derives hover #f0eee9, active #e0ded9 and selected #d6d4cf. The source is bg, not muted: bg is the ground every surface sits on and already decides direction and the light field, while muted may be a deliberate second colour (a slate block on a cream page). A neutral page leaves the steps neutral. A surface with any hue of its own (theme zero's neutral-98 is 0.0017) is untouched, and --ui-bg-surface itself is always the authored value. Theme zero is unchanged and theme-zero.css is not regenerated. The resolver-derived light scheme of a dark-only brand (a pure-white surface) now carries the accent's hue in its steps too. A warm-page, white-card brand joins STRESS_BRANDS, so every contrast, ordering and separation invariant runs over it.",
+  "affects": [
+    "token:--ui-bg-elevated",
+    "token:--ui-bg-sunken",
+    "token:--ui-bg-hover",
+    "token:--ui-bg-active",
+    "token:--ui-bg-selected",
+    "token:--ui-bg-field",
+    "token:--ui-bg-field-chrome",
+    "token:--ui-bg-field-chrome-disabled",
+    "token:--ui-bg-accent-legible",
+    "package:tokens"
+  ],
+  "migration": {
+    "manual": "Nothing breaks. A brand theme whose seed has an achromatic surface on a tinted page changes the next time it is emitted (`bydiorama-ui theme`, or resolveThemePair → toThemeStylesheet). Look at it before committing: its hover, selected and elevated fills now share the page's temperature."
+  }
+}

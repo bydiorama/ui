@@ -3,9 +3,10 @@ import assert from "node:assert/strict";
 
 import { BRANDABLE_TOKENS, CONTRAST_PAIRS, NONTEXT_CONTRAST_PAIRS, type BrandableToken, type FixedToken } from "./contract.ts";
 import { CONTROL_FLOOR_PX, CONTROL_SIZES, DENSITY_STEP_PX, FIXED_TOKEN_VALUES } from "./base.ts";
-import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, GLASS_OVERLAY_CLOSE, glassOverlayAlpha, TYPE_ROLES, WEIGHT_LADDER } from "./resolve.ts";
-import { AA_TEXT, contrastRatio, flatten, toOklch, withAlpha } from "./color.ts";
-import { SEED_BOUNDS, validateSeed } from "./seed.ts";
+import { resolveTheme, resolveThemePair, missingTokens, MEDIA_SCRIM_ALPHA, AFFIX_BG_ALPHA, GLASS_MIN_ALPHA, GLASS_LIGHT_UNDER_TEXT, GLASS_OVERLAY_CLOSE, glassOverlayAlpha, TYPE_ROLES, WEIGHT_LADDER, ACHROMATIC_CHROMA, BORROWED_STEP_CHROMA_MAX, surfaceSteps } from "./resolve.ts";
+import { AA_TEXT, contrastRatio, flatten, shiftL, toOklch, towardL, withAlpha } from "./color.ts";
+import { BASE_SIZE_INFO_BELOW, SEED_BOUNDS, validateSeed } from "./seed.ts";
+import { NEUTRAL } from "./palette.ts";
 import { THEME_ZERO, ZERO_AUTHORED } from "./themes/zero.ts";
 import type { ThemeSeed } from "./seed.ts";
 
@@ -62,6 +63,17 @@ const STRESS_BRANDS: Array<{ name: string; seed: ThemeSeed }> = [
         bg: "#f0f0f0", surface: "#f5f5f5", muted: "#ebebeb",
         textPrimary: "#8a8a8a", textMuted: "#a5a5a5",
         border: "rgba(0,0,0,0.06)", accent: "#d9d9d9",
+      },
+    },
+  },
+  {
+    // Appended, not inserted: tests above address brands by index.
+    name: "warm page, pure-white cards — the steps must not go cold",
+    seed: {
+      colors: {
+        bg: "#f3f1ec", surface: "#ffffff", muted: "#efebe5",
+        textPrimary: "#1c1a17", textMuted: "#6b655c",
+        border: "#e5dfd6", accent: "#c2410c",
       },
     },
   },
@@ -1262,4 +1274,126 @@ test("categorical slots are distinct tokens in fixed order — no slot repeats a
     const solids = CAT_SLOTS.map((i) => theme[catSolid(i)].toUpperCase());
     assert.equal(new Set(solids).size, 8, `two slots resolved to the same mark: ${solids.join(", ")}`);
   }
+});
+
+// ── Surface steps on an achromatic surface ──────────────────────────────
+
+/** The roles that are "the surface, a little lighter or darker". */
+const SURFACE_STEPS = [
+  "--ui-bg-elevated", "--ui-bg-sunken", "--ui-bg-hover", "--ui-bg-active", "--ui-bg-selected",
+  "--ui-bg-field-chrome", "--ui-bg-field-chrome-disabled",
+] as const;
+
+const hueGap = (a: number, b: number) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b));
+
+test("an achromatic surface on a warm page derives WARM steps, at the page's hue", () => {
+  // The reported failure: #f3f1ec page, #ffffff cards → hover #eeeeee,
+  // active #dedede, selected #d4d4d4. Cold greys on a warm UI.
+  const warm = STRESS_BRANDS[5]!.seed;
+  const page = toOklch(warm.colors.bg)!;
+  const { theme } = resolveTheme(warm, { scheme: "light" });
+  assert.equal(theme["--ui-bg-surface"], "#ffffff", "the authored surface itself is untouched");
+  for (const token of SURFACE_STEPS) {
+    const step = toOklch(theme[token])!;
+    assert.ok(step.C >= ACHROMATIC_CHROMA * 3, `${token} ${theme[token]} is still grey (C ${step.C.toFixed(4)})`);
+    assert.ok(step.C <= BORROWED_STEP_CHROMA_MAX + 0.001, `${token} carries more than a hint of the page`);
+    assert.ok(hueGap(step.h, page.h) < 4, `${token} hue ${step.h.toFixed(1)} is not the page's ${page.h.toFixed(1)}`);
+  }
+  // Only the hue moved: each step sits at the lightness the grey one did.
+  for (const [token, delta] of [["--ui-bg-hover", -0.05], ["--ui-bg-active", -0.1], ["--ui-bg-selected", -0.13]] as const) {
+    const grey = toOklch(shiftL("#ffffff", delta))!;
+    assert.ok(Math.abs(toOklch(theme[token])!.L - grey.L) < 0.003, `${token} changed lightness, not just temperature`);
+  }
+});
+
+test("a saturated page tints the steps, capped — hover never becomes a second accent", () => {
+  const steps = surfaceSteps("#ffffff", "#fde047");
+  const hover = toOklch(steps.shift(-0.05))!;
+  assert.ok(hover.C <= BORROWED_STEP_CHROMA_MAX + 0.001, `C ${hover.C.toFixed(4)}`);
+  assert.ok(hover.C > ACHROMATIC_CHROMA);
+});
+
+test("a neutral page leaves an achromatic surface's steps neutral — that UI is grey on purpose", () => {
+  // Borrowing from `muted` instead would tint this brand's light hover the
+  // slate of its dark muted block.
+  const { theme } = resolveTheme(STRESS_BRANDS[2]!.seed, { scheme: "light" });
+  assert.equal(theme["--ui-bg-hover"], shiftL("#ffffff", -0.05));
+  assert.equal(theme["--ui-bg-elevated"], shiftL("#ffffff", -0.03));
+});
+
+test("a chromatic surface's steps are exactly what they were: shiftL from the surface itself", () => {
+  const cream: ThemeSeed = {
+    colors: {
+      bg: "#f3f1ec", surface: "#fffaf0", muted: "#efebe5", textPrimary: "#1c1a17",
+      textMuted: "#6b655c", border: "#e5dfd6", accent: "#c2410c",
+    },
+  };
+  const { theme } = resolveTheme(cream, { scheme: "light" });
+  assert.equal(theme["--ui-bg-hover"], shiftL("#fffaf0", -0.05));
+  assert.equal(theme["--ui-bg-active"], shiftL("#fffaf0", -0.1));
+  assert.equal(theme["--ui-bg-selected"], shiftL("#fffaf0", -0.13));
+  assert.equal(theme["--ui-bg-sunken"], shiftL("#fffaf0", -0.04));
+
+  const steps = surfaceSteps("#fffaf0", "#0b1220");
+  assert.equal(steps.shift(0.03), shiftL("#fffaf0", 0.03));
+  assert.equal(steps.toward("#000000", 0.5), towardL("#fffaf0", "#000000", 0.5));
+});
+
+test("theme zero is unchanged: its surfaces are tints, so the borrowing never engages", () => {
+  // neutral-98 (#FDFCFB) carries 0.0017 — a one-unit warm tint, above the
+  // grey threshold. If the threshold ever swallowed it, theme zero's
+  // DERIVED steps would move even though its authored map hides them.
+  for (const surface of [THEME_ZERO.colors.surface, THEME_ZERO.dark!.surface]) {
+    assert.ok(toOklch(surface)!.C >= ACHROMATIC_CHROMA, `${surface} reads as grey`);
+  }
+  const light = resolveTheme(THEME_ZERO, { scheme: "light" }).theme;
+  assert.equal(light["--ui-bg-hover"], shiftL(NEUTRAL[98], -0.05));
+  assert.equal(light["--ui-bg-selected"], shiftL(NEUTRAL[98], -0.13));
+  const dark = resolveTheme(THEME_ZERO, { scheme: "dark" }).theme;
+  assert.equal(dark["--ui-bg-hover"], shiftL(THEME_ZERO.dark!.surface, 0.05));
+  // And what ships is the approved map, verbatim.
+  const authored = resolveTheme(THEME_ZERO, { scheme: "light", authored: ZERO_AUTHORED.light }).theme;
+  for (const token of SURFACE_STEPS) assert.equal(authored[token], ZERO_AUTHORED.light[token], token);
+});
+
+test("an 8-bit grey is achromatic; the smallest 8-bit tint is not", () => {
+  for (const grey of ["#ffffff", "#fafafa", "#f5f5f5", "#121212"]) assert.ok(toOklch(grey)!.C < ACHROMATIC_CHROMA, grey);
+  for (const tint of ["#fffffe", "#fffefd", NEUTRAL[98]]) assert.ok(toOklch(tint)!.C >= ACHROMATIC_CHROMA, tint);
+});
+
+// ── baseSize is a reference, not the body size ──────────────────────────
+
+test("a baseSize under 15 gets an info issue that states the body size it actually resolves to", () => {
+  const issues = validateSeed({ ...THEME_ZERO, typography: { baseSize: 13 } });
+  const info = issues.find((i) => i.path === "typography.baseSize");
+  assert.ok(info, "baseSize 13 must be explained");
+  assert.equal(info.severity, "info", "a valid value is not an error");
+  assert.match(info.message, /body-md\) resolves to 11\.375px/);
+  assert.match(info.message, /label-sm and caption to 9\.75px/);
+  assert.match(info.message, /set baseSize to 14\.857/);
+
+  // The message's number is the number the resolver emits.
+  const { theme, issues: resolved } = resolveTheme({ ...THEME_ZERO, typography: { baseSize: 13 } }, { scheme: "light" });
+  // (emitted in rem to 4 places: 0.7109rem = 11.3744px)
+  assert.ok(Math.abs(parseFloat(theme["--ui-text-body-md"]) * 16 - 11.375) < 0.001);
+  assert.ok(resolved.some((i) => i.path === "typography.baseSize" && i.severity === "info"), "resolveTheme surfaces it too");
+});
+
+test("a baseSize at or above 15 is not flagged; a clamped one says so", () => {
+  for (const baseSize of [BASE_SIZE_INFO_BELOW, 16, 20]) {
+    assert.ok(!validateSeed({ ...THEME_ZERO, typography: { baseSize } }).some((i) => i.path === "typography.baseSize"), String(baseSize));
+  }
+  assert.ok(!validateSeed(THEME_ZERO).some((i) => i.severity === "info"), "theme zero is silent");
+  const clamped = validateSeed({ ...THEME_ZERO, typography: { baseSize: 10 } }).find((i) => i.path === "typography.baseSize")!;
+  assert.match(clamped.message, /10 \(clamped to 13\)/);
+  assert.match(clamped.message, /11\.375px/);
+});
+
+test("every unusable value is an error; only explanations are info", () => {
+  const issues = validateSeed({
+    colors: { ...THEME_ZERO.colors, accent: "#fff; }" },
+    shape: { borderWidthPx: "2" as unknown as number },
+  });
+  assert.ok(issues.length >= 2);
+  for (const issue of issues) assert.equal(issue.severity, "error", issue.path);
 });

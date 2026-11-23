@@ -8,6 +8,9 @@ item's source is never told the upstream changed, the lockfile
 ([`PLAN.md`](../../PLAN.md), "Change ledger", part 3), rather than a
 broadcast a consumer has to remember to read.
 
+`theme` turns a brand seed into the installable theme stylesheet, so a
+branded app needs no emitter script of its own.
+
 **Not on npm yet** (issue #30): the package is prepared to publish as
 `@bydiorama/ui` (zero runtime dependencies, Node ≥ 22), but `npx @bydiorama/ui`
 returns E404 until it is. Run it from a checkout (below). Once published, from
@@ -139,6 +142,60 @@ ledger entry with no code-level drift yet.
 node --experimental-strip-types bin/ui.ts sync --cwd ../service-portal --json
 ```
 
+### `theme --seed <file> --out <css>`
+
+Resolves a brand `ThemeSeed` and writes the stylesheet an app imports once,
+after `@import "tailwindcss";`: the Tailwind v4 `@theme inline` map plus the
+`:root` token layer. It is **byte-for-byte the composition
+`registry/themes/theme-zero/theme-zero.css` is** — both call
+`toThemeStylesheet` from `@bydiorama/tokens`, so a brand file cannot become a
+second dialect of theme zero's — with a GENERATED header that names the seed
+and the exact command that regenerates it. This replaces the per-app script
+that imported `../ui/packages/tokens/src/index.ts` and assembled
+`resolveThemePair` + `toTailwindTheme` + `toCss` by hand.
+
+```sh
+node --experimental-strip-types bin/ui.ts theme \
+  --cwd ../my-app --seed theme/brand.seed.ts --out src/styles/brand-theme.css
+
+# CI: exit 1 if the committed file no longer matches the seed
+node --experimental-strip-types bin/ui.ts theme \
+  --cwd ../my-app --seed theme/brand.seed.ts --out src/styles/brand-theme.css --check
+```
+
+| Flag | |
+| --- | --- |
+| `--seed <file>` | A `.ts`/`.mts`/`.js`/`.mjs` module exporting a `ThemeSeed` — as `default`, as `seed`, or as its only seed-shaped export — or a `.json` seed. Relative to `--cwd`. A `.ts` seed may `import type { ThemeSeed } from "@bydiorama/tokens"`: type imports are erased, so the specifier never has to resolve. |
+| `--out <css>` | The stylesheet. Relative to `--cwd`; directories are created. |
+| `--scheme auto\|light\|dark` | `auto` (default) follows `prefers-color-scheme`; `light`/`dark` force `color-scheme` for a brand that ships one scheme. |
+| `--check` | Write nothing; exit 1 if the file differs from what the seed resolves to now — the brand-theme twin of `pnpm check:theme-css`. A changed seed and a changed resolver both make it stale. |
+| `--export <name>` | Which export to read when the module has several seeds (ambiguity is an error, never a guess). |
+| `--registry-path <checkout>` | The bydiorama/ui checkout to read `@bydiorama/tokens` from. |
+
+The header carries no date or revision on purpose: `--check` compares bytes,
+and a header that changes every run is a file that is always stale.
+
+**Seed issues** from `validateSeed` are printed. An `error` (an unsafe value,
+a missing colour, a knob that is not a number — anything the resolver had to
+fall back on) writes nothing and exits 1: a fallback shipped with a green
+build is the silent failure seed intake exists to prevent. An `info` (a
+valid value that resolves to something easy to misread — a `baseSize` under
+15, which is the scale's 16px reference and not the body size) is printed
+and the file is still written. Tokens the contrast audit moved off the
+seed's colours are listed too.
+
+**Where `@bydiorama/tokens` comes from.** This package has zero runtime
+dependencies, and the tokens are deliberately *not* one of them. They are
+unpublished (issue #30), so declaring them would make installing this CLI
+fail with E404 for every command; and they ship TypeScript source, which
+Node refuses to strip inside `node_modules` (the reason this package ships
+`dist/`), so even published as they are they could not be imported from
+here. So `theme` reads them from a checkout: `--registry-path <checkout>`,
+or, when the CLI is itself running from a checkout, the `packages/tokens`
+beside it. Run from `node_modules` with neither, it fails with an error that
+names both ways out. Once the tokens publish as JS, this becomes an ordinary
+dependency and the flag becomes optional.
+
 ## Target paths
 
 Every command maps a registry file's `target` to a path in the consumer app
@@ -165,7 +222,7 @@ target aborts the install instead of leaving half of it on disk.
 
 ## Registry and ledger sources
 
-Both commands read from either:
+`add`, `lock` and `sync` read from either:
 
 - `--registry-path <dir>` — a local `bydiorama/ui` checkout (has `r/` and
   `ledger/entries/` at its root). Use this for developing against a branch

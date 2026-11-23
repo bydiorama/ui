@@ -1,7 +1,7 @@
 {
   "name": "@bydiorama/ui",
   "version": "0.1.0",
-  "description": "The consumer CLI for the bydiorama/ui registry: `add` installs items and their registry dependencies directly (the owned channel — no third-party CLI in the path) and locks them as it goes; `lock`/`sync` compute drift between an installed item and its current upstream, distinguishing a consumer's own edits from an unapplied upstream change, and report which ledger entries apply.",
+  "description": "The consumer CLI for the bydiorama/ui registry: `add` installs items and their registry dependencies directly (the owned channel — no third-party CLI in the path) and locks them as it goes; `lock`/`sync` compute drift between an installed item and its current upstream, distinguishing a consumer's own edits from an unapplied upstream change, and report which ledger entries apply; `theme` emits a brand seed's installable theme stylesheet (or `--check`s it), reading @bydiorama/tokens from a bydiorama/ui checkout until that package publishes.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -11,7 +11,8 @@
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "tsc -p tsconfig.build.json",
     "lock": "node --experimental-strip-types bin/ui.ts lock",
-    "sync": "node --experimental-strip-types bin/ui.ts sync"
+    "sync": "node --experimental-strip-types bin/ui.ts sync",
+    "theme": "node --experimental-strip-types bin/ui.ts theme"
   },
   "files": [
     "dist",

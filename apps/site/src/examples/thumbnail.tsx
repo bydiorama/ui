@@ -6,10 +6,10 @@ export function Example() {
   const [hasImage, setHasImage] = useState(true);
   return hasImage ? (
     <Thumbnail
-      src="/media/grid-study.svg"
-      alt="Geometric grid study"
+      src="/media/gradient.svg"
+      alt="A gradient placeholder"
       onRemove={() => setHasImage(false)}
-      removeLabel="Remove grid study"
+      removeLabel="Remove image"
     />
   ) : (
     <Button variant="outline" onClick={() => setHasImage(true)}>

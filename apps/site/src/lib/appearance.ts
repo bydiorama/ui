@@ -1,7 +1,7 @@
 export const appearanceOptions = {
   scheme: [{ value: "auto", label: "System" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }],
   density: [{ value: "compact", label: "Compact" }, { value: "default", label: "Default" }, { value: "comfortable", label: "Comfortable" }],
-  brand: [{ value: "zero", label: "Diorama" }, { value: "graphite", label: "Graphite" }, { value: "hockney", label: "Hockney" }, { value: "stress", label: "Stress" }],
+  brand: [{ value: "zero", label: "Zero" }, { value: "mono", label: "Mono" }, { value: "soft", label: "Soft" }, { value: "hockney", label: "Hockney" }, { value: "graphite", label: "Graphite" }, { value: "stress", label: "Stress" }],
   effects: [{ value: "off", label: "Off" }, { value: "on", label: "On" }],
 } as const;
 export type Appearance = { [K in keyof typeof appearanceOptions]: typeof appearanceOptions[K][number]["value"] };
@@ -29,6 +29,11 @@ function applyAppearance(preferences: Appearance, persist: boolean) {
   root.dataset.appearanceChanging = "";
   cancelAnimationFrame(transitionFrame);
   for (const key of keys) root.dataset[appearanceAttributes[key]] = preferences[key];
+  // The shader runtime re-reads its colours when a theme attribute changes,
+  // and `data-theme` is the one it watches. The site's own attributes are not
+  // on its list, so mirror the look there: without it a gradient ground keeps
+  // the old brand until something else (a tab switch) makes it look again.
+  root.dataset.theme = `${preferences.brand} ${preferences.scheme}`;
   document.dispatchEvent(new Event("appearance-change"));
   transitionFrame = requestAnimationFrame(() => {
     transitionFrame = requestAnimationFrame(() => { delete root.dataset.appearanceChanging; });

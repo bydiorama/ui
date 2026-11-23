@@ -186,8 +186,8 @@ export async function checkPreviews(page, base, artifacts) {
   assert.match(await page.locator('[data-slot="card-sorting-item"]').first().innerText(), /Design/);
 
   await visit("image-upload");
-  await page.locator('input[type="file"]').setInputFiles(join(artifacts, "../public/media/grid-study.svg"));
-  await page.getByRole("status").filter({ hasText: "Selected: grid-study.svg" }).waitFor();
+  await page.locator('input[type="file"]').setInputFiles(join(artifacts, "../public/media/gradient.svg"));
+  await page.getByRole("status").filter({ hasText: "Selected: gradient.svg" }).waitFor();
   await visit("thumbnail");
   await page.getByRole("button", { name: "Remove grid study", exact: true }).click();
   await page.getByRole("button", { name: "Restore image", exact: true }).click();

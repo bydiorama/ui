@@ -36,3 +36,24 @@ document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach(button => bu
   catch { button.textContent = "Select to copy"; const range = document.createRange(); range.selectNodeContents(target); const selection = getSelection(); selection?.removeAllRanges(); selection?.addRange(range); }
   setTimeout(() => { button.textContent = label; }, 1800);
 }));
+
+// The pinned header is clear at the top of a page and takes its affix
+// ground (and the fade band under it) once the page has moved beneath it.
+const header = document.querySelector<HTMLElement>("[data-site-header]");
+if (header) {
+  const onScroll = () => header.toggleAttribute("data-scrolled", window.scrollY > 8);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+// Effects are a site preference, so an element that should only carry an
+// effect while they are on names it: data-fx-on="grain ink". The classes
+// are the library's own fx() names.
+const syncEffects = () => {
+  const isOn = document.documentElement.dataset.siteEffects === "on";
+  document.querySelectorAll<HTMLElement>("[data-fx-on]").forEach(element => {
+    for (const name of (element.dataset.fxOn ?? "").split(/\s+/).filter(Boolean)) element.classList.toggle(`fx-${name}`, isOn);
+  });
+};
+syncEffects();
+new MutationObserver(syncEffects).observe(document.documentElement, { attributes: true, attributeFilter: ["data-site-effects"] });

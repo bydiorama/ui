@@ -3,14 +3,14 @@ import { ImageOverlay } from "@/ui/image-overlay";
 export function Example() {
   return (
     <ImageOverlay
-      src="/media/grid-study.svg"
-      alt="Abstract geometric grid study"
+      src="/media/gradient.svg"
+      alt="A gradient placeholder from warm white to light blue"
       ratio="landscape"
       className="w-full"
     >
-      <ImageOverlay.Title>Grid study</ImageOverlay.Title>
+      <ImageOverlay.Title>Placeholder</ImageOverlay.Title>
       <ImageOverlay.Description>
-        Shape, rhythm and space
+        A gradient, standing in for a picture
       </ImageOverlay.Description>
     </ImageOverlay>
   );

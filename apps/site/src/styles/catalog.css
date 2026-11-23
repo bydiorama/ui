@@ -1,0 +1,125 @@
+/* The components page (Paper: "Components v2 — Motifs · 1440").
+   The home page's language carried over: one 1120 column on the page
+   ground, surface tiles with a base well inset 8px, dock-style segmented
+   controls. Every family is a row: its name and purpose on the left, its
+   tiles on the right. Colours are the theme's roles only, so brand and
+   scheme re-paint the page, the drawings included. */
+@import "./motifs/actions.css";
+@import "./motifs/forms.css";
+@import "./motifs/navigation.css";
+@import "./motifs/overlays.css";
+@import "./motifs/display.css";
+@import "./motifs/feedback.css";
+@import "./motifs/media.css";
+@import "./motifs/data.css";
+@import "./motifs/conversation.css";
+@import "./motifs/utilities.css";
+
+.catalog-page {
+  --catalog-gutter: clamp(16px, 4vw, 32px);
+  /* A raised segment, and a panel floating over the page: the look dock's
+     two shadows, shared by the controls and the drawings. */
+  --motif-raise: 0 0.5px 1.5px rgb(29 27 25 / 0.16);
+  --motif-float: 0 8px 24px -4px rgb(29 27 25 / 0.09), 0 2px 8px rgb(29 27 25 / 0.05), inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle);
+  width: min(1120px, 100% - 2 * var(--catalog-gutter));
+  margin-inline: auto;
+}
+.catalog-page h1, .catalog-page h2, .catalog-page p { margin: 0; }
+
+/* ------------------------------------------------------------------ head */
+.catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 48px; padding-block: 48px; }
+.catalog-head-title { display: flex; flex-direction: column; gap: 16px; }
+.catalog-eyebrow { font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+.catalog-head h1 { font-size: clamp(44px, 4.45vw, 64px); line-height: 1.0625; font-weight: 550; letter-spacing: -0.045em; color: var(--ui-text-primary); }
+.catalog-lede { width: 400px; flex-shrink: 0; padding-bottom: 6px; font-size: 16px; line-height: 25px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+
+/* --------------------------------------------------------------- toolbar */
+.catalog-toolbar { display: flex; flex-direction: column; gap: 48px; padding-block: 48px; }
+.catalog-toolbar-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+
+/* The search pill owns its focus ring; the field inside it does not draw one. */
+.catalog-search { display: flex; align-items: center; gap: 10px; width: 400px; height: 48px; padding: 0 8px 0 18px; border-radius: var(--ui-radius-full); background: var(--ui-bg-field); box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); color: var(--ui-text-muted); cursor: text; }
+.catalog-search:focus-within { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: var(--ui-focus-ring-offset); }
+.catalog-search svg { flex-shrink: 0; }
+.catalog-search input { flex: 1; min-width: 0; height: 100%; padding: 0; border: 0; background: transparent; -webkit-appearance: none; appearance: none; font-size: 15px; line-height: 20px; letter-spacing: -0.02em; color: var(--ui-text-primary); }
+.catalog-search input::placeholder { color: var(--ui-text-placeholder); opacity: 1; }
+.catalog-search input:focus-visible { outline: none; }
+.catalog-search kbd { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--ui-radius-full); background: var(--ui-bg-sunken); font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.catalog-search:focus-within kbd { visibility: hidden; }
+
+.catalog-controls { display: flex; align-items: center; gap: 12px; }
+.catalog-segments { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
+.catalog-segments button { display: flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0; height: 36px; padding-inline: 14px; border: 0; border-radius: var(--ui-radius-full); background: transparent; color: var(--ui-text-muted); font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; transition: background-color var(--ui-duration-fast) var(--ui-ease-default), color var(--ui-duration-fast) var(--ui-ease-default), box-shadow var(--ui-duration-fast) var(--ui-ease-default); }
+.catalog-segments button:hover { color: var(--ui-text-primary); }
+.catalog-segments button[aria-pressed="true"] { background: var(--ui-bg-base); color: var(--ui-text-primary); box-shadow: var(--motif-raise); }
+.catalog-view button { width: 40px; padding: 0; }
+.catalog-track { justify-content: space-between; }
+.catalog-track button { padding-inline: 12px; }
+.catalog-track button:first-child, .catalog-track button:last-child { padding-inline: 14px; }
+.catalog-track button span { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+@media (forced-colors: active) { .catalog-segments button[aria-pressed="true"] { outline: 2px solid Highlight; } }
+
+/* ------------------------------------------------------------- families */
+.catalog-families { display: flex; flex-direction: column; gap: 72px; }
+.catalog-family { display: flex; align-items: flex-start; gap: 32px; }
+/* The head stays beside a long family (Forms is five rows) while it scrolls. */
+.catalog-family-head { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 8px; width: 224px; flex-shrink: 0; padding-top: 8px; }
+.catalog-family-title { display: flex; align-items: baseline; gap: 8px; }
+.catalog-family-title h2 { font-size: 20px; line-height: 26px; font-weight: 550; letter-spacing: -0.03em; color: var(--ui-text-primary); }
+.catalog-family-title span { font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.catalog-family-head p { font-size: 14px; line-height: 21px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+.catalog-grid { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+
+/* ---------------------------------------------------------------- tiles */
+/* The whole tile is the link's target; its ring is the tile's. */
+.catalog-tile { position: relative; display: flex; flex-direction: column; min-width: 0; border-radius: 24px; background: var(--ui-bg-surface); transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
+.catalog-tile:hover { background: var(--ui-bg-elevated); }
+.catalog-tile:has(a:focus-visible) { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: var(--ui-focus-ring-offset); }
+.catalog-tile-well { position: relative; display: flex; align-items: center; justify-content: center; height: 176px; margin: 8px 8px 0; border-radius: 16px; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); background: var(--ui-bg-base); overflow: clip; font-size: 13px; line-height: 16px; letter-spacing: -0.02em; color: var(--ui-text-primary); }
+.catalog-tile-well > * { flex-shrink: 0; transition: scale var(--ui-duration-base) var(--ui-ease-spring); }
+.catalog-tile:hover .catalog-tile-well > * { scale: 1.03; }
+.catalog-tile-caption { display: flex; flex-direction: column; gap: 4px; padding: 16px 20px 20px; }
+.catalog-tile-title { display: flex; align-items: center; gap: 8px; }
+.catalog-tile-title a { font-size: 16px; line-height: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-primary); }
+.catalog-tile-title a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.catalog-tile-title a:focus-visible { outline: none; }
+.catalog-tile-status { display: flex; align-items: center; height: 20px; padding-inline: 7px; border-radius: var(--ui-radius-full); box-shadow: inset 0 0 0 1px var(--ui-border-subtle); font-size: 11px; line-height: 14px; font-weight: 600; color: var(--ui-text-muted); white-space: nowrap; }
+.catalog-tile-caption p { font-size: 14px; line-height: 21px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+
+/* List: the same tiles as rows, without the drawings. */
+.catalog[data-view="list"] .catalog-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.catalog[data-view="list"] .catalog-tile { border-radius: 0; border-top: var(--ui-stroke-hairline) solid var(--ui-border-subtle); background: transparent; }
+.catalog[data-view="list"] .catalog-tile:last-child { border-bottom: var(--ui-stroke-hairline) solid var(--ui-border-subtle); }
+.catalog[data-view="list"] .catalog-tile:hover { background: var(--ui-bg-surface); }
+.catalog[data-view="list"] .catalog-tile-well { display: none; }
+.catalog[data-view="list"] .catalog-tile-caption { display: grid; grid-template-columns: 240px minmax(0, 1fr); align-items: baseline; gap: 4px 24px; padding: 14px 16px; }
+.catalog[data-view="list"] .catalog-family-head { padding-top: 14px; }
+
+.catalog-empty { padding-block: 48px; font-size: 16px; line-height: 25px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+
+/* The home page's outro closes this page too: the wrapper takes the home
+   page's scope (`.home`), so the wordmark reads the same ink and width. */
+
+/* ------------------------------------------------------------ narrower */
+@media (max-width: 1100px) {
+  .catalog-family { flex-direction: column; gap: 20px; }
+  .catalog-family-head { position: static; width: auto; max-width: 560px; padding-top: 0; }
+  .catalog[data-view="list"] .catalog-family-head { padding-top: 0; }
+  .catalog-track { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+  .catalog-track::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 860px) {
+  .catalog-head { flex-direction: column; align-items: flex-start; gap: 20px; padding-block: 32px; }
+  .catalog-lede { width: auto; max-width: 480px; padding-bottom: 0; }
+  .catalog-toolbar { gap: 16px; padding-block: 16px 40px; }
+  .catalog-toolbar-row { flex-wrap: wrap; }
+  .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .catalog-families { gap: 56px; }
+}
+@media (max-width: 560px) {
+  .catalog-search { width: 100%; }
+  .catalog-search kbd { display: none; }
+  .catalog-controls { flex-wrap: wrap; gap: 8px; width: 100%; justify-content: space-between; }
+  .catalog-grid { grid-template-columns: minmax(0, 1fr); }
+  .catalog[data-view="list"] .catalog-tile-caption { grid-template-columns: minmax(0, 1fr); }
+}

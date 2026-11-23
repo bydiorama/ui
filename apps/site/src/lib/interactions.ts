@@ -1,19 +1,32 @@
 document.querySelectorAll<HTMLElement>("[data-gallery]").forEach(gallery => {
   let category = "All";
-  let status = "All statuses";
+  let status = "All";
   const query = gallery.querySelector<HTMLInputElement>("[data-gallery-query]");
   const update = () => {
     let hasMatches = false;
     gallery.querySelectorAll<HTMLElement>("[data-gallery-item]").forEach(item => {
-      const matches = (status === "All statuses" || item.dataset.status === status.toLowerCase()) && (category === "All" || item.dataset.category === category) && (item.dataset.search ?? "").toLowerCase().includes(query?.value.toLowerCase().trim() ?? "");
+      const matches = (status === "All" || item.dataset.status === status.toLowerCase()) && (category === "All" || item.dataset.category === category) && (item.dataset.search ?? "").toLowerCase().includes(query?.value.toLowerCase().trim() ?? "");
       item.hidden = !matches; hasMatches ||= matches;
+    });
+    // A family with nothing left to show steps aside, head and all.
+    gallery.querySelectorAll<HTMLElement>("[data-gallery-family]").forEach(family => {
+      family.hidden = !family.querySelector("[data-gallery-item]:not([hidden])");
     });
     const empty = gallery.querySelector<HTMLElement>("[data-gallery-empty]");
     if (empty) empty.hidden = hasMatches;
   };
   query?.addEventListener("input", update);
+  // "/" jumps to the search, as the key drawn in the field says, unless the
+  // reader is already typing somewhere.
+  document.addEventListener("keydown", event => {
+    if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey || !query) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) return;
+    event.preventDefault();
+    query.focus();
+  });
   gallery.querySelectorAll<HTMLButtonElement>("button[data-status-filter]").forEach(button => button.addEventListener("click", () => {
-    status = button.dataset.statusFilter ?? "All statuses";
+    status = button.dataset.statusFilter ?? "All";
     gallery.querySelectorAll<HTMLButtonElement>("button[data-status-filter]").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
     update();
   }));

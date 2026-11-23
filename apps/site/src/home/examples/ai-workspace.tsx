@@ -124,7 +124,6 @@ export default function AiWorkspaceExample() {
       <div className="flex w-60 shrink-0 flex-col gap-lg overflow-hidden bg-elevated p-md border-e border-edge-subtle @min-[1100px]:w-66">
         <div className="flex h-8 shrink-0 items-center justify-between px-sm">
           <div className="flex min-w-0 items-center gap-sm">
-            <span aria-hidden="true" className="size-5 shrink-0 rounded-sm bg-inverse" />
             <span className="truncate text-label-md">invoices-app</span>
           </div>
           <Button variant="secondary" size="sm" isIconOnly aria-label="New task" icon={<Plus />} />

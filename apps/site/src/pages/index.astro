@@ -68,6 +68,7 @@ const terminal = [
         <span class="sr-only">{copy.title}</span>
         <span class="hero-your" aria-hidden="true">Your</span>
         <span class="hero-reel" aria-hidden="true" data-reel>
+          <span class="hero-reel-sizer">{reel.map(word => <span>{word}</span>)}</span>
           <span class="hero-reel-window"><span class="hero-reel-track">
             {[...reel, ...reel, ...reel].map((word, index) => <span class="hero-reel-word" data-index={index}>{word}</span>)}
           </span><Fade side="top" size="lg" ground="base" /><Fade side="bottom" size="lg" ground="base" /></span>

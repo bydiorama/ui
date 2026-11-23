@@ -1,0 +1,203 @@
+/* The component detail page (Paper: "Component detail v2 — Button · 1440").
+   The catalog's language carried in: one 1120 column on the page ground, a
+   surface tile with a base well for the live example, a quiet rail beside
+   the reading column. Every colour is a theme role, every stroke is on the
+   library's scale (default 1, hairline 1.5), every radius is on its scale,
+   so brand and scheme re-paint the page, the example alike. */
+
+.detail-page {
+  --detail-gutter: clamp(16px, 4vw, 32px);
+  width: min(1120px, 100% - 2 * var(--detail-gutter));
+  margin-inline: auto;
+}
+.detail-page h1, .detail-page h2, .detail-page h3, .detail-page p, .detail-page ul, .detail-page ol { margin: 0; }
+.detail-page ul, .detail-page ol { padding: 0; list-style: none; }
+
+/* ------------------------------------------------------------------ head */
+.detail-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; padding-block: 56px 40px; }
+.detail-head-title { display: flex; flex-direction: column; gap: 20px; width: 560px; max-width: 100%; min-width: 0; }
+.detail-crumbs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.detail-crumbs ol { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.detail-crumbs li + li::before { content: "/"; margin-right: 8px; color: var(--ui-border-subtle); }
+.detail-crumbs a:hover { color: var(--ui-text-primary); }
+.detail-crumbs [data-slot="badge"] { margin-left: 4px; }
+.detail-head h1 { font-size: clamp(44px, 4.45vw, 64px); line-height: 1.0625; font-weight: 550; letter-spacing: -0.045em; color: var(--ui-text-primary); overflow-wrap: anywhere; }
+.detail-lede { max-width: 480px; font-size: 18px; line-height: 28px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+.detail-head-tools { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; min-width: 0; max-width: 100%; }
+/* The home page's install pill, at the head's scale. */
+.detail-head .install-pill { height: 48px; gap: 12px; padding: 0 6px 0 20px; max-width: 100%; }
+.detail-head .install-pill code { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.detail-head .install-pill .install-pill-copy { width: 36px; height: 36px; flex-shrink: 0; }
+.detail-links { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 8px 20px; padding-right: 8px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-primary); }
+.detail-links a { display: inline-flex; align-items: center; gap: 4px; }
+.detail-links a:hover, .detail-more:hover, .detail-all:hover { text-decoration: underline; text-underline-offset: 4px; }
+.detail-links svg, .detail-more svg, .detail-all svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+/* ----------------------------------------------------------------- stage */
+.preview-frame { background: var(--ui-bg-surface); border-radius: 32px; overflow: clip; }
+.preview-frame .stage .stage-well { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 400px; height: auto; margin: 8px 8px 0; padding: 24px; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); border-radius: 24px; background: var(--ui-bg-base); overflow: clip; }
+/* The source, highlighted at build time. Its colours are the theme's roles (Astro's
+   css-variables theme reads these), so a brand or scheme change re-inks it. Long lines
+   wrap at the panel edge, and the panel is as tall as the example's well so
+   switching tabs does not move the page. */
+.preview-frame .stage .stage-code {
+  --astro-code-foreground: var(--ui-text-primary);
+  --astro-code-background: transparent;
+  --astro-code-token-comment: var(--ui-text-muted);
+  --astro-code-token-keyword: var(--ui-intent-info-fg);
+  --astro-code-token-string: var(--ui-intent-success-fg);
+  --astro-code-token-string-expression: var(--ui-intent-success-fg);
+  --astro-code-token-constant: var(--ui-intent-warning-fg);
+  --astro-code-token-function: var(--ui-text-primary);
+  --astro-code-token-parameter: var(--ui-text-secondary);
+  --astro-code-token-punctuation: var(--ui-text-muted);
+  --astro-code-token-link: var(--ui-intent-info-fg);
+  display: flex; flex-direction: column; min-height: 400px; max-height: 560px; margin: 8px 8px 0; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); border-radius: 24px; background: var(--ui-bg-base); overflow: clip;
+}
+/* The copy button is concentric with the panel: its radius (md, 8) plus its inset (14) plus the
+   panel's edge (1.5) lands on the panel's 24. */
+.code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0; padding: 14px 14px 14px 20px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.code-file { font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+.code-body { display: flex; flex: 1; min-height: 0; }
+.code-body pre { flex: 1; min-width: 0; margin: 0; padding: 16px 20px 24px; overflow: auto; font-size: 14px; line-height: 22px; letter-spacing: -0.01em; tab-size: 2; white-space: pre-wrap !important; overflow-wrap: anywhere; }
+.code-body pre:focus-visible { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: -4px; border-radius: 16px; }
+.code-body pre code { font: inherit; }
+.stage-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; min-height: 64px; padding: 8px 12px 8px 16px; }
+/* The floating look dock, set into the bar: the same looks, Effects and Dark, but flat
+   (a hairline on the page ground, like the install pill) since the bar is already a surface. */
+.stage-bar .look-dock { height: auto; min-height: 48px; padding: 0 16px 0 6px; gap: 16px; background: var(--ui-bg-base); box-shadow: inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); }
+.stage-bar .look-option { height: 36px; }
+
+/* ------------------------------------------------------------------ body */
+.detail-body { display: grid; grid-template-columns: 224px minmax(0, 1fr); gap: 32px; padding-block: 96px; align-items: start; }
+.detail-rail { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 40px; padding-top: 6px; }
+.detail-rail nav { display: flex; flex-direction: column; gap: 4px; }
+.detail-rail h2 { padding-bottom: 8px; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-muted); }
+.detail-rail a { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; font-size: 14px; line-height: 18px; font-weight: 500; color: var(--ui-text-muted); transition: color var(--ui-duration-fast) var(--ui-ease-default); }
+.detail-rail a:hover, .detail-rail a[aria-current] { color: var(--ui-text-primary); }
+.detail-rail a[aria-current] { font-weight: 600; }
+/* The family: a current item is a fill with a small corner, never a bar. */
+.detail-rail nav + nav a:not(.detail-all) { min-height: 36px; margin-inline: -12px; padding-inline: 12px; border-radius: var(--ui-radius-sm); color: var(--ui-text-primary); transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
+.detail-rail nav + nav a:not(.detail-all):hover { background: var(--ui-bg-hover); }
+.detail-rail nav + nav a[aria-current="page"] { background: var(--ui-bg-elevated); }
+.detail-rail .detail-all { min-height: 28px; margin-top: 8px; justify-content: flex-start; gap: 6px; font-size: 13px; line-height: 16px; }
+
+.detail-main { display: flex; flex-direction: column; gap: 112px; min-width: 0; max-width: 864px; }
+.detail-section-head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+.detail-section-head-split { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.detail-section-head-split > div { display: flex; flex-direction: column; gap: 12px; }
+.detail-section-head h2 { font-size: var(--ui-text-display-md); line-height: var(--ui-text-display-md-leading); font-weight: var(--ui-text-display-md-weight); letter-spacing: var(--ui-text-display-md-tracking); color: var(--ui-text-primary); }
+.detail-section-head p { max-width: 560px; font-size: 16px; line-height: 25px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+.detail-count, .detail-more { flex-shrink: 0; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.detail-more { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ui-text-primary); }
+.detail-main section { scroll-margin-top: 96px; }
+
+/* ----------------------------------------------------------------- usage */
+.usage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.usage-column h3 { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; font-size: 16px; line-height: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-primary); }
+.usage-mark { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--ui-radius-full); }
+.usage-mark svg { width: 14px; height: 14px; }
+.usage-mark[data-tone="do"] { background: var(--ui-intent-success-bg); color: var(--ui-intent-success-fg); }
+.usage-mark[data-tone="dont"] { background: var(--ui-intent-danger-bg); color: var(--ui-intent-danger-fg); }
+.usage-mark[data-tone="dont"] svg { width: 12px; height: 12px; }
+.usage-column li { padding-block: 16px; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); font-size: 14px; line-height: 22px; letter-spacing: -0.02em; color: var(--ui-text-secondary); overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------------- api */
+.props-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.props-table col, .props-table th, .props-table td { text-align: start; }
+.props-table thead th { height: 36px; padding: 0; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-muted); }
+.props-table thead th:nth-child(1), .props-table .props-name { width: 184px; }
+.props-table thead th:nth-child(3), .props-table .props-default { width: 176px; }
+.props-table thead th:nth-child(4), .props-table .props-toggle { width: 40px; }
+.props-row > * { padding-block: 18px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); vertical-align: top; }
+.props-row[data-open] > * { padding-bottom: 12px; border-bottom-color: transparent; }
+.props-name { padding-inline: 0; font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-primary); overflow-wrap: anywhere; }
+.props-type { padding-inline: 0; font-size: 14px; line-height: 24px; letter-spacing: -0.02em; color: var(--ui-text-secondary); overflow-wrap: anywhere; }
+.props-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.props-default { padding-inline: 0; font-size: 14px; line-height: 24px; letter-spacing: -0.02em; color: var(--ui-text-muted); overflow-wrap: anywhere; }
+.props-toggle { padding-block: 14px 0; text-align: end; }
+.props-row[data-open] .props-toggle { padding-top: 14px; }
+.prop-disclosure svg { transition: rotate var(--ui-duration-fast) var(--ui-ease-default); }
+.props-row[data-open] .prop-disclosure svg { rotate: 180deg; }
+.props-note-row td { padding: 0 0 22px 184px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.props-note { max-width: 520px; font-size: 14px; line-height: 22px; letter-spacing: -0.01em; color: var(--ui-text-muted); }
+.props-table [data-collapsed] { display: none; }
+.props-more { padding-top: 20px; }
+.props-more [data-open] svg { rotate: 180deg; }
+.props-notes-fallback { padding-top: 16px; }
+
+/* --------------------------------------------------------- accessibility */
+.keys { width: 100%; border-collapse: collapse; }
+.keys th, .keys td { padding-block: 16px; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); vertical-align: top; text-align: start; }
+.keys tr:last-child > * { border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.keys th { width: 184px; padding-right: 16px; font-weight: 400; }
+.keys-caps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.keys-note { font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.keys kbd { display: inline-flex; align-items: center; height: 24px; padding-inline: 8px; border-radius: var(--ui-radius-sm); background: var(--ui-bg-sunken); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-secondary); }
+.keys td { font-size: 14px; line-height: 24px; letter-spacing: -0.02em; color: var(--ui-text-secondary); overflow-wrap: anywhere; }
+.contrast { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+.contrast-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.contrast-head h3 { font-size: 16px; line-height: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-primary); }
+.contrast-head span { font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.contrast-swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+.contrast-swatches li { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.contrast-chip { display: flex; align-items: center; justify-content: center; height: 96px; border-radius: 16px; background: var(--contrast-bg); box-shadow: inset 0 0 0 var(--ui-stroke-default) var(--ui-border-subtle); font-size: 32px; line-height: 36px; font-weight: 600; letter-spacing: -0.03em; color: var(--contrast-fg); }
+.contrast-caption { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px; line-height: 18px; letter-spacing: -0.02em; }
+.contrast-caption span:first-child { font-weight: 600; color: var(--ui-text-primary); }
+.contrast-caption span:last-child { flex-shrink: 0; font-weight: 500; color: var(--ui-text-muted); }
+.detail-gaps { margin-top: 32px; }
+
+/* --------------------------------------------------------------- changes */
+.changes li { display: grid; grid-template-columns: 120px 72px minmax(0, 1fr); align-items: start; padding-block: 16px; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.changes li:last-child { border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.changes time { font-size: 14px; line-height: 24px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+.changes [data-slot="badge"] { justify-self: start; margin-top: 1px; }
+.changes p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; font-size: 14px; line-height: 22px; letter-spacing: -0.02em; color: var(--ui-text-secondary); overflow-wrap: anywhere; }
+
+/* ----------------------------------------------------------------- pager */
+.pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.pager-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 24px 28px 28px; border-radius: 24px; background: var(--ui-bg-surface); box-shadow: inset 0 0 0 var(--ui-stroke-default) var(--ui-border-subtle); transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
+.pager-card:hover { background: var(--ui-bg-elevated); }
+.pager-card[data-side="next"] { align-items: flex-end; text-align: end; }
+.pager-card span { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.pager-card svg { width: 14px; height: 14px; flex-shrink: 0; }
+.pager-card strong { font-size: var(--ui-text-title-lg); line-height: var(--ui-text-title-lg-leading); font-weight: var(--ui-text-title-lg-weight); letter-spacing: var(--ui-text-title-lg-tracking); color: var(--ui-text-primary); overflow-wrap: anywhere; }
+
+/* --------------------------------------------------------------- narrower */
+@media (max-width: 1100px) {
+  .detail-body { grid-template-columns: minmax(0, 1fr); gap: 48px; padding-block: 64px; }
+  .detail-rail { position: static; flex-direction: row; flex-wrap: wrap; gap: 32px 64px; padding-top: 0; }
+  .detail-rail nav { min-width: 200px; }
+  .detail-main { gap: 96px; }
+}
+@media (max-width: 860px) {
+  .detail-head { flex-direction: column; align-items: flex-start; gap: 24px; padding-block: 32px; }
+  .detail-head-tools { align-items: flex-start; width: 100%; }
+  .detail-links { justify-content: flex-start; padding-right: 0; }
+  .detail-lede { font-size: 16px; line-height: 25px; }
+}
+@media (max-width: 700px) {
+  .preview-frame { border-radius: 24px; }
+  .preview-frame .stage .stage-well { min-height: 240px; padding: 16px; border-radius: 16px; }
+  .preview-frame .stage .stage-code { border-radius: 16px; }
+  .detail-main { gap: 72px; }
+  .detail-body { padding-block: 48px; }
+  .detail-rail nav:first-child { display: none; }
+  .usage { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .keys th { width: 120px; }
+  .changes li { grid-template-columns: 72px minmax(0, 1fr); gap: 4px 12px; }
+  .changes li p { grid-column: 1 / -1; }
+  .pager { grid-template-columns: minmax(0, 1fr); }
+  .pager-card[data-side="next"] { align-items: flex-start; text-align: start; }
+  /* Rows stack: the prop, then each lane under its own label. */
+  .props-table, .props-table tbody, .props-table tr, .props-table td, .props-table th { display: block; }
+  .props-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .props-table thead th { width: auto; }
+  .props-row { position: relative; padding-block: 16px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+  .props-row > *, .props-row[data-open] > * { padding-block: 0; border-bottom: 0; width: auto; }
+  .props-row .props-name { width: auto; padding-bottom: 8px; padding-right: 40px; }
+  .props-row .props-toggle { position: absolute; top: 12px; right: 0; width: auto; padding: 0; }
+  .props-type[data-label]::before, .props-default[data-label]::before { content: attr(data-label); display: block; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-muted); }
+  .props-default { padding-top: 8px; }
+  .props-note-row td { padding: 0 0 16px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+}

@@ -1,0 +1,46 @@
+/* Navigation — Paper: Family / Navigation. */
+/* Placeholder content lines, shared by the framed drawings. */
+.motif-nav-lines { display: flex; flex-direction: column; gap: 8px; padding: 16px 14px; }
+.motif-nav-lines > span { flex-shrink: 0; height: 6px; border-radius: 3px; background: var(--ui-bg-elevated); }
+.motif-nav-frame { display: flex; flex-shrink: 0; width: 212px; height: 128px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); overflow: clip; }
+
+.motif-header { display: flex; flex-direction: column; width: 212px; height: 120px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); overflow: clip; }
+.motif-header-bar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; height: 36px; padding-inline: 12px; border-bottom: 1px solid var(--ui-border-subtle); }
+.motif-header-path { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-muted); }
+.motif-header-path b { font-weight: 600; color: var(--ui-text-primary); }
+.motif-header-path .motif-header-slash { font-weight: 500; letter-spacing: 0; color: var(--ui-text-disabled); }
+.motif-header-share { display: flex; align-items: center; height: 22px; padding-inline: 9px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent); color: var(--ui-text-on-accent); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0; }
+.motif-header-lines { padding: 14px 12px; }
+
+/* The menu hangs from the top of the well, as an open menu does. */
+.motif-menu { align-self: flex-start; margin-top: 22px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; width: 160px; font-size: 12px; line-height: 16px; font-weight: 500; }
+.motif-menu-trigger { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); color: var(--ui-text-primary); }
+.motif-menu-panel { display: flex; flex-direction: column; width: 100%; padding: 4px; border-radius: 12px; background: var(--ui-bg-surface); box-shadow: var(--motif-float); }
+.motif-menu-item { display: flex; align-items: center; height: 26px; padding-inline: 8px; border-radius: 8px; }
+.motif-menu-item-active { background: var(--ui-bg-elevated); }
+.motif-menu-item-danger { color: var(--ui-intent-danger-fg); }
+.motif-menu-divider { height: 1px; margin-block: 4px; background: var(--ui-border-subtle); }
+
+.motif-nav-rail { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; width: 44px; padding-top: 10px; background: var(--ui-bg-elevated); color: var(--ui-text-muted); }
+.motif-nav-rail > span { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; }
+.motif-nav-rail > .motif-nav-rail-active { background: var(--ui-bg-accent); color: var(--ui-text-on-accent); }
+
+.motif-sidebar { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; width: 96px; padding: 8px 6px; background: var(--ui-bg-elevated); font-size: 12px; line-height: 16px; }
+.motif-sidebar-heading { padding: 4px 8px 6px; font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0; color: var(--ui-text-muted); }
+.motif-sidebar-item { display: flex; align-items: center; height: 24px; padding-inline: 8px; border-radius: 7px; font-weight: 500; color: var(--ui-text-muted); }
+.motif-sidebar-item-active { background: var(--ui-bg-base); box-shadow: var(--motif-raise); font-weight: 600; color: var(--ui-text-primary); }
+
+/* The same header twice: a desktop bar, and a phone that folds it into a menu. */
+.motif-site-header { display: flex; align-items: flex-end; gap: 10px; }
+.motif-site-header-desktop { display: flex; align-items: center; justify-content: space-between; width: 156px; height: 34px; padding-inline: 10px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); }
+.motif-site-header-mark { flex-shrink: 0; width: 10px; height: 10px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); }
+.motif-site-header-links { display: flex; gap: 6px; }
+.motif-site-header-links > span { height: 5px; border-radius: 3px; background: var(--ui-border-subtle); }
+.motif-site-header-cta { width: 28px; height: 16px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent); }
+.motif-site-header-phone { display: flex; flex-direction: column; width: 56px; height: 96px; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); overflow: clip; }
+.motif-site-header-phone-bar { display: flex; align-items: center; justify-content: space-between; height: 24px; padding-inline: 8px; border-bottom: 1px solid var(--ui-border-subtle); color: var(--ui-text-primary); }
+.motif-site-header-phone-bar .motif-site-header-mark { width: 8px; height: 8px; }
+
+.motif-tabs { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: 10px; background: var(--ui-bg-elevated); font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-muted); }
+.motif-tabs > span { display: flex; align-items: center; height: 30px; padding-inline: 12px; border-radius: 8px; }
+.motif-tabs > .motif-tabs-active { background: var(--ui-bg-base); box-shadow: var(--motif-raise); color: var(--ui-text-primary); }

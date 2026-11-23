@@ -13,7 +13,8 @@ const { title = "Diorama UI", description = copy.description } = Astro.props;
 const nav = [{ label: "Components", href: "/components/" }, { label: "Theme", href: "/#looks" }, { label: "Docs", href: "/docs/" }, { label: "Changelog", href: "/changelog/" }];
 const footerNav = [{ label: "Components", href: "/components/" }, { label: "Docs", href: "/docs/" }, { label: "For agents", href: "/docs/agents/" }, { label: "Changelog", href: "/changelog/" }, { label: "GitHub", href: copy.repository }];
 const searchEntries = catalog.items.map(({ name, title, lead, category }) => ({ name, title, lead, category }));
-const isCurrent = (href: string) => Astro.url.pathname === href || (href === "/components/" && Astro.url.pathname.startsWith(href));
+// A section's pages (a component, a docs guide) keep their section current.
+const isCurrent = (href: string) => Astro.url.pathname === href || ((href === "/components/" || href === "/docs/") && Astro.url.pathname.startsWith(href));
 const headerButton = buttonClassName({ variant: "secondary", size: "sm", shape: "full" });
 ---
 <!doctype html>
@@ -23,8 +24,13 @@ const headerButton = buttonClassName({ variant: "secondary", size: "sm", shape: 
     <title>{title === "Diorama UI" ? title : `${title} · Diorama UI`}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} /><meta property="og:description" content={description} />
+    <meta property="og:type" content="website" /><meta property="og:site_name" content="Diorama UI" /><meta property="og:url" content={new URL(Astro.url.pathname, Astro.site).href} />
+    <meta property="og:image" content={new URL("/og.png", Astro.site).href} /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="Diorama UI — Your design system. A design system you copy into your app as source." />
+    <meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content={title} /><meta name="twitter:description" content={description} /><meta name="twitter:image" content={new URL("/og.png", Astro.site).href} />
+    <meta name="theme-color" content="#FFFFFF" />
     <link rel="preload" href="/fonts/aspekta/AspektaVF.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" /><link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" /><link rel="manifest" href="/manifest.webmanifest" />
     <link rel="alternate" type="text/plain" href="/llms.txt" title="For agents" />
     <script define:vars={{ appearanceOptions, appearanceAttributes, appearanceStorageKey, defaultAppearance }}>
       let preferences = {};
@@ -40,7 +46,7 @@ const headerButton = buttonClassName({ variant: "secondary", size: "sm", shape: 
     <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header" data-site-header>
       <div class="site-header-inner">
-        <a href="/" class="wordmark"><span class="wordmark-mark" aria-hidden="true"></span>Diorama UI</a>
+        <a href="/" class="wordmark">Diorama UI</a>
         <nav class="desktop-nav" aria-label="Main navigation">{nav.map(item => <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>{item.label}</a>)}</nav>
         <div class="header-tools">
           <Search entries={searchEntries} client:idle />

@@ -41,7 +41,12 @@
 .hero-your { flex-shrink: 0; }
 /* The reel is one line tall and shows the words either side of it in the
    sunken role: last word above, next word below. */
-.hero-reel { --reel-index: 4; position: relative; height: var(--reel-size); min-width: 4.1em; }
+.hero-reel { --reel-index: 4; position: relative; height: var(--reel-size); }
+/* The reel is exactly as wide as its widest word (Paper: the "system." box),
+   so "Your system." is centred as one line. The words are stacked unseen in
+   one cell to measure it; the moving track is positioned over them. */
+.hero-reel-sizer { display: grid; height: var(--reel-size); visibility: hidden; white-space: nowrap; }
+.hero-reel-sizer > span { grid-area: 1 / 1; }
 /* A three-line window, centred on the reel: the word before and the word
    after show in the sunken role, the rest are clipped. */
 .hero-reel-window { position: absolute; inset: calc(var(--reel-size) * -1) -0.2em; overflow: clip; }
@@ -336,7 +341,10 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
    the face is a library Card with fx glass + edge, filling it. */
 .fan-card[data-tone="glass"] { padding: 0; background: transparent; box-shadow: 0 24px 40px -16px rgb(29 27 25 / 0.18), 0 4px 10px rgb(29 27 25 / 0.05); }
 .fan-card-face { display: flex; flex-direction: column; justify-content: space-between; height: 100%; box-sizing: border-box; padding: 20px; border-radius: inherit; }
-.fan-card-title { font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.01em; color: inherit; opacity: 0.6; }
+/* Quiet by a muted role, not by opacity: 60% of the ink measured 4.47:1 on
+   the card, just under the 4.5 floor for 13px text. */
+.fan-card-title { font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.01em; color: var(--ui-text-muted); }
+.fan-card[data-tone="inverse"] .fan-card-title { color: var(--ui-text-inverse-muted); }
 .fan-card-body { display: flex; flex-direction: column; gap: 12px; }
 .fan-value { font-size: 44px; line-height: 44px; font-weight: 550; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
 .fan-count { font-size: 15px; line-height: 20px; font-weight: 600; letter-spacing: -0.02em; }

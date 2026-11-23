@@ -25,7 +25,7 @@ export function markdown(item: Item) {
   return [
     `# ${item.title}`, item.lead, `Status: ${item.status}. Category: ${item.category}.`,
     "## Installation", `\`\`\`sh\n${installCommand(item.name)}\n\`\`\``,
-    `Download [the CLI preview](/downloads/${cliFilename}) into your project and [initialise it](/docs/#install). The npm release is being prepared.`,
+    `Run it in a project you have [initialised](/docs/#install). To run the CLI from a file instead, [download it](/downloads/${cliFilename}); see [running it from a file](/docs/#from-a-file).`,
     "### Existing shadcn apps", `\`\`\`sh\n${shadcnCommand(item.name)}\n\`\`\``,
     'First add "@bydiorama": "https://raw.githubusercontent.com/bydiorama/ui/main/r/{name}.json" to the registries object in components.json. See /docs/ for tokens, font and alias setup.',
     "## Props", ["| Prop | Type | Default | Notes |", "| --- | --- | --- | --- |",

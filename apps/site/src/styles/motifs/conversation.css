@@ -1,0 +1,65 @@
+/* Conversation — Paper: Family / Conversation. */
+.motif-chat-composer { display: flex; flex-direction: column; gap: 12px; width: 220px; padding: 12px; border-radius: 16px; background: var(--ui-bg-field); box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); }
+.motif-chat-composer-text { font-size: 12px; line-height: 16px; font-weight: 500; }
+.motif-chat-composer-actions { display: flex; align-items: center; justify-content: space-between; }
+.motif-chat-composer-actions > span { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: var(--ui-radius-full); }
+.motif-chat-composer-add { box-shadow: inset 0 0 0 1px var(--ui-border-subtle); color: var(--ui-text-muted); }
+.motif-chat-composer-send { background: var(--ui-bg-inverse); color: var(--ui-text-inverse); }
+
+.motif-chat-message { display: flex; flex-direction: column; gap: 10px; width: 216px; font-size: 12px; font-weight: 500; }
+.motif-chat-message-user { align-self: end; max-width: 150px; padding: 8px 12px; border-radius: 14px 14px 4px 14px; background: var(--ui-bg-elevated); line-height: 16px; }
+.motif-chat-message-reply { display: flex; gap: 8px; line-height: 17px; }
+.motif-chat-message-avatar { flex-shrink: 0; width: 22px; height: 22px; border-radius: var(--ui-radius-full); background: linear-gradient(in oklab 135deg, var(--ui-bg-elevated) 0%, color-mix(in oklab, var(--ui-bg-accent) 50%, var(--ui-bg-base)) 55%, var(--ui-bg-accent) 100%); }
+
+.motif-chat-progress { display: flex; flex-direction: column; gap: 10px; width: 196px; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
+.motif-chat-progress-step { display: flex; align-items: center; gap: 8px; }
+.motif-chat-progress-done { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 18px; height: 18px; border-radius: var(--ui-radius-full); background: var(--ui-intent-success-bg); color: var(--ui-intent-success-fg); }
+.motif-chat-progress-current { font-weight: 600; color: var(--ui-text-primary); }
+.motif-chat-progress-spinner { flex-shrink: 0; }
+.motif-chat-progress-spinner circle { stroke: var(--ui-bg-sunken); }
+.motif-chat-progress-spinner path { stroke: var(--ui-bg-accent-legible); }
+.motif-chat-progress-open { flex-shrink: 0; width: 18px; height: 18px; border-radius: var(--ui-radius-full); box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); }
+.motif-chat-progress-pending { color: var(--ui-text-muted); }
+
+.motif-chat-questionnaire { display: flex; flex-direction: column; gap: 10px; width: 200px; }
+.motif-chat-questionnaire-question { font-size: 12px; line-height: 16px; font-weight: 600; }
+.motif-chat-questionnaire-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.motif-chat-questionnaire-options > span { display: flex; align-items: center; height: 28px; padding-inline: 12px; border-radius: var(--ui-radius-full); box-shadow: inset 0 0 0 1px var(--ui-border-subtle); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0; }
+.motif-chat-questionnaire-options > .motif-chat-questionnaire-chosen { gap: 5px; padding: 0 12px 0 10px; background: var(--ui-bg-accent); box-shadow: none; color: var(--ui-text-on-accent); }
+
+/* The dock sits at the foot of the well, as it does under a conversation. */
+.motif-chat-run-dock { position: absolute; inset: 0; display: flex; align-items: end; justify-content: center; padding-bottom: 22px; }
+.motif-chat-run-dock-bar { display: flex; align-items: center; justify-content: space-between; width: 220px; height: 44px; padding: 0 6px 0 14px; border-radius: var(--ui-radius-full); background: var(--ui-bg-surface); box-shadow: var(--motif-float); }
+.motif-chat-run-dock-status { display: flex; align-items: center; gap: 8px; }
+.motif-chat-run-dock-dots { display: flex; gap: 3px; }
+.motif-chat-run-dock-dots > span { width: 6px; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent-legible); }
+.motif-chat-run-dock-dots > span:nth-child(2) { opacity: 0.6; }
+.motif-chat-run-dock-dots > span:nth-child(3) { opacity: 0.3; }
+.motif-chat-run-dock-text { display: flex; flex-direction: column; }
+.motif-chat-run-dock-title { font-size: 12px; line-height: 15px; font-weight: 600; }
+.motif-chat-run-dock-meta { font-size: 10px; line-height: 12px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
+.motif-chat-run-dock-pause { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
+
+.motif-chat-sources { display: flex; flex-direction: column; gap: 12px; width: 212px; }
+.motif-chat-sources-text { font-size: 12px; line-height: 18px; font-weight: 500; }
+.motif-chat-sources-chips { display: flex; gap: 6px; }
+.motif-chat-sources-chip { display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 4px; border-radius: var(--ui-radius-full); box-shadow: inset 0 0 0 1px var(--ui-border-subtle); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0; white-space: nowrap; }
+.motif-chat-sources-index { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); font-size: 10px; line-height: 12px; }
+
+.motif-chat-tasks { display: flex; flex-direction: column; width: 212px; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); overflow: clip; }
+.motif-chat-tasks-row { display: flex; align-items: center; justify-content: space-between; height: 40px; padding-inline: 12px; font-size: 12px; line-height: 16px; font-weight: 600; }
+.motif-chat-tasks-row + .motif-chat-tasks-row { border-top: 1px solid var(--ui-border-subtle); }
+.motif-chat-tasks-actions { display: flex; gap: 4px; }
+.motif-chat-tasks-actions > span { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: var(--ui-radius-full); }
+.motif-chat-tasks-reject { box-shadow: inset 0 0 0 1px var(--ui-border-subtle); color: var(--ui-text-muted); }
+.motif-chat-tasks-accept { background: var(--ui-bg-inverse); color: var(--ui-text-inverse); }
+.motif-chat-tasks-approved { display: flex; align-items: center; height: 20px; padding-inline: 7px; border-radius: var(--ui-radius-full); background: var(--ui-intent-success-bg); color: var(--ui-intent-success-fg); font-size: 10px; line-height: 12px; letter-spacing: 0; }
+
+.motif-chat-widget { display: flex; flex-direction: column; gap: 10px; width: 212px; padding: 12px; border-radius: 14px; background: var(--ui-bg-surface); box-shadow: inset 0 0 0 1px var(--ui-border-subtle), 0 4px 12px -2px rgb(29 27 25 / 0.07); }
+.motif-chat-widget-head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; line-height: 16px; font-weight: 600; }
+.motif-chat-widget-head svg { color: var(--ui-text-muted); }
+.motif-chat-widget-rows { display: flex; flex-direction: column; gap: 6px; }
+.motif-chat-widget-row { display: flex; align-items: center; gap: 8px; font-size: 10px; line-height: 12px; letter-spacing: 0; }
+.motif-chat-widget-label { flex-shrink: 0; width: 52px; font-weight: 500; color: var(--ui-text-muted); }
+.motif-chat-widget-bar { flex-shrink: 0; height: 8px; border-radius: var(--ui-radius-full); background: var(--ui-data-cat-1-solid); }
+.motif-chat-widget-count { flex-shrink: 0; font-weight: 600; white-space: nowrap; }

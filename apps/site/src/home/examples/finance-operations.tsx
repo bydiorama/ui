@@ -255,7 +255,6 @@ export default function FinanceOperationsExample() {
       {/* Full sidebar where there is room for it; the library's rail below. */}
       <nav aria-label="Finance" className="hidden w-50 shrink-0 flex-col gap-lg border-e border-edge-subtle bg-elevated p-md @min-[1100px]:flex">
         <div className="flex h-8 items-center gap-sm px-sm">
-          <span aria-hidden className="size-5 shrink-0 rounded-sm bg-emphasis" />
           <span className="text-label-md">Aicher Werkstatt</span>
         </div>
         <ul className="flex flex-col gap-0.5">
@@ -286,9 +285,6 @@ export default function FinanceOperationsExample() {
         </div>
       </nav>
       <NavRail label="Finance" className="shrink-0 rounded-none border-e border-edge-subtle @min-[1100px]:hidden">
-        <NavRail.Slot>
-          <span aria-hidden className="size-5 rounded-sm bg-emphasis" />
-        </NavRail.Slot>
         <NavRail.Section label="Finance">
           {NAV.map((item) => (
             <NavRail.Item key={item.label} icon={item.icon} label={item.label} isCurrent={item.label === current} onClick={() => setCurrent(item.label)} />

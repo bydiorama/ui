@@ -28,8 +28,16 @@ const systemIsDark = () => window.matchMedia(darkQuery).matches;
  * control floats at the foot of the window, so the look can be changed
  * beside whatever section is being read. It steps aside at the footer,
  * where the card fan has its own look card.
+ *
+ * `isFloatingOnly` drops the inline dock: the floating one is shown from
+ * the top of the page (the components page, where the switch is a tool
+ * beside the catalog rather than a section of its own).
+ *
+ * `isInlineOnly` is the opposite: only the inline dock, never floating. A
+ * component page puts it in the bar of its example, so the look being tried
+ * is changed beside the example it re-paints.
  */
-export function LookDock() {
+export function LookDock({ isFloatingOnly = false, isInlineOnly = false }: { isFloatingOnly?: boolean; isInlineOnly?: boolean }) {
   const appearance = useAppearance();
   const isSystemDark = useSyncExternalStore(subscribeDark, systemIsDark, () => false);
   const isDark = appearance.scheme === "dark" || (appearance.scheme === "auto" && isSystemDark);
@@ -43,10 +51,11 @@ export function LookDock() {
   useEffect(() => { configureShaders({ reducedMotion: appearance.effects === "on" ? null : true }); }, [appearance.effects]);
 
   useEffect(() => {
+    if (isInlineOnly) return;
     const element = slot.current;
     const end = document.querySelector("[data-dock-end]");
-    if (!element) return;
-    let isPast = false;
+    if (!element && !isFloatingOnly) return;
+    let isPast = isFloatingOnly;
     let isAtEnd = false;
     const update = () => setIsFloating(isPast && !isAtEnd);
     const past = new IntersectionObserver(([entry]) => {
@@ -57,10 +66,11 @@ export function LookDock() {
       isAtEnd = entry!.isIntersecting || entry!.boundingClientRect.top < 0;
       update();
     });
-    past.observe(element);
+    update();
+    if (element) past.observe(element);
     if (end) atEnd.observe(end);
     return () => { past.disconnect(); atEnd.disconnect(); };
-  }, []);
+  }, [isFloatingOnly, isInlineOnly]);
 
   const dock = (isCopy: boolean) => (
     <div className="look-dock" data-floating={isCopy ? "" : undefined} data-visible={isCopy ? String(isFloating) : undefined} inert={isCopy && !isFloating ? true : undefined}>
@@ -78,9 +88,10 @@ export function LookDock() {
     </div>
   );
 
+  if (isInlineOnly) return dock(false);
   return (
     <>
-      <div ref={slot} className="look-dock-slot">{dock(false)}</div>
+      {!isFloatingOnly && <div ref={slot} className="look-dock-slot">{dock(false)}</div>}
       {dock(true)}
     </>
   );

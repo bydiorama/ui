@@ -1,0 +1,12 @@
+/* Actions — Paper: Family / Actions. */
+.motif-button { display: flex; align-items: center; gap: 8px; }
+.motif-button > span { display: flex; align-items: center; height: 36px; padding-inline: 16px; border-radius: var(--ui-radius-full); font-size: 13px; line-height: 16px; font-weight: 600; }
+.motif-button-primary { background: var(--ui-bg-accent); color: var(--ui-text-on-accent); }
+.motif-button-secondary { box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); }
+
+.motif-media-toggle { display: flex; align-items: center; gap: 14px; }
+.motif-media-toggle-control { display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 48px; height: 48px; border-radius: var(--ui-radius-full); background: var(--ui-bg-inverse); color: var(--ui-text-inverse); }
+.motif-media-toggle-track { display: flex; flex-direction: column; gap: 8px; width: 112px; }
+.motif-media-toggle-bar { display: flex; height: 4px; border-radius: var(--ui-radius-full); background: var(--ui-bg-sunken); overflow: clip; }
+.motif-media-toggle-bar > span { width: 44%; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent-legible); }
+.motif-media-toggle-times { display: flex; justify-content: space-between; font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }

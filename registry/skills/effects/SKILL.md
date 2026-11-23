@@ -143,6 +143,7 @@ amount.
 | A glass card in a theme emitted before glass existed | Falls back to the opaque surface. Re-emit the theme to get `--ui-bg-glass` |
 | A glass nav or menu in a theme emitted before 2026-11-20 | The nav falls back to the opaque nav, the menu and popover to the opaque surface. Re-emit the theme to get `--ui-nav-bg-glass` and `--ui-bg-glass-overlay` |
 | `fx("opaque")` around a menu that stays glass | Popover and Menu portal to the body, out of the region. Put `fx("opaque")` on the panel itself, or portal it into the region with `container` |
+| Copy wider than the quiet zone on a narrow ground | The zone is a fraction of the ground's **width**; copy is fixed in px. Below ~900px wide, raise `--ui-fx-gradient-quiet` (0.6 holds a 440px block on a 600px ground) or put the copy on `glass` |
 | Copy on a ground, outside its quiet zone | The ground is free to be bright there; nothing keeps that text legible. Move the zone (`--ui-fx-gradient-quiet-x` / `-y`) to the copy, or the copy into the zone — or set the zone to 0 and put the copy on `glass` |
 | Changing the look by swapping classes | There is one class. Change `--ui-fx-gradient-look`; the same canvas redraws in the new look |
 | `fx("aurora")` in an app | Retired 2026-11-22 (ADR 0025). On a ground use `fx("gradient")`; on a control, `sheen`, `grain` or `glow` |

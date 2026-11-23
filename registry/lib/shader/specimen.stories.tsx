@@ -2,11 +2,21 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Colors, Home, Image, Layers, Sparks, TextFont } from "griddy-icons";
 import { useEffect, type CSSProperties, type ReactNode } from "react";
 
-import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
+import {
+  resolveThemePair,
+  toStyleObject,
+  THEME_ZERO,
+  ZERO_AUTHORED,
+  type ThemeSeed,
+} from "@bydiorama/tokens";
 import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
-import { startShaders } from "@/lib/shader";
-import { GRADIENT_LOOKS, GRADIENT_PRESETS, type GradientLook } from "@/lib/shader-programs";
+import { configureShaders, startShaders } from "@/lib/shader";
+import {
+  GRADIENT_LOOKS,
+  GRADIENT_PRESETS,
+  type GradientLook,
+} from "@/lib/shader-programs";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { Button } from "@/ui/button/button.tsx";
 import { Card } from "@/ui/card/card.tsx";
@@ -65,12 +75,18 @@ const meta = {
     look: { control: "inline-radio", options: [...GRADIENT_LOOKS] },
     scheme: { control: "inline-radio", options: ["light", "dark"] },
     brand: { control: "inline-radio", options: ["theme zero", "pale yellow"] },
-    angle: { control: "select", options: ["auto", "-40", "-28", "-12", "0", "12", "24", "40"] },
+    angle: {
+      control: "select",
+      options: ["auto", "-40", "-28", "-12", "0", "12", "24", "40"],
+    },
     sharpness: { control: { type: "range", min: 0, max: 1, step: 0.05 } },
     // The quiet zone follows the look; the toggle only turns it off.
     scale: { control: { type: "range", min: 0.5, max: 2, step: 0.05 } },
     chroma: { control: { type: "range", min: 0, max: 1.8, step: 0.05 } },
-    intensity: { control: "select", options: ["auto", "0.4", "0.6", "0.8", "1"] },
+    intensity: {
+      control: "select",
+      options: ["auto", "0.4", "0.6", "0.8", "1"],
+    },
     quietZone: { control: "boolean" },
     grain: { control: "boolean" },
   },
@@ -85,6 +101,22 @@ function Shaders({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Many grounds on one page draw ONE still frame each — the look's rest frame,
+ * the one reduced motion shows — and the loop then sleeps. Ten or twenty
+ * live full-resolution grounds at once is a load no page should carry (and
+ * on a CPU-rendered runner it starved the story's own checks past their
+ * timeout). The live, single ground is Effects/Specimen.
+ */
+function Still({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    configureShaders({ reducedMotion: true });
+    return () => configureShaders({ reducedMotion: null });
+  }, []);
+  return <>{children}</>;
+}
+const still = (Story: () => ReactNode) => <Still>{Story()}</Still>;
+
 /** Pale yellow: the brand on which ink is hardest to keep legible (AGENTS.md). */
 const PALE: ThemeSeed = {
   colors: {
@@ -98,13 +130,17 @@ const PALE: ThemeSeed = {
   },
 };
 const BRANDS: Record<Brand, CSSProperties> = {
-  "theme zero": toStyleObject(resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED })) as CSSProperties,
+  "theme zero": toStyleObject(
+    resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED }),
+  ) as CSSProperties,
   "pale yellow": toStyleObject(resolveThemePair(PALE)) as CSSProperties,
 };
 
 /** The args as the gradient's tokens: a knob at its default is not set at all. */
 function tokens(a: SpecimenArgs): CSSProperties {
-  const t: Record<string, string | number> = { "--ui-fx-gradient-look": a.look };
+  const t: Record<string, string | number> = {
+    "--ui-fx-gradient-look": a.look,
+  };
   if (a.angle !== "auto") t["--ui-fx-gradient-angle"] = `${a.angle}deg`;
   if (a.sharpness !== 0.5) t["--ui-fx-gradient-sharpness"] = a.sharpness;
   if (a.scale !== 1) t["--ui-fx-gradient-scale"] = a.scale;
@@ -114,7 +150,17 @@ function tokens(a: SpecimenArgs): CSSProperties {
   return t as CSSProperties;
 }
 
-function Window(args: SpecimenArgs) {
+/**
+ * `compact` is the Matrix's size: twenty windows on one page each paint a
+ * full-resolution ground once, and at the Specimen's size that alone took
+ * seconds on a CPU-rendered runner. A quarter of the pixels is plenty to
+ * compare looks side by side; the cards, which need the room, are left out
+ * of the picture (the glass nav, badges and buttons stay).
+ */
+function Window({
+  compact = false,
+  ...args
+}: SpecimenArgs & { compact?: boolean }) {
   const { look, scheme, brand, grain } = args;
   // A horizon's light is low in the frame, so its copy goes up, into the
   // sky: wherever the look's own quiet zone is (unless the controls move it).
@@ -123,7 +169,8 @@ function Window(args: SpecimenArgs) {
     <div className="flex max-w-[440px] flex-col gap-sm">
       <p className="text-title-lg text-ink-primary">Make it yours</p>
       <p className="text-body-md text-ink-muted">
-        Start from a template, or drop your own images. Everything you add takes the brand's colours.
+        Start from a template, or drop your own images. Everything you add takes
+        the brand's colours.
       </p>
       <div className="flex gap-sm pt-xs">
         <Button icon={<Sparks />}>Start a board</Button>
@@ -134,23 +181,45 @@ function Window(args: SpecimenArgs) {
     </div>
   );
   return (
-    <div style={{ ...BRANDS[brand], colorScheme: scheme }} className="text-ink-primary">
+    <div
+      style={{ ...BRANDS[brand], colorScheme: scheme }}
+      className="text-ink-primary"
+    >
       <div
         className={cn(
-          "relative isolate flex aspect-[16/10] min-h-[34rem] gap-lg overflow-clip rounded-2xl p-md",
+          "relative isolate flex aspect-[16/10] gap-lg overflow-clip rounded-2xl p-md",
+          !compact && "min-h-[34rem]",
           grain ? fx("gradient", "grain") : fx("gradient"),
         )}
-        style={tokens(args)}
+        // The quiet zone is a fraction of the ground's WIDTH and the copy is
+        // fixed in px, so a narrow ground needs a larger zone to hold it.
+        style={
+          compact
+            ? { ...tokens(args), ["--ui-fx-gradient-quiet" as string]: 0.6 }
+            : tokens(args)
+        }
       >
         {/* Labelled per window: the Matrix puts eight on one page, and two
             navigation landmarks may not share a name. */}
-        <NavRail label={`Workspace — ${brand}, ${look}, ${scheme}`} className={fx("glass")}>
+        <NavRail
+          label={`Workspace — ${brand}, ${look}, ${scheme}`}
+          className={fx("glass")}
+        >
           <NavRail.Section label="Brand">
             <NavRail.Item icon={<Home />} label="Overview" href="#overview" />
-            <NavRail.Item icon={<Colors />} label="Colours" href="#colours" isCurrent />
+            <NavRail.Item
+              icon={<Colors />}
+              label="Colours"
+              href="#colours"
+              isCurrent
+            />
             <NavRail.Item icon={<TextFont />} label="Fonts" href="#fonts" />
             <NavRail.Item icon={<Image />} label="Logos" href="#logos" />
-            <NavRail.Item icon={<Layers />} label="Templates" href="#templates" />
+            <NavRail.Item
+              icon={<Layers />}
+              label="Templates"
+              href="#templates"
+            />
           </NavRail.Section>
         </NavRail>
 
@@ -164,40 +233,73 @@ function Window(args: SpecimenArgs) {
               </Badge>
             </div>
             <div className="flex items-center gap-sm">
-              <Button variant="secondary" size="sm" className={fx("glass", "inner")}>
+              <Button
+                variant="secondary"
+                size="sm"
+                className={fx("glass", "inner")}
+              >
                 Share
               </Button>
-              <Button variant="secondary" size="sm" className={fx("glass", "inner", "specular")}>
+              <Button
+                variant="secondary"
+                size="sm"
+                className={fx("glass", "inner", "specular")}
+              >
                 Export
               </Button>
             </div>
           </div>
 
           {copyOnTop && copy}
-          <div className={cn("flex flex-1 justify-end gap-md", copyOnTop ? "items-end" : "items-start")}>
-            <Card className={cn("w-72", fx("glass", "edge", "specular"))}>
-              <Card.Header subtitle="Brand ground · live">Colour in motion</Card.Header>
-              <Card.Body>
-                <p className="text-body-sm text-ink-muted">
-                  The light behind this pane is the brand's base and accent, and nothing else. Muted ink on glass clears 4.5:1
-                  over anything that passes behind it.
-                </p>
-              </Card.Body>
-              <Card.Footer>
-                <Badge variant="success" size="sm" className={fx("glass")}>
-                  Dithered
-                </Badge>
-                <Badge variant="neutral" size="sm" className={fx("glass")}>
-                  OKLab
-                </Badge>
-              </Card.Footer>
-            </Card>
-            <Card className={cn("hidden w-56 xl:flex", fx("glass", "edge", "inner"))}>
-              <Card.Header subtitle="Quiet zone">Copy stays on base</Card.Header>
-              <Card.Body>
-                <p className="text-body-sm text-ink-muted">Where the copy sits; each look has its own, and two tokens move it.</p>
-              </Card.Body>
-            </Card>
+          {/* The flexible middle keeps the copy where its quiet zone is. Compact
+              (the Matrix) compares looks and leaves the cards out: they need
+              the Specimen's room. */}
+          <div
+            className={cn(
+              "flex flex-1 justify-end gap-md",
+              copyOnTop ? "items-end" : "items-start",
+            )}
+          >
+            {!compact && (
+              <>
+                <Card className={cn("w-72", fx("glass", "edge", "specular"))}>
+                  <Card.Header subtitle="Brand ground · live">
+                    Colour in motion
+                  </Card.Header>
+                  <Card.Body>
+                    <p className="text-body-sm text-ink-muted">
+                      The light behind this pane is the brand's base and accent,
+                      and nothing else. Muted ink on glass clears 4.5:1 over
+                      anything that passes behind it.
+                    </p>
+                  </Card.Body>
+                  <Card.Footer>
+                    <Badge variant="success" size="sm" className={fx("glass")}>
+                      Dithered
+                    </Badge>
+                    <Badge variant="neutral" size="sm" className={fx("glass")}>
+                      OKLab
+                    </Badge>
+                  </Card.Footer>
+                </Card>
+                <Card
+                  className={cn(
+                    "hidden w-56 xl:flex",
+                    fx("glass", "edge", "inner"),
+                  )}
+                >
+                  <Card.Header subtitle="Quiet zone">
+                    Copy stays on base
+                  </Card.Header>
+                  <Card.Body>
+                    <p className="text-body-sm text-ink-muted">
+                      Where the copy sits; each look has its own, and two tokens
+                      move it.
+                    </p>
+                  </Card.Body>
+                </Card>
+              </>
+            )}
           </div>
 
           {/* The page's copy: in the quiet zone, on the exact base. */}
@@ -216,16 +318,26 @@ export const Specimen: Story = {
 
 /** Every look in both schemes, under theme zero and the stress brand: the whole matrix at once. */
 export const Matrix: Story = {
+  decorators: [still],
   render: () => (
-    <div className="grid gap-xl 2xl:grid-cols-2">
+    <div className="grid grid-cols-2 gap-lg">
       {(["theme zero", "pale yellow"] as const).flatMap((brand) =>
         GRADIENT_LOOKS.flatMap((look) =>
           (["light", "dark"] as const).map((scheme) => (
-            <div key={`${brand}-${look}-${scheme}`} className="flex flex-col gap-xs">
+            <div
+              key={`${brand}-${look}-${scheme}`}
+              className="flex flex-col gap-xs"
+            >
               <p className="text-caption text-ink-muted">
                 {brand} · {look} · {scheme}
               </p>
-              <Window {...DEFAULTS} look={look} scheme={scheme} brand={brand} />
+              <Window
+                {...DEFAULTS}
+                compact
+                look={look}
+                scheme={scheme}
+                brand={brand}
+              />
             </div>
           )),
         ),

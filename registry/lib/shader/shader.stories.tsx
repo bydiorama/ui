@@ -4,7 +4,7 @@ import { useEffect, type CSSProperties, type ReactNode } from "react";
 import { resolveThemePair, toStyleObject, THEME_ZERO, ZERO_AUTHORED, type ThemeSeed } from "@bydiorama/tokens";
 import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
-import { startShaders } from "@/lib/shader";
+import { configureShaders, startShaders } from "@/lib/shader";
 import { GRADIENT_LOOKS, GRADIENT_PRESETS, type GradientLook } from "@/lib/shader-programs";
 import { Button } from "@/ui/button/button.tsx";
 import { Input } from "@/ui/input/input.tsx";
@@ -14,6 +14,22 @@ function Shaders({ children }: { children: ReactNode }) {
   useEffect(() => startShaders(), []);
   return <>{children}</>;
 }
+
+/**
+ * Many grounds on one page draw ONE still frame each — the look's rest frame,
+ * the one reduced motion shows — and the loop then sleeps. Ten or twenty
+ * live full-resolution grounds at once is a load no page should carry (and
+ * on a CPU-rendered runner it starved the story's own checks past their
+ * timeout). The live, single ground is Effects/Specimen.
+ */
+function Still({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    configureShaders({ reducedMotion: true });
+    return () => configureShaders({ reducedMotion: null });
+  }, []);
+  return <>{children}</>;
+}
+const still = (Story: () => ReactNode) => <Still>{Story()}</Still>;
 
 /**
  * The optional shader half of the effects layer (ADR 0022, 0025): the
@@ -82,6 +98,7 @@ function Ground({ look, tune, children }: { look: GradientLook; tune?: Record<st
  * the token pair was audited at. All are dithered: no bands.
  */
 export const Looks: Story = {
+  decorators: [still],
   render: () => (
     <div className="grid gap-lg md:grid-cols-2">
       {GRADIENT_LOOKS.flatMap((look) =>
@@ -103,6 +120,7 @@ export const Looks: Story = {
  * sharpness, scale, chroma, intensity, the quiet zone and the edge.
  */
 export const Parameters: Story = {
+  decorators: [still],
   render: () => {
     const rows: Array<[string, GradientLook, Record<string, string | number>]> = [
       ["sweep · angle 12deg", "sweep", { "--ui-fx-gradient-angle": "12deg" }],
@@ -175,6 +193,7 @@ export const Halo: Story = {
  * not olive; the copy keeps its contrast either way.
  */
 export const BrandThemed: Story = {
+  decorators: [still],
   render: () => (
     <div className="grid gap-lg md:grid-cols-2">
       {[zero, pale].map((theme, i) =>

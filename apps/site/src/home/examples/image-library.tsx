@@ -9,6 +9,7 @@ import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 
 import { useAppearance } from "../../lib/use-appearance";
+import { useExampleFx } from "./use-example-fx";
 
 /* ── Sample data (Paper: "Example — Image library") ─────────────────────── */
 
@@ -96,6 +97,7 @@ const noteCount = (n: number) => (n === 1 ? "1 note" : `${n} notes`);
 /* ── Screen ─────────────────────────────────────────────────────────────── */
 
 export default function ImageLibraryExample() {
+  const fxs = useExampleFx();
   const { effects } = useAppearance();
   const glass = effects === "on" ? fx("glass") : undefined;
   const [folder, setFolder] = useState("Autumn collection");
@@ -230,7 +232,7 @@ export default function ImageLibraryExample() {
               onChange={(e) => setQuery(e.target.value)}
               className="w-48 @min-[1100px]:w-50"
             />
-            <Button variant="primary" size="md">Upload</Button>
+            <Button variant="primary" size="md" className={fxs.primary}>Upload</Button>
           </div>
         </div>
 

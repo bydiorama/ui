@@ -78,7 +78,7 @@ const terminal = [
         <p class="hero-lead">{copy.intro}</p>
         <div class="hero-actions">
           <InstallPill command={copy.install} client:idle />
-          <a class="hero-browse" href="/components/">Browse components<ArrowRight aria-hidden="true" /></a>
+          <a class="hero-browse" href="/components/" data-slot="button" data-variant="primary" data-fx-on="sheen grain">Browse components<ArrowRight aria-hidden="true" /></a>
         </div>
       </div>
     </section>
@@ -98,7 +98,7 @@ const terminal = [
     </section>
 
     <section class="features" aria-label="How it works">
-      <article class="feature" data-reveal>
+      <article class="feature" data-reveal data-slot="card" data-fx-on="glass edge">
         <div class="feature-text">
           <div>
             <h2>One command, and the code is yours.</h2>
@@ -113,13 +113,13 @@ const terminal = [
               <pre class="terminal-body"><span class="terminal-line terminal-command" style="--i:0"><span class="terminal-prompt">invoices-app %</span> <span class="terminal-typed">npx @bydiorama/ui add date-picker</span></span>
 <span class="terminal-line" style="--i:1"> </span>
 {terminal.map((line, index) => <><span class:list={["terminal-line", `terminal-${line.kind}`]} style={`--i:${index + 2}`}>{line.kind === "done" && <span class="terminal-check">✓ </span>}{line.text || " "}</span>{"\n"}</>)}<span class="terminal-line" style={`--i:${terminal.length + 2}`}> </span>
-<span class="terminal-line" style={`--i:${terminal.length + 3}`}><span class="terminal-prompt">invoices-app %</span> <span class="terminal-cursor" aria-hidden="true">█</span></span></pre>
+<span class="terminal-line" style={`--i:${terminal.length + 3}`}><span class="terminal-prompt">invoices-app %</span> <span class="terminal-cursor" aria-hidden="true"></span></span></pre>
             </figure>
           </div>
         </div>
       </article>
 
-      <article class="feature feature-reversed" data-reveal>
+      <article class="feature feature-reversed" data-reveal data-slot="card" data-fx-on="glass edge">
         <div class="feature-text">
           <div>
             <h2>Every part is yours to open.</h2>
@@ -132,10 +132,10 @@ const terminal = [
         </div>
       </article>
 
-      <article class="feature" data-reveal>
+      <article class="feature" data-reveal data-slot="card" data-fx-on="glass edge">
         <div class="feature-text">
           <div>
-            <h2>Seven colours in. A whole theme out.</h2>
+            <h2><span class="headline-line">Seven colours in.</span> <span class="headline-line">A whole theme out.</span></h2>
             <p>The resolver derives every role in light and dark, and checks the contrast as it goes. Every component ships tested under a second brand.</p>
           </div>
           <a class="feature-link" href="#looks">Change this page's look<ArrowRight aria-hidden="true" /></a>
@@ -150,36 +150,36 @@ const terminal = [
         <p>Effects, gradients, charts and agent skills ship the same way a button does: as source you own, tested under more than one brand.</p>
       </header>
       <div class="box-row box-row-two">
-        <article class="box-tile" data-reveal>
+        <article class="box-tile" data-reveal data-slot="card" data-fx-on="glass edge">
           <div class={`box-well box-well-effects ${fx("gradient")}`} data-fx-on="grain"><EffectsTile client:visible /></div>
           <div class="box-caption"><h3><Layers aria-hidden="true" />Effects</h3><p>Six finishes, each one class on a component's root. Text on glass still clears contrast over anything behind it.</p></div>
         </article>
-        <article class="box-tile" data-reveal>
+        <article class="box-tile" data-reveal data-slot="card" data-fx-on="glass edge">
           <div class={`box-well gradient-ground ${fx("gradient")}`} data-fx-on="grain"><GradientPicker client:visible /></div>
           <div class="box-caption"><h3><Colors aria-hidden="true" />Gradient backgrounds</h3><p>A WebGL background in your brand's two colours. Five looks, and a quiet zone that keeps the copy legible.</p></div>
         </article>
       </div>
       <div class="box-row box-row-three">
-        <article class="box-tile" data-reveal>
+        <article class="box-tile" data-reveal data-slot="card" data-fx-on="glass edge">
           <div class="box-well box-well-chart"><ChartTile client:visible /></div>
           <div class="box-caption"><h3><ChartLineUp aria-hidden="true" />Charts</h3><p>Bar, line, area, scatter and histogram, drawn in the theme's own roles. Sparklines and meters too.</p></div>
         </article>
-        <article class="box-tile" data-reveal>
+        <article class="box-tile" data-reveal data-slot="card" data-fx-on="glass edge">
           <div class="box-well box-well-list">
             <ul class="skill-list" aria-label="Agent skills">{skills.map(skill => <li><code>{skill.name}</code><span>{skill.note}</span></li>)}</ul>
           </div>
           <div class="box-caption"><h3><MagicWand aria-hidden="true" />Agent skills</h3><p>Your coding agent learns the library's rules, so it builds with the system and not around it.</p></div>
         </article>
-        <article class="box-tile" data-reveal>
+        <article class="box-tile" data-reveal data-slot="card" data-fx-on="glass edge">
           <div class="box-well box-well-list">
             <ol class="change-list" aria-label="Latest changes">{changes.map(change => <li><a href={`/changelog/#${change.id}`}><time datetime={change.date}>{shortDate.format(new Date(change.date))}</time><span>{change.headline}</span></a></li>)}</ol>
           </div>
           <div class="box-caption"><h3><Layers aria-hidden="true" />Changelog</h3><p>Every change to a component is recorded, so you and your agent know what moved before you sync.</p></div>
         </article>
       </div>
-      <article class="box-tile box-tile-wide" data-reveal>
+      <article class="box-tile box-tile-wide" data-reveal data-slot="card" data-fx-on="glass edge">
         <div class="box-well box-well-marks"><StatusMarksTile client:visible /></div>
-        <div class="box-caption"><h3><Grid aria-hidden="true" />Status marks</h3><p>A small screen of dots that says what an agent is doing. The live states loop, then settle on done, failed or stopped. Hover one to play it.</p></div>
+        <div class="box-caption"><h3><Grid aria-hidden="true" />Status marks</h3><p>A small screen of dots that says what an agent is doing. The&nbsp;live states loop, then settle on done, failed or stopped. Hover one to play it.</p></div>
       </article>
     </section>
 
@@ -190,7 +190,7 @@ const terminal = [
 
     <section class="outro" aria-labelledby="outro-title">
       <div class="outro-head" data-reveal>
-        <h2 id="outro-title">Go on, touch it.</h2>
+        <h2 id="outro-title"><span class="headline-line">Designed by Diorama.</span> <span class="headline-line">Yours to steal.</span></h2>
         <p>These are live components. Drag the cards, flip the switch, press the button, change the look.</p>
       </div>
       <div class="card-fan-stage" data-reveal><CardFan client:visible /></div>

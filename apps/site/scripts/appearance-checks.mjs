@@ -8,6 +8,13 @@ const defaults = { scheme: "auto", density: "default", brand: "zero", effects: "
 export async function waitForAppearance(page) {
   await page.locator('astro-island[component-export="Stage"]:not([ssr])').waitFor();
 }
+// A component page offers the look from its stage bar: a trigger, and a panel under it.
+export async function openLooks(page) {
+  const panel = page.locator(".look-panel");
+  if (!(await panel.isVisible())) await page.locator(".stage-bar .look-trigger").click();
+  await panel.waitFor();
+  return panel;
+}
 const settle = async page => {
   await page.waitForFunction(() => !document.documentElement.hasAttribute("data-appearance-changing"));
   await page.evaluate(async () => Promise.all(document.getAnimations().filter(a => a.effect?.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {}))));
@@ -35,7 +42,7 @@ export async function checkAppearance(page, base, artifacts) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await waitForAppearance(page);
-  const dock = page.locator(".stage-bar .look-dock");
+  const dock = await openLooks(page);
   const look = name => dock.getByRole("radio", { name, exact: true });
   const chooseLook = async name => {
     await dock.locator(".look-option", { hasText: name }).click();
@@ -88,6 +95,7 @@ export async function checkAppearance(page, base, artifacts) {
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await waitForAppearance(page);
+  await openLooks(page);
 
   const themes = new Map();
   let combinations = 0;
@@ -119,7 +127,7 @@ export async function checkAppearance(page, base, artifacts) {
         }
       }
       if (scheme !== "auto") {
-        let axe = new AxeBuilder({ page }).include(".stage-bar").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]);
+        let axe = new AxeBuilder({ page }).include(".stage-bar").include(".look-panel").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]);
         if (process.argv.includes("--webkit")) axe = axe.exclude("[data-base-ui-focus-guard]");
         const { violations } = await axe.analyze();
         assert.deepEqual(violations.map(v => `${v.id}: ${v.nodes.map(n => n.html).join("; ")}`), [], `${brand}/${scheme}: appearance accessibility`);
@@ -132,6 +140,7 @@ export async function checkAppearance(page, base, artifacts) {
   await page.emulateMedia({ colorScheme: "light" });
   await page.reload();
   await waitForAppearance(page);
+  await openLooks(page);
 
   // Native radio navigation: Tab enters the chosen look, arrows move and choose.
   await chooseLook("Soft");
@@ -151,6 +160,7 @@ export async function checkAppearance(page, base, artifacts) {
   assert((await material()) !== "none", "Effects works from the keyboard");
   await page.reload();
   await waitForAppearance(page);
+  await openLooks(page);
   assert(await look("Hockney").isChecked(), "The look survives a reload");
   assert(await dark.isChecked(), "Dark survives a reload");
   assert(await effect.isChecked(), "Effects survives a reload");
@@ -175,6 +185,7 @@ export async function checkAppearance(page, base, artifacts) {
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [storageKey, invalid]);
     await page.reload();
     await waitForAppearance(page);
+    await openLooks(page);
     assert(await look("Zero").isChecked());
     assert.equal(await page.locator("html").getAttribute("data-ui-density"), "default");
     assert.equal(await page.locator("html").getAttribute("data-site-scheme"), invalid.startsWith('{"brand"') ? "dark" : "auto");
@@ -183,6 +194,7 @@ export async function checkAppearance(page, base, artifacts) {
   await page.evaluate(([key, preferences]) => localStorage.setItem(key, JSON.stringify(preferences)), [storageKey, { ...defaults, effects: "on" }]);
   await page.reload();
   await waitForAppearance(page);
+  await openLooks(page);
   assert((await material()) !== "none");
   const sibling = await page.context().newPage();
   await sibling.goto(base);
@@ -202,8 +214,9 @@ export async function checkAppearance(page, base, artifacts) {
   blockedPage.on("pageerror", error => blockedErrors.push(error.message));
   await blockedPage.goto(`${base}/components/button/`);
   await waitForAppearance(blockedPage);
-  await blockedPage.locator(".stage-bar .look-dock").getByText("Dark", { exact: true }).click();
-  await blockedPage.locator(".stage-bar .look-dock").getByText("Effects", { exact: true }).click();
+  const blockedDock = await openLooks(blockedPage);
+  await blockedDock.getByText("Dark", { exact: true }).click();
+  await blockedDock.getByText("Effects", { exact: true }).click();
   await settle(blockedPage);
   assert.equal(await blockedPage.evaluate(() => getComputedStyle(document.documentElement).colorScheme), "dark");
   assert(await blockedPage.locator('.specimen-well [data-slot="button"]').first().evaluate(el => getComputedStyle(el).backgroundImage !== "none"), "Effects remains usable when storage is blocked");

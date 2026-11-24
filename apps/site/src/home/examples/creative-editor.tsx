@@ -37,6 +37,7 @@ import { cn } from "@/lib/cn";
 import { fx } from "@/lib/fx";
 import { motionMicro, motionStandard } from "@/lib/motion";
 import { useAppearance } from "../../lib/use-appearance";
+import { useExampleFx } from "./use-example-fx";
 
 /*
  * A business card open in a template editor: the stage with its floating
@@ -444,6 +445,7 @@ function ToggleText({ label, glyph, isPressed, onClick }: { label: string; glyph
 const ZOOM_STEPS = [50, 75, 100, 125, 150] as const;
 
 export default function CreativeEditorExample() {
+  const fxs = useExampleFx();
   const { effects } = useAppearance();
   const isGlass = effects === "on";
   const { doc, canUndo, canRedo, commit, undo, redo } = useDocHistory();
@@ -516,7 +518,7 @@ export default function CreativeEditorExample() {
             <Button variant="secondary" size="md" isDisabled={isSaved} onClick={() => setSavedDoc(doc)}>
               {isSaved ? "Saved" : "Save"}
             </Button>
-            <Button variant="primary" size="md" icon={<Download />}>
+            <Button variant="primary" size="md" icon={<Download />} className={fxs.primary}>
               Export
             </Button>
           </div>
@@ -596,7 +598,7 @@ export default function CreativeEditorExample() {
                 </span>
                 <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
               </Menu.Trigger>
-              <Menu.Panel align="start">
+              <Menu.Panel align="start" className={fxs.panel}>
                 {LAYERS.map((entry) =>
                   entry.id === "background" ? (
                     <Menu.Item key={entry.id} isDisabled trailing={<Lock aria-hidden="true" />}>

@@ -1,27 +1,27 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ComponentType } from "react";
 import { Tabs } from "@/ui/tabs";
-import AiWorkspaceExample from "./examples/ai-workspace";
+import ImageLibraryExample from "./examples/image-library";
 
 /** The first screen ships in the page's HTML; the rest load when asked for,
  *  and are fetched in the background once the stage is on screen. */
 const loaders = {
-  "finance-operations": () => import("./examples/finance-operations"),
   "creative-editor": () => import("./examples/creative-editor"),
-  "image-library": () => import("./examples/image-library"),
+  "ai-workspace": () => import("./examples/ai-workspace"),
+  "finance-operations": () => import("./examples/finance-operations"),
   "docs-editor": () => import("./examples/docs-editor"),
 };
 const lazyScreens = {
-  "finance-operations": lazy(loaders["finance-operations"]),
   "creative-editor": lazy(loaders["creative-editor"]),
-  "image-library": lazy(loaders["image-library"]),
+  "ai-workspace": lazy(loaders["ai-workspace"]),
+  "finance-operations": lazy(loaders["finance-operations"]),
   "docs-editor": lazy(loaders["docs-editor"]),
 } satisfies Record<keyof typeof loaders, ComponentType>;
 
 const useCases = [
-  { value: "ai-workspace", label: "AI Workspace", Screen: AiWorkspaceExample, about: "A coding agent's thread: its progress, the changes it made with a diff, and a reply box. Nothing is merged until you approve." },
-  { value: "finance-operations", label: "Finance Operations", Screen: lazyScreens["finance-operations"], about: "A finance app's receivables: a navigation rail, a searchable, filterable table of invoices and a panel of activity." },
+  { value: "image-library", label: "Image Library", Screen: ImageLibraryExample, about: "A studio's image archive: folders, a searchable grid filtered by tag, and an image with pinned notes." },
   { value: "creative-editor", label: "Creative Editor", Screen: lazyScreens["creative-editor"], about: "A design editor: pages and formats, a canvas with a selected text layer and its toolbar, and the layer's settings." },
-  { value: "image-library", label: "Image Library", Screen: lazyScreens["image-library"], about: "A studio's image archive: folders, a searchable grid filtered by tag, and an image with pinned notes." },
+  { value: "ai-workspace", label: "AI Workspace", Screen: lazyScreens["ai-workspace"], about: "A coding agent's inbox: each task's status, its plan ticked off step by step, the changes it made with a diff, and a reply box. Nothing is merged until you approve." },
+  { value: "finance-operations", label: "Financial Dashboard", Screen: lazyScreens["finance-operations"], about: "A finance app's receivables: a navigation rail, a filterable table of invoices and the selected invoice's activity." },
   { value: "docs-editor", label: "Docs Editor", Screen: lazyScreens["docs-editor"], about: "A docs editor: a page on payment reminders, a suggested rewrite of the selected paragraph, and an assistant thread beside it." },
 ] as const;
 

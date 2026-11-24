@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { chromium, webkit } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { checkAppearance, waitForAppearance } from "./appearance-checks.mjs";
+import { checkAppearance, openLooks, waitForAppearance } from "./appearance-checks.mjs";
 import { checkPreviews } from "./preview-checks.mjs";
 
 const site = fileURLToPath(new URL("../", import.meta.url));
@@ -55,7 +55,7 @@ try {
     await page.goto(url);
     // `client:visible` islands hydrate only once scrolled to, so they are not waited for.
     await page.waitForFunction(() => [...document.querySelectorAll('astro-island:not([client="visible"])')].every(island => !island.hasAttribute("ssr")));
-    if (await page.locator('.stage-bar .look-dock').count()) await waitForAppearance(page);
+    if (await page.locator('.stage-bar').count()) await waitForAppearance(page);
   };
   if (process.argv.includes("--previews-only")) {
     await checkPreviews(page, base, artifacts);
@@ -154,14 +154,14 @@ try {
   await visit(`${base}/components/button/`);
   const settled = () => page.evaluate(async () => { await Promise.all(document.getAnimations().filter(a => a.effect?.getTiming().iterations !== Infinity).map(a => a.finished.catch(() => {}))); });
   await settled();
-  const lookDock = page.locator(".stage-bar .look-dock");
+  const lookDock = await openLooks(page);
   const darkSwitch = lookDock.getByRole("switch", { name: "Dark", exact: true });
   const setDark = async on => {
     if (await darkSwitch.isChecked() !== on) await lookDock.getByText("Dark", { exact: true }).click();
     await settled();
     assert.equal(await darkSwitch.isChecked(), on);
   };
-  assert.equal(await page.locator(".appearance-panel").count(), 0, "The look dock replaces the appearance popover");
+  assert.match(await page.locator(".stage-bar .look-trigger").getAttribute("aria-label"), /^Look: \w+ · (?:Light|Dark)$/, "The bar names the look the example is shown in");
   assert.equal(await lookDock.getByRole("radiogroup", { name: "Look", exact: true }).count(), 1);
   await page.emulateMedia({ colorScheme: "dark" });
   for (const brand of ["Zero", "Mono", "Soft", "Hockney"]) {
@@ -278,7 +278,7 @@ try {
   await page.getByText("Use the shared tokens to bring your colours, type and shape into the system.", { exact: true }).waitFor();
   await page.setViewportSize({ width: 320, height: 640 });
   await visit(`${base}/components/button/`);
-  const phoneDock = await page.locator(".stage-bar .look-dock").boundingBox();
+  const phoneDock = await (await openLooks(page)).boundingBox();
   assert(phoneDock && phoneDock.x >= 0 && phoneDock.x + phoneDock.width <= 320, "The look dock must fit the available viewport");
   const appearanceAudit = await audit(page).analyze();
   if (appearanceAudit.violations.length) errors.push(`Appearance: ${appearanceAudit.violations.map(v => `${v.id}: ${v.nodes.map(n => n.html).join("; ")}`).join(", ")}`);

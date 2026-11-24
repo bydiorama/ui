@@ -22,6 +22,45 @@ function subscribeDark(listener: () => void) {
 }
 const systemIsDark = () => window.matchMedia(darkQuery).matches;
 
+/** Whether the page currently paints dark, the scheme resolved against the system. */
+export function useIsDark() {
+  const appearance = useAppearance();
+  const isSystemDark = useSyncExternalStore(subscribeDark, systemIsDark, () => false);
+  return appearance.scheme === "dark" || (appearance.scheme === "auto" && isSystemDark);
+}
+
+/**
+ * The page's gradient grounds. With effects off they hold one still frame
+ * (the design's), with effects on they move. Whatever offers the look owns
+ * the runtime for the page, so it runs even while the controls are closed.
+ */
+export function useShaderRuntime() {
+  const appearance = useAppearance();
+  useEffect(() => startShaders(), []);
+  useEffect(() => { configureShaders({ reducedMotion: appearance.effects === "on" ? null : true }); }, [appearance.effects]);
+}
+
+/** The controls themselves: the four looks, then Effects and Dark. `name` keeps two copies' radios apart. */
+export function LookControls({ name = "look" }: { name?: string }) {
+  const appearance = useAppearance();
+  const isDark = useIsDark();
+  return <>
+    <div className="look-options" role="radiogroup" aria-label="Look">
+      {looks.map(look => (
+        <label key={look.value} className="look-option" data-selected={appearance.brand === look.value ? "" : undefined}>
+          <input type="radio" name={name} value={look.value} checked={appearance.brand === look.value} onChange={() => setAppearance("brand", look.value)} />
+          <span className="look-swatch" data-site-brand={look.value} aria-hidden="true" />
+          {look.label}
+        </label>
+      ))}
+    </div>
+    <div className="look-switches">
+      <Switch className="look-switch" labelPlacement="start" isChecked={appearance.effects === "on"} onCheckedChange={isChecked => setAppearance("effects", isChecked ? "on" : "off")}>Effects</Switch>
+      <Switch className="look-switch" labelPlacement="start" isChecked={isDark} onCheckedChange={isChecked => setAppearance("scheme", isChecked ? "dark" : "light")}>Dark</Switch>
+    </div>
+  </>;
+}
+
 /**
  * The look switch: brand, effects and scheme for the whole page. It sits
  * under the hero, and once the reader scrolls past it a copy of the same
@@ -31,27 +70,15 @@ const systemIsDark = () => window.matchMedia(darkQuery).matches;
  *
  * `isFloatingOnly` drops the inline dock: the floating one is shown from
  * the top of the page (the components page, where the switch is a tool
- * beside the catalog rather than a section of its own).
- *
- * `isInlineOnly` is the opposite: only the inline dock, never floating. A
- * component page puts it in the bar of its example, so the look being tried
- * is changed beside the example it re-paints.
+ * beside the catalog rather than a section of its own). A component page
+ * offers the same `LookControls` from its stage bar instead.
  */
-export function LookDock({ isFloatingOnly = false, isInlineOnly = false }: { isFloatingOnly?: boolean; isInlineOnly?: boolean }) {
-  const appearance = useAppearance();
-  const isSystemDark = useSyncExternalStore(subscribeDark, systemIsDark, () => false);
-  const isDark = appearance.scheme === "dark" || (appearance.scheme === "auto" && isSystemDark);
+export function LookDock({ isFloatingOnly = false }: { isFloatingOnly?: boolean }) {
   const slot = useRef<HTMLDivElement>(null);
   const [isFloating, setIsFloating] = useState(false);
-
-  // The page's gradient grounds. With effects off they hold one still
-  // frame (the design's), with effects on they move. The dock is on every
-  // load of the home page, so it owns the runtime for the page.
-  useEffect(() => startShaders(), []);
-  useEffect(() => { configureShaders({ reducedMotion: appearance.effects === "on" ? null : true }); }, [appearance.effects]);
+  useShaderRuntime();
 
   useEffect(() => {
-    if (isInlineOnly) return;
     const element = slot.current;
     const end = document.querySelector("[data-dock-end]");
     if (!element && !isFloatingOnly) return;
@@ -70,25 +97,14 @@ export function LookDock({ isFloatingOnly = false, isInlineOnly = false }: { isF
     if (element) past.observe(element);
     if (end) atEnd.observe(end);
     return () => { past.disconnect(); atEnd.disconnect(); };
-  }, [isFloatingOnly, isInlineOnly]);
+  }, [isFloatingOnly]);
 
   const dock = (isCopy: boolean) => (
     <div className="look-dock" data-floating={isCopy ? "" : undefined} data-visible={isCopy ? String(isFloating) : undefined} inert={isCopy && !isFloating ? true : undefined}>
-      <div className="look-options" role="radiogroup" aria-label="Look">
-        {looks.map(look => (
-          <label key={look.value} className="look-option" data-selected={appearance.brand === look.value ? "" : undefined}>
-            <input type="radio" name={isCopy ? "look-floating" : "look"} value={look.value} checked={appearance.brand === look.value} onChange={() => setAppearance("brand", look.value)} />
-            <span className="look-swatch" data-site-brand={look.value} aria-hidden="true" />
-            {look.label}
-          </label>
-        ))}
-      </div>
-      <Switch className="look-switch" labelPlacement="start" isChecked={appearance.effects === "on"} onCheckedChange={isChecked => setAppearance("effects", isChecked ? "on" : "off")}>Effects</Switch>
-      <Switch className="look-switch" labelPlacement="start" isChecked={isDark} onCheckedChange={isChecked => setAppearance("scheme", isChecked ? "dark" : "light")}>Dark</Switch>
+      <LookControls name={isCopy ? "look-floating" : "look"} />
     </div>
   );
 
-  if (isInlineOnly) return dock(false);
   return (
     <>
       {!isFloatingOnly && <div ref={slot} className="look-dock-slot">{dock(false)}</div>}

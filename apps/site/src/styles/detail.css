@@ -1,7 +1,7 @@
-/* The component detail page (Paper: "Component detail v2 — Button · 1440").
+/* The component detail page (Paper: "Component detail v3 — Button · 1440").
    The catalog's language carried in: one 1120 column on the page ground, a
    surface tile with a base well for the live example, a quiet rail beside
-   the reading column. Every colour is a theme role, every stroke is on the
+   the reading column, and the home page's outro to close it. Every colour is a theme role, every stroke is on the
    library's scale (default 1, hairline 1.5), every radius is on its scale,
    so brand and scheme re-paint the page, the example alike. */
 
@@ -14,7 +14,8 @@
 .detail-page ul, .detail-page ol { padding: 0; list-style: none; }
 
 /* ------------------------------------------------------------------ head */
-.detail-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; padding-block: 56px 40px; }
+/* The catalog's head: the name on the left, what it does on the right, on one baseline. */
+.detail-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; padding-block: 32px; }
 .detail-head-title { display: flex; flex-direction: column; gap: 20px; width: 560px; max-width: 100%; min-width: 0; }
 .detail-crumbs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .detail-crumbs ol { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
@@ -22,19 +23,21 @@
 .detail-crumbs a:hover { color: var(--ui-text-primary); }
 .detail-crumbs [data-slot="badge"] { margin-left: 4px; }
 .detail-head h1 { font-size: clamp(44px, 4.45vw, 64px); line-height: 1.0625; font-weight: 550; letter-spacing: -0.045em; color: var(--ui-text-primary); overflow-wrap: anywhere; }
-.detail-lede { max-width: 480px; font-size: 18px; line-height: 28px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
-.detail-head-tools { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; min-width: 0; max-width: 100%; }
+.detail-lede { width: 480px; max-width: 100%; flex-shrink: 1; font-size: 18px; line-height: 28px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+
+/* The toolbar: install on the left, the page's other forms on the right. */
+.detail-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; padding-block: 32px; }
 /* The home page's install pill, at the head's scale. */
-.detail-head .install-pill { height: 48px; gap: 12px; padding: 0 6px 0 20px; max-width: 100%; }
-.detail-head .install-pill code { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.detail-head .install-pill .install-pill-copy { width: 36px; height: 36px; flex-shrink: 0; }
-.detail-links { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 8px 20px; padding-right: 8px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-primary); }
-.detail-links a { display: inline-flex; align-items: center; gap: 4px; }
-.detail-links a:hover, .detail-more:hover, .detail-all:hover { text-decoration: underline; text-underline-offset: 4px; }
+.detail-toolbar .install-pill { height: 48px; gap: 12px; padding: 0 6px 0 20px; max-width: 100%; }
+.detail-toolbar .install-pill code { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.detail-toolbar .install-pill .install-pill-copy { width: 36px; height: 36px; flex-shrink: 0; }
+.detail-links { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.detail-links svg { color: var(--ui-text-muted); }
+.detail-more:hover, .detail-all:hover { text-decoration: underline; text-underline-offset: 4px; }
 .detail-links svg, .detail-more svg, .detail-all svg { width: 12px; height: 12px; flex-shrink: 0; }
 
 /* ----------------------------------------------------------------- stage */
-.preview-frame { background: var(--ui-bg-surface); border-radius: 32px; overflow: clip; }
+.preview-frame { padding-bottom: 8px; background: var(--ui-bg-surface); border-radius: 32px; overflow: clip; }
 .preview-frame .stage .stage-well { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 400px; height: auto; margin: 8px 8px 0; padding: 24px; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); border-radius: 24px; background: var(--ui-bg-base); overflow: clip; }
 /* The source, highlighted at build time. Its colours are the theme's roles (Astro's
    css-variables theme reads these), so a brand or scheme change re-inks it. Long lines
@@ -62,11 +65,17 @@
 .code-body pre { flex: 1; min-width: 0; margin: 0; padding: 16px 20px 24px; overflow: auto; font-size: 14px; line-height: 22px; letter-spacing: -0.01em; tab-size: 2; white-space: pre-wrap !important; overflow-wrap: anywhere; }
 .code-body pre:focus-visible { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: -4px; border-radius: 16px; }
 .code-body pre code { font: inherit; }
-.stage-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; min-height: 64px; padding: 8px 12px 8px 16px; }
-/* The floating look dock, set into the bar: the same looks, Effects and Dark, but flat
-   (a hairline on the page ground, like the install pill) since the bar is already a surface. */
-.stage-bar .look-dock { height: auto; min-height: 48px; padding: 0 16px 0 6px; gap: 16px; background: var(--ui-bg-base); box-shadow: inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); }
-.stage-bar .look-option { height: 36px; }
+/* The bar sits on top: the view switch on the left, the look on the right. */
+.stage-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 8px 20px 0; }
+.look-trigger { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0; border: 0; background: none; font: inherit; font-size: 13px; line-height: 16px; font-weight: 600; color: var(--ui-text-primary); cursor: pointer; }
+.look-trigger .look-swatch { width: 10px; height: 10px; }
+.look-trigger svg { width: 14px; height: 14px; flex-shrink: 0; transition: rotate var(--ui-duration-fast) var(--ui-ease-default); }
+.look-trigger[data-popup-open] svg { rotate: 180deg; }
+.look-trigger:focus-visible { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: 4px; border-radius: var(--ui-radius-sm); }
+/* The look panel: the looks, then Effects and Dark under them, on the page ground. */
+.look-panel { min-width: 0; gap: 8px; padding: 8px; border-radius: 24px; background: var(--ui-bg-base); border-width: var(--ui-stroke-hairline); box-shadow: none; }
+.look-panel .look-switches { display: flex; align-items: center; gap: 20px; padding: 8px; }
+.look-panel .look-option { height: 36px; }
 
 /* ------------------------------------------------------------------ body */
 .detail-body { display: grid; grid-template-columns: 224px minmax(0, 1fr); gap: 32px; padding-block: 96px; align-items: start; }
@@ -156,8 +165,12 @@
 
 /* ----------------------------------------------------------------- pager */
 .pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-.pager-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 24px 28px 28px; border-radius: 24px; background: var(--ui-bg-surface); box-shadow: inset 0 0 0 var(--ui-stroke-default) var(--ui-border-subtle); transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
-.pager-card:hover { background: var(--ui-bg-elevated); }
+/* Fill and edge in the components layer, so Effects' glass and edge can replace them (home.css has the note). */
+@layer components {
+  .pager-card { background-color: var(--ui-bg-surface); box-shadow: inset 0 0 0 var(--ui-stroke-default) var(--ui-border-subtle); }
+  .pager-card:hover { background-color: var(--ui-bg-elevated); }
+}
+.pager-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 24px 28px 28px; border-radius: 24px; transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
 .pager-card[data-side="next"] { align-items: flex-end; text-align: end; }
 .pager-card span { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
 .pager-card svg { width: 14px; height: 14px; flex-shrink: 0; }
@@ -171,13 +184,12 @@
   .detail-main { gap: 96px; }
 }
 @media (max-width: 860px) {
-  .detail-head { flex-direction: column; align-items: flex-start; gap: 24px; padding-block: 32px; }
-  .detail-head-tools { align-items: flex-start; width: 100%; }
-  .detail-links { justify-content: flex-start; padding-right: 0; }
+  .detail-head { flex-direction: column; align-items: flex-start; gap: 20px; padding-block: 32px 0; }
   .detail-lede { font-size: 16px; line-height: 25px; }
 }
 @media (max-width: 700px) {
   .preview-frame { border-radius: 24px; }
+  .stage-bar { padding-inline: 12px 16px; }
   .preview-frame .stage .stage-well { min-height: 240px; padding: 16px; border-radius: 16px; }
   .preview-frame .stage .stage-code { border-radius: 16px; }
   .detail-main { gap: 72px; }

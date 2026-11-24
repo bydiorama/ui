@@ -43,7 +43,19 @@ function applyAppearance(preferences: Appearance, persist: boolean) {
   }
 }
 export function setAppearance<K extends keyof Appearance>(key: K, value: Appearance[K]) {
-  applyAppearance(parseAppearance({ ...readAppearance(), [key]: value }), true);
+  const next = parseAppearance({ ...readAppearance(), [key]: value });
+  // Effects arrive and leave as one cross-fade of the page, not a snap: the
+  // fx layers are background images, which cannot transition themselves.
+  // The update waits a task so the islands have re-rendered and the
+  // data-fx-on classes are synced before the new frame is captured.
+  const canFade = key === "effects" && typeof document.startViewTransition === "function" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!canFade) { applyAppearance(next, true); return; }
+  document.documentElement.dataset.effectsFade = "";
+  const transition = document.startViewTransition(async () => {
+    applyAppearance(next, true);
+    await new Promise(resolve => setTimeout(resolve, 0));
+  });
+  void transition.finished.finally(() => { delete document.documentElement.dataset.effectsFade; });
 }
 export function resetAppearance() { applyAppearance(defaultAppearance, true); }
 function syncStorage(event: StorageEvent) {

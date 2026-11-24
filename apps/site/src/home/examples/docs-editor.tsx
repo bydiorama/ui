@@ -11,6 +11,7 @@ import { Fade } from "@/ui/fade";
 import { StatusMatrix, type StatusMatrixStatus } from "@/ui/status-matrix";
 
 import { useAppearance } from "../../lib/use-appearance";
+import { useExampleFx } from "./use-example-fx";
 
 /*
  * Docs editor — a help-centre page with an assistant beside it (Paper:
@@ -52,6 +53,7 @@ const FORMATS = [
 type Suggestion = "open" | "replaced" | "inserted" | "discarded";
 
 export default function DocsEditorExample() {
+  const fxs = useExampleFx();
   const { effects } = useAppearance();
   const hasEffects = effects === "on";
 
@@ -163,7 +165,7 @@ export default function DocsEditorExample() {
           </div>
           <div className="flex shrink-0 items-center gap-md">
             <p className="hidden text-caption font-regular text-ink-muted @min-[1100px]:block">Saved 2 min ago</p>
-            <Button variant="primary" size="sm">
+            <Button variant="primary" size="sm" className={fxs.primary}>
               Publish
             </Button>
           </div>
@@ -197,7 +199,7 @@ export default function DocsEditorExample() {
               <p className="text-body-lg font-regular text-ink-secondary">{SUGGESTION}</p>
             ) : null}
             {suggestion === "open" ? (
-              <Card className="shrink-0 gap-sm bg-surface p-md">
+              <Card className={cn("shrink-0 gap-sm bg-surface p-md", fxs.card)}>
                 <div className="flex items-center gap-sm">
                   <StatusMatrix status="done" size="sm" />
                   <p className="text-label-sm text-ink-muted">Suggested rewrite</p>

@@ -30,6 +30,10 @@ html[data-site-scheme="dark"] [data-site-brand] { color-scheme: dark; }
 /* The header sticks, and is clear until the page moves under it: then it
    takes the page's own ground at 85% with a blur and a hairline foot, so it
    reads as a pane over the content rather than a bar painted on top of it. */
+/* Effects switching on or off: the page cross-fades (appearance.ts). Only for
+   that switch, so other view transitions keep the browser's default. */
+html[data-effects-fade]::view-transition-old(root),
+html[data-effects-fade]::view-transition-new(root) { animation-duration: var(--ui-duration-slow); animation-timing-function: var(--ui-ease-default); }
 .site-header { position: sticky; top: 0; z-index: var(--ui-z-sticky); transition: background-color var(--ui-duration-base) var(--ui-ease-default); }
 .site-header[data-scrolled] { background: var(--ui-bg-affix); }
 /* Under the pinned bar, a Fade in the bar's own affix ground: content
@@ -50,9 +54,13 @@ html[data-site-effects="on"] .site-header-fade { display: none; }
 .header-tools { @apply text-body-sm; justify-self: end; gap: var(--ui-space-sm); }
 .header-tools kbd { @apply text-label-sm;  border-radius: var(--ui-radius-sm); background: var(--ui-bg-sunken); padding: 0 var(--ui-space-xs); color: var(--ui-text-muted); }
 .github-link svg { width: 16px; height: 16px; }
+/* griddy's regular GitHub mark ships a fixed black fill; the header's ink must reach it in every scheme. */
+.github-link svg:not(.github-link-arrow) path { fill: currentColor; }
 .github-link .github-link-arrow { width: 12px; height: 12px; color: var(--ui-text-muted); }
 .start-link { color: var(--ui-text-muted); }
 .mobile-nav { display: none; }
+.mobile-nav-trigger { margin-right: calc(-1 * var(--ui-space-sm)); }
+.mobile-nav-home { padding-inline: var(--ui-space-sm); @apply text-label-md; color: var(--ui-text-primary); }
 .skip-link { position: fixed; left: 16px; top: 8px; transform: translateY(-150%); background: var(--ui-bg-base); padding: var(--ui-space-sm) var(--ui-space-lg); z-index: var(--ui-z-tooltip); }
 .skip-link:focus { transform: translateY(0); }
 .home-content, .page-content { max-width: 1440px; margin: 0 auto; padding: calc(var(--ui-space-4xl) + var(--ui-space-3xl) + var(--ui-space-sm)) var(--ui-space-4xl) var(--ui-space-4xl); }
@@ -131,9 +139,6 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
   .site-header-inner { min-height: 56px; padding-inline: var(--ui-space-lg); grid-template-columns: 1fr auto; gap: var(--ui-space-lg); }
   .desktop-nav, .github-link, .header-tools kbd { display: none; }
   .mobile-nav { display: block; }
-  .mobile-nav summary { list-style: none; @apply text-label-md; padding: 6px 0; }
-  .mobile-nav summary::-webkit-details-marker { display: none; }
-  .mobile-nav nav { position: absolute; left: 16px; right: 16px; top: 56px; display: flex; flex-direction: column; padding: var(--ui-space-lg); gap: var(--ui-space-lg); background: var(--ui-bg-surface); border-radius: var(--ui-radius-lg); box-shadow: var(--ui-shadow-lg); }
   .home-content { padding: calc(var(--ui-space-3xl) + var(--ui-space-sm)) var(--ui-space-lg) var(--ui-space-3xl); gap: calc(var(--ui-space-3xl) + var(--ui-space-sm)); }
   .lead { gap: var(--ui-space-xl); }
   .lead h1 { @apply text-title-lg;  }
@@ -141,8 +146,12 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
   .philosophy { grid-template-columns: 1fr; gap: var(--ui-space-xl); padding-top: var(--ui-space-2xl); }
   .philosophy h2 { @apply text-title-lg;  }
   .philosophy p { @apply text-body-md;  }
-  .site-footer { display: block; padding: var(--ui-space-xl) var(--ui-space-lg); }
-  .site-footer nav { margin-top: var(--ui-space-lg); gap: var(--ui-space-lg); }
+  /* The footer on a phone: the links first, in two columns of 44px rows (a
+     thumb's target), then the sign-off, clear of the home indicator. */
+  .site-footer { display: flex; flex-direction: column-reverse; align-items: stretch; gap: var(--ui-space-lg); padding: var(--ui-space-lg) var(--ui-space-lg) calc(var(--ui-space-xl) + env(safe-area-inset-bottom)); }
+  .site-footer nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--ui-space-lg); }
+  .site-footer nav a { display: flex; align-items: center; min-height: 44px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); color: var(--ui-text-primary); }
+  .site-footer p { color: var(--ui-text-muted); }
   .page-content { padding: var(--ui-space-3xl) var(--ui-space-lg); }
 
   .prose-page { padding: var(--ui-space-3xl) var(--ui-space-lg); }

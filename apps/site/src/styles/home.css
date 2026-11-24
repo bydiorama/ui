@@ -25,6 +25,14 @@
 .home h2, .home h3 { margin: 0; }
 .home p { margin: 0; }
 
+/* The site's cards are cards to the effects layer (data-slot="card", and
+   glass + edge while Effects is on, as the card fan's Look card wears them).
+   Their fill sits in the components layer so the fx layer, which comes after
+   it, can lay its glass over it; unlayered, the plain fill would always win. */
+@layer components {
+  .feature, .box-tile { background-color: var(--ui-bg-surface); }
+}
+
 /* ---------------------------------------------------------------- reveal */
 /* Sections rise in once, as they reach the window. Only after the page
    script has run (data-motion), so without JS nothing is hidden. */
@@ -62,13 +70,14 @@ html:not([data-motion]) .hero-reel-word[data-index="4"] { color: var(--ui-text-p
 .hero-lead { max-width: 460px; text-align: center; font-size: 20px; line-height: 30px; letter-spacing: -0.02em; color: var(--ui-text-secondary); text-wrap: balance; }
 .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; }
 
-.install-pill { display: inline-flex; align-items: center; gap: 20px; height: 56px; padding: 0 8px 0 16px; border-radius: var(--ui-radius-full); background: var(--ui-bg-field); box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); }
+/* The text clears the round end: 24 in, where the copy button opposite sits 8 in as a 40px circle (8 + 20 = the 28 radius). */
+.install-pill { display: inline-flex; align-items: center; gap: 20px; height: 56px; padding: 0 8px 0 24px; border-radius: var(--ui-radius-full); background: var(--ui-bg-field); box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); }
 .install-pill code { font: inherit; font-size: 14px; line-height: 18px; font-weight: 500; letter-spacing: -0.01em; color: var(--ui-text-primary); white-space: nowrap; }
 .install-pill-program { color: var(--ui-text-muted); }
 .install-pill .install-pill-copy { width: 40px; height: 40px; background: var(--ui-bg-elevated); }
 
-.hero-browse { display: inline-flex; align-items: center; gap: 8px; height: 56px; padding-inline: 28px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent); color: var(--ui-text-on-accent); font-size: 16px; line-height: 20px; font-weight: 600; letter-spacing: -0.02em; transition: background-color var(--ui-duration-fast) var(--ui-ease-default), scale var(--ui-duration-fast) var(--ui-ease-default); }
-.hero-browse:hover { background: var(--ui-bg-accent-hover); }
+.hero-browse { display: inline-flex; align-items: center; gap: 8px; height: 56px; padding-inline: 28px; border-radius: var(--ui-radius-full); background-color: var(--ui-bg-accent); color: var(--ui-text-on-accent); font-size: 16px; line-height: 20px; font-weight: 600; letter-spacing: -0.02em; transition: background-color var(--ui-duration-fast) var(--ui-ease-default), scale var(--ui-duration-fast) var(--ui-ease-default); }
+.hero-browse:hover { background-color: var(--ui-bg-accent-hover); }
 .hero-browse:active { scale: 0.98; }
 .hero-browse svg { width: 18px; height: 18px; transition: translate var(--ui-duration-base) var(--ui-ease-spring); }
 .hero-browse:hover svg { translate: 3px 0; }
@@ -79,6 +88,8 @@ html:not([data-motion]) .hero-reel-word[data-index="4"] { color: var(--ui-text-p
 .looks-caption { font-size: 13px; line-height: 16px; font-weight: 500; letter-spacing: -0.01em; color: var(--ui-text-muted); text-align: center; }
 .look-dock-slot { min-height: 56px; }
 .look-dock { display: inline-flex; align-items: center; gap: 20px; height: 56px; padding: 0 20px 0 8px; border-radius: var(--ui-radius-full); background: var(--ui-bg-surface); box-shadow: 0 8px 24px -4px rgb(29 27 25 / 0.09), 0 2px 8px rgb(29 27 25 / 0.05), inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); }
+/* The switches group only where the controls stack (a component page's look panel); in the dock they are its own items. */
+.look-switches { display: contents; }
 .look-options { display: flex; gap: 2px; padding: 2px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
 .look-option { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 11px; border-radius: var(--ui-radius-full); font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-muted); cursor: pointer; transition: background-color var(--ui-duration-base) var(--ui-ease-default), color var(--ui-duration-base) var(--ui-ease-default), box-shadow var(--ui-duration-base) var(--ui-ease-default); }
 .look-option:hover { color: var(--ui-text-primary); }
@@ -111,7 +122,10 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 /* The app's own edge: a hairline drawn OVER the screen, so it costs the
    960px canvas nothing (a border would shrink it and blur the scale). Open
    at the foot, where the window runs off the stage. */
-.use-case-frame::after { content: ""; position: absolute; inset: 0; z-index: 1; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); border-bottom: 0; border-radius: inherit; pointer-events: none; }
+/* The frame's hairline lies over every layer of the screen inside it: a
+   screen's own raised panel (the creative editor's settings, z-10) would
+   otherwise cover the edge it runs along. */
+.use-case-frame::after { content: ""; position: absolute; inset: 0; z-index: 30; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); border-bottom: 0; border-radius: inherit; pointer-events: none; }
 .use-case-panel { position: absolute; inset: 0; }
 .use-case-panel[hidden] { display: block; visibility: hidden; opacity: 0; }
 .use-case-panel:not([hidden]) { animation: use-case-in var(--ui-duration-slow) var(--ui-ease-out); }
@@ -142,7 +156,7 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 /* ------------------------------------------------------------- features */
 .features { display: flex; flex-direction: column; gap: 16px; padding: 96px 0; }
 .home > .features { width: min(var(--home-width), 100% - 2 * var(--home-gutter)); }
-.feature { display: flex; height: 520px; border-radius: 24px; background: var(--ui-bg-surface); overflow: clip; }
+.feature { display: flex; height: 520px; border-radius: 24px; overflow: clip; }
 .feature-reversed { flex-direction: row-reverse; }
 .feature-text { display: flex; flex-direction: column; justify-content: space-between; gap: 32px; width: 400px; flex-shrink: 0; padding: 40px; }
 .feature-text > div { display: flex; flex-direction: column; gap: 12px; }
@@ -169,7 +183,8 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 .terminal-typed { color: #faf7f3; }
 .terminal-dim { color: #8a837c; }
 .terminal-check { color: #b3dfa4; }
-.terminal-cursor { color: #faf7f3; }
+/* A thin bar, as a modern terminal draws its caret, not a block. */
+.terminal-cursor { display: inline-block; width: 2px; height: 15px; margin-left: 1px; vertical-align: -3px; border-radius: 1px; background: #faf7f3; }
 /* On reveal: the command types itself, then the output prints line by line
    and the cursor blinks. */
 @media (prefers-reduced-motion: no-preference) {
@@ -238,7 +253,7 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 /* Captions share one height (the design's 157px), so a two-line caption does
    not let its well grow taller than its neighbours'. */
 .box-row-three .box-caption { min-height: 157px; box-sizing: border-box; }
-.box-tile { display: flex; flex-direction: column; min-width: 0; border-radius: 24px; background: var(--ui-bg-surface); overflow: clip; }
+.box-tile { display: flex; flex-direction: column; min-width: 0; border-radius: 24px; overflow: clip; }
 .box-tile > .box-well { flex: 1; min-height: 0; margin: 8px 8px 0; }
 .box-well { position: relative; display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 0.5px solid var(--ui-border-subtle); background: var(--ui-bg-base); overflow: clip; }
 .box-caption { display: flex; flex-direction: column; gap: 6px; padding: 24px 32px 32px; }
@@ -272,8 +287,9 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 .look-picker-option[data-look="dawn"] .look-picker-swatch { background-image: linear-gradient(in oklab 180deg, var(--home-base) 0%, var(--home-base) 30%, var(--home-light) 100%); }
 
 /* The library's LineChart in its plain variant: the plot alone, on the
-   well's own solid ground, across the well. */
-.box-well-chart { padding: 40px 32px; }
+   well's own solid ground, across the well. The small size (160px) fits
+   the well with room above and below, so the well centres it. */
+.box-well-chart { padding: 24px 32px; }
 .chart-tile { width: 100%; }
 
 /* Small motion, each played once as its tile is revealed and skipped under
@@ -321,11 +337,20 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 .faq-list :is([data-slot="accordion-trigger"], [data-slot="accordion-label"]) { font-size: 18px; line-height: 24px; font-weight: 600; letter-spacing: -0.02em; }
 .faq-list :is([data-slot="accordion-panel"], [data-slot="accordion-panel-inner"]) { font-size: 16px; line-height: 25px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
 
+/* ---------------------------------------------------------------- wrapping */
+/* A headline of two short sentences sets one per line: balance alone can
+   still split at "in. A / whole", leaving a sentence's first word behind.
+   Each line may still wrap inside itself on a phone. Other headings balance;
+   running text avoids a last line of one word. */
+.home .headline-line { display: block; }
+.home :is(h2, h3) { text-wrap: balance; }
+.home p { text-wrap: pretty; }
+
 /* ---------------------------------------------------------------- outro */
 .outro { display: flex; flex-direction: column; align-items: center; padding-top: clamp(120px, 14vw, 200px); }
 .outro-head { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
 .outro h2 { font-size: clamp(32px, 3.1vw, 44px); line-height: 1.227; font-weight: 550; letter-spacing: -0.035em; color: var(--ui-text-primary); }
-.outro-head p { max-width: 460px; font-size: 16px; line-height: 25px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
+.outro-head p { max-width: 460px; font-size: 16px; line-height: 25px; letter-spacing: -0.02em; color: var(--ui-text-muted); text-wrap: balance; }
 
 .card-fan { position: relative; width: 1120px; max-width: 100%; height: 380px; margin-top: 40px; touch-action: pan-y; }
 .fan-card { --x: 0px; --y: 0px; --r: 0deg; position: absolute; left: calc(50% - 560px + var(--x)); top: var(--y); width: 200px; height: 240px; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; border-radius: 16px; background: var(--ui-bg-surface); color: var(--ui-text-primary); cursor: grab; user-select: none; touch-action: none; translate: var(--fan-x) var(--fan-y); rotate: var(--r); box-shadow: 0 24px 40px -16px rgb(29 27 25 / 0.22), 0 4px 10px rgb(29 27 25 / 0.06), inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); transition: rotate var(--ui-duration-slow) var(--ui-ease-spring), scale var(--ui-duration-base) var(--ui-ease-spring), box-shadow var(--ui-duration-base) var(--ui-ease-default); }

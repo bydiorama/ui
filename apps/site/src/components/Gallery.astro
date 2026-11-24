@@ -56,7 +56,7 @@ const statuses = ["All", "Stable", "Experimental"];
         </header>
         <div class="catalog-grid">
           {family.items.map(item => (
-            <article class="catalog-tile" data-gallery-item data-category={item.category} data-status={item.status} data-search={`${item.title} ${item.name} ${item.category} ${item.lead}`}>
+            <article class="catalog-tile" data-slot="card" data-fx-on="glass edge" data-gallery-item data-category={item.category} data-status={item.status} data-search={`${item.title} ${item.name} ${item.category} ${item.lead}`}>
               <div class="catalog-tile-well" aria-hidden="true"><Motif name={item.name} /></div>
               <div class="catalog-tile-caption">
                 <div class="catalog-tile-title">

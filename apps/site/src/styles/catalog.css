@@ -72,7 +72,9 @@
 
 /* ---------------------------------------------------------------- tiles */
 /* The whole tile is the link's target; its ring is the tile's. */
-.catalog-tile { position: relative; display: flex; flex-direction: column; min-width: 0; border-radius: 24px; background: var(--ui-bg-surface); transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
+/* The fill sits in the components layer so the fx layer's glass can lie over it (home.css has the note). */
+@layer components { .catalog-tile { background-color: var(--ui-bg-surface); } }
+.catalog-tile { position: relative; display: flex; flex-direction: column; min-width: 0; border-radius: 24px; transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
 .catalog-tile:hover { background: var(--ui-bg-elevated); }
 .catalog-tile:has(a:focus-visible) { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: var(--ui-focus-ring-offset); }
 .catalog-tile-well { position: relative; display: flex; align-items: center; justify-content: center; height: 176px; margin: 8px 8px 0; border-radius: 16px; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); background: var(--ui-bg-base); overflow: clip; font-size: 13px; line-height: 16px; letter-spacing: -0.02em; color: var(--ui-text-primary); }
@@ -91,14 +93,17 @@
 .catalog[data-view="list"] .catalog-tile { border-radius: 0; border-top: var(--ui-stroke-hairline) solid var(--ui-border-subtle); background: transparent; }
 .catalog[data-view="list"] .catalog-tile:last-child { border-bottom: var(--ui-stroke-hairline) solid var(--ui-border-subtle); }
 .catalog[data-view="list"] .catalog-tile:hover { background: var(--ui-bg-surface); }
+/* A list row is a row, not a pane: no glass edge around it. */
+.catalog[data-view="list"] .catalog-tile.fx-edge::after { display: none; }
 .catalog[data-view="list"] .catalog-tile-well { display: none; }
 .catalog[data-view="list"] .catalog-tile-caption { display: grid; grid-template-columns: 240px minmax(0, 1fr); align-items: baseline; gap: 4px 24px; padding: 14px 16px; }
 .catalog[data-view="list"] .catalog-family-head { padding-top: 14px; }
 
 .catalog-empty { padding-block: 48px; font-size: 16px; line-height: 25px; letter-spacing: -0.02em; color: var(--ui-text-muted); }
 
-/* The home page's outro closes this page too: the wrapper takes the home
-   page's scope (`.home`), so the wordmark reads the same ink and width. */
+/* The home page's outro closes this page too (components/Outro.astro): the
+   wrapper takes the home page's scope (`.home`), so the wordmark reads the
+   same ink and width. */
 
 /* ------------------------------------------------------------ narrower */
 @media (max-width: 1100px) {

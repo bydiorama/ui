@@ -241,6 +241,13 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
           parseFloat(frameStyle.borderTopLeftRadius) || 0,
           firstHeight / 2,
         );
+        // With no start control the text carries its own start inset inline
+        // (ps-sm). Read off the text row, whose start padding is the same sm
+        // in both arrangements (ps-sm inline, px-sm stacked), so the probe
+        // gives one answer whichever arrangement it is taken from; a probe
+        // 8px wider than the real inline text flips the frame back and forth.
+        const text = frame.querySelector<HTMLElement>(':scope > [data-slot="chat-composer-text"]');
+        const textInset = !start && text ? parseFloat(getComputedStyle(text).paddingInlineStart) || 0 : 0;
         const parts = [start, actions].filter((p): p is HTMLElement => p !== null);
         const firstRects = parts.map((p) => [p, p.getBoundingClientRect()] as const);
 
@@ -249,7 +256,7 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
           frame.clientWidth -
             parseFloat(frameStyle.paddingLeft) -
             parseFloat(frameStyle.paddingRight) -
-            (start ? start.offsetWidth + gap : 0) -
+            (start ? start.offsetWidth + gap : textInset) -
             (actions ? actions.offsetWidth + gap : 0),
         );
         // The probe is the element itself, transiently at the inline width.
@@ -504,6 +511,12 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
               // frame, with the sheet's own 4/8 inset. `order-first` moves it
               // without moving it in the DOM, which is what keeps focus.
               isStacked && "order-first basis-full px-sm py-xs",
+              // Inline with nothing at the start, the text takes the inset a
+              // start control would have given it: the frame's 12 alone puts
+              // the first letter inside the capsule's curve, crowding the
+              // round end, while the send button opposite sits 12 in as a
+              // circle, concentric with it. 12 + 8 = 20.
+              !isStacked && !startAction && "ps-sm",
             )}
           >
             <textarea

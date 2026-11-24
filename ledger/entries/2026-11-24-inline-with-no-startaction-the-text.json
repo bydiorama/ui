@@ -1,0 +1,11 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-24-inline-with-no-startaction-the-text",
+  "date": "2026-11-24",
+  "item": "chat-composer",
+  "kind": "visual",
+  "summary": "Inline with no startAction, the text region takes ps-sm, so the first letter sits 20px in (the frame's 12 plus 8) and clears the capsule's round end instead of crowding it. A composer with a start control, and the stacked layout, are unchanged. The auto layout's inline-width probe subtracts that inset, so it measures the width the text really has inline.",
+  "affects": [
+    "slot:chat-composer-text"
+  ]
+}

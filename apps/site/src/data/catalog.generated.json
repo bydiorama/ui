@@ -1,5 +1,5 @@
 {
-  "sourceHash": "d513fbd83f1ddfeab1e3f5a43cb4703617776a820067b8c85605d55e86614723",
+  "sourceHash": "c5b407b2a98079bed42ddcc3417c39203506029d98b006dcb3ab3530bec266f2",
   "categories": [
     "Actions",
     "Forms",
@@ -5686,7 +5686,7 @@
           {
             "part": "text",
             "slot": "chat-composer-text",
-            "notes": "The text region. Flexes inline; spans the frame with the sheet's px-sm py-xs inset while stacked, via order-first rather than a different tree."
+            "notes": "The text region. Flexes inline; spans the frame with the sheet's px-sm py-xs inset while stacked, via order-first rather than a different tree. Inline with no startAction it takes ps-sm, so the first letter sits 20 in (12 + 8) and clears the capsule's round end rather than crowding it."
           },
           {
             "part": "input",
@@ -6032,6 +6032,17 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-24-inline-with-no-startaction-the-text",
+          "date": "2026-11-24",
+          "item": "chat-composer",
+          "kind": "visual",
+          "summary": "Inline with no startAction, the text region takes ps-sm, so the first letter sits 20px in (the frame's 12 plus 8) and clears the capsule's round end instead of crowding it. A composer with a start control, and the stacked layout, are unchanged. The auto layout's inline-width probe subtracts that inset, so it measures the width the text really has inline.",
+          "affects": [
+            "slot:chat-composer-text"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",

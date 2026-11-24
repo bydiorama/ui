@@ -1,0 +1,17 @@
+---
+// The home page's outro, closing the catalog and every component page too.
+// The wrapper takes the home page's scope (`.home`), so the wordmark reads
+// the same ink and width. The home page keeps its own copy for its reveals.
+import { Fade } from "@/ui/fade";
+import { CardFan } from "../home/CardFan";
+---
+<div class="home catalog-outro">
+  <section class="outro" aria-labelledby="outro-title">
+    <div class="outro-head">
+      <h2 id="outro-title"><span class="headline-line">Designed by Diorama.</span> <span class="headline-line">Yours to steal.</span></h2>
+      <p>These are live components. Drag the cards, flip the switch, press the button, change the look.</p>
+    </div>
+    <div class="card-fan-stage"><CardFan client:visible /></div>
+    <div class="outro-wordmark" aria-hidden="true"><p data-fx-on="ink">Diorama UI</p><Fade side="bottom" size="lg" ground="base" /></div>
+  </section>
+</div>

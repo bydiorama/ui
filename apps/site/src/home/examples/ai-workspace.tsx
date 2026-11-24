@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Plus } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
@@ -10,9 +10,12 @@ import { Card } from "@/ui/card";
 import { ChatComposer } from "@/ui/chat-composer";
 import { ChatMessage } from "@/ui/chat-message";
 import { ChatProgress } from "@/ui/chat-progress";
+import { ChatTasks, type ChatTask } from "@/ui/chat-tasks";
 import { Fade } from "@/ui/fade";
+import { StatusMatrix, type StatusMatrixStatus } from "@/ui/status-matrix";
 
 import { useAppearance } from "../../lib/use-appearance";
+import { useExampleFx } from "./use-example-fx";
 
 /*
  * AI workspace — an agent inbox (Paper: "Example — AI workspace").
@@ -63,6 +66,83 @@ const GROUPS: { id: string; label: string; tasks: Task[] }[] = [
 ];
 
 const TASKS = GROUPS.flatMap((group) => group.tasks);
+
+/** Each state's mark in the inbox: the library's status signal, held still. */
+const MARKS: Record<TaskState, Exclude<StatusMatrixStatus, "progress">> = {
+  review: "waiting",
+  failed: "failed",
+  running: "working",
+  merged: "done",
+  stopped: "stopped",
+};
+
+const STATUS_LABELS = { done: "Done", current: "In progress", pending: "To do" };
+
+/** The plan each task's agent worked to, as ChatTasks draws it. */
+const PLANS: Record<string, { status: "running" | "complete" | "stopped"; count: string; tasks: ChatTask[] }> = {
+  csv: {
+    status: "complete",
+    count: "3 of 3 · 2 min 14 s",
+    tasks: [
+      { id: "read", label: "Read invoices/table.tsx and the filter store", status: "done" },
+      { id: "export", label: "Add exportCsv with locale-aware dates", status: "done" },
+      { id: "suite", label: "Run the suite: 18 passed", status: "done" },
+    ],
+  },
+  vat: {
+    status: "stopped",
+    count: "Stopped at 2 of 3",
+    tasks: [
+      { id: "find", label: "Find where VAT totals are rounded", status: "done" },
+      { id: "round", label: "Round per line, not per invoice", status: "done" },
+      { id: "suite", label: "Run the suite", status: "failed", reason: "Two VAT tests failed on a 0.01 difference" },
+    ],
+  },
+  dates: {
+    status: "running",
+    count: "2 of 4",
+    tasks: [
+      { id: "find", label: "Find every native date input", status: "done" },
+      { id: "swap", label: "Swap them for DatePicker", status: "done" },
+      { id: "edit", label: "Keep the filters' date ranges", status: "current", activity: "Editing 4 files" },
+      { id: "suite", label: "Run the suite", status: "pending" },
+    ],
+  },
+  tests: {
+    status: "running",
+    count: "1 of 3",
+    tasks: [
+      { id: "read", label: "Read the reminder scheduler", status: "current", activity: "Reading the scheduler" },
+      { id: "cases", label: "Cover the overdue and paused cases", status: "pending" },
+      { id: "suite", label: "Run the suite", status: "pending" },
+    ],
+  },
+  rename: {
+    status: "complete",
+    count: "2 of 2",
+    tasks: [
+      { id: "rename", label: "Rename customer to client in 31 files", status: "done" },
+      { id: "suite", label: "Run the suite: 64 passed", status: "done" },
+    ],
+  },
+  ledger: {
+    status: "complete",
+    count: "2 of 2",
+    tasks: [
+      { id: "empty", label: "Add an empty state to the ledger", status: "done" },
+      { id: "suite", label: "Run the suite: 12 passed", status: "done" },
+    ],
+  },
+  denser: {
+    status: "stopped",
+    count: "Stopped at 1 of 3",
+    tasks: [
+      { id: "density", label: "Switch the table to compact density", status: "done" },
+      { id: "columns", label: "Drop the owner column", status: "skipped", skippedLabel: "Skipped — you stopped the run" },
+      { id: "suite", label: "Run the suite", status: "skipped", skippedLabel: "Skipped" },
+    ],
+  },
+};
 
 const FILES = [
   { path: "invoices/export-csv.ts", added: "+61", removed: null },
@@ -154,10 +234,16 @@ export default function AiWorkspaceExample() {
                       )}
                     >
                       <span className="truncate text-label-md text-ink-primary">{task.title}</span>
-                      <span className="flex justify-between gap-sm text-caption font-regular text-ink-muted">
+                      <span className="flex items-center justify-between gap-sm text-caption font-regular text-ink-muted">
+                        <StatusMatrix
+                          size="sm"
+                          status={task.id === "csv" && isMerged ? "done" : MARKS[task.state]}
+                          isHeld
+                          className="shrink-0"
+                        />
                         <span
                           className={cn(
-                            "min-w-0 truncate",
+                            "min-w-0 flex-1 truncate",
                             // The one effect on this screen: light travelling
                             // through the status of work that is still running.
                             hasEffects && task.state === "running" && fx("shimmer"),
@@ -259,6 +345,7 @@ function CsvThread({
   onApprove: () => void;
   onRequestChanges: () => void;
 }) {
+  const fxs = useExampleFx();
   return (
     <>
       <ChatMessage.Sender className="[--ui-chat-message-bubble-max-width:420px]">
@@ -266,19 +353,7 @@ function CsvThread({
         dates.
       </ChatMessage.Sender>
 
-      <ChatProgress
-        form="thinking"
-        label="Worked for 2 min 14 s"
-        reasoning={[
-          "Read invoices/table.tsx and the filter store",
-          "Added exportCsv with locale-aware dates",
-          "Ran the suite: 18 passed",
-        ]}
-        isComplete
-        receiptText="Worked for 2 min 14 s"
-        expandLabel="Show what the agent did"
-        defaultIsOpen
-      />
+      <Plan id="csv" label="Add a CSV export" defaultIsOpen />
 
       <ChatMessage.Receiver className="max-w-[520px]">
         <div className="flex flex-col gap-sm">
@@ -293,7 +368,7 @@ function CsvThread({
         </div>
       </ChatMessage.Receiver>
 
-      <Card surface="outlined" className="max-w-[520px] shrink-0 gap-md bg-surface p-lg">
+      <Card surface="outlined" className={cn("max-w-[520px] shrink-0 gap-md bg-surface p-lg", fxs.card)}>
         <div className="flex flex-col gap-0.5">
           <p className="text-label-md text-ink-primary">Merge 3 files into main?</p>
           <p className="text-body-sm text-ink-muted">Nothing is merged until you approve.</p>
@@ -308,7 +383,7 @@ function CsvThread({
           />
         ) : (
           <div className="flex flex-wrap gap-sm">
-            <Button variant="primary" onClick={onApprove}>
+            <Button variant="primary" className={fxs.primary} onClick={onApprove}>
               Approve and merge
             </Button>
             <Button variant="secondary" onClick={onRequestChanges}>
@@ -321,30 +396,29 @@ function CsvThread({
   );
 }
 
-/** Every other task: the request, and the one line the run has left. */
+/** A task's plan, drawn by the library's ChatTasks: done rows ticked, the
+ *  current one with its activity, the rest pending (or failed, or skipped). */
+function Plan({ id, label, defaultIsOpen = true }: { id: string; label: string; defaultIsOpen?: boolean }) {
+  const plan = PLANS[id];
+  if (!plan) return null;
+  return (
+    <ChatTasks
+      status={plan.status}
+      label={label}
+      count={plan.count}
+      tasks={plan.tasks}
+      statusLabels={STATUS_LABELS}
+      defaultIsOpen={defaultIsOpen}
+    />
+  );
+}
+
+/** Every other task: the request, and its plan as far as the run got. */
 function TaskThread({ task }: { task: Task }) {
-  let progress: ReactNode;
-  switch (task.state) {
-    case "failed":
-      progress = <ChatProgress form="thinking" label={task.status} errorText={task.status} />;
-      break;
-    case "stopped":
-      progress = <ChatProgress form="thinking" label={task.status} stoppedText={task.status} />;
-      break;
-    case "running":
-      // Held on its key frame: a marketing page should not keep a clock
-      // ticking for a run nobody is waiting on.
-      progress = <ChatProgress form="thinking" label={task.status} duration={task.time} isHeld />;
-      break;
-    default:
-      progress = (
-        <ChatProgress form="thinking" label={task.status} isComplete receiptText={task.status} expandLabel={task.status} />
-      );
-  }
   return (
     <>
       <ChatMessage.Sender className="[--ui-chat-message-bubble-max-width:420px]">{task.title}</ChatMessage.Sender>
-      {progress}
+      <Plan id={task.id} label={task.status} />
     </>
   );
 }

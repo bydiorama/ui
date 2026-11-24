@@ -13,7 +13,7 @@ import {
 } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
-import { fx, sweep } from "@/lib/fx";
+import { sweep } from "@/lib/fx";
 import { Badge, type BadgeVariant } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card } from "@/ui/card";
@@ -23,6 +23,7 @@ import { Progress } from "@/ui/progress";
 import { Table, type TableColumn } from "@/ui/table";
 
 import { useAppearance } from "../../lib/use-appearance";
+import { useExampleFx } from "./use-example-fx";
 
 /* ── Sample data (Paper: "Example — Finance operations") ─────────────────── */
 
@@ -170,6 +171,7 @@ const SECTION_LABEL = "text-label-sm text-ink-muted";
 /* ── Screen ─────────────────────────────────────────────────────────────── */
 
 export default function FinanceOperationsExample() {
+  const fxs = useExampleFx();
   const { effects } = useAppearance();
   const [current, setCurrent] = useState("Receivables");
   const [filter, setFilter] = useState<Filter>("all");
@@ -244,7 +246,7 @@ export default function FinanceOperationsExample() {
     ...(paid.includes(selected.id) ? [["Payment recorded", "23 Nov"] as [string, string]] : []),
     ...(wasReminded ? [["Reminder sent", "23 Nov"] as [string, string]] : []),
     ...selected.activity,
-  ].slice(0, 4);
+  ].slice(0, 3);
 
   return (
     <div
@@ -280,7 +282,7 @@ export default function FinanceOperationsExample() {
           })}
         </ul>
         <div className="flex flex-col gap-1.5 rounded-md border border-edge-subtle bg-surface p-2.5">
-          <Progress label="Q4 close" value={17} max={25} size="xs" className="gap-1.5 [&_[data-slot=progress-label]]:text-label-sm" />
+          <Progress label="Q4 close" value={17} max={25} size="xs" className={cn("gap-1.5 [&_[data-slot=progress-label]]:text-label-sm", fxs.meter)} />
           <span className="text-label-sm font-regular text-ink-muted">17 of 25 tasks done</span>
         </div>
       </nav>
@@ -293,7 +295,7 @@ export default function FinanceOperationsExample() {
       </NavRail>
 
       {/* ── Main ── */}
-      <div className="flex min-w-0 flex-1 flex-col gap-3.5 overflow-hidden px-5 pt-lg">
+      <div className="flex min-w-0 flex-1 flex-col gap-xl overflow-hidden px-xl pt-xl">
         <div className="flex items-center justify-between gap-md">
           <h3 className="text-body-lg font-bold">Receivables</h3>
           <div className="flex gap-sm">
@@ -302,7 +304,7 @@ export default function FinanceOperationsExample() {
           </div>
         </div>
 
-        <div className="flex h-54 shrink-0 gap-sm">
+        <div className="flex h-52 shrink-0 gap-md">
           <CollectedCard />
           <AgeCard />
         </div>
@@ -344,8 +346,7 @@ export default function FinanceOperationsExample() {
           empty={<p className="py-lg text-center text-body-sm text-ink-muted">{filter === "draft" ? "No drafts. Invoices you start and don't send wait here." : "No invoices match."}</p>}
           className={cn(
             "shrink-0",
-            // Denser than sm's 36px, as drawn: 32px rows.
-            "[&_[data-slot=table-row]]:relative [&_[data-slot=table-row]]:h-8",
+            "[&_[data-slot=table-row]]:relative",
             "[&_[data-slot=table-row]:hover>[data-slot=table-cell]]:bg-hover",
             "[&_[data-slot=table-row]:has([aria-current=true])>[data-slot=table-cell]]:bg-sunken",
           )}
@@ -355,9 +356,9 @@ export default function FinanceOperationsExample() {
       {/* ── Invoice panel ── */}
       <aside
         aria-label={`Invoice ${selected.id}`}
-        className="flex w-68 shrink-0 flex-col gap-lg border-s border-edge-subtle bg-surface p-lg @min-[1100px]:w-75"
+        className="flex w-68 shrink-0 flex-col gap-xl border-s border-edge-subtle bg-surface px-lg py-xl @min-[1100px]:w-75"
       >
-        <div className="flex min-h-0 flex-1 flex-col gap-lg overflow-hidden">
+        <div className="flex min-h-0 flex-1 flex-col gap-2xl overflow-hidden">
           <div className="flex flex-col gap-xs">
             <div className="flex items-center justify-between gap-sm">
               <span className="text-label-sm font-regular tabular-nums text-ink-muted">Invoice {selected.id}</span>
@@ -367,25 +368,15 @@ export default function FinanceOperationsExample() {
             <p className="text-figure tabular-nums">€ {selected.amount}</p>
           </div>
 
-          <dl className="flex flex-col gap-1.5 text-body-sm font-regular">
+          <dl className="flex flex-col gap-sm text-body-sm font-regular">
             <Fact term="Issued">{selected.issued}</Fact>
             <Fact term="Terms">30 days net</Fact>
             <Fact term="Owner">{selected.owner}</Fact>
-            <Fact term="VAT">19% · € {selected.vat}</Fact>
           </dl>
-
-          <ul aria-label="Lines" className="flex flex-col rounded-md bg-elevated px-2.5 py-xs text-body-sm font-regular">
-            {selected.lines.map(([label, amount]) => (
-              <li key={label} className="flex h-7 items-center justify-between gap-sm">
-                <span className="truncate">{label}</span>
-                <span className="tabular-nums">{amount}</span>
-              </li>
-            ))}
-          </ul>
 
           <div className="flex flex-col gap-sm">
             <h4 className={SECTION_LABEL}>Activity</h4>
-            <ul className="flex flex-col gap-sm text-body-sm font-regular">
+            <ul className="flex flex-col gap-md text-body-sm font-regular">
               {activity.map(([what, when]) => (
                 <li key={what + when} className="flex justify-between gap-sm">
                   <span>{what}</span>
@@ -402,7 +393,7 @@ export default function FinanceOperationsExample() {
             variant="primary"
             size="md"
             isDisabled={isPaid}
-            className={cn("min-w-0 flex-1", effects === "on" && fx("sheen"))}
+            className={cn("min-w-0 flex-1", fxs.primary)}
             onClick={() => {
               setPaid((ids) => [...ids, selected.id]);
               if (effects === "on" && recordRef.current) sweep(recordRef.current);
@@ -436,7 +427,7 @@ function Fact({ term, children }: { term: string; children: ReactNode }) {
 
 /* ── Charts ─────────────────────────────────────────────────────────────── */
 
-const CARD = "min-w-0 gap-md rounded-md bg-surface px-lg py-3.5 shadow-none";
+const CARD = "min-w-0 gap-lg rounded-md bg-surface p-lg shadow-none";
 
 function LegendKey({ fill, children }: { fill: string; children: ReactNode }) {
   return (
@@ -453,9 +444,10 @@ function LegendKey({ fill, children }: { fill: string; children: ReactNode }) {
  * the whole figure, so the bars are drawn here on the same data roles.
  */
 function CollectedCard() {
+  const fxs = useExampleFx();
   const summary = MONTHS.map((m) => `${m.month} ${m.invoiced} and ${m.collected}`).join(", ");
   return (
-    <Card surface="outlined" aria-label="Invoiced and collected" className={cn(CARD, "flex-1")}>
+    <Card surface="outlined" aria-label="Invoiced and collected" className={cn(CARD, "flex-1", fxs.card)}>
       <div className="flex flex-col gap-0.5">
         <div className="flex items-center justify-between gap-md">
           <span className="text-label-sm font-regular text-ink-muted">Collected in November</span>
@@ -502,9 +494,10 @@ function CollectedCard() {
  * range; a split of a whole into parts is composed here on the same track.
  */
 function AgeCard() {
+  const fxs = useExampleFx();
   const total = AGES.reduce((sum, a) => sum + a.value, 0);
   return (
-    <Card surface="outlined" aria-label="Receivables by age" className={cn(CARD, "w-62 shrink-0")}>
+    <Card surface="outlined" aria-label="Receivables by age" className={cn(CARD, "w-62 shrink-0", fxs.card)}>
       <div className="flex flex-col gap-0.5">
         <span className="text-label-sm font-regular text-ink-muted">Outstanding</span>
         <span className="text-figure tabular-nums">€ {euro(total)}</span>
@@ -526,7 +519,6 @@ function AgeCard() {
           </li>
         ))}
       </ul>
-      <p className="text-label-sm font-regular text-ink-muted">Clients pay in 27 days on average, 3 days faster than in Q3.</p>
     </Card>
   );
 }

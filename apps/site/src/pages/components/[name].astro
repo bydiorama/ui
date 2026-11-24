@@ -2,8 +2,10 @@
 import "../../styles/home.css";
 import "../../styles/detail.css";
 import Base from "../../layouts/Base.astro";
+import Outro from "../../components/Outro.astro";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Close } from "griddy-icons";
 import { Badge } from "@/ui/badge";
+import { buttonClassName } from "@/ui/button";
 import { catalog, type Item } from "../../lib/catalog";
 import { hasExample } from "../../components/Specimen";
 import { Stage } from "../../components/detail/Stage";
@@ -32,6 +34,7 @@ const sections = [
   ...(changes.length ? [{ id: "changes", label: "Changes" }] : []),
 ];
 const status = item.status === "stable" ? "success" : "neutral";
+const linkButton = buttonClassName({ variant: "secondary", size: "sm", shape: "full" });
 const statusLabel = item.status[0]!.toUpperCase() + item.status.slice(1);
 ---
 <Base title={item.title} description={item.lead}>
@@ -46,16 +49,17 @@ const statusLabel = item.status[0]!.toUpperCase() + item.status.slice(1);
           <Badge variant={status} size="sm" shape="full">{statusLabel}</Badge>
         </nav>
         <h1>{item.title}</h1>
-        <p class="detail-lede">{item.lead}</p>
       </div>
-      <div class="detail-head-tools">
-        <InstallPill command={installCommand(item.name)} client:idle />
-        <div class="detail-links">
-          <a href={`/components/${item.name}.md`}>Read as Markdown</a>
-          <a href={`https://github.com/bydiorama/ui/blob/main/${item.files[0]?.path}`}>View source<ArrowUpRight aria-hidden="true" /></a>
-        </div>
-      </div>
+      <p class="detail-lede">{item.lead}</p>
     </header>
+
+    <div class="detail-toolbar">
+      <InstallPill command={installCommand(item.name)} client:idle />
+      <div class="detail-links">
+        <a class={linkButton} href={`/components/${item.name}.md`} data-slot="button" data-variant="secondary" data-fx-on="glass inner">Read Markdown</a>
+        <a class={linkButton} href={`https://github.com/bydiorama/ui/blob/main/${item.files[0]?.path}`} data-slot="button" data-variant="secondary" data-fx-on="glass inner">View Source<ArrowUpRight aria-hidden="true" /></a>
+      </div>
+    </div>
 
     {hasSpecimen && <section class="preview-frame" aria-label="Live example"><Stage name={item.name} client:load><Code slot="code" code={exampleSource.trim()} lang="tsx" theme="css-variables" /></Stage><noscript><style>.code-copy { display: none; }</style></noscript></section>}
 
@@ -131,12 +135,13 @@ const statusLabel = item.status[0]!.toUpperCase() + item.status.slice(1);
         </section>}
 
         <nav class="pager" aria-label="More components">
-          <a class="pager-card" href="/components/"><span><ArrowLeft aria-hidden="true" />Back to</span><strong>All components</strong></a>
-          {next && <a class="pager-card" data-side="next" href={`/components/${next.name}/`}><span>Next in {item.category}<ArrowRight aria-hidden="true" /></span><strong>{next.title}</strong></a>}
+          <a class="pager-card" href="/components/" data-slot="card" data-fx-on="glass edge"><span><ArrowLeft aria-hidden="true" />Back to</span><strong>All components</strong></a>
+          {next && <a class="pager-card" data-slot="card" data-fx-on="glass edge" data-side="next" href={`/components/${next.name}/`}><span>Next in {item.category}<ArrowRight aria-hidden="true" /></span><strong>{next.title}</strong></a>}
         </nav>
       </article>
     </div>
   </div>
+  <Outro />
   <script>
     // The rail marks the section being read; the first is current until the page moves.
     const links = [...document.querySelectorAll<HTMLAnchorElement>('.detail-rail nav:first-child a[href^="#"]')];

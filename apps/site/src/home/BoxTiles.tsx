@@ -72,14 +72,16 @@ export function GradientPicker() {
 }
 
 /** One week of reviews: approved overtakes opened on Friday. */
+// Steep on purpose: the two lines climb most of the plot's height, so the
+// drawing sits in the middle of the well rather than along its floor.
 const week = [
-  { day: "Mon", opened: 14, approved: 8 },
-  { day: "Tue", opened: 18, approved: 12 },
-  { day: "Wed", opened: 16, approved: 14 },
-  { day: "Thu", opened: 20, approved: 18 },
-  { day: "Fri", opened: 24, approved: 30 },
-  { day: "Sat", opened: 26, approved: 34 },
-  { day: "Sun", opened: 30, approved: 44 },
+  { day: "Mon", opened: 6, approved: 2 },
+  { day: "Tue", opened: 11, approved: 5 },
+  { day: "Wed", opened: 13, approved: 10 },
+  { day: "Thu", opened: 19, approved: 17 },
+  { day: "Fri", opened: 24, approved: 28 },
+  { day: "Sat", opened: 29, approved: 38 },
+  { day: "Sun", opened: 34, approved: 48 },
 ];
 
 /**
@@ -92,6 +94,7 @@ export function ChartTile() {
   return (
     <LineChart
       variant="plain"
+      size="sm"
       className="chart-tile"
       label="Reviews this week"
       description="Approved reviews overtook opened ones on Friday and kept rising."

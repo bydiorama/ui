@@ -2,9 +2,8 @@
 import "../../styles/home.css";
 import "../../styles/catalog.css";
 import Base from "../../layouts/Base.astro";
+import Outro from "../../components/Outro.astro";
 import Gallery from "../../components/Gallery.astro";
-import { Fade } from "@/ui/fade";
-import { CardFan } from "../../home/CardFan";
 import { LookDock } from "../../home/LookDock";
 import catalog from "../../data/catalog.generated.json";
 
@@ -22,14 +21,5 @@ const families = new Set(catalog.items.map(item => item.category)).size;
     <LookDock client:load isFloatingOnly />
     <Gallery />
   </div>
-  <div class="home catalog-outro">
-    <section class="outro" aria-labelledby="outro-title">
-      <div class="outro-head">
-        <h2 id="outro-title">Go on, touch it.</h2>
-        <p>These are live components. Drag the cards, flip the switch, press the button, change the look.</p>
-      </div>
-      <div class="card-fan-stage"><CardFan client:visible /></div>
-      <div class="outro-wordmark" aria-hidden="true"><p data-fx-on="ink">Diorama UI</p><Fade side="bottom" size="lg" ground="base" /></div>
-    </section>
-  </div>
+  <Outro />
 </Base>

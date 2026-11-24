@@ -2,15 +2,14 @@
 import "../styles/site.css";
 import { Github, ArrowUpRight } from "griddy-icons";
 import { Search } from "../components/Search";
+import { MobileNav } from "../components/MobileNav";
 import { Fade } from "@/ui/fade";
 import { buttonClassName } from "@/ui/button";
 import { catalog } from "../lib/catalog";
 import { copy } from "../lib/copy";
 import { appearanceOptions, appearanceAttributes, appearanceStorageKey, defaultAppearance } from "../lib/appearance";
 const { title = "Diorama UI", description = copy.description } = Astro.props;
-// Theme has no page of its own yet: it leads to the home page's look switch,
-// which re-themes the whole page in place.
-const nav = [{ label: "Components", href: "/components/" }, { label: "Theme", href: "/#looks" }, { label: "Docs", href: "/docs/" }, { label: "Changelog", href: "/changelog/" }];
+const nav = [{ label: "Components", href: "/components/" }, { label: "Docs", href: "/docs/" }, { label: "Changelog", href: "/changelog/" }];
 const footerNav = [{ label: "Components", href: "/components/" }, { label: "Docs", href: "/docs/" }, { label: "For agents", href: "/docs/agents/" }, { label: "Changelog", href: "/changelog/" }, { label: "GitHub", href: copy.repository }];
 const searchEntries = catalog.items.map(({ name, title, lead, category }) => ({ name, title, lead, category }));
 // A section's pages (a component, a docs guide) keep their section current.
@@ -52,9 +51,9 @@ const headerButton = buttonClassName({ variant: "secondary", size: "sm", shape: 
         <nav class="desktop-nav" aria-label="Main navigation">{nav.map(item => <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>{item.label}</a>)}</nav>
         <div class="header-tools">
           <Search entries={searchEntries} client:idle />
-          <a class:list={[headerButton, "github-link"]} href={copy.repository}><Github aria-hidden="true" />GitHub<ArrowUpRight className="github-link-arrow" aria-hidden="true" /></a>
-          <a class:list={[headerButton, "start-link"]} href="/docs/">Get started</a>
-          <details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation">{nav.map(item => <a href={item.href}>{item.label}</a>)}<a href={copy.repository}>GitHub</a></nav></details>
+          <a class:list={[headerButton, "github-link"]} href={copy.repository} data-slot="button" data-variant="secondary" data-fx-on="glass inner"><Github aria-hidden="true" />GitHub<ArrowUpRight className="github-link-arrow" aria-hidden="true" /></a>
+          <a class:list={[headerButton, "start-link"]} href="/docs/" data-slot="button" data-variant="secondary" data-fx-on="glass inner">Get started</a>
+          <div class="mobile-nav"><MobileNav links={[...nav.map(item => ({ ...item, isCurrent: isCurrent(item.href) })), { label: "GitHub", href: copy.repository, isExternal: true }]} client:idle /></div>
         </div>
       </div>
       <span class="site-header-fade" aria-hidden="true"><Fade side="top" size="md" ground="affix" /></span>

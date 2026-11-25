@@ -198,24 +198,30 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 @keyframes terminal-print { to { opacity: 1; } }
 @keyframes terminal-blink { 50% { opacity: 0; } }
 
-/* The exploded button. Layer colours are roles: the label's outline is the
-   subtle border, the ring the strong border, the surface the accent, the
-   focus ring the focus border. */
+/* The exploded button, drawn as the layer stack is: solid parts over a
+   ground that fades at its edges, with construction lines through the
+   corners. Colours are roles: the surface is the accent and its wall the
+   pressed accent, the focus ring the focus border. The part a label names
+   is inked: its edge takes the text colour. */
 .exploded { position: relative; width: 656px; height: 456px; flex-shrink: 0; }
 .exploded-drawing { position: absolute; inset: 0; overflow: visible; }
+.exploded-grid { stroke: var(--ui-border-subtle); stroke-width: 0.75; }
+.exploded-guides { stroke: var(--ui-border-strong); stroke-width: 0.5; stroke-opacity: 0.45; transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 600ms; }
+.exploded:not([data-open]) .exploded-guides { opacity: 0; transition-delay: 0ms; }
 .exploded-layer { transition: translate 1100ms var(--ui-ease-spring), opacity var(--ui-duration-slow) var(--ui-ease-default); }
 .exploded:not([data-open]) .exploded-layer { translate: 0 var(--rest, 0); }
-.exploded-layer[data-part="label"] rect { stroke: var(--ui-border-default); }
+.exploded-layer rect { vector-effect: non-scaling-stroke; transition: fill var(--ui-duration-slow) var(--ui-ease-default), stroke var(--ui-duration-slow) var(--ui-ease-default), stroke-opacity var(--ui-duration-slow) var(--ui-ease-default); }
+.exploded-layer[data-part="label"] rect { fill: color-mix(in oklab, var(--ui-bg-surface) 60%, transparent); stroke: var(--ui-border-strong); stroke-width: 0.75; }
 .exploded-layer[data-part="label"] text { fill: var(--ui-text-primary); font-family: inherit; }
-.exploded-layer[data-part="ring"] rect { stroke: color-mix(in oklab, var(--ui-text-primary) 40%, transparent); }
-.exploded-layer[data-part="surface"] rect { fill: color-mix(in oklab, var(--ui-bg-accent) 24%, transparent); }
-.exploded-layer[data-part="shadow"] rect { fill: color-mix(in oklab, var(--ui-bg-accent-active) 24%, transparent); }
-.exploded-layer[data-part="focus"] rect { stroke: color-mix(in oklab, var(--ui-border-focus) 16%, transparent); }
-.exploded-layer rect { transition: fill var(--ui-duration-slow) var(--ui-ease-default), stroke var(--ui-duration-slow) var(--ui-ease-default); }
+.exploded-layer[data-part="ring"] rect { stroke: var(--ui-text-primary); stroke-opacity: 0.45; stroke-width: 1.5; }
+.exploded-layer[data-part="focus"] rect { stroke: var(--ui-border-focus); stroke-width: 2; }
+.exploded-shadow { fill: var(--ui-text-primary); fill-opacity: 0.1; }
+.exploded-wall { fill: var(--ui-bg-accent-active); stroke: var(--ui-bg-accent-active); stroke-width: 3; }
+.exploded-top { fill: var(--ui-bg-accent); }
+.exploded-edge { stroke: var(--ui-border-strong); stroke-width: 0.75; }
 .exploded[data-active="label"] [data-part="label"] rect { stroke: var(--ui-text-primary); }
-.exploded[data-active="ring"] [data-part="ring"] rect { stroke: var(--ui-text-primary); }
-.exploded[data-active="surface"] [data-part="surface"] rect { fill: var(--ui-bg-accent); }
-.exploded[data-active="focus"] [data-part="focus"] rect { stroke: var(--ui-border-focus); }
+.exploded[data-active="ring"] [data-part="ring"] rect { stroke-opacity: 1; }
+.exploded[data-active="surface"] [data-part="surface"] .exploded-edge { stroke: var(--ui-text-primary); }
 .exploded-leaders { stroke: var(--ui-border-strong); transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 600ms; }
 .exploded:not([data-open]) .exploded-leaders { opacity: 0; transition-delay: 0ms; }
 .exploded-labels { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; pointer-events: none; }

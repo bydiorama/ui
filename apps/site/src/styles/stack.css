@@ -1,0 +1,117 @@
+/* The layer stack (Paper: "Home v3 — Stack section · 1440", and "Stack —
+   Layer assets (top down)" for each plate). A card like the features above
+   it: the drawing in a well on the left, a legend on the right that mirrors
+   the stack. Colours are the theme's roles only; lines are solid, and
+   emphasis is carried by opacity, colour and thickness. */
+
+.home > .stack-section { padding: 96px 0 64px; }
+@layer components {
+  .stack-card { background-color: var(--ui-bg-surface); }
+}
+.stack-card { border-radius: 24px; overflow: clip; }
+.stack {
+  /* Projection: one matrix for every plane in the drawing, turned by the
+     engine. --stack-ux/uy is one screen pixel straight up, written in a
+     plate's own plane, so a part stands up the same at any turn. */
+  --stack-a: 0.866; --stack-b: 0.5; --stack-c: -0.866; --stack-d: 0.5; --stack-ux: -1; --stack-uy: -1;
+  /* One dwell of the tour: the engine's timer reads the same beat. */
+  --stack-dwell: calc(var(--ui-duration-loop) * 3);
+  display: flex; letter-spacing: -0.02em; color: var(--ui-text-primary);
+}
+
+/* The well: the page ground, a half-pixel hairline, the drawing inside. */
+.stack-well { position: relative; display: flex; flex: 1; align-items: center; justify-content: center; min-width: 0; margin: 8px; border-radius: 16px; border: 0.5px solid var(--ui-border-subtle); background: var(--ui-bg-base); overflow: clip; }
+/* The drawing is taller than its window: the well shows a square of it, from
+   the ground up, and the waiting layers thin out toward the top edge. */
+.stack-stage { position: relative; width: min(100%, 600px); margin-top: calc(min(100%, 600px) * -0.2933); mask-image: linear-gradient(to bottom, transparent 22%, #000 36%); }
+.stack-grains { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.stack-svg { display: block; width: 100%; height: auto; aspect-ratio: 520 / 700; font-family: inherit; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.stack-svg[data-dragging] { cursor: grabbing; }
+.stack-num { font-variant-numeric: tabular-nums; }
+
+@property --stack-lift { syntax: "<number>"; inherits: true; initial-value: 0; }
+.stack-iso { transform: matrix(var(--stack-a), var(--stack-b), var(--stack-c), var(--stack-d), 0, 0); }
+.stack-rig { translate: 0 calc(var(--stack-base) * 1px); }
+.stack-line { stroke: var(--ui-border-subtle); stroke-width: 0.75; }
+.stack-rule { opacity: 0.55; pointer-events: none; }
+.stack-guide { stroke: var(--ui-border-strong); stroke-width: 0.5; stroke-opacity: 0.45; }
+.stack-probe { display: none; }
+/* Only the current plate's objects are laid out; the engine switches the
+   rest off once they are covered or dissolved. */
+.stack-plate[data-art="off"] .stack-art { display: none; }
+.stack-edge { stroke: var(--ui-border-strong); stroke-width: 0.75; vector-effect: non-scaling-stroke; }
+.stack-ln, .stack-ln2 { fill: none; stroke: var(--ui-border-strong); stroke-width: 0.75; vector-effect: non-scaling-stroke; }
+.stack-ln2 { stroke: var(--ui-border-default); }
+/* A corner post: a unit line stretched straight up by the part's height. */
+.stack-post { stroke: var(--ui-border-strong); stroke-width: 0.75; vector-effect: non-scaling-stroke; transform: translate(var(--x), var(--y)) matrix(calc(var(--stack-ux) * var(--h) * var(--stack-lift)), calc(var(--stack-uy) * var(--h) * var(--stack-lift)), 0, 1, 0, 0); }
+.stack-plate { --stack-lift: 0; translate: 0 calc(var(--stack-y) * -1px); opacity: var(--stack-o, 1); transition: opacity var(--ui-motion-deliberate), --stack-lift var(--ui-motion-deliberate); cursor: pointer; }
+/* Objects stand up out of the current plate. */
+.stack-plate[data-state="active"] { --stack-lift: 1; transition: opacity var(--ui-motion-deliberate), --stack-lift var(--ui-motion-choreographed) var(--ui-duration-base); }
+.stack-lift { translate: calc(var(--stack-ux) * var(--n) * var(--stack-lift) * 1px) calc(var(--stack-uy) * var(--n) * var(--stack-lift) * 1px); }
+.stack[data-instant] :is(.stack-plate, .stack-plate *) { transition: none; }
+
+.stack-face { fill: var(--ui-bg-elevated); stroke: var(--ui-border-default); stroke-width: 1; vector-effect: non-scaling-stroke; rx: var(--ui-radius-md); }
+.stack-side, .stack-shade, .stack-rule { rx: var(--ui-radius-md); }
+.stack-side { fill: var(--ui-border-default); }
+.stack-foot.stack-side { stroke: var(--ui-border-default); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.stack-shade { fill: var(--ui-text-primary); fill-opacity: 0.14; }
+.stack-face, .stack-side, .stack-art, .stack-slab, .stack-art :is(rect, circle, path, text) { transition: fill var(--ui-motion-deliberate), stroke var(--ui-motion-deliberate), fill-opacity var(--ui-motion-deliberate), opacity var(--ui-motion-deliberate); }
+.stack-art { pointer-events: none; opacity: 0.6; }
+.stack-ctl { rx: var(--ui-control-radius-md); }
+/* A resolver pad shows one role in each scheme, whatever the page is in. The
+   doubled class outranks the site's own scheme override on brand scopes. */
+.stack-light.stack-light { color-scheme: light; }
+.stack-dark.stack-dark { color-scheme: dark; }
+
+.stack-plate[data-state="active"] .stack-face { fill: var(--ui-bg-surface); stroke: var(--ui-text-primary); }
+.stack-plate[data-state="active"] .stack-side { fill: var(--ui-bg-accent); }
+.stack-plate[data-state="active"] .stack-foot { stroke: var(--ui-bg-accent-active); }
+.stack-plate[data-state="active"] .stack-art { opacity: 1; }
+/* A waiting plate drawn intact is an empty sheet. With the engine running it
+   is grains instead, and this is only what they reform into on the way down. */
+.stack-plate[data-state="ghost"] .stack-face { fill: var(--ui-bg-surface); fill-opacity: 0.5; stroke: var(--ui-border-strong); }
+.stack-plate[data-state="ghost"] .stack-side { fill-opacity: 0.4; }
+.stack-plate[data-state="ghost"] :is(.stack-art, .stack-rule) { opacity: 0; }
+/* Proof is a film laid over the components: it never turns opaque and has no edge. */
+.stack-plate[data-key="proof"]:not([data-state="ghost"]) .stack-face { fill: var(--ui-bg-surface); fill-opacity: 0.3; }
+.stack-plate[data-key="proof"][data-state="settled"] .stack-art { opacity: 0.5; }
+.stack-plate[data-key="proof"] .stack-slab { display: none; }
+@media (hover: hover) { .stack-plate[data-state="ghost"]:hover { opacity: 1; } }
+
+/* The legend: a heading and an accordion. The open row is marked by its top
+   rule, which also counts down to the next row while the tour runs. */
+.stack-legend { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; width: 400px; flex-shrink: 0; padding: 36px 40px 32px 32px; }
+.stack-legend h2 { font-size: 28px; line-height: 34px; font-weight: 550; letter-spacing: -0.03em; color: var(--ui-text-primary); text-wrap: balance; }
+.stack-list { display: flex; flex-direction: column; margin: 0; padding: 24px 0 0; list-style: none; }
+.stack-item { position: relative; border-top: 1px solid var(--ui-border-subtle); }
+.stack-item::before { content: ""; position: absolute; inset: -1px 0 auto; height: 1px; background: var(--ui-text-primary); transform-origin: 0 50%; scale: 0 1; pointer-events: none; }
+.stack-item[data-open]::before { scale: 1 1; transition: scale var(--ui-motion-deliberate); }
+.stack[data-touring] .stack-item[data-open]:not([data-counting])::before { scale: 0 1; transition: none; }
+.stack[data-touring] .stack-item[data-open][data-counting]::before { scale: 1 1; transition: scale var(--stack-dwell) linear; }
+.stack-item h3 { font: inherit; }
+.stack-row { display: block; width: 100%; padding: 12px 0; border: 0; border-radius: var(--ui-radius-sm); background: none; text-align: left; font: inherit; font-size: 14px; line-height: 18px; font-weight: 550; letter-spacing: inherit; color: var(--ui-text-muted); cursor: pointer; transition: color var(--ui-motion-deliberate); }
+@media (hover: hover) { .stack-row:hover { color: var(--ui-text-primary); } }
+.stack-item[data-open] .stack-row { color: var(--ui-text-primary); }
+.stack-panel { display: grid; grid-template-rows: 0fr; visibility: hidden; opacity: 0; transition: grid-template-rows var(--ui-motion-choreographed), opacity var(--ui-motion-deliberate), visibility 0s var(--ui-duration-enter); }
+.stack-item[data-open] .stack-panel { grid-template-rows: 1fr; visibility: visible; opacity: 1; transition-delay: 0s; }
+.stack-panel p { min-height: 0; overflow: hidden; font-size: 15px; line-height: 23px; color: var(--ui-text-muted); text-wrap: pretty; }
+.stack-item[data-open] .stack-panel p { margin-top: -4px; padding-bottom: 12px; }
+
+/* The visible row stays small; its target reaches the touch size. */
+@media (pointer: coarse) { .stack-row { min-height: var(--ui-hit-area-touch); } }
+@media (forced-colors: active) { .stack-item::before { background: CanvasText; } }
+
+@media (max-width: 1100px) {
+  /* One column: heading, drawing, rows. */
+  .stack { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "well" "list"; }
+  .stack-well { grid-area: well; }
+  .stack-legend { display: contents; }
+  .stack-legend h2 { grid-area: title; padding: 32px 32px 12px; }
+  /* Room for the longest sentence, so the page below does not move as rows open. */
+  .stack-list { grid-area: list; padding: 12px 32px 24px; min-height: 480px; }
+}
+@media (max-width: 700px) {
+  .home > .stack-section { padding: 64px 0 32px; }
+  .stack-legend h2 { padding: 24px 24px 12px; font-size: 24px; line-height: 30px; }
+  .stack-list { padding: 12px 24px 16px; }
+}

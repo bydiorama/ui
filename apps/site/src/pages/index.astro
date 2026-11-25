@@ -1,6 +1,7 @@
 ---
 import { ArrowRight, ChartLineUp, Colors, Grid, Layers, MagicWand } from "griddy-icons";
 import "../styles/home.css";
+import "../styles/stack.css";
 import Base from "../layouts/Base.astro";
 import { fx } from "@/lib/fx";
 import { Fade } from "@/ui/fade";
@@ -11,6 +12,7 @@ import { LookDock } from "../home/LookDock";
 import { UseCaseStage } from "../home/UseCaseStage";
 import { ThemePair } from "../home/ThemePair";
 import { ExplodedButton } from "../home/ExplodedButton";
+import { LayerStack } from "../home/LayerStack";
 import { ChartTile, EffectsTile, GradientPicker, StatusMarksTile } from "../home/BoxTiles";
 import { Faq } from "../home/Faq";
 import { CardFan } from "../home/CardFan";
@@ -142,6 +144,12 @@ const terminal = [
         </div>
         <div class="feature-visual"><ThemePair client:visible /></div>
       </article>
+    </section>
+
+    <section class="stack-section" aria-labelledby="stack-title">
+      <!-- Hydrated a little before it scrolls in, so the tour is already at
+           the seed when the drawing is first seen. -->
+      <article class="stack-card" data-reveal data-slot="card" data-fx-on="glass edge"><LayerStack client:visible={{ rootMargin: "600px" }} /></article>
     </section>
 
     <section class="box" aria-labelledby="box-title">

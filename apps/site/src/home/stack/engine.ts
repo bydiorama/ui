@@ -5,8 +5,8 @@ import { GRAIN, HOME, INK, baseOf, layers, riseOf } from "./layers";
  * current; everything that moves between two layers is eased here, frame by
  * frame, so the SVG plates and the canvas grains stay in step.
  *
- * Grains. Each plate has a fixed set of samples over its face and along its
- * edge. A sample knows its home on the plate, how early the erosion front
+ * Grains. Each plate has a fixed set of samples on a regular lattice over
+ * its face, so a dissolved sheet reads as a dot matrix. A sample knows its home on the plate, how early the erosion front
  * reaches it, and how far it may wander: most stay close, some drift, a few
  * travel. Every offset is multiplied by how far the plate has dissolved, so a
  * grain always returns exactly home.
@@ -28,7 +28,6 @@ interface Eased { now: number; goal: number }
 interface Plate {
   el: SVGGElement;
   body: SVGGElement;
-  slab: SVGGElement;
   stops: SVGStopElement[];
   probes: SVGGElement[];
   rise: Eased;
@@ -40,6 +39,11 @@ interface Plate {
   art: number;
 }
 
+/** How far a grain may wander from its lattice point, in units: most stay
+ *  close, some drift, a few travel. */
+const REACH = [1.5, 14, 46] as const;
+/** A grain's side, in units. */
+const SIZE = 1.15;
 /** Values per grain sample: x, y, erosion, reach, size, then six precomputed sines and cosines. */
 const STRIDE = 11;
 const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value));
@@ -82,20 +86,25 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
   const maxRatio = isTouch ? 1.5 : 2;
   let seed = 722;
   const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+  const isRound = (x: number, y: number) => { const cornerX = Math.abs(x) - 112, cornerY = Math.abs(y) - 112; return cornerX > 0 && cornerY > 0 && cornerX * cornerX + cornerY * cornerY > 64; };
+  /** The lattice: every point of a square grid over the face, in a shuffled
+   *  order, so a plate that draws a share of its samples thins out evenly. */
+  function lattice() {
+    const across = Math.round(Math.sqrt(count)), step = 236 / (across - 1);
+    const points: [number, number][] = [];
+    for (let row = 0; row < across; row++) for (let column = 0; column < across; column++) {
+      const x = -118 + column * step, y = -118 + row * step;
+      if (!isRound(x, y)) points.push([x, y]);
+    }
+    for (let n = points.length - 1; n > 0; n--) { const m = Math.floor(random() * (n + 1)); [points[n], points[m]] = [points[m]!, points[n]!]; }
+    return points;
+  }
   function sample(index: number) {
     const tones: number[][] = [[], [], []];
-    for (let n = 0; n < count; n++) {
-      let x: number, y: number;
-      if (n % 6 === 0) {
-        const along = random() * 240 - 120, side = Math.floor(random() * 4);
-        x = side === 0 ? along : side === 1 ? 120 : side === 2 ? along : -120;
-        y = side === 0 ? -120 : side === 1 ? along : side === 2 ? 120 : along;
-      } else { x = random() * 236 - 118; y = random() * 236 - 118; }
-      const cornerX = Math.abs(x) - 112, cornerY = Math.abs(y) - 112;
-      if (cornerX > 0 && cornerY > 0 && cornerX * cornerX + cornerY * cornerY > 64) { n--; continue; }
+    for (const [x, y] of lattice()) {
       const spread = random(), tone = random(), phase = spread * 6.283 + index;
       const p1 = y * 0.03 + phase, p2 = x * 0.04 + phase * 0.75, p3 = x * 0.03 + phase;
-      tones[tone < 0.62 ? 0 : tone < 0.95 ? 1 : 2]!.push(x, y, erosion(x, y), spread < 0.65 ? 5 : spread < 0.91 ? 20 : 52, 0.8 + 1.1 * random(), Math.sin(p1), Math.cos(p1), Math.sin(p2), Math.cos(p2), Math.sin(p3), Math.cos(p3));
+      tones[tone < 0.62 ? 0 : tone < 0.95 ? 1 : 2]!.push(x, y, erosion(x, y), spread < 0.65 ? REACH[0] : spread < 0.91 ? REACH[1] : REACH[2], SIZE, Math.sin(p1), Math.cos(p1), Math.sin(p2), Math.cos(p2), Math.sin(p3), Math.cos(p3));
     }
     return tones.map(list => new Float32Array(list));
   }
@@ -103,7 +112,6 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
   const plates: Plate[] = [...root.querySelectorAll<SVGGElement>(".stack-plate")].map((el, index) => ({
     el,
     body: el.querySelector<SVGGElement>(".stack-body")!,
-    slab: el.querySelector<SVGGElement>(".stack-slab")!,
     stops: [...root.querySelectorAll<SVGStopElement>(`#stack-fade-${index} stop`)],
     probes: [...el.querySelectorAll<SVGGElement>(".stack-probe g")],
     rise: { now: Number(el.style.getPropertyValue("--stack-y")), goal: 0 },
@@ -116,7 +124,6 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
   }));
   const base: Eased = { now: Number(getComputedStyle(root).getPropertyValue("--stack-base")), goal: 0 };
   const guides = [...root.querySelectorAll<SVGLineElement>("[data-guide]")];
-  const shade = root.querySelector<SVGRectElement>("[data-shade]")!;
   const turn = { now: 45, user: 45, lean: 0 };
   const K = Math.sqrt(1.5), S = Math.tan(Math.PI / 6);
   const view = { a: 0.866, b: 0.5, c: -0.866, d: 0.5 };
@@ -176,9 +183,6 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
       view.a = K * cos; view.b = K * S * sin; view.c = -K * sin; view.d = K * S * cos;
       const set = (name: string, value: number) => root.style.setProperty(name, value.toFixed(4));
       set("--stack-a", view.a); set("--stack-b", view.b); set("--stack-c", view.c); set("--stack-d", view.d);
-      set("--stack-ux", -sin / (K * S)); set("--stack-uy", -cos / (K * S));
-      // The seam between the two visible sides sits under the front corner.
-      shade.setAttribute("width", (400 + 120 * (view.a + view.c)).toFixed(2));
     }
 
     let top = 0, hasGrains = false;
@@ -195,13 +199,12 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
       // plate that is whole carries no mask; one that is gone is not drawn.
       const front = clamp((gone - 0.08) / 0.6, 0, 1.2);
       put(plate, "mask", gone <= 0 ? "" : front >= 1.1 ? "gone" : front.toFixed(3), value => {
-        if (value === "") { plate.body.removeAttribute("mask"); plate.body.style.visibility = ""; plate.slab.style.opacity = ""; return; }
-        if (value === "gone") { plate.body.style.visibility = "hidden"; plate.slab.style.opacity = "0"; return; }
+        if (value === "") { plate.body.removeAttribute("mask"); plate.body.style.visibility = ""; return; }
+        if (value === "gone") { plate.body.style.visibility = "hidden"; return; }
         plate.stops[0]!.setAttribute("offset", clamp(front - 0.1, 0, 1).toFixed(3));
         plate.stops[1]!.setAttribute("offset", clamp(front, 0, 1).toFixed(3));
         plate.body.setAttribute("mask", `url(#stack-mask-${index})`);
         plate.body.style.visibility = "";
-        plate.slab.style.opacity = (1 - smooth(0.05, 0.5, gone)).toFixed(2);
       });
     });
 
@@ -220,7 +223,13 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
 
     // Grain ink comes from each plate's own theme roles, so a new look
     // recolours the grains with the plate. Read only when a theme changed.
-    if (hasNewInk) { hasNewInk = false; for (const plate of plates) plate.inks = plate.probes.map(probe => getComputedStyle(probe).color); }
+    if (hasNewInk) {
+      hasNewInk = false;
+      for (const plate of plates) plate.inks = plate.probes.map(probe => getComputedStyle(probe).color);
+      // A brand with no shadows of its own is a flat look: the stylesheet
+      // drops the drawing's shading and ground shadow for it.
+      root.toggleAttribute("data-flat", getComputedStyle(root).getPropertyValue("--ui-shadow-md").trim() === "none");
+    }
 
     // While something is moving the grains keep pace; drifting on their own
     // they are painted at half rate.

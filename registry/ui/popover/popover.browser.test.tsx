@@ -23,8 +23,21 @@ function mount(ui: ReactElement) {
 const panel = () => document.querySelector<HTMLElement>('[data-slot="popover-panel"]');
 const trigger = () => document.querySelector<HTMLElement>('[data-slot="popover-trigger"]')!;
 
+const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
 async function settled(element: Element) {
-  await Promise.all(element.getAnimations().map((a) => a.finished.catch(() => undefined)));
+  // A `data-starting-style` transition only registers on the frame AFTER the
+  // panel mounts, so a bare getAnimations() can come back empty on a slow
+  // runner and the panel gets measured mid-scale (0.98 × 32 = 31.36px). Let it
+  // start, then wait until nothing is left running.
+  await frame();
+  await frame();
+  for (let pass = 0; pass < 5; pass++) {
+    const running = element.getAnimations();
+    if (running.length === 0) return;
+    await Promise.all(running.map((a) => a.finished.catch(() => undefined)));
+    await frame();
+  }
 }
 
 afterEach(() => {
@@ -244,6 +257,8 @@ describe("Popover's entrance is animated, not merely declared", () => {
   test("the enter transition ACTUALLY runs on scale", async () => {
     mount(<Basic />);
     await userEvent.click(trigger());
+    // The transition registers on the frame after mount, not synchronously.
+    await frame();
     const running = panel()!
       .getAnimations()
       .map((a) => (a as CSSTransition).transitionProperty);

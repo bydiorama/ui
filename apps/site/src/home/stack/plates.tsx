@@ -144,15 +144,28 @@ function Components() {
   return <>{inOrder(items)}</>;
 }
 
-/** A film of measurements, registered over the board below it: one
- *  dimension, two readings and a focus outline. No rulers, no crosshair. */
+/**
+ * A film of measurements, registered over the Components board below it, so
+ * every mark sits on the thing it measures. Layout: two dimension lines in
+ * the gaps between components, in the design sheet's pixels. Contrast: a
+ * reading on the field. Visual diff: a reading on the card's image, beside
+ * the two schemes it was compared in. Focus: the outline around Publish.
+ */
 function Proof() {
+  const ink = { stroke: role("text-secondary") };
+  const schemes: Shape = (className, fill) => <>
+    <rect className={`${className} stack-light`.trim()} x={-40} y={11} width={8} height={16} rx={1} style={{ fill }} />
+    <rect className={`${className} stack-dark`.trim()} x={-32} y={11} width={8} height={16} rx={1} style={{ fill }} />
+  </>;
   return <>
-    <path className="stack-ln" d="M110 -104v34M107 -104h6M107 -70h6" style={{ stroke: role("text-secondary") }} />
-    <Label x={110} y={-58} size={9} weight={600} fill="text-secondary" anchor="middle" isNumeric>32</Label>
-    <Solid h={3} fill="bg-inverse" isInk shape={rect(A, -24, 64, 20, 10)}><Label x={-72} y={-10.5} size={10} weight={600} fill="text-inverse" anchor="middle">AA 4.5:1</Label></Solid>
-    <Solid h={3} shape={rect(-52, 84, 48, 20, 10)}><Label x={-28} y={97.5} size={10} weight={600} fill="text-primary" anchor="middle" isNumeric>0 px</Label></Solid>
-    <g className="stack-lift" style={{ "--n": 10 } as CSSProperties}><rect x={3} y={65} width={106} height={44} rx={6} fill="none" strokeWidth={2} style={{ stroke: role("border-focus") }} /></g>
+    <path className="stack-ln" d="M-104 -63H-18M18 -63H104M-104 -67v8M104 -67v8" style={ink} />
+    <Label x={0} y={-59.8} size={9} weight={600} fill="text-secondary" anchor="middle" isNumeric>416</Label>
+    <path className="stack-ln" d="M8 15H40M72 15H104M8 11v8M104 11v8" style={ink} />
+    <Label x={56} y={18.2} size={9} weight={600} fill="text-secondary" anchor="middle" isNumeric>192</Label>
+    <Solid h={3} fill="bg-inverse" isInk shape={rect(36, -97, 62, 20, 10)}><Label x={67} y={-83.5} size={10} weight={600} fill="text-inverse" anchor="middle" isNumeric>AA 4.5:1</Label></Solid>
+    <Solid h={3} shape={rect(-90, 9, 44, 20, 10)}><Label x={-68} y={22.5} size={10} weight={600} fill="text-primary" anchor="middle" isNumeric>0 px</Label></Solid>
+    <Solid h={3} fill="bg-base" isInk shape={schemes} />
+    <g className="stack-lift" style={{ "--n": 1 } as CSSProperties}><rect x={3} y={65} width={106} height={44} rx={6} fill="none" strokeWidth={2} style={{ stroke: role("border-focus") }} /></g>
   </>;
 }
 

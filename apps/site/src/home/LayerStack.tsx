@@ -5,8 +5,8 @@ import { plates } from "./stack/plates";
 import { role } from "./stack/parts";
 
 const last = layers.length - 1;
-/** How many of the theme's loop beats one layer is held for: twelve seconds. */
-const DWELL_BEATS = 6;
+/** How many of the theme's loop beats one layer is held for: nine seconds. */
+const DWELL_BEATS = 4.5;
 
 /** A plate's edge, drawn as the outline repeated downwards: the lit side, then
  *  the shaded side clipped to the left of the front corner. */
@@ -74,7 +74,7 @@ const Drawing = memo(function Drawing() {
  *
  * The legend lists the layers in the order they are built, the seed first,
  * so its first row is the bottom plate. The section has no controls. While
- * it is on screen every layer has a timer: it is held for twelve seconds,
+ * it is on screen every layer has a timer: it is held for nine seconds,
  * then the next row opens, and after the last the tour starts again at the
  * seed. Choosing a row or a plate jumps there and the timer carries on from
  * it. Keyboard focus in the legend holds the current layer. Under reduced

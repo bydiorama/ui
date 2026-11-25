@@ -47,8 +47,10 @@
 .hero { display: flex; flex-direction: column; align-items: center; gap: 56px; padding: clamp(96px, 12vw, 168px) 0 120px; }
 .hero-title { --reel-size: clamp(40px, 9.2vw, 132px); display: flex; align-items: center; gap: calc(var(--reel-size) * 0.27); height: var(--reel-size); margin: 0; font-size: var(--reel-size); line-height: 1; font-weight: 500; letter-spacing: -0.05em; color: var(--ui-text-primary); }
 .hero-your { flex-shrink: 0; }
-/* The reel is one line tall and shows the words either side of it in the
-   sunken role: last word above, next word below. */
+/* The reel is one line tall and shows the words either side of it as a quiet
+   tint of the text colour on the page: last word above, next word below.
+   The tint is mixed here, not taken from bg-sunken, because a brand's dark
+   bg-sunken can resolve to the page colour itself, which hides the words. */
 .hero-reel { --reel-index: 4; position: relative; height: var(--reel-size); }
 /* The reel is exactly as wide as its widest word (Paper: the "system." box),
    so "Your system." is centred as one line. The words are stacked unseen in
@@ -56,11 +58,11 @@
 .hero-reel-sizer { display: grid; height: var(--reel-size); visibility: hidden; white-space: nowrap; }
 .hero-reel-sizer > span { grid-area: 1 / 1; }
 /* A three-line window, centred on the reel: the word before and the word
-   after show in the sunken role, the rest are clipped. */
+   after show in the quiet tint, the rest are clipped. */
 .hero-reel-window { position: absolute; inset: calc(var(--reel-size) * -1) -0.2em; overflow: clip; }
 .hero-reel-track { position: absolute; inset: var(--reel-size) auto auto 0.2em; display: flex; flex-direction: column; translate: 0 calc(var(--reel-index) * var(--reel-size) * -1); transition: translate 700ms var(--ui-ease-spring); }
 .hero-reel[data-instant] .hero-reel-track, .hero-reel[data-instant] .hero-reel-word { transition: none; }
-.hero-reel-word { display: block; height: var(--reel-size); color: var(--ui-bg-sunken); transition: color 500ms var(--ui-ease-default); white-space: nowrap; }
+.hero-reel-word { display: block; height: var(--reel-size); color: light-dark(color-mix(in oklab, var(--ui-text-primary) 10%, var(--ui-bg-base)), color-mix(in oklab, var(--ui-text-primary) 18%, var(--ui-bg-base))); transition: color 500ms var(--ui-ease-default); white-space: nowrap; }
 .hero-reel-word[data-current] { color: var(--ui-text-primary); }
 /* Before the script runs (or without it) the middle copy's "system." is the
    line, as in the design. */

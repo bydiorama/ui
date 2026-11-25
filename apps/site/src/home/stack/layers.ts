@@ -17,7 +17,9 @@ export type LayerKey = (typeof layers)[number]["key"];
  * the pitch of the plates still waiting. `HOME` is the layer the section
  * rests on without script or under reduced motion.
  */
-export const REST = [0, 10, 20, 30, 40, 50, 57];
+/* Proof is a film laid on the Components board, so it rests just above it:
+   its marks have to land on the parts they measure. */
+export const REST = [0, 10, 20, 30, 40, 43, 50];
 export const OPEN = 215;
 export const GAP = 34;
 export const HOME = 4;

@@ -16,7 +16,7 @@
   --stack-a: 0.866; --stack-b: 0.5; --stack-c: -0.866; --stack-d: 0.5; --stack-ux: -1; --stack-uy: -1;
   /* How long the tour holds a layer. The component sets the number of loop
      beats and runs its timer on the same product. */
-  --stack-dwell: calc(var(--ui-duration-loop) * var(--stack-dwell-beats, 6));
+  --stack-dwell: calc(var(--ui-duration-loop) * var(--stack-dwell-beats, 4.5));
   display: flex; letter-spacing: -0.02em; color: var(--ui-text-primary);
 }
 
@@ -58,7 +58,10 @@
 .stack-shade { fill: var(--ui-text-primary); fill-opacity: 0.14; }
 .stack-face, .stack-side, .stack-art, .stack-slab, .stack-art :is(rect, circle, path, text) { transition: fill var(--ui-motion-deliberate), stroke var(--ui-motion-deliberate), fill-opacity var(--ui-motion-deliberate), opacity var(--ui-motion-deliberate); }
 .stack-art { pointer-events: none; opacity: 0.6; }
-.stack-ctl { rx: var(--ui-control-radius-md); }
+/* Controls take the brand's control radius. Every control on the plates is
+   34 units tall, so the radius stops at half of that: SVG clamps rx and ry
+   apart, and a full-radius brand would otherwise draw ellipses, not pills. */
+.stack-ctl { rx: min(var(--ui-control-radius-md), 17px); ry: min(var(--ui-control-radius-md), 17px); }
 /* A resolver pad shows one role in each scheme, whatever the page is in. The
    doubled class outranks the site's own scheme override on brand scopes. */
 .stack-light.stack-light { color-scheme: light; }

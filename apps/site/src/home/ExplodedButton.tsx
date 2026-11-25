@@ -18,36 +18,27 @@ const iso = (y: number) => `matrix(0.866 0.5 -0.866 0.5 247 ${y})`;
 const wall = [3, 6];
 
 /**
- * The layers start stacked and part once the drawing is on screen. Then the
- * labels take turns, unless the reader points at one: pointing or focusing
- * holds that layer until they leave.
+ * The layers start stacked and part once the drawing is on screen. Nothing
+ * plays on its own after that: a label inks its layer when the reader points
+ * at it, focuses it or presses it, and the last one stays inked.
  */
 export function ExplodedButton() {
   const root = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<Part>("label");
-  const [held, setHeld] = useState(false);
-  const [inView, setInView] = useState(false);
-  // Opens once and stays open; the label cycle runs only while it is seen.
+  // Opens once and stays open.
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const element = root.current;
     if (!element) return;
     const observer = new IntersectionObserver(([entry]) => {
-      setInView(entry!.isIntersecting);
-      if (entry!.isIntersecting) setIsOpen(true);
+      if (!entry!.isIntersecting) return;
+      setIsOpen(true);
+      observer.disconnect();
     }, { threshold: 0.35 });
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!inView || held || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = window.setInterval(() => {
-      setActive(current => parts[(parts.findIndex(part => part.key === current) + 1) % parts.length]!.key);
-    }, 2400);
-    return () => window.clearInterval(timer);
-  }, [inView, held]);
 
   return (
     <div ref={root} className="exploded" data-open={isOpen ? "" : undefined} data-active={active}>
@@ -88,10 +79,8 @@ export function ExplodedButton() {
             <button
               type="button"
               aria-pressed={active === part.key}
-              onPointerEnter={() => { setActive(part.key); setHeld(true); }}
-              onPointerLeave={() => setHeld(false)}
-              onFocus={() => { setActive(part.key); setHeld(true); }}
-              onBlur={() => setHeld(false)}
+              onPointerEnter={() => setActive(part.key)}
+              onFocus={() => setActive(part.key)}
               onClick={() => setActive(part.key)}
             >
               <strong>{part.title}</strong>

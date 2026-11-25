@@ -11,9 +11,8 @@
 .stack-card { border-radius: 24px; overflow: clip; }
 .stack {
   /* Projection: one matrix for every plane in the drawing, turned by the
-     engine. --stack-ux/uy is one screen pixel straight up, written in a
-     plate's own plane, so a part stands up the same at any turn. */
-  --stack-a: 0.866; --stack-b: 0.5; --stack-c: -0.866; --stack-d: 0.5; --stack-ux: -1; --stack-uy: -1;
+     engine. */
+  --stack-a: 0.866; --stack-b: 0.5; --stack-c: -0.866; --stack-d: 0.5;
   /* How long the tour holds a layer. The component sets the number of loop
      beats and runs its timer on the same product. */
   --stack-dwell: calc(var(--ui-duration-loop) * var(--stack-dwell-beats, 4.5));
@@ -30,34 +29,81 @@
 .stack-svg[data-dragging] { cursor: grabbing; }
 .stack-num { font-variant-numeric: tabular-nums; }
 
-@property --stack-lift { syntax: "<number>"; inherits: true; initial-value: 0; }
 .stack-iso { transform: matrix(var(--stack-a), var(--stack-b), var(--stack-c), var(--stack-d), 0, 0); }
 .stack-rig { translate: 0 calc(var(--stack-base) * 1px); }
 .stack-line { stroke: var(--ui-border-subtle); stroke-width: 0.75; }
-.stack-rule { opacity: 0.55; pointer-events: none; }
-.stack-guide { stroke: var(--ui-border-strong); stroke-width: 0.5; stroke-opacity: 0.45; }
+.stack-guide { stroke: var(--ui-border-strong); stroke-width: 0.5; stroke-opacity: 0.3; }
 .stack-probe { display: none; }
+.stack-plate { translate: 0 calc(var(--stack-y) * -1px); opacity: var(--stack-o, 1); transition: opacity var(--ui-motion-deliberate); cursor: pointer; }
+.stack[data-instant] :is(.stack-plate, .stack-plate *) { transition: none; }
 /* Only the current plate's objects are laid out; the engine switches the
    rest off once they are covered or dissolved. */
 .stack-plate[data-art="off"] .stack-art { display: none; }
-.stack-edge { stroke: var(--ui-border-strong); stroke-width: 0.75; vector-effect: non-scaling-stroke; }
-.stack-ln, .stack-ln2 { fill: none; stroke: var(--ui-border-strong); stroke-width: 0.75; vector-effect: non-scaling-stroke; }
-.stack-ln2 { stroke: var(--ui-border-default); }
-/* A corner post: a unit line stretched straight up by the part's height. */
-.stack-post { stroke: var(--ui-border-strong); stroke-width: 0.75; vector-effect: non-scaling-stroke; transform: translate(var(--x), var(--y)) matrix(calc(var(--stack-ux) * var(--h) * var(--stack-lift)), calc(var(--stack-uy) * var(--h) * var(--stack-lift)), 0, 1, 0, 0); }
-.stack-plate { --stack-lift: 0; translate: 0 calc(var(--stack-y) * -1px); opacity: var(--stack-o, 1); transition: opacity var(--ui-motion-deliberate), --stack-lift var(--ui-motion-deliberate); cursor: pointer; }
-/* Objects stand up out of the current plate. */
-.stack-plate[data-state="active"] { --stack-lift: 1; transition: opacity var(--ui-motion-deliberate), --stack-lift var(--ui-motion-choreographed) var(--ui-duration-base); }
-.stack-lift { translate: calc(var(--stack-ux) * var(--n) * var(--stack-lift) * 1px) calc(var(--stack-uy) * var(--n) * var(--stack-lift) * 1px); }
-.stack[data-instant] :is(.stack-plate, .stack-plate *) { transition: none; }
 
-.stack-face { fill: var(--ui-bg-elevated); stroke: var(--ui-border-default); stroke-width: 1; vector-effect: non-scaling-stroke; rx: var(--ui-radius-md); }
-.stack-side, .stack-shade, .stack-rule { rx: var(--ui-radius-md); }
-.stack-side { fill: var(--ui-border-default); }
-.stack-foot.stack-side { stroke: var(--ui-border-default); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.stack-shade { fill: var(--ui-text-primary); fill-opacity: 0.14; }
-.stack-face, .stack-side, .stack-art, .stack-slab, .stack-art :is(rect, circle, path, text) { transition: fill var(--ui-motion-deliberate), stroke var(--ui-motion-deliberate), fill-opacity var(--ui-motion-deliberate), opacity var(--ui-motion-deliberate); }
+/* THE DRAWING'S STYLE. A sheet has no thickness and a part has no height:
+   a layer is a line drawing on a hairline sheet, and colour appears only
+   where a part IS a colour.
+
+   It is drawn in the page's look, not beside it. Colours and grain inks are
+   the theme's roles. A sheet's corner is the brand's medium radius and a
+   part's is its small one, at the drawing's scale (one unit is two pixels,
+   and the parts were drawn for a 4px radius at 1.5 units, hence 0.375).
+   Line weights are the brand's stroke scale. Controls take the brand's
+   control radius, and the Tokens sheet shows the brand's own radius scale.
+
+   Shading. A face and a neutral part run from the surface to the surface
+   with a little ink in it, toward the front corner, and stay slightly
+   see-through so the sheet's rule shows under a part. The stack rests on a
+   soft shadow (light scheme only: on a dark ground it would read as a
+   glow). How much of it there is follows the look as well:
+   - a brand whose own elevation is flat (its shadow tokens are `none`; the
+     engine marks the drawing `data-flat`) gets flat sheets and no shadow;
+   - with Effects on, the sheets turn to glass: deeper shading, more
+     transparency, and the accent parts take a gradient of the accent. */
+.stack { --stack-shade: 7%; --stack-shadow: 11%; --stack-part: 0.86; --stack-ink-part: 0.94; --stack-sheet: 0.72; --stack-face: 1; }
+html:not([data-site-effects="on"]) .stack[data-flat] { --stack-shade: 0%; --stack-shadow: 0%; --stack-part: 1; --stack-ink-part: 1; --stack-sheet: 0.9; }
+html[data-site-effects="on"] .stack { --stack-shade: 15%; --stack-shadow: 17%; --stack-part: 0.7; --stack-ink-part: 0.9; --stack-sheet: 0.46; --stack-face: 0.88; }
+.stack-shade-0 { stop-color: var(--ui-bg-surface); }
+.stack-shade-1 { stop-color: color-mix(in oklab, var(--ui-bg-surface), var(--ui-text-primary) var(--stack-shade)); }
+.stack-accent-0 { stop-color: var(--ui-bg-accent); }
+.stack-accent-1 { stop-color: var(--ui-bg-accent-active); }
+.stack-shadow { pointer-events: none; }
+.stack-shadow-0 { stop-color: light-dark(color-mix(in oklab, var(--ui-text-primary) var(--stack-shadow), transparent), transparent); }
+.stack-shadow-1 { stop-color: transparent; }
+
+/* Sheets. */
+.stack-face { fill: var(--ui-bg-base); fill-opacity: var(--stack-sheet); stroke: var(--ui-border-strong); stroke-width: calc(var(--ui-stroke-hairline) * 0.5); vector-effect: non-scaling-stroke; rx: var(--ui-radius-md); }
+.stack-rule { rx: var(--ui-radius-md); opacity: 0; pointer-events: none; }
+.stack-face, .stack-rule, .stack-art, .stack-art :is(rect, circle, path, text) { transition: fill var(--ui-motion-deliberate), stroke var(--ui-motion-deliberate), fill-opacity var(--ui-motion-deliberate), opacity var(--ui-motion-deliberate); }
+.stack-plate[data-state="active"] .stack-face { fill: url(#stack-face-shade) var(--ui-bg-surface); fill-opacity: var(--stack-face); stroke: var(--ui-text-primary); stroke-width: var(--ui-stroke-default); }
+.stack-plate[data-state="active"] .stack-rule { opacity: 0.4; }
+/* A waiting sheet drawn intact is empty. With the engine running it is
+   grains instead, and this is only what they reform into on the way down. */
+.stack-plate[data-state="ghost"] .stack-face { fill-opacity: 0.4; }
+.stack-plate[data-state="ghost"] .stack-art { opacity: 0; }
+/* Proof is a film laid over the components: its measurements are read
+   against the parts under it, so its face never turns opaque. */
+.stack-plate[data-key="proof"]:not([data-state="ghost"]) .stack-face { fill: var(--ui-bg-surface); fill-opacity: 0.22; }
+.stack-plate[data-key="proof"] .stack-rule { opacity: 0; }
+.stack-plate[data-key="proof"][data-state="settled"] .stack-art { opacity: 0.5; }
+@media (hover: hover) { .stack-plate[data-state="ghost"]:hover { opacity: 1; } }
+
+/* Parts. A part's fill arrives as --f. One that shows a role's own colour
+   (`data-ink`) keeps it; a neutral one is the shaded surface. */
 .stack-art { pointer-events: none; opacity: 0.6; }
+.stack-plate[data-state="active"] .stack-art { opacity: 1; }
+.stack-f { fill: var(--f); fill-opacity: var(--stack-ink-part); }
+.stack-part:not([data-ink]) > .stack-f { fill: url(#stack-part-shade) var(--ui-bg-surface); fill-opacity: var(--stack-part); }
+html[data-site-effects="on"] .stack-part[data-ink] > .stack-f[style*="var(--ui-bg-accent)"] { fill: url(#stack-accent-shade) var(--ui-bg-accent); }
+.stack-edge { stroke: var(--ui-border-strong); stroke-width: calc(var(--ui-stroke-hairline) * 0.5); vector-effect: non-scaling-stroke; }
+.stack-ln, .stack-ln2 { fill: none; stroke: var(--ui-border-strong); stroke-width: calc(var(--ui-stroke-hairline) * 0.5); vector-effect: non-scaling-stroke; }
+.stack-ln2 { stroke: var(--ui-border-default); }
+.stack-art rect:is([rx="1.5"], [rx="2"], [rx="3"]):not(.stack-ctl) { rx: calc(var(--ui-radius-sm) * 0.375); ry: calc(var(--ui-radius-sm) * 0.375); }
+.stack-plate[data-key="tokens"] rect[rx="2"] { rx: calc(var(--ui-radius-sm) * 0.5); ry: calc(var(--ui-radius-sm) * 0.5); }
+.stack-plate[data-key="tokens"] rect[rx="5"] { rx: calc(var(--ui-radius-md) * 0.5); ry: calc(var(--ui-radius-md) * 0.5); }
+.stack-plate[data-key="tokens"] rect[rx="9"] { rx: calc(var(--ui-radius-lg) * 0.5); ry: calc(var(--ui-radius-lg) * 0.5); }
+.stack-plate[data-key="tokens"] rect[rx="13"] { rx: min(calc(var(--ui-radius-xl) * 0.5), 17px); ry: min(calc(var(--ui-radius-xl) * 0.5), 17px); }
+.stack-plate[data-key="tokens"] rect[rx="17"] { rx: min(calc(var(--ui-radius-2xl) * 0.5), 17px); ry: min(calc(var(--ui-radius-2xl) * 0.5), 17px); }
 /* Controls take the brand's control radius. Every control on the plates is
    34 units tall, so the radius stops at half of that: SVG clamps rx and ry
    apart, and a full-radius brand would otherwise draw ellipses, not pills. */
@@ -66,21 +112,6 @@
    doubled class outranks the site's own scheme override on brand scopes. */
 .stack-light.stack-light { color-scheme: light; }
 .stack-dark.stack-dark { color-scheme: dark; }
-
-.stack-plate[data-state="active"] .stack-face { fill: var(--ui-bg-surface); stroke: var(--ui-text-primary); }
-.stack-plate[data-state="active"] .stack-side { fill: var(--ui-bg-accent); }
-.stack-plate[data-state="active"] .stack-foot { stroke: var(--ui-bg-accent-active); }
-.stack-plate[data-state="active"] .stack-art { opacity: 1; }
-/* A waiting plate drawn intact is an empty sheet. With the engine running it
-   is grains instead, and this is only what they reform into on the way down. */
-.stack-plate[data-state="ghost"] .stack-face { fill: var(--ui-bg-surface); fill-opacity: 0.5; stroke: var(--ui-border-strong); }
-.stack-plate[data-state="ghost"] .stack-side { fill-opacity: 0.4; }
-.stack-plate[data-state="ghost"] :is(.stack-art, .stack-rule) { opacity: 0; }
-/* Proof is a film laid over the components: it never turns opaque and has no edge. */
-.stack-plate[data-key="proof"]:not([data-state="ghost"]) .stack-face { fill: var(--ui-bg-surface); fill-opacity: 0.3; }
-.stack-plate[data-key="proof"][data-state="settled"] .stack-art { opacity: 0.5; }
-.stack-plate[data-key="proof"] .stack-slab { display: none; }
-@media (hover: hover) { .stack-plate[data-state="ghost"]:hover { opacity: 1; } }
 
 /* The legend: a heading and an accordion. The open row is marked by its top
    rule, which also counts down to the next row while the tour runs. Rows keep

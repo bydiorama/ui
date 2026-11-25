@@ -200,34 +200,52 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 @keyframes terminal-print { to { opacity: 1; } }
 @keyframes terminal-blink { 50% { opacity: 0; } }
 
-/* The exploded button, drawn as the layer stack is: solid parts over a
-   ground that fades at its edges, with construction lines through the
-   corners. Colours are roles: the surface is the accent and its wall the
-   pressed accent, the focus ring the focus border. The part a label names
-   is inked: its edge takes the text colour. */
-.exploded { position: relative; width: 656px; height: 456px; flex-shrink: 0; }
-.exploded-drawing { position: absolute; inset: 0; overflow: visible; }
+/* The exploded button, drawn as the layer stack's schematic is: flat
+   hairline sheets over a ground that fades at its edges. Colours are roles: the surface is the accent,
+   the focus ring the focus border. The part a label names is inked: its
+   edge takes the text colour. */
+/* The window onto the 656 by 456 drawing: from (104, 40), wide enough for the
+   sheets and the longest label. The sheets' ink runs 51 to 413 down the
+   drawing, so it sits a little above centre, over the fading ground. */
+.exploded { --exploded-x: 104px; --exploded-y: 40px; position: relative; width: 486px; height: 416px; flex-shrink: 0; }
+.exploded-figure { position: absolute; inset: 0; }
+.exploded-drawing { position: absolute; left: calc(var(--exploded-x) * -1); top: calc(var(--exploded-y) * -1); overflow: visible; }
 .exploded-grid { stroke: var(--ui-border-subtle); stroke-width: 0.75; }
-.exploded-guides { stroke: var(--ui-border-strong); stroke-width: 0.5; stroke-opacity: 0.45; transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 600ms; }
-.exploded:not([data-open]) .exploded-guides { opacity: 0; transition-delay: 0ms; }
 .exploded-layer { transition: translate 1100ms var(--ui-ease-spring), opacity var(--ui-duration-slow) var(--ui-ease-default); }
 .exploded:not([data-open]) .exploded-layer { translate: 0 var(--rest, 0); }
 .exploded-layer rect { vector-effect: non-scaling-stroke; transition: fill var(--ui-duration-slow) var(--ui-ease-default), stroke var(--ui-duration-slow) var(--ui-ease-default), stroke-opacity var(--ui-duration-slow) var(--ui-ease-default); }
-.exploded-layer[data-part="label"] rect { fill: color-mix(in oklab, var(--ui-bg-surface) 60%, transparent); stroke: var(--ui-border-strong); stroke-width: 0.75; }
+/* The button's own shape, at the drawing's scale (a 32px control is drawn 60
+   tall): the brand's control radius, so a pill brand explodes into pills. */
+.exploded-layer rect { rx: min(calc(var(--ui-control-radius-md) * 1.875), 30px); ry: min(calc(var(--ui-control-radius-md) * 1.875), 30px); }
+.exploded-layer rect.exploded-outline { rx: min(calc(var(--ui-control-radius-md) * 1.875 + 8px), 38px); ry: min(calc(var(--ui-control-radius-md) * 1.875 + 8px), 38px); }
+/* How much shading there is follows the look, as in the stack: none for a
+   brand with flat elevation, glass with Effects on. */
+.exploded { --exploded-shade: 7%; --exploded-accent: 30%; --exploded-shadow: 11%; --exploded-sheet: 0.7; --exploded-surface: 0.96; }
+html:not([data-site-effects="on"]) .exploded[data-flat] { --exploded-shade: 0%; --exploded-accent: 0%; --exploded-shadow: 0%; --exploded-sheet: 0.8; --exploded-surface: 1; }
+html[data-site-effects="on"] .exploded { --exploded-shade: 15%; --exploded-accent: 100%; --exploded-shadow: 17%; --exploded-sheet: 0.5; --exploded-surface: 0.86; }
+.exploded-sheet-0 { stop-color: var(--ui-bg-surface); }
+.exploded-sheet-1 { stop-color: color-mix(in oklab, var(--ui-bg-surface), var(--ui-text-primary) var(--exploded-shade)); }
+.exploded-accent-0 { stop-color: var(--ui-bg-accent); }
+.exploded-accent-1 { stop-color: color-mix(in oklab, var(--ui-bg-accent), var(--ui-bg-accent-active) var(--exploded-accent)); }
+.exploded-shadow { pointer-events: none; transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 600ms; }
+.exploded:not([data-open]) .exploded-shadow { opacity: 0.4; }
+.exploded-shadow-0 { stop-color: light-dark(color-mix(in oklab, var(--ui-text-primary) var(--exploded-shadow), transparent), transparent); }
+.exploded-shadow-1 { stop-color: transparent; }
+.exploded-layer[data-part="label"] rect { fill: url(#exploded-sheet-shade) var(--ui-bg-surface); fill-opacity: var(--exploded-sheet); stroke: var(--ui-border-strong); stroke-width: calc(var(--ui-stroke-hairline) * 0.5); }
 .exploded-layer[data-part="label"] text { fill: var(--ui-text-primary); font-family: inherit; }
-.exploded-layer[data-part="ring"] rect { stroke: var(--ui-text-primary); stroke-opacity: 0.45; stroke-width: 1.5; }
-.exploded-layer[data-part="focus"] rect { stroke: var(--ui-border-focus); stroke-width: 2; }
-.exploded-shadow { fill: var(--ui-text-primary); fill-opacity: 0.1; }
-.exploded-wall { fill: var(--ui-bg-accent-active); stroke: var(--ui-bg-accent-active); stroke-width: 3; }
-.exploded-top { fill: var(--ui-bg-accent); }
-.exploded-edge { stroke: var(--ui-border-strong); stroke-width: 0.75; }
+.exploded-layer[data-part="ring"] rect { stroke: var(--ui-text-primary); stroke-opacity: 0.45; stroke-width: var(--ui-stroke-hairline); }
+.exploded-layer[data-part="focus"] rect { stroke: var(--ui-border-focus); stroke-width: var(--ui-focus-ring-width); }
+.exploded-layer[data-part="surface"] rect { fill: url(#exploded-accent-shade) var(--ui-bg-accent); fill-opacity: var(--exploded-surface); stroke: var(--ui-border-strong); stroke-width: calc(var(--ui-stroke-hairline) * 0.5); }
+/* Once the button is apart, the layers the reader is not on step back. */
+.exploded[data-open] .exploded-layer { opacity: 0.32; }
+.exploded[data-open][data-active="label"] [data-part="label"], .exploded[data-open][data-active="ring"] [data-part="ring"], .exploded[data-open][data-active="surface"] [data-part="surface"], .exploded[data-open][data-active="focus"] [data-part="focus"] { opacity: 1; }
 .exploded[data-active="label"] [data-part="label"] rect { stroke: var(--ui-text-primary); }
 .exploded[data-active="ring"] [data-part="ring"] rect { stroke-opacity: 1; }
-.exploded[data-active="surface"] [data-part="surface"] .exploded-edge { stroke: var(--ui-text-primary); }
+.exploded[data-active="surface"] [data-part="surface"] rect { stroke: var(--ui-text-primary); }
 .exploded-leaders { stroke: var(--ui-border-strong); transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 600ms; }
 .exploded:not([data-open]) .exploded-leaders { opacity: 0; transition-delay: 0ms; }
 .exploded-labels { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; pointer-events: none; }
-.exploded-labels li { position: absolute; left: 428px; width: 190px; }
+.exploded-labels li { position: absolute; left: calc(428px - var(--exploded-x)); top: calc(var(--top) - var(--exploded-y)); width: 170px; }
 .exploded-labels button { pointer-events: auto; display: flex; flex-direction: column; gap: 2px; padding: 4px 8px; margin: -4px -8px; border: 0; border-radius: var(--ui-radius-sm); background: none; text-align: left; font: inherit; font-size: 13px; line-height: 16px; letter-spacing: -0.02em; opacity: 0.24; cursor: default; transition: opacity var(--ui-duration-slow) var(--ui-ease-default); }
 .exploded-labels button[aria-pressed="true"] { opacity: 1; }
 .exploded-labels button:focus-visible { outline: 2px solid var(--ui-border-focus); }
@@ -235,6 +253,15 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 .exploded-labels span { color: var(--ui-text-muted); }
 .exploded:not([data-open]) .exploded-labels { opacity: 0; }
 .exploded-labels { transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 500ms; }
+/* A narrow well: the sheets alone, centred, with no captions or leaders.
+   With nothing to choose a layer by, none steps back: all four are inked. */
+@media (max-width: 640px) {
+  .exploded { --exploded-x: 104px; --exploded-y: 44px; display: flex; justify-content: center; width: 100%; height: auto; }
+  .exploded-figure { position: relative; inset: auto; width: 286px; height: 388px; flex-shrink: 0; }
+  .exploded-leaders, .exploded-labels { display: none; }
+  .exploded[data-open] .exploded-layer { opacity: 1; }
+}
+@media (max-width: 380px) { .exploded-figure { zoom: 0.86; } }
 
 /* The theme pair: two brand scopes, side by side. */
 .theme-pair { display: flex; flex: 1; gap: 8px; min-width: 0; }
@@ -415,7 +442,6 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
   .feature-text { width: auto; padding: 32px; }
   .feature-visual { min-height: 440px; }
   .feature-well-base { overflow: clip; }
-  .exploded { zoom: 0.8; }
   .feature-reversed .feature-visual { min-height: 0; }
   .card-fan { height: 620px; }
   .fan-card[data-index] { --r: 0deg; }
@@ -426,7 +452,6 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
   .fan-card[data-index="4"] { --x: calc(560px + 20px); --y: 320px; --r: -5deg; }
 }
 @media (max-width: 860px) {
-  .exploded { zoom: 0.62; }
   .box-row-two, .box-row-three { grid-template-columns: 1fr; }
   .box-row-two .box-tile, .box-row-three .box-tile { height: auto; }
   .box-row .box-well { min-height: 280px; }
@@ -439,7 +464,6 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
   .use-case-window { padding: 8px 8px 0; }
 }
 @media (max-width: 700px) {
-  .exploded { zoom: 0.44; }
   .terminal-body { font-size: 11px; line-height: 19px; }
   .fan-card { --cw: min(168px, calc(50vw - 24px)); width: var(--cw); height: 212px; padding: 16px; }
   .hero { gap: 32px; padding-bottom: 72px; }

@@ -8,15 +8,6 @@ const last = layers.length - 1;
 /** How many of the theme's loop beats one layer is held for: nine seconds. */
 const DWELL_BEATS = 4.5;
 
-/** A plate's edge, drawn as the outline repeated downwards: the lit side, then
- *  the shaded side clipped to the left of the front corner. */
-function Slab({ depth }: { depth: number }) {
-  const copies = (className: string) => Array.from({ length: depth }, (_, n) => (
-    <g key={n} transform={`translate(0 ${depth - n})`}><rect className={`stack-iso ${className}${n === 0 ? " stack-foot" : ""}`} x={-120} y={-120} width={240} height={240} rx={8} /></g>
-  ));
-  return <g className="stack-slab">{copies("stack-side")}<g clipPath="url(#stack-left)">{copies("stack-shade")}</g></g>;
-}
-
 /**
  * The drawing, rendered once at the resting layer. From then on the engine
  * owns its attributes, so it never re-renders: without script (or before
@@ -40,11 +31,17 @@ const Drawing = memo(function Drawing() {
               <mask id={`stack-mask-${index}`} maskUnits="userSpaceOnUse" x="-170" y="-170" width="340" height="340"><rect x="-170" y="-170" width="340" height="340" fill={`url(#stack-fade-${index})`} /></mask>
             </g>
           ))}
-          <clipPath id="stack-left" clipPathUnits="userSpaceOnUse"><rect data-shade x="-400" y="-400" width="400" height="900" /></clipPath>
+          {/* Gentle shading: a face and a part darken a
+              touch toward the front corner, and the stack rests on a soft
+              shadow. Mixed from the theme's roles, so every brand keeps it. */}
+          <linearGradient id="stack-face-shade" gradientUnits="userSpaceOnUse" x1="-120" y1="-120" x2="120" y2="120"><stop className="stack-shade-0" offset="0" /><stop className="stack-shade-1" offset="1" /></linearGradient>
+          <linearGradient id="stack-part-shade" x1="0" y1="0" x2="1" y2="1"><stop className="stack-shade-0" offset="0" /><stop className="stack-shade-1" offset="1" /></linearGradient>
+          <linearGradient id="stack-accent-shade" x1="0" y1="0" x2="1" y2="1"><stop className="stack-accent-0" offset="0" /><stop className="stack-accent-1" offset="1" /></linearGradient>
+          <radialGradient id="stack-shadow-fade" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="190"><stop className="stack-shadow-0" offset=".35" /><stop className="stack-shadow-1" offset="1" /></radialGradient>
         </defs>
         <g transform="translate(260 0)">
           <g className="stack-rig">
-            <g transform="translate(0 5)"><g className="stack-iso"><rect x="-300" y="-300" width="600" height="600" fill="url(#stack-ground)" mask="url(#stack-ground-mask)" /></g></g>
+            <g transform="translate(0 5)"><g className="stack-iso"><rect x="-300" y="-300" width="600" height="600" fill="url(#stack-ground)" mask="url(#stack-ground-mask)" /><rect className="stack-shadow" x="-190" y="-190" width="380" height="380" fill="url(#stack-shadow-fade)" /></g></g>
             <line className="stack-guide" data-guide="-1" /><line className="stack-guide" data-guide="1" /><line className="stack-guide" data-guide="0" />
             {layers.map((layer, index) => {
               const Art = plates[layer.key];
@@ -52,7 +49,6 @@ const Drawing = memo(function Drawing() {
                 <g key={layer.key} className="stack-plate" data-plate={index} data-key={layer.key} data-state={stateOf(index, HOME)} style={{ "--stack-y": riseOf(index, HOME), "--stack-o": index > HOME ? INK[index - HOME] : 1 } as CSSProperties}>
                   {/* The three inks the engine reads for this plate's grains. */}
                   <g className="stack-probe"><g style={{ color: role("text-muted") }} /><g style={{ color: role("text-primary") }} /><g style={{ color: role("bg-accent-legible") }} /></g>
-                  <Slab depth={layer.key === "proof" ? 2 : 4} />
                   <g className="stack-iso stack-body">
                     <rect className="stack-face" x={-120} y={-120} width={240} height={240} rx={8} />
                     <rect className="stack-rule" x={-120} y={-120} width={240} height={240} rx={8} fill="url(#stack-rule)" />
@@ -70,7 +66,7 @@ const Drawing = memo(function Drawing() {
 });
 
 /**
- * The system as a stack of seven plates beside a legend that names them.
+ * The system as a stack of seven hairline sheets beside a legend that names them.
  *
  * The legend lists the layers in the order they are built, the seed first,
  * so its first row is the bottom plate. The section has no controls. While

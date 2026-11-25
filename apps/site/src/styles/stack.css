@@ -1,7 +1,7 @@
 /* The layer stack (Paper: "Home v3 — Stack section · 1440", and "Stack —
    Layer assets (top down)" for each plate). A card like the features above
-   it: the drawing in a well on the left, a legend on the right that mirrors
-   the stack. Colours are the theme's roles only; lines are solid, and
+   it: the drawing in a well on the left, a legend on the right that lists
+   the layers from the seed up. Colours are the theme's roles only; lines are solid, and
    emphasis is carried by opacity, colour and thickness. */
 
 .home > .stack-section { padding: 96px 0 64px; }
@@ -14,8 +14,9 @@
      engine. --stack-ux/uy is one screen pixel straight up, written in a
      plate's own plane, so a part stands up the same at any turn. */
   --stack-a: 0.866; --stack-b: 0.5; --stack-c: -0.866; --stack-d: 0.5; --stack-ux: -1; --stack-uy: -1;
-  /* One dwell of the tour: the engine's timer reads the same beat. */
-  --stack-dwell: calc(var(--ui-duration-loop) * 3);
+  /* How long the tour holds a layer. The component sets the number of loop
+     beats and runs its timer on the same product. */
+  --stack-dwell: calc(var(--ui-duration-loop) * var(--stack-dwell-beats, 6));
   display: flex; letter-spacing: -0.02em; color: var(--ui-text-primary);
 }
 
@@ -79,7 +80,8 @@
 @media (hover: hover) { .stack-plate[data-state="ghost"]:hover { opacity: 1; } }
 
 /* The legend: a heading and an accordion. The open row is marked by its top
-   rule, which also counts down to the next row while the tour runs. */
+   rule, which also counts down to the next row while the tour runs. Rows keep
+   one height closed, so the list only grows by the open row's sentence. */
 .stack-legend { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; width: 400px; flex-shrink: 0; padding: 36px 40px 32px 32px; }
 .stack-legend h2 { font-size: 28px; line-height: 34px; font-weight: 550; letter-spacing: -0.03em; color: var(--ui-text-primary); text-wrap: balance; }
 .stack-list { display: flex; flex-direction: column; margin: 0; padding: 24px 0 0; list-style: none; }

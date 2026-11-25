@@ -5,8 +5,8 @@ import { plates } from "./stack/plates";
 import { role } from "./stack/parts";
 
 const last = layers.length - 1;
-/** The legend reads top to bottom like the stack, so the app comes first. */
-const rows = layers.map((layer, index) => ({ ...layer, index })).reverse();
+/** How many of the theme's loop beats one layer is held for: twelve seconds. */
+const DWELL_BEATS = 6;
 
 /** A plate's edge, drawn as the outline repeated downwards: the lit side, then
  *  the shaded side clipped to the left of the front corner. */
@@ -70,14 +70,16 @@ const Drawing = memo(function Drawing() {
 });
 
 /**
- * The system as a stack of seven plates beside a legend that mirrors it.
+ * The system as a stack of seven plates beside a legend that names them.
  *
- * The section has no controls. While it is on screen it tours the layers on
- * its own, from the seed up and round again, opening each row in turn.
- * Pointing at the legend or focusing it holds the current layer; choosing a
- * row or a plate ends the tour. Under reduced motion nothing advances and it
- * rests on Components. Its look is the page's: the engine follows the site's
- * brand and scheme.
+ * The legend lists the layers in the order they are built, the seed first,
+ * so its first row is the bottom plate. The section has no controls. While
+ * it is on screen every layer has a timer: it is held for twelve seconds,
+ * then the next row opens, and after the last the tour starts again at the
+ * seed. Choosing a row or a plate jumps there and the timer carries on from
+ * it. Keyboard focus in the legend holds the current layer. Under reduced
+ * motion nothing advances and it rests on Components. Its look is the
+ * page's: the engine follows the site's brand and scheme.
  */
 export function LayerStack() {
   const root = useRef<HTMLDivElement>(null);
@@ -88,20 +90,19 @@ export function LayerStack() {
   const [isTouring, setIsTouring] = useState(false);
   const [inView, setInView] = useState(false);
   const [isPageHidden, setIsPageHidden] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [isCounting, setIsCounting] = useState(false);
 
-  const choose = (index: number) => { setIsTouring(false); setActive(Math.max(0, Math.min(last, index))); };
+  const choose = (index: number) => setActive(Math.max(0, Math.min(last, index)));
 
   useEffect(() => {
     const element = root.current;
     if (!element) return;
-    const mounted = mountStack(element, { onPick: index => { setIsTouring(false); setActive(index); } });
+    const mounted = mountStack(element, { onPick: setActive });
     engine.current = mounted;
     // The tour starts at the seed. Reduced motion keeps the resting layer.
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => { if (reduce.matches) setIsTouring(false); };
+    const sync = () => setIsTouring(!reduce.matches);
     if (!reduce.matches) { isLanding.current = true; setActive(0); setIsTouring(true); }
     reduce.addEventListener("change", sync);
     const observer = new IntersectionObserver(([entry]) => setInView(entry!.isIntersecting), { threshold: 0.35 });
@@ -125,44 +126,42 @@ export function LayerStack() {
     engine.current?.show(active, isInstant);
   }, [active]);
 
-  const isRunning = isTouring && inView && !isPageHidden && !isHovered && !isFocused;
+  const isRunning = isTouring && inView && !isPageHidden && !isFocused;
   useEffect(() => {
     if (!isRunning || !root.current) return;
-    // One dwell per layer: three of the theme's loop beats, as the open row's
-    // rule counts down in the stylesheet.
-    const timer = window.setTimeout(() => setActive(current => current === last ? 0 : current + 1), 3 * durationOf(root.current, "--ui-duration-loop", 2000));
+    // One dwell per layer, counted in the theme's loop beats; the open row's
+    // rule counts the same time down in the stylesheet.
+    const timer = window.setTimeout(() => setActive(current => current === last ? 0 : current + 1), DWELL_BEATS * durationOf(root.current, "--ui-duration-loop", 2000));
     // The rule restarts from empty: one frame without the transition, then on.
     let frame = window.requestAnimationFrame(() => { frame = window.requestAnimationFrame(() => setIsCounting(true)); });
     return () => { window.clearTimeout(timer); window.cancelAnimationFrame(frame); setIsCounting(false); };
   }, [isRunning, active]);
 
   const onKeyDown = (event: KeyboardEvent) => {
-    // Up is the layer above, as the rows are laid out.
+    // Down is the next row, which is the next layer up the stack.
     if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
     event.preventDefault();
-    const next = Math.max(0, Math.min(last, active + (event.key === "ArrowUp" ? 1 : -1)));
+    const next = Math.max(0, Math.min(last, active + (event.key === "ArrowDown" ? 1 : -1)));
     choose(next);
     buttons.current[next]?.focus();
   };
 
   return (
-    <div ref={root} className="stack" data-touring={isRunning ? "" : undefined} style={{ "--stack-base": baseOf(HOME) } as CSSProperties}>
+    <div ref={root} className="stack" data-touring={isRunning ? "" : undefined} style={{ "--stack-base": baseOf(HOME), "--stack-dwell-beats": DWELL_BEATS } as CSSProperties}>
       <div className="stack-well"><Drawing /></div>
       <div
         className="stack-legend"
-        onPointerEnter={event => { if (event.pointerType === "mouse") setIsHovered(true); }}
-        onPointerLeave={() => setIsHovered(false)}
         onFocus={event => { if (event.target.matches(":focus-visible")) setIsFocused(true); }}
         onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setIsFocused(false); }}
       >
         <h2 id="stack-title">Seven layers run through the stack.</h2>
-        <ol className="stack-list" aria-label="Layers, top to bottom" onKeyDown={onKeyDown}>
-          {rows.map(layer => {
-            const isOpen = layer.index === active;
+        <ol className="stack-list" aria-label="Layers, from the seed up" onKeyDown={onKeyDown}>
+          {layers.map((layer, index) => {
+            const isOpen = index === active;
             return (
               <li key={layer.key} className="stack-item" data-open={isOpen ? "" : undefined} data-counting={isOpen && isCounting ? "" : undefined}>
                 <h3>
-                  <button ref={element => { buttons.current[layer.index] = element; }} type="button" className="stack-row" id={`stack-row-${layer.key}`} aria-expanded={isOpen} aria-controls={`stack-panel-${layer.key}`} onClick={() => choose(layer.index)}>{layer.name}</button>
+                  <button ref={element => { buttons.current[index] = element; }} type="button" className="stack-row" id={`stack-row-${layer.key}`} aria-expanded={isOpen} aria-controls={`stack-panel-${layer.key}`} onClick={() => choose(index)}>{layer.name}</button>
                 </h3>
                 <div className="stack-panel" id={`stack-panel-${layer.key}`} role="region" aria-labelledby={`stack-row-${layer.key}`}><p>{layer.summary}</p></div>
               </li>

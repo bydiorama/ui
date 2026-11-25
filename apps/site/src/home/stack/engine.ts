@@ -1,4 +1,4 @@
-import { GAP, GRAIN, HOME, INK, OPEN, REST, layers } from "./layers";
+import { GRAIN, HOME, INK, baseOf, layers, riseOf } from "./layers";
 
 /*
  * The drawing's engine. React renders the stack once and owns which layer is
@@ -128,11 +128,10 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
 
   function render() {
     tune();
-    const rise = plates.map((_, index) => index <= active ? REST[index]! : REST[active]! + OPEN + (index - active - 1) * GAP);
-    base.goal = 345 + rise[last]! / 2;
+    base.goal = baseOf(active);
     plates.forEach((plate, index) => {
       const isWaiting = index > active;
-      plate.rise.goal = rise[index]!;
+      plate.rise.goal = riseOf(index, active);
       plate.gone.goal = isWaiting && !reduce.matches ? 1 : 0;
       plate.dense.goal = isWaiting ? GRAIN[index - active]! : 1;
       plate.el.dataset.state = index < active ? "settled" : index === active ? "active" : "ghost";

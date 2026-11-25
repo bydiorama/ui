@@ -30,6 +30,11 @@ export const INK = [1, 0.5, 0.36, 0.26, 0.18, 0.12, 0.08];
 export const GRAIN = [1, 0.8, 0.5, 0.32, 0.2, 0.12, 0.08];
 
 export const riseOf = (index: number, active: number) => index <= active ? REST[index]! : REST[active]! + OPEN + (index - active - 1) * GAP;
-/** Where the ground sits, so the whole stack stays centred as it opens. */
-export const baseOf = (active: number) => 345 + riseOf(layers.length - 1, active) / 2;
+/**
+ * Where the ground sits, so the drawing stays centred in its well. While
+ * layers are still waiting, the stack and the grains above it are centred
+ * together. Once the last layer has landed there is nothing above it, so the
+ * stack itself is centred instead of being left in the upper half.
+ */
+export const baseOf = (active: number) => active === layers.length - 1 ? 455 : 345 + riseOf(layers.length - 1, active) / 2;
 export const stateOf = (index: number, active: number) => index < active ? "settled" : index === active ? "active" : "ghost";

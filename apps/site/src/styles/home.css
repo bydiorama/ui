@@ -47,8 +47,10 @@
 .hero { display: flex; flex-direction: column; align-items: center; gap: 56px; padding: clamp(96px, 12vw, 168px) 0 120px; }
 .hero-title { --reel-size: clamp(40px, 9.2vw, 132px); display: flex; align-items: center; gap: calc(var(--reel-size) * 0.27); height: var(--reel-size); margin: 0; font-size: var(--reel-size); line-height: 1; font-weight: 500; letter-spacing: -0.05em; color: var(--ui-text-primary); }
 .hero-your { flex-shrink: 0; }
-/* The reel is one line tall and shows the words either side of it in the
-   sunken role: last word above, next word below. */
+/* The reel is one line tall and shows the words either side of it as a quiet
+   tint of the text colour on the page: last word above, next word below.
+   The tint is mixed here, not taken from bg-sunken, because a brand's dark
+   bg-sunken can resolve to the page colour itself, which hides the words. */
 .hero-reel { --reel-index: 4; position: relative; height: var(--reel-size); }
 /* The reel is exactly as wide as its widest word (Paper: the "system." box),
    so "Your system." is centred as one line. The words are stacked unseen in
@@ -56,11 +58,11 @@
 .hero-reel-sizer { display: grid; height: var(--reel-size); visibility: hidden; white-space: nowrap; }
 .hero-reel-sizer > span { grid-area: 1 / 1; }
 /* A three-line window, centred on the reel: the word before and the word
-   after show in the sunken role, the rest are clipped. */
+   after show in the quiet tint, the rest are clipped. */
 .hero-reel-window { position: absolute; inset: calc(var(--reel-size) * -1) -0.2em; overflow: clip; }
 .hero-reel-track { position: absolute; inset: var(--reel-size) auto auto 0.2em; display: flex; flex-direction: column; translate: 0 calc(var(--reel-index) * var(--reel-size) * -1); transition: translate 700ms var(--ui-ease-spring); }
 .hero-reel[data-instant] .hero-reel-track, .hero-reel[data-instant] .hero-reel-word { transition: none; }
-.hero-reel-word { display: block; height: var(--reel-size); color: var(--ui-bg-sunken); transition: color 500ms var(--ui-ease-default); white-space: nowrap; }
+.hero-reel-word { display: block; height: var(--reel-size); color: light-dark(color-mix(in oklab, var(--ui-text-primary) 10%, var(--ui-bg-base)), color-mix(in oklab, var(--ui-text-primary) 18%, var(--ui-bg-base))); transition: color 500ms var(--ui-ease-default); white-space: nowrap; }
 .hero-reel-word[data-current] { color: var(--ui-text-primary); }
 /* Before the script runs (or without it) the middle copy's "system." is the
    line, as in the design. */
@@ -198,24 +200,30 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
 @keyframes terminal-print { to { opacity: 1; } }
 @keyframes terminal-blink { 50% { opacity: 0; } }
 
-/* The exploded button. Layer colours are roles: the label's outline is the
-   subtle border, the ring the strong border, the surface the accent, the
-   focus ring the focus border. */
+/* The exploded button, drawn as the layer stack is: solid parts over a
+   ground that fades at its edges, with construction lines through the
+   corners. Colours are roles: the surface is the accent and its wall the
+   pressed accent, the focus ring the focus border. The part a label names
+   is inked: its edge takes the text colour. */
 .exploded { position: relative; width: 656px; height: 456px; flex-shrink: 0; }
 .exploded-drawing { position: absolute; inset: 0; overflow: visible; }
+.exploded-grid { stroke: var(--ui-border-subtle); stroke-width: 0.75; }
+.exploded-guides { stroke: var(--ui-border-strong); stroke-width: 0.5; stroke-opacity: 0.45; transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 600ms; }
+.exploded:not([data-open]) .exploded-guides { opacity: 0; transition-delay: 0ms; }
 .exploded-layer { transition: translate 1100ms var(--ui-ease-spring), opacity var(--ui-duration-slow) var(--ui-ease-default); }
 .exploded:not([data-open]) .exploded-layer { translate: 0 var(--rest, 0); }
-.exploded-layer[data-part="label"] rect { stroke: var(--ui-border-default); }
+.exploded-layer rect { vector-effect: non-scaling-stroke; transition: fill var(--ui-duration-slow) var(--ui-ease-default), stroke var(--ui-duration-slow) var(--ui-ease-default), stroke-opacity var(--ui-duration-slow) var(--ui-ease-default); }
+.exploded-layer[data-part="label"] rect { fill: color-mix(in oklab, var(--ui-bg-surface) 60%, transparent); stroke: var(--ui-border-strong); stroke-width: 0.75; }
 .exploded-layer[data-part="label"] text { fill: var(--ui-text-primary); font-family: inherit; }
-.exploded-layer[data-part="ring"] rect { stroke: color-mix(in oklab, var(--ui-text-primary) 40%, transparent); }
-.exploded-layer[data-part="surface"] rect { fill: color-mix(in oklab, var(--ui-bg-accent) 24%, transparent); }
-.exploded-layer[data-part="shadow"] rect { fill: color-mix(in oklab, var(--ui-bg-accent-active) 24%, transparent); }
-.exploded-layer[data-part="focus"] rect { stroke: color-mix(in oklab, var(--ui-border-focus) 16%, transparent); }
-.exploded-layer rect { transition: fill var(--ui-duration-slow) var(--ui-ease-default), stroke var(--ui-duration-slow) var(--ui-ease-default); }
+.exploded-layer[data-part="ring"] rect { stroke: var(--ui-text-primary); stroke-opacity: 0.45; stroke-width: 1.5; }
+.exploded-layer[data-part="focus"] rect { stroke: var(--ui-border-focus); stroke-width: 2; }
+.exploded-shadow { fill: var(--ui-text-primary); fill-opacity: 0.1; }
+.exploded-wall { fill: var(--ui-bg-accent-active); stroke: var(--ui-bg-accent-active); stroke-width: 3; }
+.exploded-top { fill: var(--ui-bg-accent); }
+.exploded-edge { stroke: var(--ui-border-strong); stroke-width: 0.75; }
 .exploded[data-active="label"] [data-part="label"] rect { stroke: var(--ui-text-primary); }
-.exploded[data-active="ring"] [data-part="ring"] rect { stroke: var(--ui-text-primary); }
-.exploded[data-active="surface"] [data-part="surface"] rect { fill: var(--ui-bg-accent); }
-.exploded[data-active="focus"] [data-part="focus"] rect { stroke: var(--ui-border-focus); }
+.exploded[data-active="ring"] [data-part="ring"] rect { stroke-opacity: 1; }
+.exploded[data-active="surface"] [data-part="surface"] .exploded-edge { stroke: var(--ui-text-primary); }
 .exploded-leaders { stroke: var(--ui-border-strong); transition: opacity var(--ui-duration-slow) var(--ui-ease-default) 600ms; }
 .exploded:not([data-open]) .exploded-leaders { opacity: 0; transition-delay: 0ms; }
 .exploded-labels { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; pointer-events: none; }

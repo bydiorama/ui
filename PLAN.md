@@ -244,8 +244,9 @@ stubbed.
       calls replaced. `check:motion` refuses a new one, and a literal
       scale or slide on an entering or leaving surface.
 - [x] Storybook toolbar switch for the level.
-- [ ] Step 3: one vocabulary — recipes read their intent token, a
-      `linear()` spring. A design decision first, on the motion page.
+- [x] Step 3: one vocabulary — the intents follow the components (all ease
+      out), `check:motion` holds recipe and intent together, and
+      `--ui-ease-spring` is a real `linear()` spring. ADR 0028 accepted.
 - [ ] Step 4: the six owned motion items. Each needs a Paper sheet first
       (`design-component`).
 - [x] Step 5: the motion page on the public site, `/docs/motion/` — the site's

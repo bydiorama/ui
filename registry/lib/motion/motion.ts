@@ -22,13 +22,12 @@
  * `--ui-motion-standard`, which pairs `--ui-duration-base` with
  * `--ui-ease-default`, an easing nothing in the library has ever reached for.
  *
- * So these three are named for the intents but do NOT read them, and that is
- * a deliberate record of a disagreement rather than an oversight: the tokens
- * describe a system with four curves and the components built one with a
- * single curve. Which is right is a design question (`design/paper/README.md`
- * still lists motion sign-off as open). Encoding the components' actual
- * behaviour here at least makes the disagreement visible in one file instead
- * of implied across twenty-eight.
+ * That disagreement is settled (ADR 0028 §7, 2026-11-26): the tokens follow
+ * the components. `--ui-motion-micro`, `-standard` and `-deliberate` now name
+ * the same duration and `--ui-ease-out` as the three recipes below, so the
+ * recipe IS its intent, spelt as two utilities because Tailwind has no single
+ * utility for a duration-and-easing pair. `check:motion` reads both sides and
+ * fails if they ever differ again.
  */
 
 /** Interaction feedback — hover, focus, press, a colour or a ring settling. */

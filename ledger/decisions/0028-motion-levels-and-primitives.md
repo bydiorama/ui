@@ -1,9 +1,10 @@
 # 0028 — Motion has three levels, and the library owns its patterns
 
-**Status:** proposed · 2026-11-26 · amends ADR 0005 (clause 5) and ADR 0018
-(clause 5); the three decisions marked **agreed** were settled with the
-maintainer on the same date, the rest is for review. Clauses 1–5 are
-**implemented and measured** (see § Measured); 6–8 are not started.
+**Status:** accepted · 2026-11-26 · amends ADR 0005 (clause 5) and ADR 0018
+(clause 5). Accepted by the maintainer on 2026-11-26, as were the decisions
+marked **agreed** and clause 7's two choices. Clauses 1–5 and 7 are
+**implemented and measured** (see § Measured); 6 waits on Paper sheets for
+its components; 8 is unchanged.
 
 ## Context
 
@@ -170,15 +171,23 @@ does not cover", and the skill stops being the main route.
 
 ### 7. One vocabulary
 
-- A recipe in `lib/motion` and its `--ui-motion-*` intent are the same thing:
-  the recipe reads the token, and `check:motion` fails if they differ.
-- Which curve each intent uses is a design decision, made on the motion page
-  (below) with both candidates side by side, not in this record.
-- `--ui-ease-spring` keeps its name and becomes a `linear()` spring. It has
-  consumers, so that is a visible change with a ledger entry and a visual
-  review.
-- A curve with no consumer after that pass is removed
-  (`check:token-consumers` already says which).
+- A recipe in `lib/motion` and its `--ui-motion-*` intent are the same pair,
+  and `check:motion` fails if they differ. (The recipe cannot literally read
+  the token: Tailwind has no utility for a duration-and-easing pair, so the
+  check compares the two spellings instead.)
+- **Decided 2026-11-26: the tokens follow the components.** Micro, standard
+  and deliberate all ease out, as every component already did. No component
+  changes. `--ui-ease-default` stays: Skeleton's pulse and the public site
+  read it, so removing it was never the cheap cleanup it looked like.
+- **Decided 2026-11-26: `--ui-ease-spring` is a real spring.** Same name, now
+  a `linear()` sampling of a damped spring (damping ratio 0.75): 2.8% past
+  its target just after halfway, settled within 0.1% by the end, 90% of the
+  way at a third of the duration, as fast as the curve it replaces. Visible
+  where it runs: Toast's slide, the sheen sweep, the shader fades, and the
+  site's links and layer stack.
+- `--ui-ease-in` still has no consumer. It is left in place rather than
+  removed in this pass: a removed contract token is a breaking change for
+  every app, and nothing is gained until something needs the room.
 
 ### 8. Layout and shared-element motion stays unadopted
 
@@ -234,7 +243,7 @@ keyframe behind the old OS-only media query; and the Sheet test on the old
 2. **Done.** Travel tokens through the existing components; `reduced` becomes
    real. Done together with step 1: step 1 alone would have given OS-reduce
    users full-length slides where they had none.
-3. Vocabulary pass and the spring.
+3. **Done.** Vocabulary pass and the spring.
 4. The six items, one at a time, Presence first because three of the others
    sit inside it.
 5. **Done.** A motion page on the public site, `/docs/motion/`: the site's own

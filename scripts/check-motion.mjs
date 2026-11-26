@@ -278,6 +278,31 @@ for (const dir of ["registry/ui", "registry/blocks", "registry/lib", "registry/h
   }
 }
 
+// ------------------------------------------------- recipes match their intents
+//
+// ADR 0028 §7: a recipe in `@/lib/motion` and its `--ui-motion-*` intent are the
+// same pair. They disagreed for the library's whole life — the intents named
+// `--ui-ease-default`, every component used `--ui-ease-out` — and nothing could
+// see it, because each side was correct on its own. Both are read as text: the
+// intent from the token source, the recipe from its class string.
+
+{
+  const tokens = readFileSync(join(ROOT, "packages/tokens/src/base.ts"), "utf8");
+  const recipes = readFileSync(join(ROOT, "registry/lib/motion/motion.ts"), "utf8");
+  for (const [recipe, intent] of [["motionMicro", "micro"], ["motionStandard", "standard"], ["motionDeliberate", "deliberate"]]) {
+    const pair = tokens.match(new RegExp(`"--ui-motion-${intent}":\\s*"var\\((--ui-duration-[a-z]+)\\) var\\((--ui-ease-[a-z]+)\\)"`));
+    const classes = recipes.match(new RegExp(`export const ${recipe} = "duration-\\((--ui-duration-[a-z]+)\\) ease-\\((--ui-ease-[a-z]+)\\)"`));
+    if (!pair || !classes) {
+      errors.push(`${recipe} / --ui-motion-${intent}: could not read one side of the pair — update this check with the new spelling.`);
+    } else if (pair[1] !== classes[1] || pair[2] !== classes[2]) {
+      errors.push(
+        `${recipe} is ${classes[1]} + ${classes[2]}, but --ui-motion-${intent} is ${pair[1]} + ${pair[2]}. ` +
+          `A recipe and its intent are one pair (ADR 0028 §7): change both, or neither.`,
+      );
+    }
+  }
+}
+
 // ------------------------------------------------------------ documented rules
 
 for (const [root, name] of ["registry/ui", "registry/blocks"].flatMap((r) => readdirSync(join(ROOT, r)).map((n) => [r, n]))) {

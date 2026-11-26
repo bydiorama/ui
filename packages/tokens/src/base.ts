@@ -189,13 +189,25 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   "--ui-ease-default": "cubic-bezier(0.2, 0, 0, 1)",
   "--ui-ease-in": "cubic-bezier(0.4, 0, 1, 1)",
   "--ui-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
-  "--ui-ease-spring": "cubic-bezier(0.22, 1, 0.36, 1)",
+  // A real spring since ADR 0028 §7 (decided 2026-11-26): a damped spring,
+  // damping ratio 0.75, sampled at 41 points, settled within 0.1% by the end
+  // of whatever duration it runs over. It passes its target by 2.8% just after
+  // halfway and settles back once — the "lands" the name always promised. The
+  // cubic-bezier it replaces could not overshoot, so the name was a fiction.
+  // Pace is unchanged: 90% of the way at a third of the duration, as before.
+  "--ui-ease-spring":
+    "linear(0, 0.02, 0.073, 0.147, 0.233, 0.326, 0.419, 0.509, 0.594, 0.671, 0.739, 0.799, 0.851, 0.894, 0.929, 0.958, 0.98, 0.997, 1.01, 1.018, 1.024, 1.027, 1.028, 1.028, 1.027, 1.025, 1.023, 1.02, 1.017, 1.015, 1.012, 1.01, 1.008, 1.006, 1.005, 1.003, 1.002, 1.001, 1.001, 1, 1)",
 
   // Intent-level motion: pair a duration with the easing that suits it, so a
   // component names the *kind* of movement rather than picking numbers.
+  // Micro, standard and deliberate all ease OUT (ADR 0028 §7, decided
+  // 2026-11-26): the tokens follow what every component already did, rather
+  // than fifty call sites following a curve none of them had chosen. They are
+  // the same pairs as the recipes in `@/lib/motion`; `check:motion` fails if
+  // the two ever disagree again.
   "--ui-motion-micro": "var(--ui-duration-fast) var(--ui-ease-out)",
-  "--ui-motion-standard": "var(--ui-duration-base) var(--ui-ease-default)",
-  "--ui-motion-deliberate": "var(--ui-duration-slow) var(--ui-ease-default)",
+  "--ui-motion-standard": "var(--ui-duration-base) var(--ui-ease-out)",
+  "--ui-motion-deliberate": "var(--ui-duration-slow) var(--ui-ease-out)",
   "--ui-motion-choreographed": "var(--ui-duration-enter) var(--ui-ease-spring)",
 
   // The motion level (ADR 0028) — `full` here, re-bound for a subtree by

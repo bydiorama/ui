@@ -514,3 +514,31 @@ describe("keyframes run only at full", () => {
     expect(spin()).toBeDefined();
   });
 });
+
+/**
+ * `--ui-ease-spring` is a real spring (ADR 0028 §7). Its name promised a
+ * bounce for the library's whole life while its value, a cubic-bezier, could
+ * never pass its target. Measured by pausing a real transition: at 55% of
+ * the duration it has gone past the end, and at the end it is exactly there.
+ */
+describe("the spring token overshoots and settles", () => {
+  test("a 1000ms transition on --ui-ease-spring passes 100px and lands on it", async () => {
+    const c = mount(<div style={{ width: 10, height: 10, translate: "0px 0px" }} />);
+    const box = c.firstElementChild as HTMLElement;
+    box.style.transition = "translate 1000ms var(--ui-ease-spring)";
+    // Read the start so the browser has a value to transition FROM.
+    expect(getComputedStyle(box).translate).toBe("0px");
+    box.style.translate = "100px 0px";
+    const [run] = box.getAnimations();
+    expect(run, "no transition: the spring value did not parse").toBeDefined();
+    run!.pause();
+    const at = (ms: number) => {
+      run!.currentTime = ms;
+      return Number.parseFloat(getComputedStyle(box).translate);
+    };
+    expect(at(330)).toBeGreaterThan(88); // as quick as the curve it replaced
+    expect(at(550)).toBeGreaterThan(101); // past the target: a spring
+    expect(at(550)).toBeLessThan(104); // a small settle, not a bounce
+    expect(at(999)).toBeCloseTo(100, 0);
+  });
+});

@@ -1694,6 +1694,29 @@
       "docs": "registry/ui/dot-pattern/dot-pattern.doc.ts"
     },
     {
+      "name": "text-swap",
+      "type": "ui",
+      "description": "A short label replaced in place (ADR 0028), built on Presence. The old words fade out on --ui-duration-fast without moving, the new ones arrive on --ui-duration-base with Presence's rise, and the box holding them eases between the two measured widths, so a button never snaps narrower under the pointer that pressed it. Layers share one grid cell, left-aligned and clipped sideways only; the leaving copy is inert and aria-hidden, so a host's accessible name follows the new words at once. A word that comes back mid-swap turns around; the first render does not animate.",
+      "category": "Utilities",
+      "docs": "registry/ui/text-swap/text-swap.doc.ts",
+      "files": [
+        {
+          "path": "registry/ui/text-swap/text-swap.tsx",
+          "target": "ui/text-swap.tsx"
+        },
+        {
+          "path": "registry/ui/text-swap/text-swap.doc.ts",
+          "target": "ui/text-swap.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "data-slot",
+        "presence"
+      ],
+      "status": "experimental"
+    },
+    {
       "name": "presence",
       "type": "ui",
       "description": "Content arriving and leaving (ADR 0028). A wrapper with no element of its own: each keyed child is an item that Presence animates in on --ui-duration-base through CSS @starting-style and out on --ui-duration-fast, keeping a removed child rendered — inert, aria-hidden — until its exit's transitions finish, and moving focus inside it to a neighbour first. Three kinds: fade, rise (a lift of --ui-space-xs × --ui-motion-travel) and collapse (the item's measured height opens and folds, fading first, so the rows below glide). Items present at mount do not animate unless appear is set. All CSS transitions on the motion tokens, so the motion levels need no code and a re-added item turns around mid-exit.",

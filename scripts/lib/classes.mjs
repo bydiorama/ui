@@ -52,7 +52,12 @@ export function stripComments(source) {
  * recipe array are still read in full.
  */
 const PROSE_ATTRIBUTE =
-  /\b(?:aria-label|aria-description|aria-placeholder|aria-roledescription|aria-valuetext|title|alt|placeholder|label|accessibleName|description|summary|content)\s*=\s*(?:"[^"\n]*"|'[^'\n]*')/g;
+  /\b(?:aria-label|aria-description|aria-placeholder|aria-roledescription|aria-valuetext|title|alt|placeholder|label|accessibleName|description|summary|content|data-[a-z][a-z-]*)\s*=\s*(?:"[^"\n]*"|'[^'\n]*')/g;
+// `data-*` values joined the list with TextSwap, whose slot is `text-swap`:
+// the gate read `data-slot="text-swap"` — and the same name inside a
+// `[data-slot="text-swap-label"]` selector string — as a `text-*` colour and
+// asked for `--color-swap`. A data attribute's value is a name, never a class
+// list, so blanking it costs no coverage either.
 
 export function stripProse(source) {
   return source.replace(PROSE_ATTRIBUTE, (match) => `${match.split("=")[0]}=""`);

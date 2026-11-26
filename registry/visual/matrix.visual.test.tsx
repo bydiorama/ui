@@ -35,6 +35,7 @@ import { Skeleton } from "@/ui/skeleton/skeleton.tsx";
 import { DotPattern } from "@/ui/dot-pattern/dot-pattern.tsx";
 import { Fade } from "@/ui/fade/fade.tsx";
 import { Presence } from "@/ui/presence/presence.tsx";
+import { TextSwap } from "@/ui/text-swap/text-swap.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
@@ -1668,6 +1669,25 @@ const CASES: Array<{
         <div className="relative h-16 overflow-clip rounded-md bg-sunken">
           <DotPattern className="text-edge-default" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "text-swap",
+    // The REST state, in the hosts it lives in: a primary and a secondary
+    // Button and a status in running text. A baseline catches what a swap
+    // leaves behind once nothing moves — a box still holding an inline width
+    // (a button wider or narrower than its label), a clipped descender from
+    // the overflow rule, a label nudged by its rise.
+    ui: (
+      <div className="flex flex-col items-start gap-lg">
+        <div className="flex gap-md">
+          <Button><TextSwap>Save changes</TextSwap></Button>
+          <Button variant="secondary"><TextSwap>Following</TextSwap></Button>
+        </div>
+        <p className="text-body-md text-ink-secondary">
+          Grid systems: <TextSwap className="text-ink-primary">Uploading 3 of 12</TextSwap>
+        </p>
       </div>
     ),
   },

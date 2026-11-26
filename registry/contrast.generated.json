@@ -3028,6 +3028,7 @@
       "role": "the strip boundary"
     }
   ],
+  "TextSwap": [],
   "Textarea": [
     {
       "fg": "--ui-text-primary",

@@ -12,7 +12,8 @@ Two owners, never both on one element:
 | A Diorama component — Modal, Menu, Popover, Tooltip, Select, Switch, Checkbox, Accordion, Toast, Drawer… | the component, from the motion tokens | nothing. Do not add a transition, keyframe or snippet class to it or its parts |
 | An effect — shimmering status text, a sheen, a glow | the effects layer, `fx("shimmer")` etc. | apply the class (the `effects` skill) |
 | Something arriving or leaving — a row added to a list, a row folding away once done, a message landing in a stream | `Presence` (`fade` · `rise` · `collapse`) | wrap the keyed items; see § Presence |
-| A product interaction the library has no component for yet — a count changing, a label swapping, an icon toggling, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
+| A short label changing in place — Save changes → Saved, Follow → Following, a status word | `TextSwap` | `<Button><TextSwap>{label}</TextSwap></Button>`; one line of text, a string |
+| A product interaction the library has no component for yet — a count changing, an icon toggling, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
 
 Check the first two rows before reaching for the third: a snippet layered on
 a component that already animates double-animates it, and two `transition`

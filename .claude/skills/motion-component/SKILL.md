@@ -63,6 +63,7 @@ events.
 | A neighbour's transition read mid-flight | A settle helper waits for the whole subtree's FINITE animations, twice: movement can start a hover transition on something it passes under |
 | A size asserted as a number | Assert the relationship: the item settles at a sibling's own height |
 | Console output swallowed in the browser runner | Throw an Error carrying the findings; vitest prints the message |
+| A probe that removes `transition-[x]` and the test still passes | Not the test's fault: a `duration-*` with no transition property means `transition-property: all`, which still includes `x`. Break the motion itself — skip the inline value, change the kind |
 
 Then prove each new test bites: break the duration, the focus hand-off, the
 travel token — one at a time — watch the named test fail, restore, and never
@@ -77,6 +78,8 @@ travel token — one at a time — watch the named test fail, restore, and never
 | `data-slot` contract | Props extend `OwnedSlot` even with no element, and the module is listed in `registry/ui/data-slot.types.test.tsx` — `data-slot.test.ts` fails until it is |
 | Visual matrix | One case per component (`check:visual-coverage`); for motion, draw the REST state under every kind — a forgotten inline height or a mid-flight offset shows there. The Linux baseline comes from the "Generate visual baselines" workflow; say so in the handoff |
 | Site catalogue | Needs a motif in `apps/site/src/components/motifs/` (one static frame). Draw moving text as a bar: translucent text fails the catalogue's contrast audit even inside an `aria-hidden` tile |
+| A slot name that starts with a utility prefix (`text-swap`) | `check:utilities` read it as a `text-*` colour, in the JSX attribute and inside a `[data-slot="…"]` selector string. Data-attribute values are now blanked like prose attributes (`scripts/lib/classes.mjs`) |
+| A motion item that imports another (`@/ui/presence`) | The alias is listed by hand in the root and Storybook tsconfigs, `.storybook/main.ts` and `vitest.config.ts` (`uiItems`); the error is "Cannot find module" |
 | Stories | A type role is a composite — `text-label-sm font-semibold` overrides its weight and the story gate fails. Use the role alone |
 
 ## Definition of done, beyond `add-component`

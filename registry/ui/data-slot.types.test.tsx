@@ -71,6 +71,7 @@ import * as networkCanvasModule from "./network/network-canvas.tsx";
 import * as networkModule from "./network/network.tsx";
 import * as popoverModule from "./popover/popover.tsx";
 import * as presenceModule from "./presence/presence.tsx";
+import * as textSwapModule from "./text-swap/text-swap.tsx";
 import * as progressModule from "./progress/progress.tsx";
 import * as radioModule from "./radio/radio.tsx";
 import * as rangeSliderModule from "./range-slider/range-slider.tsx";
@@ -138,6 +139,7 @@ interface Modules {
   "network": typeof networkModule;
   "popover": typeof popoverModule;
   "presence": typeof presenceModule;
+  "text-swap": typeof textSwapModule;
   "progress": typeof progressModule;
   "radio": typeof radioModule;
   "range-slider": typeof rangeSliderModule;

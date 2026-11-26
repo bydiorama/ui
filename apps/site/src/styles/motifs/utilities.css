@@ -17,3 +17,9 @@
 .motif-presence-row[data-state="entering"] { opacity: 0.58; translate: 0 1.7px; }
 .motif-presence-row[data-state="leaving"] { opacity: 0.16; height: 14px; }
 .motif-presence-line { display: block; width: 96px; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); }
+
+.motif-text-swap { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0; }
+.motif-text-swap-button { position: relative; display: flex; align-items: center; height: 32px; padding-inline: 12px; overflow: clip; border-radius: var(--ui-radius-md); background: var(--ui-bg-accent); color: var(--ui-text-on-accent); }
+/* 50ms into Save changes → Saved, from the Text Swap sheet: 75px wide. */
+.motif-text-swap-button[data-state="swapping"] { width: 75px; }
+.motif-text-swap-old { position: absolute; left: 12px; top: 13px; width: 75px; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-on-accent); opacity: 0.23; }

@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-textswap-a-label-replaced-in-place",
+  "date": "2026-11-26",
+  "item": "text-swap",
+  "kind": "addition",
+  "summary": "New experimental component text-swap — the second of ADR 0028's owned motion components, built on Presence. A short label replaced in place: the old words fade out on --ui-duration-fast without moving, the new ones arrive on --ui-duration-base with Presence's rise, and the box holding them eases between the two measured widths, so a button never snaps narrower under the pointer that pressed it. Layers share one grid cell, left-aligned and clipped sideways only; the leaving copy is inert and aria-hidden, so a host's accessible name follows the new words at once; a word that comes back mid-swap turns around and a rapid sequence retargets from the current width. At Reduced the rise goes and the cross-fade and width stay; at Off everything is 1ms. Designed and built overnight without review: the sheet (Components - Drafts) badges its own readings — width on base, left-aligned clipped layers, an unclipped vertical axis — as Derived for the maintainer. check:utilities' shared class extractor now blanks data-* attribute values, which it read as classes once a slot name began with a utility prefix (text-swap → --color-swap); a real bad class beside it is still caught (probed). The presence alias is now in every resolver, since TextSwap is the first item to import it.",
+  "affects": [
+    "item:text-swap",
+    "item:presence",
+    "item:app-motion",
+    "item:motion-component",
+    "gate:check-utilities",
+    "decision:0028-motion-levels-and-primitives"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/48LP-1"
+  }
+}

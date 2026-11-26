@@ -237,8 +237,9 @@ keyframe behind the old OS-only media query; and the Sheet test on the old
 3. Vocabulary pass and the spring.
 4. The six items, one at a time, Presence first because three of the others
    sit inside it.
-5. A motion page on the public site: the level switch live, slow playback,
-   every intent and item.
+5. **Done.** A motion page on the public site, `/docs/motion/`: the site's own
+   motion setting live (stored with its other appearance choices), slow
+   playback, and every intent side by side. The items join it as they ship.
 
 ## Consequences
 

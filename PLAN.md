@@ -248,7 +248,10 @@ stubbed.
       `linear()` spring. A design decision first, on the motion page.
 - [ ] Step 4: the six owned motion items. Each needs a Paper sheet first
       (`design-component`).
-- [ ] Step 5: the motion page on the public site.
+- [x] Step 5: the motion page on the public site, `/docs/motion/` — the site's
+      own motion setting (stored with the appearance), live specimens per
+      level, slow playback, and the four intent tokens side by side for the
+      step 3 decision. Not yet through a Paper review.
 
 ### Effects layer (ADR 0022) · **shipped experimental, not yet on a device**
 

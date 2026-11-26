@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { chromium, webkit } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { checkAppearance, openLooks, waitForAppearance } from "./appearance-checks.mjs";
+import { checkAppearance, checkMotionSetting, openLooks, waitForAppearance } from "./appearance-checks.mjs";
 import { checkPreviews } from "./preview-checks.mjs";
 
 const site = fileURLToPath(new URL("../", import.meta.url));
@@ -62,10 +62,11 @@ try {
     assert.deepEqual(errors, []);
   } else if (process.argv.includes("--appearance-only")) {
     await checkAppearance(page, base, artifacts);
+    await checkMotionSetting(page, base);
     assert.deepEqual(errors, []);
     console.log("Appearance rendering and combinations checked");
   } else {
-  const paths = ["/", "/components/", "/docs/", "/docs/agents/", "/changelog/", ...catalog.items.map(item => `/components/${item.name}/`)];
+  const paths = ["/", "/components/", "/docs/", "/docs/agents/", "/docs/motion/", "/changelog/", ...catalog.items.map(item => `/components/${item.name}/`)];
   for (const scheme of process.argv.includes("--interactions-only") ? [] : ["light", "dark"]) {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
     for (const path of paths) {
@@ -289,6 +290,7 @@ try {
   }
   await checkPreviews(page, base, artifacts);
   await checkAppearance(page, base, artifacts);
+  await checkMotionSetting(page, base);
   await context.close();
 
   const noJs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 800 } });

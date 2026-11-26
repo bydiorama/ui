@@ -1,6 +1,6 @@
 ---
 name: design-component
-description: Designing a component in Paper against the Diorama design system — every state, every size, both colour schemes — before anyone implements it. Use when asked to design or extend a component, turn a moodboard or reference artboard into a spec, add missing states to an existing sheet, or produce a Paper handoff artboard. Covers the token workflow, the dark-scheme traps, and the placeholder-data harness.
+description: Designing a component in Paper against the Diorama design system — every state, every size, both colour schemes — before anyone implements it. Use when asked to design or extend a component, turn a moodboard or reference artboard into a spec, add missing states to an existing sheet, produce a Paper handoff artboard, or draw a motion component (filmstrips, timing, motion levels). Covers the token workflow, the dark-scheme traps, the placeholder-data harness, and computed motion frames.
 ---
 
 # Design a component
@@ -90,6 +90,16 @@ GOES somewhere is a link and one that OPENS something is a button; a layout
 renders the rail **or** the bar's menu button, never both; exactly one item per
 nav carries `aria-current`. Drawing two collapsed states, or a menu button with
 no surface behind it, is a layout bug the components will not catch for you.
+
+### 1d · Drawing MOTION? It is a different sheet
+
+A component whose job is movement — something arriving, a number changing, a
+label swapping — has no sizes and often no colour, so the sections below do
+not fit it. Read **`reference/motion-sheets.md`** first: filmstrips per phase,
+a motion-levels table, and every frame value computed with
+`scripts/motion-frames.mjs` from the real curve and duration, never drawn by
+eye. It also lists the decisions such a sheet surfaces, which belong to the
+user, and the Paper traps this work hit.
 
 ## The handoff sheet format
 
@@ -385,6 +395,7 @@ Conventions that come with it:
 | Cloning a specimen by the layer name that sounds right | Open it first. "Nav Rail Level 2" was an agent-history rail in one place and a collapsed rail in another, and both captions were written before either was looked at |
 | A specimen painted `bg-surface` on a `bg-base` artboard | Invisible. Give it a `radius-md` frame with a `border-subtle` hairline — the sheet is documentation, so a boundary that does not exist in the product is allowed here |
 | An icon drawn by hand because it was quicker | It is a lie in a contract: close enough to approve, not what renders. Extract it (**`griddy-icons-in-paper`**) |
+| A remote-MCP screenshot that looks dark, washed out or in the wrong face | The remote renderer does not resolve `var(--ui-*)` or load Aspekta. Judge colour and type in the desktop app, and never commit a remote export to `design/` — it is evidence of nothing |
 | An icon layer left called `SVG` | The glyph's identity is gone — path data is unreadable, so the layer name is the only record, and recovering it means matching 1159 candidates by eye. The implementer guesses instead, which is the decision the sheet existed to make |
 
 ## Definition of done

@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-skills-for-motion-components-and-motion",
+  "date": "2026-11-26",
+  "item": "design-component",
+  "kind": "addition",
+  "summary": "What building motion levels, the spring and Presence taught, written into skills. design-component (shipped) gains §1d and reference/motion-sheets.md — the motion-sheet format (principles, filmstrips per phase, motion-levels table, dark with measured transient contrast, token map, gaps), the decisions such a sheet must put to the user, and Paper traps (the remote renderer does not resolve tokens or load the face, so its screenshots and exports are not evidence; the open file drops mid-session; moving an approved sheet to the handoff page) — plus scripts/motion-frames.mjs, which computes every frame value from a token curve and samples a damped spring as linear(), reproducing --ui-ease-spring exactly. New authoring skill motion-component: the API shape that worked for Presence, its lifecycle traps (focus before imperative inert, DOM-sibling neighbours, waiting for an item's own animations), and how to measure motion in Chromium. add-component and review-ui gain the first-of-its-kind traps (a new Tailwind variant, useRender for ref merging, rendersNoColour, visual baselines, catalogue motifs, the cloud-session Playwright browser path, flow-start).",
+  "affects": [
+    "item:design-component",
+    "item:add-component",
+    "item:review-ui",
+    "item:motion-component"
+  ]
+}

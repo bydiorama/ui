@@ -564,10 +564,7 @@ html[data-site-effects="on"] .exploded { --exploded-shade: 15%; --exploded-accen
   .box-row .box-well, .box-tile-wide .box-well { flex: 1; min-height: 0; margin: 8px 8px 0; }
   .box-row-three .box-caption { min-height: 0; }
   .box-tile-wide .box-caption { flex: none; justify-content: flex-start; padding: 24px 32px 32px; }
-  .box-controls { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 0; }
-  .box-dots { display: flex; align-items: center; gap: 6px; }
-  .box-dots span { width: 6px; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-border-control); transition: width var(--ui-duration-base) var(--ui-ease-default), background-color var(--ui-duration-base) var(--ui-ease-default); }
-  .box-dots span[data-current] { width: 22px; background: var(--ui-text-primary); }
+  .box-controls { display: flex; align-items: center; justify-content: center; padding: 20px 20px 0; }
   .box-arrows { display: flex; gap: 8px; }
   /* All five marks, three and two. */
   .status-marks { gap: 4px 0; padding: 0 8px; }

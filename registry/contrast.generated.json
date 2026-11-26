@@ -2375,6 +2375,7 @@
       "role": "the panel against the page"
     }
   ],
+  "Presence": [],
   "Progress": [
     {
       "fg": "--ui-bg-accent-legible",

@@ -11,7 +11,8 @@ Two owners, never both on one element:
 | --- | --- | --- |
 | A Diorama component — Modal, Menu, Popover, Tooltip, Select, Switch, Checkbox, Accordion, Toast, Drawer… | the component, from the motion tokens | nothing. Do not add a transition, keyframe or snippet class to it or its parts |
 | An effect — shimmering status text, a sheen, a glow | the effects layer, `fx("shimmer")` etc. | apply the class (the `effects` skill) |
-| A product interaction the library has no component for — a count changing, a label swapping, a row folding away, an icon toggling, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
+| Something arriving or leaving — a row added to a list, a row folding away once done, a message landing in a stream | `Presence` (`fade` · `rise` · `collapse`) | wrap the keyed items; see § Presence |
+| A product interaction the library has no component for yet — a count changing, a label swapping, an icon toggling, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
 
 Check the first two rows before reaching for the third: a snippet layered on
 a component that already animates double-animates it, and two `transition`
@@ -36,6 +37,31 @@ cross-fades, tokens for every duration). In app code that means:
   the snippet guards itself in CSS against the OS preference only, so wrap it
   in a `motion-safe:`/`@variant motion-safe` guard if it must respect the
   app's setting, and your JavaScript must check (below).
+
+## Presence: arrivals and removals
+
+`Presence` from `@/ui/presence` is the library's answer for anything that
+enters or leaves, so it replaces a snippet for those cases:
+
+```tsx
+<ul>
+  <Presence kind="collapse">
+    {rows.map((row) => <li key={row.id}>{row.title}</li>)}
+  </Presence>
+</ul>
+```
+
+- `fade` (default) in place; `rise` for content landing in a stream;
+  `collapse` for list rows, so the rows below glide instead of jumping.
+- Keys from the DATA, never the index — the key is how a removal is told
+  from a change. Items present on the first render do not animate; `appear`
+  opts the first render in.
+- Show the change, then remove the row: update its label or tick, wait for it
+  to land, then drop it. Presence owns the exit, not that order.
+- The item must forward `className` and `ref`; Presence owns `transition` on
+  it, so put no other transition or snippet on the same element.
+- Never wrap a Popover, Modal, Sheet, Drawer, Select, Menu or Toast — they
+  animate themselves.
 
 ## The motion levels, and a motion setting in the app
 

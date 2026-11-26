@@ -34,6 +34,7 @@ import { AspectRatio } from "@/ui/aspect-ratio/aspect-ratio.tsx";
 import { Skeleton } from "@/ui/skeleton/skeleton.tsx";
 import { DotPattern } from "@/ui/dot-pattern/dot-pattern.tsx";
 import { Fade } from "@/ui/fade/fade.tsx";
+import { Presence } from "@/ui/presence/presence.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
@@ -1667,6 +1668,30 @@ const CASES: Array<{
         <div className="relative h-16 overflow-clip rounded-md bg-sunken">
           <DotPattern className="text-edge-default" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "presence",
+    // A baseline is one frame, and Presence's whole job happens between
+    // frames, so what this can catch is the REST state: items under every kind
+    // laid out exactly as without Presence — no gap, no offset, no row left at
+    // a partial opacity or a clipped height once nothing is moving. A collapse
+    // that forgot to release its inline height would show here as a squashed
+    // row; a rise left mid-flight as a 4px step.
+    ui: (
+      <div className="flex w-96 flex-col gap-lg">
+        {(["fade", "rise", "collapse"] as const).map((kind) => (
+          <ul key={kind} className="flex flex-col rounded-md border border-edge-subtle bg-surface">
+            <Presence kind={kind}>
+              {["Josef Müller-Brockmann", "Jan Tschichold", "Wim Crouwel"].map((name) => (
+                <li key={name} className="border-b border-edge-subtle px-md py-sm text-label-md text-ink-primary last:border-b-0">
+                  {name}
+                </li>
+              ))}
+            </Presence>
+          </ul>
+        ))}
       </div>
     ),
   },

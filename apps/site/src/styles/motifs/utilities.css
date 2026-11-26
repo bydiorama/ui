@@ -9,3 +9,11 @@
 .motif-fade-row { display: flex; align-items: center; justify-content: space-between; height: 28px; padding-inline: 10px; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); }
 .motif-fade-row span:last-child { color: var(--ui-text-muted); }
 .motif-fade-veil { position: absolute; left: -8px; right: -8px; top: 40px; height: 100px; background: linear-gradient(in oklab 180deg, color-mix(in oklab, var(--ui-bg-base) 0%, transparent) 0%, var(--ui-bg-base) 80%); }
+
+.motif-presence { display: flex; flex-direction: column; gap: 8px; width: 196px; font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; }
+.motif-presence-row { display: flex; align-items: center; height: 28px; padding-inline: 10px; overflow: clip; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); }
+/* The frames the Presence sheet draws: arriving at opacity .58 and 1.7px of
+   its 4px rise; leaving after its fade, its height half folded. */
+.motif-presence-row[data-state="entering"] { opacity: 0.58; translate: 0 1.7px; }
+.motif-presence-row[data-state="leaving"] { opacity: 0.16; height: 14px; }
+.motif-presence-line { display: block; width: 96px; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); }

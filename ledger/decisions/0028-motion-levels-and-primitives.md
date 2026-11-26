@@ -245,7 +245,8 @@ keyframe behind the old OS-only media query; and the Sheet test on the old
    users full-length slides where they had none.
 3. **Done.** Vocabulary pass and the spring.
 4. The six items, one at a time, Presence first because three of the others
-   sit inside it.
+   sit inside it. **Presence built 2026-11-26**; rise reuses `--ui-space-xs`
+   (decided), so the items needed no new token.
 5. **Done.** A motion page on the public site, `/docs/motion/`: the site's own
    motion setting live (stored with its other appearance choices), slow
    playback, and every intent side by side. The items join it as they ship.

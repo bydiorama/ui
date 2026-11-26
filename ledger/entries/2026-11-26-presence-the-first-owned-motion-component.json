@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-presence-the-first-owned-motion-component",
+  "date": "2026-11-26",
+  "item": "presence",
+  "kind": "addition",
+  "summary": "New experimental component presence — the first of ADR 0028's owned motion components. A wrapper with no element of its own: each keyed child is an item, animated in on --ui-duration-base through CSS @starting-style (fade; rise, a lift of --ui-space-xs × --ui-motion-travel; or collapse, the item's measured height opening) and out on --ui-duration-fast with nothing travelling; collapse fades first and then folds its height on base, delayed by fast. A removed child stays rendered — inert, aria-hidden — until its own transitions finish, and focus inside it moves to the nearest item that is not leaving before it turns inert. Items present at mount do not animate unless appear is set. All CSS transitions on the motion tokens, so the motion levels need no code: rise is a plain fade at Reduced and every exit is 1ms at Off, still removed only after it ran. Decided with the maintainer on 2026-11-26: rise reuses --ui-space-xs rather than a new --ui-presence-rise token; collapse fades, then folds; first-render items stay still. One change from the approved sheet, recorded on it: collapse animates the item's own height rather than a grid wrapper, because a wrapper inside a <ul> is invalid HTML. The app-motion skill now sends list arrivals and removals to Presence instead of third-party snippets.",
+  "affects": [
+    "item:presence",
+    "item:app-motion",
+    "token:--ui-space-xs",
+    "token:--ui-motion-travel",
+    "decision:0028-motion-levels-and-primitives"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/489K-1"
+  }
+}

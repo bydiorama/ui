@@ -130,7 +130,9 @@ const LEVEL_SOURCE = "registry/lib/motion/motion.ts";
  * gesture-driven parts of an offset (a swipe distance) can sit beside the
  * token in the same calc.
  */
-const ENTER_EXIT_TRAVEL = /data-\[(?:starting|ending)-style\][\w\-\[\]=:]*:-?(?:scale|translate-[xy])-\S+/g;
+// `starting:` (CSS @starting-style) is the same entrance spelled for an element
+// with no behaviour layer — Presence's — and was missed until probed.
+const ENTER_EXIT_TRAVEL = /(?:data-\[(?:starting|ending)-style\]|\bstarting)[\w\-\[\]=:]*:-?(?:scale|translate-[xy])-\S+/g;
 const TRAVEL_TOKEN = /--ui-(?:motion-travel|enter-scale)\b/;
 
 /** Anything that moves. Used to decide whether a doc owes a `motion:` note. */

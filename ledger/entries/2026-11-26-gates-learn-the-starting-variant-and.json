@@ -1,0 +1,14 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-gates-learn-the-starting-variant-and",
+  "date": "2026-11-26",
+  "item": "system",
+  "kind": "fix",
+  "summary": "Three gates were blind to the first component of its kind, found by probing before Presence shipped. check:utilities did not know Tailwind's starting: variant (CSS @starting-style), so `starting:bg-zzz` passed while compiling to nothing; `starting` is now in the shared VARIANT list, and the enter/exit transform rule reads it too. check:motion's travel rule matched only data-[starting-style], so `starting:translate-y-1` — a literal slide that Reduced cannot take away — passed; it now matches both spellings. check:contrast required every component to declare contrast pairs, and Presence paints nothing; a component may now declare a11y.rendersNoColour with a sentence of reason instead, which the gate rejects if it is short or sits beside pairs. Each rule was probed failing first.",
+  "affects": [
+    "gate:check-utilities",
+    "gate:check-motion",
+    "gate:check-contrast",
+    "item:presence"
+  ]
+}

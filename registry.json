@@ -1651,6 +1651,30 @@
       ]
     },
     {
+      "name": "presence",
+      "type": "registry:ui",
+      "description": "Content arriving and leaving (ADR 0028). A wrapper with no element of its own: each keyed child is an item that Presence animates in on --ui-duration-base through CSS @starting-style and out on --ui-duration-fast, keeping a removed child rendered — inert, aria-hidden — until its exit's transitions finish, and moving focus inside it to a neighbour first. Three kinds: fade, rise (a lift of --ui-space-xs × --ui-motion-travel) and collapse (the item's measured height opens and folds, fading first, so the rows below glide). Items present at mount do not animate unless appear is set. All CSS transitions on the motion tokens, so the motion levels need no code and a re-added item turns around mid-exit.",
+      "dependencies": [
+        "@base-ui/react@1.7.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/presence/presence.tsx",
+          "type": "registry:ui",
+          "target": "ui/presence.tsx"
+        },
+        {
+          "path": "registry/ui/presence/presence.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/presence.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "fade",
       "type": "registry:ui",
       "description": "An edge fade — the gradient that dissolves overflowing content into the ground it sits on, signalling continuation: under a pinned header, above a composer bar, at the cut of a truncated preview. One aria-hidden span, absolutely pinned to one edge of the caller's clipping container, painting a perceptual ramp (fade-ramp: a Gaussian penumbra with a dark-scheme correction) in the container's own bg role, so there is no start line or stripe for the eye to catch. side (top/bottom/left/right), size (24/48/96 on the spacing scale) and ground (base/surface/elevated/sunken, or affix under a translucent pinned bar, where the ramp ends at the bar's own alpha) are the parameters. isVisible gates it by opacity on the motion tokens; scrollContainer binds it to a scroller, easing it out over the last band-depth of scroll instead of switching off at the end and insetting it off a classic scrollbar. It is paint, never a participant: pointer-events none, no children, no interactive targets in the band, and every faded region pairs with a caller-composed route to the full content. fadeMask is the ground-agnostic complement for containers whose ground is not a role.",

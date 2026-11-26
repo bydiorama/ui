@@ -1801,6 +1801,7 @@
       "role": "a disabled chrome control"
     }
   ],
+  "IconSwap": [],
   "ImageEdit": [
     {
       "fg": "--ui-text-on-media",

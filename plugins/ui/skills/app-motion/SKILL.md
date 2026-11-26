@@ -13,7 +13,8 @@ Two owners, never both on one element:
 | An effect — shimmering status text, a sheen, a glow | the effects layer, `fx("shimmer")` etc. | apply the class (the `effects` skill) |
 | Something arriving or leaving — a row added to a list, a row folding away once done, a message landing in a stream | `Presence` (`fade` · `rise` · `collapse`) | wrap the keyed items; see § Presence |
 | A short label changing in place — Save changes → Saved, Follow → Following, a status word | `TextSwap` | `<Button><TextSwap>{label}</TextSwap></Button>`; one line of text, a string |
-| A product interaction the library has no component for yet — a count changing, an icon toggling, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
+| A glyph that means a state changing — Copy → tick, play → pause, bell → muted bell | `IconSwap` | `<Button isIconOnly aria-label={name} icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show={key} />} />`; change the name with the glyph |
+| A product interaction the library has no component for yet — a count changing, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
 
 Check the first two rows before reaching for the third: a snippet layered on
 a component that already animates double-animates it, and two `transition`
@@ -135,6 +136,7 @@ republishing.
   `textContent`, and give the element an `aria-label` with the value.
 - **Icon swaps keep both glyphs** in the DOM, cross-faded (`craft`
   rule 10), hidden from assistive tech; the button's label carries the state.
+  `IconSwap` does exactly this — use it rather than a snippet.
 
 ## JavaScript-driven motion
 

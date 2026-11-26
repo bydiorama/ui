@@ -1,3 +1,5 @@
+import { Check, Copy } from "griddy-icons";
+
 const releases = [["Release notes", "Nov"], ["Design review", "Oct"], ["Kick-off", "Sep"], ["Research", "Aug"]];
 
 export const utilities = {
@@ -23,6 +25,18 @@ export const utilities = {
     <div className="motif-text-swap">
       <span className="motif-text-swap-button">Save changes</span>
       <span className="motif-text-swap-button" data-state="swapping"><i className="motif-text-swap-old" />Saved</span>
+    </div>
+  ),
+  // Three frames of Copy becoming a tick, from the Icon Swap sheet: at rest,
+  // 50ms in (the old glyph shrinking away under the new one growing), settled.
+  "icon-swap": () => (
+    <div className="motif-icon-swap">
+      <span className="motif-icon-swap-button"><Copy aria-hidden="true" /></span>
+      <span className="motif-icon-swap-button" data-state="swapping">
+        <Copy aria-hidden="true" className="motif-icon-swap-old" />
+        <Check aria-hidden="true" className="motif-icon-swap-new" />
+      </span>
+      <span className="motif-icon-swap-button"><Check aria-hidden="true" /></span>
     </div>
   ),
   presence: () => (

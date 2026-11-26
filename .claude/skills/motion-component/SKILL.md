@@ -22,7 +22,16 @@ pipeline does not say about movement. ADR 0028 is the decision record; the
    Toast own their mount/unmount motion through Base UI; effects own ambient
    loops (`effects` skill). A motion component wraps neither.
 
-## The shape that worked (Presence)
+## Two shapes that worked
+
+**Keep every state rendered (IconSwap)** when the set is small and known: all
+glyphs stay in the DOM, a data attribute picks one, and per-state classes
+carry the transition. Nothing mounts, so there is no exit to wait for, no
+focus hand-off and no first-render rule to write — the first render simply
+has no "before". The DESTINATION state's `duration-*` is the one a transition
+runs on, so "arrive on base, leave on fast" is two class strings, not code.
+
+**Mount and unmount (Presence)** when the content is open-ended:
 
 | Decision | Why |
 | --- | --- |
@@ -80,6 +89,8 @@ travel token — one at a time — watch the named test fail, restore, and never
 | Site catalogue | Needs a motif in `apps/site/src/components/motifs/` (one static frame). Draw moving text as a bar: translucent text fails the catalogue's contrast audit even inside an `aria-hidden` tile |
 | A slot name that starts with a utility prefix (`text-swap`) | `check:utilities` read it as a `text-*` colour, in the JSX attribute and inside a `[data-slot="…"]` selector string. Data-attribute values are now blanked like prose attributes (`scripts/lib/classes.mjs`) |
 | A motion item that imports another (`@/ui/presence`) | The alias is listed by hand in the root and Storybook tsconfigs, `.storybook/main.ts` and `vitest.config.ts` (`uiItems`); the error is "Cannot find module" |
+| A component generic over its keys (`IconSwap`'s `show: keyof icons`) | `forwardRef` loses the generic; cast the result to `<K extends string>(props: Props<K> & { ref?: Ref<…> }) => ReactElement`, and type the picked key `NoInfer<K>` so a wrong name errors instead of widening `K` |
+| A scaled element's position asserted with `getBoundingClientRect()` | The rect includes the scale: a hidden glyph at 0.5 sits a quarter-size in from its corner. Compare centres |
 | Stories | A type role is a composite — `text-label-sm font-semibold` overrides its weight and the story gate fails. Use the role alone |
 
 ## Definition of done, beyond `add-component`

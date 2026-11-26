@@ -20,7 +20,7 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
-import { Building, ChevronDown, Colors, ExpandSidebar, FileText, Home, Image, Inbox, InfoCircle, LocationPin, Search, User, UsersGroup } from "griddy-icons";
+import { Building, Check, ChevronDown, Colors, Copy, ExpandSidebar, FileText, Home, Image, Inbox, InfoCircle, LocationPin, Search, User, UsersGroup } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
@@ -36,6 +36,7 @@ import { DotPattern } from "@/ui/dot-pattern/dot-pattern.tsx";
 import { Fade } from "@/ui/fade/fade.tsx";
 import { Presence } from "@/ui/presence/presence.tsx";
 import { TextSwap } from "@/ui/text-swap/text-swap.tsx";
+import { IconSwap } from "@/ui/icon-swap/icon-swap.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
@@ -1669,6 +1670,21 @@ const CASES: Array<{
         <div className="relative h-16 overflow-clip rounded-md bg-sunken">
           <DotPattern className="text-edge-default" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "icon-swap",
+    // The REST state under each glyph: an icon-only Button showing Copy, one
+    // showing the tick, and an icon beside a label. A baseline catches what a
+    // swap leaves behind once nothing moves — a hidden glyph that kept some
+    // opacity, a shown one stuck below full size, or a box that grew past the
+    // host's 16px icon and pushed the label.
+    ui: (
+      <div className="flex items-center gap-md">
+        <Button isIconOnly aria-label="Copy link" icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show="copy" />} />
+        <Button isIconOnly aria-label="Copied" variant="secondary" icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show="check" />} />
+        <Button variant="secondary" icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show="check" />}>Copied</Button>
       </div>
     ),
   },

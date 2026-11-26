@@ -1651,6 +1651,27 @@
       ]
     },
     {
+      "name": "icon-swap",
+      "type": "registry:ui",
+      "description": "One glyph becoming another in place (ADR 0028; craft rule 10). Every glyph is rendered once and kept, stacked in one cell; show names the visible one. The new glyph fades in on --ui-duration-base while growing from 0.5, the old one fades out on --ui-duration-fast while shrinking to it; the scale is multiplied by --ui-motion-travel, so Reduced is a plain cross-fade. State is a data attribute and motion a CSS transition: nothing mounts, a second change mid-swap turns around, and the first render is still. aria-hidden — the host's accessible name carries the state.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/data-slot"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/icon-swap/icon-swap.tsx",
+          "type": "registry:ui",
+          "target": "ui/icon-swap.tsx"
+        },
+        {
+          "path": "registry/ui/icon-swap/icon-swap.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/icon-swap.doc.ts"
+        }
+      ]
+    },
+    {
       "name": "text-swap",
       "type": "registry:ui",
       "description": "A short label replaced in place (ADR 0028), built on Presence. The old words fade out on --ui-duration-fast without moving, the new ones arrive on --ui-duration-base with Presence's rise, and the box holding them eases between the two measured widths, so a button never snaps narrower under the pointer that pressed it. Layers share one grid cell, left-aligned and clipped sideways only; the leaving copy is inert and aria-hidden, so a host's accessible name follows the new words at once. A word that comes back mid-swap turns around; the first render does not animate.",

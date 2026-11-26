@@ -198,6 +198,18 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   "--ui-motion-deliberate": "var(--ui-duration-slow) var(--ui-ease-default)",
   "--ui-motion-choreographed": "var(--ui-duration-enter) var(--ui-ease-spring)",
 
+  // The motion level (ADR 0028) — `full` here, re-bound for a subtree by
+  // `[data-ui-motion]` and for the page by the OS preference. See
+  // MOTION_LEVELS for what each level sets.
+  "--ui-motion-level": "full",
+  // Travel: how far an entering or leaving surface moves, as a factor of its
+  // own offset. A slide is written `translate: calc(100% * travel)`, so the
+  // one declaration is a slide at `full` and a fade in place at `reduced`.
+  "--ui-motion-travel": "1",
+  // Where a scaling surface starts — a popup growing out of its trigger.
+  // Was fourteen `scale-98` literals the token layer could not reach.
+  "--ui-enter-scale": "0.98",
+
   // Press feedback. 0.96 exactly: measurably below 0.95 reads as exaggerated,
   // above 0.97 is imperceptible. Components expose a `staticTap` opt-out for
   // contexts where even this is noise. (Adapted from jakubkrehel/skills,
@@ -284,22 +296,79 @@ export const SCHEME_TOKEN_VALUES: Record<SchemeOnlyToken, { light: string; dark:
   "--ui-selection-fg": { light: "#101014", dark: "#ffffff" },
 };
 
+/** The three motion levels (ADR 0028), most motion first. */
+export const MOTION_LEVEL_NAMES = ["full", "reduced", "off"] as const;
+export type MotionLevelName = (typeof MOTION_LEVEL_NAMES)[number];
+
+/** The attribute that sets a level on a subtree: `data-ui-motion="reduced"`. */
+export const MOTION_LEVEL_ATTRIBUTE = "data-ui-motion";
+
 /**
- * Durations collapse under reduced motion.
+ * What each motion level sets (ADR 0028).
  *
  * Done here, once, rather than per component: every CSS-driven transition in
- * the system reads these tokens, so honouring the preference at the token layer
- * makes the whole library compliant without a single component knowing about
- * it. Only the JS motion tier needs its own check (ADR 0005).
+ * the system reads these tokens, so a level is honoured by the whole library
+ * without a single component knowing about it. Keyframes are gated by the
+ * `motion-safe:` / `motion-reduce:` variants the Tailwind emitter redefines
+ * against the same levels, and JavaScript reads `--ui-motion-level`.
+ *
+ * - `full` — the values above.
+ * - `reduced` — nothing TRAVELS: slides become fades in place, scale-ins start
+ *   at their final size, nothing staggers, and loops stop (the variants).
+ *   Change in place keeps its time, capped at `--ui-duration-base`: a colour
+ *   settling, a height opening, a thumb crossing its track. Removing those too
+ *   makes the layout jump, which is harder to follow, not easier.
+ * - `off` — every duration collapses to 1ms. Not 0: Base UI awaits
+ *   `getAnimations()` before unmounting, and a zero-length transition
+ *   registers nothing to await (ADR 0018, finding 2).
+ *
+ * Every level sets EVERY key, so a subtree can return to `full` from inside a
+ * reduced page. `--ui-duration-loop` is the same at every level on purpose:
+ * 1ms would spin a loop a thousand times a second rather than stop it, and
+ * loops are stopped by the variants, not by their duration.
  */
-export const REDUCED_MOTION_OVERRIDES: Partial<Record<FixedToken, string>> = {
-  "--ui-duration-fast": "1ms",
-  "--ui-duration-base": "1ms",
-  "--ui-duration-slow": "1ms",
-  "--ui-duration-enter": "1ms",
-  // 1ms would make a LOOP spin a thousand times a second rather than stop it.
-  // Reduced motion is handled for keyframes by the `motion-safe:` variant that
-  // ADR 0018 requires on every one of them; this value only has to be
-  // harmless if a keyframe is ever driven by the token directly.
-  "--ui-duration-loop": "2000ms",
+const FULL_MOTION = {
+  "--ui-motion-level": "full",
+  "--ui-duration-fast": FIXED_TOKEN_VALUES["--ui-duration-fast"],
+  "--ui-duration-base": FIXED_TOKEN_VALUES["--ui-duration-base"],
+  "--ui-duration-slow": FIXED_TOKEN_VALUES["--ui-duration-slow"],
+  "--ui-duration-enter": FIXED_TOKEN_VALUES["--ui-duration-enter"],
+  "--ui-duration-loop": FIXED_TOKEN_VALUES["--ui-duration-loop"],
+  "--ui-motion-travel": FIXED_TOKEN_VALUES["--ui-motion-travel"],
+  "--ui-enter-scale": FIXED_TOKEN_VALUES["--ui-enter-scale"],
+  "--ui-stagger-step": FIXED_TOKEN_VALUES["--ui-stagger-step"],
+} as const satisfies Partial<Record<FixedToken, string>>;
+
+export type MotionLevelToken = keyof typeof FULL_MOTION;
+
+export const MOTION_LEVELS: Record<MotionLevelName, Record<MotionLevelToken, string>> = {
+  full: FULL_MOTION,
+  reduced: {
+    "--ui-motion-level": "reduced",
+    "--ui-duration-fast": FIXED_TOKEN_VALUES["--ui-duration-fast"],
+    "--ui-duration-base": FIXED_TOKEN_VALUES["--ui-duration-base"],
+    "--ui-duration-slow": FIXED_TOKEN_VALUES["--ui-duration-base"],
+    "--ui-duration-enter": FIXED_TOKEN_VALUES["--ui-duration-base"],
+    "--ui-duration-loop": FIXED_TOKEN_VALUES["--ui-duration-loop"],
+    "--ui-motion-travel": "0",
+    "--ui-enter-scale": "1",
+    "--ui-stagger-step": "0ms",
+  },
+  off: {
+    "--ui-motion-level": "off",
+    "--ui-duration-fast": "1ms",
+    "--ui-duration-base": "1ms",
+    "--ui-duration-slow": "1ms",
+    "--ui-duration-enter": "1ms",
+    "--ui-duration-loop": FIXED_TOKEN_VALUES["--ui-duration-loop"],
+    "--ui-motion-travel": "0",
+    "--ui-enter-scale": "1",
+    "--ui-stagger-step": "0ms",
+  },
 };
+
+/**
+ * What `prefers-reduced-motion: reduce` gives a page that sets no level.
+ * Was the whole collapse (today's `off`); it is `reduced` since ADR 0028.
+ */
+export const REDUCED_MOTION_OVERRIDES: Record<MotionLevelToken, string> = MOTION_LEVELS.reduced;

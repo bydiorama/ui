@@ -9,7 +9,8 @@
  * One loop per `--ui-duration-loop`, the rhythm a working Button's halo
  * keeps, so the two read as one event.
  *
- * Reduced motion: no animation, and the band is parked off the label — the
+ * Below `full` (ADR 0028 — the `motion-safe` variant, which reads the
+ * motion level as well as the OS): no animation, and the band is parked off the label — the
  * label reads in plain muted ink, and the words still say work is running
  * (motion is never the only channel, CONVENTIONS §8). Guarded by @supports:
  * without background-clip: text the label would vanish.
@@ -41,8 +42,8 @@
     }
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .fx-shimmer {
+  .fx-shimmer {
+    @variant motion-safe {
       animation: ui-fx-shimmer calc(var(--ui-duration-loop) / var(--ui-fx-ambient-speed, 1)) linear infinite;
     }
   }

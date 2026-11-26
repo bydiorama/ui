@@ -1,6 +1,6 @@
 ---
 name: app-motion
-description: Adding motion to an app built with @bydiorama/ui — who owns which animation, how to bring in transitions.dev snippets for product interactions without breaking their licence, and the integration traps (one snippet per element, nested accordions, digit swaps, replay, JS timing, reduced motion). Use when animating a count, label, icon, row, panel or toast in an app, when asked to "add motion", "make it feel alive", or to install transitions.dev, when an animation does not play twice or plays on the wrong element, or when reviewing motion.
+description: Adding motion to an app built with @bydiorama/ui — who owns which animation, how to bring in transitions.dev snippets for product interactions without breaking their licence, and the integration traps (one snippet per element, nested accordions, digit swaps, replay, JS timing, reduced motion). Use when animating a count, label, icon, row, panel or toast in an app, when asked to "add motion", "make it feel alive", or to install transitions.dev, when adding a motion setting (reduce or turn off motion) or a calm region with data-ui-motion, when an animation does not play twice or plays on the wrong element, or when reviewing motion.
 ---
 
 # Motion in a Diorama app
@@ -31,9 +31,32 @@ cross-fades, tokens for every duration). In app code that means:
   property list: `cn("transition-[opacity,transform]", motionStandard)`.
   A class name assembled at runtime (`` `transition-[${p}]` ``) is never seen
   by Tailwind's scanner and silently does not exist.
-- Under `prefers-reduced-motion` the token layer collapses
-  `--ui-duration-*` to 1ms. A snippet's own variables do NOT collapse — the
-  snippet guards itself in CSS, and your JavaScript must check (below).
+- The token layer handles three motion levels — `full`, `reduced`, `off`
+  (ADR 0028; next section). A snippet's own variables do NOT follow them —
+  the snippet guards itself in CSS against the OS preference only, so wrap it
+  in a `motion-safe:`/`@variant motion-safe` guard if it must respect the
+  app's setting, and your JavaScript must check (below).
+
+## The motion levels, and a motion setting in the app
+
+| Level | What the library does |
+| --- | --- |
+| `full` | everything, at the tokens |
+| `reduced` | nothing travels (slides become fades, scale-ins start full size, no stagger), loops stop; change in place still eases |
+| `off` | every duration is 1ms |
+
+- With no attribute, the OS preference decides: `reduced` if it asks for
+  less, otherwise `full`.
+- `data-ui-motion="reduced"` or `"off"` on any element sets its subtree, and
+  is always honoured — even when an outer element says `full`. Use it freely
+  for a region that must stay calm (a dashboard of live tiles).
+- `data-ui-motion="full"` overrides the OS preference. Set it **only** from a
+  choice the user made in your app's settings, never as a default, a theme
+  or a marketing page's wish.
+- An app motion setting is one attribute on `<html>`: offer "Follow the
+  system" (no attribute), "Full", "Reduced" and "Off"; persist the choice;
+  apply it before first paint (an inline script reading the stored value), so
+  the page does not animate once at the wrong level.
 
 ## transitions.dev: install, copy, credit — never redistribute
 
@@ -106,10 +129,12 @@ republishing.
   ```
   then waits `ms(...) + 50` before cleaning up. A copied `300` drifts the
   first time someone tunes the CSS.
-- **Reduced motion is your job here.** Check
-  `matchMedia("(prefers-reduced-motion: reduce)")` and skip the phases —
-  swap the text at once, skip the shake — rather than running timers
-  against a transition the CSS has already disabled.
+- **The motion level is your job here.** Ask `motionLevel(element)` from
+  `@/lib/motion` — never `matchMedia("(prefers-reduced-motion: reduce)")`,
+  which ignores the app's setting — and below `full` skip the phases: swap
+  the text at once, skip the shake, rather than running timers against a
+  transition the CSS has already shortened. Something long-lived (a clock, a
+  ticker) re-asks through `subscribeMotionLevel`.
 - **A JS runtime** only for CONVENTIONS §8's four cases (layout or
   shared-element, gesture, velocity springs, interruptible sequences), and
   then `motion/mini`'s `animate()` — never `<motion.*>` (ADR 0018). The
@@ -126,7 +151,9 @@ nothing to someone with reduced motion on, and nothing once it has settled.
 1. **Slow it to 10%.** DevTools → Animations → playback 10%, or
    `Animation.setPlaybackRate` at 0.1 over CDP in a Playwright check.
 2. **Walk every state**: enter, exit, reverse mid-flight (toggle twice
-   fast), repeat (does it play the second time?), and with reduced motion on.
+   fast), repeat (does it play the second time?), and at each level:
+   `data-ui-motion` set to `reduced` and to `off` on `<html>`, and with the OS
+   preference on.
 3. After it settles: the DOM text is the plain value, focus is where it was,
    nothing hidden is focusable, the end frame equals the static design.
 4. Look for doubles: any element with two snippets, or a snippet on a

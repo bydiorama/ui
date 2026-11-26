@@ -75,8 +75,10 @@ What feels off at 10% speed is what is subtly wrong at full speed.
    the DOM — never a hard swap. Skip entrance animation on first render.
 11. **Durations and easings come from tokens** (`--ui-motion-*`,
     `--ui-duration-*`, `--ui-ease-*`). Never a hard-coded `ms`. Never
-    `transition: all` — enumerate properties. Reduced motion is already handled
-    at the token layer; JS-driven animation must check it explicitly.
+    `transition: all` — enumerate properties. The three motion levels are
+    handled at the token layer (`--ui-motion-travel` and `--ui-enter-scale`
+    for anything that enters or leaves); JS-driven animation asks
+    `motionLevel()` explicitly.
 
 ### Icons
 

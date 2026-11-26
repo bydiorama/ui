@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-adr-0028-motion-has-three-levels",
+  "date": "2026-11-26",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Records ADR 0028 (proposed): motion has three levels — full, reduced, off — set by the OS preference or data-ui-motion on any subtree, where going down is always honoured and full overrides the OS only from a choice the user made in the app; travel becomes a token; keyframes and JavaScript follow the level rather than the bare media query; loops can be paused; the library will own six motion patterns written from scratch (Presence, Count, TextSwap, IconSwap, Stagger, Feedback), with no code from third-party motion collections; and the motion vocabulary becomes one. Amends ADR 0005 clause 5 and ADR 0018 clause 5. Clauses 1–5 are implemented and measured; 6–8 are not started.",
+  "affects": [
+    "decision:0028-motion-levels-and-primitives",
+    "decision:0005-motion",
+    "decision:0018-motion-runtime"
+  ]
+}

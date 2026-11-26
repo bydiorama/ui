@@ -466,7 +466,7 @@ export function ColorPicker({
                   "bg-elevated border border-edge-subtle shadow-md text-ink-primary",
                   "transition-[opacity,scale]", motionMicro,
                   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
-                  "data-[starting-style]:scale-98 data-[ending-style]:scale-98",
+                  "data-[starting-style]:scale-(--ui-enter-scale) data-[ending-style]:scale-(--ui-enter-scale)",
                   "origin-(--transform-origin)",
                 ),
               })}

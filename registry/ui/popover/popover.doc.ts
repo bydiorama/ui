@@ -104,7 +104,7 @@ Popover.Panel variant="list"  (#55)
   ],
 
   motion:
-    "The panel fades and scales from 98% at --ui-duration-fast with --ui-ease-out, through `data-[starting-style]`/`data-[ending-style]`. `scale` is named in the transition list for the same reason as Modal's — Tailwind v4 writes it standalone, and a list naming `transform` left this panel snapping open.",
+    "The panel fades and scales from 98% at --ui-duration-fast with --ui-ease-out, through `data-[starting-style]`/`data-[ending-style]`. `scale` is named in the transition list for the same reason as Modal's — Tailwind v4 writes it standalone, and a list naming `transform` left this panel snapping open. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CXA-0",
 } as const;

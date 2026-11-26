@@ -57,7 +57,7 @@ export const mediaToggleDoc = {
   ],
 
   motion:
-    "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The glyph swaps without animation. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused.",
+    "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The glyph swaps without animation. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused. Motion levels (ADR 0028): the video starts paused at any level below `full`, read at the video itself.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0",
 } as const;

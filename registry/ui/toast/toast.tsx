@@ -315,11 +315,15 @@ function ToastRoot({
         "data-[expanded]:translate-y-(--offset-y)",
         // Enter from below; exit the same way unless a swipe chose an axis.
         // The `not-` guard keeps the two ending transforms mutually exclusive
-        // by construction rather than by stylesheet order.
-        "data-[starting-style]:translate-y-[150%]",
-        "data-[ending-style]:not-data-[swipe-direction]:translate-y-[150%]",
-        "data-[ending-style]:data-[swipe-direction=down]:translate-y-[calc(var(--toast-swipe-movement-y)+150%)]",
-        "data-[ending-style]:data-[swipe-direction=right]:translate-x-[calc(var(--toast-swipe-movement-x)+150%)]",
+        // by construction rather than by stylesheet order. Every offset the
+        // toast travels on its own is times `--ui-motion-travel`; the swipe
+        // the user made is not, because they moved it (ADR 0028). With no
+        // travel it fades in, as it already fades out.
+        "data-[starting-style]:translate-y-[calc(150%*var(--ui-motion-travel))]",
+        "data-[starting-style]:opacity-(--ui-motion-travel)",
+        "data-[ending-style]:not-data-[swipe-direction]:translate-y-[calc(150%*var(--ui-motion-travel))]",
+        "data-[ending-style]:data-[swipe-direction=down]:translate-y-[calc(var(--toast-swipe-movement-y)+150%*var(--ui-motion-travel))]",
+        "data-[ending-style]:data-[swipe-direction=right]:translate-x-[calc(var(--toast-swipe-movement-x)+150%*var(--ui-motion-travel))]",
         "data-[ending-style]:opacity-0",
         "data-[limited]:opacity-0",
         // Split timings, longhand: the sheet runs transforms on the spring

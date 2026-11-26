@@ -350,8 +350,20 @@ code for free.
   sequences — and then only as an **optional peer dependency** of the components
   that need it.
 - No motion-library type may appear in a public prop signature.
-- `prefers-reduced-motion` is handled at the token layer; JS animations must
-  check it explicitly.
+- **Three motion levels — `full`, `reduced`, `off` — handled at the token
+  layer (ADR 0028).** The OS preference gives `reduced`; `data-ui-motion` on
+  any element sets a level for its subtree. Going down is always honoured;
+  `full` overrides the OS and is set only from a choice the user made in the
+  app. `reduced` removes travel and loops and keeps change in place.
+- An entering or leaving surface moves by the travel tokens, never a literal:
+  `scale-(--ui-enter-scale)`, and a slide as
+  `translate-y-[calc(100%*var(--ui-motion-travel))]`. A slide that should
+  become a fade at `reduced` also starts at `opacity-(--ui-motion-travel)`.
+- Keyframes are guarded by `motion-safe:` / `motion-reduce:`, which the theme
+  redefines to read the level; in plain CSS, `@variant motion-safe { … }`.
+- JavaScript never asks `prefers-reduced-motion` itself: it asks
+  `motionLevel(element)` from `@/lib/motion`, and `subscribeMotionLevel` for
+  anything long-lived. `check:motion` enforces all three.
 
 ## 9. Boundaries
 

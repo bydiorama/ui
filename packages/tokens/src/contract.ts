@@ -455,6 +455,12 @@ export const FIXED_TOKENS = [
   "--ui-ease-default", "--ui-ease-in", "--ui-ease-out", "--ui-ease-spring",
   "--ui-motion-micro", "--ui-motion-standard", "--ui-motion-deliberate", "--ui-motion-choreographed",
 
+  // Motion levels (ADR 0028). The level a subtree resolved to, for JavaScript
+  // to read, and the two travel values `reduced` takes to zero while keeping
+  // time: a slide multiplies by the travel factor, a scale-in starts at the
+  // enter scale. Re-bound by `[data-ui-motion]`, never by a brand.
+  "--ui-motion-level", "--ui-motion-travel", "--ui-enter-scale",
+
   // Interaction constants. Named values so "how much does a button shrink on
   // press" has exactly one answer across the system.
   "--ui-press-scale", "--ui-stagger-step",

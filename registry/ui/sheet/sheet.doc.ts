@@ -135,7 +135,7 @@ Sheet
   ],
 
   motion:
-    "Two movements. The pinned regions' hairlines fade their COLOUR in and out as Sheet.Body scrolls — a box-shadow rather than a border, so the 48px band cannot jog by the pixel a border-box border would cost it, and always declared so only the colour animates (Header's rule). The panel translates in from its edge and the scrim fades, both at --ui-duration-base with --ui-ease-out. `translate` is named explicitly in the transition: Tailwind v4's translate-* writes the standalone property, so a list naming `transform` animates nothing — the defect that had Modal and Popover snapping open. Durations come from --ui-duration-*, which collapse to 1ms under prefers-reduced-motion.",
+    "Two movements. The pinned regions' hairlines fade their COLOUR in and out as Sheet.Body scrolls — a box-shadow rather than a border, so the 48px band cannot jog by the pixel a border-box border would cost it, and always declared so only the colour animates (Header's rule). The panel translates in from its edge and the scrim fades, both at --ui-duration-base with --ui-ease-out. `translate` is named explicitly in the transition: Tailwind v4's translate-* writes the standalone property, so a list naming `transform` animates nothing — the defect that had Modal and Popover snapping open. Durations come from --ui-duration-*, which collapse to 1ms under prefers-reduced-motion. Motion levels (ADR 0028): the offset is the panel's own size times --ui-motion-travel, so at `reduced` it starts where it ends and the panel only fades; at `off` the fade is 1ms.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2UF0-0",
 } as const;

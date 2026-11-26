@@ -219,7 +219,7 @@ function PopoverPanel({
             "transition-[opacity,scale]", motionMicro,
             // Base UI stamps these while the enter/exit transition runs.
             "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
-            "data-[starting-style]:scale-98 data-[ending-style]:scale-98",
+            "data-[starting-style]:scale-(--ui-enter-scale) data-[ending-style]:scale-(--ui-enter-scale)",
             "origin-(--transform-origin)",
             className,
           )}

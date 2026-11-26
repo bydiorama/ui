@@ -104,8 +104,9 @@ tokens at all. Write numbers as CSS would: `24deg`, `0.1turn`, `25%`.
   glass.
 - **Accessibility.** Reduced transparency, or `fx("opaque")` on an ancestor
   or the part itself → the component's own opaque fill; the edge light stays.
-  Reduced motion → no ambient animation, one still shader frame, `sweep()`
-  plays nothing. Forced colours → the plain component. You add nothing.
+  Any motion level below `full` (the OS preference, or `data-ui-motion` on
+  the element or an ancestor) → no ambient animation, one still shader
+  frame, `sweep()` plays nothing. Forced colours → the plain component. You add nothing.
 - **The floor.** No WebGL, before hydration, on the server: every component
   renders exactly as without the effect.
 

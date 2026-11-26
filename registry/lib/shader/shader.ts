@@ -32,6 +32,7 @@
  * the border to cover the border box.
  */
 
+import { motionLevel, subscribeMotionLevel } from "@/lib/motion";
 import { SHADERS, VERTEX, PRELUDE, type ShaderDef, type ShaderName, type UniformValues } from "@/lib/shader-programs";
 
 type Values = UniformValues;
@@ -39,7 +40,8 @@ type Values = UniformValues;
 export type ShaderState = "floor" | "live" | "still" | "lost" | "unsupported";
 
 export interface ShaderSettings {
-  /** null follows the OS setting; true/false forces it (stories, tests). */
+  /** null follows each target's motion level — a ground moves only at
+   *  `full` (ADR 0028); true/false forces it (stories, tests). */
   reducedMotion: boolean | null;
   /** Every target shows its floor, as without WebGL. For tests and stories. */
   forceFloor: boolean;
@@ -503,7 +505,10 @@ class Scheduler {
   private stopped = false;
   private pending = new Set<Element>();
   private readonly teardown: Array<() => void> = [];
-  private readonly reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  /** Each mount's motion level, read once and cleared whenever any level
+   *  may have changed — a computed-style read per target per frame would
+   *  force a style recalculation every frame. */
+  private quiet = new WeakMap<Element, boolean>();
   /** Forced colours hide every canvas (shader.css): draw nothing, as at the floor. */
   private readonly forcedColors = matchMedia("(forced-colors: active)");
 
@@ -534,8 +539,15 @@ class Scheduler {
     });
   }
 
-  private isStill() {
-    return settings.freezeAt !== null || (settings.reducedMotion ?? this.reducedMotion.matches);
+  private isStill(mount: Element) {
+    if (settings.freezeAt !== null) return true;
+    if (settings.reducedMotion !== null) return settings.reducedMotion;
+    let quiet = this.quiet.get(mount);
+    if (quiet === undefined) {
+      quiet = motionLevel(mount) !== "full";
+      this.quiet.set(mount, quiet);
+    }
+    return quiet;
   }
 
   start() {
@@ -582,11 +594,14 @@ class Scheduler {
     };
     const scheme = matchMedia("(prefers-color-scheme: dark)");
     scheme.addEventListener("change", all);
-    this.reducedMotion.addEventListener("change", all);
+    const unsubscribe = subscribeMotionLevel(() => {
+      this.quiet = new WeakMap();
+      all();
+    });
     this.forcedColors.addEventListener("change", all);
     this.teardown.push(() => {
       scheme.removeEventListener("change", all);
-      this.reducedMotion.removeEventListener("change", all);
+      unsubscribe();
       this.forcedColors.removeEventListener("change", all);
     });
     void document.fonts?.ready.then(() => this.targets.size && all());
@@ -691,7 +706,6 @@ class Scheduler {
     const dt = this.last ? Math.min(0.1, (now - this.last) / 1000) : 0;
     this.last = now;
     const t0 = performance.now();
-    const still = this.isStill();
     const floor = settings.forceFloor || this.forcedColors.matches;
     const usable = !floor && this.renderer.init();
     const offState: ShaderState = floor
@@ -708,6 +722,7 @@ class Scheduler {
         t.setState(offState);
         continue;
       }
+      const still = this.isStill(t.mount);
       t.setState(still ? "still" : "live");
       if (!t.visible) continue;
       if (t.easing) {

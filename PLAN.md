@@ -229,6 +229,27 @@ What is left is a question for a person, not a task:
       animation is the only case neither CSS nor `motion/mini` covers, and
       nothing in the library asks for it.
 
+**Motion levels (ADR 0028) · steps 1–2 done 2026-11-26.** Measured in
+`registry/ui/motion.browser.test.tsx` with the OS preference emulated, not
+stubbed.
+
+- [x] Three levels — `full`, `reduced`, `off` — at the token layer, with
+      `data-ui-motion` on any subtree. The OS preference now gives `reduced`
+      (it was `off`).
+- [x] `--ui-motion-travel` and `--ui-enter-scale`; 14 `scale-98` literals and
+      every Sheet, Drawer and Toast slide now read them.
+- [x] `motion-safe:` / `motion-reduce:` redefined against the level; the
+      effects stylesheets use `@variant motion-safe`.
+- [x] `motionLevel()` / `subscribeMotionLevel()`; eight direct `matchMedia`
+      calls replaced. `check:motion` refuses a new one, and a literal
+      scale or slide on an entering or leaving surface.
+- [x] Storybook toolbar switch for the level.
+- [ ] Step 3: one vocabulary — recipes read their intent token, a
+      `linear()` spring. A design decision first, on the motion page.
+- [ ] Step 4: the six owned motion items. Each needs a Paper sheet first
+      (`design-component`).
+- [ ] Step 5: the motion page on the public site.
+
 ### Effects layer (ADR 0022) · **shipped experimental, not yet on a device**
 
 Measured 2026-11-06 with `pnpm check:fx`, `registry/lib/fx/fx.browser.test.tsx`

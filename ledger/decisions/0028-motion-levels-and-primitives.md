@@ -2,7 +2,8 @@
 
 **Status:** proposed · 2026-11-26 · amends ADR 0005 (clause 5) and ADR 0018
 (clause 5); the three decisions marked **agreed** were settled with the
-maintainer on the same date, the rest is for review
+maintainer on the same date, the rest is for review. Clauses 1–5 are
+**implemented and measured** (see § Measured); 6–8 are not started.
 
 ## Context
 
@@ -47,14 +48,27 @@ overshoot the way its name promises.
 | | `full` | `reduced` | `off` |
 |---|---|---|---|
 | Opacity and colour transitions | tokens | kept, never longer than `--ui-duration-base` | 1ms |
-| Travel — translate, scale, size | tokens | none; the surface cross-fades in place | none |
+| Travel — a surface entering or leaving: slide, scale-in | tokens | none; the surface fades in place | none |
+| Change in place — a height opening, a thumb crossing its track, a chevron turning | tokens | kept, never longer than `--ui-duration-base` | 1ms |
 | Stagger | `--ui-stagger-step` | 0 | 0 |
-| Loops — pulse, shimmer, sheen, shader | run | stopped on a static frame | stopped |
+| Keyframes and loops — pulse, spinner, shimmer, sheen, shader, a ticking matrix | run | stopped on a static frame | stopped |
+| Smooth scrolling, autoplaying video | yes | no | no |
 | Following a gesture (Drawer drag) | yes | yes — the user is moving it | yes |
 | Settle after a gesture | tokens | fade | 1ms |
+| Press feedback (`--ui-press-scale`) | yes | yes — tied to the user's own press | yes, instant |
 
-`off` is exactly today's behaviour, so nothing that already complies changes.
-`reduced` is new. `1ms` stays `1ms` and not `0`: Base UI awaits
+**Changed while implementing: change in place keeps its easing at `reduced`.**
+The first draft removed size changes too. That needs per-property durations
+on every transition list, and the result is worse for the people it is
+for: an accordion that snaps open makes the rows below it jump, which is
+harder to follow than a 200ms height change. What triggers vestibular
+discomfort is large-area travel — surfaces sliding across the screen,
+zooming, parallax, a scrolled page gliding — and that is what `reduced`
+removes. This is the same line operating systems draw for their own
+"reduce motion" settings.
+
+`off` is exactly the behaviour the OS preference used to get, so nothing that
+already complies changes. `reduced` is new. `1ms` stays `1ms` and not `0`: Base UI awaits
 `getAnimations()` before unmounting, and a zero-length transition registers
 nothing (ADR 0018, finding 2).
 
@@ -80,9 +94,11 @@ package the way `data-ui-density` is.
 New contract tokens, non-brandable, collapsing at the token layer:
 
 - `--ui-motion-travel` — `1` at `full`, `0` at `reduced` and `off`. Slides are
-  written against it: a Sheet starts at `translate: calc(100% * travel)` and
-  `opacity: travel`, so one declaration is a slide at `full` and a fade at
-  `reduced`.
+  written against it: a Sheet starts at `translate: calc(100% * travel)`, so
+  one declaration is a slide at `full` and no movement at `reduced`. A
+  surface that already fades as it slides (Sheet) then simply fades; one that
+  slides opaque (Drawer, Toast) also starts at `opacity: travel` — 1 at
+  `full`, so it looks exactly as before, and 0 at `reduced`, a fade.
 - `--ui-enter-scale` — `0.98` at `full`, `1` otherwise. Replaces the fourteen
   `scale-98` literals.
 
@@ -95,13 +111,19 @@ This replaces ADR 0018 clause 5. `motion-safe:` and `motion-reduce:` read the
 OS only, so an app that sets `data-ui-motion="off"` would still see every
 spinner turn.
 
-- **Keyframes** are guarded by a variant the theme emitter defines, which
-  matches the attribute and the media query together. `check:motion` accepts
-  only that spelling.
-- **JavaScript** asks one function in `lib/motion` — the resolved level for an
-  element, and a subscription for long-lived consumers such as the shader.
-  The eight direct `matchMedia` calls are replaced, and `check:motion` refuses
-  a new one in `registry/`.
+- **Keyframes** are guarded by `motion-safe:` and `motion-reduce:`, which the
+  Tailwind emitter **redefines** under their built-in names to match the
+  attribute and the media query together. Redefining rather than adding a
+  new name keeps every existing guard correct with no change at the call
+  site — and Tailwind 4.3 allows it, measured. In plain CSS the effects layer
+  writes `@variant motion-safe { … }`, and `check:fx` accepts only that.
+- **JavaScript** asks `motionLevel(element)` in `lib/motion`, and
+  `subscribeMotionLevel` for long-lived consumers such as the shader. It does
+  not re-implement the precedence: it reads `--ui-motion-level`, a token each
+  level block sets, so CSS decides and JavaScript reads the answer. The
+  eight direct `matchMedia` calls are replaced (one in `fx.ts` reads the token
+  directly, because `check:fx` loads that file in plain Node), and
+  `check:motion` refuses a new one in `registry/`.
 
 Both mechanisms are to be **measured before this is accepted**, in
 `motion.browser.test.tsx`, at all three levels and with the attribute set
@@ -164,11 +186,54 @@ Unchanged from ADR 0018: nothing needs it. The first candidate is the open
 TODO "Replace skeleton/Default UI animation pattern"; view transitions are
 tried before any runtime.
 
+## Measured
+
+`registry/ui/motion.browser.test.tsx`, Chromium, every case through the
+browser's own resolution — `getComputedStyle`, `getAnimations()` and the
+transitions' keyframes — with the OS preference emulated through CDP rather
+than stubbed.
+
+- The level resolves the same in CSS and in `motionLevel()` for: no attribute
+  with and without the OS preference, `full` over the OS, `reduced`, `off`,
+  `full` nested in `reduced`, `full` nested in `off`, and a `reduced` region
+  under a `full` page.
+- `subscribeMotionLevel` fires on an attribute change and on the OS changing.
+- At `reduced` a Switch's thumb still eases at `--ui-duration-fast`; at `off`
+  it runs at 1ms, so Base UI still has an animation to await.
+- A Sheet slides from `-100%` at `full`; at `reduced` it fades from opacity 0
+  and its translate starts at `0%`. A Popover grows from `0.98` at `full` and
+  starts at `1` at `reduced`. A Drawer slides up opaque at `full`, exactly as
+  before the levels, and fades in place at `reduced`.
+- Skeleton's pulse and Button's spinner stop in a `reduced` region with no OS
+  preference, stop with the OS preference alone, and run again when the user
+  chose `full` over the OS.
+- StatusMatrix holds its key frame under the OS preference and in a `reduced`
+  region.
+
+**Found by the first run:** at `reduced` the Sheet still creates a
+`translate` transition — its starting offset computes to `0%` and the resting
+panel to `none`, which Chromium treats as different values. Nothing moves;
+both are the identity. The tests therefore assert where a transition starts,
+which is what a user sees, not whether one exists.
+
+**Found by review, then tested:** the first version gave Drawer and Toast an
+entry opacity of `1 − travel`, which is 0 at `full` — it would have made
+both fade in at the default level, a visible change the record says must not
+happen. Nothing covered Drawer; the two Drawer cases above now do, and both
+fail on that version.
+
+The gates were broken on purpose to prove they fire: `check:motion` on a
+`scale-98`, a `translate-y-[150%]` and a direct `matchMedia`; `check:fx` on a
+keyframe behind the old OS-only media query; and the Sheet test on the old
+`-translate-x-full`.
+
 ## Order of work
 
-1. Levels: tokens, attribute, variant, `lib/motion` function, the probe, a
-   Storybook toolbar switch. Nothing visual changes at `full`.
-2. Travel tokens through the existing components; `reduced` becomes real.
+1. **Done.** Levels: tokens, attribute, variants, `lib/motion` functions, the
+   probe, a Storybook toolbar switch. Nothing visual changes at `full`.
+2. **Done.** Travel tokens through the existing components; `reduced` becomes
+   real. Done together with step 1: step 1 alone would have given OS-reduce
+   users full-length slides where they had none.
 3. Vocabulary pass and the spring.
 4. The six items, one at a time, Presence first because three of the others
    sit inside it.

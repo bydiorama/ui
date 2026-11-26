@@ -156,7 +156,7 @@ Combobox   label (required) / isLabelHidden?
   ],
 
   motion:
-    "The control transitions border-color, box-shadow and background-color; rows and the clear square transition background-color; the panel fades and scales from 98% through data-[starting-style]/data-[ending-style] — all at --ui-duration-fast with --ui-ease-out (motionMicro). The Fade's visibility is an opacity transition (Fade's own). The loading spinner is Button's animate-spin, stopped under prefers-reduced-motion.",
+    "The control transitions border-color, box-shadow and background-color; rows and the clear square transition background-color; the panel fades and scales from 98% through data-[starting-style]/data-[ending-style] — all at --ui-duration-fast with --ui-ease-out (motionMicro). The Fade's visibility is an opacity transition (Fade's own). The loading spinner is Button's animate-spin, stopped under prefers-reduced-motion. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3O8K-0",
 } as const;

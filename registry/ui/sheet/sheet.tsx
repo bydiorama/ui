@@ -69,18 +69,20 @@ const SIDE = {
     // `translate`, never `transform`: Tailwind v4's translate-* writes the
     // standalone property, so a transition naming transform animates nothing
     // and the drawer would appear fully open. `check:utilities` enforces this.
-    offscreen: "data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full",
+    // The offset is the panel's own size times `--ui-motion-travel`, so at
+    // `reduced` it fades in place instead of sliding (ADR 0028).
+    offscreen: "data-[starting-style]:-translate-x-[calc(100%*var(--ui-motion-travel))] data-[ending-style]:-translate-x-[calc(100%*var(--ui-motion-travel))]",
   },
   right: {
     edge: "right-0 rounded-l-lg",
-    offscreen: "data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full",
+    offscreen: "data-[starting-style]:translate-x-[calc(100%*var(--ui-motion-travel))] data-[ending-style]:translate-x-[calc(100%*var(--ui-motion-travel))]",
   },
   // FULL SCREEN from the top (#33: a site's collapsed menu). Flush against
   // all four edges, so no corner is rounded and the size cap does not apply
   // — the merge drops w-4/5, min-w-64 and the max-w step for these.
   top: {
     edge: "inset-x-0 top-0 w-full min-w-0 max-w-none rounded-none",
-    offscreen: "data-[starting-style]:-translate-y-full data-[ending-style]:-translate-y-full",
+    offscreen: "data-[starting-style]:-translate-y-[calc(100%*var(--ui-motion-travel))] data-[ending-style]:-translate-y-[calc(100%*var(--ui-motion-travel))]",
   },
 } as const satisfies Record<SheetSide, { edge: string; offscreen: string }>;
 

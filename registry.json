@@ -22,7 +22,7 @@
     {
       "name": "motion",
       "type": "registry:lib",
-      "description": "The three timings this library animates at, as class-name constants: motionMicro (interaction feedback), motionStandard (a surface arriving or leaving) and motionDeliberate (an unfolding). The property list stays at the call site because Tailwind compiles the class names it finds by scanning source text — a recipe that interpolated `transition-[${properties}]` would generate no rule and the element would silently not animate. Written after the same duration/easing pair was hand-assembled fifty times, which also revealed that the library uses --ui-ease-out in fifty cases out of fifty while the token layer offers four easings and four --ui-motion-* intents with no consumers at all.",
+      "description": "The three timings this library animates at, as class-name constants: motionMicro (interaction feedback), motionStandard (a surface arriving or leaving) and motionDeliberate (an unfolding). The property list stays at the call site because Tailwind compiles the class names it finds by scanning source text — a recipe that interpolated `transition-[${properties}]` would generate no rule and the element would silently not animate. Written after the same duration/easing pair was hand-assembled fifty times, which also revealed that the library uses --ui-ease-out in fifty cases out of fifty while the token layer offers four easings and four --ui-motion-* intents with no consumers at all. Also the motion level an element is under (ADR 0028): motionLevel(element) reads the resolved --ui-motion-level token — full, reduced or off — so JavaScript-driven motion follows the OS preference and any data-ui-motion the app sets, and subscribeMotionLevel(notify) re-asks for long-lived animation such as a clock or a shader.",
       "files": [
         {
           "path": "registry/lib/motion/motion.ts",
@@ -179,7 +179,8 @@
       "type": "registry:lib",
       "description": "The OPTIONAL shader runtime of the effects layer (ADR 0022, ADR 0025): the gradient — one PARAMETRIC moving ground written for this library — and halo (light travelling round a surface that works or listens). fx(\"gradient\") takes its look from a keyword token, --ui-fx-gradient-look: wash (a calm field), sweep (two big forms lit across their bodies), fold (light panes with lit rims), rise (a horizon with a crisp rim) or dawn (a soft horizon, light rising from below the frame); shared knobs tune any look — --ui-fx-gradient-angle, -sharpness, -scale, -chroma, -intensity, the quiet zone (-quiet, -quiet-x, -quiet-y) and -dissolve — and four knobs follow the look at auto (GRADIENT_PRESETS: angle, intensity, the quiet zone's size and height); knobs inherit, so a wrapper or brand scope can set them, the colours fall back to the scope's --ui-bg-base and --ui-bg-accent, numbers are read with their CSS unit and clamped to the range the GLSL is written for. Its palette is two tokens (--ui-fx-gradient-base, --ui-fx-gradient-light) with every other tone derived in OKLab; chroma falls with lightness and darker tones turn their hue away from yellow-green, so a pale-yellow brand's shadows go amber, not olive. Every pixel ends in a static one-step triangular dither, so slow ramps never band; a ground renders at full resolution and at most 30fps. startShaders() — server-safe, reference-counted, returns its stop function — finds every .fx-gradient / .fx-halo root, mounts one canvas in the part the effect paints and draws it from tokens read where that part sits, through ONE shared WebGL2 context. A shader is admitted only if it paints pixels it owns, takes every input from a token, keeps the component as its floor and keeps the ink on its part legible — the gradient by a QUIET ZONE of its exact base around the copy, so the ink keeps its audited contrast while the light elsewhere is free; check:fx enforces the first two on the sources, the browser test the last two on drawn pixels under the real text, for every look, scheme and the pale-yellow stress brand. Forced colours draw nothing (the floor). The gradient's floor is a still, faint CSS gradient of the same light. The aurora effect was retired 2026-11-22. The canvas draws the part's own rounded shape (iOS Safari drops a CSS clip on an animating canvas), covers the border box, and follows the component's own state transitions through a registered property (--ui-fx-halo-strength). State is published on the root as data-fx-gradient / data-fx-halo (live, still, floor, lost, unsupported); reduced motion draws one chosen still frame and the loop sleeps when nothing moves. configureShaders() and sampleShader() (pixels and the resolved uniform values) exist for stories and contrast tests.",
       "registryDependencies": [
-        "@bydiorama/fx"
+        "@bydiorama/fx",
+        "@bydiorama/motion"
       ],
       "files": [
         {
@@ -293,6 +294,7 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/chrome-control",
+        "@bydiorama/motion",
         "@bydiorama/compose-event-handlers",
         "@bydiorama/use-controllable-state",
         "@bydiorama/data-slot"

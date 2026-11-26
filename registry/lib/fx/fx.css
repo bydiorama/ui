@@ -10,6 +10,11 @@
  * here and the file beside it, and nothing else refers to either. base.css
  * is the one every effect needs. The shader effects (gradient, halo) are not
  * here: they are the optional `shader` item, with its own shader.css.
+ *
+ * It must go through Tailwind, as above, not a plain <link>: every keyframe
+ * here is guarded by `@variant motion-safe`, the theme's level-aware variant
+ * (ADR 0028), which only Tailwind expands. Served raw, the guard is dropped
+ * and no effect animates — the safe failure, but not the intended one.
  */
 
 @import "./base.css";

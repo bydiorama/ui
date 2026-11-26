@@ -1519,6 +1519,7 @@
       "role": "the panel edge"
     }
   ],
+  "Count": [],
   "DatePicker": [
     {
       "fg": "--ui-text-primary",

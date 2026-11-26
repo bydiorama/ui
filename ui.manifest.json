@@ -1694,6 +1694,28 @@
       "docs": "registry/ui/dot-pattern/dot-pattern.doc.ts"
     },
     {
+      "name": "count",
+      "type": "ui",
+      "description": "A number changing in place (ADR 0028). Formatted with Intl.NumberFormat, one span per character, matched to the previous value from the right; only changed characters move, rising --ui-space-xs × --ui-motion-travel on --ui-duration-base (dropping when the value shrank) while an aria-hidden ghost draws the old character with CSS content and fades on --ui-duration-fast. The text is the plain value at every frame — never digit debris for copy, find, screen readers or tests. Tabular figures; the first render is still; Reduced is a per-digit cross-fade.",
+      "category": "Utilities",
+      "docs": "registry/ui/count/count.doc.ts",
+      "files": [
+        {
+          "path": "registry/ui/count/count.tsx",
+          "target": "ui/count.tsx"
+        },
+        {
+          "path": "registry/ui/count/count.doc.ts",
+          "target": "ui/count.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "data-slot"
+      ],
+      "status": "experimental"
+    },
+    {
       "name": "icon-swap",
       "type": "ui",
       "description": "One glyph becoming another in place (ADR 0028; craft rule 10). Every glyph is rendered once and kept, stacked in one cell; show names the visible one. The new glyph fades in on --ui-duration-base while growing from 0.5, the old one fades out on --ui-duration-fast while shrinking to it; the scale is multiplied by --ui-motion-travel, so Reduced is a plain cross-fade. State is a data attribute and motion a CSS transition: nothing mounts, a second change mid-swap turns around, and the first render is still. aria-hidden — the host's accessible name carries the state.",

@@ -14,7 +14,8 @@ Two owners, never both on one element:
 | Something arriving or leaving — a row added to a list, a row folding away once done, a message landing in a stream | `Presence` (`fade` · `rise` · `collapse`) | wrap the keyed items; see § Presence |
 | A short label changing in place — Save changes → Saved, Follow → Following, a status word | `TextSwap` | `<Button><TextSwap>{label}</TextSwap></Button>`; one line of text, a string |
 | A glyph that means a state changing — Copy → tick, play → pause, bell → muted bell | `IconSwap` | `<Button isIconOnly aria-label={name} icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show={key} />} />`; change the name with the glyph |
-| A product interaction the library has no component for yet — a count changing, a field shaking on error | the app, with transitions.dev snippets | follow this skill |
+| A number changing — a total, a cart, an unread count, a live readout | `Count` | `<Count value={n} format={…} locale="sk-SK" />`; its text is always the plain value |
+| A product interaction the library has no component for yet — a field shaking on error, a success check | the app, with transitions.dev snippets | follow this skill |
 
 Check the first two rows before reaching for the third: a snippet layered on
 a component that already animates double-animates it, and two `transition`
@@ -134,6 +135,7 @@ republishing.
   digit spans leaves the old digit in the DOM text: "1 2 1" for copy-paste,
   find-in-page, screen readers and tests. When it settles, restore plain
   `textContent`, and give the element an `aria-label` with the value.
+  `Count` avoids the problem by construction — use it rather than a snippet.
 - **Icon swaps keep both glyphs** in the DOM, cross-faded (`craft`
   rule 10), hidden from assistive tech; the button's label carries the state.
   `IconSwap` does exactly this — use it rather than a snippet.

@@ -37,6 +37,7 @@ import { Fade } from "@/ui/fade/fade.tsx";
 import { Presence } from "@/ui/presence/presence.tsx";
 import { TextSwap } from "@/ui/text-swap/text-swap.tsx";
 import { IconSwap } from "@/ui/icon-swap/icon-swap.tsx";
+import { Count } from "@/ui/count/count.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
@@ -1670,6 +1671,20 @@ const CASES: Array<{
         <div className="relative h-16 overflow-clip rounded-md bg-sunken">
           <DotPattern className="text-edge-default" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "count",
+    // The REST state: a stat, a currency in another locale, and a count in a
+    // Button. A baseline catches what a change leaves behind once nothing
+    // moves — a ghost still drawn over a digit, a digit stuck off its line, or
+    // proportional figures that would make a changing number jitter.
+    ui: (
+      <div className="flex flex-col items-start gap-lg">
+        <Count value={1250} className="text-title-lg text-ink-primary" />
+        <Count value={1249.5} locale="sk-SK" format={{ style: "currency", currency: "EUR" }} className="text-title-md text-ink-primary" />
+        <Button>Cart · <Count value={4} /></Button>
       </div>
     ),
   },

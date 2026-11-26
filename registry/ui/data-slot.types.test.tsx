@@ -73,6 +73,7 @@ import * as popoverModule from "./popover/popover.tsx";
 import * as presenceModule from "./presence/presence.tsx";
 import * as textSwapModule from "./text-swap/text-swap.tsx";
 import * as iconSwapModule from "./icon-swap/icon-swap.tsx";
+import * as countModule from "./count/count.tsx";
 import * as progressModule from "./progress/progress.tsx";
 import * as radioModule from "./radio/radio.tsx";
 import * as rangeSliderModule from "./range-slider/range-slider.tsx";
@@ -142,6 +143,7 @@ interface Modules {
   "presence": typeof presenceModule;
   "text-swap": typeof textSwapModule;
   "icon-swap": typeof iconSwapModule;
+  count: typeof countModule;
   "progress": typeof progressModule;
   "radio": typeof radioModule;
   "range-slider": typeof rangeSliderModule;

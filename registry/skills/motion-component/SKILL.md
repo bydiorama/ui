@@ -90,6 +90,9 @@ travel token — one at a time — watch the named test fail, restore, and never
 | A slot name that starts with a utility prefix (`text-swap`) | `check:utilities` read it as a `text-*` colour, in the JSX attribute and inside a `[data-slot="…"]` selector string. Data-attribute values are now blanked like prose attributes (`scripts/lib/classes.mjs`) |
 | A motion item that imports another (`@/ui/presence`) | The alias is listed by hand in the root and Storybook tsconfigs, `.storybook/main.ts` and `vitest.config.ts` (`uiItems`); the error is "Cannot find module" |
 | A component generic over its keys (`IconSwap`'s `show: keyof icons`) | `forwardRef` loses the generic; cast the result to `<K extends string>(props: Props<K> & { ref?: Ref<…> }) => ReactElement`, and type the picked key `NoInfer<K>` so a wrong name errors instead of widening `K` |
+| A leaving copy that must never be text (Count's old digit) | Draw it with `before:content-[attr(data-x)]` on an empty aria-hidden span: generated content is not in `textContent`, not copied, not found, and inside aria-hidden not read |
+| An exiting layer nested inside the arriving one | It inherits the arrival's starting opacity and moves with it. Make them siblings in one grid cell (`col-start-1 row-start-1`) |
+| A length token compared with a measured px value | Tokens may be authored in rem (`--ui-space-xs` is `0.25rem`). Resolve through a probe element's `width: var(--token)`, never `parseFloat` |
 | A scaled element's position asserted with `getBoundingClientRect()` | The rect includes the scale: a hidden glyph at 0.5 sits a quarter-size in from its corner. Compare centres |
 | Stories | A type role is a composite — `text-label-sm font-semibold` overrides its weight and the story gate fails. Use the role alone |
 

@@ -39,6 +39,16 @@ export const utilities = {
       <span className="motif-icon-swap-button"><Check aria-hidden="true" /></span>
     </div>
   ),
+  // One frame of 1,249 becoming 1,250, from the Count sheet: the thousands
+  // and hundreds still, the tens and units part-way in. The old digits are a
+  // bar, like the other motion motifs: translucent text fails the catalog's
+  // contrast audit.
+  count: () => (
+    <div className="motif-count">
+      <span className="motif-count-label">Orders this week</span>
+      <span className="motif-count-value">1,2<span className="motif-count-changed">50<i className="motif-count-old" /></span></span>
+    </div>
+  ),
   presence: () => (
     <div className="motif-presence">
       <div className="motif-presence-row"><span>Set the grid</span></div>

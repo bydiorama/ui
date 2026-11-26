@@ -204,7 +204,8 @@ spread the args bag into components with discriminated-union props
   the manifest, typed docs, registry, contrast report and ledger. Every public
   item gets its reference page, Markdown twin, search entry and registry route
   from that data; no route or catalog list to edit. `pnpm check:site-data`
-  fails on drift. Run `pnpm site:build` to prove the routes and links exist.
+  fails on drift. Run it LAST: `contrast:build`, `skills:build` and a ledger
+  edit all change its inputs, and running it before them leaves it stale. Run `pnpm site:build` to prove the routes and links exist.
 - A live specimen is a separate composition in `apps/site`, importing the
   registry source in `apps/site/src/examples/<name>.tsx`. The page reads
   that same type-checked file for View code; add its selection in Specimen.

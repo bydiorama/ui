@@ -30,3 +30,10 @@
 /* 50ms into Copy → Copied, from the Icon Swap sheet. */
 .motif-icon-swap-old { opacity: 0.23; scale: 0.62; }
 .motif-icon-swap-new { opacity: 0.58; scale: 0.79; }
+
+.motif-count { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--ui-border-subtle); border-radius: var(--ui-radius-md); background: var(--ui-bg-surface); }
+.motif-count-label { font-size: 12px; line-height: 16px; color: var(--ui-text-muted); }
+.motif-count-value { font-size: 22px; line-height: 28px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ui-text-primary); }
+.motif-count-changed { position: relative; display: inline-block; translate: 0 1.7px; }
+/* 50ms into 1,249 → 1,250: the leaving 4 and 9, drawn as a bar. */
+.motif-count-old { position: absolute; inset: 11px 0 auto; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); opacity: 0.23; }

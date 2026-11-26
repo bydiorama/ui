@@ -197,7 +197,6 @@ const terminal = [
       <!-- The strip's controls, shown only where the tiles scroll. Without the
            page script the strip still scrolls by touch; the buttons do nothing. -->
       <div class="box-controls" data-box-controls>
-        <div class="box-dots" aria-hidden="true">{Array.from({ length: 6 }, (_, index) => <span data-current={index === 0 ? "" : undefined}></span>)}</div>
         <div class="box-arrows">
           <button type="button" class={buttonClassName({ variant: "secondary", size: "lg", shape: "full", isIconOnly: true })} data-slot="button" data-variant="secondary" data-box-step="-1" aria-label="Previous tile" disabled><ArrowLeft aria-hidden="true" /></button>
           <button type="button" class={buttonClassName({ variant: "secondary", size: "lg", shape: "full", isIconOnly: true })} data-slot="button" data-variant="secondary" data-box-step="1" aria-label="Next tile"><ArrowRight aria-hidden="true" /></button>
@@ -266,13 +265,12 @@ const terminal = [
     document.addEventListener("visibilitychange", run);
   }
 
-  // The box's strip on a phone: the buttons step one tile, and the dots and
-  // the buttons' disabled state follow the scroll position.
+  // The box's strip on a phone: the buttons step one tile, and each is
+  // disabled at its end of the strip.
   const strip = document.querySelector<HTMLElement>("[data-box-tiles]");
   const controls = document.querySelector<HTMLElement>("[data-box-controls]");
   if (strip && controls) {
     const tiles = () => [...strip.querySelectorAll<HTMLElement>(".box-tile")];
-    const dots = [...controls.querySelectorAll<HTMLElement>(".box-dots span")];
     const steps = [...controls.querySelectorAll<HTMLButtonElement>("[data-box-step]")];
     const current = () => {
       const start = strip.getBoundingClientRect().left + parseFloat(getComputedStyle(strip).scrollPaddingLeft || "0");
@@ -280,13 +278,14 @@ const terminal = [
       return offsets.indexOf(Math.min(...offsets));
     };
     const update = () => {
-      const index = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1 ? dots.length - 1 : current();
-      dots.forEach((dot, position) => dot.toggleAttribute("data-current", position === index));
-      steps.forEach(step => { step.disabled = Number(step.dataset.boxStep) < 0 ? index === 0 : index === dots.length - 1; });
+      const last = tiles().length - 1;
+      const index = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1 ? last : current();
+      steps.forEach(step => { step.disabled = Number(step.dataset.boxStep) < 0 ? index === 0 : index === last; });
     };
     strip.addEventListener("scroll", update, { passive: true });
     steps.forEach(step => step.addEventListener("click", () => {
-      const target = tiles()[Math.max(0, Math.min(dots.length - 1, current() + Number(step.dataset.boxStep)))];
+      const all = tiles();
+      const target = all[Math.max(0, Math.min(all.length - 1, current() + Number(step.dataset.boxStep)))];
       target?.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", inline: "start", block: "nearest" });
     }));
     update();

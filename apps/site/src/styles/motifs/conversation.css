@@ -38,7 +38,7 @@
 .motif-chat-run-dock-text { display: flex; flex-direction: column; }
 .motif-chat-run-dock-title { font-size: 12px; line-height: 15px; font-weight: 600; }
 .motif-chat-run-dock-meta { font-size: 10px; line-height: 12px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
-.motif-chat-run-dock-pause { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
+.motif-chat-run-dock-stop { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
 
 .motif-chat-sources { display: flex; flex-direction: column; gap: 12px; width: 212px; }
 .motif-chat-sources-text { font-size: 12px; line-height: 18px; font-weight: 500; }

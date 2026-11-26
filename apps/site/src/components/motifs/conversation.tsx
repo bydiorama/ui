@@ -1,4 +1,4 @@
-import { ArrowUp, Check, Close, Copy, Pause, Plus } from "griddy-icons";
+import { ArrowUp, Check, Close, Copy, Plus, SquareRounded } from "griddy-icons";
 
 const done = (label: string) => (
   <div className="motif-chat-progress-step">
@@ -75,7 +75,7 @@ export const conversation = {
             <span className="motif-chat-run-dock-meta">2 min elapsed</span>
           </span>
         </div>
-        <span className="motif-chat-run-dock-pause"><Pause size={14} /></span>
+        <span className="motif-chat-run-dock-stop"><SquareRounded size={14} /></span>
       </div>
     </div>
   ),

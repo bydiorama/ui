@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Drawer } from "@/ui/drawer";
 import { Switch } from "@/ui/switch";
 import { configureShaders, startShaders } from "@/lib/shader";
 import { setAppearance, type Appearance } from "../lib/appearance";
@@ -109,6 +110,31 @@ export function LookDock({ isFloatingOnly = false }: { isFloatingOnly?: boolean 
     <>
       {!isFloatingOnly && <div ref={slot} className="look-dock-slot">{dock(false)}</div>}
       {dock(true)}
+      <LookDrawer isVisible={isFloating} />
     </>
+  );
+}
+
+/**
+ * The floating copy on a phone. The dock is wider than the window there, so
+ * what floats is one round button showing the current look, and the controls
+ * come up in a Drawer. CSS shows this where it hides the floating dock, so
+ * only one of the two is ever reachable.
+ */
+function LookDrawer({ isVisible }: { isVisible: boolean }) {
+  return (
+    <Drawer>
+      <Drawer.Trigger render={
+        <button type="button" className="look-fab" data-visible={String(isVisible)} inert={!isVisible ? true : undefined} aria-label="Change the look">
+          <span className="look-fab-swatch" aria-hidden="true" />
+        </button>
+      } />
+      <Drawer.Panel label="Change the look">
+        <Drawer.Body>
+          <Drawer.Title>Change the look</Drawer.Title>
+          <div className="look-sheet"><LookControls name="look-drawer" /></div>
+        </Drawer.Body>
+      </Drawer.Panel>
+    </Drawer>
   );
 }

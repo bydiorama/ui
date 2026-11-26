@@ -58,7 +58,7 @@ html[data-site-effects="on"] .site-header-fade { display: none; }
 .github-link svg:not(.github-link-arrow) path { fill: currentColor; }
 .github-link .github-link-arrow { width: 12px; height: 12px; color: var(--ui-text-muted); }
 .start-link { color: var(--ui-text-muted); }
-.mobile-nav { display: none; }
+.mobile-nav, .search-trigger-icon { display: none; }
 .mobile-nav-trigger { margin-right: calc(-1 * var(--ui-space-sm)); }
 .mobile-nav-home { padding-inline: var(--ui-space-sm); @apply text-label-md; color: var(--ui-text-primary); }
 .skip-link { position: fixed; left: 16px; top: 8px; transform: translateY(-150%); background: var(--ui-bg-base); padding: var(--ui-space-sm) var(--ui-space-lg); z-index: var(--ui-z-tooltip); }
@@ -136,9 +136,21 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
   .site-footer { padding-inline: var(--ui-space-2xl); }
 }
 @media (max-width: 700px) {
-  .site-header-inner { min-height: 56px; padding-inline: var(--ui-space-lg); grid-template-columns: 1fr auto; gap: var(--ui-space-lg); }
+  /* The phone's header is a floating pill: the bar itself is clear, and the
+     pill carries the ground, the shadow and, with effects on, the glass. */
+  .site-header, .site-header[data-scrolled], html[data-site-effects="on"] .site-header[data-scrolled] { padding: 4px 12px 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .site-header-fade { display: none; }
+  .site-header-inner { min-height: 56px; padding: 0 6px 0 22px; border-radius: var(--ui-radius-full); background: var(--ui-nav-bg); box-shadow: var(--ui-shadow-lg); grid-template-columns: 1fr auto; gap: var(--ui-space-lg); }
+  html[data-site-effects="on"] .site-header-inner { background: var(--ui-nav-bg-glass); -webkit-backdrop-filter: blur(12px) saturate(1.6); backdrop-filter: blur(12px) saturate(1.6); }
+  .wordmark { font-size: 17px; line-height: 20px; letter-spacing: -0.03em; }
+  .header-tools { gap: 2px; }
   .desktop-nav, .github-link, .header-tools kbd { display: none; }
   .mobile-nav { display: block; }
+  .mobile-nav-trigger { margin-right: 0; }
+  /* Search is its icon here; the word stays as the control's name. */
+  .search-trigger { width: 44px; height: 44px; padding: 0; }
+  .search-trigger .search-trigger-icon { display: block; width: 20px; height: 20px; }
+  .search-trigger-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .home-content { padding: calc(var(--ui-space-3xl) + var(--ui-space-sm)) var(--ui-space-lg) var(--ui-space-3xl); gap: calc(var(--ui-space-3xl) + var(--ui-space-sm)); }
   .lead { gap: var(--ui-space-xl); }
   .lead h1 { @apply text-title-lg;  }
@@ -148,9 +160,9 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
   .philosophy p { @apply text-body-md;  }
   /* The footer on a phone: the links first, in two columns of 44px rows (a
      thumb's target), then the sign-off, clear of the home indicator. */
-  .site-footer { display: flex; flex-direction: column-reverse; align-items: stretch; gap: var(--ui-space-lg); padding: var(--ui-space-lg) var(--ui-space-lg) calc(var(--ui-space-xl) + env(safe-area-inset-bottom)); }
-  .site-footer nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--ui-space-lg); }
-  .site-footer nav a { display: flex; align-items: center; min-height: 44px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); color: var(--ui-text-primary); }
+  .site-footer { display: flex; flex-direction: column-reverse; align-items: stretch; gap: 20px; padding: 20px 20px calc(40px + env(safe-area-inset-bottom)); border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+  .site-footer nav { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); grid-auto-columns: minmax(0, 1fr); gap: 0 var(--ui-space-lg); }
+  .site-footer nav a { display: flex; align-items: center; min-height: 44px; font-size: 15px; line-height: 20px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-secondary); }
   .site-footer p { color: var(--ui-text-muted); }
   .page-content { padding: var(--ui-space-3xl) var(--ui-space-lg); }
 

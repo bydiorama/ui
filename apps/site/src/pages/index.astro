@@ -1,10 +1,11 @@
 ---
-import { ArrowRight, ChartLineUp, Colors, Grid, Layers, MagicWand } from "griddy-icons";
+import { ArrowLeft, ArrowRight, ChartLineUp, Colors, Grid, Layers, MagicWand } from "griddy-icons";
 import "../styles/home.css";
 import "../styles/stack.css";
 import Base from "../layouts/Base.astro";
 import { fx } from "@/lib/fx";
 import { Fade } from "@/ui/fade";
+import { buttonClassName } from "@/ui/button";
 import { catalog } from "../lib/catalog";
 import { copy } from "../lib/copy";
 import { InstallPill } from "../home/InstallPill";
@@ -157,6 +158,9 @@ const terminal = [
         <h2 id="box-title">Also in the box.</h2>
         <p>Effects, gradients, charts and agent skills ship the same way a button does: as source you own, tested under more than one brand.</p>
       </header>
+      <!-- One list of six tiles: rows on a desktop, one snap-scrolling strip
+           on a phone (the rows dissolve there, so the tiles are siblings). -->
+      <div class="box-tiles" data-box-tiles>
       <div class="box-row box-row-two">
         <article class="box-tile" data-reveal data-slot="card" data-fx-on="glass edge">
           <div class={`box-well box-well-effects ${fx("gradient")}`} data-fx-on="grain"><EffectsTile client:visible /></div>
@@ -187,8 +191,18 @@ const terminal = [
       </div>
       <article class="box-tile box-tile-wide" data-reveal data-slot="card" data-fx-on="glass edge">
         <div class="box-well box-well-marks"><StatusMarksTile client:visible /></div>
-        <div class="box-caption"><h3><Grid aria-hidden="true" />Status marks</h3><p>A small screen of dots that says what an agent is doing. The&nbsp;live states loop, then settle on done, failed or stopped. Hover one to play it.</p></div>
+        <div class="box-caption"><h3><Grid aria-hidden="true" />Status marks</h3><p>A small screen of dots that says what an agent is doing. The&nbsp;live states loop, then settle on done, failed or stopped. <span class="pointer-only">Hover</span><span class="touch-only">Tap</span> one to play it.</p></div>
       </article>
+      </div>
+      <!-- The strip's controls, shown only where the tiles scroll. Without the
+           page script the strip still scrolls by touch; the buttons do nothing. -->
+      <div class="box-controls" data-box-controls>
+        <div class="box-dots" aria-hidden="true">{Array.from({ length: 6 }, (_, index) => <span data-current={index === 0 ? "" : undefined}></span>)}</div>
+        <div class="box-arrows">
+          <button type="button" class={buttonClassName({ variant: "secondary", size: "lg", shape: "full", isIconOnly: true })} data-slot="button" data-variant="secondary" data-box-step="-1" aria-label="Previous tile" disabled><ArrowLeft aria-hidden="true" /></button>
+          <button type="button" class={buttonClassName({ variant: "secondary", size: "lg", shape: "full", isIconOnly: true })} data-slot="button" data-variant="secondary" data-box-step="1" aria-label="Next tile"><ArrowRight aria-hidden="true" /></button>
+        </div>
+      </div>
     </section>
 
     <section class="faq" aria-labelledby="faq-title">
@@ -250,5 +264,31 @@ const terminal = [
     run();
     reduce.addEventListener("change", run);
     document.addEventListener("visibilitychange", run);
+  }
+
+  // The box's strip on a phone: the buttons step one tile, and the dots and
+  // the buttons' disabled state follow the scroll position.
+  const strip = document.querySelector<HTMLElement>("[data-box-tiles]");
+  const controls = document.querySelector<HTMLElement>("[data-box-controls]");
+  if (strip && controls) {
+    const tiles = () => [...strip.querySelectorAll<HTMLElement>(".box-tile")];
+    const dots = [...controls.querySelectorAll<HTMLElement>(".box-dots span")];
+    const steps = [...controls.querySelectorAll<HTMLButtonElement>("[data-box-step]")];
+    const current = () => {
+      const start = strip.getBoundingClientRect().left + parseFloat(getComputedStyle(strip).scrollPaddingLeft || "0");
+      const offsets = tiles().map(tile => Math.abs(tile.getBoundingClientRect().left - start));
+      return offsets.indexOf(Math.min(...offsets));
+    };
+    const update = () => {
+      const index = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 1 ? dots.length - 1 : current();
+      dots.forEach((dot, position) => dot.toggleAttribute("data-current", position === index));
+      steps.forEach(step => { step.disabled = Number(step.dataset.boxStep) < 0 ? index === 0 : index === dots.length - 1; });
+    };
+    strip.addEventListener("scroll", update, { passive: true });
+    steps.forEach(step => step.addEventListener("click", () => {
+      const target = tiles()[Math.max(0, Math.min(dots.length - 1, current() + Number(step.dataset.boxStep)))];
+      target?.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", inline: "start", block: "nearest" });
+    }));
+    update();
   }
 </script>

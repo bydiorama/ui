@@ -14,7 +14,7 @@ type Link = { label: string; href: string; isCurrent?: boolean; isExternal?: boo
 export function MobileNav({ links }: { links: Link[] }) {
   return (
     <Sheet>
-      <Sheet.Trigger render={<Button variant="ghost" size="sm" className="mobile-nav-trigger" icon={<Menu aria-hidden="true" />}>Menu</Button>} />
+      <Sheet.Trigger render={<Button variant="secondary" size="lg" shape="full" isIconOnly aria-label="Menu" className="mobile-nav-trigger" icon={<Menu aria-hidden="true" />} />} />
       <Sheet.Panel label="Site navigation" side="right" size="sm">
         <Sidebar label="Site navigation" isLabelHidden className="mobile-nav-rail h-full w-full rounded-none">
           <Sidebar.Group>

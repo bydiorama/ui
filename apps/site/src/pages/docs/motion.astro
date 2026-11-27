@@ -1,10 +1,10 @@
 ---
-import Base from "../../layouts/Base.astro";
+import Guide from "../../layouts/Guide.astro";
 import { MotionLab, MotionIntents } from "../../components/MotionLab";
 ---
-<Base title="Motion" description="How Diorama UI moves, the three motion levels, and how to offer people a way to reduce motion or turn it off."><article class="prose-page motion-page">
-<h1>Motion that moves<br />only as much as you want.</h1>
-<p>Motion is part of how the system feels. It also has to respect the people using it. Every component reads the same motion tokens, so one setting changes how the whole interface moves.</p>
+<Guide title="Motion" description="How Diorama UI moves, the three motion levels, and how to offer people a way to reduce motion or turn it off.">
+<p slot="intro">Motion is part of how the system feels. It also has to respect the people using it. Every component reads the same motion tokens, so one setting changes how the whole interface moves.</p>
+
 
 <h2 id="levels">Three levels</h2>
 <p>Choose a level below. It applies to this site, and the specimens show what changes.</p>
@@ -40,4 +40,4 @@ if (motionLevel(element) === "full") {
 <pre class="code-frame">{`data-[starting-style]:translate-y-[calc(100%*var(--ui-motion-travel))]`}</pre>
 
 <p><a href="/components/">Browse components</a> · <a href="/docs/">Get started</a></p>
-</article></Base>
+</Guide>

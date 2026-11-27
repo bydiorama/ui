@@ -2,23 +2,23 @@
 /* A page of placeholder lines that the overlay sits above. In light the
    veil is the design's ink at 18%; in dark it is the library's own scrim. */
 .motif-overlay-page { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px; padding: 24px 28px; font-size: 12px; line-height: 16px; }
-.motif-overlay-line { flex-shrink: 0; height: 6px; border-radius: 3px; background: var(--ui-bg-elevated); }
+.motif-overlay-line { flex-shrink: 0; height: 6px; border-radius: 3px; background: var(--motif-fill); }
 .motif-overlay-scrim { position: absolute; inset: 0; background: light-dark(rgb(29 27 25 / 0.18), var(--ui-scrim)); }
 
 .motif-context-menu-row { display: flex; align-items: center; gap: 10px; }
-.motif-context-menu-icon { flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; background: var(--ui-bg-elevated); }
-.motif-context-menu-row-active { margin-inline: -8px; padding: 6px 8px; border-radius: 8px; background: var(--ui-bg-elevated); }
+.motif-context-menu-icon { flex-shrink: 0; width: 18px; height: 18px; border-radius: 5px; background: var(--motif-fill); }
+.motif-context-menu-row-active { margin-inline: -8px; padding: 6px 8px; border-radius: 8px; background: var(--motif-fill); }
 .motif-context-menu-row-active > span { background: var(--ui-bg-sunken); }
 .motif-context-menu-panel { position: absolute; left: 112px; top: 66px; display: flex; flex-direction: column; width: 124px; padding: 4px; border-radius: 12px; background: var(--ui-bg-surface); box-shadow: var(--motif-float); font-weight: 500; }
 .motif-context-menu-item { display: flex; align-items: center; height: 26px; padding-inline: 8px; border-radius: 8px; }
-.motif-context-menu-item-active { background: var(--ui-bg-elevated); }
+.motif-context-menu-item-active { background: var(--motif-fill); }
 
 .motif-drawer-sheet { position: absolute; left: 16px; right: 16px; bottom: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; height: 92px; padding-top: 8px; border-radius: 16px 16px 0 0; background: var(--ui-bg-surface); box-shadow: 0 -8px 24px -6px rgb(29 27 25 / 0.12); }
 .motif-drawer-handle { flex-shrink: 0; width: 32px; height: 4px; border-radius: var(--ui-radius-full); background: var(--ui-border-subtle); }
 .motif-drawer-body { display: flex; flex-direction: column; gap: 8px; align-self: stretch; padding-inline: 16px; }
 .motif-drawer-body b, .motif-sheet-head b { font-weight: 600; }
 .motif-drawer-targets { display: flex; gap: 8px; }
-.motif-drawer-targets > span { width: 28px; height: 28px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
+.motif-drawer-targets > span { width: 28px; height: 28px; border-radius: var(--ui-radius-full); background: var(--motif-fill); }
 
 .motif-modal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .motif-modal-dialog { position: relative; display: flex; flex-direction: column; gap: 6px; width: 184px; padding: 14px; border-radius: 14px; background: var(--ui-bg-surface); box-shadow: 0 20px 25px -5px rgb(29 27 25 / 0.2), 0 10px 10px -5px rgb(29 27 25 / 0.08); }

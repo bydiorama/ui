@@ -75,7 +75,7 @@ const SWATCHES = [
   { id: "ink", label: "Ink", fill: "bg-ink-primary", ink: "text-ink-primary" },
   { id: "graphite", label: "Graphite", fill: "bg-ink-muted", ink: "text-ink-muted" },
   { id: "paper", label: "Paper", fill: "bg-base border-hairline border-edge-subtle", ink: "text-(color:--color-base)" },
-  { id: "forest", label: "Forest", fill: "bg-success", ink: "text-success" },
+  { id: "forest", label: "Forest", fill: "bg-(--editor-forest)", ink: "text-(color:--editor-forest)" },
   { id: "sage", label: "Sage", fill: "bg-data-transactional-solid", ink: "text-data-transactional-solid" },
   { id: "clay", label: "Clay", fill: "bg-data-commercial-solid", ink: "text-data-commercial-solid" },
 ] as const;
@@ -487,7 +487,7 @@ export default function CreativeEditorExample() {
     <div
       role="region"
       aria-label="Creative editor example"
-      className="flex h-full w-full overflow-hidden bg-sunken font-body text-ink-primary"
+      className="flex h-full w-full overflow-hidden bg-sunken font-body text-ink-primary [--editor-forest:color-mix(in_oklab,var(--ui-intent-success-fg)_60%,var(--ui-text-primary))]"
     >
       <Tooltip.Provider>
         {/* ---------------------------------------------------- stage */}
@@ -497,7 +497,7 @@ export default function CreativeEditorExample() {
             isPanning && "cursor-grab",
           )}
         >
-          <DotPattern />
+          <DotPattern className="text-edge-default" />
 
           <div className={cn(ISLAND, "left-lg top-lg gap-xs")}>
             <IconAction label="Back to templates" icon={<ArrowLeft />} />

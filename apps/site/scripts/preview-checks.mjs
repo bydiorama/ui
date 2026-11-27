@@ -25,6 +25,30 @@ async function checkCatalogDrawings(page, base, artifacts) {
       await page.screenshot({ path: join(artifacts, `catalog-${width}-${scheme}.png`), fullPage: true });
     }
   }
+  // These decorative cells have no text or outline to reveal them if their
+  // fill collapses onto the well. Resolve both CSS colours to sRGB pixels.
+  for (const brand of ["mono", "hockney"]) {
+    await page.evaluate(brand => Object.assign(document.documentElement.dataset, { siteBrand: brand, siteScheme: "light" }), brand);
+    for (const [selector, ground] of [
+      [".motif-calendar-days > span", ".catalog-tile-well"],
+      [".motif-date-picker-panel > span", ".motif-date-picker-panel"],
+    ]) {
+      const contrast = await page.locator(selector).first().evaluate((day, ground) => {
+        const ctx = document.createElement("canvas").getContext("2d");
+        const luminance = element => {
+          ctx.fillStyle = getComputedStyle(element).backgroundColor;
+          ctx.fillRect(0, 0, 1, 1);
+          const [r, g, b] = Array.from(ctx.getImageData(0, 0, 1, 1).data, value => {
+            const s = value / 255;
+            return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        return (luminance(day.closest(ground)) + 0.05) / (luminance(day) + 0.05);
+      }, ground);
+      assert(contrast >= 1.15, `${brand} light: resting cells in ${selector} disappear into ${ground} (${contrast})`);
+    }
+  }
   await page.setViewportSize({ width: 1280, height: 900 });
 }
 

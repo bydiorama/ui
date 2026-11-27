@@ -16,6 +16,7 @@
 @import "./motifs/utilities.css";
 
 .catalog-page {
+  --motif-fill: var(--ui-bg-elevated);
   --catalog-gutter: clamp(16px, 4vw, 32px);
   /* A raised segment, and a panel floating over the page: the look dock's
      two shadows, shared by the controls and the drawings. */
@@ -23,6 +24,11 @@
   --motif-float: 0 8px 24px -4px rgb(29 27 25 / 0.09), 0 2px 8px rgb(29 27 25 / 0.05), inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle);
   width: min(1120px, 100% - 2 * var(--catalog-gutter));
   margin-inline: auto;
+}
+/* In these light looks the elevated ground approaches the white preview well.
+   A tint of the border ink keeps unoutlined shapes visible on the page. */
+:is([data-site-brand="mono"], [data-site-brand="hockney"]) :is(.catalog-page, .motif-date-picker-panel) {
+  --motif-fill: light-dark(color-mix(in oklab, var(--ui-border-default) 32%, var(--motif-ground, var(--ui-bg-base))), var(--ui-bg-elevated));
 }
 .catalog-page h1, .catalog-page h2, .catalog-page p { margin: 0; }
 

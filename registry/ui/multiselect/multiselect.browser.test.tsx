@@ -55,10 +55,13 @@ describe("The behaviour layer carries the combobox contract", () => {
   test("opening exposes a multi-selectable listbox", async () => {
     mount(<Basic />);
     expect(panel()).toBeNull();
+    const field = trigger().parentElement!;
+    const closedHeight = field.getBoundingClientRect().height;
 
     await userEvent.click(trigger());
     await vi.waitFor(() => expect(panel()).not.toBeNull());
 
+    expect(field.getBoundingClientRect().height).toBe(closedHeight);
     const list = document.querySelector('[data-slot="multiselect-list"]')!;
     // aria-multiselectable is the difference between this and a Select, and
     // it is precisely the sort of attribute a hand-rolled version forgets.

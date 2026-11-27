@@ -1,0 +1,31 @@
+---
+import Base from "./Base.astro";
+import "../styles/guides.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  archive?: { label: string; href: string }[];
+}
+
+const { title, description, archive } = Astro.props;
+const links = archive ?? [
+  { label: "Get started", href: "/docs/" },
+  { label: "For agents", href: "/docs/agents/" },
+  { label: "Motion", href: "/docs/motion/" },
+];
+---
+<Base title={title} description={description}>
+  <article class="guide">
+    <header class="guide-head">
+      <h1>{title}</h1>
+      <div class="guide-intro"><slot name="intro" /></div>
+    </header>
+    <div class="guide-layout">
+      <nav class="guide-nav" aria-label={archive ? "Archive by month" : "Documentation"}>
+        {links.map(link => <a href={link.href} aria-current={Astro.url.pathname === link.href ? "page" : undefined}>{link.label}</a>)}
+      </nav>
+      <div class="guide-body"><slot /></div>
+    </div>
+  </article>
+</Base>

@@ -118,7 +118,30 @@ try {
 
   await visit(`${base}/docs/agents/`);
   assert.equal(await page.locator('.desktop-nav [aria-current="page"]').count(), 1, "Only one primary navigation item is current");
-  assert.equal(await page.locator('.desktop-nav [aria-current="page"]').innerText(), "Docs");
+  assert.equal(await page.locator('.desktop-nav [aria-current="page"]').innerText(), "For agents");
+  for (const nav of [".desktop-nav", ".guide-nav"]) {
+    const current = page.locator(`${nav} a[aria-current="page"]`);
+    const neighbour = page.locator(`${nav} a:not([aria-current])`).first();
+    const background = element => getComputedStyle(element).backgroundColor;
+    const selectedFill = await current.evaluate(background);
+    await neighbour.hover();
+    await neighbour.evaluate(async el => { await Promise.all(el.getAnimations().map(animation => animation.finished)); });
+    assert.notEqual(await neighbour.evaluate(background), selectedFill, `${nav}: hover and current need distinct fills`);
+    await current.hover();
+    assert.equal(await current.evaluate(background), selectedFill);
+    await page.emulateMedia({ forcedColors: "active" });
+    assert.equal(await current.evaluate(el => getComputedStyle(el).outlineStyle), "solid");
+    await page.emulateMedia({ forcedColors: "none" });
+  }
+  const desktopViewport = page.viewportSize();
+  await page.setViewportSize({ width: 375, height: 800 });
+  const mobileBar = page.locator(".site-header-inner");
+  await page.locator("html").evaluate(el => { el.dataset.siteEffects = "off"; });
+  const restingBox = await mobileBar.boundingBox();
+  await page.locator("html").evaluate(el => { el.dataset.siteEffects = "on"; });
+  assert.deepEqual(await mobileBar.boundingBox(), restingBox, "The effects edge preserves the mobile header geometry");
+  assert.match(await mobileBar.evaluate(el => getComputedStyle(el, "::after").boxShadow), /inset/);
+  await page.setViewportSize(desktopViewport);
   await visit(`${base}/components/table/`);
   assert.equal(await page.locator('table.props-table').count(), 1, "The API reference is one table, beside the page's live Table example");
   const projectTable = page.getByRole("table", { name: "Project overview", exact: true });

@@ -38,7 +38,7 @@ export function ThemePair() {
   return (
     <div className="theme-pair">
       <div className={effects === "on" ? `theme-pair-well theme-pair-well-dots ${fx("grain")}` : "theme-pair-well theme-pair-well-dots"} data-site-brand="hockney">
-        <DotPattern />
+        <DotPattern className="text-edge-default" />
         <PublishCard brand="Hockney" name="Cipe Pineles" />
       </div>
       <div className={effects === "on" ? `theme-pair-well theme-pair-well-wash ${fx("grain")}` : "theme-pair-well theme-pair-well-wash"} data-site-brand="graphite">

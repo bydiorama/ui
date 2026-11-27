@@ -1,0 +1,39 @@
+@reference "./site.css";
+
+.guide {
+  width: min(1120px, 100% - 2 * clamp(16px, 4vw, 32px));
+  margin-inline: auto;
+  padding-bottom: var(--ui-space-4xl);
+}
+.guide-head, .guide-layout {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(0, 2fr);
+  gap: var(--ui-space-4xl);
+}
+.guide-head {
+  align-items: end;
+  padding-block: clamp(48px, 7vw, 96px);
+}
+.guide-head h1 { font-size: clamp(40px, 4.45vw, 64px); line-height: 1.0625; font-weight: 550; letter-spacing: -0.045em; }
+.guide-intro { @apply text-body-lg; max-width: 54ch; color: var(--ui-text-secondary); }
+.guide-layout { padding-top: var(--ui-space-3xl); align-items: start; }
+.guide-nav { position: sticky; top: 96px; display: flex; align-items: start; flex-direction: column; gap: var(--ui-space-xs); }
+.guide-nav a { @apply text-label-md; display: inline-flex; align-items: center; min-height: var(--ui-control-md-height); padding-inline: var(--ui-space-md); border-radius: var(--ui-radius-full); color: var(--ui-text-secondary); }
+.guide-body { min-width: 0; }
+.guide-body > h2, .archive-month > h2 { @apply text-title-lg; margin-block: var(--ui-space-4xl) var(--ui-space-md); }
+.guide-body > :first-child, .archive-month:first-child > h2 { margin-top: 0; }
+.guide-body > p, .archive-entry p { @apply text-body-lg; color: var(--ui-text-secondary); margin-block: var(--ui-space-md); max-width: 68ch; overflow-wrap: anywhere; }
+.guide-body a { text-decoration: underline; text-underline-offset: 0.18em; }
+.guide-body .code-frame { padding: var(--ui-space-xl); border: var(--ui-stroke-default) solid var(--ui-border-subtle); border-radius: var(--ui-radius-xl); }
+.archive-entry { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: var(--ui-space-lg); padding-block: var(--ui-space-xl); }
+.archive-entry time, .archive-kind { @apply text-label-sm; color: var(--ui-text-muted); }
+.archive-entry h3 { @apply text-title-sm; }
+.archive-entry p { margin-bottom: 0; }
+.archive-entry header { display: flex; flex-wrap: wrap; gap: var(--ui-space-md); align-items: baseline; }
+@media (max-width: 760px) {
+  .guide-head, .guide-layout { grid-template-columns: minmax(0, 1fr); gap: var(--ui-space-xl); }
+  .guide-head { padding-block: var(--ui-space-3xl); }
+  .guide-layout { padding-top: var(--ui-space-xl); }
+  .guide-nav { position: static; flex-direction: row; flex-wrap: wrap; }
+  .archive-entry { grid-template-columns: minmax(0, 1fr); gap: var(--ui-space-sm); }
+}

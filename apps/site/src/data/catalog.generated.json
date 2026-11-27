@@ -1,5 +1,5 @@
 {
-  "sourceHash": "e8f5a36b9b4345ccef896b9387de3331b16468db897e6a744c09b1425fadec43",
+  "sourceHash": "4641b213f385c645b9d1b94c10613e0ab379f80a575cf81bb34d65d9a90b52ee",
   "categories": [
     "Actions",
     "Forms",
@@ -19280,6 +19280,15 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-keep-the-field-stationary-when-its",
+          "date": "2026-11-27",
+          "item": "multiselect",
+          "kind": "fix",
+          "summary": "Keep the field stationary when its options open.",
+          "affects": []
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-23-multiselect-label-on-text-lane",

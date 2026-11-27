@@ -9,11 +9,11 @@ import { catalog } from "../lib/catalog";
 import { copy } from "../lib/copy";
 import { appearanceOptions, appearanceAttributes, appearanceStorageKey, defaultAppearance } from "../lib/appearance";
 const { title = "Diorama UI", description = copy.description } = Astro.props;
-const nav = [{ label: "Components", href: "/components/" }, { label: "Docs", href: "/docs/" }, { label: "Changelog", href: "/changelog/" }];
+const nav = [{ label: "Components", href: "/components/" }, { label: "Get started", href: "/docs/" }, { label: "For agents", href: "/docs/agents/" }, { label: "Changelog", href: "/changelog/" }];
 const footerNav = [{ label: "Components", href: "/components/" }, { label: "Docs", href: "/docs/" }, { label: "For agents", href: "/docs/agents/" }, { label: "Changelog", href: "/changelog/" }, { label: "GitHub", href: copy.repository }];
 const searchEntries = catalog.items.map(({ name, title, lead, category }) => ({ name, title, lead, category }));
-// A section's pages (a component, a docs guide) keep their section current.
-const isCurrent = (href: string) => Astro.url.pathname === href || ((href === "/components/" || href === "/docs/") && Astro.url.pathname.startsWith(href));
+// Component detail pages keep the catalog link current.
+const isCurrent = (href: string) => Astro.url.pathname === href || (href === "/components/" && Astro.url.pathname.startsWith(href));
 const headerButton = buttonClassName({ variant: "secondary", size: "sm", shape: "full" });
 ---
 <!doctype html>
@@ -52,14 +52,13 @@ const headerButton = buttonClassName({ variant: "secondary", size: "sm", shape: 
         <div class="header-tools">
           <Search entries={searchEntries} client:idle />
           <a class:list={[headerButton, "github-link"]} href={copy.repository} data-slot="button" data-variant="secondary" data-fx-on="glass inner"><Github aria-hidden="true" />GitHub<ArrowUpRight className="github-link-arrow" aria-hidden="true" /></a>
-          <a class:list={[headerButton, "start-link"]} href="/docs/" data-slot="button" data-variant="secondary" data-fx-on="glass inner">Get started</a>
           <div class="mobile-nav"><MobileNav links={[...nav.map(item => ({ ...item, isCurrent: isCurrent(item.href) })), { label: "GitHub", href: copy.repository, isExternal: true }]} client:idle /></div>
         </div>
       </div>
       <span class="site-header-fade" aria-hidden="true"><Fade side="top" size="md" ground="affix" /></span>
     </header>
     <main id="main" tabindex="-1"><slot /></main>
-    <footer class="site-footer"><p>{copy.footer}</p><nav aria-label="Footer">{footerNav.map(item => <a href={item.href}>{item.label}</a>)}</nav></footer>
+    <footer class="site-footer"><p>Built by <a href={copy.studio} target="_blank" rel="noopener noreferrer">Diorama</a>.</p><nav aria-label="Footer">{footerNav.map(item => <a href={item.href}>{item.label}</a>)}</nav></footer>
     <script>
       import "../lib/interactions";
     </script>

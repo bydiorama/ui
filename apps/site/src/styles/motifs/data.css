@@ -75,7 +75,7 @@
 
 .motif-table { display: flex; flex-direction: column; width: 212px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); overflow: clip; letter-spacing: 0; }
 .motif-table-head, .motif-table-row { display: flex; align-items: center; padding-inline: 10px; }
-.motif-table-head { height: 26px; background: var(--ui-bg-elevated); font-size: 10px; line-height: 12px; font-weight: 600; color: var(--ui-text-muted); }
+.motif-table-head { height: 26px; background: var(--motif-fill); font-size: 10px; line-height: 12px; font-weight: 600; color: var(--ui-text-muted); }
 .motif-table-row { height: 28px; border-top: 1px solid var(--ui-border-subtle); font-size: 11px; line-height: 14px; font-weight: 500; }
 .motif-table-head > span:first-child, .motif-table-row > span:first-child { width: 84px; flex-shrink: 0; }
 .motif-table-head > span:nth-child(2), .motif-table-row > span:nth-child(2) { width: 64px; flex-shrink: 0; }

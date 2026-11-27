@@ -8,7 +8,7 @@
 .motif-dropdown { display: flex; flex-direction: column; gap: 6px; width: 180px; align-self: flex-start; margin-top: 28px; }
 .motif-dropdown-panel { display: flex; flex-direction: column; padding: 4px; border-radius: 12px; background: var(--ui-bg-surface); box-shadow: var(--motif-float); }
 .motif-dropdown-panel > span { display: flex; align-items: center; justify-content: space-between; height: 28px; padding-inline: 8px; border-radius: 8px; font-weight: 500; }
-.motif-dropdown-panel > .is-active { background: var(--ui-bg-elevated); }
+.motif-dropdown-panel > .is-active { background: var(--motif-fill); }
 
 /* Checkbox and radio rows. */
 .motif-choices { display: flex; flex-direction: column; gap: 14px; }
@@ -24,12 +24,12 @@
 .motif-calendar-head > span + span { font-weight: 500; letter-spacing: 0; color: var(--ui-text-muted); }
 .motif-calendar-days, .motif-date-picker-panel { display: grid; justify-content: space-between; }
 .motif-calendar-days { grid-template-columns: repeat(7, 18px); gap: 6px 0; }
-.motif-calendar-days > span, .motif-date-picker-panel > span { aspect-ratio: 1; background: var(--ui-bg-elevated); }
+.motif-calendar-days > span, .motif-date-picker-panel > span { aspect-ratio: 1; background: var(--motif-fill); }
 .motif-calendar-days > span { border-radius: 6px; }
 .motif-calendar-days > .is-today { background: none; box-shadow: inset 0 0 0 1.5px var(--ui-text-primary); }
 .motif-calendar-days > .is-selected, .motif-date-picker-panel > .is-selected { background: var(--ui-bg-accent); }
 
-.motif-date-picker-panel { grid-template-columns: repeat(7, 16px); gap: 5px 0; padding: 10px; border-radius: 12px; background: var(--ui-bg-surface); box-shadow: var(--motif-float); }
+.motif-date-picker-panel { --motif-ground: var(--ui-bg-surface); grid-template-columns: repeat(7, 16px); gap: 5px 0; padding: 10px; border-radius: 12px; background: var(--motif-ground); box-shadow: var(--motif-float); }
 .motif-date-picker-panel > span { border-radius: 5px; }
 
 /* The picker's field and hue strip are colour itself, not theme roles: the
@@ -49,7 +49,7 @@
 
 .motif-multiselect { display: flex; align-items: center; justify-content: space-between; width: 212px; height: 44px; padding: 0 12px 0 6px; border-radius: 12px; box-shadow: inset 0 0 0 1.5px var(--ui-border-subtle); color: var(--ui-text-muted); }
 .motif-multiselect-chips { display: flex; gap: 4px; }
-.motif-multiselect-chips > span { display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 8px 0 10px; border-radius: 8px; background: var(--ui-bg-elevated); font-size: 12px; font-weight: 500; color: var(--ui-text-primary); }
+.motif-multiselect-chips > span { display: flex; align-items: center; gap: 4px; height: 30px; padding: 0 8px 0 10px; border-radius: 8px; background: var(--motif-fill); font-size: 12px; font-weight: 500; color: var(--ui-text-primary); }
 .motif-multiselect-chips svg { color: var(--ui-text-muted); }
 
 .motif-slider { display: flex; flex-direction: column; gap: 14px; width: 184px; }

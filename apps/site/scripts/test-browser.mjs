@@ -206,7 +206,18 @@ try {
   // in place (ADR 0028), and axe measuring mid-fade reads the results'
   // translucent text as a contrast failure.
   await page.getByRole("textbox", { name: "Search the library" }).waitFor();
-  await settled();
+  // settled() alone was not enough on a loaded runner: it can run before the
+  // results' fade has started, find nothing to wait for, and let axe read the
+  // text at partial opacity. Wait until the dialog's text is opaque and no
+  // finite animation has run for two frames in a row.
+  await page.waitForFunction(() => new Promise(resolve => {
+    const busy = () => document.getAnimations().some(a => a.playState === "running" && a.effect?.getTiming().iterations !== Infinity);
+    const opaque = () => [...document.querySelectorAll('[data-slot="modal-title"], [data-slot="modal-description"]')].every(el => {
+      for (let n = el; n; n = n.parentElement) if (getComputedStyle(n).opacity !== "1") return false;
+      return true;
+    });
+    requestAnimationFrame(() => { const first = !busy(); requestAnimationFrame(() => resolve(first && !busy() && opaque())); });
+  }), null, { polling: 100, timeout: 10000 });
   const themed = await audit(page).analyze();
   if (themed.violations.length) errors.push(`Stress theme search: ${themed.violations.map(v => `${v.id}: ${v.nodes.map(n => n.html).join("; ")}`).join(", ")}`);
   await page.keyboard.press("Escape");

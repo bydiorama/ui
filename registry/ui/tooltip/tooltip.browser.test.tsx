@@ -11,7 +11,6 @@ import { Button } from "../button/button.tsx";
 import {
   HOVER_INTENT_DELAY_MS,
   HOVER_INTENT_CLOSE_MS,
-  HOVER_INTENT_SKIP_MS,
 } from "@/lib/motion";
 
 let container: HTMLDivElement | null = null;
@@ -311,15 +310,16 @@ describe("timing comes from lib/motion, not from a call site", () => {
     await past(HOVER_INTENT_DELAY_MS);
     expect(chip()!.textContent).toContain("First");
 
-    // Well inside the skip window, and well under the open delay: without the
-    // provider this assertion is the one that fails. Polled, not slept: a
-    // fixed 80ms read on a slow CI runner caught the chip between the first
-    // closing and the second opening. The timeout is half the open delay, so
-    // a chip that waited out the delay still fails it.
+    // The neighbour must open WITHOUT waiting out the open delay. Base UI
+    // marks a popup opened in the provider's instant phase with
+    // data-instant="delay", so read that rather than racing a clock: a
+    // deadline of half the open delay failed on loaded CI runners with the
+    // behaviour intact. Without the provider the chip still opens, after the
+    // delay, and carries no mark, so this assertion is still the one that
+    // fails.
     await userEvent.hover(second!);
-    await expect
-      .poll(() => chip()?.textContent ?? "", { timeout: Math.min(HOVER_INTENT_SKIP_MS, HOVER_INTENT_DELAY_MS / 2), interval: 10 })
-      .toContain("Second");
+    await vi.waitFor(() => expect(chip()?.textContent ?? "").toContain("Second"), { timeout: HOVER_INTENT_DELAY_MS * 3 });
+    expect(chip()!.getAttribute("data-instant")).toBe("delay");
   });
 
   test("only ONE tooltip is open at a time, whatever the callers ask for", async () => {

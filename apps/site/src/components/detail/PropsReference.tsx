@@ -1,6 +1,8 @@
 import { Fragment, useId, useState } from "react";
 import { ChevronDown } from "griddy-icons";
 import { Badge } from "@/ui/badge";
+import { Presence } from "@/ui/presence";
+import { TextSwap } from "@/ui/text-swap";
 import { Button } from "@/ui/button";
 import type { Item } from "../../lib/catalog";
 import { plainDefault, typeChips } from "../../lib/detail";
@@ -51,17 +53,19 @@ export function PropsReference({ title, props, visible = 6 }: { title: string; p
                     {prop.notes && <Button variant="ghost" size="sm" shape="soft" isIconOnly className="prop-disclosure" aria-label={`${name} details`} aria-expanded={isOpen} aria-controls={isOpen ? noteId : undefined} onClick={() => toggle(name)} icon={<ChevronDown aria-hidden="true" />} />}
                   </td>
                 </tr>
-                {isOpen && prop.notes && (
-                  <tr className={isExtra ? "props-note-row props-extra" : "props-note-row"} data-collapsed={isHidden || undefined}>
-                    <td colSpan={4}><p className="props-note" id={noteId}>{prop.notes}</p></td>
-                  </tr>
-                )}
+                <Presence kind="fade">
+                  {isOpen && prop.notes && (
+                    <tr key={noteId} className={isExtra ? "props-note-row props-extra" : "props-note-row"} data-collapsed={isHidden || undefined}>
+                      <td colSpan={4}><p className="props-note" id={noteId}>{prop.notes}</p></td>
+                    </tr>
+                  )}
+                </Presence>
               </Fragment>
             );
           })}
         </tbody>
       </table>
-      {hiddenCount > 0 && <div className="props-more"><Button variant="ghost" size="sm" aria-expanded={showAll} iconEnd={<ChevronDown aria-hidden="true" />} onClick={() => setShowAll(value => !value)} data-open={showAll || undefined}>{showAll ? "Show fewer props" : `Show ${hiddenCount} more ${hiddenCount === 1 ? "prop" : "props"}`}</Button></div>}
+      {hiddenCount > 0 && <div className="props-more"><Button variant="ghost" size="sm" aria-expanded={showAll} iconEnd={<ChevronDown aria-hidden="true" />} onClick={() => setShowAll(value => !value)} data-open={showAll || undefined}><TextSwap>{showAll ? "Show fewer props" : `Show ${hiddenCount} more ${hiddenCount === 1 ? "prop" : "props"}`}</TextSwap></Button></div>}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+@reference "../../../../registry/themes/theme-zero/theme-zero.css";
+
 /* The component detail page (Paper: "Component detail v3 — Button · 1440").
    The catalog's language carried in: one 1120 column on the page ground, a
    surface tile with a base well for the live example, a quiet rail beside
@@ -39,6 +41,8 @@
 /* ----------------------------------------------------------------- stage */
 .preview-frame { padding-bottom: 8px; background: var(--ui-bg-surface); border-radius: 32px; overflow: clip; }
 .preview-frame .stage .stage-well { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 400px; height: auto; margin: 8px 8px 0; padding: 24px; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); border-radius: 24px; background: var(--ui-bg-base); overflow: clip; }
+/* Release the outgoing panel’s layout space as soon as Tabs deactivates it. */
+.preview-frame .stage > [role="tabpanel"][inert] { display: none; }
 /* The source, highlighted at build time. Its colours are the theme's roles (Astro's
    css-variables theme reads these), so a brand or scheme change re-inks it. Long lines
    wrap at the panel edge, and the panel is as tall as the example's well so
@@ -69,7 +73,7 @@
 .stage-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 8px 20px 0; }
 .look-trigger { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0; border: 0; background: none; font: inherit; font-size: 13px; line-height: 16px; font-weight: 600; color: var(--ui-text-primary); cursor: pointer; }
 .look-trigger .look-swatch { width: 10px; height: 10px; }
-.look-trigger svg { width: 14px; height: 14px; flex-shrink: 0; transition: rotate var(--ui-duration-fast) var(--ui-ease-default); }
+.look-trigger svg { width: 14px; height: 14px; flex-shrink: 0; @variant motion-safe { transition: rotate var(--ui-motion-micro); } }
 .look-trigger[data-popup-open] svg { rotate: 180deg; }
 .look-trigger:focus-visible { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: 4px; border-radius: var(--ui-radius-sm); }
 /* The look panel: the looks, then Effects and Dark under them, on the page ground. */
@@ -82,11 +86,11 @@
 .detail-rail { position: sticky; top: 96px; display: flex; flex-direction: column; gap: 40px; padding-top: 6px; }
 .detail-rail nav { display: flex; flex-direction: column; gap: 4px; }
 .detail-rail h2 { padding-bottom: 8px; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ui-text-muted); }
-.detail-rail a { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; font-size: 14px; line-height: 18px; font-weight: 500; color: var(--ui-text-muted); transition: color var(--ui-duration-fast) var(--ui-ease-default); }
+.detail-rail a { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; font-size: 14px; line-height: 18px; font-weight: 500; color: var(--ui-text-muted); transition: color var(--ui-motion-micro); }
 .detail-rail a:hover, .detail-rail a[aria-current] { color: var(--ui-text-primary); }
 .detail-rail a[aria-current] { font-weight: 600; }
 /* The family: a current item is a fill with a small corner, never a bar. */
-.detail-rail nav + nav a:not(.detail-all) { min-height: 36px; margin-inline: -12px; padding-inline: 12px; border-radius: var(--ui-radius-sm); color: var(--ui-text-primary); transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
+.detail-rail nav + nav a:not(.detail-all) { min-height: 36px; margin-inline: -12px; padding-inline: 12px; border-radius: var(--ui-radius-sm); color: var(--ui-text-primary); transition: background-color var(--ui-motion-micro); }
 .detail-rail nav + nav a:not(.detail-all):hover { background: var(--ui-bg-hover); }
 .detail-rail nav + nav a[aria-current="page"] { background: var(--ui-bg-elevated); }
 .detail-rail .detail-all { min-height: 28px; margin-top: 8px; justify-content: flex-start; gap: 6px; font-size: 13px; line-height: 16px; }
@@ -126,7 +130,7 @@
 .props-default { padding-inline: 0; font-size: 14px; line-height: 24px; letter-spacing: -0.02em; color: var(--ui-text-muted); overflow-wrap: anywhere; }
 .props-toggle { padding-block: 14px 0; text-align: end; }
 .props-row[data-open] .props-toggle { padding-top: 14px; }
-.prop-disclosure svg { transition: rotate var(--ui-duration-fast) var(--ui-ease-default); }
+.prop-disclosure svg, .props-more svg { @variant motion-safe { transition: rotate var(--ui-motion-micro); } }
 .props-row[data-open] .prop-disclosure svg { rotate: 180deg; }
 .props-note-row td { padding: 0 0 22px 184px; border-bottom: var(--ui-stroke-default) solid var(--ui-border-subtle); }
 .props-note { max-width: 520px; font-size: 14px; line-height: 22px; letter-spacing: -0.01em; color: var(--ui-text-muted); }
@@ -170,7 +174,7 @@
   .pager-card { background-color: var(--ui-bg-surface); box-shadow: inset 0 0 0 var(--ui-stroke-default) var(--ui-border-subtle); }
   .pager-card:hover { background-color: var(--ui-bg-elevated); }
 }
-.pager-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 24px 28px 28px; border-radius: 24px; transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
+.pager-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 24px 28px 28px; border-radius: 24px; transition: background-color var(--ui-motion-micro); }
 .pager-card[data-side="next"] { align-items: flex-end; text-align: end; }
 .pager-card span { display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 16px; font-weight: 500; color: var(--ui-text-muted); }
 .pager-card svg { width: 14px; height: 14px; flex-shrink: 0; }

@@ -1,3 +1,5 @@
+import { motionLevel, subscribeMotionLevel } from "@/lib/motion";
+import { durationOf } from "../../lib/site-motion";
 import { GRAIN, HOME, INK, baseOf, layers, riseOf } from "./layers";
 
 /*
@@ -52,20 +54,12 @@ const smooth = (low: number, high: number, value: number) => { const t = clamp((
  *  small continuous noise. The solid is clipped by the same front. */
 const erosion = (x: number, y: number) => clamp(0.08 + Math.hypot(x - 120, y - 120) / 340 * 0.6 + 0.038 * Math.sin(x * 0.19 + y * 0.11) + 0.023 * Math.cos(x * -0.14 + y * 0.29), 0.04, 0.85);
 
-/** A duration token in milliseconds. A build may rewrite `2000ms` as `2s`,
- *  so the unit is read, not assumed. */
-export function durationOf(element: Element, name: string, fallback: number) {
-  const match = /^(-?[\d.]+)(ms|s)$/.exec(getComputedStyle(element).getPropertyValue(name).trim());
-  if (!match) return fallback;
-  return Number(match[1]) * (match[2] === "s" ? 1000 : 1);
-}
-
 export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: number) => void }): StackEngine {
   const svg = root.querySelector<SVGSVGElement>(".stack-svg")!;
   const canvas = root.querySelector<HTMLCanvasElement>(".stack-grains")!;
   const context = canvas.getContext("2d")!;
   const page = document.documentElement;
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let quiet = motionLevel(root) !== "full";
   const dark = window.matchMedia("(prefers-color-scheme: dark)");
   const last = layers.length - 1;
   const stop = new AbortController();
@@ -139,14 +133,14 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
     plates.forEach((plate, index) => {
       const isWaiting = index > active;
       plate.rise.goal = riseOf(index, active);
-      plate.gone.goal = isWaiting && !reduce.matches ? 1 : 0;
+      plate.gone.goal = isWaiting && !quiet ? 1 : 0;
       plate.dense.goal = isWaiting ? GRAIN[index - active]! : 1;
       plate.el.dataset.state = index < active ? "settled" : index === active ? "active" : "ghost";
-      plate.el.style.setProperty("--stack-o", String(reduce.matches && isWaiting ? INK[index - active] : 1));
+      plate.el.style.setProperty("--stack-o", String(quiet && isWaiting ? INK[index - active] : 1));
       // Objects are needed on the current plate and under the Proof film,
       // which is see-through. Anywhere else they are switched off once the
       // plate has been covered or has dissolved.
-      const isShown = index === active || (index === active - 1 && layers[active]!.key === "proof") || reduce.matches;
+      const isShown = index === active || (index === active - 1 && layers[active]!.key === "proof") || quiet;
       window.clearTimeout(plate.art);
       if (isShown) plate.el.removeAttribute("data-art");
       else plate.art = window.setTimeout(() => plate.el.setAttribute("data-art", "off"), 2 * pace.enter + pace.step);
@@ -163,7 +157,7 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
     frame = 0;
     const dt = Math.min(0.05, (now - before) / 1000 || 0.016);
     before = now;
-    const isJump = reduce.matches || isInstant;
+    const isJump = quiet || isInstant;
     const ease = (value: Eased, rate: number) => {
       if (value.now === value.goal) return false;
       value.now += (value.goal - value.now) * (isJump ? 1 : 1 - Math.exp(-rate * dt));
@@ -241,7 +235,7 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
       quality = clamp(quality + (cost > 6 ? -0.04 : cost < 3 ? 0.02 : 0), 0.35, 1);
     }
     if (isInstant && !isMoving) { isInstant = false; window.requestAnimationFrame(() => root.removeAttribute("data-instant")); }
-    if (isMoving || (hasGrains && isSeen && !document.hidden && !reduce.matches)) kick();
+    if (isMoving || (hasGrains && isSeen && !document.hidden && !quiet)) kick();
   }
 
   function paint(clock: number, hasGrains: boolean) {
@@ -296,7 +290,7 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
       turn.user = clamp(drag.from - dx * 0.28, 18, 72);
       turn.lean = 0;
       kick();
-    } else if (!drag && event.pointerType === "mouse" && !reduce.matches) {
+    } else if (!drag && event.pointerType === "mouse" && !quiet) {
       const box = svg.getBoundingClientRect();
       turn.lean = ((event.clientX - box.left) / box.width - 0.5) * -7;
       kick();
@@ -324,7 +318,8 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
     const next = page.dataset.siteBrand ?? "";
     if (next === brand) { reink(); return; }
     wave.forEach(window.clearTimeout);
-    const beat = reduce.matches ? 0 : pace.step;
+    if (quiet) { brand = next; reink(); return; }
+    const beat = pace.step;
     // Runs before the page paints its new brand, so no plate shows it early.
     for (const plate of plates) plate.el.dataset.siteBrand ||= brand;
     brand = next;
@@ -339,7 +334,18 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
   const sight = new IntersectionObserver(([entry]) => { isSeen = entry!.isIntersecting; if (isSeen) kick(); });
   sight.observe(svg);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) kick(); }, listen);
-  reduce.addEventListener("change", render, listen);
+  const unsubscribe = subscribeMotionLevel(() => {
+    const next = motionLevel(root) !== "full";
+    if (next === quiet) return;
+    quiet = next;
+    if (quiet) {
+      turn.lean = 0;
+      wave.forEach(window.clearTimeout);
+      for (const plate of plates) delete plate.el.dataset.siteBrand;
+      reink();
+    }
+    render();
+  });
   // The canvas is measured when its box changes, never inside a frame.
   const measure = new ResizeObserver(() => {
     const ratio = Math.min(window.devicePixelRatio || 1, maxRatio);
@@ -359,6 +365,7 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
     },
     destroy() {
       stop.abort();
+      unsubscribe();
       themes.disconnect();
       sight.disconnect();
       measure.disconnect();

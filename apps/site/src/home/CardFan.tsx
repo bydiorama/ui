@@ -1,4 +1,6 @@
 import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { Count } from "@/ui/count";
+import { slideRadioSelection } from "../lib/site-motion";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card } from "@/ui/card";
@@ -69,11 +71,11 @@ export function CardFan() {
         <Switch isLabelHidden defaultIsChecked className={`fan-switch ${appearance.effects === "on" ? fx("glow") : ""}`}>Try the switch</Switch>
       </FanCard>
       <FanCard index={1} title="Slider">
-        <div className="fan-value" aria-hidden="true">{level}</div>
+        <div className="fan-value" aria-hidden="true"><Count value={level} locale="en" /></div>
         <Slider label="Level" isLabelHidden size="sm" value={level} onValueChange={setLevel} className={appearance.effects === "on" ? fx("sheen") : ""} />
       </FanCard>
       <FanCard index={2} title="Button" tone="inverse">
-        <p className="fan-count" aria-live="polite">Pressed {presses} times</p>
+        <p className="fan-count" aria-live="polite">Pressed <Count value={presses} locale="en" /> times</p>
         <Button variant="inverse" size="lg" isFullWidth className={appearance.effects === "on" ? fx("sheen", "grain") : undefined} onClick={() => setPresses(count => count + 1)}>Press me</Button>
       </FanCard>
       <FanCard index={3} title="Badge">
@@ -88,7 +90,11 @@ export function CardFan() {
         <div className="fan-looks" role="radiogroup" aria-label="Look">
           {looks.map(look => (
             <label key={look.value} className="fan-look" data-site-brand={look.value} data-selected={appearance.brand === look.value ? "" : undefined}>
-              <input type="radio" name="fan-look" value={look.value} checked={appearance.brand === look.value} onChange={() => setAppearance("brand", look.value)} />
+              <input type="radio" name="fan-look" value={look.value} checked={appearance.brand === look.value} onChange={event => {
+                slideRadioSelection(event.currentTarget);
+                setAppearance("brand", look.value);
+              }} />
+              <span className="selection-fill" aria-hidden="true" />
               <span className="sr-only">{look.label}</span>
             </label>
           ))}

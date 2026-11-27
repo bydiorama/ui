@@ -292,3 +292,50 @@ export async function checkMotionSetting(page, base) {
   await lab.getByText("System", { exact: true }).click();
   assert.deepEqual(await level(), ["auto", "full", "1"], "System hands the choice back");
 }
+
+// Exercise the site-owned animations under opposing OS and page preferences.
+// A setting change must reach a running clock as well as newly clicked controls.
+export async function checkSiteMotion(page, base) {
+  await page.goto(base);
+  const root = page.locator("html");
+  const setLevel = level => root.evaluate((el, value) => { el.dataset.uiMotion = value; }, level);
+  const cursor = page.locator(".terminal-cursor");
+  await cursor.scrollIntoViewIfNeeded();
+  await page.waitForSelector("[data-revealed] .terminal-cursor", { state: "attached" });
+  const stack = page.locator(".stack");
+  await stack.scrollIntoViewIfNeeded();
+  await page.locator('astro-island[component-export="LayerStack"]:not([ssr])').waitFor({ state: "attached" });
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await setLevel("full");
+  await page.waitForSelector(".stack[data-touring]", { state: "attached" });
+  assert.equal(await cursor.evaluate(el => getComputedStyle(el).animationName), "terminal-blink");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  for (const level of ["reduced", "off"]) {
+    await setLevel(level);
+    await page.waitForSelector(".stack:not([data-touring])", { state: "attached" });
+    assert.equal(await cursor.evaluate(el => getComputedStyle(el).animationName), "none");
+    assert.equal(await page.locator('.look-dock-slot .look-swatch[data-site-brand="zero"]').evaluate(el => getComputedStyle(el).getPropertyValue("--ui-motion-level").trim()), level, "A Zero swatch inherits the page motion level");
+    assert.equal(await page.locator(".terminal-typed").evaluate(el => getComputedStyle(el).clipPath), "none");
+    assert.equal(await page.locator(".hero-reel").evaluate(el => el.hasAttribute("data-instant")), true);
+  }
+
+  await page.goto(`${base}/components/`);
+  const status = page.locator(".catalog-segments [data-status-filter]");
+  for (const [level, index] of [["full", 1], ["reduced", 2], ["off", 0]]) {
+    await setLevel(level);
+    const motion = await status.nth(index).evaluate(button => {
+      button.click();
+      const fill = button.querySelector(".selection-fill");
+      const css = getComputedStyle(fill);
+      return { sliding: fill.getAnimations().some(a => a.id === "selection-slide"), duration: css.transitionDuration };
+    });
+    assert.equal(motion.sliding, level === "full", `Catalog selection travel at ${level}`);
+    if (level === "off") assert.equal(motion.duration, "0.001s", "Off resolves the fill transition to 1ms");
+    assert.equal(await status.nth(index).getAttribute("aria-pressed"), "true");
+  }
+  await setLevel("full");
+  await page.locator(".catalog-controls").evaluate(el => { el.dataset.uiMotion = "off"; });
+  assert.equal(await status.first().locator(".selection-fill").evaluate(el => getComputedStyle(el).transitionDuration), "0.001s", "A local Off region re-resolves the inherited timing pair");
+  await setLevel("auto");
+}

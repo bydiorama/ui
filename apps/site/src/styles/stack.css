@@ -1,3 +1,5 @@
+@reference "../../../../registry/themes/theme-zero/theme-zero.css";
+
 /* The layer stack (Paper: "Home v3 — Stack section · 1440", and "Stack —
    Layer assets (top down)" for each plate). A card like the features above
    it: the drawing in a well on the left, a legend on the right that lists
@@ -121,14 +123,14 @@ html[data-site-effects="on"] .stack-part[data-ink] > .stack-f[style*="var(--ui-b
 .stack-list { display: flex; flex-direction: column; margin: 0; padding: 24px 0 0; list-style: none; }
 .stack-item { position: relative; border-top: 1px solid var(--ui-border-subtle); }
 .stack-item::before { content: ""; position: absolute; inset: -1px 0 auto; height: 1px; background: var(--ui-text-primary); transform-origin: 0 50%; scale: 0 1; pointer-events: none; }
-.stack-item[data-open]::before { scale: 1 1; transition: scale var(--ui-motion-deliberate); }
+.stack-item[data-open]::before { scale: 1 1; @variant motion-safe { transition: scale var(--ui-motion-deliberate); } }
 .stack[data-touring] .stack-item[data-open]:not([data-counting])::before { scale: 0 1; transition: none; }
 .stack[data-touring] .stack-item[data-open][data-counting]::before { scale: 1 1; transition: scale var(--stack-dwell) linear; }
 .stack-item h3 { font: inherit; }
 .stack-row { display: block; width: 100%; padding: 12px 0; border: 0; border-radius: var(--ui-radius-sm); background: none; text-align: left; font: inherit; font-size: 14px; line-height: 18px; font-weight: 550; letter-spacing: inherit; color: var(--ui-text-muted); cursor: pointer; transition: color var(--ui-motion-deliberate); }
 @media (hover: hover) { .stack-row:hover { color: var(--ui-text-primary); } }
 .stack-item[data-open] .stack-row { color: var(--ui-text-primary); }
-.stack-panel { display: grid; grid-template-rows: 0fr; visibility: hidden; opacity: 0; transition: grid-template-rows var(--ui-motion-choreographed), opacity var(--ui-motion-deliberate), visibility 0s var(--ui-duration-enter); }
+.stack-panel { display: grid; grid-template-rows: 0fr; visibility: hidden; opacity: 0; transition: opacity var(--ui-motion-micro), visibility 0s var(--ui-duration-fast); @variant motion-safe { transition: grid-template-rows var(--ui-motion-standard), opacity var(--ui-motion-micro), visibility 0s var(--ui-duration-base); } }
 .stack-item[data-open] .stack-panel { grid-template-rows: 1fr; visibility: visible; opacity: 1; transition-delay: 0s; }
 .stack-panel p { min-height: 0; overflow: hidden; font-size: 15px; line-height: 23px; color: var(--ui-text-muted); text-wrap: pretty; }
 .stack-item[data-open] .stack-panel p { margin-top: -4px; padding-bottom: 12px; }

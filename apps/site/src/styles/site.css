@@ -33,13 +33,13 @@ html[data-site-scheme="dark"] [data-site-brand] { color-scheme: dark; }
 /* Effects switching on or off: the page cross-fades (appearance.ts). Only for
    that switch, so other view transitions keep the browser's default. */
 html[data-effects-fade]::view-transition-old(root),
-html[data-effects-fade]::view-transition-new(root) { animation-duration: var(--ui-duration-slow); animation-timing-function: var(--ui-ease-default); }
-.site-header { position: sticky; top: 0; z-index: var(--ui-z-sticky); transition: background-color var(--ui-duration-base) var(--ui-ease-default); }
+html[data-effects-fade]::view-transition-new(root) { animation-duration: var(--ui-duration-slow); animation-timing-function: var(--ui-ease-out); }
+.site-header { position: sticky; top: 0; z-index: var(--ui-z-sticky); transition: background-color var(--ui-motion-standard); }
 .site-header[data-scrolled] { background: var(--ui-bg-affix); }
 /* Under the pinned bar, a Fade in the bar's own affix ground: content
    dissolves into the bar instead of meeting a hard edge. Shown once the page
    has moved under it. */
-.site-header-fade { position: absolute; top: 100%; left: 0; right: 0; height: var(--ui-space-3xl); pointer-events: none; opacity: 0; transition: opacity var(--ui-duration-base) var(--ui-ease-default); }
+.site-header-fade { position: absolute; top: 100%; left: 0; right: 0; height: var(--ui-space-3xl); pointer-events: none; opacity: 0; transition: opacity var(--ui-motion-standard); }
 .site-header[data-scrolled] .site-header-fade { opacity: 1; }
 /* Effects on: the bar is glass over what scrolls beneath it. */
 html[data-site-effects="on"] .site-header[data-scrolled] { background: var(--ui-bg-glass); -webkit-backdrop-filter: blur(18px) saturate(1.6); backdrop-filter: blur(18px) saturate(1.6); }
@@ -49,7 +49,7 @@ html[data-site-effects="on"] .site-header-fade { display: none; }
 .wordmark { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; line-height: 18px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; justify-self: start; }
 .desktop-nav, .header-tools { display: flex; align-items: center; gap: 28px; }
 .desktop-nav { @apply text-label-md; color: var(--ui-text-muted); }
-.desktop-nav a { transition: color var(--ui-duration-fast) var(--ui-ease-default); }
+.desktop-nav a { transition: color var(--ui-motion-micro); }
 .desktop-nav a[aria-current="page"], .desktop-nav a:hover { color: var(--ui-text-primary); }
 .header-tools { @apply text-body-sm; justify-self: end; gap: var(--ui-space-sm); }
 .header-tools kbd { @apply text-label-sm;  border-radius: var(--ui-radius-sm); background: var(--ui-bg-sunken); padding: 0 var(--ui-space-xs); color: var(--ui-text-muted); }
@@ -72,8 +72,18 @@ html[data-site-effects="on"] .site-header-fade { display: none; }
 .install-line { display: flex; align-items: center; gap: var(--ui-space-md); min-width: 0; }
 .install-line code { @apply text-body-md;  overflow-wrap: anywhere; }
 .install-line button, .code-heading button { @apply text-label-sm;  color: var(--ui-text-muted); flex-shrink: 0; min-height: 28px; padding: 2px var(--ui-space-xs); }
+.selection-fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  @variant motion-reduce { transition: opacity var(--ui-motion-micro); }
+}
+:is([data-selected], [aria-pressed="true"]) > .selection-fill { opacity: 1; }
 /* A look change resolves in one paint, without every control tweening between themes. */
-html[data-appearance-changing] :where(:not(.look-fill)), html[data-appearance-changing] *::before, html[data-appearance-changing] *::after { transition: none !important; }
+html[data-appearance-changing] :where(:not(.selection-fill)), html[data-appearance-changing] *::before, html[data-appearance-changing] *::after { transition: none !important; }
 .specimen-well { min-height: 240px; min-width: 0; background: light-dark(var(--ui-bg-elevated), var(--ui-bg-surface)); border-radius: var(--ui-radius-lg); display: flex; align-items: center; justify-content: center; padding: var(--ui-space-xl); }
 .specimen-well > astro-island { display: contents; }
 /* Keep the chart's server-rendered width inside the example until its
@@ -101,7 +111,7 @@ html[data-appearance-changing] :where(:not(.look-fill)), html[data-appearance-ch
 .philosophy a { display: inline-block; margin-top: var(--ui-space-sm); @apply text-label-md; }
 .site-footer { @apply text-label-md; max-width: 1120px; min-height: 72px; box-sizing: content-box; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: var(--ui-space-xl); padding: 0 var(--ui-space-xl); color: var(--ui-text-muted); }
 .site-footer nav { display: flex; flex-wrap: wrap; gap: 28px; }
-.site-footer a { transition: color var(--ui-duration-fast) var(--ui-ease-default); }
+.site-footer a { transition: color var(--ui-motion-micro); }
 .site-footer a:hover { color: var(--ui-text-primary); }
 .page-content { padding-top: calc(var(--ui-space-4xl) + var(--ui-space-sm)); }
 .page-intro { max-width: 640px; margin-bottom: var(--ui-space-3xl); }

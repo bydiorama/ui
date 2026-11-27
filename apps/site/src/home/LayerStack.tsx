@@ -1,5 +1,7 @@
 import { memo, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { durationOf, mountStack, type StackEngine } from "./stack/engine";
+import { motionLevel, subscribeMotionLevel } from "@/lib/motion";
+import { durationOf } from "../lib/site-motion";
+import { mountStack, type StackEngine } from "./stack/engine";
 import { HOME, INK, baseOf, layers, riseOf, stateOf } from "./stack/layers";
 import { plates } from "./stack/plates";
 import { role } from "./stack/parts";
@@ -97,10 +99,9 @@ export function LayerStack() {
     const mounted = mountStack(element, { onPick: setActive });
     engine.current = mounted;
     // The tour starts at the seed. Reduced motion keeps the resting layer.
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setIsTouring(!reduce.matches);
-    if (!reduce.matches) { isLanding.current = true; setActive(0); setIsTouring(true); }
-    reduce.addEventListener("change", sync);
+    const sync = () => setIsTouring(motionLevel(element) === "full");
+    if (motionLevel(element) === "full") { isLanding.current = true; setActive(0); setIsTouring(true); }
+    const unsubscribe = subscribeMotionLevel(sync);
     const observer = new IntersectionObserver(([entry]) => setInView(entry!.isIntersecting), { threshold: 0.35 });
     observer.observe(element.querySelector(".stack-svg")!);
     const onVisibility = () => setIsPageHidden(document.hidden);
@@ -108,7 +109,7 @@ export function LayerStack() {
     return () => {
       mounted.destroy();
       engine.current = null;
-      reduce.removeEventListener("change", sync);
+      unsubscribe();
       observer.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
     };

@@ -219,15 +219,18 @@ corrected by measurement, which is the part worth reading.
 
 What is left is a question for a person, not a task:
 
-- [ ] **The curve vocabulary has almost no consumers.** `--ui-ease-default`,
+- [x] **The curve vocabulary has almost no consumers.** *Left as it is by the
+      maintainer, 2026-11-27, unused tokens included.* `--ui-ease-default`,
       `--ui-ease-in`, `--ui-ease-spring` and all four `--ui-motion-*` intents
       have one consumer between them, while `--ui-ease-out` is used fifty
       times out of fifty. Either the components under-use the vocabulary or
       the vocabulary is bigger than the system needs. A token nothing consumes
       is a guess — the lesson `--ui-nav-rail-width` already taught.
-- [ ] **No runtime is adopted, and none is needed.** Layout/shared-element
+- [x] **No runtime is adopted, and none is needed.** Layout/shared-element
       animation is the only case neither CSS nor `motion/mini` covers, and
-      nothing in the library asks for it.
+      nothing in the library asks for it. *Confirmed by the maintainer,
+      2026-11-27: all six owned motion components shipped on CSS and the Web
+      Animations API. A future runtime still has to pass ADR 0018's rule.*
 
 **Motion levels (ADR 0028) · steps 1–2 done 2026-11-26.** Measured in
 `registry/ui/motion.browser.test.tsx` with the OS preference emulated, not

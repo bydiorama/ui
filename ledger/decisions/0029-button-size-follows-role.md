@@ -1,8 +1,8 @@
 # 0029 — A Button's size follows its role; density follows the context
 
-**Status:** proposed · 2026-11-27 · amends CONVENTIONS §7b. Raised by the
-maintainer; clauses 1–3 are implemented in the same change and wait on
-acceptance.
+**Status:** accepted · 2026-11-27 · amends CONVENTIONS §7b. Raised by the
+maintainer and accepted as written on 2026-11-27, including clause 3's scope:
+the gate covers live examples only, not stories. Clauses 1–3 are implemented.
 
 ## Context
 

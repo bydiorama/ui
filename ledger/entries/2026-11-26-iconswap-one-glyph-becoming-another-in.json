@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-iconswap-one-glyph-becoming-another-in",
+  "date": "2026-11-26",
+  "item": "icon-swap",
+  "kind": "addition",
+  "summary": "New experimental component icon-swap — the third of ADR 0028's owned motion components, and craft rule 10 (icon state changes cross-fade, both icons in the DOM) made into a component. Every glyph is rendered once and kept, stacked in one grid cell; `show` names the visible one and is typed against `icons`. The new glyph fades in on --ui-duration-base while growing from 0.5, the old one fades out on --ui-duration-fast while shrinking to 0.5, both on --ui-ease-out; the scale is 1 − 0.5 × --ui-motion-travel, so Reduced is a plain cross-fade and Off is 1ms with no code. The state is a data attribute and the motion a CSS transition, so nothing mounts or unmounts, a change back mid-swap turns both glyphs around, and the first render is still. The swap is aria-hidden; the host's accessible name carries the state. It goes in Button's icon slot, whose [&_svg]:size-4 reaches through it. Designed and built overnight without review: the 0.5 starting scale (the one number it invents) and the timing borrowed from TextSwap are badged Derived on the sheet (Components - Drafts). Both new tests were probed failing first (travel removed; leave duration lengthened).",
+  "affects": [
+    "item:icon-swap",
+    "item:app-motion",
+    "item:motion-component",
+    "decision:0028-motion-levels-and-primitives"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/490N-1"
+  }
+}

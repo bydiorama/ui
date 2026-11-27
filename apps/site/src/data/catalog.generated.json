@@ -1,5 +1,5 @@
 {
-  "sourceHash": "c5b407b2a98079bed42ddcc3417c39203506029d98b006dcb3ab3530bec266f2",
+  "sourceHash": "1f4bdb8c15f5c0fc0f098c655956757c1eb94a3e02036eda275455aa3e715afe",
   "categories": [
     "Actions",
     "Forms",
@@ -5903,7 +5903,7 @@
           "className": "The outermost node, so a width sizes the tray, the frame and the captions together.",
           "native props": "The remaining textarea attributes (name, maxLength, autoFocus, spellCheck, …) go to the textarea, which is the element that owns them. onKeyDown is composed with the Enter contract, consumer first — preventDefault() opts out of submission."
         },
-        "motion": "Two layers, one clock each. Interaction feedback is a transition on the frame — border-color, box-shadow and background-color at duration-fast / ease-out. The inline↔stacked flip is a measured FLIP at duration-base / ease-out via the Web Animations API: the frame's height, its border-radius and the start/actions slots are captured before the re-arrangement and animated from where they were to where they land, the frame clipped in flight. The radius rides the FLIP rather than the transition list deliberately: rounded-full computes to 999px and only the painted value is clamped to the box, so a CSS transition from it sits above the clamp for ~99% of its duration and snaps at the end — the FLIP animates measured visual radius to measured visual radius instead. It fires ONLY when measured auto layout crosses arrangements: never on mount (no entrance animation), never for an explicit layout prop (stories and visual baselines stay static), and never on ordinary line growth — the field's height is still set imperatively and deliberately NOT transitioned, because a height that eases behind the caret puts the caret outside the box while it catches up. The text row snaps on the flip for the same reason: its width change re-wraps the draft instantly either way, and glyphs gliding under a still-moving Send button read as a glitch. Reduced motion is handled twice — the WAAPI reads its duration from the computed --ui-duration-base, which the token layer collapses to 1ms, and checks prefers-reduced-motion explicitly besides.",
+        "motion": "Two layers, one clock each. Interaction feedback is a transition on the frame — border-color, box-shadow and background-color at duration-fast / ease-out. The inline↔stacked flip is a measured FLIP at duration-base / ease-out via the Web Animations API: the frame's height, its border-radius and the start/actions slots are captured before the re-arrangement and animated from where they were to where they land, the frame clipped in flight. The radius rides the FLIP rather than the transition list deliberately: rounded-full computes to 999px and only the painted value is clamped to the box, so a CSS transition from it sits above the clamp for ~99% of its duration and snaps at the end — the FLIP animates measured visual radius to measured visual radius instead. It fires ONLY when measured auto layout crosses arrangements: never on mount (no entrance animation), never for an explicit layout prop (stories and visual baselines stay static), and never on ordinary line growth — the field's height is still set imperatively and deliberately NOT transitioned, because a height that eases behind the caret puts the caret outside the box while it catches up. The text row snaps on the flip for the same reason: its width change re-wraps the draft instantly either way, and glyphs gliding under a still-moving Send button read as a glitch. Motion levels (ADR 0028): a height growing in place is change rather than travel, so it still eases at `reduced`, where --ui-duration-base is already capped; at `off` it is skipped, checked twice — the WAAPI reads its duration from the computed --ui-duration-base, which `off` collapses to 1ms, and asks motionLevel() at the frame explicitly besides.",
         "needsDesign": [
           "The empty Send control's fill. The sheet draws --ui-bg-sunken; Button's own disabled treatment is --ui-bg-elevated, which measures 1.03:1 against a white field and disappears. Shipped as the sheet's, overriding Button in one place — the two should agree, and this is the third component to want a quieter disabled fill on a light field.",
           "The Stop control is a filled type Button has no variant for (an inverse fill with a matching edge). Written as a local recipe here; if a second component needs it, Button should grow the variant rather than the recipe being copied.",
@@ -8433,7 +8433,7 @@
           "ref": "Block: the root div. Citation: the <button> — the one control, so a caller can focus or measure it.",
           "rest": "Block: native div props on the root; the block's own props (label, layout, moreLabel, cardCount, isGathering, isHeld, the disclosure trio) are destructured out so none reaches the DOM as an attribute. Citation: native button props on the button, with its own pointer, key, click and focus handlers composed after the caller's (composeEventHandlers) — a caller that calls preventDefault() opts out. `type` and `disabled` are the component's."
         },
-        "motion": "Four transitions, all on motionMicro (duration-fast, ease-out): the marker's background-color and color between rest, hover·open and pressed; a row's and a card's background-color as it takes the hover fill or the cited wash; the row's link slot fading in; and the disclosure chevron's `rotate` (Accordion's recipe — `transition-[rotate]`, never `transform`). The preview's own fade-and-scale is the Popover's. Hover intent reuses Tooltip's constants: the preview opens after HOVER_INTENT_DELAY_MS, and because it holds a link it lingers for HOVER_INTENT_SKIP_MS after the pointer leaves the marker so the pointer can cross into it — entering the panel cancels the close. A marker's press scrolls the cited row into view smoothly, or instantly under prefers-reduced-motion (scrollIntoView is JavaScript, outside the token layer's duration collapse, so the component asks the media query itself). The gathering StatusMatrix is the only loop, and it carries its own reduced-motion handling.",
+        "motion": "Four transitions, all on motionMicro (duration-fast, ease-out): the marker's background-color and color between rest, hover·open and pressed; a row's and a card's background-color as it takes the hover fill or the cited wash; the row's link slot fading in; and the disclosure chevron's `rotate` (Accordion's recipe — `transition-[rotate]`, never `transform`). The preview's own fade-and-scale is the Popover's. Hover intent reuses Tooltip's constants: the preview opens after HOVER_INTENT_DELAY_MS, and because it holds a link it lingers for HOVER_INTENT_SKIP_MS after the pointer leaves the marker so the pointer can cross into it — entering the panel cancels the close. A marker's press scrolls the cited row into view smoothly, or instantly under prefers-reduced-motion (scrollIntoView is JavaScript, outside the token layer's duration collapse, so the component asks the media query itself). The gathering StatusMatrix is the only loop, and it carries its own reduced-motion handling. Motion levels (ADR 0028): revealing a cited row scrolls it into view smoothly only at `full` — a smooth scroll moves the whole list — and jumps below it.",
         "needsDesign": [
           "No linger constant: the preview's close-after-leave reuses HOVER_INTENT_SKIP_MS, which motion.ts defines for the skip window between tooltips, not for crossing a gap into a panel. A hover-card linger should be named in the motion layer.",
           "The `file` kind is drawn with Image, which reads as image-specific. A generic attachment glyph (File, Paperclip) may be meant.",
@@ -10609,7 +10609,7 @@
           "Hex only. No RGB / HSL fields, no format switch, no saved or recent swatches.",
           "An empty picker opens on white at hue 0 and emits nothing until a control moves."
         ],
-        "motion": "The field transitions border-color and box-shadow at --ui-duration-fast / --ui-ease-out; the panel fades and scales from 98% via data-[starting-style] / data-[ending-style], with `scale` named in the list. Thumb and swatch rings transition box-shadow on the same timing. The thumbs themselves do not animate position — they follow the pointer.",
+        "motion": "The field transitions border-color and box-shadow at --ui-duration-fast / --ui-ease-out; the panel fades and scales from 98% via data-[starting-style] / data-[ending-style], with `scale` named in the list. Thumb and swatch rings transition box-shadow on the same timing. The thumbs themselves do not animate position — they follow the pointer. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/476R-0"
       },
       "files": [
@@ -11170,7 +11170,7 @@
           "No virtualisation: every row is in the DOM. Long async lists should be capped by the caller.",
           "Matched text is not emphasised (see needsDesign)."
         ],
-        "motion": "The control transitions border-color, box-shadow and background-color; rows and the clear square transition background-color; the panel fades and scales from 98% through data-[starting-style]/data-[ending-style] — all at --ui-duration-fast with --ui-ease-out (motionMicro). The Fade's visibility is an opacity transition (Fade's own). The loading spinner is Button's animate-spin, stopped under prefers-reduced-motion.",
+        "motion": "The control transitions border-color, box-shadow and background-color; rows and the clear square transition background-color; the panel fades and scales from 98% through data-[starting-style]/data-[ending-style] — all at --ui-duration-fast with --ui-ease-out (motionMicro). The Fade's visibility is an opacity transition (Fade's own). The loading spinner is Button's animate-spin, stopped under prefers-reduced-motion. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3O8K-0"
       },
       "files": [
@@ -11862,6 +11862,127 @@
       ]
     },
     {
+      "name": "count",
+      "title": "Count",
+      "type": "ui",
+      "category": "Utilities",
+      "status": "experimental",
+      "lead": "Shows a number that changes in place, moving only the digits that changed while its text stays the plain value.",
+      "docs": {
+        "lead": "Shows a number that changes in place, moving only the digits that changed while its text stays the plain value.",
+        "name": "Count",
+        "status": "experimental",
+        "summary": "The fourth of ADR 0028's owned motion components. A number formatted with Intl.NumberFormat, one span per character, matched to the previous value from the right so units stay over units. Only the changed characters move: each remounts and arrives on --ui-duration-base, rising --ui-space-xs × --ui-motion-travel when the value grew and dropping when it shrank, while an aria-hidden ghost under it draws the old character with CSS content and fades on --ui-duration-fast. Generated content is never text, so copy, find in page, screen readers and tests read the plain value at every frame. Tabular figures keep every digit the same width. TextSwap's clock and Presence's rise, reused unchanged; the first render is still.",
+        "anatomy": [
+          {
+            "part": "root",
+            "slot": "count",
+            "notes": "One inline-flex span with tabular-nums. Its text is the formatted value and nothing else. Type and colour come from the host or className."
+          },
+          {
+            "part": "place",
+            "slot": "count-place",
+            "notes": "One inline-grid span per character position, keyed by its place from the right, so it keeps its element across changes. Holds the character and, during a change, its ghost, in one cell."
+          },
+          {
+            "part": "character",
+            "slot": "count-char",
+            "notes": "The current character as text. Keyed by the character, so a change remounts it and @starting-style gives it a 'before'; an unchanged character never moves."
+          },
+          {
+            "part": "ghost",
+            "slot": "count-ghost",
+            "notes": "aria-hidden and empty: the old character is drawn by ::before from data-char and fades on fast. Present only under a character that changed in the latest update."
+          }
+        ],
+        "composition": "\nCount (value: number, format?, locale?)\n└── root — data-slot=\"count\", tabular-nums\n    └── place × n — data-slot=\"count-place\"\n        ├── character — data-slot=\"count-char\", the text\n        └── ghost — data-slot=\"count-ghost\", aria-hidden, ::before content (changed places only)\n\n<p className=\"text-title-lg\"><Count value={orders} /></p>\n<Count value={total} format={{ style: \"currency\", currency: \"EUR\" }} locale=\"sk-SK\" />\n",
+        "props": {
+          "value": {
+            "type": "number",
+            "notes": "The number. Changing it is the change; the same formatted text twice is no change."
+          },
+          "format": {
+            "type": "Intl.NumberFormatOptions",
+            "notes": "Passed to Intl.NumberFormat: currency, percent, compact notation, fraction digits. Memoise it or define it outside render, or it is rebuilt each time (harmless, but wasted)."
+          },
+          "locale": {
+            "type": "string",
+            "notes": "A BCP 47 locale for the formatting. Omitted follows the runtime's, which can differ between server and client — pass it when the page is server-rendered."
+          },
+          "className": {
+            "type": "string",
+            "notes": "Lands on the root, merged last. Count has no type role of its own: set one here or on the host."
+          }
+        },
+        "do": [
+          "Use it for a figure that changes while someone watches: a total, a cart, an unread count, a live readout.",
+          "Give a changing count that nobody is focused on its own live region when the change must be announced.",
+          "Pass locale on a server-rendered page, so the server and client format the same text."
+        ],
+        "dont": [
+          "Count through the values in between. Count shows the new value; a ticker that runs 1 → 2 → … → 1,250 is a different, rarely useful thing.",
+          "Animate a number on first paint to draw attention. The first render is still on purpose.",
+          "Put non-numeric text in it. Prose that changes is TextSwap's."
+        ],
+        "a11y": {
+          "role": "None of its own: an inline span inside whatever labels it.",
+          "name": "Its text, which is the formatted value at every frame. Ghosts are aria-hidden and empty.",
+          "keyboard": [],
+          "focus": "Never focusable.",
+          "contrastPairs": [],
+          "rendersNoColour": "Count sets no colour: its digits take the host's ink, and it changes only opacity and translate, so the pairs are the host component's to declare."
+        },
+        "forwarding": {
+          "className": "Lands on the root.",
+          "ref": "The root span.",
+          "props": "Native span attributes go to the root; children are not accepted — the value is the content."
+        },
+        "motion": "All CSS transitions on the tokens. A changed character: opacity from 0 and translate from ±(--ui-space-xs × --ui-motion-travel) — positive (from below) when the value grew, negative when it shrank — on --ui-duration-base with --ui-ease-out, through @starting-style. Its ghost: opacity 1 → 0 on --ui-duration-fast, no movement. Unchanged characters do not animate. Motion levels (ADR 0028): at Reduced the rise is gone (travel 0) and the per-digit cross-fade stays; at Off both durations are 1ms. The text is the plain value at every level.",
+        "needsDesign": [],
+        "knownGaps": [
+          "Built from a sheet the maintainer has not reviewed yet: the direction rule (the whole value's direction decides rise or drop) and right-aligned place matching are badged Derived on it.",
+          "A place that disappears (1,000 → 999) leaves at once, and a width change from a new or lost place is not eased.",
+          "Badge counts in NavRail and Sidebar, Tabs counts and chart readouts still change by hand, with no motion."
+        ],
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49D3-1"
+      },
+      "files": [
+        {
+          "path": "registry/ui/count/count.tsx",
+          "target": "ui/count.tsx"
+        },
+        {
+          "path": "registry/ui/count/count.doc.ts",
+          "target": "ui/count.doc.ts"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "cn",
+        "data-slot"
+      ],
+      "contrast": [],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-26-count-a-number-changing-in-place",
+          "date": "2026-11-26",
+          "item": "count",
+          "kind": "addition",
+          "summary": "New experimental component count — the fourth of ADR 0028's owned motion components. A number formatted with Intl.NumberFormat (format and locale props), one span per character, matched to the previous value from the right; only changed characters move. A changed character remounts and arrives through @starting-style on --ui-duration-base, rising --ui-space-xs × --ui-motion-travel when the value grew and dropping when it shrank; an aria-hidden ghost beside it in the same grid cell draws the old character with ::before content from data-char and fades on --ui-duration-fast. Generated content is never text, so the element's text is the plain value at every frame — the digit-debris trap app-motion warns about cannot happen. TextSwap's clock and Presence's rise reused; no new token; tabular figures; first render still. Designed and built overnight without review: the direction rule and right-aligned place matching are badged Derived on the sheet (Components - Drafts). Three probes were run (ghost rendered as text; travel removed; direction ignored), each failing its named test.",
+          "affects": [
+            "item:count",
+            "item:app-motion",
+            "item:motion-component",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49D3-1"
+          }
+        }
+      ]
+    },
+    {
       "name": "date-picker",
       "title": "DatePicker",
       "type": "ui",
@@ -12103,7 +12224,7 @@
           "No min/max props. `isDateDisabled` covers the same ground and is the more general of the two.",
           "The trigger is not a text input — a date cannot be typed. That is the sheet's design, and it costs keyboard users the fastest path to a distant date; the year select is the mitigation."
         ],
-        "motion": "The field transitions `border-color` and `box-shadow` on focus at --ui-duration-fast with --ui-ease-out; the calendar panel fades and scales from 98% through `data-[starting-style]`/`data-[ending-style]` over the same timing. `scale` is named in the transition list — Tailwind v4 writes `scale-*` standalone, so a list naming `transform` animates nothing.",
+        "motion": "The field transitions `border-color` and `box-shadow` on focus at --ui-duration-fast with --ui-ease-out; the calendar panel fades and scales from 98% through `data-[starting-style]`/`data-[ending-style]` over the same timing. `scale` is named in the transition list — Tailwind v4 writes `scale-*` standalone, so a list naming `transform` animates nothing. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/JI1-0"
       },
       "files": [
@@ -13360,7 +13481,7 @@
           "Drawer.Header SHIPPED 2026-08-25 — the 48px chrome band this component's own sheet draws and had never had. \"Drawer Desktop\" opens with it: back and forward chrome controls at the leading edge, a close at the trailing one, `p-sm` uniform so 8 + 32 + 8 = 48 agrees with the pinned height. Sheet.Header's values exactly, which is unsurprising — both were drawn on this artboard. It does NOT carry Sheet.Header's scrolled hairline: this sheet draws no scrolled state, and inventing one is how a drawing stops being a contract.",
           "No visual-regression baseline — the matrix renders inline and a Drawer portals to document.body, the same exclusion Modal, Popover and Sheet have."
         ],
-        "motion": "Two tiers, and this is the only component in the library with the second. CSS: the scrim fades and the panel translates from `translate-y-full` through `data-[starting-style]`/`data-[ending-style]`, both `transition-[translate,opacity]` at --ui-duration-base with --ui-ease-out. JavaScript: while a finger is down the transition is switched off (`transition-none`) and the panel's `translate` is written directly from pointer state, so it tracks the finger exactly instead of lagging a frame behind it. No motion runtime is involved. The drag deliberately does not consult prefers-reduced-motion — the panel is being moved BY the user, not animated at them; the token-layer collapse still governs the enter, exit and snap-back.",
+        "motion": "Two tiers, and this is the only component in the library with the second. CSS: the scrim fades and the panel translates from `translate-y-full` through `data-[starting-style]`/`data-[ending-style]`, both `transition-[translate,opacity]` at --ui-duration-base with --ui-ease-out. JavaScript: while a finger is down the transition is switched off (`transition-none`) and the panel's `translate` is written directly from pointer state, so it tracks the finger exactly instead of lagging a frame behind it. No motion runtime is involved. The drag deliberately does not consult prefers-reduced-motion — the panel is being moved BY the user, not animated at them; the token-layer collapse still governs the enter, exit and snap-back. Motion levels (ADR 0028): the CSS offset is times --ui-motion-travel and the panel's opacity starts at the travel factor itself, so at `full` it slides opaque as it always has, at `reduced` it fades in place, and at `off` both are 1ms. A finger dragging it is followed at every level — the user is moving it.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/D9O-0",
         "designHalfOpen": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/J88-0"
       },
@@ -14928,6 +15049,128 @@
           ],
           "provenance": {
             "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/DOY-0"
+          }
+        }
+      ]
+    },
+    {
+      "name": "icon-swap",
+      "title": "IconSwap",
+      "type": "ui",
+      "category": "Utilities",
+      "status": "experimental",
+      "lead": "Swaps one glyph for another in place: the old one shrinks and blurs away as the new one re-forms, while the label carries the state.",
+      "docs": {
+        "lead": "Swaps one glyph for another in place: the old one shrinks and blurs away as the new one re-forms, while the label carries the state.",
+        "name": "IconSwap",
+        "status": "experimental",
+        "summary": "The third of ADR 0028's owned motion components, and craft rule 10 made into a component. Every glyph is rendered once and kept, stacked in one grid cell; show names the visible one. The old glyph fades out on --ui-duration-fast while dipping to 0.8 and blurring to 2px; the new one fades in on --ui-duration-base from there, growing back and sharpening, both on --ui-ease-out — one glyph shrinking, softening and re-forming. At rest no glyph has a filter. The state is a data attribute and the motion a CSS transition, so nothing mounts or unmounts, a second change mid-swap turns both glyphs around from where they are, and the first render is still. The whole swap is aria-hidden: the host's accessible name says what happened.",
+        "anatomy": [
+          {
+            "part": "box",
+            "slot": "icon-swap",
+            "notes": "One aria-hidden inline-grid span. It has no size of its own: it is as big as the icons in it, which the host sizes — a Button's [&_svg]:size-4 reaches through it."
+          },
+          {
+            "part": "glyph",
+            "slot": "icon-swap-glyph",
+            "notes": "One span per icon, all in the same cell and centred, each with data-state shown or hidden. Hidden glyphs stay rendered at opacity 0, the travelled scale and blur."
+          }
+        ],
+        "composition": "\nIconSwap (icons: Record<name, element>, show: name)\n└── box — data-slot=\"icon-swap\", aria-hidden\n    └── glyph × n — data-slot=\"icon-swap-glyph\", data-state=\"shown | hidden\"\n\n<Button\n  isIconOnly\n  aria-label={copied ? \"Copied\" : \"Copy link\"}\n  icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show={copied ? \"check\" : \"copy\"} />}\n  onClick={copy}\n/>\n",
+        "props": {
+          "icons": {
+            "type": "Record<string, ReactElement>",
+            "notes": "Every glyph the swap can show, by name. All are rendered, in key order; size them from the host, not with a size prop on each icon. Keep the record stable — a glyph added later appears without an entrance."
+          },
+          "show": {
+            "type": "keyof icons",
+            "notes": "The name of the glyph to show. Typed against icons, so a name that is not there does not compile. Changing it is the swap."
+          },
+          "className": {
+            "type": "string",
+            "notes": "Lands on the box, merged last. Colour comes from the host (currentColor), so this is rarely needed."
+          }
+        },
+        "do": [
+          "Pass it as a Button's icon slot, and change the host's accessible name with the glyph: aria-label on an icon-only Button, or the visible label beside it. A toggle that keeps its name (Mute) says its state with aria-pressed instead.",
+          "Use it for a glyph that means a state: copied, playing, muted, expanded.",
+          "Pair it with TextSwap when a Button changes its icon and its words together — the timings match."
+        ],
+        "dont": [
+          "Rely on the glyph to say what happened. IconSwap is aria-hidden on purpose.",
+          "Swap a decorative icon for variety. A glyph that changes is read as a state change.",
+          "Put a spinner in it for a busy state — Button owns its busy spinner."
+        ],
+        "a11y": {
+          "role": "None: the box is aria-hidden, a presentation of state the host names.",
+          "name": "Never IconSwap's. The host's accessible name (aria-label or visible text) must change with show.",
+          "keyboard": [],
+          "focus": "Never focusable. Swapping inside a focused button leaves focus where it is.",
+          "contrastPairs": [],
+          "rendersNoColour": "IconSwap sets no colour: its glyphs are currentColor in the host's ink, and it changes only opacity and scale, so the pairs are the host component's to declare."
+        },
+        "forwarding": {
+          "className": "Lands on the box.",
+          "ref": "The box span.",
+          "props": "Native span attributes go to the box; aria-hidden is fixed."
+        },
+        "motion": "All CSS transitions on the tokens. New glyph: opacity 0 → 1, scale 0.8 → 1 and blur 2px → none on --ui-duration-base with --ui-ease-out. Old glyph: opacity 1 → 0, scale 1 → 0.8 and none → blur 2px on --ui-duration-fast. Scale is 1 − 0.2 × --ui-motion-travel and blur 2px × travel; the shown glyph has no filter at all, so it is never left on its own layer. Motion levels (ADR 0028): at Reduced travel is 0, so scale and blur are gone and the cross-fade stays, both durations unchanged; at Off both are 1ms. No glyph is ever removed, so nothing waits for a transition to end.",
+        "needsDesign": [],
+        "knownGaps": [
+          "The timing borrowed from TextSwap is still badged Derived on the sheet; the dip (×0.8) and blur (2px) were decided in review.",
+          "MediaToggle, the site's install pill and the code stage's copy buttons still swap their glyphs by hand, with no motion."
+        ],
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/490N-1"
+      },
+      "files": [
+        {
+          "path": "registry/ui/icon-swap/icon-swap.tsx",
+          "target": "ui/icon-swap.tsx"
+        },
+        {
+          "path": "registry/ui/icon-swap/icon-swap.doc.ts",
+          "target": "ui/icon-swap.doc.ts"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "cn",
+        "data-slot"
+      ],
+      "contrast": [],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-iconswap-a-subtle-dip-with-blur",
+          "date": "2026-11-27",
+          "item": "icon-swap",
+          "kind": "visual",
+          "summary": "IconSwap's swap now reads as one glyph re-forming instead of a pop, decided in review: the hidden state dips to scale 0.8 (was 0.5) and blurs to 2px, so the old glyph shrinks and softens away on --ui-duration-fast while the new one grows back and sharpens on --ui-duration-base. Scale is 1 − 0.2 × --ui-motion-travel and blur 2px × travel, so Reduced and Off stay a plain cross-fade with no code. The shown glyph has no filter at all — not blur(0) — so it is never left on its own compositing layer at rest (craft rule 23); a test asserts filter: none, probed by leaving blur(0) in place. The sheet's 0.5 reading is replaced and badged Decided; the catalogue motif follows.",
+          "affects": [
+            "item:icon-swap",
+            "item:craft",
+            "item:motion-component"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/490N-1"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-26-iconswap-one-glyph-becoming-another-in",
+          "date": "2026-11-26",
+          "item": "icon-swap",
+          "kind": "addition",
+          "summary": "New experimental component icon-swap — the third of ADR 0028's owned motion components, and craft rule 10 (icon state changes cross-fade, both icons in the DOM) made into a component. Every glyph is rendered once and kept, stacked in one grid cell; `show` names the visible one and is typed against `icons`. The new glyph fades in on --ui-duration-base while growing from 0.5, the old one fades out on --ui-duration-fast while shrinking to 0.5, both on --ui-ease-out; the scale is 1 − 0.5 × --ui-motion-travel, so Reduced is a plain cross-fade and Off is 1ms with no code. The state is a data attribute and the motion a CSS transition, so nothing mounts or unmounts, a change back mid-swap turns both glyphs around, and the first render is still. The swap is aria-hidden; the host's accessible name carries the state. It goes in Button's icon slot, whose [&_svg]:size-4 reaches through it. Designed and built overnight without review: the 0.5 starting scale (the one number it invents) and the timing borrowed from TextSwap are badged Derived on the sheet (Components - Drafts). Both new tests were probed failing first (travel removed; leave duration lengthened).",
+          "affects": [
+            "item:icon-swap",
+            "item:app-motion",
+            "item:motion-component",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/490N-1"
           }
         }
       ]
@@ -17287,7 +17530,7 @@
           "The disc's own boundary against an arbitrary video frame is not guaranteed — a frame the colour of --ui-bg-media hides the disc, though never the glyph. A ring was not drawn.",
           "No Button for media grounds: inverse flips with the scheme and media does not, so an onMedia variant waits for a call site."
         ],
-        "motion": "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The glyph swaps without animation. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused.",
+        "motion": "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The glyph swaps without animation. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused. Motion levels (ADR 0028): the video starts paused at any level below `full`, read at the video itself.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0"
       },
       "files": [
@@ -17306,6 +17549,7 @@
       "registryDependencies": [
         "cn",
         "chrome-control",
+        "motion",
         "compose-event-handlers",
         "use-controllable-state",
         "data-slot"
@@ -18408,7 +18652,7 @@
           "ALIGNMENT GAP, shared with Card: Title and Description take the unboxed px-sm, but an Input's own label does not, so a field placed directly in the dialog has its label 8px left of the title. Card records the same gap; whichever fix lands there (an inset-aware Input or a field wrapper) applies here too.",
           "The redraw annotates the title inset as py-xs px-sm. Card.Header carries px-sm only, and this matches Card literally, so the title has no vertical inset of its own. If the drawing's py-xs is wanted, it belongs on Card.Header too, or the two headers stop matching."
         ],
-        "motion": "The scrim fades and the panel fades and scales from 98%, both at --ui-duration-fast with --ui-ease-out, driven by `data-[starting-style]` and `data-[ending-style]`. `scale` is named explicitly in the transition list: Tailwind v4 writes `scale-*` as the standalone `scale` property, so the original list naming `transform` animated nothing and the modal snapped open at full size. Measured with getAnimations() in Chromium, which is how that became a fact rather than a theory.",
+        "motion": "The scrim fades and the panel fades and scales from 98%, both at --ui-duration-fast with --ui-ease-out, driven by `data-[starting-style]` and `data-[ending-style]`. `scale` is named explicitly in the transition list: Tailwind v4 writes `scale-*` as the standalone `scale` property, so the original list naming `transform` animated nothing and the modal snapped open at full size. Measured with getAnimations() in Chromium, which is how that became a fact rather than a theory. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GA9-0"
       },
       "files": [
@@ -20601,7 +20845,7 @@
           "The list panel's dark scheme is not drawn; it uses Menu's roles, which are audited.",
           "The actions row is composed at the call site rather than being a Popover.Actions part — the sheet sits it flush at the panel padding while title and description take the inset, so it is deliberately not wrapped."
         ],
-        "motion": "The panel fades and scales from 98% at --ui-duration-fast with --ui-ease-out, through `data-[starting-style]`/`data-[ending-style]`. `scale` is named in the transition list for the same reason as Modal's — Tailwind v4 writes it standalone, and a list naming `transform` left this panel snapping open.",
+        "motion": "The panel fades and scales from 98% at --ui-duration-fast with --ui-ease-out, through `data-[starting-style]`/`data-[ending-style]`. `scale` is named in the transition list for the same reason as Modal's — Tailwind v4 writes it standalone, and a list naming `transform` left this panel snapping open. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CXA-0"
       },
       "files": [
@@ -20903,6 +21147,153 @@
           "provenance": {
             "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/CXA-0"
           }
+        }
+      ]
+    },
+    {
+      "name": "presence",
+      "title": "Presence",
+      "type": "ui",
+      "category": "Utilities",
+      "status": "experimental",
+      "lead": "Animates content as it arrives and leaves, and keeps leaving content on screen until it has gone.",
+      "docs": {
+        "lead": "Animates content as it arrives and leaves, and keeps leaving content on screen until it has gone.",
+        "name": "Presence",
+        "status": "experimental",
+        "summary": "The first of ADR 0028's owned motion components. A wrapper with no element and no look of its own: each keyed child is an item, and Presence gives every arrival and exit in an app the same timing. Three kinds — fade (the default), rise (fade plus a lift of --ui-space-xs, for content landing in a stream), collapse (the item's height opens and folds, for rows in a list, so nothing below jumps). Arrivals run on --ui-duration-base with --ui-ease-out through CSS @starting-style; exits fade on --ui-duration-fast and never travel; collapse fades first and then folds, the change then the fold. A removed child stays rendered — inert, aria-hidden, its last content — until its exit's transitions finish, and focus inside it moves to a neighbour first. Items present on the first render do not animate unless `appear` is set. Everything is a CSS transition on the motion tokens, so the motion levels need no code here, and a child added back mid-exit turns around from the frame it is on. Base UI surfaces (Popover, Modal, Sheet, Toast…) already own their presence and are not wrapped.",
+        "anatomy": [
+          {
+            "part": "presence",
+            "slot": "none",
+            "notes": "The root renders no element, so it can sit inside a list, a stack or a toolbar without changing the layout — and a Presence of <li> stays valid HTML inside a <ul>. It owns the list of items, including the departing ones it still renders."
+          },
+          {
+            "part": "item",
+            "slot": "the caller's",
+            "notes": "Each child element. Presence writes data-presence (entering · present · leaving), its transition classes (merged after the child's own className) and a ref onto it, so the child must forward className, ref and data-* to its DOM node — every component in this library does (CONVENTIONS §5). While leaving it is inert and aria-hidden. For collapse its height is set inline from a measurement while it moves, with overflow clipped, and cleared once it settles."
+          }
+        ],
+        "composition": "\nPresence (kind?, appear?)\n└── item — any element with a stable key, forwarding className/ref/data-*\n    ├── data-presence=\"entering\" — arrived after mount; plays the entrance once\n    ├── data-presence=\"present\"\n    └── data-presence=\"leaving\"  — the caller removed it; inert until its exit ends\n\n<ul>\n  <Presence kind=\"collapse\">\n    {tasks.map((task) => <li key={task.id}>{task.title}</li>)}\n  </Presence>\n</ul>\n",
+        "props": {
+          "kind": {
+            "type": "\"fade\" | \"rise\" | \"collapse\"",
+            "default": "\"fade\"",
+            "notes": "fade for anything in place. rise for content landing in a stream — a new message, a toast's row — where the lift says where it came from; the lift is --ui-space-xs × --ui-motion-travel, so at Reduced it is a plain fade. collapse for rows in a list, where the space itself has to open and close. Timing is not a prop: every Presence in an app arrives and leaves the same way, which is the point of having one."
+          },
+          "appear": {
+            "type": "boolean",
+            "default": "false",
+            "notes": "Play the entrance for the items present on the first render too. Off by default, because a page that loads a list should show the list rather than perform it. On for the case where one action both mounts the Presence and adds the row — opening a panel that shows the item just created."
+          },
+          "children": {
+            "type": "ReactNode",
+            "notes": "Keyed elements. The key is how Presence tells a removal from a change: a list re-keyed by index animates the wrong rows. Children without a key are keyed by position, and text children are not rendered."
+          }
+        },
+        "do": [
+          "Give every item a stable key from the data, never the array index.",
+          "Show the change first, then remove the row: update its label or tick, wait for it to land, then drop it from the list.",
+          "Keep what arrived readable without the motion: the new row's text, a count, a status line in a live region you own.",
+          "Use collapse inside lists, so the rows below glide instead of jumping."
+        ],
+        "dont": [
+          "Wrap a Popover, Modal, Sheet, Drawer, Select, Menu or Toast. They mount and unmount through the behaviour layer with their own motion, and would animate twice.",
+          "Put your own transition on the item. Presence owns `transition` on it, and two transition declarations on one element do not combine — one silently wins.",
+          "Pass a component that does not forward className and ref to its DOM node. Nothing will animate, and the leaving item will stay until its (absent) exit ends — immediately.",
+          "Use it to announce anything. Presence is silent; announcements belong in a live region the caller owns."
+        ],
+        "a11y": {
+          "role": "None. Presence adds no element and no semantics; each item keeps the role it already has.",
+          "name": "None.",
+          "keyboard": [],
+          "focus": "A leaving item is made inert only after focus inside it has moved to the nearest item that is not leaving — the next one, or the previous one at the end of the list — so the reader's place is never dropped to <body>. If no neighbour has anything focusable, focus is released.",
+          "contrastPairs": [],
+          "rendersNoColour": "Presence renders no element and sets no colour: it changes only opacity, translate and height on the caller's own items, whose pairs are the caller's component's to declare."
+        },
+        "forwarding": {
+          "className": "Not accepted on Presence itself: there is no element to put it on. Each item's own className is kept and Presence's classes merge after it.",
+          "ref": "Not accepted on Presence. An item's own ref is preserved and merged with the one Presence attaches.",
+          "props": "Presence takes only kind, appear and children. Everything else belongs on the items."
+        },
+        "motion": "Everything is a CSS transition on the tokens, never a keyframe, so a reversed change turns around mid-flight. Arrival: --ui-duration-base, --ui-ease-out, from @starting-style (opacity 0; rise also translate --ui-space-xs × --ui-motion-travel; collapse also height 0, measured and set inline). Exit: opacity on --ui-duration-fast, nothing travels; collapse then folds its height on --ui-duration-base, delayed by fast. Motion levels (ADR 0028): at Reduced rise becomes a plain fade (travel 0) and collapse still eases, being change in place, capped at --ui-duration-base; at Off every duration is 1ms, and a leaving item is still removed only once that 1ms transition has finished, never synchronously. Removal waits for the item's OWN transitions, never its subtree, where a spinner never finishes.",
+        "needsDesign": [],
+        "knownGaps": [
+          "The Presence sheet drew collapse's height as a wrapper animating grid-template-rows. Built instead as the item's own height, measured and set inline: a wrapper element inside a <ul> is invalid HTML, and Presence promises no element of its own. The sheet's Fold row records the change.",
+          "Focus moves only within one Presence. A list whose last item leaves hands focus to nothing; the caller should move it to the list's heading or its add control.",
+          "Count, TextSwap, IconSwap, Stagger and Feedback — the other five owned motion components in ADR 0028 — are not built yet."
+        ],
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/489K-1"
+      },
+      "files": [
+        {
+          "path": "registry/ui/presence/presence.tsx",
+          "target": "ui/presence.tsx"
+        },
+        {
+          "path": "registry/ui/presence/presence.doc.ts",
+          "target": "ui/presence.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui/react@1.7.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "data-slot"
+      ],
+      "contrast": [],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-26-textswap-a-label-replaced-in-place",
+          "date": "2026-11-26",
+          "item": "text-swap",
+          "kind": "addition",
+          "summary": "New experimental component text-swap — the second of ADR 0028's owned motion components, built on Presence. A short label replaced in place: the old words fade out on --ui-duration-fast without moving, the new ones arrive on --ui-duration-base with Presence's rise, and the box holding them eases between the two measured widths, so a button never snaps narrower under the pointer that pressed it. Layers share one grid cell, left-aligned and clipped sideways only; the leaving copy is inert and aria-hidden, so a host's accessible name follows the new words at once; a word that comes back mid-swap turns around and a rapid sequence retargets from the current width. At Reduced the rise goes and the cross-fade and width stay; at Off everything is 1ms. Designed and built overnight without review: the sheet (Components - Drafts) badges its own readings — width on base, left-aligned clipped layers, an unclipped vertical axis — as Derived for the maintainer. check:utilities' shared class extractor now blanks data-* attribute values, which it read as classes once a slot name began with a utility prefix (text-swap → --color-swap); a real bad class beside it is still caught (probed). The presence alias is now in every resolver, since TextSwap is the first item to import it.",
+          "affects": [
+            "item:text-swap",
+            "item:presence",
+            "item:app-motion",
+            "item:motion-component",
+            "gate:check-utilities",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/48LP-1"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-26-presence-the-first-owned-motion-component",
+          "date": "2026-11-26",
+          "item": "presence",
+          "kind": "addition",
+          "summary": "New experimental component presence — the first of ADR 0028's owned motion components. A wrapper with no element of its own: each keyed child is an item, animated in on --ui-duration-base through CSS @starting-style (fade; rise, a lift of --ui-space-xs × --ui-motion-travel; or collapse, the item's measured height opening) and out on --ui-duration-fast with nothing travelling; collapse fades first and then folds its height on base, delayed by fast. A removed child stays rendered — inert, aria-hidden — until its own transitions finish, and focus inside it moves to the nearest item that is not leaving before it turns inert. Items present at mount do not animate unless appear is set. All CSS transitions on the motion tokens, so the motion levels need no code: rise is a plain fade at Reduced and every exit is 1ms at Off, still removed only after it ran. Decided with the maintainer on 2026-11-26: rise reuses --ui-space-xs rather than a new --ui-presence-rise token; collapse fades, then folds; first-render items stay still. One change from the approved sheet, recorded on it: collapse animates the item's own height rather than a grid wrapper, because a wrapper inside a <ul> is invalid HTML. The app-motion skill now sends list arrivals and removals to Presence instead of third-party snippets.",
+          "affects": [
+            "item:presence",
+            "item:app-motion",
+            "token:--ui-space-xs",
+            "token:--ui-motion-travel",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/489K-1"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-26-gates-learn-the-starting-variant-and",
+          "date": "2026-11-26",
+          "item": "system",
+          "kind": "fix",
+          "summary": "Three gates were blind to the first component of its kind, found by probing before Presence shipped. check:utilities did not know Tailwind's starting: variant (CSS @starting-style), so `starting:bg-zzz` passed while compiling to nothing; `starting` is now in the shared VARIANT list, and the enter/exit transform rule reads it too. check:motion's travel rule matched only data-[starting-style], so `starting:translate-y-1` — a literal slide that Reduced cannot take away — passed; it now matches both spellings. check:contrast required every component to declare contrast pairs, and Presence paints nothing; a component may now declare a11y.rendersNoColour with a sentence of reason instead, which the gate rejects if it is short or sits beside pairs. Each rule was probed failing first.",
+          "affects": [
+            "gate:check-utilities",
+            "gate:check-motion",
+            "gate:check-contrast",
+            "item:presence"
+          ]
         }
       ]
     },
@@ -22325,7 +22716,7 @@
           "No option groups and no icons in a row. A per-option description is supported (#26) but is DERIVED — the sheet draws a flat list of labels; the second line follows Radio's description (caption, muted, 4px under the label).",
           "The panel does not re-skin under a brand scope without `container` — the portal-theming gap shared with Modal, Popover, Sheet and Drawer."
         ],
-        "motion": "The trigger transitions `border-color` and `box-shadow`; the list fades and scales from 98% through `data-[starting-style]`/`data-[ending-style]`. Both at --ui-duration-fast with --ui-ease-out. `scale` is named in the transition list — Tailwind v4 writes it standalone.",
+        "motion": "The trigger transitions `border-color` and `box-shadow`; the list fades and scales from 98% through `data-[starting-style]`/`data-[ending-style]`. Both at --ui-duration-fast with --ui-ease-out. `scale` is named in the transition list — Tailwind v4 writes it standalone. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EVQ-0"
       },
       "files": [
@@ -22833,7 +23224,7 @@
           "No visual-regression baseline. The matrix renders components inline and a Sheet portals to document.body, so it is excluded for the same reason Modal and Popover are, and the browser contract suite covers it instead — which is now the only thing watching three regions and a three-value width axis.",
           "Brand re-skinning needs `container` — it is not automatic. Without it the panel portals to document.body and leaves the themed subtree; both halves are asserted in the browser suite, and the BrandThemed story passes it. Multiselect's panel still has no equivalent."
         ],
-        "motion": "Two movements. The pinned regions' hairlines fade their COLOUR in and out as Sheet.Body scrolls — a box-shadow rather than a border, so the 48px band cannot jog by the pixel a border-box border would cost it, and always declared so only the colour animates (Header's rule). The panel translates in from its edge and the scrim fades, both at --ui-duration-base with --ui-ease-out. `translate` is named explicitly in the transition: Tailwind v4's translate-* writes the standalone property, so a list naming `transform` animates nothing — the defect that had Modal and Popover snapping open. Durations come from --ui-duration-*, which collapse to 1ms under prefers-reduced-motion.",
+        "motion": "Two movements. The pinned regions' hairlines fade their COLOUR in and out as Sheet.Body scrolls — a box-shadow rather than a border, so the 48px band cannot jog by the pixel a border-box border would cost it, and always declared so only the colour animates (Header's rule). The panel translates in from its edge and the scrim fades, both at --ui-duration-base with --ui-ease-out. `translate` is named explicitly in the transition: Tailwind v4's translate-* writes the standalone property, so a list naming `transform` animates nothing — the defect that had Modal and Popover snapping open. Durations come from --ui-duration-*, which collapse to 1ms under prefers-reduced-motion. Motion levels (ADR 0028): the offset is the panel's own size times --ui-motion-travel, so at `reduced` it starts where it ends and the panel only fades; at `off` the fade is 1ms.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/2UF0-0"
       },
       "files": [
@@ -24211,7 +24602,7 @@
           "className": "Lands on the bar and merges last, which is the whole API.",
           "rest": "Native div props go to the bar. `aria-hidden` is set BEFORE the spread rather than after — the one deliberate exception to §5's contract-props-win rule, so a caller with a single skeleton standing for a single named thing can label it instead. Everything else follows §5."
         },
-        "motion": "A `motion-safe:animate-pulse` keyframe, and the only thing the component animates. The guard is required rather than stylistic: a keyframe carries its own timing, so the token layer's duration collapse cannot reach it (ADR 0018) — without `motion-safe:` this would pulse straight through prefers-reduced-motion. It settles to a plain recessed rectangle there, and the shape carries the meaning on its own. The TIMING is taken back off Tailwind: `animate-pulse` bakes 2s and its own curve into the class NAME, which is a hard-coded duration in the one place check:motion cannot look and no brand can reach, so `[animation-duration:var(--ui-duration-loop)]` and `[animation-timing-function:var(--ui-ease-default)]` override it while the keyframes stay Tailwind's. --ui-duration-loop exists for this: it is the only duration token describing a REPEAT rather than a journey, which is why it sits an order of magnitude above the rest. motion.browser.test.tsx asserts the override actually wins the cascade — an arbitrary property losing to the shorthand would leave the token decorative and every gate still green.",
+        "motion": "A `motion-safe:animate-pulse` keyframe, and the only thing the component animates. The guard is required rather than stylistic: a keyframe carries its own timing, so the token layer's duration collapse cannot reach it (ADR 0018) — without `motion-safe:` this would pulse straight through prefers-reduced-motion. It settles to a plain recessed rectangle there, and the shape carries the meaning on its own. The TIMING is taken back off Tailwind: `animate-pulse` bakes 2s and its own curve into the class NAME, which is a hard-coded duration in the one place check:motion cannot look and no brand can reach, so `[animation-duration:var(--ui-duration-loop)]` and `[animation-timing-function:var(--ui-ease-default)]` override it while the keyframes stay Tailwind's. --ui-duration-loop exists for this: it is the only duration token describing a REPEAT rather than a journey, which is why it sits an order of magnitude above the rest. motion.browser.test.tsx asserts the override actually wins the cascade — an arbitrary property losing to the shorthand would leave the token decorative and every gate still green. Motion levels (ADR 0028): `motion-safe:` is redefined by the theme to read the level as well as the OS, so the pulse runs only at `full` — a region set to `reduced` stops it, and a user who chose `full` in the app gets it back over the OS.",
         "needsDesign": [
           "THERE IS NO SHEET. design/paper/README.md lists Skeleton among the components still to be drawn, so every value below is derived rather than transcribed. Everything in this list is a question, not a defect.",
           "RESOLVED as a token rather than an exception: --ui-duration-loop (2000ms) now carries the pulse period, and --ui-ease-default its curve, both applied over animate-pulse so the keyframes stay Tailwind's and the timing becomes ours. 2000ms is Tailwind's number kept deliberately — it is a reasonable loading rhythm and nothing had measured an alternative — so the VALUE is still a question for the sheet even though its home is no longer. What changed is that it is now reachable: check:motion can see it, a brand can move it, and motion.browser.test.tsx asserts the pulse runs at it.",
@@ -26096,7 +26487,7 @@
           "ref": "root — an SVGSVGElement; there is no inner control",
           "rest": "root — every SVG attribute except children, role and viewBox, which the component owns"
         },
-        "motion": "A JavaScript tick, because the frames are computed rather than keyed: one shared clock steps every moving matrix on the page together, at --ui-stagger-step (100ms) divided by --ui-fx-ambient-speed — the effects layer's one knob for every ambient loop, read as 1 where that layer is not loaded — so two matrices can never beat against each other. A loop is 10 or 20 ticks — 1000ms or 2000ms at the default step. The 20-tick loop matches --ui-duration-loop at that step, but it is counted in ticks rather than read from that token, so a brand that retunes the step retunes the loop with it. The subscription lives as long as the matrix moves: a status or value change rewrites what the next tick draws instead of re-subscribing, so updates arriving faster than a tick cannot stall the clock. Each dot's opacity and fill then transition on --ui-duration-fast — Typing on --ui-duration-base — which is what turns the four discrete levels into a soft phosphor trail. The first render is the key frame (the frame the sheet draws), and motion continues from it after mount. An ending arrived at draws on — Done a cell a tick along its stroke, Failed from the centre out, Stopped in one — and then the clock lets go of it; an ending MOUNTED is already drawn. `isHeld` and prefers-reduced-motion both render the key frame and never subscribe: the clock is JavaScript, which the token layer's duration collapse cannot reach, so the component asks the media query itself. A page without --ui-stagger-step gets a still matrix rather than an invented tempo.",
+        "motion": "A JavaScript tick, because the frames are computed rather than keyed: one shared clock steps every moving matrix on the page together, at --ui-stagger-step (100ms) divided by --ui-fx-ambient-speed — the effects layer's one knob for every ambient loop, read as 1 where that layer is not loaded — so two matrices can never beat against each other. A loop is 10 or 20 ticks — 1000ms or 2000ms at the default step. The 20-tick loop matches --ui-duration-loop at that step, but it is counted in ticks rather than read from that token, so a brand that retunes the step retunes the loop with it. The subscription lives as long as the matrix moves: a status or value change rewrites what the next tick draws instead of re-subscribing, so updates arriving faster than a tick cannot stall the clock. Each dot's opacity and fill then transition on --ui-duration-fast — Typing on --ui-duration-base — which is what turns the four discrete levels into a soft phosphor trail. The first render is the key frame (the frame the sheet draws), and motion continues from it after mount. An ending arrived at draws on — Done a cell a tick along its stroke, Failed from the centre out, Stopped in one — and then the clock lets go of it; an ending MOUNTED is already drawn. `isHeld` and prefers-reduced-motion both render the key frame and never subscribe: the clock is JavaScript, which the token layer's duration collapse cannot reach, so the component asks the media query itself. A page without --ui-stagger-step gets a still matrix rather than an invented tempo. Motion levels (ADR 0028): the clock asks motionLevel() at its own matrix and runs only at `full`, so a region set quieter than the page holds its matrix on the key frame.",
         "needsDesign": [
           "Listening (the voice variant) is on the sheet but not here: its bars should follow a real input level, and a component that takes a level per tick is a different API from a status. Built when a voice surface exists to drive it.",
           "No 32px or 48px size: the sheet draws those as specimens only, and no composition places the matrix above 16px."
@@ -28602,6 +28993,111 @@
       ]
     },
     {
+      "name": "text-swap",
+      "title": "TextSwap",
+      "type": "ui",
+      "category": "Utilities",
+      "status": "experimental",
+      "lead": "Replaces a short label in place, easing its width so the words change without the layout jumping.",
+      "docs": {
+        "lead": "Replaces a short label in place, easing its width so the words change without the layout jumping.",
+        "name": "TextSwap",
+        "status": "experimental",
+        "summary": "The second of ADR 0028's owned motion components, built on Presence. A label of a few words — Save changes becoming Saved, Follow becoming Following — is swapped in place: the old words fade out on --ui-duration-fast without moving, the new ones arrive on --ui-duration-base with Presence's rise (--ui-space-xs × --ui-motion-travel), and the box holding them eases between the two measured widths on base, so a button never snaps narrower under the pointer that pressed it. Both layers share one grid cell, left-aligned, clipped sideways only. Each label is a Presence item keyed by its text, so a word that comes back mid-swap turns around, and a label changed several times in a row retargets from wherever it is. The leaving copy is inert and aria-hidden, so a host's accessible name follows the new words from the first frame. The first render does not animate.",
+        "anatomy": [
+          {
+            "part": "box",
+            "slot": "text-swap",
+            "notes": "One inline-grid span holding the label. Its width is measured before and after a change and transitioned between the two on --ui-duration-base, then released to auto. overflow-x is clipped so neither layer spills past it while it moves; the vertical axis stays visible, so the rise and descenders are never cut."
+          },
+          {
+            "part": "label",
+            "slot": "text-swap-label",
+            "notes": "Each text the component has shown, as one Presence item (rise) keyed by its text, all in the same cell and left-aligned. Usually one; two during a swap. The leaving one is inert and aria-hidden."
+          }
+        ],
+        "composition": "\nTextSwap (children: string)\n└── box — data-slot=\"text-swap\", inline-grid, width eased between measurements\n    └── Presence kind=\"rise\"\n        └── label — data-slot=\"text-swap-label\", one per text, keyed by it\n\n<Button onClick={save}>\n  <TextSwap>{saved ? \"Saved\" : \"Save changes\"}</TextSwap>\n</Button>\n",
+        "props": {
+          "children": {
+            "type": "string",
+            "notes": "The label. A string because its text is its identity: changing it is the swap, and the same text twice is no change. A few words on one line — a wrapping label would animate its height too, which this does not do. Rich content that changes is Presence's job."
+          },
+          "className": {
+            "type": "string",
+            "notes": "Lands on the box, merged last. The type comes from the host — a Button's role, a status line's — so TextSwap has no size of its own."
+          }
+        },
+        "do": [
+          "Put it inside the control whose words change — a Button's label, a status line, a tab's count text.",
+          "Keep both labels short and on one line.",
+          "Let the label carry the state: Saved, not a tick alone."
+        ],
+        "dont": [
+          "Swap paragraphs or wrapping text. A changing block is new content; use Presence.",
+          "Rely on it to announce a change. The words are exposed at once, but a status nobody is focused on needs the caller's own live region.",
+          "Wrap a Button's busy label — Button owns its busy state, spinner and label."
+        ],
+        "a11y": {
+          "role": "None of its own: an inline span inside whatever names it.",
+          "name": "The host's accessible name is the CURRENT text from the first frame, because the leaving copy is aria-hidden while it fades.",
+          "keyboard": [],
+          "focus": "Never focusable. Swapping a label inside a focused button leaves focus where it is.",
+          "contrastPairs": [],
+          "rendersNoColour": "TextSwap sets no colour: its words take the host's ink, and it changes only opacity, translate and width, so the pairs are the host component's to declare."
+        },
+        "forwarding": {
+          "className": "Lands on the box.",
+          "ref": "The box span.",
+          "props": "Native span attributes go to the box; children is the label string."
+        },
+        "motion": "All CSS transitions on the tokens. New label: opacity from 0 and translate from --ui-space-xs × --ui-motion-travel, on --ui-duration-base with --ui-ease-out (Presence's rise). Old label: opacity to 0 on --ui-duration-fast, no movement. Box: width between the two measured widths on --ui-duration-base, released to auto once it settles; a change mid-swap retargets from the current width. Motion levels (ADR 0028): at Reduced the rise is gone (travel 0) and the cross-fade and width stay, both change in place, capped at base; at Off every duration is 1ms and the old label is still removed only after its transition ends.",
+        "needsDesign": [],
+        "knownGaps": [
+          "Built from a sheet the maintainer has not reviewed yet: the width easing on base rather than fast, the left-aligned clipped layers, and the unclipped vertical axis are the sheet's own readings, badged Derived on it.",
+          "Single-line labels only. A label that wraps changes height as well, and nothing eases it."
+        ],
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/48LP-1"
+      },
+      "files": [
+        {
+          "path": "registry/ui/text-swap/text-swap.tsx",
+          "target": "ui/text-swap.tsx"
+        },
+        {
+          "path": "registry/ui/text-swap/text-swap.doc.ts",
+          "target": "ui/text-swap.doc.ts"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "cn",
+        "data-slot",
+        "presence"
+      ],
+      "contrast": [],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-26-textswap-a-label-replaced-in-place",
+          "date": "2026-11-26",
+          "item": "text-swap",
+          "kind": "addition",
+          "summary": "New experimental component text-swap — the second of ADR 0028's owned motion components, built on Presence. A short label replaced in place: the old words fade out on --ui-duration-fast without moving, the new ones arrive on --ui-duration-base with Presence's rise, and the box holding them eases between the two measured widths, so a button never snaps narrower under the pointer that pressed it. Layers share one grid cell, left-aligned and clipped sideways only; the leaving copy is inert and aria-hidden, so a host's accessible name follows the new words at once; a word that comes back mid-swap turns around and a rapid sequence retargets from the current width. At Reduced the rise goes and the cross-fade and width stay; at Off everything is 1ms. Designed and built overnight without review: the sheet (Components - Drafts) badges its own readings — width on base, left-aligned clipped layers, an unclipped vertical axis — as Derived for the maintainer. check:utilities' shared class extractor now blanks data-* attribute values, which it read as classes once a slot name began with a utility prefix (text-swap → --color-swap); a real bad class beside it is still caught (probed). The presence alias is now in every resolver, since TextSwap is the first item to import it.",
+          "affects": [
+            "item:text-swap",
+            "item:presence",
+            "item:app-motion",
+            "item:motion-component",
+            "gate:check-utilities",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/48LP-1"
+          }
+        }
+      ]
+    },
+    {
       "name": "thumbnail",
       "title": "Thumbnail",
       "type": "ui",
@@ -29131,7 +29627,7 @@
         "forwarding": {
           "Toast.Viewport": "className and remaining div props land on the viewport element (the outermost node this component owns). label → aria-label; dismissLabel is threaded to every toast's close button. No refs are exposed — there is no stable per-toast node to hold one on."
         },
-        "motion": "Enter from translateY(150%) + fade; exit reverses toward the bottom edge, or along the swipe axis after a swipe. Transforms run duration-enter with ease-spring (the sheet's motion-choreographed pair), opacity on duration-slow, the stack's height settle on duration-fast — written as longhand transition properties because the split cannot be expressed in one shorthand. Behind-content cross-fades on duration-base. The loading spinner is animate-spin with the motion-reduce guard; every transition collapses under prefers-reduced-motion at the token layer.",
+        "motion": "Enter from translateY(150%) + fade; exit reverses toward the bottom edge, or along the swipe axis after a swipe. Transforms run duration-enter with ease-spring (the sheet's motion-choreographed pair), opacity on duration-slow, the stack's height settle on duration-fast — written as longhand transition properties because the split cannot be expressed in one shorthand. Behind-content cross-fades on duration-base. The loading spinner is animate-spin with the motion-reduce guard; every transition collapses under prefers-reduced-motion at the token layer. Motion levels (ADR 0028): every offset the toast travels on its own is times --ui-motion-travel, and it starts at the travel factor as its opacity, so at `reduced` it fades in and out in place; the distance a swipe already moved it is not scaled, because the user moved it.",
         "needsDesign": [
           "Anchored toasts (Base UI's Toast.Positioner — transient 'Copied' chips on a trigger) are out of scope for the sheet and this component; they need their own design pass if a consumer asks.",
           "A shared Spinner primitive: loading reuses Button's private border-drawn spinner recipe for the third time. Three copies is the chrome-control story again."
@@ -29446,7 +29942,7 @@
           "className": "Lands on the chip (Tooltip.Content) and on the trigger wrapper (Tooltip.Trigger). The trigger's own className is the caller's and is untouched.",
           "rest": "Native div props go to the chip."
         },
-        "motion": "The chip transitions `opacity` and `scale` from 0.98 about --transform-origin, at --ui-duration-fast with --ui-ease-out — the micro recipe, the same pair Popover animates. `scale` is named in the transition list rather than `transform`, because Tailwind v4 writes it as a standalone property and a list naming `transform` covers none of it; the browser test asserts it through getAnimations(), which is the only thing that can tell the working version from the broken one. The DELAYS are not motion and do not collapse under prefers-reduced-motion: 600ms of hover intent before it opens, 0 to close, and a 300ms window in which a neighbour opens instantly. They live in @/lib/motion as numbers rather than as --ui-duration-* tokens, because a delay is consumed by a JavaScript prop and a CSS custom property cannot be read by one.",
+        "motion": "The chip transitions `opacity` and `scale` from 0.98 about --transform-origin, at --ui-duration-fast with --ui-ease-out — the micro recipe, the same pair Popover animates. `scale` is named in the transition list rather than `transform`, because Tailwind v4 writes it as a standalone property and a list naming `transform` covers none of it; the browser test asserts it through getAnimations(), which is the only thing that can tell the working version from the broken one. The DELAYS are not motion and do not collapse under prefers-reduced-motion: 600ms of hover intent before it opens, 0 to close, and a 300ms window in which a neighbour opens instantly. They live in @/lib/motion as numbers rather than as --ui-duration-* tokens, because a delay is consumed by a JavaScript prop and a CSS custom property cannot be read by one. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
         "needsDesign": [
           "The sheet draws a tooltip opening over a DISABLED trigger, and it cannot. A disabled form control receives no pointer events in Chromium and is out of the tab order, so both paths are closed — see knownGaps for what a caller has to do instead. The sheet's row needs redrawing around a wrapper, or the case needs dropping.",
           "The skip window is 300ms, against Base UI's own default of 400. Tighter suits a row of icon buttons read left to right, and nothing has measured which is better with a real user.",

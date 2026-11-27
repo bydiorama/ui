@@ -12,8 +12,13 @@ import { join } from "node:path";
 // hover became ground-aware — `in-[.bg-elevated]:hover:bg-hover`. The bracket
 // made the whole class look arbitrary, so the gate skipped it: a typo in the
 // hover role compiled to nothing and `check:utilities` stayed green. Probed.
+//
+// `starting` (CSS @starting-style) was missing until Presence, the first
+// registry component to use it: `starting:opacity-zzz` passed the gate while
+// compiling to nothing, so an arrival with a typo would simply not animate.
+// Probed, then added.
 export const VARIANT =
-  /^(?:hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-[a-z-]+|aria-\[[^\]]+\]|data-\[[^\]]+\]|data-[a-z-]+|has-\[[^\]]+\]|has-[a-z-]+|in-\[[^\]]+\]|in-[a-z-]+|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
+  /^(?:starting|hover|focus|focus-visible|focus-within|active|disabled|enabled|checked|indeterminate|required|invalid|read-only|placeholder|file|selection|marker|before|after|first-line|aria-[a-z-]+|aria-\[[^\]]+\]|data-\[[^\]]+\]|data-[a-z-]+|has-\[[^\]]+\]|has-[a-z-]+|in-\[[^\]]+\]|in-[a-z-]+|not-[a-z-]+|group-[a-z-]+|peer-[a-z-]+|motion-reduce|motion-safe|dark|sm|md|lg|xl|2xl|forced-colors|print|first|last|odd|even):/;
 
 /**
  * Comments are not code, and this gate must not read them.
@@ -47,7 +52,12 @@ export function stripComments(source) {
  * recipe array are still read in full.
  */
 const PROSE_ATTRIBUTE =
-  /\b(?:aria-label|aria-description|aria-placeholder|aria-roledescription|aria-valuetext|title|alt|placeholder|label|accessibleName|description|summary|content)\s*=\s*(?:"[^"\n]*"|'[^'\n]*')/g;
+  /\b(?:aria-label|aria-description|aria-placeholder|aria-roledescription|aria-valuetext|title|alt|placeholder|label|accessibleName|description|summary|content|data-[a-z][a-z-]*)\s*=\s*(?:"[^"\n]*"|'[^'\n]*')/g;
+// `data-*` values joined the list with TextSwap, whose slot is `text-swap`:
+// the gate read `data-slot="text-swap"` — and the same name inside a
+// `[data-slot="text-swap-label"]` selector string — as a `text-*` colour and
+// asked for `--color-swap`. A data attribute's value is a name, never a class
+// list, so blanking it costs no coverage either.
 
 export function stripProse(source) {
   return source.replace(PROSE_ATTRIBUTE, (match) => `${match.split("=")[0]}=""`);

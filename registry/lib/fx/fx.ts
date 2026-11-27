@@ -191,7 +191,13 @@ export function fx(...names: FxName[]): string {
  */
 export function sweep(element: HTMLElement): void {
   if (typeof window === "undefined") return;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  // The stylesheet runs the pass only at `full` (ADR 0028); asking the same
+  // question here keeps the attribute from being set for nothing. The level is
+  // read from the token rather than through `motionLevel()` in @/lib/motion
+  // because this file is loaded by `check:fx` in plain Node and stays
+  // import-free; the effects stylesheet cannot compile without the theme that
+  // sets the token, so the two readings cannot differ.
+  if (getComputedStyle(element).getPropertyValue("--ui-motion-level").trim() !== "full") return;
   element.removeAttribute("data-fx-sweep");
   // Reading layout between the two writes is what makes the browser see a
   // NEW animation rather than the same one still applied.

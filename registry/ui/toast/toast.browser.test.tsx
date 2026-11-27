@@ -32,8 +32,22 @@ const viewport = () => document.querySelector<HTMLElement>('[data-slot="toast-vi
 const toasts = () => Array.from(document.querySelectorAll<HTMLElement>('[data-slot="toast"]'));
 const slot = (name: string) => document.querySelector<HTMLElement>(`[data-slot="${name}"]`);
 
+/**
+ * Everything inside the toast has finished moving, not just the toast.
+ *
+ * Since `--ui-ease-spring` became a real spring (ADR 0028 §7) the toast passes
+ * its resting place by 2.8% and comes back, so it can slide under a pointer a
+ * previous test left there: the action starts a hover-ring transition that a
+ * toast-only wait does not cover, and a style read lands mid-flight. Loops (a
+ * loading spinner) never finish, so they are left out.
+ */
 async function settled(element: Element) {
-  await Promise.all(element.getAnimations().map((a) => a.finished.catch(() => undefined)));
+  const finite = element.getAnimations({ subtree: true }).filter((a) => a.effect?.getTiming().iterations !== Infinity);
+  await Promise.all(finite.map((a) => a.finished.catch(() => undefined)));
+  // A transition the toast's own movement started (that hover) begins after
+  // the wait above was set up; one more pass catches it.
+  const late = element.getAnimations({ subtree: true }).filter((a) => a.effect?.getTiming().iterations !== Infinity);
+  await Promise.all(late.map((a) => a.finished.catch(() => undefined)));
 }
 
 function Grab({ onManager }: { onManager: (manager: ToastManager) => void }) {
@@ -155,7 +169,9 @@ describe("motion — the split transition survives to computed style", () => {
     const cs = getComputedStyle(el);
     expect(cs.transitionProperty).toBe("translate, scale, opacity, height");
     expect(cs.transitionDuration).toBe("0.4s, 0.4s, 0.32s, 0.12s");
-    expect(cs.transitionTimingFunction).toContain("cubic-bezier(0.22, 1, 0.36, 1)");
+    // The transforms run on --ui-ease-spring, a linear() spring since ADR 0028
+    // §7; the two eases after it are opacity and height on --ui-ease-out.
+    expect(cs.transitionTimingFunction).toMatch(/^linear\(0 0%, .*\), linear\(0 0%, .*\), cubic-bezier\(0, 0, 0\.2, 1\), cubic-bezier\(0, 0, 0\.2, 1\)$/);
     // And the declaration has an effect: entering, something is animating.
     expect(el.getAnimations().length).toBeGreaterThan(0);
   });

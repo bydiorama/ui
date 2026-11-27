@@ -22,13 +22,12 @@
  * `--ui-motion-standard`, which pairs `--ui-duration-base` with
  * `--ui-ease-default`, an easing nothing in the library has ever reached for.
  *
- * So these three are named for the intents but do NOT read them, and that is
- * a deliberate record of a disagreement rather than an oversight: the tokens
- * describe a system with four curves and the components built one with a
- * single curve. Which is right is a design question (`design/paper/README.md`
- * still lists motion sign-off as open). Encoding the components' actual
- * behaviour here at least makes the disagreement visible in one file instead
- * of implied across twenty-eight.
+ * That disagreement is settled (ADR 0028 §7, 2026-11-26): the tokens follow
+ * the components. `--ui-motion-micro`, `-standard` and `-deliberate` now name
+ * the same duration and `--ui-ease-out` as the three recipes below, so the
+ * recipe IS its intent, spelt as two utilities because Tailwind has no single
+ * utility for a duration-and-easing pair. `check:motion` reads both sides and
+ * fails if they ever differ again.
  */
 
 /** Interaction feedback — hover, focus, press, a colour or a ring settling. */
@@ -94,3 +93,59 @@ export const HOVER_INTENT_CLOSE_MS = 0;
  * the sheet's, and tighter suits a row of icon buttons read left to right.
  */
 export const HOVER_INTENT_SKIP_MS = 300;
+
+/**
+ * The motion level an element is under (ADR 0028) — the one question every
+ * JavaScript-driven animation asks before it moves.
+ *
+ * The CSS decides; this only reads the answer. The token layer resolves the
+ * OS preference and every `[data-ui-motion]` on the way down to one value of
+ * `--ui-motion-level`, so the precedence lives in exactly one place and a
+ * script cannot disagree with the stylesheet about it. Read it from the
+ * element that will move, not from the document: a region may be quieter
+ * than the page.
+ *
+ * - `full` — animate.
+ * - `reduced` — nothing travels and nothing loops: skip a slide, a smooth
+ *   scroll, a ticking clock; a change in place may still ease.
+ * - `off` — skip it.
+ *
+ * Without the token layer (a test page, a stylesheet not yet loaded) it falls
+ * back to the OS preference, which is what the tokens would have said. On the
+ * server it answers `full`: callers render the resting state first either way,
+ * so the markup cannot disagree.
+ */
+export type MotionLevel = "full" | "reduced" | "off";
+
+const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
+
+export function motionLevel(element?: Element | null): MotionLevel {
+  if (typeof window === "undefined") return "full";
+  const target = element ?? document.documentElement;
+  const value = getComputedStyle(target).getPropertyValue("--ui-motion-level").trim();
+  if (value === "full" || value === "reduced" || value === "off") return value;
+  return typeof window.matchMedia === "function" && window.matchMedia(REDUCE_QUERY).matches ? "reduced" : "full";
+}
+
+/**
+ * Calls `notify` whenever any element's level may have changed: the OS
+ * preference flipped, or a `data-ui-motion` attribute was set, changed or
+ * removed anywhere in the document. Returns the unsubscribe function. For a
+ * long-lived animation (a clock, a shader) — a one-shot simply asks
+ * `motionLevel()` when it starts.
+ *
+ * Shaped for React's `useSyncExternalStore`:
+ *
+ *   const level = useSyncExternalStore(subscribeMotionLevel, () => motionLevel(ref.current), () => "full");
+ */
+export function subscribeMotionLevel(notify: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const query = typeof window.matchMedia === "function" ? window.matchMedia(REDUCE_QUERY) : null;
+  query?.addEventListener("change", notify);
+  const observer = new MutationObserver(notify);
+  observer.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["data-ui-motion"] });
+  return () => {
+    query?.removeEventListener("change", notify);
+    observer.disconnect();
+  };
+}

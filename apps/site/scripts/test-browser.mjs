@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { chromium, webkit } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { checkAppearance, openLooks, waitForAppearance } from "./appearance-checks.mjs";
+import { checkAppearance, checkMotionSetting, openLooks, waitForAppearance } from "./appearance-checks.mjs";
 import { checkPreviews } from "./preview-checks.mjs";
 
 const site = fileURLToPath(new URL("../", import.meta.url));
@@ -62,10 +62,11 @@ try {
     assert.deepEqual(errors, []);
   } else if (process.argv.includes("--appearance-only")) {
     await checkAppearance(page, base, artifacts);
+    await checkMotionSetting(page, base);
     assert.deepEqual(errors, []);
     console.log("Appearance rendering and combinations checked");
   } else {
-  const paths = ["/", "/components/", "/docs/", "/docs/agents/", "/changelog/", ...catalog.items.map(item => `/components/${item.name}/`)];
+  const paths = ["/", "/components/", "/docs/", "/docs/agents/", "/docs/motion/", "/changelog/", ...catalog.items.map(item => `/components/${item.name}/`)];
   for (const scheme of process.argv.includes("--interactions-only") ? [] : ["light", "dark"]) {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
     for (const path of paths) {
@@ -194,6 +195,11 @@ try {
   assert.equal(await page.locator("html").getAttribute("data-ui-density"), "compact");
   assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme), "dark");
   await page.keyboard.press("Control+k");
+  // Audit the dialog once it has arrived. Under reduced motion it still fades
+  // in place (ADR 0028), and axe measuring mid-fade reads the results'
+  // translucent text as a contrast failure.
+  await page.getByRole("textbox", { name: "Search the library" }).waitFor();
+  await settled();
   const themed = await audit(page).analyze();
   if (themed.violations.length) errors.push(`Stress theme search: ${themed.violations.map(v => `${v.id}: ${v.nodes.map(n => n.html).join("; ")}`).join(", ")}`);
   await page.keyboard.press("Escape");
@@ -289,6 +295,7 @@ try {
   }
   await checkPreviews(page, base, artifacts);
   await checkAppearance(page, base, artifacts);
+  await checkMotionSetting(page, base);
   await context.close();
 
   const noJs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 800 } });

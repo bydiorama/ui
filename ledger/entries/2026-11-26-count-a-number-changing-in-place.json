@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-count-a-number-changing-in-place",
+  "date": "2026-11-26",
+  "item": "count",
+  "kind": "addition",
+  "summary": "New experimental component count — the fourth of ADR 0028's owned motion components. A number formatted with Intl.NumberFormat (format and locale props), one span per character, matched to the previous value from the right; only changed characters move. A changed character remounts and arrives through @starting-style on --ui-duration-base, rising --ui-space-xs × --ui-motion-travel when the value grew and dropping when it shrank; an aria-hidden ghost beside it in the same grid cell draws the old character with ::before content from data-char and fades on --ui-duration-fast. Generated content is never text, so the element's text is the plain value at every frame — the digit-debris trap app-motion warns about cannot happen. TextSwap's clock and Presence's rise reused; no new token; tabular figures; first render still. Designed and built overnight without review: the direction rule and right-aligned place matching are badged Derived on the sheet (Components - Drafts). Three probes were run (ghost rendered as text; travel removed; direction ignored), each failing its named test.",
+  "affects": [
+    "item:count",
+    "item:app-motion",
+    "item:motion-component",
+    "decision:0028-motion-levels-and-primitives"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49D3-1"
+  }
+}

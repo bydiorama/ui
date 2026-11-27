@@ -97,3 +97,14 @@ test("the row sizes are purpose-named spacing (ADR 0026)", () => {
     assert.match(theme, new RegExp(`--spacing-${key}: var\\(${token}\\);`));
   }
 });
+
+test("motion-safe and motion-reduce read the motion level, not only the OS (ADR 0028)", () => {
+  const css = toTailwindTheme();
+  assert.ok(css.includes("@custom-variant motion-safe {"));
+  assert.ok(css.includes("@custom-variant motion-reduce {"));
+  const safe = css.slice(css.indexOf("@custom-variant motion-safe"), css.indexOf("@custom-variant motion-reduce"));
+  // A keyframe runs only at full: never under a reduced or off ancestor…
+  assert.match(safe, /&:not\(:where\(\[data-ui-motion="reduced"\]/);
+  // …and, with the OS asking for less, only where the user lifted it.
+  assert.match(safe, /prefers-reduced-motion: reduce\) \{\s*&:where\(\[data-ui-motion="full"\]/);
+});

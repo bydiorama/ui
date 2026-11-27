@@ -120,13 +120,48 @@ pre { @apply text-body-md;  white-space: pre-wrap; overflow-wrap: anywhere; padd
 .prose-page { max-width: 800px; padding: calc(var(--ui-space-4xl) + var(--ui-space-lg)) var(--ui-space-xl); margin: auto; }
 .prose-page h1 { @apply text-display-md;  margin-bottom: var(--ui-space-xl); }
 .prose-page h2 { @apply text-title-md;  margin: calc(var(--ui-space-2xl) + var(--ui-space-sm)) 0 var(--ui-space-lg); }
-.prose-page p { @apply text-body-lg;  color: var(--ui-text-secondary); margin: var(--ui-space-lg) 0; }
+/* Not inside the motion lab: the components placed there (a field's helper
+   text, a panel's body) keep their own type. `:where` keeps the specificity. */
+.prose-page p:where(:not(.motion-lab *)) { @apply text-body-lg;  color: var(--ui-text-secondary); margin: var(--ui-space-lg) 0; }
 .prose-page a:not(.button) { text-decoration: underline; text-underline-offset: 4px; }
 .reference-link { display: inline-flex; align-items: center; gap: var(--ui-space-sm); }
 .reference-link svg { width: 16px; height: 16px; }
 .changelog-entry { padding: var(--ui-space-xl) 0; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); }
 .changelog-entry h2 { @apply text-body-lg;  margin: var(--ui-space-sm) 0; }
 .changelog-entry time { @apply text-body-sm;  color: var(--ui-text-muted); }
+
+/* Motion docs (ADR 0028): the level lab, the level table and the intent tracks. */
+.motion-lab { display: flex; flex-direction: column; gap: var(--ui-space-xl); margin: var(--ui-space-xl) 0; padding: var(--ui-space-xl); border-radius: var(--ui-radius-lg); background: var(--ui-bg-surface); }
+.motion-lab-controls { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--ui-space-lg); }
+.motion-lab-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ui-space-lg); }
+.motion-lab-cell { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ui-space-md); min-width: 0; padding: var(--ui-space-lg); border-radius: var(--ui-radius-md); background: var(--ui-bg-base); }
+.motion-lab-cell > [data-slot="accordion"], .motion-lab-cell > [data-slot="skeleton"] { align-self: stretch; }
+.motion-lab-cell h3 { @apply text-body-md;  font-weight: 600; color: var(--ui-text-primary); }
+.motion-lab-cell > p { @apply text-body-sm;  margin: 0; color: var(--ui-text-secondary); }
+.motion-lab-cell-wide { grid-column: 1 / -1; }
+/* `transform` makes the screen the drawer's containing block (Sheet's
+   `container` note): the Sheet opens inside the specimen, not over the page. */
+.motion-lab-screen { position: relative; align-self: stretch; height: 180px; padding: var(--ui-space-md); overflow: clip; transform: translateZ(0); border-radius: var(--ui-radius-sm); box-shadow: inset 0 0 0 var(--ui-stroke-default) var(--ui-border-subtle); }
+.motion-table { overflow-x: auto; margin: var(--ui-space-xl) 0; }
+.motion-table table { width: 100%; border-collapse: collapse; }
+.motion-table th, .motion-table td { @apply text-body-md;  padding: var(--ui-space-md) var(--ui-space-sm); text-align: left; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.motion-table td { color: var(--ui-text-secondary); }
+.motion-intents { display: flex; flex-direction: column; align-items: flex-start; gap: var(--ui-space-lg); margin: var(--ui-space-xl) 0; }
+.motion-intents ul { align-self: stretch; list-style: none; padding: 0; margin: 0; }
+.motion-intents li { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); gap: var(--ui-space-sm) var(--ui-space-lg); align-items: center; padding: var(--ui-space-md) 0; border-top: var(--ui-stroke-default) solid var(--ui-border-subtle); }
+.motion-intent-name { display: flex; flex-direction: column; gap: var(--ui-space-xs); }
+.motion-intent-name span, .motion-intent-value { @apply text-body-sm;  color: var(--ui-text-muted); }
+.motion-intent-value { grid-column: 2; }
+.motion-intent-track { container-type: inline-size; height: 12px; border-radius: var(--ui-radius-full); background: var(--ui-bg-sunken); }
+.motion-intent-dot { display: block; width: 12px; height: 12px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent-legible); }
+.motion-intent-dot[data-at-end] { translate: calc((100cqw - 100%) * var(--ui-motion-travel)) 0; }
+@media (max-width: 700px) {
+  .motion-lab { padding: var(--ui-space-lg); }
+  .motion-lab-grid { grid-template-columns: 1fr; }
+  .motion-lab-screen { height: 220px; }
+  .motion-intents li { grid-template-columns: 1fr; }
+  .motion-intent-value { grid-column: 1; }
+}
 /* Effects are opt-in on the example roots; the underlying component is the floor. */
 
 @media (max-width: 1000px) {

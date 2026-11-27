@@ -38,8 +38,8 @@
     }
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .fx-ink {
+  .fx-ink {
+    @variant motion-safe {
       animation: ui-fx-ink-turn calc(var(--ui-duration-loop) * 8 / var(--ui-fx-ambient-speed, 1)) linear infinite;
     }
   }

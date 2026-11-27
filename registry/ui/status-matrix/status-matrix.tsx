@@ -12,7 +12,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/cn";
-import { motionMicro, motionStandard } from "@/lib/motion";
+import { motionLevel, motionMicro, motionStandard, subscribeMotionLevel } from "@/lib/motion";
 
 import type { OwnedSlot } from "@/lib/data-slot";
 /**
@@ -317,21 +317,15 @@ function subscribe(el: Element, fn: Subscriber): (() => void) | null {
   };
 }
 
-// ---------------------------------------------------------------- reduced motion
+// ---------------------------------------------------------------- motion level
 //
-// The token layer collapses every CSS duration under reduced motion, but this
-// clock is JavaScript and the token cannot reach it (CONVENTIONS §8), so it
-// asks the media query itself. The server answers "no preference": the first
-// render is the key frame either way, so the two cannot disagree on markup.
+// The token layer re-times every CSS duration per motion level, but this clock
+// is JavaScript and the token cannot reach it (CONVENTIONS §8), so it asks the
+// level for its own element (ADR 0028). A ticking matrix is a loop, so it runs
+// only at `full`. The server answers `full`: the first render is the key frame
+// either way, so the two cannot disagree on markup.
 
-const REDUCED = "(prefers-reduced-motion: reduce)";
-function onReducedChange(notify: () => void) {
-  const query = window.matchMedia(REDUCED);
-  query.addEventListener("change", notify);
-  return () => query.removeEventListener("change", notify);
-}
-const isReduced = () => window.matchMedia(REDUCED).matches;
-const isReducedOnServer = () => false;
+const isFullOnServer = () => true;
 
 // ---------------------------------------------------------------- props
 
@@ -393,10 +387,16 @@ export const StatusMatrix = forwardRef<SVGSVGElement, StatusMatrixProps>(functio
 
   const fraction = status === "progress" && max > 0 ? (value ?? 0) / max : 0;
   const ink = INK[status];
-  const reduced = useSyncExternalStore(onReducedChange, isReduced, isReducedOnServer);
-  const isStill = isHeld || reduced;
-
   const svgRef = useRef<SVGSVGElement>(null);
+  // Read at the matrix: before the ref is set this is the page's level, and
+  // React re-reads the snapshot once it has committed.
+  const isFull = useSyncExternalStore(
+    subscribeMotionLevel,
+    () => motionLevel(svgRef.current) === "full",
+    isFullOnServer,
+  );
+  const isStill = isHeld || !isFull;
+
   useImperativeHandle(ref, () => svgRef.current!, []);
 
   const still = useMemo(() => keyFrame(signalOf(status, fraction), ink), [status, fraction, ink]);

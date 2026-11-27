@@ -1,12 +1,17 @@
+import { motionLevel } from "@/lib/motion";
+
 export const appearanceOptions = {
   scheme: [{ value: "auto", label: "System" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }],
   density: [{ value: "compact", label: "Compact" }, { value: "default", label: "Default" }, { value: "comfortable", label: "Comfortable" }],
   brand: [{ value: "zero", label: "Zero" }, { value: "mono", label: "Mono" }, { value: "soft", label: "Soft" }, { value: "hockney", label: "Hockney" }, { value: "graphite", label: "Graphite" }, { value: "stress", label: "Stress" }],
   effects: [{ value: "off", label: "Off" }, { value: "on", label: "On" }],
+  // The motion level (ADR 0028). `auto` matches none of the level selectors,
+  // so the page follows the system exactly as if no attribute were set.
+  motion: [{ value: "auto", label: "System" }, { value: "full", label: "Full" }, { value: "reduced", label: "Reduced" }, { value: "off", label: "Off" }],
 } as const;
 export type Appearance = { [K in keyof typeof appearanceOptions]: typeof appearanceOptions[K][number]["value"] };
-export const defaultAppearance: Appearance = { scheme: "auto", density: "default", brand: "zero", effects: "off" };
-export const appearanceAttributes = { scheme: "siteScheme", density: "uiDensity", brand: "siteBrand", effects: "siteEffects" } as const;
+export const defaultAppearance: Appearance = { scheme: "auto", density: "default", brand: "zero", effects: "off", motion: "auto" };
+export const appearanceAttributes = { scheme: "siteScheme", density: "uiDensity", brand: "siteBrand", effects: "siteEffects", motion: "uiMotion" } as const;
 export const appearanceStorageKey = "diorama-ui-appearance";
 const keys = Object.keys(defaultAppearance) as (keyof Appearance)[];
 let snapshot = defaultAppearance;
@@ -48,7 +53,7 @@ export function setAppearance<K extends keyof Appearance>(key: K, value: Appeara
   // fx layers are background images, which cannot transition themselves.
   // The update waits a task so the islands have re-rendered and the
   // data-fx-on classes are synced before the new frame is captured.
-  const canFade = key === "effects" && typeof document.startViewTransition === "function" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canFade = key === "effects" && typeof document.startViewTransition === "function" && motionLevel() === "full";
   if (!canFade) { applyAppearance(next, true); return; }
   document.documentElement.dataset.effectsFade = "";
   const transition = document.startViewTransition(async () => {

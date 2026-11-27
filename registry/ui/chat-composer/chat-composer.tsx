@@ -16,7 +16,7 @@ import {
 import { ArrowUp, SquareRounded } from "griddy-icons";
 
 import { cn } from "@/lib/cn";
-import { motionMicro } from "@/lib/motion";
+import { motionLevel, motionMicro } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { Button } from "@/ui/button";
@@ -325,9 +325,11 @@ export const ChatComposer = forwardRef<HTMLTextAreaElement, ChatComposerProps>(
       flipFromRef.current = null;
       const frame = frameRef.current;
       if (!frame || typeof frame.animate !== "function") return;
-      // Explicit, per the craft rule for JS-driven motion — although the
-      // duration read below collapses to 1ms at the token layer anyway.
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      // Explicit, per the craft rule for JS-driven motion. A height growing
+      // in place is change, not travel, so it eases at `reduced` too (ADR
+      // 0028) — the duration read below is already capped there — and only
+      // `off` skips it, although its 1ms duration would anyway.
+      if (motionLevel(frame) === "off") return;
       const frameStyle = getComputedStyle(frame);
       // The tokens, read at their computed values: WAAPI cannot consume a
       // custom property by name, and a literal here would be a second motion

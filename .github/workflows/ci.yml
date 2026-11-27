@@ -158,6 +158,14 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # The same gate as the dependency-free "Licensing" step above, run again
+      # now that griddy-icons is installed. Its glyph check reads the icon
+      # files from node_modules and skips itself without them, so the first
+      # run never sees a fixed-fill glyph: two site motifs shipped griddy's
+      # black-filled Pause past every CI run for that reason.
+      - name: Licensing, with the icon glyphs installed
+        run: node scripts/lint-licensing.mjs
+
       # The registry ships source with declared npm imports, so its tests can
       # only resolve once those dependencies exist. cn.test.ts pins the
       # tailwind-merge configuration — the least visible load-bearing thing in

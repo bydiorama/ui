@@ -4,7 +4,7 @@ import { join } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 
 const storageKey = "diorama-ui-appearance";
-const defaults = { scheme: "auto", density: "default", brand: "zero", effects: "off" };
+const defaults = { scheme: "auto", density: "default", brand: "zero", effects: "off", motion: "auto" };
 export async function waitForAppearance(page) {
   await page.locator('astro-island[component-export="Stage"]:not([ssr])').waitFor();
 }
@@ -164,7 +164,7 @@ export async function checkAppearance(page, base, artifacts) {
   assert(await look("Hockney").isChecked(), "The look survives a reload");
   assert(await dark.isChecked(), "Dark survives a reload");
   assert(await effect.isChecked(), "Effects survives a reload");
-  assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey), { scheme: "dark", density: "default", brand: "hockney", effects: "on" });
+  assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), storageKey), { scheme: "dark", density: "default", brand: "hockney", effects: "on", motion: "auto" });
   await dock.screenshot({ path: join(artifacts, "appearance-hockney-dark.png") });
   for (const name of ["Mono", "Soft", "Zero"]) {
     await chooseLook(name);
@@ -223,4 +223,36 @@ export async function checkAppearance(page, base, artifacts) {
   assert.deepEqual(blockedErrors, []);
   await blockedContext.close();
   console.log(`Appearance: ${combinations} rendered combinations, material reversal, keyboard, persistence, malformed storage and cross-tab sync checked`);
+}
+
+/**
+ * The site's motion setting (ADR 0028), on the Motion docs page: choosing a
+ * level sets the attribute the tokens read, the tokens answer, the choice is
+ * stored with the rest of the appearance, and it is applied again before the
+ * first paint of the next page.
+ */
+export async function checkMotionSetting(page, base) {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`${base}/docs/motion/`);
+  const lab = page.locator(".motion-lab");
+  await page.locator('astro-island[component-export="MotionLab"]:not([ssr])').waitFor();
+  const level = () => page.evaluate(() => [document.documentElement.dataset.uiMotion, getComputedStyle(document.documentElement).getPropertyValue("--ui-motion-level").trim(), getComputedStyle(document.documentElement).getPropertyValue("--ui-motion-travel").trim()]);
+  // "System" follows the operating system, in both directions. The suite's
+  // context may emulate reduced motion, so each side is set explicitly.
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  assert.deepEqual(await level(), ["auto", "full", "1"], "With no choice and no OS preference the site moves fully");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  assert.deepEqual(await level(), ["auto", "reduced", "0"], "With no choice the site follows the OS asking for less");
+  await lab.getByText("Full", { exact: true }).click();
+  assert.deepEqual(await level(), ["full", "full", "1"], "Choosing Full in the site overrides the OS");
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await lab.getByText("Reduced", { exact: true }).click();
+  assert.deepEqual(await level(), ["reduced", "reduced", "0"], "Reduced takes travel away");
+  assert.equal(await page.evaluate(key => JSON.parse(localStorage.getItem(key)).motion, storageKey), "reduced", "The motion level is stored with the appearance");
+  await page.goto(`${base}/docs/`);
+  assert.deepEqual(await level(), ["reduced", "reduced", "0"], "The stored level applies on the next page");
+  await page.goto(`${base}/docs/motion/`);
+  await page.locator('astro-island[component-export="MotionLab"]:not([ssr])').waitFor();
+  await lab.getByText("System", { exact: true }).click();
+  assert.deepEqual(await level(), ["auto", "full", "1"], "System hands the choice back");
 }

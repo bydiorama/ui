@@ -20,7 +20,7 @@
  */
 import { afterEach, describe, expect, test } from "vitest";
 import { page } from "vitest/browser";
-import { Building, ChevronDown, Colors, ExpandSidebar, FileText, Home, Image, Inbox, InfoCircle, LocationPin, Search, User, UsersGroup } from "griddy-icons";
+import { Building, Check, ChevronDown, Colors, Copy, ExpandSidebar, FileText, Home, Image, Inbox, InfoCircle, LocationPin, Search, User, UsersGroup } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { createRoot, type Root } from "react-dom/client";
@@ -34,6 +34,10 @@ import { AspectRatio } from "@/ui/aspect-ratio/aspect-ratio.tsx";
 import { Skeleton } from "@/ui/skeleton/skeleton.tsx";
 import { DotPattern } from "@/ui/dot-pattern/dot-pattern.tsx";
 import { Fade } from "@/ui/fade/fade.tsx";
+import { Presence } from "@/ui/presence/presence.tsx";
+import { TextSwap } from "@/ui/text-swap/text-swap.tsx";
+import { IconSwap } from "@/ui/icon-swap/icon-swap.tsx";
+import { Count } from "@/ui/count/count.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
@@ -1667,6 +1671,78 @@ const CASES: Array<{
         <div className="relative h-16 overflow-clip rounded-md bg-sunken">
           <DotPattern className="text-edge-default" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "count",
+    // The REST state: a stat, a currency in another locale, and a count in a
+    // Button. A baseline catches what a change leaves behind once nothing
+    // moves — a ghost still drawn over a digit, a digit stuck off its line, or
+    // proportional figures that would make a changing number jitter.
+    ui: (
+      <div className="flex flex-col items-start gap-lg">
+        <Count value={1250} className="text-title-lg text-ink-primary" />
+        <Count value={1249.5} locale="sk-SK" format={{ style: "currency", currency: "EUR" }} className="text-title-md text-ink-primary" />
+        <Button>Cart · <Count value={4} /></Button>
+      </div>
+    ),
+  },
+  {
+    name: "icon-swap",
+    // The REST state under each glyph: an icon-only Button showing Copy, one
+    // showing the tick, and an icon beside a label. A baseline catches what a
+    // swap leaves behind once nothing moves — a hidden glyph that kept some
+    // opacity, a shown one stuck below full size, or a box that grew past the
+    // host's 16px icon and pushed the label.
+    ui: (
+      <div className="flex items-center gap-md">
+        <Button isIconOnly aria-label="Copy link" icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show="copy" />} />
+        <Button isIconOnly aria-label="Copied" variant="secondary" icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show="check" />} />
+        <Button variant="secondary" icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show="check" />}>Copied</Button>
+      </div>
+    ),
+  },
+  {
+    name: "text-swap",
+    // The REST state, in the hosts it lives in: a primary and a secondary
+    // Button and a status in running text. A baseline catches what a swap
+    // leaves behind once nothing moves — a box still holding an inline width
+    // (a button wider or narrower than its label), a clipped descender from
+    // the overflow rule, a label nudged by its rise.
+    ui: (
+      <div className="flex flex-col items-start gap-lg">
+        <div className="flex gap-md">
+          <Button><TextSwap>Save changes</TextSwap></Button>
+          <Button variant="secondary"><TextSwap>Following</TextSwap></Button>
+        </div>
+        <p className="text-body-md text-ink-secondary">
+          Grid systems: <TextSwap className="text-ink-primary">Uploading 3 of 12</TextSwap>
+        </p>
+      </div>
+    ),
+  },
+  {
+    name: "presence",
+    // A baseline is one frame, and Presence's whole job happens between
+    // frames, so what this can catch is the REST state: items under every kind
+    // laid out exactly as without Presence — no gap, no offset, no row left at
+    // a partial opacity or a clipped height once nothing is moving. A collapse
+    // that forgot to release its inline height would show here as a squashed
+    // row; a rise left mid-flight as a 4px step.
+    ui: (
+      <div className="flex w-96 flex-col gap-lg">
+        {(["fade", "rise", "collapse"] as const).map((kind) => (
+          <ul key={kind} className="flex flex-col rounded-md border border-edge-subtle bg-surface">
+            <Presence kind={kind}>
+              {["Josef Müller-Brockmann", "Jan Tschichold", "Wim Crouwel"].map((name) => (
+                <li key={name} className="border-b border-edge-subtle px-md py-sm text-label-md text-ink-primary last:border-b-0">
+                  {name}
+                </li>
+              ))}
+            </Presence>
+          </ul>
+        ))}
       </div>
     ),
   },

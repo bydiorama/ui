@@ -69,6 +69,22 @@ for (const file of docFiles()) {
   const mod = await import(file);
   const doc = Object.values(mod).find((v) => v && typeof v === "object" && "name" in v);
   const pairs = doc?.a11y?.contrastPairs;
+  const noColour = doc?.a11y?.rendersNoColour;
+
+  // A component that paints NOTHING — Presence adds no element and no colour,
+  // only motion on the caller's own items. It says so, with the reason, rather
+  // than declaring an invented pair to satisfy the rule; the reason must be a
+  // sentence, and the claim cannot sit beside pairs it would contradict.
+  if (noColour !== undefined) {
+    if (typeof noColour !== "string" || noColour.trim().length < 20) {
+      errors.push(`${rel}: a11y.rendersNoColour must be a sentence saying why the component paints nothing.`);
+    } else if (Array.isArray(pairs) && pairs.length > 0) {
+      errors.push(`${rel}: declares a11y.rendersNoColour AND contrast pairs — one of them is wrong.`);
+    } else {
+      report[doc.name] = []; // same shape as every other entry: no rows to measure
+    }
+    continue;
+  }
 
   if (!Array.isArray(pairs) || pairs.length === 0) {
     errors.push(

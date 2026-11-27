@@ -239,7 +239,8 @@ const FORCED_FALLBACK = /forced-colors:outline/;
 // is normalised in `transitionListsIn` below.
 const TRANSITION_LIST = /^(?:transition-\[([^\]]+)\]|\[transition-property:([^\]]+)\])$/;
 const COVERS_TRANSFORM = new Set(["transition-transform", "transition-all"]);
-const ENTER_EXIT = /data-\[(?:starting|ending)-style\]:-?(scale|translate|rotate)-/g;
+// `starting:` is CSS @starting-style, Presence's spelling of the same entrance.
+const ENTER_EXIT = /(?:data-\[(?:starting|ending)-style\]|\bstarting):-?(scale|translate|rotate)-/g;
 
 /**
  * Component-level custom properties (CONVENTIONS §6) — the ONE styling surface

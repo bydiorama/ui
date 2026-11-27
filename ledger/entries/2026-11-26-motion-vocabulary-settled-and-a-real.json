@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-26-motion-vocabulary-settled-and-a-real",
+  "date": "2026-11-26",
+  "item": "system",
+  "kind": "visual",
+  "summary": "ADR 0028 §7, and the ADR is accepted. TOKENS FOLLOW COMPONENTS: --ui-motion-standard and --ui-motion-deliberate now ease with --ui-ease-out instead of --ui-ease-default, matching the motionStandard and motionDeliberate recipes every component already used; no component changes, and check:motion now fails if a recipe and its intent ever disagree. --ui-ease-default is kept (Skeleton's pulse and apps use it). A REAL SPRING: --ui-ease-spring keeps its name and becomes a linear() sampling of a damped spring (damping 0.75) — it passes its target by 2.8% just after halfway and settles back once, at the same pace as the cubic-bezier it replaces (90% of the way at a third of the duration). Visible wherever it runs: Toast's slide, the sheen sweep, the shader fades and halos. Browsers without linear() (before Safari 17.2, Chrome 113, Firefox 112) treat the value as invalid and fall back to the default ease.",
+  "affects": [
+    "token:--ui-motion-standard",
+    "token:--ui-motion-deliberate",
+    "token:--ui-ease-spring",
+    "item:motion",
+    "item:theme-zero-css",
+    "component:toast",
+    "item:fx",
+    "item:shader",
+    "gate:check-motion",
+    "decision:0028-motion-levels-and-primitives"
+  ]
+}

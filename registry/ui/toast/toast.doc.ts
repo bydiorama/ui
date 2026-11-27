@@ -93,7 +93,7 @@ Toast.Provider               limit? timeout?          — once, around the app
   },
 
   motion:
-    "Enter from translateY(150%) + fade; exit reverses toward the bottom edge, or along the swipe axis after a swipe. Transforms run duration-enter with ease-spring (the sheet's motion-choreographed pair), opacity on duration-slow, the stack's height settle on duration-fast — written as longhand transition properties because the split cannot be expressed in one shorthand. Behind-content cross-fades on duration-base. The loading spinner is animate-spin with the motion-reduce guard; every transition collapses under prefers-reduced-motion at the token layer.",
+    "Enter from translateY(150%) + fade; exit reverses toward the bottom edge, or along the swipe axis after a swipe. Transforms run duration-enter with ease-spring (the sheet's motion-choreographed pair), opacity on duration-slow, the stack's height settle on duration-fast — written as longhand transition properties because the split cannot be expressed in one shorthand. Behind-content cross-fades on duration-base. The loading spinner is animate-spin with the motion-reduce guard; every transition collapses under prefers-reduced-motion at the token layer. Motion levels (ADR 0028): every offset the toast travels on its own is times --ui-motion-travel, and it starts at the travel factor as its opacity, so at `reduced` it fades in and out in place; the distance a swipe already moved it is not scaled, because the user moved it.",
 
   needsDesign: [
     "Anchored toasts (Base UI's Toast.Positioner — transient 'Copied' chips on a trigger) are out of scope for the sheet and this component; they need their own design pass if a consumer asks.",

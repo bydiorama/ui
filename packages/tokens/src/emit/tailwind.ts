@@ -17,6 +17,7 @@
 
 import { BRANDABLE_TOKENS, FIXED_TOKENS, SCHEME_ONLY_TOKENS, type BrandableToken } from "../contract.ts";
 import { STEPPED_ROLES, TYPE_ROLES } from "../resolve.ts";
+import { MOTION_LEVEL_ATTRIBUTE } from "../base.ts";
 
 /** Dimension/composite tokens whose prefixes collide with colour families.
  *  Mapping these into `--color-*` would mint utilities like `bg-nav-width` —
@@ -257,5 +258,48 @@ export function toTailwindTheme(options: TailwindOptions = {}): string {
   );
 
   lines.push("}");
+  lines.push(...motionVariants(indent));
   return `${lines.join("\n")}\n`;
+}
+
+/**
+ * `motion-safe:` and `motion-reduce:`, redefined against the motion levels
+ * (ADR 0028).
+ *
+ * Tailwind's own pair reads the OS preference and nothing else, so an app that
+ * set `data-ui-motion="off"` would still see every spinner turn, and a user
+ * who chose `full` in the app would still see none. Redefining the built-in
+ * names, rather than adding new ones, keeps every existing guard — the ones
+ * `check:motion` requires on each keyframe — correct with no change at the
+ * call site. Both variants also work inside plain CSS Tailwind processes, as
+ * `@variant motion-safe { … }`, which is how the effects layer uses them.
+ *
+ * A keyframe runs only at `full`. The precedence matches the token blocks in
+ * the CSS emitter: any `reduced` or `off` ancestor wins; `full` lifts only the
+ * OS preference.
+ */
+function motionVariants(indent: string): string[] {
+  const at = (level: string) => `[${MOTION_LEVEL_ATTRIBUTE}="${level}"]`;
+  const quiet = [at("reduced"), at("off"), `${at("reduced")} *`, `${at("off")} *`].join(", ");
+  const lifted = [at("full"), `${at("full")} *`].join(", ");
+  const i2 = indent + indent;
+  return [
+    "",
+    "/* Motion levels (ADR 0028): a keyframe runs only at `full`. */",
+    "@custom-variant motion-safe {",
+    `${indent}@media (prefers-reduced-motion: no-preference) {`,
+    `${i2}&:not(:where(${quiet})) { @slot; }`,
+    `${indent}}`,
+    `${indent}@media (prefers-reduced-motion: reduce) {`,
+    `${i2}&:where(${lifted}):not(:where(${quiet})) { @slot; }`,
+    `${indent}}`,
+    "}",
+    "",
+    "@custom-variant motion-reduce {",
+    `${indent}&:where(${quiet}) { @slot; }`,
+    `${indent}@media (prefers-reduced-motion: reduce) {`,
+    `${i2}&:not(:where(${lifted})) { @slot; }`,
+    `${indent}}`,
+    "}",
+  ];
 }

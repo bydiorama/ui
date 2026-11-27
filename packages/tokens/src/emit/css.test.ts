@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { resolveThemePair } from "../resolve.ts";
 import { THEME_ZERO } from "../themes/zero.ts";
 import { BRANDABLE_TOKENS } from "../contract.ts";
-import { DENSITY_TOKENS, FIXED_TOKEN_VALUES } from "../base.ts";
+import { DENSITY_TOKENS, FIXED_TOKEN_VALUES, MOTION_LEVELS } from "../base.ts";
 import { toCss, toStyleObject } from "./css.ts";
 
 const pair = resolveThemePair(THEME_ZERO);
@@ -16,7 +16,8 @@ test("root CSS carries every token exactly once", () => {
     assert.equal(occurrences, 1, `${token} appears ${occurrences} times`);
   }
   for (const token of Object.keys(FIXED_TOKEN_VALUES)) {
-    // Duration tokens legitimately appear twice: base value + reduced-motion override.
+    // Motion-level tokens legitimately repeat: the base value, then one block
+    // per level (ADR 0028).
     assert.ok(css.includes(`${token}:`), `${token} missing`);
   }
 });
@@ -52,10 +53,56 @@ test("a brand scope omits the base tokens the document already has", () => {
   assert.ok(!css.includes("@media"), "reduced-motion override lives at the root");
 });
 
-test("reduced motion collapses durations at the token layer", () => {
+/** The declarations inside the first block whose selector list starts with `head`. */
+function blockAfter(css: string, head: string): string {
+  const start = css.indexOf(head);
+  assert.ok(start >= 0, `no block starting ${head}`);
+  return css.slice(css.indexOf("{", start) + 1, css.indexOf("}", start));
+}
+
+test("the OS preference gives `reduced`, not `off` (ADR 0028)", () => {
   const css = toCss(pair);
-  assert.ok(css.includes("@media (prefers-reduced-motion: reduce)"));
-  assert.ok(/prefers-reduced-motion[\s\S]*--ui-duration-base: 1ms/.test(css));
+  const os = blockAfter(css, "@media (prefers-reduced-motion: reduce)");
+  assert.match(os, /--ui-motion-level: reduced;/);
+  assert.match(os, /--ui-motion-travel: 0;/);
+  assert.match(os, /--ui-enter-scale: 1;/);
+  // Change in place keeps its time, capped at base.
+  assert.match(os, /--ui-duration-fast: 120ms;/);
+  assert.match(os, /--ui-duration-enter: 200ms;/);
+});
+
+test("every level sets every motion key, so a subtree can return to full", () => {
+  const css = toCss(pair);
+  const keys = Object.keys(MOTION_LEVELS.full);
+  for (const [level, head] of [
+    ["full", '[data-ui-motion="full"] {'],
+    ["reduced", '[data-ui-motion="reduced"],'],
+    ["off", '[data-ui-motion="off"],'],
+  ] as const) {
+    const body = blockAfter(css, head);
+    for (const key of keys) assert.ok(body.includes(`${key}:`), `${level} does not set ${key}`);
+  }
+  assert.match(blockAfter(css, '[data-ui-motion="off"],'), /--ui-duration-base: 1ms;/);
+});
+
+test("an explicit level comes after the OS block, and going down wins nesting", () => {
+  const css = toCss(pair);
+  assert.ok(
+    css.indexOf('[data-ui-motion="full"] {') > css.indexOf("@media (prefers-reduced-motion: reduce)"),
+    "full must follow the OS block to override it",
+  );
+  assert.ok(css.includes('[data-ui-motion="reduced"] [data-ui-motion="full"]'), "full inside reduced stays reduced");
+  assert.ok(css.includes('[data-ui-motion="off"] [data-ui-motion]'), "anything inside off is off");
+  assert.ok(css.indexOf('[data-ui-motion="off"],') > css.indexOf('[data-ui-motion="reduced"],'));
+});
+
+test("a nested brand scope never re-declares a motion-level token", () => {
+  const css = toCss(pair, { scope: '[data-ui-theme="acme"]' });
+  const scope = blockAfter(css, '[data-ui-theme="acme"] {');
+  for (const key of Object.keys(MOTION_LEVELS.full)) {
+    assert.ok(!scope.includes(`${key}:`), `${key} on a nested scope would reset the level inside it`);
+  }
+  assert.ok(!css.includes("prefers-reduced-motion"), "the levels live at the root");
 });
 
 test("the style object serialises no raw CSS and carries color-scheme", () => {

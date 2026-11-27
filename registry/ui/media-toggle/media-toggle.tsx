@@ -9,6 +9,7 @@ import { PauseCircle, PlayCircle } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
+import { motionLevel } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
 
@@ -46,11 +47,6 @@ const SIZE: Record<MediaToggleSize, string> = {
   lg: "size-control-lg",
 };
 
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  typeof window.matchMedia === "function" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
 /**
  * The pause control WCAG 2.2.2 asks of any video that starts on its own and
  * runs past five seconds — an ambient hero, a background loop (#36).
@@ -87,11 +83,13 @@ export const MediaToggle = forwardRef<HTMLButtonElement, MediaToggleProps>(funct
     onChange: onPausedChange,
   });
 
-  // Reduced motion: an ambient video should not start moving at all. Only
-  // when the caller left the start state to us — an explicit default wins.
+  // Below `full` (ADR 0028), an ambient video should not start moving at
+  // all: it is a loop. Read at the video, which may sit in a quieter region
+  // than the page. Only when the caller left the start state to us — an
+  // explicit default wins.
   useEffect(() => {
     if (defaultIsPaused !== undefined || isPausedProp !== undefined) return;
-    if (!prefersReducedMotion()) return;
+    if (motionLevel(target?.current) === "full") return;
     target?.current?.pause();
     setIsPaused(true);
     // Mount-only by design: a preference change mid-visit is the viewer's

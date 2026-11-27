@@ -129,7 +129,7 @@ ColorPicker   label (required)
   ],
 
   motion:
-    "The field transitions border-color and box-shadow at --ui-duration-fast / --ui-ease-out; the panel fades and scales from 98% via data-[starting-style] / data-[ending-style], with `scale` named in the list. Thumb and swatch rings transition box-shadow on the same timing. The thumbs themselves do not animate position — they follow the pointer.",
+    "The field transitions border-color and box-shadow at --ui-duration-fast / --ui-ease-out; the panel fades and scales from 98% via data-[starting-style] / data-[ending-style], with `scale` named in the list. Thumb and swatch rings transition box-shadow on the same timing. The thumbs themselves do not animate position — they follow the pointer. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/476R-0",
 } as const;

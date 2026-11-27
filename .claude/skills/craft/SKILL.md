@@ -73,10 +73,14 @@ What feels off at 10% speed is what is subtly wrong at full speed.
    full-height collapse. `--ui-ease-out` both ways.
 10. **Icon state changes cross-fade** (`opacity` + slight `scale`), both icons in
    the DOM — never a hard swap. Skip entrance animation on first render.
+   `IconSwap` is this rule as a component: a subtle dip (×0.8) with a
+   little blur reads as one glyph re-forming; a deep scale (×0.5) reads as a pop.
 11. **Durations and easings come from tokens** (`--ui-motion-*`,
     `--ui-duration-*`, `--ui-ease-*`). Never a hard-coded `ms`. Never
-    `transition: all` — enumerate properties. Reduced motion is already handled
-    at the token layer; JS-driven animation must check it explicitly.
+    `transition: all` — enumerate properties. The three motion levels are
+    handled at the token layer (`--ui-motion-travel` and `--ui-enter-scale`
+    for anything that enters or leaves); JS-driven animation asks
+    `motionLevel()` explicitly.
 
 ### Icons
 

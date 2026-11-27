@@ -38,7 +38,7 @@ import {
 
 import { cn } from "@/lib/cn";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
-import { HOVER_INTENT_DELAY_MS, HOVER_INTENT_SKIP_MS, motionMicro } from "@/lib/motion";
+import { HOVER_INTENT_DELAY_MS, HOVER_INTENT_SKIP_MS, motionLevel, motionMicro } from "@/lib/motion";
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { Button } from "@/ui/button";
 import { Popover } from "@/ui/popover";
@@ -209,11 +209,6 @@ function ChatSourcesProvider({ children, sources, labels, isStreaming = false, c
   );
   return <ChatSourcesContext.Provider value={value}>{children}</ChatSourcesContext.Provider>;
 }
-
-// ---------------------------------------------------------------- reduced motion
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ---------------------------------------------------------------- link
 
@@ -897,7 +892,8 @@ const ChatSourcesBlock = forwardRef<HTMLDivElement, ChatSourcesProps>(function C
   const rows = useRef(new Map<string, HTMLElement>());
   const pendingReveal = useRef<string | null>(null);
   const scrollTo = (row: HTMLElement) =>
-    row.scrollIntoView({ block: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    // A smooth scroll moves the whole list: travel, so only at `full` (ADR 0028).
+    row.scrollIntoView({ block: "nearest", behavior: motionLevel(row) === "full" ? "smooth" : "auto" });
   const registerRow = (id: string, el: HTMLElement | null) => {
     if (!el) {
       rows.current.delete(id);

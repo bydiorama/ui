@@ -90,7 +90,7 @@ Modal                     isOpen? / defaultIsOpen? / onOpenChange? / isDismissab
   ],
 
   motion:
-    "The scrim fades and the panel fades and scales from 98%, both at --ui-duration-fast with --ui-ease-out, driven by `data-[starting-style]` and `data-[ending-style]`. `scale` is named explicitly in the transition list: Tailwind v4 writes `scale-*` as the standalone `scale` property, so the original list naming `transform` animated nothing and the modal snapped open at full size. Measured with getAnimations() in Chromium, which is how that became a fact rather than a theory.",
+    "The scrim fades and the panel fades and scales from 98%, both at --ui-duration-fast with --ui-ease-out, driven by `data-[starting-style]` and `data-[ending-style]`. `scale` is named explicitly in the transition list: Tailwind v4 writes `scale-*` as the standalone `scale` property, so the original list naming `transform` animated nothing and the modal snapped open at full size. Measured with getAnimations() in Chromium, which is how that became a fact rather than a theory. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/GA9-0",
 } as const;

@@ -75,7 +75,7 @@ export const conversation = {
             <span className="motif-chat-run-dock-meta">2 min elapsed</span>
           </span>
         </div>
-        <span className="motif-chat-run-dock-pause"><SquareRounded size={14} /></span>
+        <span className="motif-chat-run-dock-stop"><SquareRounded size={14} /></span>
       </div>
     </div>
   ),

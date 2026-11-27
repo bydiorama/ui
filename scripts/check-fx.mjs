@@ -146,9 +146,13 @@ for (const [file, css] of Object.entries(allCss)) {
       if (/^transition\s*:\s*all\b/.test(decl)) fail(file, "transitions `all` (CONVENTIONS §6).");
       const anim = decl.match(/^animation\s*:\s*(.+)$/);
       if (anim && !/^(none|revert-layer|revert|initial|unset)$/.test(anim[1].trim())) {
-        const guarded = chain.some((p) => /@media[^{]*prefers-reduced-motion\s*:\s*no-preference/.test(p));
+        // `@variant motion-safe` is the theme's level-aware variant (ADR 0028):
+        // it reads `data-ui-motion` as well as the OS, so it is the only guard
+        // accepted. A bare `prefers-reduced-motion: no-preference` query would
+        // keep a loop running in a region the app set to `reduced` or `off`.
+        const guarded = chain.some((p) => /^@variant\s+motion-safe$/.test(p));
         if (!guarded) {
-          fail(file, `\`${decl}\` runs under prefers-reduced-motion. A keyframe carries its own timing — put it inside @media (prefers-reduced-motion: no-preference).`);
+          fail(file, `\`${decl}\` runs below the \`full\` motion level. A keyframe carries its own timing — put it inside \`@variant motion-safe { … }\` (ADR 0028).`);
         }
       }
     },

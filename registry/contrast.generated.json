@@ -1519,6 +1519,7 @@
       "role": "the panel edge"
     }
   ],
+  "Count": [],
   "DatePicker": [
     {
       "fg": "--ui-text-primary",
@@ -1801,6 +1802,7 @@
       "role": "a disabled chrome control"
     }
   ],
+  "IconSwap": [],
   "ImageEdit": [
     {
       "fg": "--ui-text-on-media",
@@ -2375,6 +2377,7 @@
       "role": "the panel against the page"
     }
   ],
+  "Presence": [],
   "Progress": [
     {
       "fg": "--ui-bg-accent-legible",
@@ -3027,6 +3030,7 @@
       "role": "the strip boundary"
     }
   ],
+  "TextSwap": [],
   "Textarea": [
     {
       "fg": "--ui-text-primary",

@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test } from "vitest";
+import { cdp } from "vitest/browser";
 import { createRoot, type Root } from "react-dom/client";
 import { act, createRef } from "react";
 import type { ReactElement } from "react";
@@ -62,10 +63,21 @@ function unmount() {
   container?.remove();
   root = null;
   container = null;
-  vi.unstubAllGlobals();
 }
 
-afterEach(unmount);
+/** The OS preference, emulated for the page through CDP. */
+async function reducedMotion(reduce: boolean) {
+  // vitest types the session as an empty interface; the Playwright provider's is the real one.
+  const session = cdp() as unknown as { send(method: string, params: object): Promise<unknown> };
+  await session.send("Emulation.setEmulatedMedia", {
+    features: reduce ? [{ name: "prefers-reduced-motion", value: "reduce" }] : [],
+  });
+}
+
+afterEach(async () => {
+  unmount();
+  await reducedMotion(false);
+});
 
 const svg = (c: HTMLElement) => c.querySelector<SVGSVGElement>('[data-slot="status-matrix"]')!;
 const dots = (c: HTMLElement) => [...c.querySelectorAll<SVGCircleElement>('[data-slot="status-matrix-dot"]')];
@@ -155,12 +167,23 @@ describe("StatusMatrix moves on the shared clock", () => {
     expect(levels(c)).toBe(SHEET.working);
   });
 
+  // Below `full` the clock is a loop that does not run (ADR 0028). Two ways
+  // to get there, both real: the OS preference, emulated through CDP rather
+  // than by stubbing matchMedia (the matrix reads the resolved token, which a
+  // stub cannot reach), and a region the app set quieter than the page.
   test("prefers-reduced-motion renders the key frame and does not tick", async () => {
-    const real = window.matchMedia.bind(window);
-    vi.stubGlobal("matchMedia", (query: string) =>
-      query.includes("prefers-reduced-motion") ? { ...real(query), matches: true, addEventListener() {}, removeEventListener() {} } : real(query),
-    );
+    await reducedMotion(true);
     const c = mount(<StatusMatrix status="streaming" />);
+    await wait(450);
+    expect(levels(c)).toBe(SHEET.streaming);
+  });
+
+  test("a region set to reduced holds its matrix still while the page moves", async () => {
+    const c = mount(
+      <div data-ui-motion="reduced">
+        <StatusMatrix status="streaming" />
+      </div>,
+    );
     await wait(450);
     expect(levels(c)).toBe(SHEET.streaming);
   });

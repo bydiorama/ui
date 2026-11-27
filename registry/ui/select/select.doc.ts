@@ -91,7 +91,7 @@ Select   label (required) / isLabelHidden?
   ],
 
   motion:
-    "The trigger transitions `border-color` and `box-shadow`; the list fades and scales from 98% through `data-[starting-style]`/`data-[ending-style]`. Both at --ui-duration-fast with --ui-ease-out. `scale` is named in the transition list — Tailwind v4 writes it standalone.",
+    "The trigger transitions `border-color` and `box-shadow`; the list fades and scales from 98% through `data-[starting-style]`/`data-[ending-style]`. Both at --ui-duration-fast with --ui-ease-out. `scale` is named in the transition list — Tailwind v4 writes it standalone. Motion levels (ADR 0028): the scale starts at --ui-enter-scale, which is 1 at `reduced` and `off`, so below `full` the panel only fades — and at `off` the fade is 1ms.",
 
   design: "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/EVQ-0",
 } as const;

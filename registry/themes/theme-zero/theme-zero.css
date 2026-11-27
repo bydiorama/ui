@@ -294,6 +294,23 @@
   --leading-relaxed: var(--ui-leading-relaxed);
 }
 
+/* Motion levels (ADR 0028): a keyframe runs only at `full`. */
+@custom-variant motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    &:not(:where([data-ui-motion="reduced"], [data-ui-motion="off"], [data-ui-motion="reduced"] *, [data-ui-motion="off"] *)) { @slot; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:where([data-ui-motion="full"], [data-ui-motion="full"] *):not(:where([data-ui-motion="reduced"], [data-ui-motion="off"], [data-ui-motion="reduced"] *, [data-ui-motion="off"] *)) { @slot; }
+  }
+}
+
+@custom-variant motion-reduce {
+  &:where([data-ui-motion="reduced"], [data-ui-motion="off"], [data-ui-motion="reduced"] *, [data-ui-motion="off"] *) { @slot; }
+  @media (prefers-reduced-motion: reduce) {
+    &:not(:where([data-ui-motion="full"], [data-ui-motion="full"] *)) { @slot; }
+  }
+}
+
 
 :root {
   color-scheme: light dark;
@@ -335,11 +352,14 @@
   --ui-ease-default: cubic-bezier(0.2, 0, 0, 1);
   --ui-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ui-ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ui-ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ui-ease-spring: linear(0, 0.02, 0.073, 0.147, 0.233, 0.326, 0.419, 0.509, 0.594, 0.671, 0.739, 0.799, 0.851, 0.894, 0.929, 0.958, 0.98, 0.997, 1.01, 1.018, 1.024, 1.027, 1.028, 1.028, 1.027, 1.025, 1.023, 1.02, 1.017, 1.015, 1.012, 1.01, 1.008, 1.006, 1.005, 1.003, 1.002, 1.001, 1.001, 1, 1);
   --ui-motion-micro: var(--ui-duration-fast) var(--ui-ease-out);
-  --ui-motion-standard: var(--ui-duration-base) var(--ui-ease-default);
-  --ui-motion-deliberate: var(--ui-duration-slow) var(--ui-ease-default);
+  --ui-motion-standard: var(--ui-duration-base) var(--ui-ease-out);
+  --ui-motion-deliberate: var(--ui-duration-slow) var(--ui-ease-out);
   --ui-motion-choreographed: var(--ui-duration-enter) var(--ui-ease-spring);
+  --ui-motion-level: full;
+  --ui-motion-travel: 1;
+  --ui-enter-scale: 0.98;
   --ui-press-scale: 0.96;
   --ui-stagger-step: 100ms;
   --ui-control-sm-height: 1.5rem;
@@ -674,10 +694,52 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --ui-duration-fast: 1ms;
-    --ui-duration-base: 1ms;
-    --ui-duration-slow: 1ms;
-    --ui-duration-enter: 1ms;
+    --ui-motion-level: reduced;
+    --ui-duration-fast: 120ms;
+    --ui-duration-base: 200ms;
+    --ui-duration-slow: 200ms;
+    --ui-duration-enter: 200ms;
     --ui-duration-loop: 2000ms;
+    --ui-motion-travel: 0;
+    --ui-enter-scale: 1;
+    --ui-stagger-step: 0ms;
   }
+}
+
+[data-ui-motion="full"] {
+  --ui-motion-level: full;
+  --ui-duration-fast: 120ms;
+  --ui-duration-base: 200ms;
+  --ui-duration-slow: 320ms;
+  --ui-duration-enter: 400ms;
+  --ui-duration-loop: 2000ms;
+  --ui-motion-travel: 1;
+  --ui-enter-scale: 0.98;
+  --ui-stagger-step: 100ms;
+}
+
+[data-ui-motion="reduced"],
+[data-ui-motion="reduced"] [data-ui-motion="full"] {
+  --ui-motion-level: reduced;
+  --ui-duration-fast: 120ms;
+  --ui-duration-base: 200ms;
+  --ui-duration-slow: 200ms;
+  --ui-duration-enter: 200ms;
+  --ui-duration-loop: 2000ms;
+  --ui-motion-travel: 0;
+  --ui-enter-scale: 1;
+  --ui-stagger-step: 0ms;
+}
+
+[data-ui-motion="off"],
+[data-ui-motion="off"] [data-ui-motion] {
+  --ui-motion-level: off;
+  --ui-duration-fast: 1ms;
+  --ui-duration-base: 1ms;
+  --ui-duration-slow: 1ms;
+  --ui-duration-enter: 1ms;
+  --ui-duration-loop: 2000ms;
+  --ui-motion-travel: 0;
+  --ui-enter-scale: 1;
+  --ui-stagger-step: 0ms;
 }

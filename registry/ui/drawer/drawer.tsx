@@ -329,7 +329,10 @@ function DrawerPanel({
           !detents && "max-h-4/5",
           "bg-base text-ink-primary border border-edge-subtle shadow-md",
           "transition-[translate,opacity]", motionStandard,
-          "data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full",
+          "data-[starting-style]:translate-y-[calc(100%*var(--ui-motion-travel))] data-[ending-style]:translate-y-[calc(100%*var(--ui-motion-travel))]",
+          // Opaque while it slides, as it always was; at `reduced` there is
+          // no slide, so it fades in place instead (ADR 0028).
+          "data-[starting-style]:opacity-(--ui-motion-travel) data-[ending-style]:opacity-(--ui-motion-travel)",
           // While a finger is down the panel must track it exactly. A
           // transition here would lag the drag by a frame and feel like syrup.
           isDragging && "transition-none",

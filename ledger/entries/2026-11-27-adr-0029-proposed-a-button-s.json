@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-adr-0029-proposed-a-button-s",
+  "date": "2026-11-27",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Records ADR 0029 (proposed), raised by the maintainer: new compositions kept arriving with small buttons, every one an explicit size=\"sm\" on a component that already defaults to md. Nothing said when sm is right — the Button doc gave sizes and 'lg for primary page actions' — and the stories' 56 small Buttons taught the habit. The decision: size follows the control's ROLE — md for every action in a composition, lg for a page's primary action, sm only inside a part already dense by design (table cell, icon toolbar, chip row, panel-header close); 'secondary' is a variant, and a tighter screen is data-ui-density=\"compact\" (ADR 0020 §4, 0026), never size=\"sm\". Written into CONVENTIONS §7b, the Button doc's do/dont, the craft skill (shipped) and add-component. check:site-source now fails a <Button size=\"sm\"> in a live example without a 'size sm:' comment naming its dense part — shown failing on the four it found (Count, Presence ×2, Stagger), all moved to md, as were the utility buttons in the six motion components' stories.",
+  "affects": [
+    "decision:0029-button-size-follows-role",
+    "item:button",
+    "item:craft",
+    "item:add-component",
+    "gate:check-site-source"
+  ]
+}

@@ -293,6 +293,15 @@ hairline (`border-subtle`, 1.47:1 — decorative, and declared as such), while
 job; reach for secondary when it is only separating a quiet control from the
 page.
 
+**A Button's size follows its role, never the screen's density** (ADR 0029).
+`md`, the default, is every action in a composition — leave `size` unset.
+`lg` is a page's primary action. `sm` is for a control inside a part that is
+already dense by design: a table cell, an icon toolbar, a chip row, a panel
+header's close. A quiet or secondary action says so with `variant`, not size;
+a tighter screen sets `data-ui-density="compact"`, which takes every size
+down a step and keeps them apart. `check:site-source` makes a small Button in
+a live example name its dense part in a `size sm:` comment.
+
 ## 7c. An anchored panel never leaves the viewport
 
 Any surface positioned against a trigger — Select's list, Multiselect's list,

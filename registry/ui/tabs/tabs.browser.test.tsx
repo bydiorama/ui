@@ -193,6 +193,25 @@ describe("Tabs paint the designed strip", () => {
     expect(count.textContent).toBe("1");
   });
 
+  test("a changing count moves only its changed digit, and its text stays the number", async () => {
+    const at = (n: number) => (
+      <Tabs defaultValue="a">
+        <Tabs.List aria-label="Projects">
+          <Tabs.Tab value="a" count={n}>Open</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+    );
+    mount(at(12));
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    act(() => root!.render(at(13)));
+    await new Promise((r) => requestAnimationFrame(r));
+    const count = document.querySelector<HTMLElement>('[data-slot="tabs-count"]')!;
+    expect(count.textContent).toBe("13");
+    const chars = [...count.querySelectorAll<HTMLElement>('[data-slot="count-char"]')];
+    expect(chars[0]!.getAnimations()).toHaveLength(0);
+    expect(chars[1]!.getAnimations().map((a) => (a as CSSTransition).transitionProperty)).toContain("opacity");
+  });
+
   test("the focus ring is PAINTED, not merely declared", async () => {
     mount(<Basic />);
     const tab = tabs()[0]!;

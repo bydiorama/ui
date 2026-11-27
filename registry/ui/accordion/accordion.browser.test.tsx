@@ -390,11 +390,15 @@ describe("Accordion paints the designed surface", () => {
     const panel = panels()[0]!;
     await settled(panel);
 
-    await userEvent.click(triggers()[0]!);
     // data-[ending-style]:h-0 only does anything if the panel is still mounted
-    // while it collapses. If the exit were unanimated the element would be
-    // gone by now and there would be nothing to read.
-    expect(panels()[0]?.getAnimations().length ?? 0).toBeGreaterThan(0);
+    // while it collapses: an unanimated exit unmounts it and no transition
+    // ever runs. Listen rather than sample afterwards — under CI load the
+    // click's round trip can outlast the whole collapse, and the panel is
+    // gone before getAnimations() could see it.
+    const ran: string[] = [];
+    panel.addEventListener("transitionrun", (e) => ran.push(e.propertyName));
+    await userEvent.click(triggers()[0]!);
+    await vi.waitFor(() => expect(ran).toContain("height"));
   });
 
   test("Panel className lands on the INNER container, not the animating box", () => {

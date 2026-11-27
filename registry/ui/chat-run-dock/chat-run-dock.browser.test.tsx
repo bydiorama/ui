@@ -175,8 +175,11 @@ describe("ChatRunDock matrices", () => {
     const [first, ...others] = all(c, "status-matrix");
     expect(others.length).toBeGreaterThan(0);
     const before = [first!, ...others].map(levels);
-    await wait(450);
-    expect(levels(first!)).not.toBe(before[0]);
+    // Wait for the first tick rather than a fixed time: the shared clock
+    // advances on animation frames, and a loaded runner can throttle a test
+    // iframe's frames to a few a second, so 450ms may hold no tick at all.
+    await expect.poll(() => levels(first!), { timeout: 3000 }).not.toBe(before[0]);
+    // The others had at least as long to tick, and must not have.
     expect(first!.hasAttribute("data-held")).toBe(false);
     for (const [i, m] of others.entries()) {
       expect(m.hasAttribute("data-held")).toBe(true);
@@ -189,8 +192,8 @@ describe("ChatRunDock matrices", () => {
     const first = () => all(c, "status-matrix")[0]!;
     const held = levels(first());
     rerender(<Dock runs={WORKING_FIRST} isHeld={false} />);
-    await wait(450);
-    expect(levels(first())).not.toBe(held);
+    // Polled for the same reason as above: a tick, not a fixed time.
+    await expect.poll(() => levels(first()), { timeout: 3000 }).not.toBe(held);
   });
 
   test("the matrix is decorative — the activity line says the state", () => {

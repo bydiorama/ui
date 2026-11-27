@@ -38,6 +38,8 @@ import { Presence } from "@/ui/presence/presence.tsx";
 import { TextSwap } from "@/ui/text-swap/text-swap.tsx";
 import { IconSwap } from "@/ui/icon-swap/icon-swap.tsx";
 import { Count } from "@/ui/count/count.tsx";
+import { Stagger } from "@/ui/stagger/stagger.tsx";
+import { SuccessCheck } from "@/ui/feedback/feedback.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
@@ -1672,6 +1674,36 @@ const CASES: Array<{
           <DotPattern className="text-edge-default" />
         </div>
       </div>
+    ),
+  },
+  {
+    name: "feedback",
+    // The REST state of the success check, drawn in full: at its default size
+    // beside a label, larger, and recoloured. A baseline catches a wipe that
+    // never opened (a clipped tick) or a glyph off its line. The shake has no
+    // rest state of its own — the field after it is the field.
+    ui: (
+      <div className="flex items-center gap-lg text-label-md text-ink-primary">
+        <span className="flex items-center gap-xs"><SuccessCheck /> Verified</span>
+        <SuccessCheck className="size-6" />
+        <SuccessCheck className="size-6 text-ink-primary" />
+      </div>
+    ),
+  },
+  {
+    name: "stagger",
+    // The REST state of a group that has arrived: eight rows, laid out exactly
+    // as without Stagger. A baseline catches what an arrival leaves behind —
+    // a row stuck below full opacity or off its line, a gap from a lingering
+    // offset past the cap.
+    ui: (
+      <ul className="flex w-80 flex-col divide-y divide-edge-subtle rounded-md border border-edge-subtle bg-surface">
+        <Stagger>
+          {["Josef Müller-Brockmann", "Jan Tschichold", "Wim Crouwel", "Karl Gerstner", "Armin Hofmann", "Emil Ruder", "Massimo Vignelli", "Adrian Frutiger"].map((name) => (
+            <li key={name} className="px-md py-sm text-label-md text-ink-primary">{name}</li>
+          ))}
+        </Stagger>
+      </ul>
     ),
   },
   {

@@ -281,16 +281,29 @@ describe("each consumer's z-index IS its token", () => {
  * A Fade overlap has to compare rendered pixels.
  */
 describe("paint order", () => {
-  /** What a click at the centre of the region where two boxes overlap hits. */
-  function topmostInOverlap(a: HTMLElement, b: HTMLElement) {
-    const ra = a.getBoundingClientRect();
-    const rb = b.getBoundingClientRect();
-    const x = Math.round((Math.max(ra.left, rb.left) + Math.min(ra.right, rb.right)) / 2);
-    const y = Math.round((Math.max(ra.top, rb.top) + Math.min(ra.bottom, rb.bottom)) / 2);
-    expect(
-      x > Math.max(ra.left, rb.left) - 1 && y < Math.min(ra.bottom, rb.bottom),
-      "the two elements must actually overlap for this to mean anything",
-    ).toBe(true);
+  /**
+   * What a click at the centre of the region where two boxes overlap hits.
+   * Waits for the overlap first: a portalled popup exists a frame or more
+   * before Floating UI places it, and under CI load that gap is wide enough
+   * to hit-test a panel still parked at the origin.
+   */
+  async function topmostInOverlap(a: HTMLElement, b: HTMLElement) {
+    let x = 0;
+    let y = 0;
+    await vi.waitFor(() => {
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
+      const left = Math.max(ra.left, rb.left);
+      const right = Math.min(ra.right, rb.right);
+      const top = Math.max(ra.top, rb.top);
+      const bottom = Math.min(ra.bottom, rb.bottom);
+      expect(
+        right - left > 1 && bottom - top > 1,
+        "the two elements must actually overlap for this to mean anything",
+      ).toBe(true);
+      x = Math.round((left + right) / 2);
+      y = Math.round((top + bottom) / 2);
+    });
     return document.elementFromPoint(x, y) as HTMLElement | null;
   }
 
@@ -328,7 +341,7 @@ describe("paint order", () => {
     const bar = document.querySelector<HTMLElement>('[data-slot="header"]')!;
     const panel = document.querySelector<HTMLElement>('[data-slot="sheet-panel"]')!;
 
-    expect(panel.contains(topmostInOverlap(bar, panel))).toBe(true);
+    expect(panel.contains(await topmostInOverlap(bar, panel))).toBe(true);
 
     // And the popup opened from INSIDE that sheet clears the sheet. The two
     // are body siblings — Base UI portals the positioner out — so this is
@@ -339,7 +352,7 @@ describe("paint order", () => {
     );
     const menu = document.querySelector<HTMLElement>('[data-slot="menu-panel"]')!;
     expect(panel.contains(menu), "the menu portals OUT of the sheet").toBe(false);
-    expect(menu.contains(topmostInOverlap(menu, panel))).toBe(true);
+    expect(menu.contains(await topmostInOverlap(menu, panel))).toBe(true);
   });
 
   test("a Select opened inside a Modal is not swallowed by it", async () => {
@@ -366,6 +379,6 @@ describe("paint order", () => {
     const surface = document.querySelector<HTMLElement>('[data-slot="modal-surface"]')!;
     const list = document.querySelector<HTMLElement>('[data-slot="select-panel"]')!;
     expect(surface.contains(list), "the select portals OUT of the dialog").toBe(false);
-    expect(list.contains(topmostInOverlap(list, surface))).toBe(true);
+    expect(list.contains(await topmostInOverlap(list, surface))).toBe(true);
   });
 });

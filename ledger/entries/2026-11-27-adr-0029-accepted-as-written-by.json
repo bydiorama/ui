@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-adr-0029-accepted-as-written-by",
+  "date": "2026-11-27",
+  "item": "system",
+  "kind": "decision",
+  "summary": "ADR 0029 accepted as written by the maintainer: a Button's size follows its role (md for a composition's actions, lg for a page's primary action, sm only inside an already-dense part) and a tighter screen uses data-ui-density=\"compact\". The check:site-source gate stays on live examples only; stories, whose size matrices are the point, are not gated. Two motion-plan questions closed the same day: the easing vocabulary stays as it is (--ui-ease-in included, though nothing consumes it), and no motion runtime is needed — the six owned motion components shipped on CSS and the Web Animations API.",
+  "affects": [
+    "decision:0029-button-size-follows-role",
+    "decision:0028-motion-levels-and-primitives",
+    "gate:check-site-source"
+  ]
+}

@@ -4,6 +4,7 @@ import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import { createContext, useContext, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
+import { Count } from "@/ui/count";
 import { motionMicro } from "@/lib/motion";
 
 import type { OwnedSlot } from "@/lib/data-slot";
@@ -193,7 +194,9 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
             "bg-elevated text-ink-primary",
           )}
         >
-          {count}
+          {/* Count moves only the digits that change and keeps the text the
+              plain number (ADR 0028). */}
+          <Count value={count} />
         </span>
       )}
     </BaseTabs.Tab>

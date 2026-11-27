@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-mediatoggle-the-glyph-cross-fades-through",
+  "date": "2026-11-27",
+  "item": "media-toggle",
+  "kind": "visual",
+  "summary": "MediaToggle's play and pause glyphs now cross-fade through IconSwap instead of swapping hard: the old glyph dips to 0.8 and blurs away on --ui-duration-fast while the new one re-forms on --ui-duration-base; a plain cross-fade at Reduced, instant at Off. The swap is aria-hidden, so the button's aria-label (play/pause) still carries the state. Both glyphs stay rendered (PlayCircle and PauseCircle, sized by the existing [&_svg]:size-4). Adds icon-swap to registryDependencies, so a re-sync installs it. A new test asserts the cross-fade and was shown failing against the old hard swap.",
+  "affects": [
+    "item:media-toggle",
+    "item:icon-swap"
+  ]
+}

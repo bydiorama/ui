@@ -206,6 +206,10 @@ spread the args bag into components with discriminated-union props
   from that data; no route or catalog list to edit. `pnpm check:site-data`
   fails on drift. Run it LAST: `contrast:build`, `skills:build` and a ledger
   edit all change its inputs, and running it before them leaves it stale. Run `pnpm site:build` to prove the routes and links exist.
+- A live specimen's Buttons stay at the default size. `size="sm"` there
+  needs a `size sm:` comment naming the dense part it sits in, or
+  `check:site-source` fails (ADR 0029). Stories may show every size; a
+  utility button in a story (Replay, Next) is `md` too.
 - A live specimen is a separate composition in `apps/site`, importing the
   registry source in `apps/site/src/examples/<name>.tsx`. The page reads
   that same type-checked file for View code; add its selection in Specimen.

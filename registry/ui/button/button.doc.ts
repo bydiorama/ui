@@ -71,9 +71,12 @@ Button
     "Use isBusy for in-flight submits: it refuses a second activation AND keeps focus on the button for the round trip. It is the whole double-submit guard — migrating from a `loading` prop that implied disabled is a straight rename.",
     "Pass icons as slots so usage is visible at the call site.",
     "Reach for size=\"lg\" on primary page actions — it is the only size at the 44px touch target.",
+    "Leave size at md — the default — for a composition's actions: a card's, a form's, a dialog footer, a list's add button, a row's action in an ordinary list. Size follows the control's ROLE (ADR 0029).",
+    "Use size=\"sm\" only inside a part that is already dense by design: a table cell, an icon toolbar, a chip or tag row, a panel header's close.",
   ],
 
   dont: [
+    "Do not use size=\"sm\" to mark an action as secondary or quiet — that is variant's job (secondary, ghost). And do not use it to make a screen denser: set data-ui-density=\"compact\" on the region, which takes every size down 4px and keeps their hierarchy (ADR 0029).",
     "Do not use isDisabled to indicate loading; the control disappears from the tab order.",
     "Do not pair isDisabled with isBusy to stop a double submit — busy already refuses activation, and adding disabled only throws the keyboard user's focus away mid-submit.",
     "Do not rely on a click reaching onClick while busy (to cancel, say). A busy button swallows activation; a cancel action is a separate button.",

@@ -60,7 +60,7 @@ function People({ kind, onChange }: { kind: PresenceKind; onChange?: (ids: strin
               <span className="w-60 shrink-0 text-label-md text-ink-primary">{person.name}</span>
               <span className="min-w-0 flex-1 text-label-sm text-ink-muted">{person.field}</span>
               <span className="w-12 shrink-0 text-right text-label-sm text-ink-muted tabular-nums">{person.year}</span>
-              <Button size="sm" variant="secondary" isDisabled={done.includes(person.id)} onClick={() => finish(person.id)}>
+              <Button variant="secondary" isDisabled={done.includes(person.id)} onClick={() => finish(person.id)}>
                 {done.includes(person.id) ? "Finished" : "Done"}
               </Button>
             </li>
@@ -68,7 +68,7 @@ function People({ kind, onChange }: { kind: PresenceKind; onChange?: (ids: strin
         </Presence>
       </ul>
       <div>
-        <Button size="sm" isDisabled={!next} onClick={() => next && update((current) => [...current, next])}>
+        <Button isDisabled={!next} onClick={() => next && update((current) => [...current, next])}>
           {next ? `Add ${next.name}` : "Everyone is here"}
         </Button>
       </div>

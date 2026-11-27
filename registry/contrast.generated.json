@@ -1736,6 +1736,7 @@
       "dark": 11.3
     }
   ],
+  "Feedback": [],
   "Header": [
     {
       "fg": "--ui-text-primary",
@@ -2800,6 +2801,7 @@
       "role": "the same marks on the page"
     }
   ],
+  "Stagger": [],
   "StatusMatrix": [
     {
       "fg": "--ui-bg-accent-legible",

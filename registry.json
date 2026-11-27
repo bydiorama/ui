@@ -297,7 +297,8 @@
         "@bydiorama/motion",
         "@bydiorama/compose-event-handlers",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/data-slot"
+        "@bydiorama/data-slot",
+        "@bydiorama/icon-swap"
       ],
       "files": [
         {
@@ -1422,7 +1423,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
-        "@bydiorama/data-slot"
+        "@bydiorama/data-slot",
+        "@bydiorama/count"
       ],
       "files": [
         {
@@ -1647,6 +1649,53 @@
           "path": "registry/ui/dot-pattern/dot-pattern.doc.ts",
           "type": "registry:ui",
           "target": "ui/dot-pattern.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "feedback",
+      "type": "registry:ui",
+      "description": "The one-shots that answer an action (ADR 0028). useShake() returns a ref and a shake(): three decaying swings, 4 → 2.5 → 1px from --ui-space-xs, over --ui-duration-slow, played once through the Web Animations API and only at Full — the static error cue carries it below. SuccessCheck is the shared Check glyph written in left to right with a clip-path wipe on --ui-duration-slow when it mounts; at Reduced it fades in whole, at Off it is there. Decorative: both sit beside a static cue.",
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/data-slot",
+        "@bydiorama/motion"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/feedback/feedback.tsx",
+          "type": "registry:ui",
+          "target": "ui/feedback.tsx"
+        },
+        {
+          "path": "registry/ui/feedback/feedback.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/feedback.doc.ts"
+        }
+      ]
+    },
+    {
+      "name": "stagger",
+      "type": "registry:ui",
+      "description": "A group arriving in order (ADR 0028), built on Presence. The items present on the first render rise (or fade) in document order, one --ui-stagger-step apart, capped at the sixth item so any group is in within 5 × step + base. The delay exists only while an item enters; items added later arrive at once. For infrequent moments only (CONVENTIONS §8). At Reduced and Off the step is 0, so the group arrives together.",
+      "registryDependencies": [
+        "@bydiorama/cn",
+        "@bydiorama/data-slot",
+        "@bydiorama/presence"
+      ],
+      "files": [
+        {
+          "path": "registry/ui/stagger/stagger.tsx",
+          "type": "registry:ui",
+          "target": "ui/stagger.tsx"
+        },
+        {
+          "path": "registry/ui/stagger/stagger.doc.ts",
+          "type": "registry:ui",
+          "target": "ui/stagger.doc.ts"
         }
       ]
     },

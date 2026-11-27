@@ -15,7 +15,9 @@ Two owners, never both on one element:
 | A short label changing in place — Save changes → Saved, Follow → Following, a status word | `TextSwap` | `<Button><TextSwap>{label}</TextSwap></Button>`; one line of text, a string |
 | A glyph that means a state changing — Copy → tick, play → pause, bell → muted bell | `IconSwap` | `<Button isIconOnly aria-label={name} icon={<IconSwap icons={{ copy: <Copy />, check: <Check /> }} show={key} />} />`; change the name with the glyph |
 | A number changing — a total, a cart, an unread count, a live readout | `Count` | `<Count value={n} format={…} locale="sk-SK" />`; its text is always the plain value |
-| A product interaction the library has no component for yet — a field shaking on error, a success check | the app, with transitions.dev snippets | follow this skill |
+| A group arriving on first load — a dashboard's cards, an empty state filling | `Stagger` | wrap the keyed items; infrequent moments only (CONVENTIONS §8) |
+| An answer to an action — a field shaking on a wrong code, a check written in on success | `useShake()`, `SuccessCheck` | `const { ref, shake } = useShake()`; render `<SuccessCheck />` when success happens; keep the static cue |
+| A product interaction the library has no component for yet | the app, with transitions.dev snippets | follow this skill |
 
 Check the first two rows before reaching for the third: a snippet layered on
 a component that already animates double-animates it, and two `transition`

@@ -1,5 +1,5 @@
 {
-  "sourceHash": "1f4bdb8c15f5c0fc0f098c655956757c1eb94a3e02036eda275455aa3e715afe",
+  "sourceHash": "9c1646ded5eece9b884f0b9c81b83ad06bdbc487b415789258a23a9c1247a9a6",
   "categories": [
     "Actions",
     "Forms",
@@ -2219,9 +2219,12 @@
           "For a CTA that navigates, pass render={<a href=… />} (or the router's Link). In .astro or server templates, put buttonClassName({ variant, size }) on the <a> and add data-disabled/aria-disabled yourself if it can be disabled.",
           "Use isBusy for in-flight submits: it refuses a second activation AND keeps focus on the button for the round trip. It is the whole double-submit guard — migrating from a `loading` prop that implied disabled is a straight rename.",
           "Pass icons as slots so usage is visible at the call site.",
-          "Reach for size=\"lg\" on primary page actions — it is the only size at the 44px touch target."
+          "Reach for size=\"lg\" on primary page actions — it is the only size at the 44px touch target.",
+          "Leave size at md — the default — for a composition's actions: a card's, a form's, a dialog footer, a list's add button, a row's action in an ordinary list. Size follows the control's ROLE (ADR 0029).",
+          "Use size=\"sm\" only inside a part that is already dense by design: a table cell, an icon toolbar, a chip or tag row, a panel header's close."
         ],
         "dont": [
+          "Do not use size=\"sm\" to mark an action as secondary or quiet — that is variant's job (secondary, ghost). And do not use it to make a screen denser: set data-ui-density=\"compact\" on the region, which takes every size down 4px and keeps their hierarchy (ADR 0029).",
           "Do not use isDisabled to indicate loading; the control disappears from the tab order.",
           "Do not pair isDisabled with isBusy to stop a double submit — busy already refuses activation, and adding disabled only throws the keyboard user's focus away mid-submit.",
           "Do not rely on a click reaching onClick while busy (to cancel, say). A busy button swallows activation; a cancel action is a separate button.",
@@ -2521,6 +2524,21 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-adr-0029-proposed-a-button-s",
+          "date": "2026-11-27",
+          "item": "system",
+          "kind": "decision",
+          "summary": "Records ADR 0029 (proposed), raised by the maintainer: new compositions kept arriving with small buttons, every one an explicit size=\"sm\" on a component that already defaults to md. Nothing said when sm is right — the Button doc gave sizes and 'lg for primary page actions' — and the stories' 56 small Buttons taught the habit. The decision: size follows the control's ROLE — md for every action in a composition, lg for a page's primary action, sm only inside a part already dense by design (table cell, icon toolbar, chip row, panel-header close); 'secondary' is a variant, and a tighter screen is data-ui-density=\"compact\" (ADR 0020 §4, 0026), never size=\"sm\". Written into CONVENTIONS §7b, the Button doc's do/dont, the craft skill (shipped) and add-component. check:site-source now fails a <Button size=\"sm\"> in a live example without a 'size sm:' comment naming its dense part — shown failing on the four it found (Count, Presence ×2, Stagger), all moved to md, as were the utility buttons in the six motion components' stories.",
+          "affects": [
+            "decision:0029-button-size-follows-role",
+            "item:button",
+            "item:craft",
+            "item:add-component",
+            "gate:check-site-source"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-13-clarify-public-variant-guidance-without-maintenance",
@@ -11965,6 +11983,18 @@
       "changes": [
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-tabs-a-changing-count-moves-through",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "visual",
+          "summary": "A Tab's count now renders through Count: when it changes, only the changed digits move — the new digit rises in on --ui-duration-base while the old fades in place — and the badge's text stays the plain number, so its accessible name and copy are unchanged. No API change; the badge's size and colours are as before. Adds count to registryDependencies, so a re-sync installs it. A new test asserts the change and was shown failing against the plain number.",
+          "affects": [
+            "item:tabs",
+            "item:count"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-26-count-a-number-changing-in-place",
           "date": "2026-11-26",
           "item": "count",
@@ -14339,6 +14369,108 @@
       ]
     },
     {
+      "name": "feedback",
+      "title": "Feedback",
+      "type": "ui",
+      "category": "Utilities",
+      "status": "experimental",
+      "lead": "The one-shots that answer an action: a shake that says no and a check that is written in.",
+      "docs": {
+        "lead": "The one-shots that answer an action: a shake that says no and a check that is written in.",
+        "name": "Feedback",
+        "status": "experimental",
+        "summary": "The last of ADR 0028's six owned motion components. useShake() returns a ref and a shake(): three decaying swings of 4 → 2.5 → 1px (multiples of --ui-space-xs) over --ui-duration-slow, each segment on --ui-ease-default, played once through the Web Animations API so it replays on demand. As JS-driven motion it asks motionLevel() and does nothing below Full — the shake is travel, and the field's danger outline and message carry the error. SuccessCheck is the shared Check glyph written in left to right — a clip-path wipe on --ui-duration-slow with --ui-ease-out — when it mounts; at Reduced it fades in whole, at Off it is there. Every number was decided with the maintainer (2026-11-27). Both sit beside a static cue: motion is never the only feedback channel (CONVENTIONS §8).",
+        "anatomy": [
+          {
+            "part": "shake",
+            "slot": "the caller's",
+            "notes": "useShake() renders nothing: its ref goes on the element that says no — the field or the form, not the label — and shake() animates that element's translate once. The element keeps its own classes and styles; an inline translate on it is overwritten while the shake runs."
+          },
+          {
+            "part": "success check",
+            "slot": "success-check",
+            "notes": "An aria-hidden inline span holding the shared Check glyph, 16px and text-success by default. Its clip-path opens from the left as it arrives; at rest the clip shows all of it."
+          }
+        ],
+        "composition": "\nuseShake<T>() → { ref, shake }\nSuccessCheck — data-slot=\"success-check\", aria-hidden\n└── Check (griddy-icons)\n\nconst { ref, shake } = useShake<HTMLInputElement>();\n<Input ref={ref} isInvalid={wrong} />\n// on a rejected submit:  shake();\n\n{saved && <span className=\"flex items-center gap-xs\"><SuccessCheck /> Saved</span>}\n",
+        "props": {
+          "className": {
+            "type": "string",
+            "notes": "SuccessCheck: lands on the span, merged last — size-5 to resize, text-* to recolour."
+          }
+        },
+        "do": [
+          "Shake only when the answer is no to something the person just did: a wrong code, a rejected submit.",
+          "Keep the static cue: the danger outline and message for a shake, a label beside the check.",
+          "Render SuccessCheck when success happens; it plays on mount."
+        ],
+        "dont": [
+          "Shake to draw attention to something the person did not just do, or on every keystroke.",
+          "Use a check or a shake as the only feedback — both are decorative.",
+          "Loop either. They are one-shots; a loop is the effects layer's job."
+        ],
+        "a11y": {
+          "role": "None. SuccessCheck is aria-hidden; useShake adds no element.",
+          "name": "Never Feedback's: the field's error message and the label beside the check carry the meaning.",
+          "keyboard": [],
+          "focus": "Unaffected — the shake moves the field without moving focus.",
+          "contrastPairs": [],
+          "rendersNoColour": "The shake paints nothing. SuccessCheck's glyph is decorative and sits beside its own label, which declares the text pair; its default ink is the library's success colour, as every success glyph uses."
+        },
+        "forwarding": {
+          "className": "SuccessCheck: lands on the span. useShake: not applicable.",
+          "ref": "SuccessCheck: the span. useShake returns a ref for the caller's element.",
+          "props": "SuccessCheck: native span attributes; aria-hidden is fixed."
+        },
+        "motion": "Shake: a Web Animation of translate through calc(var(--ui-space-xs) × 0, −1, 1, −0.625, 0.625, −0.25, 0) — evenly spaced, each segment on --ui-ease-default — over --ui-duration-slow; a second call restarts it. It runs only at Full (motionLevel()). SuccessCheck: a CSS transition from @starting-style — at Full clip-path inset(0 100% 0 0) → inset(0) on --ui-duration-slow with --ui-ease-out (motion-safe:); at Reduced opacity 0 → 1 on the slow token, which Reduced caps at base (motion-reduce:); at Off 1ms.",
+        "needsDesign": [],
+        "knownGaps": [
+          "Built from a sheet the maintainer has not reviewed yet; its four open decisions were made with them.",
+          "Decided 'stroke draws on' is a clip-path wipe: dashed strokes and private glyphs are banned by gates. It reads the same; a true stroke draw would need an exemption in both."
+        ],
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49XU-1"
+      },
+      "files": [
+        {
+          "path": "registry/ui/feedback/feedback.tsx",
+          "target": "ui/feedback.tsx"
+        },
+        {
+          "path": "registry/ui/feedback/feedback.doc.ts",
+          "target": "ui/feedback.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "data-slot",
+        "motion"
+      ],
+      "contrast": [],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-feedback-a-shake-that-says-no",
+          "date": "2026-11-27",
+          "item": "feedback",
+          "kind": "addition",
+          "summary": "New experimental item feedback — the last of ADR 0028's six owned motion components, so §6 is complete. useShake<T>() returns a ref and a shake(): three decaying swings of 4 → 2.5 → 1px (calc(var(--ui-space-xs) × k), so it follows the token) over --ui-duration-slow, each segment on --ui-ease-default, played once through the Web Animations API so it replays on demand and a second call restarts it. As JS-driven motion it asks motionLevel() and does nothing below Full: the shake is travel, and the field's danger outline and message carry the error. SuccessCheck is the shared griddy-icons Check, 16px and text-success by default, written in left to right with a clip-path wipe from @starting-style on --ui-duration-slow (motion-safe:); at Reduced it fades in whole on the slow token Reduced caps at base (motion-reduce:); at Off it is there. All four open decisions were made with the maintainer (2026-11-27): shake size and rhythm, nothing extra at Reduced, a check that draws on, and Stagger's cap. 'Draws on' became a clip-path wipe because check:strokes bans stroke-dasharray and check:icons private glyphs. Three probes (shake ignoring the level, no decay, a fade at Full) each failed their named test.",
+          "affects": [
+            "item:feedback",
+            "item:app-motion",
+            "item:motion-component",
+            "item:motion",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49XU-1"
+          }
+        }
+      ]
+    },
+    {
       "name": "header",
       "title": "Header",
       "type": "ui",
@@ -15140,6 +15272,18 @@
       ],
       "contrast": [],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-mediatoggle-the-glyph-cross-fades-through",
+          "date": "2026-11-27",
+          "item": "media-toggle",
+          "kind": "visual",
+          "summary": "MediaToggle's play and pause glyphs now cross-fade through IconSwap instead of swapping hard: the old glyph dips to 0.8 and blurs away on --ui-duration-fast while the new one re-forms on --ui-duration-base; a plain cross-fade at Reduced, instant at Off. The swap is aria-hidden, so the button's aria-label (play/pause) still carries the state. Both glyphs stay rendered (PlayCircle and PauseCircle, sized by the existing [&_svg]:size-4). Adds icon-swap to registryDependencies, so a re-sync installs it. A new test asserts the cross-fade and was shown failing against the old hard swap.",
+          "affects": [
+            "item:media-toggle",
+            "item:icon-swap"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-27-iconswap-a-subtle-dip-with-blur",
@@ -17530,7 +17674,7 @@
           "The disc's own boundary against an arbitrary video frame is not guaranteed — a frame the colour of --ui-bg-media hides the disc, though never the glyph. A ring was not drawn.",
           "No Button for media grounds: inverse flips with the scheme and media does not, so an onMedia variant waits for a call site."
         ],
-        "motion": "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The glyph swaps without animation. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused. Motion levels (ADR 0028): the video starts paused at any level below `full`, read at the video itself.",
+        "motion": "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The play and pause glyphs cross-fade through IconSwap — the old one dips to 0.8 and blurs away on --ui-duration-fast while the new one re-forms on --ui-duration-base; at Reduced a plain cross-fade, at Off instant. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused. Motion levels (ADR 0028): the video starts paused at any level below `full`, read at the video itself.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0"
       },
       "files": [
@@ -17552,7 +17696,8 @@
         "motion",
         "compose-event-handlers",
         "use-controllable-state",
-        "data-slot"
+        "data-slot",
+        "icon-swap"
       ],
       "contrast": [
         {
@@ -17581,6 +17726,18 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-mediatoggle-the-glyph-cross-fades-through",
+          "date": "2026-11-27",
+          "item": "media-toggle",
+          "kind": "visual",
+          "summary": "MediaToggle's play and pause glyphs now cross-fade through IconSwap instead of swapping hard: the old glyph dips to 0.8 and blurs away on --ui-duration-fast while the new one re-forms on --ui-duration-base; a plain cross-fade at Reduced, instant at Off. The swap is aria-hidden, so the button's aria-label (play/pause) still carries the state. Both glyphs stay rendered (PlayCircle and PauseCircle, sized by the existing [&_svg]:size-4). Adds icon-swap to registryDependencies, so a re-sync installs it. A new test asserts the cross-fade and was shown failing against the old hard swap.",
+          "affects": [
+            "item:media-toggle",
+            "item:icon-swap"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -21244,6 +21401,37 @@
       ],
       "contrast": [],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-stagger-a-group-arriving-in-order",
+          "date": "2026-11-27",
+          "item": "stagger",
+          "kind": "addition",
+          "summary": "New experimental component stagger — the fifth of ADR 0028's owned motion components, built on Presence (appear). The items present on the first render arrive in document order, each one --ui-stagger-step after the one before, with Presence's rise (or fade, by kind). Decided with the maintainer (2026-11-27): the delay caps at the sixth item — everything after it arrives with it — so a group of any length is in within 5 × step + --ui-duration-base. The delay is a transition-delay that applies only while data-presence is entering, so once an item settles a later hover, fade or exit on it is never held back; items added after mount arrive at once. No new token: --ui-stagger-step is already 0 at Reduced and Off, so the group arrives together there with no code. Three probes (no cap, delay left on after settling, later items delayed) each failed their named test.",
+          "affects": [
+            "item:stagger",
+            "item:presence",
+            "item:app-motion",
+            "item:motion-component",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49S3-1"
+          }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-motion-thumbnails-show-before-and-after",
+          "date": "2026-11-27",
+          "item": "system",
+          "kind": "fix",
+          "summary": "The six motion components' catalogue thumbnails (text-swap, icon-swap, count, presence, stagger, feedback) now draw the state BEFORE, an arrow, and the state AFTER — both at rest and at full opacity — instead of a frame caught mid-transition, which read as broken (half-faded words, clipped bars). Raised in review. Presence's live example on its detail page collapsed to an 8px column of single words: it used max-w-sm, which in this theme is --ui-space-sm, not Tailwind's container width — the trap Modal and Sheet document. It now takes an explicit w-80 max-w-full. check:utilities, which already rejects bare spacing steps on widths, scanned only registry/; it now scans apps/site/src/examples too, the code a consumer copies from a component page, and was shown failing on the Presence example before the fix.",
+          "affects": [
+            "item:presence",
+            "gate:check-utilities",
+            "item:motion-component"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-26-textswap-a-label-replaced-in-place",
@@ -25959,6 +26147,110 @@
       ]
     },
     {
+      "name": "stagger",
+      "title": "Stagger",
+      "type": "ui",
+      "category": "Utilities",
+      "status": "experimental",
+      "lead": "Brings a group in one item after another on its first appearance, for the infrequent moments that earn it.",
+      "docs": {
+        "lead": "Brings a group in one item after another on its first appearance, for the infrequent moments that earn it.",
+        "name": "Stagger",
+        "status": "experimental",
+        "summary": "The fifth of ADR 0028's owned motion components, built on Presence. The items present on the first render arrive in document order, each one --ui-stagger-step after the one before, with Presence's rise (or fade). The delay is capped at the sixth item — everything after it arrives with it — so a group of any length is in within 5 × step + --ui-duration-base. The delay exists only while an item enters; once it settles, later hovers, fades and exits on it are never held back. Items added later arrive through Presence at once. Reserved by CONVENTIONS §8 for first loads, empty states filling and success summaries — never routine updates. At Reduced and Off the step token is 0, so the group arrives together.",
+        "anatomy": [
+          {
+            "part": "stagger",
+            "slot": "none",
+            "notes": "The root renders no element — it is a Presence with appear — so it sits inside a <ul>, a stack or a grid without changing the layout. It captures the first render's items, in order, once."
+          },
+          {
+            "part": "item",
+            "slot": "the caller's",
+            "notes": "Each child element, a Presence item. Stagger adds a --ui-stagger-index custom property (0–5) to its style and a transition-delay that applies only while data-presence is entering, so the child must forward className, style and data-* (CONVENTIONS §5)."
+          }
+        ],
+        "composition": "\nStagger (kind?: \"rise\" | \"fade\")\n└── Presence kind={kind} appear\n    └── item × n — the caller's element, --ui-stagger-index = min(n, 5)\n\n<ul>\n  <Stagger>\n    {cards.map((card) => <li key={card.id}>{card.title}</li>)}\n  </Stagger>\n</ul>\n",
+        "props": {
+          "kind": {
+            "type": "\"rise\" | \"fade\"",
+            "notes": "rise (default) is Presence's rise — opacity and a 4px lift. fade is opacity only, for items that sit close together."
+          },
+          "children": {
+            "type": "ReactNode",
+            "notes": "Keyed elements. Each must forward className, style and data-* to its root (CONVENTIONS §5). Stagger owns the transition-delay while an item enters; Presence owns opacity and translate."
+          }
+        },
+        "do": [
+          "Use it once per moment: a dashboard's cards on first load, an empty state filling, a success summary.",
+          "Keep the group short enough to read as one gesture; the cap keeps a long one under a second.",
+          "Wrap the items directly — Stagger renders no element, so it works inside a <ul> or a grid."
+        ],
+        "dont": [
+          "Stagger a list that re-sorts, filters or pages. That is routine, and waiting on it is friction.",
+          "Nest Staggers to cascade sections; one group, one rhythm.",
+          "Set an inline transition-delay on an item — Stagger owns it while the item enters."
+        ],
+        "a11y": {
+          "role": "None: Stagger renders no element. Items keep their own roles.",
+          "name": "Unchanged — items are in the DOM and readable from the first frame; only their paint is delayed.",
+          "keyboard": [],
+          "focus": "Items are focusable from the first frame, as without Stagger.",
+          "contrastPairs": [],
+          "rendersNoColour": "Stagger sets no colour: it delays and fades the caller's items, so the pairs are the items' own to declare."
+        },
+        "forwarding": {
+          "className": "Not accepted — Stagger has no element. Items keep theirs, merged with Presence's classes.",
+          "ref": "Not accepted. Items keep their own refs.",
+          "props": "kind and children only."
+        },
+        "motion": "CSS transitions on the tokens, through Presence's rise (opacity from 0 and translate from --ui-space-xs × --ui-motion-travel on --ui-duration-base with --ui-ease-out) or fade. Each first-render item adds transition-delay: min(index, 5) × --ui-stagger-step while data-presence is entering, so item 6 onward share item 6's start. Motion levels (ADR 0028): --ui-stagger-step is 0 at Reduced and Off, so the group fades in together (Reduced, no rise) or appears (Off, 1ms).",
+        "needsDesign": [],
+        "knownGaps": [
+          "Built from a sheet the maintainer has not reviewed yet; the cap of six was decided with them.",
+          "Order is DOM order. A grid that reads in columns staggers in rows."
+        ],
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49S3-1"
+      },
+      "files": [
+        {
+          "path": "registry/ui/stagger/stagger.tsx",
+          "target": "ui/stagger.tsx"
+        },
+        {
+          "path": "registry/ui/stagger/stagger.doc.ts",
+          "target": "ui/stagger.doc.ts"
+        }
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "cn",
+        "data-slot",
+        "presence"
+      ],
+      "contrast": [],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-stagger-a-group-arriving-in-order",
+          "date": "2026-11-27",
+          "item": "stagger",
+          "kind": "addition",
+          "summary": "New experimental component stagger — the fifth of ADR 0028's owned motion components, built on Presence (appear). The items present on the first render arrive in document order, each one --ui-stagger-step after the one before, with Presence's rise (or fade, by kind). Decided with the maintainer (2026-11-27): the delay caps at the sixth item — everything after it arrives with it — so a group of any length is in within 5 × step + --ui-duration-base. The delay is a transition-delay that applies only while data-presence is entering, so once an item settles a later hover, fade or exit on it is never held back; items added after mount arrive at once. No new token: --ui-stagger-step is already 0 at Reduced and Off, so the group arrives together there with no code. Three probes (no cap, delay left on after settling, later items delayed) each failed their named test.",
+          "affects": [
+            "item:stagger",
+            "item:presence",
+            "item:app-motion",
+            "item:motion-component",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49S3-1"
+          }
+        }
+      ]
+    },
+    {
       "name": "stat-tiles",
       "title": "StatTiles",
       "type": "block",
@@ -28124,7 +28416,7 @@
           "The sheet gives the count only to the selected tab; the component allows it on any, which is the more useful behaviour but is not what is drawn.",
           "No Base UI Indicator (the sliding highlight); the sheet fills the selected tab instead."
         ],
-        "motion": "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade.",
+        "motion": "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0"
       },
       "files": [
@@ -28143,7 +28435,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "data-slot"
+        "data-slot",
+        "count"
       ],
       "contrast": [
         {
@@ -28180,6 +28473,18 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-tabs-a-changing-count-moves-through",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "visual",
+          "summary": "A Tab's count now renders through Count: when it changes, only the changed digits move — the new digit rises in on --ui-duration-base while the old fades in place — and the badge's text stays the plain number, so its accessible name and copy are unchanged. No API change; the badge's size and colours are as before. Adds count to registryDependencies, so a re-sync installs it. A new test asserts the change and was shown failing against the plain number.",
+          "affects": [
+            "item:tabs",
+            "item:count"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",

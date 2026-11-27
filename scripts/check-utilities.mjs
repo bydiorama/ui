@@ -300,7 +300,11 @@ let checkedProps = 0;
 // Read once, in one pass: rule C is CROSS-FILE — a property is declared in a
 // component and overridden from a story — so it cannot be answered while
 // walking.
-const sources = walk(join(ROOT, "registry"))
+// The site's live examples are scanned too: they are the code a consumer
+// copies from a component's page, so a utility that resolves to the wrong
+// token there ships just as surely (Presence's example once read `max-w-sm`
+// as 8px and collapsed to a column of single words).
+const sources = [...walk(join(ROOT, "registry")), ...walk(join(ROOT, "apps/site/src/examples"))]
   .map((file) => file.slice(ROOT.length + 1))
   // cn.ts is merge CONFIGURATION: its strings are tailwind-merge group
   // identifiers — "text-color", "font-size", "leading" — not classes. Reading

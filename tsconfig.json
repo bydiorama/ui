@@ -82,6 +82,8 @@
       "@/ui/network": ["./registry/ui/network/network.tsx"],
       "@/ui/status-matrix": ["./registry/ui/status-matrix/status-matrix.tsx"],
       "@/ui/presence": ["./registry/ui/presence/presence.tsx"],
+      "@/ui/icon-swap": ["./registry/ui/icon-swap/icon-swap.tsx"],
+      "@/ui/count": ["./registry/ui/count/count.tsx"],
       "@/ui/popover": ["./registry/ui/popover/popover.tsx"],
       "@/ui/chat-widget": ["./registry/ui/chat-widget/chat-widget.tsx"],
       "@/components/blocks/stat-tiles": ["./registry/blocks/stat-tiles/stat-tiles.tsx"],

@@ -1,4 +1,16 @@
-import { Check, Copy } from "griddy-icons";
+import type { ReactNode } from "react";
+import { ArrowRight, Check, Copy } from "griddy-icons";
+
+/** A motion motif: the state before, an arrow, the state after — both at rest. */
+function Change({ before, after }: { before: ReactNode; after: ReactNode }) {
+  return (
+    <div className="motif-change">
+      {before}
+      <ArrowRight aria-hidden="true" className="motif-change-arrow" />
+      {after}
+    </div>
+  );
+}
 
 const releases = [["Release notes", "Nov"], ["Design review", "Oct"], ["Kick-off", "Sep"], ["Research", "Aug"]];
 
@@ -14,47 +26,53 @@ export const utilities = {
       <span className="motif-fade-veil" />
     </div>
   ),
-  // One frame of a list changing: two rows at rest, one arriving part-way
-  // through its fade, one folding away part-way through its collapse. The
-  // moving rows draw their text as a bar: translucent text fails the
-  // catalog's contrast audit, and at this size a line reads as a row.
-  // One frame of a swap: the label at rest, then caught mid-change — the new
-  // word arriving over the fading old one in a button easing narrower. The
-  // fading word is a bar for the same reason as Presence's moving rows.
+  // The motion motifs draw a BEFORE and an AFTER, joined by an arrow: a
+  // static frame cannot show movement, and a frame caught mid-transition
+  // reads as broken (half-faded text, a clipped bar) rather than as motion.
+  // Both states are at rest and at full opacity.
   "text-swap": () => (
-    <div className="motif-text-swap">
-      <span className="motif-text-swap-button">Save changes</span>
-      <span className="motif-text-swap-button" data-state="swapping"><i className="motif-text-swap-old" />Saved</span>
-    </div>
+    <Change
+      before={<span className="motif-text-swap-button">Save changes</span>}
+      after={<span className="motif-text-swap-button">Saved</span>}
+    />
   ),
-  // Three frames of Copy becoming a tick, from the Icon Swap sheet: at rest,
-  // 50ms in (the old glyph shrinking and blurring away under the new one re-forming), settled.
   "icon-swap": () => (
-    <div className="motif-icon-swap">
-      <span className="motif-icon-swap-button"><Copy aria-hidden="true" /></span>
-      <span className="motif-icon-swap-button" data-state="swapping">
-        <Copy aria-hidden="true" className="motif-icon-swap-old" />
-        <Check aria-hidden="true" className="motif-icon-swap-new" />
-      </span>
-      <span className="motif-icon-swap-button"><Check aria-hidden="true" /></span>
-    </div>
+    <Change
+      before={<span className="motif-icon-swap-button"><Copy aria-hidden="true" /></span>}
+      after={<span className="motif-icon-swap-button"><Check aria-hidden="true" /></span>}
+    />
   ),
-  // One frame of 1,249 becoming 1,250, from the Count sheet: the thousands
-  // and hundreds still, the tens and units part-way in. The old digits are a
-  // bar, like the other motion motifs: translucent text fails the catalog's
-  // contrast audit.
   count: () => (
     <div className="motif-count">
       <span className="motif-count-label">Orders this week</span>
-      <span className="motif-count-value">1,2<span className="motif-count-changed">50<i className="motif-count-old" /></span></span>
+      <Change
+        before={<span className="motif-count-value">1,249</span>}
+        after={<span className="motif-count-value">1,250</span>}
+      />
     </div>
   ),
   presence: () => (
-    <div className="motif-presence">
-      <div className="motif-presence-row"><span>Set the grid</span></div>
-      <div className="motif-presence-row" data-state="leaving"><i className="motif-presence-line" /></div>
-      <div className="motif-presence-row"><span>Choose a palette</span></div>
-      <div className="motif-presence-row" data-state="entering"><i className="motif-presence-line" /></div>
+    <Change
+      before={<div className="motif-list"><span>Grid</span><span>Palette</span></div>}
+      after={<div className="motif-list"><span>Grid</span><span data-state="new">Type</span><span>Palette</span></div>}
+    />
+  ),
+  stagger: () => (
+    <Change
+      before={<div className="motif-list" data-state="empty" />}
+      after={<div className="motif-list"><span>Grid</span><span>Palette</span><span>Type</span></div>}
+    />
+  ),
+  feedback: () => (
+    <div className="motif-feedback">
+      <Change
+        before={<span className="motif-feedback-field">48213</span>}
+        after={<span className="motif-feedback-field" data-state="error">48213</span>}
+      />
+      <Change
+        before={<span className="motif-feedback-done">Verify</span>}
+        after={<span className="motif-feedback-done"><Check aria-hidden="true" className="motif-feedback-check" />Verified</span>}
+      />
     </div>
   ),
 };

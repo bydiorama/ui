@@ -1,5 +1,9 @@
 # Diorama UI
 
+<p align="center">
+  <img src="docs/readme/hero.png" width="100%" alt="Diorama UI: tokens, components and effects your agents build with. A bento of the library: an image-library screen built with it, a themed publish card, a date picker and range slider, an agent progress list, and the glass effect.">
+</p>
+
 **The Diorama design system: design tokens, 45 React components, and the
 tooling that keeps consumers in sync — distributed as source you own.**
 

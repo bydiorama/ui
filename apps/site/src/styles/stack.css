@@ -147,7 +147,9 @@ html[data-site-effects="on"] .stack-part[data-ink] > .stack-f[style*="var(--ui-b
   .stack-list { grid-area: list; padding: 12px 32px 24px; min-height: 480px; }
 }
 @media (max-width: 700px) {
-  .home > .stack-section { padding: 64px 0 32px; }
-  .stack-legend h2 { padding: 24px 24px 12px; font-size: 24px; line-height: 30px; }
-  .stack-list { padding: 12px 24px 16px; }
+  /* The phone: the drawing first, then the heading and the rows. */
+  .home > .stack-section { padding: 104px 0 0; }
+  .stack { grid-template-areas: "well" "title" "list"; }
+  .stack-legend h2 { padding: 20px 22px 0; }
+  .stack-list { padding: 24px 22px 24px; }
 }

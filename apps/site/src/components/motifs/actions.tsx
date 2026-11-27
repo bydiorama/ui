@@ -9,7 +9,7 @@ export const actions = {
   ),
   "media-toggle": () => (
     <div className="motif-media-toggle">
-      <span className="motif-media-toggle-control"><PauseCircle size={20} /></span>
+      <span className="motif-media-toggle-control"><PauseCircle size={24} /></span>
       <div className="motif-media-toggle-track">
         <span className="motif-media-toggle-bar"><span /></span>
         <span className="motif-media-toggle-times"><span>0:42</span><span>1:36</span></span>

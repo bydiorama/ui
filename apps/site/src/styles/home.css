@@ -110,6 +110,15 @@ html:not([data-motion]) .hero-reel-word[data-index="4"] { color: var(--ui-text-p
 @media (prefers-reduced-motion: reduce) { .look-dock[data-floating] { translate: -50% 0; } }
 html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(in oklab, var(--ui-bg-surface) 72%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); }
 
+/* On a phone the floating copy is one round button, and the controls come
+   up in a Drawer (narrow views, below). Hidden everywhere else. */
+.look-fab { display: none; }
+.look-sheet { display: flex; flex-direction: column; gap: 8px; }
+.look-sheet .look-options { display: flex; }
+.look-sheet .look-option { flex: 1; justify-content: center; height: 44px; padding: 0; gap: 7px; }
+.look-sheet .look-switches { display: flex; flex-direction: column; }
+.look-sheet .look-switch, .look-sheet .look-switch label { width: 100%; min-height: 56px; font-size: 16px; }
+
 /* ------------------------------------------------------------ use cases */
 /* The ground is static HTML behind the island (the shader runtime owns its
    canvas). It starts under the tab row, which is one 36px row at every
@@ -364,6 +373,14 @@ html[data-site-effects="on"] .exploded { --exploded-shade: 15%; --exploded-accen
 .status-mark:focus-visible { outline: 2px solid var(--ui-border-focus); }
 .status-mark [data-slot="status-matrix"] { width: 44px; height: 44px; }
 
+/* The six tiles are one list. On a desktop it is three rows; on a phone the
+   rows dissolve and the list is one strip (narrow views, below). */
+.box-tiles { display: flex; flex-direction: column; gap: 16px; }
+.box-controls { display: none; }
+/* "Hover one to play it" where there is a pointer, "Tap" where there is not. */
+.touch-only { display: none; }
+@media (hover: none) { .pointer-only { display: none; } .touch-only { display: inline; } }
+
 /* ------------------------------------------------------------------ faq */
 .faq { display: flex; flex-direction: column; align-items: center; gap: 48px; padding: clamp(120px, 14vw, 200px) 0 0; }
 .faq h2 { font-size: clamp(32px, 3.1vw, 44px); line-height: 1.227; font-weight: 550; letter-spacing: -0.035em; color: var(--ui-text-primary); text-align: center; }
@@ -464,38 +481,111 @@ html[data-site-effects="on"] .exploded { --exploded-shade: 15%; --exploded-accen
   .use-case-window { padding: 8px 8px 0; }
 }
 @media (max-width: 700px) {
+  /* The phone (Paper: "Home mobile — Design · 390"). Cards sit 12 from the
+     window's edge and running text 20, so text sections add 8 of their own. */
+  .home { --home-gutter: 12px; }
   .terminal-body { font-size: 11px; line-height: 19px; }
-  .fan-card { --cw: min(168px, calc(50vw - 24px)); width: var(--cw); height: 212px; padding: 16px; }
-  .hero { gap: 32px; padding-bottom: 72px; }
-  .hero-lead { font-size: 17px; line-height: 26px; }
-  .install-pill code { font-size: 13px; }
-  .look-dock { gap: 12px; padding-right: 14px; height: auto; min-height: 56px; flex-wrap: wrap; justify-content: center; border-radius: 28px; padding-block: 8px; }
-  .look-option { padding: 0 10px 0 9px; }
-  .look-dock[data-floating] { width: max-content; max-width: calc(100vw - 24px); bottom: 12px; }
-  .feature-text { padding: 24px; }
-  .feature-well-wash { padding: 16px; }
-  .feature-visual { min-height: 360px; }
-  .theme-pair { flex-direction: column; }
-  /* Collapsed into one row: the five cards overlap, their centres spread
-     evenly across the fan's width less a card and 12px a side for the
-     outer cards' tilt, turning out from the middle as the desktop fan does.
-     `left` resolves the 100% against the fan, so the row fits any phone. */
-  .card-fan { height: 300px; margin-top: 32px; }
-  .fan-card[data-index] { --step: calc((100% - var(--cw) - 24px) / 4); }
-  .fan-card[data-index="0"] { --x: calc(560px - var(--cw) / 2 - var(--step) * 2); --y: 44px; --r: -12deg; }
-  .fan-card[data-index="1"] { --x: calc(560px - var(--cw) / 2 - var(--step)); --y: 16px; --r: -6deg; }
-  .fan-card[data-index="2"] { --x: calc(560px - var(--cw) / 2); --y: 4px; --r: 0deg; }
-  .fan-card[data-index="3"] { --x: calc(560px - var(--cw) / 2 + var(--step)); --y: 16px; --r: 6deg; }
-  .fan-card[data-index="4"] { --x: calc(560px - var(--cw) / 2 + var(--step) * 2); --y: 44px; --r: 12deg; z-index: 2; }
-  /* Four marks in one row: the fifth (progress) is left to the wider views,
-     and the four share the row instead of holding 92px each. */
-  .status-marks { flex-wrap: nowrap; gap: 0; width: 100%; padding: 0 8px; }
-  .status-marks li { flex: 1 1 0; min-width: 0; }
-  .status-marks li:nth-child(n + 5) { display: none; }
-  .status-mark { width: 100%; padding-inline: 0; }
-}
-@media (max-width: 420px) {
-  .look-option { font-size: 0; gap: 0; padding: 0 11px; }
-  .look-dock .look-switch { font-size: 12px; }
-  .install-pill { gap: 8px; }
+
+  /* Hero: the headline stacks. "Your" is its own line, and the reel shows
+     the current word with the next one under it in the quiet tint; the word
+     before is not shown, because "Your" sits where it would be. */
+  .hero { gap: 0; padding: 32px 8px 0; }
+  .hero-title { --reel-size: 72px; flex-direction: column; gap: 0; height: auto; font-size: 78px; line-height: var(--reel-size); }
+  .hero-your { height: var(--reel-size); }
+  .hero-reel-window { inset: 0 -0.2em calc(var(--reel-size) * -1); }
+  .hero-reel-window [data-slot="fade"] { display: none; }
+  .hero-reel-track { inset: 0 0.2em auto; align-items: center; }
+  /* A 78px word in a 72px line: its descender hangs into the line below.
+     That is wanted under the current word and under the next, and not under
+     the word that has left, whose tail would show above the current one. */
+  .hero-reel-word { clip-path: inset(0 -0.3em -16px); }
+  .hero-reel-word:has(~ [data-current]), html:not([data-motion]) .hero-reel-word:has(~ [data-index="4"]) { clip-path: inset(0 -0.3em 0); }
+  /* The next word lies outside the title's box, so the body clears it. */
+  .hero-body { gap: 28px; padding-top: 100px; }
+  .hero-lead { max-width: 330px; font-size: 17px; line-height: 26px; }
+  .hero-actions { flex-direction: column-reverse; flex-wrap: nowrap; align-items: stretch; gap: 10px; width: 100%; }
+  .hero-browse { justify-content: space-between; }
+  .install-pill { display: flex; justify-content: space-between; }
+
+  /* The dock becomes a card: the four looks across, the two switches under. */
+  .looks { padding: 28px 8px 24px; }
+  .look-dock-slot { width: 100%; }
+  .look-dock { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: stretch; justify-content: flex-start; gap: 2px; width: 100%; box-sizing: border-box; height: auto; min-height: 0; padding: 8px; border-radius: 32px; }
+  .look-dock .look-options { display: flex; }
+  .look-dock .look-option { flex: 1; justify-content: center; height: 44px; padding: 0; gap: 7px; }
+  .look-dock .look-option:last-child { flex: 1.25; }
+  .look-dock .look-switches { display: flex; align-items: center; gap: 8px; height: 48px; }
+  .look-dock .look-switch { flex: 1; width: auto; padding: 0 12px 0 16px; font-size: 14px; }
+  .looks-caption { max-width: 280px; line-height: 18px; }
+  .look-dock[data-floating] { display: none; }
+  .look-fab { position: fixed; right: 16px; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: var(--ui-z-sticky); display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border: 0; border-radius: var(--ui-radius-full); background: var(--ui-bg-surface); box-shadow: var(--ui-shadow-lg), inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); cursor: pointer; opacity: 0; translate: 0 16px; pointer-events: none; transition: opacity var(--ui-duration-slow) var(--ui-ease-default), translate var(--ui-duration-enter) var(--ui-ease-spring), scale var(--ui-duration-fast) var(--ui-ease-default); }
+  .look-fab[data-visible="true"] { opacity: 1; translate: 0 0; pointer-events: auto; }
+  .look-fab:active { scale: var(--ui-press-scale); }
+  .look-fab:focus-visible { outline: 2px solid var(--ui-border-focus); outline-offset: 2px; }
+  .look-fab-swatch { width: 26px; height: 26px; border-radius: var(--ui-radius-full); background: var(--ui-bg-accent); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08); }
+  html[data-site-effects="on"] .look-fab { background: color-mix(in oklab, var(--ui-bg-surface) 72%, transparent); -webkit-backdrop-filter: blur(20px) saturate(1.6); backdrop-filter: blur(20px) saturate(1.6); }
+
+  /* Use cases: the tabs run off the right edge, and the stage shows the
+     screen at a readable size, cropped to its middle column, rather than
+     the whole desktop app shrunk to the phone's width. */
+  /* 40 padding + the 50px tab row (44 and the list's own 3 either side) + 14 gap. */
+  .use-case-ground { inset: 104px 0 0; border-radius: 28px; }
+  .use-case-tabs { align-items: stretch; gap: 14px; }
+  .use-case-tabs .use-case-list { justify-content: flex-start; padding-inline: 8px; }
+  .use-case-list [role="tab"] { height: 44px; border-radius: 12px; font-size: 14px; }
+  .use-case-stage { justify-content: flex-start; height: 460px; padding: 28px 0 0; overflow: clip; border-radius: 28px; }
+  .use-case-window { width: 707px; flex-shrink: 0; margin-left: -167px; padding: 8px 8px 0; }
+
+  .statement { padding: 104px 8px; }
+  .statement-text { max-width: 340px; font-size: 30px; line-height: 37px; letter-spacing: -0.045em; }
+
+  /* Features: the words, then the picture, one card under another. */
+  .features { gap: 12px; padding: 0; }
+  .feature-text { padding: 28px 22px 20px; gap: 20px; }
+  .feature-visual { flex: none; min-height: 0; height: 300px; }
+  /* The exploded button keeps its own narrow drawing's height. */
+  .feature-reversed .feature-visual { height: auto; }
+  /* The terminal runs off the well's right and bottom edges. */
+  .feature-well-wash { padding: 28px 0 0 24px; }
+  .feature-well-wash .terminal { flex: none; width: 440px; border-radius: 12px 0 0; }
+  /* The two brands sit side by side and are swiped between. */
+  .feature-visual:has(.theme-pair) { height: auto; }
+  .theme-pair { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .theme-pair-well { flex: none; width: 300px; height: 340px; scroll-snap-align: start; }
+
+  /* In the box: one strip of six tiles, a tile to a stop. */
+  .home > .box { width: 100%; gap: 0; padding-top: 104px; }
+  .box-head { gap: 14px; padding: 0 20px 28px; }
+  .box-head h2 { font-size: 42px; line-height: 46px; }
+  .box-head p { font-size: 17px; line-height: 26px; }
+  .box-tiles { flex-direction: row; gap: 10px; padding-inline: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-left: 12px; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .box-row { display: contents; }
+  .box-tiles .box-tile, .box-row-two .box-tile, .box-row-three .box-tile { flex: none; flex-direction: column; width: 300px; height: 400px; scroll-snap-align: start; }
+  .box-row .box-well, .box-tile-wide .box-well { flex: 1; min-height: 0; margin: 8px 8px 0; }
+  .box-row-three .box-caption { min-height: 0; }
+  .box-tile-wide .box-caption { flex: none; justify-content: flex-start; padding: 24px 32px 32px; }
+  .box-controls { display: flex; align-items: center; justify-content: center; padding: 20px 20px 0; }
+  .box-arrows { display: flex; gap: 8px; }
+  /* All five marks, three and two. */
+  .status-marks { gap: 4px 0; padding: 0 8px; }
+  .status-marks li { width: 80px; }
+  .status-mark { width: 100%; padding: 8px 0; }
+
+  .faq { gap: 32px; padding: 112px 0 0; }
+  .faq h2 { font-size: 42px; line-height: 46px; }
+  .faq-list :is([data-slot="accordion-trigger"], [data-slot="accordion-label"]) { font-size: 17px; }
+
+  /* The cards in two tiers: Slider, Button and Badge above, Switch and Look
+     below them with their controls showing. Positions are the design's,
+     from a 390 frame's left edge (365 = 560 - 195). */
+  .outro { padding-top: 120px; }
+  .card-fan { height: 476px; margin-top: 32px; }
+  .fan-card[data-index="0"] { --x: calc(365px + 41px); --y: 195px; --r: -10deg; z-index: 0; }
+  .fan-card[data-index="1"] { --x: calc(365px - 14px); --y: 39px; --r: -7deg; z-index: 1; }
+  .fan-card[data-index="2"] { --x: calc(365px + 95px); --y: 24px; --r: 0deg; z-index: 2; }
+  .fan-card[data-index="3"] { --x: calc(365px + 203px); --y: 39px; --r: 7deg; z-index: 1; }
+  .fan-card[data-index="4"] { --x: calc(365px + 166px); --y: 238px; --r: 10deg; z-index: 0; }
+  /* The wordmark is cut by the window's right edge. */
+  .outro-wordmark { --wm: 128px; height: 96px; margin-top: 0; }
+  .outro-wordmark p { padding-left: 14px; text-align: left; line-height: 100px; }
 }

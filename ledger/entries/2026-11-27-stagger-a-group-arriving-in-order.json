@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-stagger-a-group-arriving-in-order",
+  "date": "2026-11-27",
+  "item": "stagger",
+  "kind": "addition",
+  "summary": "New experimental component stagger — the fifth of ADR 0028's owned motion components, built on Presence (appear). The items present on the first render arrive in document order, each one --ui-stagger-step after the one before, with Presence's rise (or fade, by kind). Decided with the maintainer (2026-11-27): the delay caps at the sixth item — everything after it arrives with it — so a group of any length is in within 5 × step + --ui-duration-base. The delay is a transition-delay that applies only while data-presence is entering, so once an item settles a later hover, fade or exit on it is never held back; items added after mount arrive at once. No new token: --ui-stagger-step is already 0 at Reduced and Off, so the group arrives together there with no code. Three probes (no cap, delay left on after settling, later items delayed) each failed their named test.",
+  "affects": [
+    "item:stagger",
+    "item:presence",
+    "item:app-motion",
+    "item:motion-component",
+    "decision:0028-motion-levels-and-primitives"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49S3-1"
+  }
+}

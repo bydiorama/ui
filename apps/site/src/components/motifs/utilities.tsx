@@ -49,6 +49,17 @@ export const utilities = {
       <span className="motif-count-value">1,2<span className="motif-count-changed">50<i className="motif-count-old" /></span></span>
     </div>
   ),
+  // One frame of a group arriving in order, from the Stagger sheet at 300ms:
+  // three rows in, the fourth part-way, the rest still to come. Moving rows
+  // are bars, like the other motion motifs.
+  stagger: () => (
+    <div className="motif-stagger">
+      <div className="motif-stagger-row"><span>Set the grid</span></div>
+      <div className="motif-stagger-row"><span>Choose a palette</span></div>
+      <div className="motif-stagger-row" data-state="entering"><i /></div>
+      <div className="motif-stagger-row" data-state="waiting"><i /></div>
+    </div>
+  ),
   presence: () => (
     <div className="motif-presence">
       <div className="motif-presence-row"><span>Set the grid</span></div>

@@ -37,3 +37,10 @@
 .motif-count-changed { position: relative; display: inline-block; translate: 0 1.7px; }
 /* 50ms into 1,249 → 1,250: the leaving 4 and 9, drawn as a bar. */
 .motif-count-old { position: absolute; inset: 11px 0 auto; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); opacity: 0.23; }
+
+.motif-stagger { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 220px; }
+.motif-stagger-row { display: flex; align-items: center; height: 28px; padding-inline: 12px; border: 1px solid var(--ui-border-subtle); border-radius: var(--ui-radius-md); background: var(--ui-bg-surface); font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ui-text-primary); }
+.motif-stagger-row > i { display: block; width: 60%; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); }
+/* 300ms into the sheet's strip: the third row 0.84 in and 0.6px low, the fourth not yet started. */
+.motif-stagger-row[data-state="entering"] { opacity: 0.84; translate: 0 0.6px; }
+.motif-stagger-row[data-state="waiting"] { opacity: 0; }

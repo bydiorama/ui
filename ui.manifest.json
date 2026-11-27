@@ -1694,6 +1694,29 @@
       "docs": "registry/ui/dot-pattern/dot-pattern.doc.ts"
     },
     {
+      "name": "stagger",
+      "type": "ui",
+      "description": "A group arriving in order (ADR 0028), built on Presence. The items present on the first render rise (or fade) in document order, one --ui-stagger-step apart, capped at the sixth item so any group is in within 5 × step + base. The delay exists only while an item enters; items added later arrive at once. For infrequent moments only (CONVENTIONS §8). At Reduced and Off the step is 0, so the group arrives together.",
+      "category": "Utilities",
+      "docs": "registry/ui/stagger/stagger.doc.ts",
+      "files": [
+        {
+          "path": "registry/ui/stagger/stagger.tsx",
+          "target": "ui/stagger.tsx"
+        },
+        {
+          "path": "registry/ui/stagger/stagger.doc.ts",
+          "target": "ui/stagger.doc.ts"
+        }
+      ],
+      "registryDependencies": [
+        "cn",
+        "data-slot",
+        "presence"
+      ],
+      "status": "experimental"
+    },
+    {
       "name": "count",
       "type": "ui",
       "description": "A number changing in place (ADR 0028). Formatted with Intl.NumberFormat, one span per character, matched to the previous value from the right; only changed characters move, rising --ui-space-xs × --ui-motion-travel on --ui-duration-base (dropping when the value shrank) while an aria-hidden ghost draws the old character with CSS content and fades on --ui-duration-fast. The text is the plain value at every frame — never digit debris for copy, find, screen readers or tests. Tabular figures; the first render is still; Reduced is a per-digit cross-fade.",

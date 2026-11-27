@@ -2800,6 +2800,7 @@
       "role": "the same marks on the page"
     }
   ],
+  "Stagger": [],
   "StatusMatrix": [
     {
       "fg": "--ui-bg-accent-legible",

@@ -33,12 +33,16 @@ export interface IconSwapProps<K extends string = string>
 }
 
 /**
- * The scale a hidden glyph sits at: 0.5 at Full, 1 at Reduced and Off, where
- * `--ui-motion-travel` is 0 and the swap becomes a plain cross-fade. 0.5 is
- * the sheet's Derived reading — the only number IconSwap invents (a glyph is
- * 16px; --ui-enter-scale's 0.98 would move it a third of a pixel).
+ * Where a hidden glyph sits: a subtle dip to 0.8 and a 2px blur at Full, so a
+ * swap reads as one glyph shrinking, softening and re-forming (decided in
+ * review, 2026-11-27). Both ride `--ui-motion-travel`, so at Reduced and Off
+ * they are 1 and 0px and the swap is a plain cross-fade. The only numbers
+ * IconSwap invents; not tokens, because nothing else scales or blurs a glyph.
  */
-const HIDDEN_SCALE = "[--icon-swap-scale:calc(1-0.5*var(--ui-motion-travel))]";
+const HIDDEN_STATE = [
+  "[--icon-swap-scale:calc(1-0.2*var(--ui-motion-travel))]",
+  "[--icon-swap-blur:calc(2px*var(--ui-motion-travel))]",
+];
 
 function IconSwapInner<K extends string>(
   { icons, show, className, ...rest }: IconSwapProps<K>,
@@ -50,7 +54,7 @@ function IconSwapInner<K extends string>(
       ref={ref}
       aria-hidden="true"
       data-slot="icon-swap"
-      className={cn("inline-grid shrink-0 place-items-center", HIDDEN_SCALE, className)}
+      className={cn("inline-grid shrink-0 place-items-center", HIDDEN_STATE, className)}
     >
       {(Object.keys(icons) as K[]).map((name) => {
         const shown = name === show;
@@ -61,12 +65,14 @@ function IconSwapInner<K extends string>(
             data-state={shown ? "shown" : "hidden"}
             className={cn(
               "col-start-1 row-start-1 inline-grid place-items-center",
-              "transition-[opacity,scale] ease-(--ui-ease-out)",
+              "transition-[opacity,scale,filter] ease-(--ui-ease-out)",
               // The destination state's duration is the one a transition
-              // runs on: arriving is base, leaving is fast.
+              // runs on: arriving is base, leaving is fast. The shown glyph
+              // has NO filter (not blur(0)): a filter left at rest keeps the
+              // glyph on its own layer and softens it (craft rule 23).
               shown
                 ? "scale-100 opacity-100 duration-(--ui-duration-base)"
-                : "scale-(--icon-swap-scale) opacity-0 duration-(--ui-duration-fast)",
+                : "blur-(--icon-swap-blur) scale-(--icon-swap-scale) opacity-0 duration-(--ui-duration-fast)",
             )}
           >
             {icons[name]}

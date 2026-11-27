@@ -28,7 +28,7 @@ export const utilities = {
     </div>
   ),
   // Three frames of Copy becoming a tick, from the Icon Swap sheet: at rest,
-  // 50ms in (the old glyph shrinking away under the new one growing), settled.
+  // 50ms in (the old glyph shrinking and blurring away under the new one re-forming), settled.
   "icon-swap": () => (
     <div className="motif-icon-swap">
       <span className="motif-icon-swap-button"><Copy aria-hidden="true" /></span>

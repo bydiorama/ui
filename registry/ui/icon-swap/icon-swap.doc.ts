@@ -6,11 +6,11 @@
  */
 
 export const iconSwapDoc = {
-  lead: "Swaps one glyph for another in place, cross-fading them with a slight scale while the label carries the state.",
+  lead: "Swaps one glyph for another in place: the old one shrinks and blurs away as the new one re-forms, while the label carries the state.",
   name: "IconSwap",
   status: "experimental",
   summary:
-    "The third of ADR 0028's owned motion components, and craft rule 10 made into a component. Every glyph is rendered once and kept, stacked in one grid cell; show names the visible one. The new glyph fades in on --ui-duration-base while growing from 0.5 to full size, the old one fades out on --ui-duration-fast while shrinking to 0.5, both on --ui-ease-out. The state is a data attribute and the motion a CSS transition, so nothing mounts or unmounts, a second change mid-swap turns both glyphs around from where they are, and the first render is still. The whole swap is aria-hidden: the host's accessible name says what happened.",
+    "The third of ADR 0028's owned motion components, and craft rule 10 made into a component. Every glyph is rendered once and kept, stacked in one grid cell; show names the visible one. The old glyph fades out on --ui-duration-fast while dipping to 0.8 and blurring to 2px; the new one fades in on --ui-duration-base from there, growing back and sharpening, both on --ui-ease-out — one glyph shrinking, softening and re-forming. At rest no glyph has a filter. The state is a data attribute and the motion a CSS transition, so nothing mounts or unmounts, a second change mid-swap turns both glyphs around from where they are, and the first render is still. The whole swap is aria-hidden: the host's accessible name says what happened.",
 
   anatomy: [
     {
@@ -23,7 +23,7 @@ export const iconSwapDoc = {
       part: "glyph",
       slot: "icon-swap-glyph",
       notes:
-        "One span per icon, all in the same cell and centred, each with data-state shown or hidden. Hidden glyphs stay rendered at opacity 0 and the travelled scale.",
+        "One span per icon, all in the same cell and centred, each with data-state shown or hidden. Hidden glyphs stay rendered at opacity 0, the travelled scale and blur.",
     },
   ],
 
@@ -84,12 +84,12 @@ IconSwap (icons: Record<name, element>, show: name)
   },
 
   motion:
-    "All CSS transitions on the tokens. New glyph: opacity 0 → 1 and scale 0.5 → 1 on --ui-duration-base with --ui-ease-out. Old glyph: opacity 1 → 0 and scale 1 → 0.5 on --ui-duration-fast. The scale is 1 − 0.5 × --ui-motion-travel. Motion levels (ADR 0028): at Reduced travel is 0, so the scale is gone and the cross-fade stays, both durations unchanged; at Off both are 1ms. No glyph is ever removed, so nothing waits for a transition to end.",
+    "All CSS transitions on the tokens. New glyph: opacity 0 → 1, scale 0.8 → 1 and blur 2px → none on --ui-duration-base with --ui-ease-out. Old glyph: opacity 1 → 0, scale 1 → 0.8 and none → blur 2px on --ui-duration-fast. Scale is 1 − 0.2 × --ui-motion-travel and blur 2px × travel; the shown glyph has no filter at all, so it is never left on its own layer. Motion levels (ADR 0028): at Reduced travel is 0, so scale and blur are gone and the cross-fade stays, both durations unchanged; at Off both are 1ms. No glyph is ever removed, so nothing waits for a transition to end.",
 
   needsDesign: [],
 
   knownGaps: [
-    "Built from a sheet the maintainer has not reviewed yet: the 0.5 starting scale (the one number IconSwap invents) and the timing borrowed from TextSwap are badged Derived on it.",
+    "The timing borrowed from TextSwap is still badged Derived on the sheet; the dip (×0.8) and blur (2px) were decided in review.",
     "MediaToggle, the site's install pill and the code stage's copy buttons still swap their glyphs by hand, with no motion.",
   ],
 

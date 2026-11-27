@@ -1718,7 +1718,7 @@
     {
       "name": "icon-swap",
       "type": "ui",
-      "description": "One glyph becoming another in place (ADR 0028; craft rule 10). Every glyph is rendered once and kept, stacked in one cell; show names the visible one. The new glyph fades in on --ui-duration-base while growing from 0.5, the old one fades out on --ui-duration-fast while shrinking to it; the scale is multiplied by --ui-motion-travel, so Reduced is a plain cross-fade. State is a data attribute and motion a CSS transition: nothing mounts, a second change mid-swap turns around, and the first render is still. aria-hidden — the host's accessible name carries the state.",
+      "description": "One glyph becoming another in place (ADR 0028; craft rule 10). Every glyph is rendered once and kept, stacked in one cell; show names the visible one. The old glyph fades out on --ui-duration-fast while dipping to 0.8 and blurring to 2px, the new one fades in on --ui-duration-base from there, growing back and sharpening; scale and blur ride --ui-motion-travel, so Reduced is a plain cross-fade, and no glyph has a filter at rest. State is a data attribute and motion a CSS transition: nothing mounts, a second change mid-swap turns around, and the first render is still. aria-hidden — the host's accessible name carries the state.",
       "category": "Utilities",
       "docs": "registry/ui/icon-swap/icon-swap.doc.ts",
       "files": [

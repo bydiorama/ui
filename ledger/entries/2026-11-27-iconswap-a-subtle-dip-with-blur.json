@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-iconswap-a-subtle-dip-with-blur",
+  "date": "2026-11-27",
+  "item": "icon-swap",
+  "kind": "visual",
+  "summary": "IconSwap's swap now reads as one glyph re-forming instead of a pop, decided in review: the hidden state dips to scale 0.8 (was 0.5) and blurs to 2px, so the old glyph shrinks and softens away on --ui-duration-fast while the new one grows back and sharpens on --ui-duration-base. Scale is 1 − 0.2 × --ui-motion-travel and blur 2px × travel, so Reduced and Off stay a plain cross-fade with no code. The shown glyph has no filter at all — not blur(0) — so it is never left on its own compositing layer at rest (craft rule 23); a test asserts filter: none, probed by leaving blur(0) in place. The sheet's 0.5 reading is replaced and badged Decided; the catalogue motif follows.",
+  "affects": [
+    "item:icon-swap",
+    "item:craft",
+    "item:motion-component"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/490N-1"
+  }
+}

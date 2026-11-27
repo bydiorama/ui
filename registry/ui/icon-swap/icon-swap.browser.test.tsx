@@ -79,7 +79,11 @@ describe("at rest", () => {
     expect(glyphs().map((g) => g.dataset.state)).toEqual(["shown", "hidden"]);
     expect(getComputedStyle(glyph(0)).opacity).toBe("1");
     expect(getComputedStyle(glyph(1)).opacity).toBe("0");
-    expect(getComputedStyle(glyph(1)).scale).toBe("0.5");
+    expect(getComputedStyle(glyph(1)).scale).toBe("0.8");
+    expect(getComputedStyle(glyph(1)).filter).toBe("blur(2px)");
+    // The shown glyph carries no filter at all — not blur(0) — so it is never
+    // left on its own layer at rest (craft rule 23).
+    expect(getComputedStyle(glyph(0)).filter).toBe("none");
     expect(glyphs().flatMap((g) => g.getAnimations())).toHaveLength(0);
   });
 
@@ -101,7 +105,7 @@ describe("at rest", () => {
 });
 
 describe("swapping", () => {
-  test("the new glyph fades in and grows on base; the old fades out and shrinks on fast", async () => {
+  test("the new glyph fades in, grows and sharpens on base; the old fades, shrinks and blurs on fast", async () => {
     mount(copyButton("copy"));
     await shown();
     rerender(copyButton("check"));
@@ -109,16 +113,19 @@ describe("swapping", () => {
 
     const arriving = starts(glyph(1));
     expect(arriving.get("opacity")?.from).toBe("0");
-    expect(arriving.get("scale")?.from).toBe("0.5");
+    expect(arriving.get("scale")?.from).toBe("0.8");
+    expect(arriving.get("filter")?.from).toBe("blur(2px)");
     expect(arriving.get("opacity")?.timing.duration).toBe(tokenMs("--ui-duration-base"));
 
     const leaving = starts(glyph(0));
     expect(leaving.get("opacity")?.from).toBe("1");
     expect(leaving.get("opacity")?.timing.duration).toBe(tokenMs("--ui-duration-fast"));
+    expect(leaving.get("filter")?.timing.duration).toBe(tokenMs("--ui-duration-fast"));
     expect(glyph(0).dataset.state).toBe("hidden");
 
     await settledAll();
     expect(getComputedStyle(glyph(1)).opacity).toBe("1");
+    expect(getComputedStyle(glyph(1)).filter).toBe("none");
     expect(getComputedStyle(glyph(0)).opacity).toBe("0");
     expect(glyphs()).toHaveLength(2); // nothing unmounted
     expect(container!.querySelector("button")!.getAttribute("aria-label")).toBe("Copied");
@@ -143,11 +150,12 @@ describe("swapping", () => {
 });
 
 describe("motion levels", () => {
-  test("Reduced: a plain cross-fade, no scale", async () => {
+  test("Reduced: a plain cross-fade, no scale and no blur", async () => {
     document.documentElement.setAttribute("data-ui-motion", "reduced");
     mount(copyButton("copy"));
     await shown();
     expect(getComputedStyle(glyph(1)).scale).toMatch(/^(1|none)$/);
+    expect(getComputedStyle(glyph(1)).filter).toMatch(/^(none|blur\(0px\))$/);
     rerender(copyButton("check"));
     await frames(1);
     const arriving = starts(glyph(1));

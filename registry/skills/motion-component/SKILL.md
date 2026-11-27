@@ -30,6 +30,9 @@ carry the transition. Nothing mounts, so there is no exit to wait for, no
 focus hand-off and no first-render rule to write — the first render simply
 has no "before". The DESTINATION state's `duration-*` is the one a transition
 runs on, so "arrive on base, leave on fast" is two class strings, not code.
+A filter in the motion (IconSwap's blur) belongs to the hidden state only:
+the shown state has NO filter, not `blur(0)`, or the element stays on its own
+layer at rest (`craft` rule 23). Assert `filter: none` at rest.
 
 **Mount and unmount (Presence)** when the content is open-ended:
 

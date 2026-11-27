@@ -66,6 +66,11 @@ try {
     assert.deepEqual(errors, []);
     console.log("Appearance rendering and combinations checked");
   } else {
+  // The Search island hydrates with client:idle, so its Ctrl+K listener does
+  // not exist until the browser is idle after a load. A shortcut pressed
+  // before then is lost. Astro drops the island's ssr attribute once it has
+  // hydrated: wait for that before pressing.
+  const searchReady = () => page.waitForSelector('astro-island[component-export="Search"]:not([ssr])', { state: "attached" });
   const paths = ["/", "/components/", "/docs/", "/docs/agents/", "/docs/motion/", "/changelog/", ...catalog.items.map(item => `/components/${item.name}/`)];
   for (const scheme of process.argv.includes("--interactions-only") ? [] : ["light", "dark"]) {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
@@ -143,6 +148,7 @@ try {
   assert.equal(await page.locator('[data-gallery-item]:visible').count(), catalog.items.length);
   await page.getByRole("button", { name: "Grid", exact: true }).click();
 
+  await searchReady();
   await page.keyboard.press("Control+k");
   const search = page.getByRole("textbox", { name: "Search the library" });
   await search.waitFor(); await search.fill("button");
@@ -194,6 +200,7 @@ try {
   assert.equal(await page.locator("html").getAttribute("data-site-brand"), "stress");
   assert.equal(await page.locator("html").getAttribute("data-ui-density"), "compact");
   assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme), "dark");
+  await searchReady();
   await page.keyboard.press("Control+k");
   // Audit the dialog once it has arrived. Under reduced motion it still fades
   // in place (ADR 0028), and axe measuring mid-fade reads the results'

@@ -5,7 +5,7 @@
  * transitions' own keyframes — a declared transition and a running one read
  * the same in `getComputedStyle` (ADR 0018).
  */
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { createRoot, type Root } from "react-dom/client";
 import { act, createRef, useState, type ReactElement } from "react";
 
@@ -170,6 +170,71 @@ describe("arriving", () => {
   });
 });
 
+/**
+ * Rows built the way a real list builds them: the padding and the divider are
+ * ON the item, which is exactly what a height transition alone cannot fold —
+ * with border-box sizing, height 0 stops at padding + border.
+ */
+function Rows({ ids }: { ids: string[] }) {
+  return (
+    <ul>
+      <Presence kind="collapse">
+        {ids.map((id) => (
+          <li key={id} data-id={id} className="flex items-center border-b border-black px-md py-sm">
+            <span className="block h-8">{id}</span>
+          </li>
+        ))}
+      </Presence>
+    </ul>
+  );
+}
+
+describe("collapse folds the whole box", () => {
+  test("a padded, bordered row closes all the way: its padding and border fold with its height", async () => {
+    mount(<Rows ids={["a", "b", "c"]} />);
+    await shown();
+    const b = item("b")!;
+    let atEnd = -1;
+    b.addEventListener("transitionend", (event) => {
+      if (event.propertyName === "height") atEnd = b.getBoundingClientRect().height;
+    });
+    rerender(<Rows ids={["a", "c"]} />);
+    await vi.waitFor(() => expect(atEnd).toBeGreaterThanOrEqual(0), { timeout: 2000 });
+    // Measured before the fix: 17px — the row sat at its padding and border,
+    // invisible, then vanished in one jump.
+    expect(atEnd).toBeLessThanOrEqual(0.5);
+  });
+
+  test("a padded row arrives at its full height, so nothing jumps when the transition lets go", async () => {
+    mount(<Rows ids={["a"]} />);
+    await shown();
+    const rest = item("a")!.getBoundingClientRect().height;
+    rerender(<Rows ids={["a", "b"]} />);
+    let to = "";
+    const capture = (event: TransitionEvent) => {
+      const b = item("b");
+      if (!b || event.target !== b || event.propertyName !== "height") return;
+      const run = b.getAnimations().find((a) => (a as CSSTransition).transitionProperty === "height")!;
+      to = String(((run.effect as KeyframeEffect).getKeyframes().at(-1) as Record<string, unknown>).height);
+    };
+    document.addEventListener("transitionrun", capture, true);
+    await frames(3);
+    document.removeEventListener("transitionrun", capture, true);
+    // Measured before the fix: it ran to the height of the SQUEEZED box and
+    // then snapped the rest of the way.
+    expect(Number.parseFloat(to)).toBeCloseTo(rest, 0);
+  });
+
+  test("on arrival the room opens first: the fold starts at once, the fade half a fast step later", async () => {
+    mount(<Rows ids={["a"]} />);
+    await shown();
+    rerender(<Rows ids={["a", "b"]} />);
+    const seen = await startsAsTheyRun(() => item("b"));
+    expect(seen.get("height")?.timing.delay).toBe(0);
+    expect(seen.get("opacity")?.timing.delay).toBe(tokenMs("--ui-duration-fast") / 2);
+  });
+});
+
 describe("leaving", () => {
   test("a removed item stays, inert and hidden, in its place until its exit has run", async () => {
     mount(<List ids={["a", "b", "c"]} />);
@@ -205,7 +270,9 @@ describe("leaving", () => {
     expect(item("b")).not.toBeNull();
   });
 
-  test("collapse fades on fast, then folds its height on base, delayed by fast", async () => {
+  test("collapse's fade and fold start together: fade on fast, fold on base, neither delayed", async () => {
+    // One gesture, one motion. The fold used to wait for the fade, so the row
+    // vanished and only THEN did the list respond — read as lag.
     mount(<List ids={["a", "b"]} kind="collapse" />);
     await shown();
     rerender(<List ids={["a"]} kind="collapse" />);
@@ -214,7 +281,7 @@ describe("leaving", () => {
     expect(map.get("opacity")?.timing.duration).toBe(tokenMs("--ui-duration-fast"));
     expect(map.get("opacity")?.timing.delay).toBe(0);
     expect(map.get("height")?.timing.duration).toBe(tokenMs("--ui-duration-base"));
-    expect(map.get("height")?.timing.delay).toBe(tokenMs("--ui-duration-fast"));
+    expect(map.get("height")?.timing.delay).toBe(0);
   });
 
   test("at Off the exit is 1ms, and removal still waits for it rather than happening at once", async () => {

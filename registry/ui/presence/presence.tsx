@@ -83,9 +83,17 @@ export interface PresenceProps extends OwnedSlot {
  *   `--ui-duration-fast`. Nothing travels on the way out.
  * - `starting:` is CSS `@starting-style`, so an arrival needs no JavaScript.
  *   It is added only to arrivals, which is how items present at mount skip it.
- * - collapse's height is set inline from a measurement (an `auto` height
- *   cannot transition); its leaving list is opacity on fast, then height on
- *   base delayed by fast — the change, then the fold.
+ * - collapse folds the WHOLE box: height, vertical padding, border and
+ *   margin, set inline from a measurement (an `auto` height cannot
+ *   transition). Height alone stalls: with border-box sizing, `height: 0`
+ *   stops at padding + border, so the row sat there invisible and then
+ *   vanished in one jump.
+ * - collapse leaving: the fade (fast) and the fold (base) start together —
+ *   one gesture, one motion. Arriving: the fold starts at once and the fade
+ *   half a fast step later, so the room opens before the content shows.
+ * - Each property's duration and delay is written out: a shorter list than
+ *   `transition-property` repeats cyclically, which would hand the fast
+ *   duration to every other property.
  */
 const KIND = {
   fade: {
@@ -97,7 +105,7 @@ const KIND = {
     arrival: "starting:opacity-0 starting:translate-y-[calc(var(--ui-space-xs)*var(--ui-motion-travel))]",
   },
   collapse: {
-    item: "transition-[opacity,height] duration-(--ui-duration-base) ease-(--ui-ease-out) data-[presence=leaving]:opacity-0 data-[presence=leaving]:[transition-duration:var(--ui-duration-fast),var(--ui-duration-base)] data-[presence=leaving]:[transition-delay:0s,var(--ui-duration-fast)]",
+    item: "transition-[opacity,height,padding-top,padding-bottom,border-top-width,border-bottom-width,margin-top,margin-bottom] duration-(--ui-duration-base) ease-(--ui-ease-out) data-[presence=entering]:[transition-delay:calc(var(--ui-duration-fast)/2),0s,0s,0s,0s,0s,0s,0s] data-[presence=leaving]:opacity-0 data-[presence=leaving]:[transition-duration:var(--ui-duration-fast),var(--ui-duration-base),var(--ui-duration-base),var(--ui-duration-base),var(--ui-duration-base),var(--ui-duration-base),var(--ui-duration-base),var(--ui-duration-base)]",
     arrival: "starting:opacity-0",
   },
 } as const satisfies Record<PresenceKind, { item: string; arrival: string }>;
@@ -191,6 +199,23 @@ async function transitionsDone(el: HTMLElement, isCancelled: () => boolean) {
   }
 }
 
+/** The box a collapse folds: everything that gives an item vertical room. */
+const BOX = ["height", "paddingTop", "paddingBottom", "borderTopWidth", "borderBottomWidth", "marginTop", "marginBottom"] as const;
+type Box = Record<(typeof BOX)[number], string>;
+
+/** The box as it is drawn now: its rest size, or wherever a fold has it mid-flight. */
+function measureBox(el: HTMLElement): Box {
+  const cs = getComputedStyle(el);
+  return Object.fromEntries(BOX.map((p) => [p, cs[p]])) as Box;
+}
+function setBox(el: HTMLElement, box: Box | "closed") {
+  for (const p of BOX) el.style[p] = box === "closed" ? "0px" : box[p];
+}
+function releaseBox(el: HTMLElement) {
+  for (const p of BOX) el.style[p] = "";
+  el.style.overflow = "";
+}
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -218,6 +243,9 @@ function neighbourOf(el: HTMLElement): HTMLElement | null {
 
 function PresenceItem({ entry, kind, onSettled }: PresenceItemProps) {
   const ref = useRef<HTMLElement | null>(null);
+  // collapse: the box at rest, measured before a fold first changes it, so an
+  // item turned around mid-fold opens back to its real size.
+  const rest = useRef<Box | null>(null);
   const { key, state, element } = entry;
 
   useLayoutEffect(() => {
@@ -237,10 +265,13 @@ function PresenceItem({ entry, kind, onSettled }: PresenceItemProps) {
       }
       el.inert = true;
       if (kind === "collapse") {
+        const folding = el.style.height !== "";
+        const now = measureBox(el);
+        if (!folding) rest.current = now;
         el.style.overflow = "clip";
-        el.style.height = `${el.offsetHeight}px`;
-        void el.offsetHeight; // commit the start height before changing it
-        el.style.height = "0px";
+        setBox(el, now);
+        void el.offsetHeight; // commit the start box before changing it
+        setBox(el, "closed");
       }
       void transitionsDone(el, isCancelled).then(() => {
         if (!cancelled) onSettled(key, "leaving");
@@ -251,17 +282,20 @@ function PresenceItem({ entry, kind, onSettled }: PresenceItemProps) {
       const turning = kind === "collapse" && el.style.height !== "";
       if (state !== "entering" && !turning) return;
       if (kind === "collapse") {
+        // Measured at rest, BEFORE the box is closed: read while squeezed, an
+        // arrival ran to the squeezed height and snapped the rest of the way.
+        if (!turning) rest.current = measureBox(el);
+        const target = rest.current ?? measureBox(el);
         el.style.overflow = "clip";
-        if (!turning) el.style.height = "0px";
-        void el.offsetHeight;
-        el.style.height = `${el.scrollHeight}px`;
+        if (!turning) {
+          setBox(el, "closed");
+          void el.offsetHeight; // commit the closed box before opening it
+        }
+        setBox(el, target);
       }
       void transitionsDone(el, isCancelled).then(() => {
         if (cancelled) return;
-        if (kind === "collapse") {
-          el.style.height = "";
-          el.style.overflow = "";
-        }
+        if (kind === "collapse") releaseBox(el);
         if (state === "entering") onSettled(key, "entering");
       });
     }

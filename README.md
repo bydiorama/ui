@@ -1,419 +1,157 @@
-# Diorama UI
-
 <p align="center">
-  <img src="docs/readme/hero.png" width="100%" alt="Diorama UI: tokens, components and effects your agents build with. A bento of the library: an image-library screen built with it, a themed publish card, a date picker and range slider, an agent progress list, and the glass effect.">
+  <a href="https://ui.bydiorama.com">
+    <img src="docs/readme/hero.png" width="100%" alt="Diorama UI: tokens, components and effects your agents build with. A bento of the library: an image-library screen built with it, a themed publish card, a date picker and range slider, an agent progress list, and the glass effect.">
+  </a>
 </p>
 
-**The Diorama design system: design tokens, 45 React components, and the
-tooling that keeps consumers in sync — distributed as source you own.**
+<h1 align="center">Diorama UI</h1>
 
-[![CI](https://github.com/bydiorama/ui/actions/workflows/ci.yml/badge.svg)](https://github.com/bydiorama/ui/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![React 19](https://img.shields.io/badge/react-19-149eca.svg)](https://react.dev)
-[![Node ≥ 22](https://img.shields.io/badge/node-%E2%89%A522-339933.svg)](package.json)
+<p align="center">
+  <strong>Design tokens, React components and the tooling that keeps every app in sync. You install it as source and own it from there.</strong>
+</p>
 
-> **Status: Phase 2 — core primitives, gate not yet met.** Foundations, the
-> token layer, and 45 components ship today, consumed by a real app through a
-> working lockfile-and-sync loop. Visual baselines cover every component in
-> both colour schemes on both platforms — macOS locally, Linux in CI. Still
-> open: the primitives the consumer renders most, and Phase 3's blocks and
-> docs site. [`PLAN.md`](PLAN.md) tracks it — measured, with the command
-> behind every number.
+<p align="center">
+  <a href="https://github.com/bydiorama/ui/actions/workflows/ci.yml"><img src="https://github.com/bydiorama/ui/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/react-19-149eca.svg" alt="React 19"></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/node-%E2%89%A522-339933.svg" alt="Node 22 or later"></a>
+</p>
+
+<p align="center">
+  <a href="https://ui.bydiorama.com/components/">Components</a> ·
+  <a href="https://ui.bydiorama.com/docs/">Docs</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#built-for-agents">Agents</a> ·
+  <a href="https://ui.bydiorama.com/changelog/">Changelog</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
+</p>
+
+> [!NOTE]
+> Diorama UI is in active development. The tokens, 60 components and the
+> first three blocks ship today, and a real app consumes them. APIs can still
+> change. [`PLAN.md`](PLAN.md) tracks what is done and what is open.
 
 ## Why this exists
 
-- **Source distribution, not a dependency.** A consuming app installs an
-  item and owns the code from that point on — no wrapper layers, no version
-  treadmill. Tokens are the one real package (`@bydiorama/tokens`), because
-  they must be identical everywhere and change centrally. ([ADR 0001](ledger/decisions/0001-source-distribution.md))
-- **Built from scratch.** No third-party component library, design language,
-  block set, or theme preset is copied in. Tooling is interoperated with —
-  never inherited as design. ([ADR 0002](ledger/decisions/0002-independence.md))
-- **Drift is tracked, not hoped away.** A lockfile CLI computes three-way
-  drift (installed / locked / registry), telling a deliberate fork apart from
-  staleness and reporting which change-ledger entries apply.
-- **Measured, not asserted.** Contrast is computed from the token resolver
-  (169 pairs, both schemes), every story runs through axe, interaction
-  contracts run in a real browser, and visual baselines cover every
-  component in both colour schemes.
-- **Agent-ready.** [`AGENTS.md`](AGENTS.md), an agent plugin with ten skills
-  ([`plugins/ui`](plugins/ui/README.md)), and
-  a dependency-free `pnpm verify` a fresh clone (or a fresh agent) can run
-  before installing anything.
-
-## Where it stands
-
-Maturity is tracked in phases. [`PLAN.md`](PLAN.md) carries the measured
-detail — every number there names the command that produced it, so this table
-stays coarse on purpose:
-
-| Phase | Scope | State |
-| --- | --- | --- |
-| 0 — repo and rules | manifest → generated registry, change ledger, ADRs, CI | **done** — delivered past its gate: the planned five checks became 18 enumerated gates |
-| 1 — tokens | `@bydiorama/tokens`: OKLCH resolver, CSS/Tailwind/TS emitters, measured contrast | **done bar one emitter** — the Paper payload emitter waits until something needs a live push |
-| 2 — core primitives | the components, five files each, visual baselines on both platforms | **in progress, exit gate not met** — 45 components ship; the queue that remains is ordered by real consumer call sites |
-| 3 — blocks and docs site | `registry/blocks/`, a public docs site | **in progress** — local public reader and owned CLI preview; release gates remain in `PLAN.md` |
-
-### What CI enforces
-
-The badge at the top is live — a red badge means a gate below is failing
-right now, not that the library is broken for consumers (installed source
-never moves under you; that is what the lockfile is for). Every push runs
-two jobs:
-
-- **verify** — the 18 dependency-free gates first (manifest integrity,
-  registry freshness, declared imports, change ledger, licensing,
-  iconography, token utilities, behaviour-layer boundaries, controls,
-  keyboard paths for gestures, motion rules, story hygiene, overlay
-  viewport behaviour, visual coverage, runner/browser version match,
-  skills, measured contrast, design-geometry laws) and the package unit
-  tests — all runnable on a cold clone with no `node_modules`. Then, after
-  install: registry unit tests, type-check, lint, the browser suite
-  (interaction contracts plus every story through axe at error severity)
-  and a full Storybook build.
-- **visual** — every component rendered in both colour schemes and compared
-  against committed Linux baselines at **zero tolerated pixels**
-  (`allowedMismatchedPixels: 0`), inside a pinned Playwright container so
-  neither the browser build nor the font set can drift under the
-  comparison. macOS baselines serve the same role locally.
+- **You own the source.** You install a component and its code is yours from
+  that point on. There are no wrapper layers and no upgrades to chase.
+  ([ADR 0001](ledger/decisions/0001-source-distribution.md))
+- **The design is our own.** No third-party design language, block set or
+  theme preset is copied in. Base UI supplies accessible behaviour under some
+  components, and nothing of its look.
+  ([ADR 0002](ledger/decisions/0002-independence.md))
+- **Drift is tracked.** A lockfile records what you installed. `sync` then
+  tells a deliberate fork apart from a stale copy, and lists the changes that
+  apply to you.
+- **Measured.** Contrast is computed from the token resolver in both colour
+  schemes. Every story runs through axe, and every component is compared
+  against visual baselines with zero tolerated pixels.
+  ([what CI enforces](CONTRIBUTING.md#what-ci-enforces))
+- **Agent-ready.** The library ships [`AGENTS.md`](AGENTS.md), a plugin of ten
+  skills and a Markdown reference for every component.
 
 ## Quick start
 
-### Install a component
+You need a React app with Tailwind CSS v4 and an `@/*` alias that points to
+your source directory.
 
-The primary channel is this registry's own CLI, published to npm as
-[`@bydiorama/ui`](https://www.npmjs.com/package/@bydiorama/ui) (Node ≥ 22,
-no dependencies). Run it inside your app. `add` resolves an item and its registry dependencies,
-writes their source through your own `components.json` aliases and
-`tsconfig.json` `@/*` mapping, locks what it installed into `ui.lock.json`
-(so drift tracking starts at install, not as an afterthought), and prints the
-npm dependencies left for you to install:
+1. **Install the theme, the font and a component.** The CLI writes the source
+   into your app, records what it installed and lists the npm packages you
+   still need to add.
 
-Your `components.json` names the registry once, next to its `aliases`:
+   ```bash
+   npx @bydiorama/ui init --src src
+   npx @bydiorama/ui add theme-zero-css font-aspekta button
+   ```
 
-```json
-"registries": {
-  "@bydiorama": "https://raw.githubusercontent.com/bydiorama/ui/main/r/{name}.json"
-}
-```
+2. **Load the theme** once, after Tailwind, from `src/styles/theme-zero.css`.
+   Link `/fonts/aspekta/aspekta.css` in your page as well.
 
-```bash
-npx @bydiorama/ui add button
-```
+   ```css
+   @import "tailwindcss";
+   @import "./theme-zero.css";
+   ```
 
-`add` locks at `main`'s current commit, which it asks GitHub's API for (and
-`sync` lists the ledger through the same API). That API allows 60 anonymous
-calls an hour per IP address, so on a shared machine — a CI runner, a cloud
-session — it can answer 403. Two ways out: set `GITHUB_TOKEN` (or
-`GH_TOKEN`) to any GitHub token, and the CLI authenticates and gets 5,000
-calls an hour; or pass the commit yourself with `--revision <sha>`, and `add`
-makes no API call at all:
+3. **Use it.** The code is yours to read and change.
 
-```bash
-GITHUB_TOKEN="$(gh auth token)" npx @bydiorama/ui add button
-npx @bydiorama/ui add button --revision "$(git ls-remote https://github.com/bydiorama/ui main | cut -f1)"
-```
+   ```tsx
+   import { Button } from "@/ui/button";
 
-To install from a checkout instead — an unmerged branch, say — run
-`node --experimental-strip-types packages/cli/bin/ui.ts add button --cwd ../my-app --registry-path . --revision "$(git rev-parse HEAD)"`
-from the checkout.
+   <Button variant="primary" size="md">
+     Save changes
+   </Button>;
+   ```
 
-It never overwrites a local edit without `--force`, and never overwrites a
-declared fork at all — the two things a generic registry client cannot
-promise, because it reads no lockfile. `--help` on any command explains its
-flags; `lock --all` records every item already installed some other way.
+4. **Stay in sync.** `sync` reports what changed upstream, item by item, and
+   leaves your edits alone.
 
-**Alternative — a shadcn-compatible client, with one caveat.** Every item is
-also served as a plain JSON file with its source embedded (`r/<item>.json`,
-the open shadcn registry schema), so the shadcn CLI installs it:
+   ```bash
+   npx @bydiorama/ui sync
+   ```
 
-```bash
-npx shadcn@latest add https://raw.githubusercontent.com/bydiorama/ui/main/r/button.json
-```
+The guides cover the rest:
 
-It is **not byte-exact**: shadcn drops a file's leading comment block (seen on
-`*.doc.ts` and `lib/motion.ts`), so `lock`/`sync` will report those files as
-diverging from the registry. If you want drift tracking, install with the CLI
-above, or reinstall with `add <item> --force` before locking.
-
-Either way the item's source, its registry dependencies (`cn`, motion
-utilities, …), and its token requirements land in your app. From here the
-code is yours.
-
-### Install the tokens
-
-Components style themselves with token utilities (`bg-surface`,
-`text-ink-primary`, …), so the app needs the theme. Theme zero ships as a
-registry item:
-
-```bash
-npx @bydiorama/ui add theme-zero-css
-```
-
-and is imported once, after Tailwind:
-
-```css
-@import "tailwindcss";
-@import "./theme-zero.css";
-```
-
-**Tailwind must see the installed source — and normally already does.**
-Components style themselves with utilities, which Tailwind v4 only emits for
-class names it finds by scanning files. Its automatic detection scans the
-project root — Vite's `root` with `@tailwindcss/vite`, the working directory
-for the PostCSS plugin and the CLI — and skips `node_modules`, anything your
-`.gitignore` excludes, binaries and CSS. The CLI installs into `src/ui`,
-`src/lib` and `src/hooks` (your `components.json` aliases), which is inside
-that root and not ignored, so **a standard app needs no `@source` line**.
-Measured with Tailwind 4.3.5's scanner on the first consumer: all 40 installed
-files were scanned without its three `@source` lines. Add one only when
-detection cannot reach the files, pointing at the folder relative to the
-stylesheet:
-
-| Situation | Fix |
+| Guide | What it covers |
 | --- | --- |
-| The install folder is git-ignored (a generated or vendored path) | `@source "../ui";` — an explicit `@source` is scanned even when ignored |
-| The source lives outside the root: a monorepo package, a shared folder, a sibling checkout | `@source "../../../packages/ui";` (this repo's Storybook does exactly this for `registry/`) |
-| The stylesheet narrows the base: `@import "tailwindcss" source("../app")` or `source(none)` | `@source` each folder the installed items land in |
+| [Installing components](docs/guide/install.md) | The CLI, the shadcn-compatible alternative, installing from a checkout, GitHub API limits |
+| [Tokens and themes](docs/guide/theme.md) | Theme zero, how Tailwind finds the installed source, generating a brand theme from a seed |
+| [Dense screens](docs/guide/density.md) | Compact mode with one attribute, and what it changes in each control |
+| [Lint the boundaries](docs/guide/lint.md) | The ESLint preset that holds your app to the library's import rules, and checking a screen against its design |
+| [CLI reference](packages/cli/README.md) | Every command and flag, and the full drift model |
 
-The symptom of a miss is quiet: components render unstyled or half-styled,
-and nothing errors. A utility built at runtime from a template string is
-missed in every setup — that is why the library keeps class names literal.
+## What's inside
 
-A **brand** theme is the same file generated from the brand's seed: write a
-`ThemeSeed` (a `.ts` module exporting it, or a `.json`), then let the CLI emit
-the stylesheet — the same `@theme inline` map and token layer theme zero
-ships, under a GENERATED header that names the command to regenerate it:
+| Area | What it is |
+| --- | --- |
+| [`registry/ui`](registry/ui) | 60 components: controls, overlays, navigation, chat, charts and data display. Each has source, docs, stories, browser tests and type tests |
+| [`registry/lib`](registry/lib), [`registry/hooks`](registry/hooks) | Utilities and hooks, distributed the same way |
+| [`registry/lib/fx`](registry/lib/fx), [`registry/lib/shader`](registry/lib/shader) | Effects: glass, grain, sheen, glow, shimmer and ink as one class each, plus an optional WebGL gradient ground. Experimental |
+| [`packages/tokens`](packages/tokens) | `@bydiorama/tokens`: the token contract, an OKLCH theme resolver, CSS, Tailwind and TypeScript emitters, and measured contrast |
+| [`packages/cli`](packages/cli) | The CLI: `init`, `add`, `lock`, `sync` and `theme` |
+| [`apps/storybook`](apps/storybook) | Stories, interaction tests, accessibility checks and the visual-regression runner |
 
-```bash
-node --experimental-strip-types ../ui/packages/cli/bin/ui.ts theme \
-  --cwd . --seed theme/brand.seed.ts --out src/styles/brand-theme.css
-```
+[View all components →](https://ui.bydiorama.com/components/)
 
-```css
-@import "tailwindcss";
-@import "./brand-theme.css";
-```
+## Built for agents
 
-Add the same command with `--check` to CI: it exits 1 when the committed CSS
-no longer matches the seed (or the tokens it resolves through), the way
-`pnpm check:theme-css` guards theme zero. `--scheme light|dark` forces a
-scheme instead of following the OS. `@bydiorama/tokens` is unpublished, so
-the command reads it from the checkout it runs from (or `--registry-path`);
-there is no hand-written emitter script to keep in step any more. See
-[`packages/cli/README.md`](packages/cli/README.md#theme---seed-file---out-css).
+Your coding agent can learn the library's rules, so it builds with the system
+and not around it.
 
-`typography.baseSize` is the scale's 16px reference, **not** the body size:
-body copy is the 14px row, so `baseSize: 13` gives 11.375px body text. The
-table is on `SeedTypography.baseSize`, and `theme` prints an `info` note for
-anything under 15.
+| What | Where |
+| --- | --- |
+| Skills plugin | Ten skills for Claude Code, claude.ai and Cowork. See [`plugins/ui`](plugins/ui/README.md) |
+| Library index | [`llms.txt`](https://ui.bydiorama.com/llms.txt), and the whole reference in [`llms-full.txt`](https://ui.bydiorama.com/llms-full.txt) |
+| Repository rules | [`AGENTS.md`](AGENTS.md) and [`CONVENTIONS.md`](CONVENTIONS.md) |
+| Checks with no install | `pnpm verify` runs on a fresh clone, before `pnpm install` |
 
-### Use it
-
-```tsx
-import { Button } from "@/ui/button";
-
-<Button variant="primary" size="md">
-  Save changes
-</Button>;
-```
-
-### Dense screens
-
-Density is a mode, not a size prop (ADR 0020 §4, ADR 0026). Set
-`data-ui-density="compact"` and every control, field, row and stepped type
-role under it re-binds — no `className` per component. What compact gives,
-measured in Chromium against theme zero:
-
-| Part | Default | Compact |
-|---|---|---|
-| Button `lg` / `md` / `sm` | 44 / 32 / 24px | 40 / 28 / 24px (24 is the SC 2.5.8 floor) |
-| Input, Select, Multiselect, Combobox field `lg` / `md` / `sm` | 48 / 40 / 32px | 44 / 36 / 28px |
-| Field label (`text-field-label`) | 13px / 600 | 12px / 600 |
-| Field value at `md` (`text-row`) | 14px | 13px (`lg` keeps 14, `sm` 12) |
-| Textarea `md` | 14px value, 8px inset | 13px value, 4px inset |
-| Menu, ContextMenu, Select / Combobox option row | ~46px, 14px / 400 | **32px**, 13px / 400, 8px inline inset |
-| Multiselect option row | drawn by its 12px padding, 12px / 600 | **32px**, type unchanged |
-| Sidebar item, section heading, layer title | 46px, 16px | **32px**, 13px; labels on a 16px lane |
-| Sidebar search | 40px, 14px | 36px, 13px |
-| NavRail item | 32px square | 28px square |
-| Checkbox, Radio, Switch row | 24px | 19–20px (target stays 24px) |
-| Tabs | 24px tab in a 32px list | unchanged |
-
-Apply it to the whole app on `<body>` — portalled panels inherit it from
-there:
-
-```html
-<body data-ui-density="compact">
-```
-
-or to a subtree, such as a dense inspector inside a default page. A
-**portalled** surface (Menu, Popover, Modal, Sheet, Drawer, ContextMenu)
-leaves that subtree, so pass the attribute to its popup part too
-(CONVENTIONS §6); Select carries its trigger's density onto its list by
-itself. `data-ui-density="default"` inside a compact subtree restores the
-drawn sizes.
-
-```tsx
-<aside data-ui-density="compact">
-  <Menu>
-    <Menu.Trigger render={<Button size="md">Actions</Button>} />
-    <Menu.Panel data-ui-density="compact">
-      <Menu.Item onSelect={archive}>Archive</Menu.Item>
-    </Menu.Panel>
-  </Menu>
-</aside>
-```
-
-For 13px or 12px **regular** text in your own screens, use `text-dense-md`
-and `text-dense-sm` rather than `text-[13px] font-normal`: they follow a
-brand's `baseSize` and weights like every other role.
-
-### Lint the boundaries
-
-The library's own import rules — griddy-icons only, no second component
-library, CSS-first motion (CONVENTIONS §7–8) — ship as an ESLint flat-config
-preset, so the app is held to them too:
-
-```bash
-npx @bydiorama/ui add eslint-preset
-```
-
-```js
-// eslint.config.mjs
-import tseslint from "typescript-eslint";
-import diorama from "./eslint.diorama.mjs";
-
-export default tseslint.config(
-  ...tseslint.configs.recommended,
-  ...diorama, // after the presets it should override
-);
-```
-
-It is plain objects with no plugin. If your config also sets
-`no-restricted-imports`, ESLint keeps only the LAST object's options — merge
-instead, from the exported `restrictedImports.paths` and `.patterns`. Add
-package names to `paths`, never to `patterns`: patterns match like
-`.gitignore`, so `"motion"` there also catches `@/lib/motion`, which every
-installed component imports.
-
-### Check it against the design
-
-Install the `visual-diff` item and the `ui` agent plugin. The plugin's
-`ui:visual-review` skill diffs the running app against 1× exports of the
-design's frames and components with that script, and teaches the agent to
-read the result. `ui:app-motion` covers motion beyond what the components
-already do.
-
-### Agent skills
-
-The skills ship as one agent plugin, `ui`, for Claude Code, claude.ai and
-Cowork — not through the registry. In Claude Code:
+Install the plugin in Claude Code:
 
 ```
 /plugin marketplace add bydiorama/ui
 /plugin install ui@diorama-ui
 ```
 
-In claude.ai or Cowork: **Customize › Plugins › Add › Add marketplace**,
-enter `bydiorama/ui`, then add `ui`. It follows `main`. The skill list is in
-[`plugins/ui/README.md`](plugins/ui/README.md); why it works this way is
-ADR 0027.
-
-### Stay in sync
-
-`add` already locked what it installed (items installed another way get
-`lock`), so `sync` can report drift per item — `stale`, `modified`, `forked`,
-and their combinations — instead of overwriting your edits:
-
-```bash
-npx @bydiorama/ui sync
-```
-
-See the [CLI README](packages/cli/README.md) for the full drift model.
-
-## What's inside
-
-| Package / area | What it is |
-| --- | --- |
-| [`registry/ui`](registry/ui) | 45 components — controls, overlays, navigation, chat, data display — each with source, docs, stories, browser tests, and type tests |
-| [`registry/lib`](registry/lib), [`registry/hooks`](registry/hooks) | Utilities and hooks, distributed the same source-first way |
-| [`registry/lib/fx`](registry/lib/fx), [`registry/lib/shader`](registry/lib/shader) | The effects layer (ADR 0022): CSS materials applied as `fx(…)` classes, and an optional WebGL runtime for the parametric gradient ground and halo (ADR 0025) — experimental |
-| [`packages/tokens`](packages/tokens) | `@bydiorama/tokens` — token contract, OKLCH theme resolver, CSS/Tailwind/TS emitters, programmatic contrast |
-| [`packages/cli`](packages/cli) | The consumer-side CLI — owned install channel (`add`), lockfile, drift report |
-| [`apps/storybook`](apps/storybook) | Stories, interaction contracts, story a11y, visual-regression runner |
-
-Browse the components locally:
-
-```bash
-pnpm install
-pnpm --filter @bydiorama/storybook dev   # Storybook on :6006
-```
-
-## Development
-
-```bash
-pnpm verify           # all 18 CI gates — dependency-free, runs on a cold clone
-pnpm test             # unit tests (Node's runner)
-pnpm test:browser     # interaction contracts + every story through axe
-pnpm test:visual      # visual regression against committed baselines
-pnpm type-check
-pnpm lint
-pnpm registry:build   # regenerate registry.json and r/*.json from the manifest
-pnpm ledger:new       # scaffold a change-ledger entry
-pnpm design:gaps      # what the library is waiting on from design
-```
-
-`ui.manifest.json` is the source of truth for everything distributed;
-`registry.json` and `r/*.json` are generated from it and never hand-edited.
-Every change that affects consumers gets a [ledger entry](ledger/entries/)
-saying what moved and what consumers must do.
-
-## Repository layout
-
-```
-ui.manifest.json     source of truth for everything distributed
-registry.json, r/    GENERATED — never hand-edited
-registry/            the distributed source itself
-  ui/                one directory per component, five files each
-  lib/ hooks/        utilities and hooks
-  fonts/ skills/     Aspekta (OFL); agent skills — the source (ADR 0013)
-plugins/ui/          the `ui` agent plugin — skills GENERATED from registry/skills (ADR 0027)
-  visual/            the visual-regression matrix and its baselines
-packages/tokens/     @bydiorama/tokens — token contract, resolver, emitters
-packages/cli/        the consumer-side CLI — add, lock, sync
-apps/storybook/      stories, contract tests, story a11y, visual runner
-design/paper/        exported design artifacts; Paper source stays in its cloud
-ledger/decisions/    architecture decision records
-ledger/entries/      change ledger
-schemas/             JSON Schemas for the manifest and ledger entries
-scripts/             dependency-free checks and generators
-```
+In claude.ai or Cowork, open **Customize › Plugins › Add › Add marketplace**,
+enter `bydiorama/ui`, then add `ui`.
 
 ## Documentation
 
-- [`CONVENTIONS.md`](CONVENTIONS.md) — the component API rulebook. Binding.
-- [`PLAN.md`](PLAN.md) — where the library is and what closes each gate.
-- [`TODO.md`](TODO.md) — defects, undrawn components, open design questions.
-- [`AGENTS.md`](AGENTS.md) — instructions for AI coding agents.
-- [`ledger/decisions/`](ledger/decisions/) — why things are the way they are.
+- [ui.bydiorama.com](https://ui.bydiorama.com): components, docs and changelog.
+- [`CONVENTIONS.md`](CONVENTIONS.md): the component API rulebook. Binding.
+- [`PLAN.md`](PLAN.md): where the library is and what each phase still needs.
+- [`TODO.md`](TODO.md): defects, undrawn components and open design questions.
+- [`ledger/decisions/`](ledger/decisions/): why things are the way they are.
   Read these before re-proposing a settled question.
+
+## Contributing
+
+[`CONTRIBUTING.md`](CONTRIBUTING.md) has the development commands, the
+repository layout and what CI enforces. Every change that affects consumers
+needs a [ledger entry](ledger/entries/).
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Adapted third-party material and inspirations
-are itemised in [CREDITS.md](CREDITS.md); the one asset class that is *not*
-MIT-distributable (licensed typefaces) is enforced out of the tree by
-`pnpm check:licensing` ([ADR 0003](ledger/decisions/0003-typography-licensing.md)).
-
-## Public library site
-
-The public reader lives in `apps/site`. Run `pnpm site:dev` to preview it or
-`pnpm site:build` to produce the static site. Components are registered through
-the manifest and documented from their typed docs; `pnpm site:data` updates the
-generated catalog after a change. See [the public library workflow](docs/public-library-workflow.md).
-
-The site uses the owned CLI preview as its primary installation route, with
-shadcn as an alternative for existing apps. `pnpm test:cli-package` verifies
-the packed executable without a repository checkout in the consumer. Npm
-publication and hosting remain release work in `PLAN.md`.
+MIT. See [LICENSE](LICENSE). Adapted third-party material is itemised in
+[CREDITS.md](CREDITS.md). Licensed typefaces are the one asset class that is
+not MIT-distributable, and `pnpm check:licensing` keeps them out of the tree
+([ADR 0003](ledger/decisions/0003-typography-licensing.md)).

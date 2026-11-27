@@ -355,9 +355,23 @@ describe("`reduced` keeps change in place and removes travel", () => {
   test("`off` runs the same thumb at 1ms, so Base UI still has an animation to await", async () => {
     setPageLevel("off");
     mount(<Switch defaultIsChecked={false}>Notifications</Switch>);
-    const running = await transitionsStartedBy(slot("thumb"), () => userEvent.click(slot("track")));
-    expect(running.length).toBeGreaterThan(0);
-    for (const animation of running) expect(animation.effect?.getTiming().duration).toBe(1);
+    const thumb = slot("thumb");
+    // A 1ms transition can finish before any frame — on a slow CI runner,
+    // before getAnimations() is read at all — so a live Animation is not
+    // evidence. The transition EVENTS are queued even for one that already
+    // ended, and the computed duration says what it ran at (motion-component
+    // skill: "A 1ms transition at Off that never ran").
+    const ran = new Set<string>();
+    const record = (event: Event) => ran.add((event as TransitionEvent).propertyName);
+    thumb.addEventListener("transitionrun", record);
+    thumb.addEventListener("transitionend", record);
+    await userEvent.click(slot("track"));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve(null))));
+    thumb.removeEventListener("transitionrun", record);
+    thumb.removeEventListener("transitionend", record);
+    expect(ran.size).toBeGreaterThan(0);
+    const durations = getComputedStyle(thumb).transitionDuration.split(",").map((d) => d.trim());
+    expect(new Set(durations)).toEqual(new Set(["0.001s"]));
   });
 
   /** The properties a portalled surface transitions as it enters. */

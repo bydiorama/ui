@@ -425,6 +425,18 @@ describe("Choosing a tab moves something (Tabs motion sheet)", () => {
     expect([a.left, a.top, a.width, a.height].map(Math.round)).toEqual([b.left, b.top, b.width, b.height].map(Math.round));
   });
 
+  test("the hand-over to the indicator is instant: the selected tab's fill never fades at Full", async () => {
+    // Same colour, same place — a fade there animates nothing a person can
+    // see, and it made the at-rest screenshot depend on when it was taken
+    // (CI's visual job differed by 3–5 corner pixels between runs).
+    mount(<Basic />);
+    const runs = recordRuns(() => tabs()[0] ?? null);
+    await frames(4);
+    runs.stop();
+    expect(runs.seen.has("background-color")).toBe(false);
+    expect(getComputedStyle(tabs()[0]!).transitionProperty).not.toContain("background-color");
+  });
+
   test("its first placement does not animate", async () => {
     mount(<Basic />);
     const runs = recordRuns(() => indicator());

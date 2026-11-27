@@ -180,7 +180,12 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
         // and earlier in the list.
         "relative flex min-h-6 items-center gap-xs px-sm py-xs",
         "text-button-sm font-body whitespace-nowrap",
-        "transition-[background-color,color]", motionMicro,
+        // At Full only the ink transitions: the fill is the indicator's, and
+        // its hand-over from the tab must be instant — same colour, same
+        // place. A fade there animated nothing visible and made the at-rest
+        // screenshot depend on when it was taken. At Reduced the tab paints
+        // its own fill again, and that cross-fade is the selection's motion.
+        "transition-[color] motion-reduce:transition-[background-color,color]", motionMicro,
         "text-ink-muted",
         // Enclosed divides the track evenly and centres each label; ghost sizes
         // to its content and sits left, because there is no track to divide.

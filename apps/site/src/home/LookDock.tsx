@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { motionLevel } from "@/lib/motion";
 import { Drawer } from "@/ui/drawer";
 import { Switch } from "@/ui/switch";
 import { configureShaders, startShaders } from "@/lib/shader";
@@ -45,11 +46,35 @@ export function useShaderRuntime() {
 export function LookControls({ name = "look" }: { name?: string }) {
   const appearance = useAppearance();
   const isDark = useIsDark();
+  const group = useRef<HTMLDivElement>(null);
+  const slide = useRef<Animation | null>(null);
+
+  function chooseLook(brand: Appearance["brand"], input: HTMLInputElement) {
+    const previous = group.current?.querySelector(".look-option[data-selected] .look-fill");
+    const label = input.labels?.[0];
+    const fill = label?.querySelector(".look-fill");
+    // Read the painted box before interrupting a slide with another arrow press.
+    const from = previous?.getBoundingClientRect();
+    slide.current?.cancel();
+    if (from && label && fill && motionLevel(fill) === "full") {
+      const to = label.getBoundingClientRect();
+      const style = getComputedStyle(fill);
+      slide.current = fill.animate([
+        { translate: `${from.left - to.left}px`, width: `${from.width}px` },
+        { translate: "0px", width: `${to.width}px` },
+      ], {
+        duration: parseFloat(style.getPropertyValue("--ui-duration-base")),
+        easing: style.getPropertyValue("--ui-ease-out").trim(),
+      });
+    }
+    setAppearance("brand", brand);
+  }
   return <>
-    <div className="look-options" role="radiogroup" aria-label="Look">
+    <div ref={group} className="look-options" role="radiogroup" aria-label="Look">
       {looks.map(look => (
         <label key={look.value} className="look-option" data-selected={appearance.brand === look.value ? "" : undefined}>
-          <input type="radio" name={name} value={look.value} checked={appearance.brand === look.value} onChange={() => setAppearance("brand", look.value)} />
+          <input type="radio" name={name} value={look.value} checked={appearance.brand === look.value} onChange={event => chooseLook(look.value, event.currentTarget)} />
+          <span className="look-fill motion-reduce:transition-opacity motion-reduce:duration-(--ui-duration-fast) motion-reduce:ease-(--ui-ease-out)" aria-hidden="true" />
           <span className="look-swatch" data-site-brand={look.value} aria-hidden="true" />
           {look.label}
         </label>

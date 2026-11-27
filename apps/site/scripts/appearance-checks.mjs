@@ -29,6 +29,42 @@ const apply = (page, preferences) => page.evaluate(preferences => {
   root.dataset.theme = `${preferences.brand} ${preferences.scheme}`;
   document.dispatchEvent(new Event("appearance-change"));
 }, preferences);
+export async function checkHomeSelection(page, base) {
+  await page.goto(base);
+  const dock = page.locator(".look-dock-slot");
+  await page.locator('astro-island[component-export="LookDock"]:not([ssr])').waitFor({ state: "attached" });
+
+  const list = page.getByRole("tablist", { name: "Example screens" });
+  await list.scrollIntoViewIfNeeded();
+  await page.locator('astro-island[component-export="UseCaseStage"]:not([ssr])').waitFor({ state: "attached" });
+  for (const [level, brand, example] of [
+    ["full", "soft", "Creative Editor"],
+    ["reduced", "mono", "AI Workspace"],
+    ["off", "zero", "Image Library"],
+  ]) {
+    await page.locator("html").evaluate((root, level) => { root.dataset.uiMotion = level; }, level);
+    const travel = await dock.locator(`input[value="${brand}"]`).evaluate(input => {
+      input.click();
+      return input.labels[0].querySelector(".look-fill").getAnimations()
+        .some(animation => animation.effect.getKeyframes().some(frame => "translate" in frame));
+    });
+    assert.equal(travel, level === "full", `The chosen look travels at Full only (${level})`);
+    const tab = list.getByRole("tab", { name: example, exact: true });
+    await tab.click();
+    const panel = page.locator(".use-case-panel:visible");
+    assert.equal(await panel.getAttribute("aria-label"), `${example} example`);
+    assert.equal(await panel.evaluate(el => getComputedStyle(el).animationName), "none", "The stage leaves panel motion to Tabs");
+    const indicator = list.locator('[data-slot="tabs-indicator"]');
+    assert.equal(await indicator.isVisible(), level === "full");
+    const fill = await tab.evaluate(async el => {
+      await Promise.all(el.getAnimations().map(animation => animation.finished.catch(() => {})));
+      return getComputedStyle(el).backgroundColor;
+    });
+    assert.equal(fill === "rgba(0, 0, 0, 0)", level === "full", "Exactly one layer paints the selection");
+  }
+  await page.evaluate(() => localStorage.removeItem("diorama-ui-appearance"));
+}
+
 export async function checkAppearance(page, base, artifacts) {
   artifacts = join(artifacts, process.argv.includes("--webkit") ? "webkit" : "chromium");
   mkdirSync(artifacts, { recursive: true });

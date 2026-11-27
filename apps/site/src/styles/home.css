@@ -92,10 +92,12 @@ html:not([data-motion]) .hero-reel-word[data-index="4"] { color: var(--ui-text-p
 .look-dock { display: inline-flex; align-items: center; gap: 20px; height: 56px; padding: 0 20px 0 8px; border-radius: var(--ui-radius-full); background: var(--ui-bg-surface); box-shadow: 0 8px 24px -4px rgb(29 27 25 / 0.09), 0 2px 8px rgb(29 27 25 / 0.05), inset 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); }
 /* The switches group only where the controls stack (a component page's look panel); in the dock they are its own items. */
 .look-switches { display: contents; }
-.look-options { display: flex; gap: 2px; padding: 2px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
-.look-option { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 11px; border-radius: var(--ui-radius-full); font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-muted); cursor: pointer; transition: background-color var(--ui-duration-base) var(--ui-ease-default), color var(--ui-duration-base) var(--ui-ease-default), box-shadow var(--ui-duration-base) var(--ui-ease-default); }
+.look-options { isolation: isolate; display: flex; gap: 2px; padding: 2px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
+.look-option { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px 0 11px; border-radius: var(--ui-radius-full); font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-muted); cursor: pointer; transition: color var(--ui-motion-micro); }
 .look-option:hover { color: var(--ui-text-primary); }
-.look-option[data-selected] { background: var(--ui-bg-base); color: var(--ui-text-primary); box-shadow: 0 1px 2px rgb(29 27 25 / 0.08), 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); }
+.look-option[data-selected] { color: var(--ui-text-primary); }
+.look-fill { position: absolute; z-index: -1; inset: 0; pointer-events: none; border-radius: inherit; background: var(--ui-bg-base); box-shadow: 0 1px 2px rgb(29 27 25 / 0.08), 0 0 0 var(--ui-stroke-hairline) var(--ui-border-subtle); opacity: 0; }
+.look-option[data-selected] .look-fill { opacity: 1; }
 .look-option input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
 .look-option:has(input:focus-visible) { outline: 2px solid var(--ui-border-focus); outline-offset: 1px; }
 /* The swatch is painted inside its own brand scope, so it is that brand's
@@ -138,16 +140,13 @@ html[data-site-effects="on"] .look-dock[data-floating] { background: color-mix(i
    otherwise cover the edge it runs along. */
 .use-case-frame::after { content: ""; position: absolute; inset: 0; z-index: 30; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); border-bottom: 0; border-radius: inherit; pointer-events: none; }
 .use-case-panel { position: absolute; inset: 0; }
-.use-case-panel[hidden] { display: block; visibility: hidden; opacity: 0; }
-.use-case-panel:not([hidden]) { animation: use-case-in var(--ui-duration-slow) var(--ui-ease-out); }
-@keyframes use-case-in { from { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .use-case-panel:not([hidden]) { animation: none; } }
+/* A rapid reversal can leave the outgoing panel mounted over the incoming canvas. */
+.use-case-panel[inert] { visibility: hidden; }
 .use-case-canvas { transform-origin: 0 0; background: var(--ui-bg-base); }
 .use-case-loading { width: 100%; height: 100%; background: var(--ui-bg-base); }
 .use-case-tabs .use-case-list { display: flex; max-width: 100%; justify-content: safe center; gap: 4px; border: 0; overflow-x: auto; scrollbar-width: none; }
 .use-case-list [role="tab"] { flex-shrink: 0; white-space: nowrap; }
-.use-case-list [role="tab"] { height: 36px; padding-inline: 14px; border-radius: 8px; font-size: 13px; font-weight: 600; letter-spacing: -0.02em; }
-.use-case-list [role="tab"][aria-selected="true"] { background: var(--ui-bg-sunken); color: var(--ui-text-primary); }
+.use-case-list [role="tab"] { height: 36px; padding-inline: 14px; font-size: 13px; font-weight: 600; letter-spacing: -0.02em; }
 
 /* ------------------------------------------------------------ statement */
 .statement { padding: clamp(120px, 14vw, 200px) 0 clamp(96px, 11vw, 160px); }
@@ -532,7 +531,7 @@ html[data-site-effects="on"] .exploded { --exploded-shade: 15%; --exploded-accen
   .use-case-ground { inset: 104px 0 0; border-radius: 28px; }
   .use-case-tabs { align-items: stretch; gap: 14px; }
   .use-case-tabs .use-case-list { justify-content: flex-start; padding-inline: 8px; }
-  .use-case-list [role="tab"] { height: 44px; border-radius: 12px; font-size: 14px; }
+  .use-case-list [role="tab"] { height: 44px; font-size: 14px; }
   .use-case-stage { justify-content: flex-start; height: 460px; padding: 28px 0 0; overflow: clip; border-radius: 28px; }
   .use-case-window { width: 707px; flex-shrink: 0; margin-left: -167px; padding: 8px 8px 0; }
 

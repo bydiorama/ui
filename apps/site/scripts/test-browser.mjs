@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { chromium, webkit } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { checkAppearance, checkMotionSetting, openLooks, waitForAppearance } from "./appearance-checks.mjs";
+import { checkAppearance, checkHomeSelection, checkMotionSetting, openLooks, waitForAppearance } from "./appearance-checks.mjs";
 import { checkPreviews } from "./preview-checks.mjs";
 
 const site = fileURLToPath(new URL("../", import.meta.url));
@@ -100,6 +100,7 @@ try {
     await page.screenshot({ path: join(artifacts, `home-mobile-${scheme}.png`), fullPage: true });
     await page.setViewportSize({ width: 1280, height: 900 });
   }
+  await checkHomeSelection(page, base);
   // The live examples answer on their own pages (the home page and the
   // catalog show drawings and purpose-built tiles, not the examples).
   await visit(`${base}/components/button/`);

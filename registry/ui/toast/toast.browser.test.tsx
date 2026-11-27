@@ -171,7 +171,7 @@ describe("motion — the split transition survives to computed style", () => {
     expect(cs.transitionDuration).toBe("0.4s, 0.4s, 0.32s, 0.12s");
     // The transforms run on --ui-ease-spring, a linear() spring since ADR 0028
     // §7; the two eases after it are opacity and height on --ui-ease-out.
-    expect(cs.transitionTimingFunction).toMatch(/^linear\(0 0%, .*\), linear\(0 0%, .*\), cubic-bezier\(0, 0, 0\.2, 1\), cubic-bezier\(0, 0, 0\.2, 1\)$/);
+    expect(cs.transitionTimingFunction).toMatch(/^linear\(0 0%, .*\), linear\(0 0%, .*\), cubic-bezier\(0\.22, 1, 0\.36, 1\), cubic-bezier\(0\.22, 1, 0\.36, 1\)$/);
     // And the declaration has an effect: entering, something is animating.
     expect(el.getAnimations().length).toBeGreaterThan(0);
   });

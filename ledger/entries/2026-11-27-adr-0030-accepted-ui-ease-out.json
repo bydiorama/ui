@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-adr-0030-accepted-ui-ease-out",
+  "date": "2026-11-27",
+  "item": "system",
+  "kind": "token",
+  "summary": "ADR 0030 (accepted): --ui-ease-out is cubic-bezier(0.22, 1, 0.36, 1), was (0, 0, 0.2, 1) — the old curve covered 58% of its journey at a quarter of its duration and 84% at half, so a 200ms move read like ~300ms; the new one covers 76% and 96%, the curve transitions.dev, bencho and animate-ui each use. Durations unchanged. --ui-stagger-step is 40ms, was 100ms: Stagger's six-item cap lands in 200ms instead of 500ms. New --ui-tick (100ms, 0 at Reduced and Off) carries the beat of computed repeating animations — StatusMatrix's shared clock and the home plates — which had been reading the stagger step and would otherwise have run 2.5x faster. A brand that slowed StatusMatrix through --ui-stagger-step retunes --ui-tick instead. Literal curve assertions (Button, Thumbnail, Toast, the token emitter) and the design-component filmstrip helper's default now name the new curve.",
+  "affects": [
+    "decision:0030-motion-curve-and-tempo",
+    "decision:0028-motion-levels-and-primitives",
+    "item:status-matrix",
+    "item:stagger",
+    "item:theme-zero"
+  ]
+}

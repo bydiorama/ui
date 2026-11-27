@@ -463,7 +463,7 @@ export const FIXED_TOKENS = [
 
   // Interaction constants. Named values so "how much does a button shrink on
   // press" has exactly one answer across the system.
-  "--ui-press-scale", "--ui-stagger-step",
+  "--ui-press-scale", "--ui-stagger-step", "--ui-tick",
 
   // Control sizing (ADR 0020 §4). Two families, deliberately: an ACTION
   // (Button, the chrome control) and a FIELD (Input, Select, Multiselect) are

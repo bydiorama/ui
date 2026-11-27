@@ -26,7 +26,7 @@ test("a composite alias chain resolves to its final literal value", () => {
   // --ui-motion-micro: "var(--ui-duration-fast) var(--ui-ease-out)" in
   // base.ts — both parts must be substituted, not just the first.
   const ts = toTsConstants(pair);
-  assert.ok(ts.includes('"--ui-motion-micro": "120ms cubic-bezier(0, 0, 0.2, 1)"'));
+  assert.ok(ts.includes('"--ui-motion-micro": "120ms cubic-bezier(0.22, 1, 0.36, 1)"'));
 });
 
 test("a single alias resolves too, not only composites", () => {

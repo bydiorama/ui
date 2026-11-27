@@ -161,8 +161,8 @@ describe("StatusMatrix moves on the shared clock", () => {
     expect(levels(c)).toBe(SHEET.working);
   });
 
-  test("the tempo is --ui-stagger-step: with no token there is no clock, and the matrix stays still", async () => {
-    const c = mount(<StatusMatrix status="working" style={{ "--ui-stagger-step": "none" } as React.CSSProperties} />);
+  test("the tempo is --ui-tick: with no token there is no clock, and the matrix stays still", async () => {
+    const c = mount(<StatusMatrix status="working" style={{ "--ui-tick": "none" } as React.CSSProperties} />);
     await wait(450);
     expect(levels(c)).toBe(SHEET.working);
   });
@@ -263,7 +263,7 @@ describe("StatusMatrix hands over and settles", () => {
     // after ONE tick. Failed's first cell is the centre, which Working's key
     // frame leaves dark — so it is lit only if the incoming beam ran on the
     // first tick rather than waiting out a fade-only beat.
-    const slow = { "--ui-stagger-step": "400ms" } as React.CSSProperties;
+    const slow = { "--ui-tick": "400ms" } as React.CSSProperties;
     const c = mount(<StatusMatrix status="working" style={slow} />);
     await wait(50);
     rerender(<StatusMatrix status="failed" style={slow} />);
@@ -272,12 +272,12 @@ describe("StatusMatrix hands over and settles", () => {
   });
 
   test("--ui-fx-ambient-speed divides the tick", async () => {
-    const calm = mount(<StatusMatrix status="working" style={{ "--ui-stagger-step": "400ms", "--ui-fx-ambient-speed": "0.25" } as React.CSSProperties} />);
+    const calm = mount(<StatusMatrix status="working" style={{ "--ui-tick": "400ms", "--ui-fx-ambient-speed": "0.25" } as React.CSSProperties} />);
     await wait(900);
     // 400ms / 0.25 = 1600ms: no tick has come due yet.
     expect(levels(calm)).toBe(SHEET.working);
     unmount();
-    const lively = mount(<StatusMatrix status="working" style={{ "--ui-stagger-step": "400ms", "--ui-fx-ambient-speed": "4" } as React.CSSProperties} />);
+    const lively = mount(<StatusMatrix status="working" style={{ "--ui-tick": "400ms", "--ui-fx-ambient-speed": "4" } as React.CSSProperties} />);
     await wait(300);
     // 400ms / 4 = 100ms: several ticks have.
     expect(levels(lively)).not.toBe(SHEET.working);

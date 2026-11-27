@@ -78,7 +78,7 @@ export function mountStack(root: HTMLElement, { onPick }: { onPick: (index: numb
   const tune = () => {
     const enter = token("--ui-duration-enter", 400) / 1000;
     const slow = token("--ui-duration-slow", 320) / 1000;
-    Object.assign(pace, { settle: 2.2 / enter, turn: 2.9 / slow, dissolve: 2.4 / slow, reform: 1.4 / enter, thin: 1.6 / enter, step: token("--ui-stagger-step", 100), enter: enter * 1000 });
+    Object.assign(pace, { settle: 2.2 / enter, turn: 2.9 / slow, dissolve: 2.4 / slow, reform: 1.4 / enter, thin: 1.6 / enter, step: token("--ui-tick", 100), enter: enter * 1000 });
   };
 
   const isTouch = window.matchMedia("(pointer: coarse)").matches;

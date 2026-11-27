@@ -1,5 +1,5 @@
 {
-  "sourceHash": "c1ec71494a4e1a7ab759b13e0871b23dff5c74159e91f4329fdd49ac2bf55dcf",
+  "sourceHash": "596ac8641826d839d629cf0fc5e3fa1fc4c3ccd3eb898a996e1b900fcdedd1d0",
   "categories": [
     "Actions",
     "Forms",
@@ -26256,6 +26256,21 @@
           "provenance": {
             "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49S3-1"
           }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-adr-0030-accepted-ui-ease-out",
+          "date": "2026-11-27",
+          "item": "system",
+          "kind": "token",
+          "summary": "ADR 0030 (accepted): --ui-ease-out is cubic-bezier(0.22, 1, 0.36, 1), was (0, 0, 0.2, 1) — the old curve covered 58% of its journey at a quarter of its duration and 84% at half, so a 200ms move read like ~300ms; the new one covers 76% and 96%, the curve transitions.dev, bencho and animate-ui each use. Durations unchanged. --ui-stagger-step is 40ms, was 100ms: Stagger's six-item cap lands in 200ms instead of 500ms. New --ui-tick (100ms, 0 at Reduced and Off) carries the beat of computed repeating animations — StatusMatrix's shared clock and the home plates — which had been reading the stagger step and would otherwise have run 2.5x faster. A brand that slowed StatusMatrix through --ui-stagger-step retunes --ui-tick instead. Literal curve assertions (Button, Thumbnail, Toast, the token emitter) and the design-component filmstrip helper's default now name the new curve.",
+          "affects": [
+            "decision:0030-motion-curve-and-tempo",
+            "decision:0028-motion-levels-and-primitives",
+            "item:status-matrix",
+            "item:stagger",
+            "item:theme-zero"
+          ]
         }
       ]
     },
@@ -26788,7 +26803,7 @@
           "ref": "root — an SVGSVGElement; there is no inner control",
           "rest": "root — every SVG attribute except children, role and viewBox, which the component owns"
         },
-        "motion": "A JavaScript tick, because the frames are computed rather than keyed: one shared clock steps every moving matrix on the page together, at --ui-stagger-step (100ms) divided by --ui-fx-ambient-speed — the effects layer's one knob for every ambient loop, read as 1 where that layer is not loaded — so two matrices can never beat against each other. A loop is 10 or 20 ticks — 1000ms or 2000ms at the default step. The 20-tick loop matches --ui-duration-loop at that step, but it is counted in ticks rather than read from that token, so a brand that retunes the step retunes the loop with it. The subscription lives as long as the matrix moves: a status or value change rewrites what the next tick draws instead of re-subscribing, so updates arriving faster than a tick cannot stall the clock. Each dot's opacity and fill then transition on --ui-duration-fast — Typing on --ui-duration-base — which is what turns the four discrete levels into a soft phosphor trail. The first render is the key frame (the frame the sheet draws), and motion continues from it after mount. An ending arrived at draws on — Done a cell a tick along its stroke, Failed from the centre out, Stopped in one — and then the clock lets go of it; an ending MOUNTED is already drawn. `isHeld` and prefers-reduced-motion both render the key frame and never subscribe: the clock is JavaScript, which the token layer's duration collapse cannot reach, so the component asks the media query itself. A page without --ui-stagger-step gets a still matrix rather than an invented tempo. Motion levels (ADR 0028): the clock asks motionLevel() at its own matrix and runs only at `full`, so a region set quieter than the page holds its matrix on the key frame.",
+        "motion": "A JavaScript tick, because the frames are computed rather than keyed: one shared clock steps every moving matrix on the page together, at --ui-tick (100ms) divided by --ui-fx-ambient-speed — the effects layer's one knob for every ambient loop, read as 1 where that layer is not loaded — so two matrices can never beat against each other. A loop is 10 or 20 ticks — 1000ms or 2000ms at the default step. The 20-tick loop matches --ui-duration-loop at that step, but it is counted in ticks rather than read from that token, so a brand that retunes the step retunes the loop with it. The subscription lives as long as the matrix moves: a status or value change rewrites what the next tick draws instead of re-subscribing, so updates arriving faster than a tick cannot stall the clock. Each dot's opacity and fill then transition on --ui-duration-fast — Typing on --ui-duration-base — which is what turns the four discrete levels into a soft phosphor trail. The first render is the key frame (the frame the sheet draws), and motion continues from it after mount. An ending arrived at draws on — Done a cell a tick along its stroke, Failed from the centre out, Stopped in one — and then the clock lets go of it; an ending MOUNTED is already drawn. `isHeld` and prefers-reduced-motion both render the key frame and never subscribe: the clock is JavaScript, which the token layer's duration collapse cannot reach, so the component asks the media query itself. A page without --ui-tick gets a still matrix rather than an invented tempo. Motion levels (ADR 0028): the clock asks motionLevel() at its own matrix and runs only at `full`, so a region set quieter than the page holds its matrix on the key frame.",
         "needsDesign": [
           "Listening (the voice variant) is on the sheet but not here: its bars should follow a real input level, and a component that takes a level per tick is a different API from a status. Built when a voice surface exists to drive it.",
           "No 32px or 48px size: the sheet draws those as specimens only, and no composition places the matrix above 16px."
@@ -26858,6 +26873,21 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-adr-0030-accepted-ui-ease-out",
+          "date": "2026-11-27",
+          "item": "system",
+          "kind": "token",
+          "summary": "ADR 0030 (accepted): --ui-ease-out is cubic-bezier(0.22, 1, 0.36, 1), was (0, 0, 0.2, 1) — the old curve covered 58% of its journey at a quarter of its duration and 84% at half, so a 200ms move read like ~300ms; the new one covers 76% and 96%, the curve transitions.dev, bencho and animate-ui each use. Durations unchanged. --ui-stagger-step is 40ms, was 100ms: Stagger's six-item cap lands in 200ms instead of 500ms. New --ui-tick (100ms, 0 at Reduced and Off) carries the beat of computed repeating animations — StatusMatrix's shared clock and the home plates — which had been reading the stagger step and would otherwise have run 2.5x faster. A brand that slowed StatusMatrix through --ui-stagger-step retunes --ui-tick instead. Literal curve assertions (Button, Thumbnail, Toast, the token emitter) and the design-component filmstrip helper's default now name the new curve.",
+          "affects": [
+            "decision:0030-motion-curve-and-tempo",
+            "decision:0028-motion-levels-and-primitives",
+            "item:status-matrix",
+            "item:stagger",
+            "item:theme-zero"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-statusmatrix-the-dot-matrix-status-mark",

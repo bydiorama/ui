@@ -101,4 +101,18 @@ describe("MediaToggle", () => {
     expect(style.cursor).toBe("pointer");
     expect(button.getBoundingClientRect().width).toBe(32);
   });
+  test("the glyph cross-fades through IconSwap, and only the label names the state", async () => {
+    const button = mount(<MediaToggle {...LABELS} defaultIsPaused={false} />);
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const swap = button.querySelector('[data-slot="icon-swap"]')!;
+    expect(swap.getAttribute("aria-hidden")).toBe("true");
+    const glyphs = () => [...swap.querySelectorAll<HTMLElement>('[data-slot="icon-swap-glyph"]')];
+    expect(glyphs().map((g) => g.dataset.state)).toEqual(["hidden", "shown"]); // play hidden, pause shown
+    await userEvent.click(button);
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(glyphs().map((g) => g.dataset.state)).toEqual(["shown", "hidden"]);
+    const arriving = glyphs()[0]!.getAnimations().map((a) => (a as CSSTransition).transitionProperty);
+    expect(arriving).toContain("opacity");
+    expect(button.getAttribute("aria-label")).toBe(LABELS.playLabel);
+  });
 });

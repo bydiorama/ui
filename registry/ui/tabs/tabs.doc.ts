@@ -88,7 +88,7 @@ Tabs                     value? / defaultValue? / onValueChange?
   ],
 
   motion:
-    "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade.",
+    "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
 
   // LHB-0, not D7G-0 — that is the Text Area artboard, and this link had been
   // pointing at it. Its geometry is extracted node-by-node into

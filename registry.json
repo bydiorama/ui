@@ -297,7 +297,8 @@
         "@bydiorama/motion",
         "@bydiorama/compose-event-handlers",
         "@bydiorama/use-controllable-state",
-        "@bydiorama/data-slot"
+        "@bydiorama/data-slot",
+        "@bydiorama/icon-swap"
       ],
       "files": [
         {
@@ -1422,7 +1423,8 @@
       "registryDependencies": [
         "@bydiorama/cn",
         "@bydiorama/motion",
-        "@bydiorama/data-slot"
+        "@bydiorama/data-slot",
+        "@bydiorama/count"
       ],
       "files": [
         {

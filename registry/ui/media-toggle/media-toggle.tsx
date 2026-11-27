@@ -9,6 +9,7 @@ import { PauseCircle, PlayCircle } from "griddy-icons";
 
 import { chromeControl } from "@/lib/chrome-control";
 import { cn } from "@/lib/cn";
+import { IconSwap } from "@/ui/icon-swap";
 import { motionLevel } from "@/lib/motion";
 import { composeEventHandlers } from "@/lib/compose-event-handlers";
 import { useControllableState } from "@/hooks/use-controllable-state";
@@ -41,6 +42,9 @@ export interface MediaToggleProps
   /** md 32 (default) or lg 44 for touch. */
   size?: MediaToggleSize | undefined;
 }
+
+/** Both glyphs, kept rendered by IconSwap so a toggle cross-fades. */
+const GLYPHS = { play: <PlayCircle />, pause: <PauseCircle /> };
 
 const SIZE: Record<MediaToggleSize, string> = {
   md: "size-control-md",
@@ -143,8 +147,10 @@ export const MediaToggle = forwardRef<HTMLButtonElement, MediaToggleProps>(funct
     >
       {/* The CIRCLE glyphs: griddy's bare Pause hard-codes fill="black" and
           cannot take the ink (check:licensing refuses it). Play is paired
-          with PlayCircle so the two states keep one shape. */}
-      {isPaused ? <PlayCircle aria-hidden="true" /> : <PauseCircle aria-hidden="true" />}
+          with PlayCircle so the two states keep one shape. IconSwap
+          cross-fades them (ADR 0028) and is aria-hidden: the label says the
+          state. */}
+      <IconSwap icons={GLYPHS} show={isPaused ? "play" : "pause"} />
     </button>
   );
 });

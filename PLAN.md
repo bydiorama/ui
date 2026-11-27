@@ -254,8 +254,10 @@ stubbed.
       for TextSwap, IconSwap, Count, Stagger and Feedback sit on Components -
       Drafts awaiting review; readings not yet confirmed are badged Derived.
       Stagger's and Feedback's four decisions were made with the maintainer
-      on 2026-11-27. Linux baselines for Stagger and Feedback come from the
-      "Generate visual baselines" workflow.
+      on 2026-11-27. In use in the library: MediaToggle's glyph through
+      IconSwap, a Tab's count through Count, and on the site the Button
+      example's label (TextSwap) and the copy buttons (IconSwap, TextSwap).
+      Catalogue thumbnails draw before → after, never a mid-transition frame.
 - [x] Step 5: the motion page on the public site, `/docs/motion/` — the site's
       own motion setting (stored with the appearance), live specimens per
       level, slow playback, and the four intent tokens side by side for the

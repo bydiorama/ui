@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Check, ChevronDown, Copy } from "griddy-icons";
+import { IconSwap } from "@/ui/icon-swap";
+import { TextSwap } from "@/ui/text-swap";
+
+const GLYPHS = { copy: <Copy />, check: <Check /> };
 import { fx } from "@/lib/fx";
 import { Button } from "@/ui/button";
 import { Popover } from "@/ui/popover";
@@ -22,7 +26,7 @@ function CopyCode({ source }: { source: React.RefObject<HTMLElement | null> }) {
     catch { setState("failed"); }
   }
   return <>
-    <Button variant="secondary" size="md" className={effects === "on" ? `code-copy ${fx("glass", "inner")}` : "code-copy"} icon={state === "copied" ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />} onClick={() => void copy()}>{state === "copied" ? "Copied" : "Copy code"}</Button>
+    <Button variant="secondary" size="md" className={effects === "on" ? `code-copy ${fx("glass", "inner")}` : "code-copy"} icon={<IconSwap icons={GLYPHS} show={state === "copied" ? "check" : "copy"} />} onClick={() => void copy()}><TextSwap>{state === "copied" ? "Copied" : "Copy code"}</TextSwap></Button>
     <span className="sr-only" role="status">{state === "copied" ? "Example code copied" : state === "failed" ? "Copy failed. Select the code to copy it." : ""}</span>
   </>;
 }

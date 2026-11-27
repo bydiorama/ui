@@ -300,7 +300,8 @@
         "motion",
         "compose-event-handlers",
         "use-controllable-state",
-        "data-slot"
+        "data-slot",
+        "icon-swap"
       ],
       "status": "experimental",
       "category": "Actions",
@@ -1465,7 +1466,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "data-slot"
+        "data-slot",
+        "count"
       ],
       "status": "stable",
       "category": "Navigation",

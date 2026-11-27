@@ -1,5 +1,5 @@
 {
-  "sourceHash": "2d66f70573b26f36b4b49029030c84ed407876629198d3184d1f37c1ceccb2b2",
+  "sourceHash": "b542237ceb2bc213461c36e6073a2e012c4f5080b2091eec7c6e335cde31b579",
   "categories": [
     "Actions",
     "Forms",
@@ -11965,6 +11965,18 @@
       "changes": [
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-tabs-a-changing-count-moves-through",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "visual",
+          "summary": "A Tab's count now renders through Count: when it changes, only the changed digits move — the new digit rises in on --ui-duration-base while the old fades in place — and the badge's text stays the plain number, so its accessible name and copy are unchanged. No API change; the badge's size and colours are as before. Adds count to registryDependencies, so a re-sync installs it. A new test asserts the change and was shown failing against the plain number.",
+          "affects": [
+            "item:tabs",
+            "item:count"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-26-count-a-number-changing-in-place",
           "date": "2026-11-26",
           "item": "count",
@@ -15244,6 +15256,18 @@
       "changes": [
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-mediatoggle-the-glyph-cross-fades-through",
+          "date": "2026-11-27",
+          "item": "media-toggle",
+          "kind": "visual",
+          "summary": "MediaToggle's play and pause glyphs now cross-fade through IconSwap instead of swapping hard: the old glyph dips to 0.8 and blurs away on --ui-duration-fast while the new one re-forms on --ui-duration-base; a plain cross-fade at Reduced, instant at Off. The swap is aria-hidden, so the button's aria-label (play/pause) still carries the state. Both glyphs stay rendered (PlayCircle and PauseCircle, sized by the existing [&_svg]:size-4). Adds icon-swap to registryDependencies, so a re-sync installs it. A new test asserts the cross-fade and was shown failing against the old hard swap.",
+          "affects": [
+            "item:media-toggle",
+            "item:icon-swap"
+          ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-27-iconswap-a-subtle-dip-with-blur",
           "date": "2026-11-27",
           "item": "icon-swap",
@@ -17632,7 +17656,7 @@
           "The disc's own boundary against an arbitrary video frame is not guaranteed — a frame the colour of --ui-bg-media hides the disc, though never the glyph. A ring was not drawn.",
           "No Button for media grounds: inverse flips with the scheme and media does not, so an onMedia variant waits for a call site."
         ],
-        "motion": "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The glyph swaps without animation. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused. Motion levels (ADR 0028): the video starts paused at any level below `full`, read at the video itself.",
+        "motion": "The disc's fill eases between --ui-bg-media and --ui-bg-media-floor over --ui-duration-fast (chromeControl's transition). The play and pause glyphs cross-fade through IconSwap — the old one dips to 0.8 and blurs away on --ui-duration-fast while the new one re-forms on --ui-duration-base; at Reduced a plain cross-fade, at Off instant. Reduced motion collapses the duration at the token layer — and, separately, starts the controlled VIDEO paused. Motion levels (ADR 0028): the video starts paused at any level below `full`, read at the video itself.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/8-0/3QET-0"
       },
       "files": [
@@ -17654,7 +17678,8 @@
         "motion",
         "compose-event-handlers",
         "use-controllable-state",
-        "data-slot"
+        "data-slot",
+        "icon-swap"
       ],
       "contrast": [
         {
@@ -17683,6 +17708,18 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-mediatoggle-the-glyph-cross-fades-through",
+          "date": "2026-11-27",
+          "item": "media-toggle",
+          "kind": "visual",
+          "summary": "MediaToggle's play and pause glyphs now cross-fade through IconSwap instead of swapping hard: the old glyph dips to 0.8 and blurs away on --ui-duration-fast while the new one re-forms on --ui-duration-base; a plain cross-fade at Reduced, instant at Off. The swap is aria-hidden, so the button's aria-label (play/pause) still carries the state. Both glyphs stay rendered (PlayCircle and PauseCircle, sized by the existing [&_svg]:size-4). Adds icon-swap to registryDependencies, so a re-sync installs it. A new test asserts the cross-fade and was shown failing against the old hard swap.",
+          "affects": [
+            "item:media-toggle",
+            "item:icon-swap"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",
@@ -28361,7 +28398,7 @@
           "The sheet gives the count only to the selected tab; the component allows it on any, which is the more useful behaviour but is not what is drawn.",
           "No Base UI Indicator (the sliding highlight); the sheet fills the selected tab instead."
         ],
-        "motion": "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade.",
+        "motion": "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0"
       },
       "files": [
@@ -28380,7 +28417,8 @@
       "registryDependencies": [
         "cn",
         "motion",
-        "data-slot"
+        "data-slot",
+        "count"
       ],
       "contrast": [
         {
@@ -28417,6 +28455,18 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-tabs-a-changing-count-moves-through",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "visual",
+          "summary": "A Tab's count now renders through Count: when it changes, only the changed digits move — the new digit rises in on --ui-duration-base while the old fades in place — and the badge's text stays the plain number, so its accessible name and copy are unchanged. No API change; the badge's size and colours are as before. Adds count to registryDependencies, so a re-sync installs it. A new test asserts the change and was shown failing against the plain number.",
+          "affects": [
+            "item:tabs",
+            "item:count"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-public-library-pages-follow-the-manifest",

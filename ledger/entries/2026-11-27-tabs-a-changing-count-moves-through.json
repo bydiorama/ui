@@ -1,0 +1,12 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-tabs-a-changing-count-moves-through",
+  "date": "2026-11-27",
+  "item": "tabs",
+  "kind": "visual",
+  "summary": "A Tab's count now renders through Count: when it changes, only the changed digits move — the new digit rises in on --ui-duration-base while the old fades in place — and the badge's text stays the plain number, so its accessible name and copy are unchanged. No API change; the badge's size and colours are as before. Adds count to registryDependencies, so a re-sync installs it. A new test asserts the change and was shown failing against the plain number.",
+  "affects": [
+    "item:tabs",
+    "item:count"
+  ]
+}

@@ -395,6 +395,7 @@ Conventions that come with it:
 | Cloning a specimen by the layer name that sounds right | Open it first. "Nav Rail Level 2" was an agent-history rail in one place and a collapsed rail in another, and both captions were written before either was looked at |
 | A specimen painted `bg-surface` on a `bg-base` artboard | Invisible. Give it a `radius-md` frame with a `border-subtle` hairline — the sheet is documentation, so a boundary that does not exist in the product is allowed here |
 | An icon drawn by hand because it was quicker | It is a lie in a contract: close enough to approve, not what renders. Extract it (**`griddy-icons-in-paper`**) |
+| A mid-transition ink drawn as `color-mix()` | The canvas does not render `color-mix()`: the Tabs motion sheet's in-between inks came out near-black in dark. Compute the mix yourself in OKLab (what a browser interpolates a colour transition in) and set the resolved hex on that frame |
 | A remote-MCP screenshot that looks dark, washed out or in the wrong face | The remote renderer does not resolve `var(--ui-*)` or load Aspekta. Judge colour and type in the desktop app, and never commit a remote export to `design/` — it is evidence of nothing |
 | An icon layer left called `SVG` | The glyph's identity is gone — path data is unreadable, so the layer name is the only record, and recovering it means matching 1159 candidates by eye. The implementer guesses instead, which is the decision the sheet existed to make |
 

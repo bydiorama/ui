@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
-import { createContext, useContext, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import { Count } from "@/ui/count";
@@ -20,9 +20,17 @@ export type TabsVariant = "enclosed" | "ghost";
  * combinations and a consumer writing `orientation` three times would get one
  * of them wrong. Root owns it; the parts read it.
  */
-const TabsShape = createContext<{ orientation: TabsOrientation; variant: TabsVariant }>({
+const TabsShape = createContext<{
+  orientation: TabsOrientation;
+  variant: TabsVariant;
+  /** True from a change of selection until the indicator's slide ends. */
+  isSliding: boolean;
+  endSlide: () => void;
+}>({
   orientation: "horizontal",
   variant: "enclosed",
+  isSliding: false,
+  endSlide: () => {},
 });
 
 export interface TabsProps extends OwnedSlot {
@@ -64,6 +72,19 @@ function TabsRoot({
   variant = "enclosed",
   className,
 }: TabsProps) {
+  // The indicator slides only for a CHOICE. A resize, a reflow or a web font
+  // arriving re-measures the tab too, and gliding there animated something
+  // nobody chose (CI's at-rest screenshot caught it mid-glide). So a change
+  // of selection opens a window for the transition, and the slide's end
+  // closes it.
+  const [isSliding, setSliding] = useState(false);
+  const previous = useRef(value);
+  useEffect(() => {
+    // A controlled value changed from outside, not through the tabs.
+    if (value !== undefined && previous.current !== undefined && value !== previous.current) setSliding(true);
+    previous.current = value;
+  }, [value]);
+  const endSlide = () => setSliding(false);
   return (
     <BaseTabs.Root
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTabs.Root>>({
@@ -71,9 +92,10 @@ function TabsRoot({
         ...(defaultValue !== undefined ? { defaultValue } : {}),
         // Narrowed from Base UI's (value, eventDetails) and its `any` value
         // type, so no third-party shape reaches the signature.
-        ...(onValueChange
-          ? { onValueChange: (next: unknown) => onValueChange(String(next)) }
-          : {}),
+        onValueChange: (next: unknown) => {
+          setSliding(true);
+          onValueChange?.(String(next));
+        },
         orientation,
         "data-slot": "tabs",
         "data-orientation": orientation,
@@ -81,15 +103,34 @@ function TabsRoot({
         className: cn("flex w-full flex-col gap-lg", className),
       })}
     >
-      <TabsShape.Provider value={{ orientation, variant }}>{children}</TabsShape.Provider>
+      <TabsShape.Provider value={{ orientation, variant, isSliding, endSlide }}>{children}</TabsShape.Provider>
     </BaseTabs.Root>
   );
 }
 
 export type TabsListProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
-function TabsList({ className, ...rest }: TabsListProps) {
-  const { orientation, variant } = useContext(TabsShape);
+/** The enclosed tab's radius: the track's, minus its 3px inset and its stroke. */
+const ENCLOSED_RADIUS = "rounded-[max(0px,calc(var(--ui-radius-md)-3px-var(--ui-stroke-hairline)))]";
+
+function TabsList({ className, children, ...rest }: TabsListProps) {
+  const { orientation, variant, isSliding, endSlide } = useContext(TabsShape);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
+  useEffect(() => {
+    if (!isSliding) return;
+    // A choice that moves nothing (the same box, or Reduced where the
+    // indicator is hidden) starts no transition, so no end event comes.
+    // Two frames is when a started transition is visible to getAnimations().
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        if (!indicatorRef.current?.getAnimations().length) endSlide();
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isSliding, endSlide]);
+  const settle = (event: { currentTarget: HTMLElement }) => {
+    if (!event.currentTarget.getAnimations().some((a) => a.playState === "running")) endSlide();
+  };
   return (
     <BaseTabs.List
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTabs.List>>(rest)}
@@ -97,7 +138,15 @@ function TabsList({ className, ...rest }: TabsListProps) {
       data-orientation={orientation}
       data-variant={variant}
       className={cn(
-        "flex gap-xs rounded-md",
+        "relative flex gap-xs rounded-md",
+        // The selected fill, read by every tab through a variable rather than
+        // painted by a competing class. At Full, once the indicator is shown,
+        // the tabs stop painting it: one fill slides instead of two
+        // cross-fading. At Reduced and Off — and before the layout settles,
+        // while Base UI keeps the indicator `hidden` (so static HTML is still
+        // right) — each tab paints its own, as Tabs always did.
+        "[--tabs-selected-fill:var(--ui-bg-selected)]",
+        "motion-safe:has-[>[data-slot=tabs-indicator]:not([hidden])]:[--tabs-selected-fill:transparent]",
         // The inset is 3px, and it is the ONLY thing between the track's edge
         // and a tab's fill — which is why there is no height here.
         //
@@ -123,7 +172,34 @@ function TabsList({ className, ...rest }: TabsListProps) {
         variant === "ghost" && "w-fit",
         className,
       )}
-    />
+    >
+      {/* One indicator per list (Tabs motion sheet). Base UI writes the
+          selected tab's box as --active-tab-* and keeps it `hidden` until the
+          layout is measured, then shows it already in place — so its first
+          placement never animates; only a change does. */}
+      <BaseTabs.Indicator
+        ref={indicatorRef}
+        data-slot="tabs-indicator"
+        {...(isSliding ? { "data-sliding": "" } : {})}
+        onTransitionEnd={settle}
+        onTransitionCancel={settle}
+        className={cn(
+          "absolute top-0 left-0 bg-selected",
+          "h-(--active-tab-height) w-(--active-tab-width)",
+          "translate-x-(--active-tab-left) translate-y-(--active-tab-top)",
+          // A move settles without overshoot: a rounded pill that passes its
+          // target dips its corners and reads as a wobble.
+          // Only while sliding (see TabsRoot): a resize is simply followed.
+          // The duration and curve are gated too — `transition-property`'s
+          // initial value is `all`, so a duration alone animates everything.
+          "data-sliding:transition-[translate,width,height] data-sliding:duration-(--ui-duration-base) data-sliding:ease-(--ui-ease-out)",
+          variant === "enclosed" ? ENCLOSED_RADIUS : "rounded-md",
+          // At Reduced the indicator steps aside; the tabs paint their own.
+          "motion-reduce:hidden",
+        )}
+      />
+      {children}
+    </BaseTabs.List>
   );
 }
 
@@ -145,13 +221,20 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
       data-slot="tabs-tab"
       data-variant={variant}
       className={cn(
-        "flex min-h-6 items-center gap-xs px-sm py-xs",
+        // `relative` puts the label above the indicator, which is absolute
+        // and earlier in the list.
+        "relative flex min-h-6 items-center gap-xs px-sm py-xs",
         "text-button-sm font-body whitespace-nowrap",
-        "transition-[background-color,color]", motionMicro,
+        // At Full only the ink transitions: the fill is the indicator's, and
+        // its hand-over from the tab must be instant — same colour, same
+        // place. A fade there animated nothing visible and made the at-rest
+        // screenshot depend on when it was taken. At Reduced the tab paints
+        // its own fill again, and that cross-fade is the selection's motion.
+        "transition-[color] motion-reduce:transition-[background-color,color]", motionMicro,
         "text-ink-muted",
         // Enclosed divides the track evenly and centres each label; ghost sizes
         // to its content and sits left, because there is no track to divide.
-        variant === "enclosed" ? "flex-1 rounded-[max(0px,calc(var(--ui-radius-md)-3px-var(--ui-stroke-hairline)))]" : "rounded-md",
+        variant === "enclosed" ? cn("flex-1", ENCLOSED_RADIUS) : "rounded-md",
         orientation === "horizontal" ? "justify-center" : "self-stretch",
         // `bg-selected`, not `bg-sunken`. The sheet draws the selected tab
         // DARKER than its track, and "recessed" is a relative role: below the
@@ -161,7 +244,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
         // whichever direction the scheme reads — 1.19 in light, unchanged from
         // the drawing, and 1.19 in dark on the 2026-11-03 warm-ink ramp (1.68
         // on the old mid-grey one, where bg-sunken measured 1.10).
-        "aria-selected:bg-selected aria-selected:text-ink-primary",
+        "aria-selected:bg-(--tabs-selected-fill) aria-selected:text-ink-primary",
         !isDisabled && "cursor-pointer not-aria-selected:hover:text-ink-secondary",
         // `aria-disabled:`, NOT `disabled:`. Base UI's Tab renders
         // `aria-disabled="true"` and `data-disabled` and never sets the native
@@ -223,7 +306,19 @@ function TabsPanel({ value, isAlwaysMounted = false, className, ...rest }: TabsP
       value={value}
       keepMounted={isAlwaysMounted}
       data-slot="tabs-panel"
-      className={cn("focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none", className)}
+      className={cn(
+        // The panel arrives from the side of the tab picked
+        // (data-activation-direction), --ui-space-sm × --ui-motion-travel,
+        // fading in on the same clock. `none` is the first render: a page
+        // never opens with its panel sliding in. No blur (decided). The old
+        // panel leaves at once, so two never share the frame.
+        "transition-[opacity,translate] duration-(--ui-duration-base) ease-(--ui-ease-out)",
+        "not-data-[activation-direction=none]:starting:opacity-0",
+        "data-[activation-direction=right]:starting:translate-x-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "data-[activation-direction=left]:starting:-translate-x-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "data-[activation-direction=down]:starting:translate-y-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "data-[activation-direction=up]:starting:-translate-y-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none", className)}
     />
   );
 }

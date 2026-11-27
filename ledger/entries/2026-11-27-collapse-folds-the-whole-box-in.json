@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-collapse-folds-the-whole-box-in",
+  "date": "2026-11-27",
+  "item": "presence",
+  "kind": "fix",
+  "summary": "collapse folds the whole box, in one motion. Raised by the maintainer as 'laggy'; measured per frame on the site example: a removed row faded for 120ms, then its height dropped only to 17px — with border-box sizing, height 0 stops at padding + border — sat there invisible for ~170ms and vanished in one jump; an added row ran to the height of its squeezed box (24px of 48) and snapped the rest. Now height, vertical padding, border and margin are measured at rest and fold together; leaving, the fade (fast) and the fold (base) start at the same moment; arriving, the fold starts at once and the fade half a fast step later. Four tests shown failing first (17px stall, 24-of-49 arrival, the delayed fold, the arrival's order). No API change.",
+  "affects": []
+}

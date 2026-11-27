@@ -188,7 +188,11 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
 
   "--ui-ease-default": "cubic-bezier(0.2, 0, 0, 1)",
   "--ui-ease-in": "cubic-bezier(0.4, 0, 1, 1)",
-  "--ui-ease-out": "cubic-bezier(0, 0, 0.2, 1)",
+  // Retuned by ADR 0030 from (0, 0, 0.2, 1), which covered 58% of the way at
+  // a quarter of its duration and 84% at half: a 200ms move read like 300ms.
+  // This curve covers 76% and 96% — the one transitions.dev, bencho and
+  // animate-ui each arrived at independently. Durations are unchanged.
+  "--ui-ease-out": "cubic-bezier(0.22, 1, 0.36, 1)",
   // A real spring since ADR 0028 §7 (decided 2026-11-26): a damped spring,
   // damping ratio 0.75, sampled at 41 points, settled within 0.1% by the end
   // of whatever duration it runs over. It passes its target by 2.8% just after
@@ -229,8 +233,15 @@ export const FIXED_TOKEN_VALUES: Record<FixedToken, string> = {
   "--ui-press-scale": "0.96",
   // Delay between semantic chunks of a staged entrance. Staged entrances are
   // for infrequent moments (first load, success, empty states) — never for
-  // routine, high-frequency interactions.
-  "--ui-stagger-step": "100ms",
+  // routine, high-frequency interactions. 40ms since ADR 0030 (was 100ms):
+  // a stagger you feel rather than one you wait through, the value all three
+  // reference libraries use. Stagger's six-item cap now lands in 200ms.
+  "--ui-stagger-step": "40ms",
+  // The beat of a COMPUTED, repeating animation — StatusMatrix's shared clock,
+  // the home page's plates. Split from --ui-stagger-step by ADR 0030, which
+  // had been both: retuning the stagger would have run every matrix 2.5×
+  // faster. 0 at Reduced and Off, so a clock that reads it does not start.
+  "--ui-tick": "100ms",
 
   // Control sizing (ADR 0020 §4) — the DEFAULT density. Heights are the
   // drawn ladders, now named: actions 24/32/44, fields 32/40/48. An inset is
@@ -349,6 +360,7 @@ const FULL_MOTION = {
   "--ui-motion-travel": FIXED_TOKEN_VALUES["--ui-motion-travel"],
   "--ui-enter-scale": FIXED_TOKEN_VALUES["--ui-enter-scale"],
   "--ui-stagger-step": FIXED_TOKEN_VALUES["--ui-stagger-step"],
+  "--ui-tick": FIXED_TOKEN_VALUES["--ui-tick"],
 } as const satisfies Partial<Record<FixedToken, string>>;
 
 export type MotionLevelToken = keyof typeof FULL_MOTION;
@@ -365,6 +377,7 @@ export const MOTION_LEVELS: Record<MotionLevelName, Record<MotionLevelToken, str
     "--ui-motion-travel": "0",
     "--ui-enter-scale": "1",
     "--ui-stagger-step": "0ms",
+    "--ui-tick": "0ms",
   },
   off: {
     "--ui-motion-level": "off",
@@ -376,6 +389,7 @@ export const MOTION_LEVELS: Record<MotionLevelName, Record<MotionLevelToken, str
     "--ui-motion-travel": "0",
     "--ui-enter-scale": "1",
     "--ui-stagger-step": "0ms",
+    "--ui-tick": "0ms",
   },
 };
 

@@ -1,5 +1,5 @@
 {
-  "sourceHash": "9c1646ded5eece9b884f0b9c81b83ad06bdbc487b415789258a23a9c1247a9a6",
+  "sourceHash": "e8f5a36b9b4345ccef896b9387de3331b16468db897e6a744c09b1425fadec43",
   "categories": [
     "Actions",
     "Forms",
@@ -21318,7 +21318,7 @@
         "lead": "Animates content as it arrives and leaves, and keeps leaving content on screen until it has gone.",
         "name": "Presence",
         "status": "experimental",
-        "summary": "The first of ADR 0028's owned motion components. A wrapper with no element and no look of its own: each keyed child is an item, and Presence gives every arrival and exit in an app the same timing. Three kinds — fade (the default), rise (fade plus a lift of --ui-space-xs, for content landing in a stream), collapse (the item's height opens and folds, for rows in a list, so nothing below jumps). Arrivals run on --ui-duration-base with --ui-ease-out through CSS @starting-style; exits fade on --ui-duration-fast and never travel; collapse fades first and then folds, the change then the fold. A removed child stays rendered — inert, aria-hidden, its last content — until its exit's transitions finish, and focus inside it moves to a neighbour first. Items present on the first render do not animate unless `appear` is set. Everything is a CSS transition on the motion tokens, so the motion levels need no code here, and a child added back mid-exit turns around from the frame it is on. Base UI surfaces (Popover, Modal, Sheet, Toast…) already own their presence and are not wrapped.",
+        "summary": "The first of ADR 0028's owned motion components. A wrapper with no element and no look of its own: each keyed child is an item, and Presence gives every arrival and exit in an app the same timing. Three kinds — fade (the default), rise (fade plus a lift of --ui-space-xs, for content landing in a stream), collapse (the whole box opens and folds — height, vertical padding, border and margin — for rows in a list, so nothing below jumps). Arrivals run on --ui-duration-base with --ui-ease-out through CSS @starting-style; exits fade on --ui-duration-fast and never travel; collapse fades and folds together, so the list closes over the row in one motion. A removed child stays rendered — inert, aria-hidden, its last content — until its exit's transitions finish, and focus inside it moves to a neighbour first. Items present on the first render do not animate unless `appear` is set. Everything is a CSS transition on the motion tokens, so the motion levels need no code here, and a child added back mid-exit turns around from the frame it is on. Base UI surfaces (Popover, Modal, Sheet, Toast…) already own their presence and are not wrapped.",
         "anatomy": [
           {
             "part": "presence",
@@ -21373,7 +21373,7 @@
           "ref": "Not accepted on Presence. An item's own ref is preserved and merged with the one Presence attaches.",
           "props": "Presence takes only kind, appear and children. Everything else belongs on the items."
         },
-        "motion": "Everything is a CSS transition on the tokens, never a keyframe, so a reversed change turns around mid-flight. Arrival: --ui-duration-base, --ui-ease-out, from @starting-style (opacity 0; rise also translate --ui-space-xs × --ui-motion-travel; collapse also height 0, measured and set inline). Exit: opacity on --ui-duration-fast, nothing travels; collapse then folds its height on --ui-duration-base, delayed by fast. Motion levels (ADR 0028): at Reduced rise becomes a plain fade (travel 0) and collapse still eases, being change in place, capped at --ui-duration-base; at Off every duration is 1ms, and a leaving item is still removed only once that 1ms transition has finished, never synchronously. Removal waits for the item's OWN transitions, never its subtree, where a spinner never finishes.",
+        "motion": "Everything is a CSS transition on the tokens, never a keyframe, so a reversed change turns around mid-flight. Arrival: --ui-duration-base, --ui-ease-out, from @starting-style (opacity 0; rise also translate --ui-space-xs × --ui-motion-travel; collapse also its box closed — height, vertical padding, border and margin, measured at rest and set inline — with the fade half a fast step behind the fold, so the room opens before the content shows). Exit: opacity on --ui-duration-fast, nothing travels; collapse folds its whole box on --ui-duration-base at the same moment, never after the fade. Height alone cannot fold a padded row: with border-box sizing it stops at padding + border. Motion levels (ADR 0028): at Reduced rise becomes a plain fade (travel 0) and collapse still eases, being change in place, capped at --ui-duration-base; at Off every duration is 1ms, and a leaving item is still removed only once that 1ms transition has finished, never synchronously. Removal waits for the item's OWN transitions, never its subtree, where a spinner never finishes.",
         "needsDesign": [],
         "knownGaps": [
           "The Presence sheet drew collapse's height as a wrapper animating grid-template-rows. Built instead as the item's own height, measured and set inline: a wrapper element inside a <ul> is invalid HTML, and Presence promises no element of its own. The sheet's Fold row records the change.",
@@ -21431,6 +21431,15 @@
             "gate:check-utilities",
             "item:motion-component"
           ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-collapse-folds-the-whole-box-in",
+          "date": "2026-11-27",
+          "item": "presence",
+          "kind": "fix",
+          "summary": "collapse folds the whole box, in one motion. Raised by the maintainer as 'laggy'; measured per frame on the site example: a removed row faded for 120ms, then its height dropped only to 17px — with border-box sizing, height 0 stops at padding + border — sat there invisible for ~170ms and vanished in one jump; an added row ran to the height of its squeezed box (24px of 48) and snapped the rest. Now height, vertical padding, border and margin are measured at rest and fold together; leaving, the fade (fast) and the fold (base) start at the same moment; arriving, the fold starts at once and the fade half a fast step later. Four tests shown failing first (17px stall, 24-of-49 arrival, the delayed fold, the arrival's order). No API change.",
+          "affects": []
         },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
@@ -26247,6 +26256,21 @@
           "provenance": {
             "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49S3-1"
           }
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-adr-0030-accepted-ui-ease-out",
+          "date": "2026-11-27",
+          "item": "system",
+          "kind": "token",
+          "summary": "ADR 0030 (accepted): --ui-ease-out is cubic-bezier(0.22, 1, 0.36, 1), was (0, 0, 0.2, 1) — the old curve covered 58% of its journey at a quarter of its duration and 84% at half, so a 200ms move read like ~300ms; the new one covers 76% and 96%, the curve transitions.dev, bencho and animate-ui each use. Durations unchanged. --ui-stagger-step is 40ms, was 100ms: Stagger's six-item cap lands in 200ms instead of 500ms. New --ui-tick (100ms, 0 at Reduced and Off) carries the beat of computed repeating animations — StatusMatrix's shared clock and the home plates — which had been reading the stagger step and would otherwise have run 2.5x faster. A brand that slowed StatusMatrix through --ui-stagger-step retunes --ui-tick instead. Literal curve assertions (Button, Thumbnail, Toast, the token emitter) and the design-component filmstrip helper's default now name the new curve.",
+          "affects": [
+            "decision:0030-motion-curve-and-tempo",
+            "decision:0028-motion-levels-and-primitives",
+            "item:status-matrix",
+            "item:stagger",
+            "item:theme-zero"
+          ]
         }
       ]
     },
@@ -26779,7 +26803,7 @@
           "ref": "root — an SVGSVGElement; there is no inner control",
           "rest": "root — every SVG attribute except children, role and viewBox, which the component owns"
         },
-        "motion": "A JavaScript tick, because the frames are computed rather than keyed: one shared clock steps every moving matrix on the page together, at --ui-stagger-step (100ms) divided by --ui-fx-ambient-speed — the effects layer's one knob for every ambient loop, read as 1 where that layer is not loaded — so two matrices can never beat against each other. A loop is 10 or 20 ticks — 1000ms or 2000ms at the default step. The 20-tick loop matches --ui-duration-loop at that step, but it is counted in ticks rather than read from that token, so a brand that retunes the step retunes the loop with it. The subscription lives as long as the matrix moves: a status or value change rewrites what the next tick draws instead of re-subscribing, so updates arriving faster than a tick cannot stall the clock. Each dot's opacity and fill then transition on --ui-duration-fast — Typing on --ui-duration-base — which is what turns the four discrete levels into a soft phosphor trail. The first render is the key frame (the frame the sheet draws), and motion continues from it after mount. An ending arrived at draws on — Done a cell a tick along its stroke, Failed from the centre out, Stopped in one — and then the clock lets go of it; an ending MOUNTED is already drawn. `isHeld` and prefers-reduced-motion both render the key frame and never subscribe: the clock is JavaScript, which the token layer's duration collapse cannot reach, so the component asks the media query itself. A page without --ui-stagger-step gets a still matrix rather than an invented tempo. Motion levels (ADR 0028): the clock asks motionLevel() at its own matrix and runs only at `full`, so a region set quieter than the page holds its matrix on the key frame.",
+        "motion": "A JavaScript tick, because the frames are computed rather than keyed: one shared clock steps every moving matrix on the page together, at --ui-tick (100ms) divided by --ui-fx-ambient-speed — the effects layer's one knob for every ambient loop, read as 1 where that layer is not loaded — so two matrices can never beat against each other. A loop is 10 or 20 ticks — 1000ms or 2000ms at the default step. The 20-tick loop matches --ui-duration-loop at that step, but it is counted in ticks rather than read from that token, so a brand that retunes the step retunes the loop with it. The subscription lives as long as the matrix moves: a status or value change rewrites what the next tick draws instead of re-subscribing, so updates arriving faster than a tick cannot stall the clock. Each dot's opacity and fill then transition on --ui-duration-fast — Typing on --ui-duration-base — which is what turns the four discrete levels into a soft phosphor trail. The first render is the key frame (the frame the sheet draws), and motion continues from it after mount. An ending arrived at draws on — Done a cell a tick along its stroke, Failed from the centre out, Stopped in one — and then the clock lets go of it; an ending MOUNTED is already drawn. `isHeld` and prefers-reduced-motion both render the key frame and never subscribe: the clock is JavaScript, which the token layer's duration collapse cannot reach, so the component asks the media query itself. A page without --ui-tick gets a still matrix rather than an invented tempo. Motion levels (ADR 0028): the clock asks motionLevel() at its own matrix and runs only at `full`, so a region set quieter than the page holds its matrix on the key frame.",
         "needsDesign": [
           "Listening (the voice variant) is on the sheet but not here: its bars should follow a real input level, and a component that takes a level per tick is a different API from a status. Built when a voice surface exists to drive it.",
           "No 32px or 48px size: the sheet draws those as specimens only, and no composition places the matrix above 16px."
@@ -26849,6 +26873,21 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-adr-0030-accepted-ui-ease-out",
+          "date": "2026-11-27",
+          "item": "system",
+          "kind": "token",
+          "summary": "ADR 0030 (accepted): --ui-ease-out is cubic-bezier(0.22, 1, 0.36, 1), was (0, 0, 0.2, 1) — the old curve covered 58% of its journey at a quarter of its duration and 84% at half, so a 200ms move read like ~300ms; the new one covers 76% and 96%, the curve transitions.dev, bencho and animate-ui each use. Durations unchanged. --ui-stagger-step is 40ms, was 100ms: Stagger's six-item cap lands in 200ms instead of 500ms. New --ui-tick (100ms, 0 at Reduced and Off) carries the beat of computed repeating animations — StatusMatrix's shared clock and the home plates — which had been reading the stagger step and would otherwise have run 2.5x faster. A brand that slowed StatusMatrix through --ui-stagger-step retunes --ui-tick instead. Literal curve assertions (Button, Thumbnail, Toast, the token emitter) and the design-component filmstrip helper's default now name the new curve.",
+          "affects": [
+            "decision:0030-motion-curve-and-tempo",
+            "decision:0028-motion-levels-and-primitives",
+            "item:status-matrix",
+            "item:stagger",
+            "item:theme-zero"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-12-statusmatrix-the-dot-matrix-status-mark",
@@ -28416,7 +28455,7 @@
           "The sheet gives the count only to the selected tab; the component allows it on any, which is the more useful behaviour but is not what is drawn.",
           "No Base UI Indicator (the sliding highlight); the sheet fills the selected tab instead."
         ],
-        "motion": "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
+        "motion": "Choosing a tab moves something (the Tabs motion sheet). One indicator per list carries the selected fill and slides to the new tab — translate and width on --ui-duration-base with --ui-ease-out, no overshoot — placed from Base UI's --active-tab-* variables, so there is no measuring of ours. It slides only for a choice: a change of selection (click, keyboard or a controlled value) opens the transition and the slide's end closes it, so a resize, a reflow or a web font arriving is simply followed, and its first placement never animates (Base UI keeps it hidden until the layout is measured). While it is shown the tabs stop painting their own fill, and the hand-over is instant; only their ink changes, at --ui-duration-fast. The new panel enters --ui-space-sm × --ui-motion-travel from the side of the tab picked (data-activation-direction) and fades in on base; the first panel on load is simply there, and the old panel leaves at once. No blur. At Reduced the indicator steps aside and each tab paints its own fill again, crossing on fast, and panels only fade; at Off both are instant. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0"
       },
       "files": [
@@ -28475,6 +28514,15 @@
       "changes": [
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-the-indicator-slides-only-for-a",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "fix",
+          "summary": "The indicator slides only for a choice. CI's at-rest Tabs screenshot differed by 3-80 corner pixels between runs of the same commit, for two reasons, each shown failing first: the selected tab's own fill faded out over --ui-duration-fast when the indicator appeared (same colour, same place, nothing visible, but a screenshot could catch it), and the indicator glided whenever the tab was re-measured — a web font arriving, a resize, a reflow — animating something nobody chose. The hand-over is now instant (at Full only the ink transitions; the fill's transition applies at Reduced), and a change of selection opens the slide's transition window, which the slide's end closes.",
+          "affects": []
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-27-tabs-a-changing-count-moves-through",
           "date": "2026-11-27",
           "item": "tabs",
@@ -28484,6 +28532,15 @@
             "item:tabs",
             "item:count"
           ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-choosing-a-tab-moves-something-raised",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "visual",
+          "summary": "Choosing a tab moves something. Raised by the maintainer ('the tabs only fade, and their change should rather indicate movement'); designed on the Tabs motion sheet first. One indicator per list (Base UI's Tabs.Indicator, placed from its --active-tab-* variables) carries the selected fill and slides to the new tab on --ui-duration-base with --ui-ease-out; its first placement never animates. While it is shown the tabs stop painting their own fill (a --tabs-selected-fill variable, so no class fights another); only the ink changes. A new panel enters --ui-space-sm x --ui-motion-travel from the side of the tab picked and fades in; the first panel on load does not animate. No blur (decided). At Reduced the indicator steps aside and each tab paints its own fill again; panels only fade. Static HTML is unchanged: before hydration the indicator is hidden and the tab paints its fill as before. Tests shown failing first; the panel tests were shown failing again with the entrance classes removed.",
+          "affects": []
         },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",

@@ -255,7 +255,8 @@ function keyFrame(signal: Signal, ink: Ink): Screen {
 // a store: it holds no data, only the set of matrices waiting for the next
 // tick, and it stops when that set is empty.
 //
-// The tick is `--ui-stagger-step`, read once from the first matrix to
+// The tick is `--ui-tick` (its own token since ADR 0030; it was the stagger
+// step), read once from the first matrix to
 // subscribe. A brand that retunes the token retunes the tempo; a page with no
 // token gets a still matrix rather than an invented number.
 
@@ -267,14 +268,14 @@ let last = 0;
 let carry = 0;
 
 /**
- * The tick: `--ui-stagger-step` divided by `--ui-fx-ambient-speed`, the one
+ * The tick: `--ui-tick` divided by `--ui-fx-ambient-speed`, the one
  * knob that moves every ambient loop together (0.5 calm, 1.7 expressive). The
  * speed belongs to the effects layer and is absent where that layer is not
  * loaded, which reads as 1.
  */
 function readTick(el: Element): number {
   const style = getComputedStyle(el);
-  const raw = style.getPropertyValue("--ui-stagger-step").trim();
+  const raw = style.getPropertyValue("--ui-tick").trim();
   const n = Number.parseFloat(raw);
   if (!Number.isFinite(n) || n <= 0) return 0;
   const ms = raw.endsWith("ms") ? n : raw.endsWith("s") ? n * 1000 : 0;

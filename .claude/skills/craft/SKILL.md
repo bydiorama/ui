@@ -81,6 +81,14 @@ What feels off at 10% speed is what is subtly wrong at full speed.
     handled at the token layer (`--ui-motion-travel` and `--ui-enter-scale`
     for anything that enters or leaves); JS-driven animation asks
     `motionLevel()` explicitly.
+11a. **Seamless means front-loaded, short and single.** One strong ease-out
+    (`--ui-ease-out`, ADR 0030) for anything that settles; exits shorter than
+    entries and never delayed; the fade shorter than the move; 4–12px of
+    travel and never a scale from 0; a selection is one element travelling,
+    not two fills cross-fading; new content enters from the side of what was
+    chosen; a leaving row fades while its list closes, in one motion. A height
+    animation folds the padding with it, or the element stalls at its padding
+    and jumps shut.
 
 ### Icons
 

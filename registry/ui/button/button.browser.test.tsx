@@ -294,7 +294,7 @@ describe("Button motion and focus are real, not just declared", () => {
     const button = mount(<Button>Create New</Button>);
     const style = getComputedStyle(button);
     expect(style.transitionDuration).toBe("0.12s");
-    expect(style.transitionTimingFunction).toBe("cubic-bezier(0, 0, 0.2, 1)");
+    expect(style.transitionTimingFunction).toBe("cubic-bezier(0.22, 1, 0.36, 1)");
   });
 
   test("keyboard focus paints a visible ring", async () => {

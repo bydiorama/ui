@@ -58,6 +58,9 @@ layer at rest (`craft` rule 23). Assert `filter: none` at rest.
 | A fold restarting mid-flight | An effect that depends on neighbour data re-runs whenever a sibling changes. Keep such values in a ref; depend only on the item's own state |
 | An item added back mid-exit vanishes | The merge must turn `leaving` back to `present` for a returning key, and a size animation must transition from its CURRENT inline value |
 | The caller's inline style erased | The component owns the properties it animates on the item. Say so in the doc and the `dont` list; an inline height on a collapsing item is overwritten |
+| A height fold that stalls, then jumps shut | With border-box sizing `height: 0` stops at padding + border (Presence's collapse sat at 17px for ~170ms, then vanished). Fold height, vertical padding, border and margin together, measured at rest BEFORE closing the box — or put the padding on an inner element. `check:motion` flags a class string that transitions height beside `py-*` without padding |
+| A selection that cross-fades between two fills | One shared element should travel (Tabs: Base UI's `Tabs.Indicator` and its `--active-tab-*` variables). Hide the items' own fill only while the indicator is shown, through a variable rather than a competing class, so static HTML and Reduced keep the per-item fill. Base UI keeps the indicator `hidden` until measured, so its first placement never animates |
+| A panel or item that slides in on page load | `@starting-style` applies to an element's first style too. Gate the entrance on something that is only true after a change — Tabs uses `not-data-[activation-direction=none]:starting:` |
 | Removal at Off happening synchronously | Off is 1ms, not 0, precisely so there is still an animation to wait for and a same-frame reversal still works |
 
 ## Measuring motion in Chromium

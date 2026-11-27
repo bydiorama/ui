@@ -67,6 +67,32 @@ enters or leaves, so it replaces a snippet for those cases:
   it, so put no other transition or snippet on the same element.
 - Never wrap a Popover, Modal, Sheet, Drawer, Select, Menu or Toast — they
   animate themselves.
+- `collapse` folds the row's whole box — height, vertical padding, border
+  and margin — so padded rows close smoothly. A height animation of your
+  own needs the same: a padded element animated on `height` alone stalls at
+  its padding and then jumps shut.
+
+## What makes motion feel seamless
+
+The practices transitions.dev, bencho and animate-ui agree on, as the tokens
+carry them here (ADR 0030; `craft` rule 11a has the short form):
+
+- **One strong ease-out for anything that settles.** `--ui-ease-out` covers
+  three-quarters of its journey in the first quarter of its time. Moves
+  (indicators, heights) never overshoot; `--ui-ease-spring` is for entrances.
+- **Exits are shorter than entries and never delayed.** Arrive on
+  `--ui-duration-base`, leave on `--ui-duration-fast`.
+- **Opacity finishes first.** When something moves and fades, the fade is
+  the shorter of the two, so motion never ends on a half-transparent object.
+- **Small distances, never from zero.** Content travels 4–12px
+  (`--ui-space-xs`/`sm` × `--ui-motion-travel`); surfaces scale from
+  `--ui-enter-scale`, never from 0. Blur (2px) only softens a swap or a slide.
+- **A selection is one object moving,** not two fills cross-fading — Tabs'
+  indicator. **Direction carries meaning:** new content comes from the side
+  of what was chosen; Count moves digits with the value's sign.
+- **One gesture, one motion.** A row leaving fades while the list closes
+  over it, not one after the other. Stagger 40ms (`--ui-stagger-step`),
+  capped, never for repeated actions.
 
 ## The motion levels, and a motion setting in the app
 

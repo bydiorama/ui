@@ -105,7 +105,12 @@ export async function checkPreviews(page, base, artifacts) {
     const before = Number(await slider.getAttribute("aria-valuenow"));
     await slider.focus();
     await page.keyboard.press("ArrowRight");
-    assert(Number(await slider.getAttribute("aria-valuenow")) > before, `${name}: keyboard changes the value`);
+    // Read until the value moves, up to a second: on a loaded runner the
+    // commit can land after an immediate read (CI on 5179750), and the claim
+    // is that the key changes the value, not that it does so synchronously.
+    const after = async () => Number(await slider.getAttribute("aria-valuenow"));
+    for (let i = 0; i < 20 && !((await after()) > before); i++) await page.waitForTimeout(50);
+    assert((await after()) > before, `${name}: keyboard changes the value`);
   }
   await visit("card-sorting");
   const handle = page.getByRole("button", { name: /Reorder Research/ });

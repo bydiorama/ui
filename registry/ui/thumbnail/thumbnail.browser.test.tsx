@@ -312,7 +312,7 @@ describe("Thumbnail.Group", () => {
     // four reads as a snap.
     expect(style.transitionProperty).toContain("margin-inline-start");
     expect(style.transitionDuration).toBe("0.32s");
-    expect(style.transitionTimingFunction).toBe("cubic-bezier(0, 0, 0.2, 1)");
+    expect(style.transitionTimingFunction).toBe("cubic-bezier(0.22, 1, 0.36, 1)");
   });
 
   test("max hides the rest behind a counter that says how many", () => {

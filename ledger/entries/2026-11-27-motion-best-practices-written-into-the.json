@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-motion-best-practices-written-into-the",
+  "date": "2026-11-27",
+  "item": "system",
+  "kind": "decision",
+  "summary": "Motion best practices written into the skills, from a study of transitions.dev, bencho and animate-ui. craft (shipped) gains rule 11a — seamless means front-loaded, short and single: one strong ease-out, exits shorter and never delayed, the fade shorter than the move, 4-12px of travel and no scale from 0, a selection is one element travelling, content enters from the side chosen, a leaving row fades while its list closes. app-motion (shipped) gains the long form and the padded-height note on Presence collapse. motion-component gains three traps paid for this round (the padded height fold, the cross-fading selection, entrances that play on page load); design-component gains the canvas color-mix() trap. check:motion now fails a class string that transitions height beside vertical padding without transitioning the padding — shown failing on a scratch file, and passing on the library.",
+  "affects": []
+}

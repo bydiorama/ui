@@ -135,6 +135,18 @@ const LEVEL_SOURCE = "registry/lib/motion/motion.ts";
 const ENTER_EXIT_TRAVEL = /(?:data-\[(?:starting|ending)-style\]|\bstarting)[\w\-\[\]=:]*:-?(?:scale|translate-[xy])-\S+/g;
 const TRAVEL_TOKEN = /--ui-(?:motion-travel|enter-scale)\b/;
 
+/**
+ * A height transition on an element that also holds vertical padding (ADR
+ * 0030 study). With border-box sizing `height: 0` stops at padding + border,
+ * so the fold stalls there and the element then vanishes in one jump —
+ * measured on Presence's collapse at 17px. Fold the padding with the height,
+ * or put the padding on an inner element. Matched per class string, so it sees
+ * the element whose own classes say both.
+ */
+const HEIGHT_TRANSITION = /\btransition-height\b|\btransition-\[[^\]]*\bheight\b[^\]]*\]/;
+const VERTICAL_PADDING = /(?:^|\s)(?:[\w-]+:)*(?:p|py|pt|pb)-(?!0\b)\S+/;
+const PADDING_TRANSITION = /\btransition-\[[^\]]*\bpadding/;
+
 /** Anything that moves. Used to decide whether a doc owes a `motion:` note. */
 const ANIMATES = [
   /\btransition-(?!none\b)[a-z[]/,
@@ -262,6 +274,15 @@ for (const dir of ["registry/ui", "registry/blocks", "registry/lib", "registry/h
           `${rel}: \`${utility}\` moves an entering or leaving surface by a literal amount, which ` +
             `\`reduced\` cannot take away. Write a scale as scale-(--ui-enter-scale) and a slide ` +
             `against --ui-motion-travel, e.g. translate-y-[calc(100%*var(--ui-motion-travel))] (ADR 0028).`,
+        );
+      }
+
+      if (HEIGHT_TRANSITION.test(literal) && VERTICAL_PADDING.test(literal) && !PADDING_TRANSITION.test(literal)) {
+        errors.push(
+          `${rel}: transitions height on an element that also holds vertical padding. With ` +
+            `border-box sizing height 0 stops at padding + border, so the fold stalls there and ` +
+            `then jumps shut. Transition padding-top and padding-bottom with the height, or move ` +
+            `the padding to an inner element (Presence's collapse, ADR 0030 study).`,
         );
       }
 

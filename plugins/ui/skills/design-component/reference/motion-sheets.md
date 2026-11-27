@@ -24,8 +24,8 @@ sheet buildable without a single guessed number. The neighbouring
 Every opacity, offset and height in a strip comes from the curve:
 
 ```bash
-node scripts/motion-frames.mjs --curve "0, 0, .2, 1" --duration 200 --frames 5
-node scripts/motion-frames.mjs --curve "0, 0, .2, 1" --duration 200 --delay 120 --from 40 --to 0
+node scripts/motion-frames.mjs --curve "0.22, 1, 0.36, 1" --duration 200 --frames 5
+node scripts/motion-frames.mjs --curve "0.22, 1, 0.36, 1" --duration 200 --delay 120 --from 40 --to 0
 node scripts/motion-frames.mjs --spring 0.75   # a damped spring as a linear() easing
 ```
 

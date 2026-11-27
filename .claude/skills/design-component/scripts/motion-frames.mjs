@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Motion values for a sheet, computed rather than drawn by eye.
 //
-//   node motion-frames.mjs --curve "0, 0, .2, 1" --duration 200 [--frames 5] [--from 0 --to 1] [--delay 0]
+//   node motion-frames.mjs --curve "0.22, 1, 0.36, 1" --duration 200 [--frames 5] [--from 0 --to 1] [--delay 0]
 //       Frame values along a cubic-bezier (the four numbers of a --ui-ease-* token):
 //       time, eased progress, and the interpolated value at each frame.
 //
@@ -66,7 +66,7 @@ if (flag("spring") !== undefined) {
   console.log(`damping ${damping} · stiffness ${round(omega, 1)} · overshoot ${round((peak - 1) * 100, 1)}% at ${round(values.indexOf(peak) / (points - 1), 2)} · 90% at ${at90}`);
   console.log(`linear(${values.map((v, i) => (i === 0 ? "0" : String(round(v)))).join(", ")})`);
 } else {
-  const curve = String(flag("curve", "0, 0, .2, 1")).replace(/^cubic-bezier\(|\)$/g, "").split(",").map(Number);
+  const curve = String(flag("curve", "0.22, 1, 0.36, 1")).replace(/^cubic-bezier\(|\)$/g, "").split(",").map(Number);
   if (curve.length !== 4 || curve.some(Number.isNaN)) throw new Error('--curve takes the four numbers of a cubic-bezier, e.g. "0, 0, .2, 1"');
   const ease = cubicBezier(...curve);
   const duration = Number(flag("duration", 200));

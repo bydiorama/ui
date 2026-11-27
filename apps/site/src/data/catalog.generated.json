@@ -1,5 +1,5 @@
 {
-  "sourceHash": "cde5c65f13efc1bd066be3edea95ab00e9c65b57fe0b15010b24459b772d2251",
+  "sourceHash": "365e73451649a20ffb57bf6d1586bbc7f54997c7aedd970ac82f88bba1f1eb21",
   "categories": [
     "Actions",
     "Forms",
@@ -14335,6 +14335,108 @@
             "registry:fade",
             "design:component-fade"
           ]
+        }
+      ]
+    },
+    {
+      "name": "feedback",
+      "title": "Feedback",
+      "type": "ui",
+      "category": "Utilities",
+      "status": "experimental",
+      "lead": "The one-shots that answer an action: a shake that says no and a check that is written in.",
+      "docs": {
+        "lead": "The one-shots that answer an action: a shake that says no and a check that is written in.",
+        "name": "Feedback",
+        "status": "experimental",
+        "summary": "The last of ADR 0028's six owned motion components. useShake() returns a ref and a shake(): three decaying swings of 4 → 2.5 → 1px (multiples of --ui-space-xs) over --ui-duration-slow, each segment on --ui-ease-default, played once through the Web Animations API so it replays on demand. As JS-driven motion it asks motionLevel() and does nothing below Full — the shake is travel, and the field's danger outline and message carry the error. SuccessCheck is the shared Check glyph written in left to right — a clip-path wipe on --ui-duration-slow with --ui-ease-out — when it mounts; at Reduced it fades in whole, at Off it is there. Every number was decided with the maintainer (2026-11-27). Both sit beside a static cue: motion is never the only feedback channel (CONVENTIONS §8).",
+        "anatomy": [
+          {
+            "part": "shake",
+            "slot": "the caller's",
+            "notes": "useShake() renders nothing: its ref goes on the element that says no — the field or the form, not the label — and shake() animates that element's translate once. The element keeps its own classes and styles; an inline translate on it is overwritten while the shake runs."
+          },
+          {
+            "part": "success check",
+            "slot": "success-check",
+            "notes": "An aria-hidden inline span holding the shared Check glyph, 16px and text-success by default. Its clip-path opens from the left as it arrives; at rest the clip shows all of it."
+          }
+        ],
+        "composition": "\nuseShake<T>() → { ref, shake }\nSuccessCheck — data-slot=\"success-check\", aria-hidden\n└── Check (griddy-icons)\n\nconst { ref, shake } = useShake<HTMLInputElement>();\n<Input ref={ref} isInvalid={wrong} />\n// on a rejected submit:  shake();\n\n{saved && <span className=\"flex items-center gap-xs\"><SuccessCheck /> Saved</span>}\n",
+        "props": {
+          "className": {
+            "type": "string",
+            "notes": "SuccessCheck: lands on the span, merged last — size-5 to resize, text-* to recolour."
+          }
+        },
+        "do": [
+          "Shake only when the answer is no to something the person just did: a wrong code, a rejected submit.",
+          "Keep the static cue: the danger outline and message for a shake, a label beside the check.",
+          "Render SuccessCheck when success happens; it plays on mount."
+        ],
+        "dont": [
+          "Shake to draw attention to something the person did not just do, or on every keystroke.",
+          "Use a check or a shake as the only feedback — both are decorative.",
+          "Loop either. They are one-shots; a loop is the effects layer's job."
+        ],
+        "a11y": {
+          "role": "None. SuccessCheck is aria-hidden; useShake adds no element.",
+          "name": "Never Feedback's: the field's error message and the label beside the check carry the meaning.",
+          "keyboard": [],
+          "focus": "Unaffected — the shake moves the field without moving focus.",
+          "contrastPairs": [],
+          "rendersNoColour": "The shake paints nothing. SuccessCheck's glyph is decorative and sits beside its own label, which declares the text pair; its default ink is the library's success colour, as every success glyph uses."
+        },
+        "forwarding": {
+          "className": "SuccessCheck: lands on the span. useShake: not applicable.",
+          "ref": "SuccessCheck: the span. useShake returns a ref for the caller's element.",
+          "props": "SuccessCheck: native span attributes; aria-hidden is fixed."
+        },
+        "motion": "Shake: a Web Animation of translate through calc(var(--ui-space-xs) × 0, −1, 1, −0.625, 0.625, −0.25, 0) — evenly spaced, each segment on --ui-ease-default — over --ui-duration-slow; a second call restarts it. It runs only at Full (motionLevel()). SuccessCheck: a CSS transition from @starting-style — at Full clip-path inset(0 100% 0 0) → inset(0) on --ui-duration-slow with --ui-ease-out (motion-safe:); at Reduced opacity 0 → 1 on the slow token, which Reduced caps at base (motion-reduce:); at Off 1ms.",
+        "needsDesign": [],
+        "knownGaps": [
+          "Built from a sheet the maintainer has not reviewed yet; its four open decisions were made with them.",
+          "Decided 'stroke draws on' is a clip-path wipe: dashed strokes and private glyphs are banned by gates. It reads the same; a true stroke draw would need an exemption in both."
+        ],
+        "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49XU-1"
+      },
+      "files": [
+        {
+          "path": "registry/ui/feedback/feedback.tsx",
+          "target": "ui/feedback.tsx"
+        },
+        {
+          "path": "registry/ui/feedback/feedback.doc.ts",
+          "target": "ui/feedback.doc.ts"
+        }
+      ],
+      "dependencies": [
+        "griddy-icons@^0.2.0"
+      ],
+      "registryDependencies": [
+        "cn",
+        "data-slot",
+        "motion"
+      ],
+      "contrast": [],
+      "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-feedback-a-shake-that-says-no",
+          "date": "2026-11-27",
+          "item": "feedback",
+          "kind": "addition",
+          "summary": "New experimental item feedback — the last of ADR 0028's six owned motion components, so §6 is complete. useShake<T>() returns a ref and a shake(): three decaying swings of 4 → 2.5 → 1px (calc(var(--ui-space-xs) × k), so it follows the token) over --ui-duration-slow, each segment on --ui-ease-default, played once through the Web Animations API so it replays on demand and a second call restarts it. As JS-driven motion it asks motionLevel() and does nothing below Full: the shake is travel, and the field's danger outline and message carry the error. SuccessCheck is the shared griddy-icons Check, 16px and text-success by default, written in left to right with a clip-path wipe from @starting-style on --ui-duration-slow (motion-safe:); at Reduced it fades in whole on the slow token Reduced caps at base (motion-reduce:); at Off it is there. All four open decisions were made with the maintainer (2026-11-27): shake size and rhythm, nothing extra at Reduced, a check that draws on, and Stagger's cap. 'Draws on' became a clip-path wipe because check:strokes bans stroke-dasharray and check:icons private glyphs. Three probes (shake ignoring the level, no decay, a fade at Full) each failed their named test.",
+          "affects": [
+            "item:feedback",
+            "item:app-motion",
+            "item:motion-component",
+            "item:motion",
+            "decision:0028-motion-levels-and-primitives"
+          ],
+          "provenance": {
+            "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49XU-1"
+          }
         }
       ]
     },

@@ -39,6 +39,7 @@ import { TextSwap } from "@/ui/text-swap/text-swap.tsx";
 import { IconSwap } from "@/ui/icon-swap/icon-swap.tsx";
 import { Count } from "@/ui/count/count.tsx";
 import { Stagger } from "@/ui/stagger/stagger.tsx";
+import { SuccessCheck } from "@/ui/feedback/feedback.tsx";
 import { Avatar } from "@/ui/avatar/avatar.tsx";
 import { Badge } from "@/ui/badge/badge.tsx";
 import { MediaToggle } from "@/ui/media-toggle/media-toggle.tsx";
@@ -1672,6 +1673,20 @@ const CASES: Array<{
         <div className="relative h-16 overflow-clip rounded-md bg-sunken">
           <DotPattern className="text-edge-default" />
         </div>
+      </div>
+    ),
+  },
+  {
+    name: "feedback",
+    // The REST state of the success check, drawn in full: at its default size
+    // beside a label, larger, and recoloured. A baseline catches a wipe that
+    // never opened (a clipped tick) or a glyph off its line. The shake has no
+    // rest state of its own — the field after it is the field.
+    ui: (
+      <div className="flex items-center gap-lg text-label-md text-ink-primary">
+        <span className="flex items-center gap-xs"><SuccessCheck /> Verified</span>
+        <SuccessCheck className="size-6" />
+        <SuccessCheck className="size-6 text-ink-primary" />
       </div>
     ),
   },

@@ -60,6 +60,14 @@ export const utilities = {
       <div className="motif-stagger-row" data-state="waiting"><i /></div>
     </div>
   ),
+  // Both one-shots, from the Feedback sheet: a code field caught at its first
+  // swing (4px left), and a check 58% written beside its label.
+  feedback: () => (
+    <div className="motif-feedback">
+      <span className="motif-feedback-field">48213</span>
+      <span className="motif-feedback-done"><span className="motif-feedback-check"><Check aria-hidden="true" /></span>Verified</span>
+    </div>
+  ),
   presence: () => (
     <div className="motif-presence">
       <div className="motif-presence-row"><span>Set the grid</span></div>

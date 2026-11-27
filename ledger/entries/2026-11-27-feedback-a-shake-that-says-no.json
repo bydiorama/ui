@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-feedback-a-shake-that-says-no",
+  "date": "2026-11-27",
+  "item": "feedback",
+  "kind": "addition",
+  "summary": "New experimental item feedback — the last of ADR 0028's six owned motion components, so §6 is complete. useShake<T>() returns a ref and a shake(): three decaying swings of 4 → 2.5 → 1px (calc(var(--ui-space-xs) × k), so it follows the token) over --ui-duration-slow, each segment on --ui-ease-default, played once through the Web Animations API so it replays on demand and a second call restarts it. As JS-driven motion it asks motionLevel() and does nothing below Full: the shake is travel, and the field's danger outline and message carry the error. SuccessCheck is the shared griddy-icons Check, 16px and text-success by default, written in left to right with a clip-path wipe from @starting-style on --ui-duration-slow (motion-safe:); at Reduced it fades in whole on the slow token Reduced caps at base (motion-reduce:); at Off it is there. All four open decisions were made with the maintainer (2026-11-27): shake size and rhythm, nothing extra at Reduced, a check that draws on, and Stagger's cap. 'Draws on' became a clip-path wipe because check:strokes bans stroke-dasharray and check:icons private glyphs. Three probes (shake ignoring the level, no decay, a fade at Full) each failed their named test.",
+  "affects": [
+    "item:feedback",
+    "item:app-motion",
+    "item:motion-component",
+    "item:motion",
+    "decision:0028-motion-levels-and-primitives"
+  ],
+  "provenance": {
+    "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/p-14-0/49XU-1"
+  }
+}

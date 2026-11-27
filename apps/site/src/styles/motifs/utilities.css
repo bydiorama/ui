@@ -10,44 +10,30 @@
 .motif-fade-row span:last-child { color: var(--ui-text-muted); }
 .motif-fade-veil { position: absolute; left: -8px; right: -8px; top: 40px; height: 100px; background: linear-gradient(in oklab 180deg, color-mix(in oklab, var(--ui-bg-base) 0%, transparent) 0%, var(--ui-bg-base) 80%); }
 
-.motif-presence { display: flex; flex-direction: column; gap: 8px; width: 196px; font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0; }
-.motif-presence-row { display: flex; align-items: center; height: 28px; padding-inline: 10px; overflow: clip; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--ui-border-subtle); }
 /* The frames the Presence sheet draws: arriving at opacity .58 and 1.7px of
    its 4px rise; leaving after its fade, its height half folded. */
-.motif-presence-row[data-state="entering"] { opacity: 0.58; translate: 0 1.7px; }
-.motif-presence-row[data-state="leaving"] { opacity: 0.16; height: 14px; }
-.motif-presence-line { display: block; width: 96px; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); }
 
-.motif-text-swap { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0; }
-.motif-text-swap-button { position: relative; display: flex; align-items: center; height: 32px; padding-inline: 12px; overflow: clip; border-radius: var(--ui-radius-md); background: var(--ui-bg-accent); color: var(--ui-text-on-accent); }
-/* 50ms into Save changes → Saved, from the Text Swap sheet: 75px wide. */
-.motif-text-swap-button[data-state="swapping"] { width: 75px; }
-.motif-text-swap-old { position: absolute; left: 12px; top: 13px; width: 75px; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-on-accent); opacity: 0.23; }
+/* Motion motifs: before → after, both at rest (see utilities.tsx). */
+.motif-change { display: flex; align-items: center; gap: 10px; }
+.motif-change-arrow { flex-shrink: 0; width: 14px; height: 14px; color: var(--ui-text-muted); }
 
-.motif-icon-swap { display: flex; align-items: center; gap: 12px; }
+.motif-text-swap-button { display: flex; align-items: center; height: 30px; padding-inline: 12px; border-radius: var(--ui-radius-md); background: var(--ui-bg-accent); color: var(--ui-text-on-accent); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0; white-space: nowrap; }
+
 .motif-icon-swap-button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--ui-radius-md); background: var(--ui-bg-accent); color: var(--ui-text-on-accent); }
-.motif-icon-swap-button > svg { grid-area: 1 / 1; width: 16px; height: 16px; }
-/* 50ms into Copy → Copied, from the Icon Swap sheet. */
-.motif-icon-swap-old { opacity: 0.23; scale: 0.85; filter: blur(1.5px); }
-.motif-icon-swap-new { opacity: 0.58; scale: 0.92; filter: blur(0.8px); }
+.motif-icon-swap-button > svg { width: 16px; height: 16px; }
 
-.motif-count { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--ui-border-subtle); border-radius: var(--ui-radius-md); background: var(--ui-bg-surface); }
+.motif-count { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; border: 1px solid var(--ui-border-subtle); border-radius: var(--ui-radius-md); background: var(--ui-bg-surface); }
 .motif-count-label { font-size: 12px; line-height: 16px; color: var(--ui-text-muted); }
-.motif-count-value { font-size: 22px; line-height: 28px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ui-text-primary); }
-.motif-count-changed { position: relative; display: inline-block; translate: 0 1.7px; }
-/* 50ms into 1,249 → 1,250: the leaving 4 and 9, drawn as a bar. */
-.motif-count-old { position: absolute; inset: 11px 0 auto; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); opacity: 0.23; }
+.motif-count-value { font-size: 20px; line-height: 26px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ui-text-primary); }
 
-.motif-stagger { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 220px; }
-.motif-stagger-row { display: flex; align-items: center; height: 28px; padding-inline: 12px; border: 1px solid var(--ui-border-subtle); border-radius: var(--ui-radius-md); background: var(--ui-bg-surface); font-size: 12px; line-height: 16px; font-weight: 500; color: var(--ui-text-primary); }
-.motif-stagger-row > i { display: block; width: 60%; height: 6px; border-radius: var(--ui-radius-full); background: var(--ui-text-primary); }
-/* 300ms into the sheet's strip: the third row 0.84 in and 0.6px low, the fourth not yet started. */
-.motif-stagger-row[data-state="entering"] { opacity: 0.84; translate: 0 0.6px; }
-.motif-stagger-row[data-state="waiting"] { opacity: 0; }
+.motif-list { display: flex; flex-direction: column; gap: 5px; width: 76px; }
+.motif-list > span { display: flex; align-items: center; height: 24px; padding-inline: 8px; border-radius: var(--ui-radius-sm); box-shadow: inset 0 0 0 1px var(--ui-border-subtle); background: var(--ui-bg-surface); font-size: 10px; line-height: 12px; font-weight: 500; letter-spacing: 0; color: var(--ui-text-primary); white-space: nowrap; overflow: clip; }
+.motif-list > span[data-state="new"] { box-shadow: inset 0 0 0 1px var(--ui-bg-accent-legible); }
+.motif-list[data-state="empty"] { height: 82px; border-radius: var(--ui-radius-sm); box-shadow: inset 0 0 0 1px var(--ui-border-subtle); }
 
 .motif-feedback { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; font-size: 12px; line-height: 16px; color: var(--ui-text-primary); }
-.motif-feedback-field { display: flex; align-items: center; width: 140px; height: 32px; padding-inline: 10px; border-radius: var(--ui-radius-md); box-shadow: inset 0 0 0 1px var(--ui-intent-danger-fg); translate: -4px 0; }
-.motif-feedback-done { display: flex; align-items: center; gap: 4px; font-weight: 500; }
-/* 80ms into the wipe: 58% of the tick written. */
-.motif-feedback-check { display: inline-flex; width: 16px; height: 16px; color: var(--ui-intent-success-fg); clip-path: inset(0 42% 0 0); }
-.motif-feedback-check > svg { width: 100%; height: 100%; }
+.motif-feedback-field { display: flex; align-items: center; width: 76px; height: 30px; padding-inline: 10px; border-radius: var(--ui-radius-md); box-shadow: inset 0 0 0 1px var(--ui-border-default); font-variant-numeric: tabular-nums; }
+.motif-feedback-field[data-state="error"] { box-shadow: inset 0 0 0 1px var(--ui-intent-danger-fg); }
+.motif-feedback-done { display: flex; align-items: center; gap: 4px; height: 30px; font-weight: 500; white-space: nowrap; }
+.motif-feedback-check { width: 16px; height: 16px; color: var(--ui-intent-success-fg); }
+

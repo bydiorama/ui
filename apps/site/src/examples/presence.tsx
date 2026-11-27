@@ -9,7 +9,7 @@ export function Example() {
   const next = TASKS.find((task) => !tasks.includes(task));
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-md">
+    <div className="flex w-80 max-w-full flex-col gap-md">
       <ul className="flex flex-col rounded-md border border-edge-subtle bg-surface">
         <Presence kind="collapse">
           {tasks.map((task) => (

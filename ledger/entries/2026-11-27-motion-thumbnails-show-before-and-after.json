@@ -1,0 +1,13 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-motion-thumbnails-show-before-and-after",
+  "date": "2026-11-27",
+  "item": "system",
+  "kind": "fix",
+  "summary": "The six motion components' catalogue thumbnails (text-swap, icon-swap, count, presence, stagger, feedback) now draw the state BEFORE, an arrow, and the state AFTER — both at rest and at full opacity — instead of a frame caught mid-transition, which read as broken (half-faded words, clipped bars). Raised in review. Presence's live example on its detail page collapsed to an 8px column of single words: it used max-w-sm, which in this theme is --ui-space-sm, not Tailwind's container width — the trap Modal and Sheet document. It now takes an explicit w-80 max-w-full. check:utilities, which already rejects bare spacing steps on widths, scanned only registry/; it now scans apps/site/src/examples too, the code a consumer copies from a component page, and was shown failing on the Presence example before the fix.",
+  "affects": [
+    "item:presence",
+    "gate:check-utilities",
+    "item:motion-component"
+  ]
+}

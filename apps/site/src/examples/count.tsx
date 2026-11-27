@@ -7,7 +7,7 @@ export function Example() {
   return (
     <div className="flex items-center gap-md">
       <Count value={orders} className="text-title-lg text-ink-primary" />
-      <Button size="sm" variant="secondary" onClick={() => setOrders((n) => n + 1)}>
+      <Button variant="secondary" onClick={() => setOrders((n) => n + 1)}>
         New order
       </Button>
     </div>

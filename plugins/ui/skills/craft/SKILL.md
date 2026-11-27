@@ -91,6 +91,17 @@ What feels off at 10% speed is what is subtly wrong at full speed.
     optical weight. One stroke weight per surface — and in Diorama projects,
     `griddy-icons` only.
 
+### Control size
+
+13a. **Leave a Button at its default size (`md`) unless it sits inside
+    something already dense.** Size follows the control's role: `md` for
+    every action in a composition (a card, a form, a dialog footer, a list's
+    add button), `lg` for a page's primary action, `sm` only inside a dense
+    part (table cell, icon toolbar, chip row). "Secondary" is a variant, not
+    a size; a denser screen is `data-ui-density="compact"`, not `size="sm"`.
+    Small buttons by instinct are the most common way a new composition
+    looks cramped (ADR 0029).
+
 ### Hit areas
 
 14. **If it looks clickable, all of it is clickable.** No dead zones — a

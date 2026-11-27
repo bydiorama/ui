@@ -29,10 +29,10 @@ function Stepper({ start, step, label, onChange }: { start: number; step: number
         <span className="text-caption text-ink-muted">{label}</span>
         <Count value={value} className="text-title-lg text-ink-primary" />
       </div>
-      <Button size="sm" variant="secondary" onClick={() => move(-step)}>
+      <Button variant="secondary" onClick={() => move(-step)}>
         −{step}
       </Button>
-      <Button size="sm" variant="secondary" onClick={() => move(step)}>
+      <Button variant="secondary" onClick={() => move(step)}>
         +{step}
       </Button>
     </div>
@@ -57,7 +57,7 @@ export const Matrix: Story = {
       return (
         <div className="flex items-center gap-md">
           <Count value={value} locale="sk-SK" format={{ style: "currency", currency: "EUR" }} className="w-40 text-title-md text-ink-primary" />
-          <Button size="sm" variant="secondary" onClick={() => setValue((v) => Math.round((v + 37.25) * 100) / 100)}>
+          <Button variant="secondary" onClick={() => setValue((v) => Math.round((v + 37.25) * 100) / 100)}>
             Add item
           </Button>
         </div>
@@ -68,7 +68,7 @@ export const Matrix: Story = {
       return (
         <div className="flex items-center gap-md">
           <Count value={value} format={{ style: "percent" }} className="w-40 text-title-md text-ink-primary" />
-          <Button size="sm" variant="secondary" onClick={() => setValue((v) => (v >= 1 ? 0.42 : Math.min(1, v + 0.07)))}>
+          <Button variant="secondary" onClick={() => setValue((v) => (v >= 1 ? 0.42 : Math.min(1, v + 0.07)))}>
             Progress
           </Button>
         </div>

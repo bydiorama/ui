@@ -63,7 +63,7 @@ function StatusLine() {
       <p className="text-body-md text-ink-secondary">
         Josef Müller-Brockmann — Grid systems: <TextSwap className="text-ink-primary">{steps[step]!}</TextSwap>
       </p>
-      <Button size="sm" variant="ghost" onClick={() => setStep((s) => (s + 1) % steps.length)}>
+      <Button variant="ghost" onClick={() => setStep((s) => (s + 1) % steps.length)}>
         Next step
       </Button>
     </div>

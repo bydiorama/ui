@@ -1,5 +1,5 @@
 {
-  "sourceHash": "b542237ceb2bc213461c36e6073a2e012c4f5080b2091eec7c6e335cde31b579",
+  "sourceHash": "f119cdf3a464b4e0535453b865018d574e77dbbeba93046065fc93557adf7490",
   "categories": [
     "Actions",
     "Forms",
@@ -2219,9 +2219,12 @@
           "For a CTA that navigates, pass render={<a href=… />} (or the router's Link). In .astro or server templates, put buttonClassName({ variant, size }) on the <a> and add data-disabled/aria-disabled yourself if it can be disabled.",
           "Use isBusy for in-flight submits: it refuses a second activation AND keeps focus on the button for the round trip. It is the whole double-submit guard — migrating from a `loading` prop that implied disabled is a straight rename.",
           "Pass icons as slots so usage is visible at the call site.",
-          "Reach for size=\"lg\" on primary page actions — it is the only size at the 44px touch target."
+          "Reach for size=\"lg\" on primary page actions — it is the only size at the 44px touch target.",
+          "Leave size at md — the default — for a composition's actions: a card's, a form's, a dialog footer, a list's add button, a row's action in an ordinary list. Size follows the control's ROLE (ADR 0029).",
+          "Use size=\"sm\" only inside a part that is already dense by design: a table cell, an icon toolbar, a chip or tag row, a panel header's close."
         ],
         "dont": [
+          "Do not use size=\"sm\" to mark an action as secondary or quiet — that is variant's job (secondary, ghost). And do not use it to make a screen denser: set data-ui-density=\"compact\" on the region, which takes every size down 4px and keeps their hierarchy (ADR 0029).",
           "Do not use isDisabled to indicate loading; the control disappears from the tab order.",
           "Do not pair isDisabled with isBusy to stop a double submit — busy already refuses activation, and adding disabled only throws the keyboard user's focus away mid-submit.",
           "Do not rely on a click reaching onClick while busy (to cancel, say). A busy button swallows activation; a cancel action is a separate button.",
@@ -2521,6 +2524,21 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-adr-0029-proposed-a-button-s",
+          "date": "2026-11-27",
+          "item": "system",
+          "kind": "decision",
+          "summary": "Records ADR 0029 (proposed), raised by the maintainer: new compositions kept arriving with small buttons, every one an explicit size=\"sm\" on a component that already defaults to md. Nothing said when sm is right — the Button doc gave sizes and 'lg for primary page actions' — and the stories' 56 small Buttons taught the habit. The decision: size follows the control's ROLE — md for every action in a composition, lg for a page's primary action, sm only inside a part already dense by design (table cell, icon toolbar, chip row, panel-header close); 'secondary' is a variant, and a tighter screen is data-ui-density=\"compact\" (ADR 0020 §4, 0026), never size=\"sm\". Written into CONVENTIONS §7b, the Button doc's do/dont, the craft skill (shipped) and add-component. check:site-source now fails a <Button size=\"sm\"> in a live example without a 'size sm:' comment naming its dense part — shown failing on the four it found (Count, Presence ×2, Stagger), all moved to md, as were the utility buttons in the six motion components' stories.",
+          "affects": [
+            "decision:0029-button-size-follows-role",
+            "item:button",
+            "item:craft",
+            "item:add-component",
+            "gate:check-site-source"
+          ]
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-13-clarify-public-variant-guidance-without-maintenance",

@@ -68,7 +68,7 @@ export const Matrix: Story = {
       const [run, setRun] = useState(0);
       return (
         <div className="flex items-center gap-md">
-          <Button size="sm" variant="secondary" onClick={() => setRun((r) => r + 1)}>
+          <Button variant="secondary" onClick={() => setRun((r) => r + 1)}>
             Replay check
           </Button>
           <span key={run} className="flex items-center gap-md text-ink-primary">

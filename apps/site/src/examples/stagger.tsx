@@ -17,7 +17,7 @@ export function Example() {
           ))}
         </Stagger>
       </ul>
-      <Button size="sm" variant="secondary" onClick={() => setRun((r) => r + 1)}>
+      <Button variant="secondary" onClick={() => setRun((r) => r + 1)}>
         Replay
       </Button>
     </div>

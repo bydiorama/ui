@@ -22,7 +22,7 @@ function Replay({ children }: { children: (run: number) => ReactNode }) {
   const [run, setRun] = useState(0);
   return (
     <div className="flex flex-col items-start gap-md">
-      <Button size="sm" variant="secondary" onClick={() => setRun((r) => r + 1)}>
+      <Button variant="secondary" onClick={() => setRun((r) => r + 1)}>
         Replay
       </Button>
       <div key={run}>{children(run)}</div>

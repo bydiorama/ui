@@ -445,6 +445,24 @@ describe("Choosing a tab moves something (Tabs motion sheet)", () => {
     expect([...runs.seen.keys()]).toEqual([]);
   });
 
+  test("a layout change does not slide it: a resized tab is simply followed", async () => {
+    // A web font arriving or the layout reflowing re-measures the tab.
+    // Gliding there animates something nobody chose — and CI's at-rest
+    // screenshot caught exactly that glide while the font swapped in.
+    const c = mount(<Basic />);
+    await frames(3);
+    const runs = recordRuns(() => indicator());
+    c.style.width = "360px";
+    await frames(4);
+    for (const t of tabs()) t.style.fontSize = "18px";
+    await frames(4);
+    runs.stop();
+    expect([...runs.seen.keys()]).toEqual([]);
+    const a = indicator()!.getBoundingClientRect();
+    const b = tabs()[0]!.getBoundingClientRect();
+    expect([a.left, a.width, a.height].map(Math.round)).toEqual([b.left, b.width, b.height].map(Math.round));
+  });
+
   test("choosing another tab slides it there on --ui-duration-base with --ui-ease-out, from where it was", async () => {
     mount(<Basic />);
     await frames();
@@ -463,6 +481,28 @@ describe("Choosing a tab moves something (Tabs motion sheet)", () => {
     expect(Math.round(end.left)).toBe(Math.round(target.left));
     expect(Math.round(end.width)).toBe(Math.round(target.width));
     expect(Math.round(end.left)).not.toBe(Math.round(from));
+  });
+
+  test("the sliding window closes when the slide ends: a later resize is followed, a later choice slides again", async () => {
+    const c = mount(<Basic />);
+    await frames();
+    await userEvent.click(tabs()[1]!);
+    await frames(2);
+    await settled(indicator()!);
+    await frames(3);
+    expect(indicator()!.hasAttribute("data-sliding")).toBe(false);
+
+    let runs = recordRuns(() => indicator());
+    c.style.width = "380px";
+    await frames(4);
+    runs.stop();
+    expect([...runs.seen.keys()]).toEqual([]);
+
+    runs = recordRuns(() => indicator());
+    await userEvent.click(tabs()[2]!);
+    await frames(2);
+    runs.stop();
+    expect(runs.seen.has("translate")).toBe(true);
   });
 
   test("at Reduced the indicator steps aside and the selected tab paints its own fill", async () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
-import { createContext, useContext, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ComponentPropsWithoutRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 import { Count } from "@/ui/count";
@@ -20,9 +20,17 @@ export type TabsVariant = "enclosed" | "ghost";
  * combinations and a consumer writing `orientation` three times would get one
  * of them wrong. Root owns it; the parts read it.
  */
-const TabsShape = createContext<{ orientation: TabsOrientation; variant: TabsVariant }>({
+const TabsShape = createContext<{
+  orientation: TabsOrientation;
+  variant: TabsVariant;
+  /** True from a change of selection until the indicator's slide ends. */
+  isSliding: boolean;
+  endSlide: () => void;
+}>({
   orientation: "horizontal",
   variant: "enclosed",
+  isSliding: false,
+  endSlide: () => {},
 });
 
 export interface TabsProps extends OwnedSlot {
@@ -64,6 +72,19 @@ function TabsRoot({
   variant = "enclosed",
   className,
 }: TabsProps) {
+  // The indicator slides only for a CHOICE. A resize, a reflow or a web font
+  // arriving re-measures the tab too, and gliding there animated something
+  // nobody chose (CI's at-rest screenshot caught it mid-glide). So a change
+  // of selection opens a window for the transition, and the slide's end
+  // closes it.
+  const [isSliding, setSliding] = useState(false);
+  const previous = useRef(value);
+  useEffect(() => {
+    // A controlled value changed from outside, not through the tabs.
+    if (value !== undefined && previous.current !== undefined && value !== previous.current) setSliding(true);
+    previous.current = value;
+  }, [value]);
+  const endSlide = () => setSliding(false);
   return (
     <BaseTabs.Root
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTabs.Root>>({
@@ -71,9 +92,10 @@ function TabsRoot({
         ...(defaultValue !== undefined ? { defaultValue } : {}),
         // Narrowed from Base UI's (value, eventDetails) and its `any` value
         // type, so no third-party shape reaches the signature.
-        ...(onValueChange
-          ? { onValueChange: (next: unknown) => onValueChange(String(next)) }
-          : {}),
+        onValueChange: (next: unknown) => {
+          setSliding(true);
+          onValueChange?.(String(next));
+        },
         orientation,
         "data-slot": "tabs",
         "data-orientation": orientation,
@@ -81,7 +103,7 @@ function TabsRoot({
         className: cn("flex w-full flex-col gap-lg", className),
       })}
     >
-      <TabsShape.Provider value={{ orientation, variant }}>{children}</TabsShape.Provider>
+      <TabsShape.Provider value={{ orientation, variant, isSliding, endSlide }}>{children}</TabsShape.Provider>
     </BaseTabs.Root>
   );
 }
@@ -92,7 +114,23 @@ export type TabsListProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 const ENCLOSED_RADIUS = "rounded-[max(0px,calc(var(--ui-radius-md)-3px-var(--ui-stroke-hairline)))]";
 
 function TabsList({ className, children, ...rest }: TabsListProps) {
-  const { orientation, variant } = useContext(TabsShape);
+  const { orientation, variant, isSliding, endSlide } = useContext(TabsShape);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
+  useEffect(() => {
+    if (!isSliding) return;
+    // A choice that moves nothing (the same box, or Reduced where the
+    // indicator is hidden) starts no transition, so no end event comes.
+    // Two frames is when a started transition is visible to getAnimations().
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        if (!indicatorRef.current?.getAnimations().length) endSlide();
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isSliding, endSlide]);
+  const settle = (event: { currentTarget: HTMLElement }) => {
+    if (!event.currentTarget.getAnimations().some((a) => a.playState === "running")) endSlide();
+  };
   return (
     <BaseTabs.List
       {...forBaseUI<ComponentPropsWithoutRef<typeof BaseTabs.List>>(rest)}
@@ -140,14 +178,21 @@ function TabsList({ className, children, ...rest }: TabsListProps) {
           layout is measured, then shows it already in place — so its first
           placement never animates; only a change does. */}
       <BaseTabs.Indicator
+        ref={indicatorRef}
         data-slot="tabs-indicator"
+        {...(isSliding ? { "data-sliding": "" } : {})}
+        onTransitionEnd={settle}
+        onTransitionCancel={settle}
         className={cn(
           "absolute top-0 left-0 bg-selected",
           "h-(--active-tab-height) w-(--active-tab-width)",
           "translate-x-(--active-tab-left) translate-y-(--active-tab-top)",
           // A move settles without overshoot: a rounded pill that passes its
           // target dips its corners and reads as a wobble.
-          "transition-[translate,width,height] duration-(--ui-duration-base) ease-(--ui-ease-out)",
+          // Only while sliding (see TabsRoot): a resize is simply followed.
+          // The duration and curve are gated too — `transition-property`'s
+          // initial value is `all`, so a duration alone animates everything.
+          "data-sliding:transition-[translate,width,height] data-sliding:duration-(--ui-duration-base) data-sliding:ease-(--ui-ease-out)",
           variant === "enclosed" ? ENCLOSED_RADIUS : "rounded-md",
           // At Reduced the indicator steps aside; the tabs paint their own.
           "motion-reduce:hidden",

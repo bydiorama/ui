@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-the-indicator-slides-only-for-a",
+  "date": "2026-11-27",
+  "item": "tabs",
+  "kind": "fix",
+  "summary": "The indicator slides only for a choice. CI's at-rest Tabs screenshot differed by 3-80 corner pixels between runs of the same commit, for two reasons, each shown failing first: the selected tab's own fill faded out over --ui-duration-fast when the indicator appeared (same colour, same place, nothing visible, but a screenshot could catch it), and the indicator glided whenever the tab was re-measured — a web font arriving, a resize, a reflow — animating something nobody chose. The hand-over is now instant (at Full only the ink transitions; the fill's transition applies at Reduced), and a change of selection opens the slide's transition window, which the slide's end closes.",
+  "affects": []
+}

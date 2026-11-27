@@ -1,5 +1,5 @@
 {
-  "sourceHash": "ed77a896274c66dd28f90041907893d66e2d8de8da0a246e51942052add43c21",
+  "sourceHash": "e8f5a36b9b4345ccef896b9387de3331b16468db897e6a744c09b1425fadec43",
   "categories": [
     "Actions",
     "Forms",
@@ -28455,7 +28455,7 @@
           "The sheet gives the count only to the selected tab; the component allows it on any, which is the more useful behaviour but is not what is drawn.",
           "No Base UI Indicator (the sliding highlight); the sheet fills the selected tab instead."
         ],
-        "motion": "Choosing a tab moves something (the Tabs motion sheet). One indicator per list carries the selected fill and slides to the new tab — translate and width on --ui-duration-base with --ui-ease-out, no overshoot — placed from Base UI's --active-tab-* variables, so there is no measuring of ours. Its first placement never animates: Base UI keeps it hidden until the layout is measured and then shows it in place. While it is shown the tabs stop painting their own fill; only their ink changes, at --ui-duration-fast. The new panel enters --ui-space-sm × --ui-motion-travel from the side of the tab picked (data-activation-direction) and fades in on base; the first panel on load is simply there, and the old panel leaves at once. No blur. At Reduced the indicator steps aside and each tab paints its own fill again, crossing on fast, and panels only fade; at Off both are instant. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
+        "motion": "Choosing a tab moves something (the Tabs motion sheet). One indicator per list carries the selected fill and slides to the new tab — translate and width on --ui-duration-base with --ui-ease-out, no overshoot — placed from Base UI's --active-tab-* variables, so there is no measuring of ours. It slides only for a choice: a change of selection (click, keyboard or a controlled value) opens the transition and the slide's end closes it, so a resize, a reflow or a web font arriving is simply followed, and its first placement never animates (Base UI keeps it hidden until the layout is measured). While it is shown the tabs stop painting their own fill, and the hand-over is instant; only their ink changes, at --ui-duration-fast. The new panel enters --ui-space-sm × --ui-motion-travel from the side of the tab picked (data-activation-direction) and fades in on base; the first panel on load is simply there, and the old panel leaves at once. No blur. At Reduced the indicator steps aside and each tab paints its own fill again, crossing on fast, and panels only fade; at Off both are instant. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0"
       },
       "files": [
@@ -28512,6 +28512,15 @@
         }
       ],
       "changes": [
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-the-indicator-slides-only-for-a",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "fix",
+          "summary": "The indicator slides only for a choice. CI's at-rest Tabs screenshot differed by 3-80 corner pixels between runs of the same commit, for two reasons, each shown failing first: the selected tab's own fill faded out over --ui-duration-fast when the indicator appeared (same colour, same place, nothing visible, but a screenshot could catch it), and the indicator glided whenever the tab was re-measured — a web font arriving, a resize, a reflow — animating something nobody chose. The hand-over is now instant (at Full only the ink transitions; the fill's transition applies at Reduced), and a change of selection opens the slide's transition window, which the slide's end closes.",
+          "affects": []
+        },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
           "id": "2026-11-27-tabs-a-changing-count-moves-through",

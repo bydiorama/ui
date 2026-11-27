@@ -48,10 +48,11 @@
 .catalog-search:focus-within kbd { visibility: hidden; }
 
 .catalog-controls { display: flex; align-items: center; gap: 12px; }
-.catalog-segments { display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
-.catalog-segments button { display: flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0; height: 36px; padding-inline: 14px; border: 0; border-radius: var(--ui-radius-full); background: transparent; color: var(--ui-text-muted); font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; transition: background-color var(--ui-duration-fast) var(--ui-ease-default), color var(--ui-duration-fast) var(--ui-ease-default), box-shadow var(--ui-duration-fast) var(--ui-ease-default); }
+.catalog-segments { isolation: isolate; display: flex; align-items: center; gap: 2px; padding: 2px; border-radius: var(--ui-radius-full); background: var(--ui-bg-elevated); }
+.catalog-segments button { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; flex-shrink: 0; height: 36px; padding-inline: 14px; border: 0; border-radius: var(--ui-radius-full); background: transparent; color: var(--ui-text-muted); font-size: 13px; line-height: 16px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; transition: color var(--ui-motion-micro); }
 .catalog-segments button:hover { color: var(--ui-text-primary); }
-.catalog-segments button[aria-pressed="true"] { background: var(--ui-bg-base); color: var(--ui-text-primary); box-shadow: var(--motif-raise); }
+.catalog-segments button[aria-pressed="true"] { color: var(--ui-text-primary); }
+.catalog-segments .selection-fill { background: var(--ui-bg-base); box-shadow: var(--motif-raise); }
 .catalog-view button { width: 40px; padding: 0; }
 .catalog-track { justify-content: space-between; }
 .catalog-track button { padding-inline: 12px; }
@@ -74,12 +75,12 @@
 /* The whole tile is the link's target; its ring is the tile's. */
 /* The fill sits in the components layer so the fx layer's glass can lie over it (home.css has the note). */
 @layer components { .catalog-tile { background-color: var(--ui-bg-surface); } }
-.catalog-tile { position: relative; display: flex; flex-direction: column; min-width: 0; border-radius: 24px; transition: background-color var(--ui-duration-fast) var(--ui-ease-default); }
+.catalog-tile { position: relative; display: flex; flex-direction: column; min-width: 0; border-radius: 24px; transition: background-color var(--ui-motion-micro); }
 .catalog-tile:hover { background: var(--ui-bg-elevated); }
 .catalog-tile:has(a:focus-visible) { outline: var(--ui-focus-ring-width) solid var(--ui-border-focus); outline-offset: var(--ui-focus-ring-offset); }
 .catalog-tile-well { position: relative; display: flex; align-items: center; justify-content: center; height: 176px; margin: 8px 8px 0; border-radius: 16px; border: var(--ui-stroke-hairline) solid var(--ui-border-subtle); background: var(--ui-bg-base); overflow: clip; font-size: 13px; line-height: 16px; letter-spacing: -0.02em; color: var(--ui-text-primary); }
-.catalog-tile-well > * { flex-shrink: 0; transition: scale var(--ui-duration-base) var(--ui-ease-spring); }
-.catalog-tile:hover .catalog-tile-well > * { scale: 1.03; }
+.catalog-tile-well > * { flex-shrink: 0; transition: scale var(--ui-motion-standard); }
+.catalog-tile:hover .catalog-tile-well > * { scale: calc(1 + 0.03 * var(--ui-motion-travel)); }
 .catalog-tile-caption { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 16px 20px 20px; }
 .catalog-tile-title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
 .catalog-tile-title a { font-size: 16px; line-height: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--ui-text-primary); }

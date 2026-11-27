@@ -46,7 +46,7 @@ function LookTrigger() {
     <Popover>
       <Popover.Trigger render={<button type="button" className="look-trigger" aria-label={`Look: ${label}`} />}>
         <span className="look-swatch" aria-hidden="true" />
-        {label}
+        <TextSwap>{label}</TextSwap>
         <ChevronDown aria-hidden="true" />
       </Popover.Trigger>
       <Popover.Panel side="bottom" align="end" aria-label="Look" className="look-panel">

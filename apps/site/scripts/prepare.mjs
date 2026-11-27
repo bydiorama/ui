@@ -1,7 +1,7 @@
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import { resolveThemePair, toCss } from "../../../packages/tokens/src/index.ts";
+import { FIXED_TOKEN_VALUES, resolveThemePair, THEME_ZERO, toCss, ZERO_AUTHORED } from "../../../packages/tokens/src/index.ts";
 import { themePresets } from "../src/lib/theme-presets.ts";
 
 const site = new URL("../", import.meta.url);
@@ -22,12 +22,14 @@ for (const [name, seed] of Object.entries(themePresets)) {
   const pair = resolveThemePair(seed);
   css.push(toCss(pair, { scope: `[data-site-brand="${name}"]`, includeBase: false }));
 }
-// Zero is the page's base (theme-zero.css on :root), so it has no preset. A
-// Zero element inside another brand (a swatch in the look controls) still has
-// to paint Zero, not inherit the brand around it: the same :root block, scoped
-// to a nested element. `:not(html)` keeps the page itself on theme-zero.css.
-const zero = readFileSync(new URL("../../../registry/themes/theme-zero/theme-zero.css", import.meta.url), "utf8");
-const zeroRoot = /^:root \{[\s\S]*?^\}/m.exec(zero)?.[0];
-if (!zeroRoot) throw new Error("theme-zero.css has no :root block to scope");
-css.push(zeroRoot.replace(/^:root/, '[data-site-brand="zero"]:not(html)'));
+// A nested Zero swatch owns its brand, while density and motion still inherit.
+css.push(toCss(resolveThemePair(THEME_ZERO, { authored: ZERO_AUTHORED }), {
+  scope: '[data-site-brand="zero"]:not(html)', includeBase: false,
+}));
+// A timing pair resolves its var() references on the element that declares it.
+// Recompute it at local level boundaries so a quiet region gets its own durations.
+const intents = ["micro", "standard", "deliberate", "choreographed"].map(name => `--ui-motion-${name}`);
+css.push(`[data-ui-motion] {
+${intents.map(key => `  ${key}: ${FIXED_TOKEN_VALUES[key]};`).join("\n")}
+}`);
 writeFileSync(fileURLToPath(new URL("src/styles/presets.generated.css", site)), css.join("\n"));

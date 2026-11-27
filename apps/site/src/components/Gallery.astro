@@ -33,17 +33,17 @@ const statuses = ["All", "Stable", "Experimental"];
       </label>
       <div class="catalog-controls">
         <div class="catalog-segments" role="group" aria-label="Filter status">
-          {statuses.map(status => <button type="button" data-status-filter={status} aria-pressed={status === "All" ? "true" : "false"}>{status}</button>)}
+          {statuses.map(status => <button type="button" data-status-filter={status} aria-pressed={status === "All" ? "true" : "false"}><span class="selection-fill" aria-hidden="true"></span>{status}</button>)}
         </div>
         <div class="catalog-segments catalog-view" role="group" aria-label="View">
-          <button type="button" data-view="grid" aria-pressed="true" aria-label="Grid"><Grid size={16} aria-hidden="true" /></button>
-          <button type="button" data-view="list" aria-pressed="false" aria-label="List"><ListBulleted size={16} aria-hidden="true" /></button>
+          <button type="button" data-view="grid" aria-pressed="true" aria-label="Grid"><span class="selection-fill" aria-hidden="true"></span><Grid size={16} aria-hidden="true" /></button>
+          <button type="button" data-view="list" aria-pressed="false" aria-label="List"><span class="selection-fill" aria-hidden="true"></span><ListBulleted size={16} aria-hidden="true" /></button>
         </div>
       </div>
     </div>
     <div class="catalog-segments catalog-track" role="group" aria-label="Filter family">
-      <button type="button" data-category="All" aria-pressed="true">All<span aria-hidden="true">{total}</span></button>
-      {families.map(family => <button type="button" data-category={family.category} aria-pressed="false">{family.category}<span aria-hidden="true">{family.items.length}</span></button>)}
+      <button type="button" data-category="All" aria-pressed="true"><span class="selection-fill" aria-hidden="true"></span>All<span aria-hidden="true">{total}</span></button>
+      {families.map(family => <button type="button" data-category={family.category} aria-pressed="false"><span class="selection-fill" aria-hidden="true"></span>{family.category}<span aria-hidden="true">{family.items.length}</span></button>)}
     </div>
   </div>
 

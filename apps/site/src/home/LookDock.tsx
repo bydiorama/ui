@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { slideRadioSelection } from "../lib/site-motion";
 import { Drawer } from "@/ui/drawer";
 import { Switch } from "@/ui/switch";
 import { configureShaders, startShaders } from "@/lib/shader";
@@ -49,7 +50,11 @@ export function LookControls({ name = "look" }: { name?: string }) {
     <div className="look-options" role="radiogroup" aria-label="Look">
       {looks.map(look => (
         <label key={look.value} className="look-option" data-selected={appearance.brand === look.value ? "" : undefined}>
-          <input type="radio" name={name} value={look.value} checked={appearance.brand === look.value} onChange={() => setAppearance("brand", look.value)} />
+          <input type="radio" name={name} value={look.value} checked={appearance.brand === look.value} onChange={event => {
+            slideRadioSelection(event.currentTarget);
+            setAppearance("brand", look.value);
+          }} />
+          <span className="look-fill selection-fill" aria-hidden="true" />
           <span className="look-swatch" data-site-brand={look.value} aria-hidden="true" />
           {look.label}
         </label>

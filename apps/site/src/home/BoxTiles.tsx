@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { motionLevel, subscribeMotionLevel } from "@/lib/motion";
+import { durationOf, slideRadioSelection } from "../lib/site-motion";
 import { Button } from "@/ui/button";
 import { Card } from "@/ui/card";
 import { LineChart } from "@/ui/chart";
@@ -62,7 +64,11 @@ export function GradientPicker() {
     <div ref={picker} className="look-picker" role="radiogroup" aria-label="Gradient look">
       {looks.map(name => (
         <label key={name} className="look-picker-option" data-look={name} data-selected={look === name ? "" : undefined}>
-          <input type="radio" name="gradient-look" value={name} checked={look === name} onChange={() => setLook(name)} />
+          <input type="radio" name="gradient-look" value={name} checked={look === name} onChange={event => {
+            slideRadioSelection(event.currentTarget);
+            setLook(name);
+          }} />
+          <span className="selection-fill" aria-hidden="true" />
           <span className="look-picker-swatch" aria-hidden="true" />
           <span className="sr-only">{label(name)}</span>
         </label>
@@ -115,20 +121,22 @@ export function StatusMarksTile() {
   // Progress has no loop of its own: its value IS the animation. While it
   // plays, the value runs from empty to full, rests full, and starts again,
   // so the whole fill is seen. At rest it shows a part-filled meter.
+  const marksRef = useRef<HTMLUListElement>(null);
+  const level = useSyncExternalStore(subscribeMotionLevel, () => motionLevel(marksRef.current), () => "full");
   const [progress, setProgress] = useState(62);
   useEffect(() => {
     if (playing !== "progress") { setProgress(62); return; }
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setProgress(100); return; }
+    if (level !== "full" || !marksRef.current) { setProgress(100); return; }
     let value = 0;
     setProgress(0);
     const timer = window.setInterval(() => {
       value = value >= 130 ? 0 : value + 4; // 100…130 is the rest at full
       setProgress(Math.min(100, value));
-    }, 70);
+    }, durationOf(marksRef.current, "--ui-tick", 100));
     return () => window.clearInterval(timer);
-  }, [playing]);
+  }, [playing, level]);
   return (
-    <ul className="status-marks" aria-label="Status marks">
+    <ul ref={marksRef} className="status-marks" aria-label="Status marks">
       {marks.map(status => (
         <li key={status}>
           <button

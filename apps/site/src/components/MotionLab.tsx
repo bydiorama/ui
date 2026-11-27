@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { subscribeMotionLevel } from "@/lib/motion";
+import { TextSwap } from "@/ui/text-swap";
 import { Accordion } from "@/ui/accordion";
 import { Button } from "@/ui/button";
 import { RadioGroup, Radio } from "@/ui/radio";
@@ -41,7 +43,7 @@ export function MotionLab() {
   const [screen, setScreen] = useState<HTMLDivElement | null>(null);
   const [isSlow, setIsSlow] = useState(false);
   const [isBusy, setIsBusy] = useState(true);
-  useSlowPlayback(root, isSlow);
+  useSlowPlayback(root, isSlow && appearance.motion !== "off");
 
   return (
     <div className="motion-lab" ref={setRoot}>
@@ -116,8 +118,12 @@ export function MotionIntents() {
   const [values, setValues] = useState<Record<string, string>>({});
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const style = getComputedStyle(document.documentElement);
-    setValues(Object.fromEntries(INTENTS.map(({ token }) => [token, style.getPropertyValue(token).trim()])));
+    const sync = () => {
+      const style = getComputedStyle(ref.current ?? document.documentElement);
+      setValues(Object.fromEntries(INTENTS.map(({ token }) => [token, style.getPropertyValue(token).trim()])));
+    };
+    sync();
+    return subscribeMotionLevel(sync);
   }, []);
 
   return (
@@ -133,7 +139,7 @@ export function MotionIntents() {
           </li>
         ))}
       </ul>
-      <Button variant="secondary" onClick={() => setIsAtEnd(value => !value)}>{isAtEnd ? "Play back" : "Play"}</Button>
+      <Button variant="secondary" onClick={() => setIsAtEnd(value => !value)}><TextSwap>{isAtEnd ? "Play back" : "Play"}</TextSwap></Button>
     </div>
   );
 }

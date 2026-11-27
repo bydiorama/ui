@@ -154,7 +154,7 @@ function textClass(doc: Doc, role: Role): string {
     role === "heading" ? (style.bold ? "font-bold" : "font-[550]") : style.bold ? "font-semibold" : "font-normal",
     role === "heading" ? "tracking-tight" : "tracking-normal",
     style.caps && "uppercase",
-    "transition-colors",
+    "transition-[color]",
     motionMicro,
   );
 }

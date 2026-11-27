@@ -1,81 +1,44 @@
 <!--
-PR TITLE — GitHub has no title template, so the convention lives here:
+Title pattern: <Area>: <specific change or visible outcome>
+Use the component or layer a reviewer would search for, such as Tabs, Site,
+CLI, Docs, fx or ADR 0028. Include an ADR number when it explains the change.
 
-  <Area>: <what changed, imperative>
+Examples from merged PRs:
+  Site: the box's strip steps by centred arrows alone
+  CLI: send GITHUB_TOKEN to the GitHub API and explain a rate limit
 
-  Area = the item or layer: a component (Modal, Tabs, ColorPicker) · a lib
-         (fx, motion, cn) · Tokens · Theme · Skills · Registry · CLI ·
-         Visual · Tooling · Docs · ADR <number>
-
-  e.g.  Modal: centre by auto margins, not a translate, so hairlines paint evenly
-        fx: glass takes its thickness from the component's role
-        Visual: Linux baselines for the chat status cases
-        ADR 0022: propose glass by role and an opaque scope
-
-Consumers own copies of what ships here, so write the first two sections for
-someone deciding whether to re-sync, the rest for the reviewer. Delete a
-section that does not apply rather than leaving it empty.
+For a small site, docs or tooling PR, keep “What changed and why” and “Gates”.
+Keep the other sections where they help a consumer or reviewer.
 -->
 
 ## What changed and why
 
-<!-- Two or three sentences. The defect or need, and the decision taken. Link the issue, ADR or design-gap row it closes. -->
+<!-- Describe what someone encountered, why it happened, and what they will see now. Link the issue, design or earlier PR when it explains the decision. -->
 
 ## Consumers affected and migration
 
-<!--
-Which manifest items change (`ui.manifest.json`), and what an app that installed
-them must do on `sync`: nothing, re-sync, or a manual step. A changed prop,
-token, slot or data-slot is breaking even when the diff is small — say so.
--->
+<!-- For distributed changes, name the manifest items and what an app with a source copy needs to do. Call out breaking prop, token and slot changes. -->
 
 | Item | Change | What a consumer does |
 | --- | --- | --- |
-|  |  |  |
+| | | |
 
 ## Ledger entries
 
-<!-- One per distributed change (`pnpm ledger:new`), with real `affects`. "None — nothing distributed changed" is a valid answer; say why. -->
-
-- `ledger/entries/…`
+<!-- Link the entries for distributed changes. Check that each entry names the items it affects. -->
 
 ## Visual baselines
 
-<!--
-A visual change touches TWO baselines per case: `-chromium-darwin` (local) and
-`-chromium-linux` (CI). Regenerate the Linux half with the "Generate visual
-baselines" workflow (Actions → Generate visual baselines), download the
-artifact, LOOK at each PNG, then commit it — never copy darwin output. List
-every changed baseline; `git ls-files '*.png'` must show no -actual-/-diff- debris.
--->
-
-- [ ] No visual change
-- [ ] Baselines updated on **macOS** (`pnpm test:visual`, after deleting the stale PNGs)
-- [ ] Baselines updated on **Linux** via the workflow — run: <!-- link -->
+<!-- For changed registry visuals, identify the cases and schemes reviewed on macOS and Linux. Link the Generate visual baselines workflow run for Linux. For site visuals, describe the viewport, theme and interaction you checked. -->
 
 ## Design spec and geometry
 
-<!--
-The Paper node this implements (URL), and whether `design/paper/specs/<item>.geometry.json`
-and its case in `registry/visual/geometry.browser.test.tsx` were added or
-changed. No spec? Say the item is ungated, don't imply it passed.
-Anything the sheet could not answer goes into the doc's `needsDesign`.
--->
-
-- Paper:
-- Geometry spec:
+<!-- Link the Paper node, geometry spec and matching browser case where applicable. State which geometry is still unmeasured and record unresolved design questions in needsDesign. -->
 
 ## Gates
 
-- [ ] `pnpm verify` (manifest, registry freshness, ledger, licensing, skills, contrast, design spec, …)
-- [ ] `pnpm type-check` — the root project **and** Storybook's (stories only fail there)
-- [ ] `pnpm lint`
-- [ ] `pnpm test`
-- [ ] `pnpm test:browser` — interaction contracts and every story through axe
-- [ ] `pnpm test:visual` — both schemes
-- [ ] `pnpm registry:build` / `pnpm skills:build` re-run after manifest or skill edits; no hand edits to `registry.json`, `r/`, `.claude/skills/` or `plugins/ui/skills/`
-- [ ] A new or changed gate was shown to fail first (probe noted below)
+<!-- List the exact commands run, with results. Include pnpm verify and the relevant type, lint, browser, site or visual checks. Describe scoped runs and outstanding checks explicitly. For a new gate, give the probe that made it fail. -->
 
 ## Notes for the reviewer
 
-<!-- Probes run, measurements (computed style, getBoundingClientRect, contrast ratios), anything deferred and why. -->
+<!-- Give a short path to reproduce the original issue or inspect a design decision. Include measurements, screenshots or a known limitation when they help the reviewer decide. -->

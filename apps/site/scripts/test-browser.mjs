@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { chromium, webkit } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { checkAppearance, checkMotionSetting, openLooks, waitForAppearance } from "./appearance-checks.mjs";
+import { checkAppearance, checkHomeSelection, checkMotionSetting, checkSiteMotion, openLooks, waitForAppearance } from "./appearance-checks.mjs";
 import { checkPreviews } from "./preview-checks.mjs";
 
 const site = fileURLToPath(new URL("../", import.meta.url));
@@ -63,6 +63,7 @@ try {
   } else if (process.argv.includes("--appearance-only")) {
     await checkAppearance(page, base, artifacts);
     await checkMotionSetting(page, base);
+  await checkSiteMotion(page, base);
     assert.deepEqual(errors, []);
     console.log("Appearance rendering and combinations checked");
   } else {
@@ -100,6 +101,7 @@ try {
     await page.screenshot({ path: join(artifacts, `home-mobile-${scheme}.png`), fullPage: true });
     await page.setViewportSize({ width: 1280, height: 900 });
   }
+  await checkHomeSelection(page, base);
   // The live examples answer on their own pages (the home page and the
   // catalog show drawings and purpose-built tiles, not the examples).
   await visit(`${base}/components/button/`);
@@ -251,12 +253,13 @@ try {
         assert(await note.evaluate(button => document.getElementById(button.getAttribute("aria-controls"))?.classList.contains("props-note")), "The disclosure points at its note");
         if (width > 700) assert.deepEqual(await lanes(), before, "Opening details must not resize the lanes");
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+        await page.locator('.props-note-row[data-presence="present"]').waitFor();
         const violations = (await audit(page).analyze()).violations;
         assert.equal(violations.length, 0, `${name}: expanded API accessibility: ${violations.map(v => v.id).join(", ")}`);
         await page.screenshot({ path: join(artifacts, `${name}-details-${width}.png`) });
         await page.keyboard.press("Space");
         assert.equal(await note.getAttribute("aria-expanded"), "false");
-        assert.equal(await detail.count(), 0);
+        await detail.waitFor({ state: "hidden" });
         assert.equal(await note.evaluate(el => document.activeElement === el), true, "Closing details preserves focus");
       }
       await page.screenshot({ path: join(artifacts, `${name}-${width}.png`) });
@@ -302,7 +305,13 @@ try {
   await page.getByText("Use the shared tokens to bring your colours, type and shape into the system.", { exact: true }).waitFor();
   await page.setViewportSize({ width: 320, height: 640 });
   await visit(`${base}/components/button/`);
-  const phoneDock = await (await openLooks(page)).boundingBox();
+  const lookPanel = await openLooks(page);
+  // Reduced keeps the popover fade. Measure the settled geometry and ink.
+  await page.waitForFunction(() => {
+    const panel = document.querySelector(".look-panel");
+    return panel && !panel.hasAttribute("data-starting-style") && getComputedStyle(panel).opacity === "1";
+  });
+  const phoneDock = await lookPanel.boundingBox();
   assert(phoneDock && phoneDock.x >= 0 && phoneDock.x + phoneDock.width <= 320, "The look dock must fit the available viewport");
   const appearanceAudit = await audit(page).analyze();
   if (appearanceAudit.violations.length) errors.push(`Appearance: ${appearanceAudit.violations.map(v => `${v.id}: ${v.nodes.map(n => n.html).join("; ")}`).join(", ")}`);
@@ -314,6 +323,7 @@ try {
   await checkPreviews(page, base, artifacts);
   await checkAppearance(page, base, artifacts);
   await checkMotionSetting(page, base);
+  await checkSiteMotion(page, base);
   await context.close();
 
   const noJs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 800 } });

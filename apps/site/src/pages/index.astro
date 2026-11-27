@@ -224,7 +224,8 @@ const terminal = [
   // Scroll reveals, the hero reel and the header's scrolled state. Every
   // piece is presentation only: without this script the page is complete
   // and still.
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  import { motionLevel, subscribeMotionLevel } from "@/lib/motion";
+  import { durationOf } from "../lib/site-motion";
   const root = document.documentElement;
   root.dataset.motion = "ready";
 
@@ -254,14 +255,24 @@ const terminal = [
     let timer = 0;
     const tick = () => {
       set(index + 1, true);
-      if (index >= words * 2) window.setTimeout(() => set(index - words, false), 700);
     };
+    const wrap = () => {
+      if (index >= words * 2) set(index - words, false);
+    };
+    reel.querySelector(".hero-reel-track")?.addEventListener("transitionend", event => {
+      if (event.target === event.currentTarget && (event as TransitionEvent).propertyName === "translate") wrap();
+    });
     const run = () => {
       window.clearInterval(timer);
-      if (!reduce.matches && document.visibilityState === "visible") timer = window.setInterval(tick, 2600);
+      wrap();
+      if (motionLevel(reel) === "full" && !document.hidden) {
+        timer = window.setInterval(tick, durationOf(reel, "--ui-duration-loop", 2000));
+      } else {
+        set(index, false);
+      }
     };
     run();
-    reduce.addEventListener("change", run);
+    subscribeMotionLevel(run);
     document.addEventListener("visibilitychange", run);
   }
 
@@ -286,7 +297,7 @@ const terminal = [
     steps.forEach(step => step.addEventListener("click", () => {
       const all = tiles();
       const target = all[Math.max(0, Math.min(all.length - 1, current() + Number(step.dataset.boxStep)))];
-      target?.scrollIntoView({ behavior: reduce.matches ? "auto" : "smooth", inline: "start", block: "nearest" });
+      target?.scrollIntoView({ behavior: motionLevel(strip) === "full" ? "smooth" : "instant", inline: "start", block: "nearest" });
     }));
     update();
   }

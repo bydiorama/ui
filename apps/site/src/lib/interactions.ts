@@ -1,3 +1,5 @@
+import { slideSelection } from "./site-motion";
+
 document.querySelectorAll<HTMLElement>("[data-gallery]").forEach(gallery => {
   let category = "All";
   let status = "All";
@@ -25,18 +27,14 @@ document.querySelectorAll<HTMLElement>("[data-gallery]").forEach(gallery => {
     event.preventDefault();
     query.focus();
   });
-  gallery.querySelectorAll<HTMLButtonElement>("button[data-status-filter]").forEach(button => button.addEventListener("click", () => {
-    status = button.dataset.statusFilter ?? "All";
-    gallery.querySelectorAll<HTMLButtonElement>("button[data-status-filter]").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
-    update();
-  }));
-  gallery.querySelectorAll<HTMLButtonElement>("button[data-view]").forEach(button => button.addEventListener("click", () => {
-    gallery.dataset.view = button.dataset.view;
-    gallery.querySelectorAll<HTMLButtonElement>("button[data-view]").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
-  }));
-  gallery.querySelectorAll<HTMLButtonElement>("button[data-category]").forEach(button => button.addEventListener("click", () => {
-    category = button.dataset.category ?? "All";
-    gallery.querySelectorAll<HTMLButtonElement>("button[data-category]").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
+  gallery.querySelectorAll<HTMLButtonElement>(".catalog-segments button").forEach(button => button.addEventListener("click", () => {
+    const previous = button.parentElement?.querySelector<HTMLElement>('[aria-pressed="true"]') ?? null;
+    slideSelection(previous, button);
+    previous?.setAttribute("aria-pressed", "false");
+    button.setAttribute("aria-pressed", "true");
+    if (button.dataset.view) gallery.dataset.view = button.dataset.view;
+    if (button.dataset.statusFilter) status = button.dataset.statusFilter;
+    if (button.dataset.category) category = button.dataset.category;
     update();
   }));
 });

@@ -113,6 +113,11 @@ describe("each consumer's z-index IS its token", () => {
       </Menu>,
     );
     await userEvent.click(document.querySelector<HTMLElement>('[data-slot="menu-trigger"]')!);
+    // The panel mounts a render after the click resolves; on a loaded runner
+    // the query below can land first and read null.
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="menu-panel"]')).not.toBeNull(),
+    );
     // The z rides on Base UI's Positioner — the panel's parent; the popup
     // itself has no z of its own.
     const positioner = document.querySelector<HTMLElement>('[data-slot="menu-panel"]')!
@@ -135,6 +140,11 @@ describe("each consumer's z-index IS its token", () => {
     const items: SelectItem[] = [{ value: "design", label: "Design" }];
     mount(<Select label="Services" items={items} />);
     await userEvent.click(document.querySelector<HTMLElement>('[data-slot="select-trigger"]')!);
+    // The panel mounts a render after the click resolves; on a loaded runner
+    // the query below can land first and read null.
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-slot="select-panel"]')).not.toBeNull(),
+    );
     const positioner = document.querySelector<HTMLElement>('[data-slot="select-panel"]')!
       .parentElement!;
     expect(getComputedStyle(positioner).zIndex).toBe(zToken("dropdown"));

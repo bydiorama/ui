@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-keep-the-field-stationary-when-its",
+  "date": "2026-11-27",
+  "item": "multiselect",
+  "kind": "fix",
+  "summary": "Keep the field stationary when its options open.",
+  "affects": []
+}

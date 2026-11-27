@@ -1,6 +1,34 @@
 ---
-import Base from "../layouts/Base.astro";
+import Guide from "../layouts/Guide.astro";
 import { catalog } from "../lib/catalog";
 const changes = [...new Map(catalog.items.flatMap(item => item.changes.map(change => [change.id, { ...change, name: item.name, title: item.title }] as const))).values()].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+const months = new Map<string, typeof changes>();
+for (const change of changes) {
+  const month = change.date.slice(0, 7);
+  const entries = months.get(month);
+  if (entries) entries.push(change);
+  else months.set(month, [change]);
+}
+const monthLabel = new Intl.DateTimeFormat("en", { month: "long", year: "numeric", timeZone: "UTC" });
+const archive = Array.from(months.keys(), month => ({
+  href: `#month-${month}`,
+  label: monthLabel.format(new Date(`${month}-01T00:00:00Z`)),
+}));
 ---
-<Base title="Changelog"><article class="prose-page"><h1>The work keeps moving.</h1><p>Changes from the library’s ledger, with the component they affect. Read the source before bringing an update into code you have changed locally.</p>{changes.map(change => <section class="changelog-entry" id={change.id}><time datetime={change.date}>{change.date}</time><h2><a href={`/components/${change.name}/`}>{change.title}</a> · {change.kind}</h2><p>{change.summary}</p></section>)}</article></Base>
+<Guide title="Changelog" archive={archive}>
+  <p slot="intro">Changes from the library’s ledger, with the component they affect. Read the source before bringing an update into code you have changed locally.</p>
+  {Array.from(months, ([month, entries], index) => (
+    <section class="archive-month" id={`month-${month}`}>
+      <h2>{archive[index]!.label}</h2>
+      {entries.map(change => (
+        <article class="archive-entry" id={change.id}>
+          <time datetime={change.date}>{change.date}</time>
+          <div>
+            <header><h3><a href={`/components/${change.name}/`}>{change.title}</a></h3><span class="archive-kind">{change.kind}</span></header>
+            <p>{change.summary}</p>
+          </div>
+        </article>
+      ))}
+    </section>
+  ))}
+</Guide>

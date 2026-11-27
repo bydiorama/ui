@@ -195,6 +195,11 @@ try {
   assert.equal(await page.locator("html").getAttribute("data-ui-density"), "compact");
   assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme), "dark");
   await page.keyboard.press("Control+k");
+  // Audit the dialog once it has arrived. Under reduced motion it still fades
+  // in place (ADR 0028), and axe measuring mid-fade reads the results'
+  // translucent text as a contrast failure.
+  await page.getByRole("textbox", { name: "Search the library" }).waitFor();
+  await settled();
   const themed = await audit(page).analyze();
   if (themed.violations.length) errors.push(`Stress theme search: ${themed.violations.map(v => `${v.id}: ${v.nodes.map(n => n.html).join("; ")}`).join(", ")}`);
   await page.keyboard.press("Escape");

@@ -23,6 +23,63 @@ function mount(ui: ReactElement) {
 const tabs = () => Array.from(document.querySelectorAll<HTMLElement>('[data-slot="tabs-tab"]'));
 const panels = () => Array.from(document.querySelectorAll<HTMLElement>('[data-slot="tabs-panel"]'));
 
+const indicator = (scope: ParentNode = document) =>
+  scope.querySelector<HTMLElement>('[data-slot="tabs-indicator"]');
+/**
+ * Where the selected fill is painted: the indicator while it is shown (Full),
+ * else the selected tab itself (Reduced, Off, or before the layout settles).
+ */
+function selectedFill(scope: ParentNode = document) {
+  const ind = indicator(scope);
+  if (ind && getComputedStyle(ind).display !== "none") return getComputedStyle(ind).backgroundColor;
+  return getComputedStyle(scope.querySelector<HTMLElement>('[data-slot="tabs-tab"][aria-selected="true"]')!).backgroundColor;
+}
+const frames = (n = 2) =>
+  new Promise<void>((resolve) => {
+    const step = (left: number) => (left ? requestAnimationFrame(() => step(left - 1)) : resolve());
+    step(n);
+  });
+function tokenMs(name: string) {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return raw.endsWith("ms") ? Number.parseFloat(raw) : Number.parseFloat(raw) * 1000;
+}
+function tokenPx(name: string) {
+  const probe = document.createElement("div");
+  probe.style.width = `var(${name})`;
+  document.body.appendChild(probe);
+  const px = probe.getBoundingClientRect().width;
+  probe.remove();
+  return px;
+}
+/** Each transition `el` starts, captured at transitionrun, with its first keyframe. */
+function recordRuns(el: () => Element | null) {
+  const seen = new Map<string, { from: Record<string, unknown>; duration: number; easing: string }>();
+  const on = (event: TransitionEvent) => {
+    const target = el();
+    if (!target || event.target !== target) return;
+    for (const a of target.getAnimations()) {
+      const property = (a as CSSTransition).transitionProperty;
+      const effect = a.effect as KeyframeEffect;
+      // A CSS transition's curve lives on the effect's timing; its keyframes are linear.
+      seen.set(property, { from: effect.getKeyframes()[0] as Record<string, unknown>, duration: Number(effect.getTiming().duration), easing: String(effect.getTiming().easing) });
+    }
+  };
+  document.addEventListener("transitionrun", on, true);
+  return { seen, stop: () => document.removeEventListener("transitionrun", on, true) };
+}
+
+/** Each transition running on `el`: its property, first keyframe value and duration. */
+function starts(el: Element) {
+  return new Map(
+    el.getAnimations().map((a) => {
+      const property = (a as CSSTransition).transitionProperty;
+      const effect = a.effect as KeyframeEffect;
+      const key = property.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+      return [property, { from: String((effect.getKeyframes()[0] as Record<string, unknown>)[key]), duration: Number(effect.getTiming().duration) }];
+    }),
+  );
+}
+
 async function settled(el: Element) {
   await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
 }
@@ -177,7 +234,10 @@ describe("Tabs paint the designed strip", () => {
     mount(<Basic />);
     const [first, second] = tabs();
     await settled(first!);
-    expect(getComputedStyle(first!).backgroundColor).toBe("rgb(237, 232, 227)");
+    await frames();
+    // The fill is the indicator's now (ADR 0030 study, Tabs motion sheet);
+    // the RELATIONSHIP is unchanged: the selected tab reads filled.
+    expect(selectedFill()).toBe("rgb(237, 232, 227)");
     expect(getComputedStyle(first!).color).toBe("rgb(29, 27, 25)");
     // Unselected tabs are transparent so the list's own surface shows through.
     expect(getComputedStyle(second!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
@@ -270,7 +330,8 @@ describe("The selected tab reads as selected in BOTH schemes", () => {
     const [selected, unselected] = Array.from(c.querySelectorAll<HTMLElement>('[data-slot="tabs-tab"]'));
 
     const track = getComputedStyle(list).backgroundColor;
-    const fill = getComputedStyle(selected!).backgroundColor;
+    const fill = selectedFill(c);
+    void selected;
     // The selected tab must not paint the track's own colour, and the
     // unselected one must not paint anything. `bg-sunken` failed the first of
     // these by a hair in dark on the old mid-grey ramp — 1.10:1, close enough
@@ -341,5 +402,112 @@ describe("Brand geometry retains density", () => {
     expect(Math.abs(parseFloat(inner.borderTopLeftRadius) - Math.max(0, parseFloat(outer.borderTopLeftRadius) - inset))).toBeLessThanOrEqual(0.5);
     expect(outer.paddingTop).toBe("3px");
     expect(list.getBoundingClientRect().height).toBe(32);
+  });
+});
+
+describe("Choosing a tab moves something (Tabs motion sheet)", () => {
+  test("the selected fill is one indicator; at Full the tabs stop painting their own", async () => {
+    mount(<Basic />);
+    await frames();
+    // The tab's own fill hands over to the indicator once it is shown, in
+    // the same place and the same colour — so nothing visibly changes.
+    await settled(tabs()[0]!);
+    const ind = indicator()!;
+    expect(ind, "one indicator per list").not.toBeNull();
+    expect(ind.parentElement!.getAttribute("data-slot")).toBe("tabs-list");
+    expect(getComputedStyle(ind).display).not.toBe("none");
+    expect(getComputedStyle(ind).backgroundColor).toBe("rgb(237, 232, 227)");
+    // Two fills would cross-fade under one sliding pill.
+    expect(getComputedStyle(tabs()[0]!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    // It sits exactly on the selected tab.
+    const a = ind.getBoundingClientRect();
+    const b = tabs()[0]!.getBoundingClientRect();
+    expect([a.left, a.top, a.width, a.height].map(Math.round)).toEqual([b.left, b.top, b.width, b.height].map(Math.round));
+  });
+
+  test("its first placement does not animate", async () => {
+    mount(<Basic />);
+    const runs = recordRuns(() => indicator());
+    await frames(4);
+    runs.stop();
+    expect([...runs.seen.keys()]).toEqual([]);
+  });
+
+  test("choosing another tab slides it there on --ui-duration-base with --ui-ease-out, from where it was", async () => {
+    mount(<Basic />);
+    await frames();
+    const from = indicator()!.getBoundingClientRect().left;
+    const runs = recordRuns(() => indicator());
+    await userEvent.click(tabs()[2]!);
+    await frames(2);
+    runs.stop();
+    const slide = runs.seen.get("translate");
+    expect(slide, "the indicator travels rather than reappearing").toBeDefined();
+    expect(slide!.duration).toBe(tokenMs("--ui-duration-base"));
+    expect(slide!.easing).toBe(getComputedStyle(document.documentElement).getPropertyValue("--ui-ease-out").trim());
+    await settled(indicator()!);
+    const end = indicator()!.getBoundingClientRect();
+    const target = tabs()[2]!.getBoundingClientRect();
+    expect(Math.round(end.left)).toBe(Math.round(target.left));
+    expect(Math.round(end.width)).toBe(Math.round(target.width));
+    expect(Math.round(end.left)).not.toBe(Math.round(from));
+  });
+
+  test("at Reduced the indicator steps aside and the selected tab paints its own fill", async () => {
+    document.documentElement.setAttribute("data-ui-motion", "reduced");
+    try {
+      mount(<Basic />);
+      await frames();
+      expect(getComputedStyle(indicator()!).display).toBe("none");
+      expect(getComputedStyle(tabs()[0]!).backgroundColor).toBe("rgb(237, 232, 227)");
+      await userEvent.click(tabs()[1]!);
+      await settled(tabs()[1]!);
+      expect(getComputedStyle(tabs()[1]!).backgroundColor).toBe("rgb(237, 232, 227)");
+      expect(getComputedStyle(tabs()[0]!).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    } finally {
+      document.documentElement.removeAttribute("data-ui-motion");
+    }
+  });
+
+  test("the first panel is simply there: nothing animates on load", async () => {
+    mount(<Basic />);
+    const runs = recordRuns(() => panels()[0] ?? null);
+    await frames(4);
+    runs.stop();
+    expect([...runs.seen.keys()]).toEqual([]);
+  });
+
+  test("a panel enters from the side of the tab picked, by --ui-space-sm, fading in on base", async () => {
+    mount(<Basic />);
+    await frames();
+    const step = tokenPx("--ui-space-sm");
+    const panel = (text: string) => panels().find((p) => p.textContent === text)!;
+    /** The transitions the panel starts, read straight after the change. */
+    const entrance = (el: HTMLElement) => starts(el);
+
+    await userEvent.click(tabs()[2]!);
+    let run = entrance(panel("Advanced panel"));
+    expect(run.get("translate")?.from).toBe(`${step}px`);
+    expect(run.get("opacity")?.from).toBe("0");
+    expect(run.get("opacity")?.duration).toBe(tokenMs("--ui-duration-base"));
+    await settled(panel("Advanced panel"));
+
+    await userEvent.click(tabs()[0]!);
+    run = entrance(panel("Links panel"));
+    expect(run.get("translate")?.from).toBe(`-${step}px`);
+  });
+
+  test("at Reduced a panel only fades: no travel", async () => {
+    document.documentElement.setAttribute("data-ui-motion", "reduced");
+    try {
+      mount(<Basic />);
+      await frames();
+      await userEvent.click(tabs()[1]!);
+      const run = starts(panels().find((p) => p.textContent === "Appearance panel")!);
+      expect(run.get("opacity")?.from).toBe("0");
+      expect(run.get("translate")?.from ?? "none").toMatch(/^(none|0px)$/);
+    } finally {
+      document.documentElement.removeAttribute("data-ui-motion");
+    }
   });
 });

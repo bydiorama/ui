@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schemas/ledger.entry.schema.json",
+  "id": "2026-11-27-choosing-a-tab-moves-something-raised",
+  "date": "2026-11-27",
+  "item": "tabs",
+  "kind": "visual",
+  "summary": "Choosing a tab moves something. Raised by the maintainer ('the tabs only fade, and their change should rather indicate movement'); designed on the Tabs motion sheet first. One indicator per list (Base UI's Tabs.Indicator, placed from its --active-tab-* variables) carries the selected fill and slides to the new tab on --ui-duration-base with --ui-ease-out; its first placement never animates. While it is shown the tabs stop painting their own fill (a --tabs-selected-fill variable, so no class fights another); only the ink changes. A new panel enters --ui-space-sm x --ui-motion-travel from the side of the tab picked and fades in; the first panel on load does not animate. No blur (decided). At Reduced the indicator steps aside and each tab paints its own fill again; panels only fade. Static HTML is unchanged: before hydration the indicator is hidden and the tab paints its fill as before. Tests shown failing first; the panel tests were shown failing again with the entrance classes removed.",
+  "affects": []
+}

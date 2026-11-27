@@ -88,7 +88,10 @@ function TabsRoot({
 
 export type TabsListProps = HTMLAttributes<HTMLDivElement> & OwnedSlot;
 
-function TabsList({ className, ...rest }: TabsListProps) {
+/** The enclosed tab's radius: the track's, minus its 3px inset and its stroke. */
+const ENCLOSED_RADIUS = "rounded-[max(0px,calc(var(--ui-radius-md)-3px-var(--ui-stroke-hairline)))]";
+
+function TabsList({ className, children, ...rest }: TabsListProps) {
   const { orientation, variant } = useContext(TabsShape);
   return (
     <BaseTabs.List
@@ -97,7 +100,15 @@ function TabsList({ className, ...rest }: TabsListProps) {
       data-orientation={orientation}
       data-variant={variant}
       className={cn(
-        "flex gap-xs rounded-md",
+        "relative flex gap-xs rounded-md",
+        // The selected fill, read by every tab through a variable rather than
+        // painted by a competing class. At Full, once the indicator is shown,
+        // the tabs stop painting it: one fill slides instead of two
+        // cross-fading. At Reduced and Off — and before the layout settles,
+        // while Base UI keeps the indicator `hidden` (so static HTML is still
+        // right) — each tab paints its own, as Tabs always did.
+        "[--tabs-selected-fill:var(--ui-bg-selected)]",
+        "motion-safe:has-[>[data-slot=tabs-indicator]:not([hidden])]:[--tabs-selected-fill:transparent]",
         // The inset is 3px, and it is the ONLY thing between the track's edge
         // and a tab's fill — which is why there is no height here.
         //
@@ -123,7 +134,27 @@ function TabsList({ className, ...rest }: TabsListProps) {
         variant === "ghost" && "w-fit",
         className,
       )}
-    />
+    >
+      {/* One indicator per list (Tabs motion sheet). Base UI writes the
+          selected tab's box as --active-tab-* and keeps it `hidden` until the
+          layout is measured, then shows it already in place — so its first
+          placement never animates; only a change does. */}
+      <BaseTabs.Indicator
+        data-slot="tabs-indicator"
+        className={cn(
+          "absolute top-0 left-0 bg-selected",
+          "h-(--active-tab-height) w-(--active-tab-width)",
+          "translate-x-(--active-tab-left) translate-y-(--active-tab-top)",
+          // A move settles without overshoot: a rounded pill that passes its
+          // target dips its corners and reads as a wobble.
+          "transition-[translate,width,height] duration-(--ui-duration-base) ease-(--ui-ease-out)",
+          variant === "enclosed" ? ENCLOSED_RADIUS : "rounded-md",
+          // At Reduced the indicator steps aside; the tabs paint their own.
+          "motion-reduce:hidden",
+        )}
+      />
+      {children}
+    </BaseTabs.List>
   );
 }
 
@@ -145,13 +176,15 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
       data-slot="tabs-tab"
       data-variant={variant}
       className={cn(
-        "flex min-h-6 items-center gap-xs px-sm py-xs",
+        // `relative` puts the label above the indicator, which is absolute
+        // and earlier in the list.
+        "relative flex min-h-6 items-center gap-xs px-sm py-xs",
         "text-button-sm font-body whitespace-nowrap",
         "transition-[background-color,color]", motionMicro,
         "text-ink-muted",
         // Enclosed divides the track evenly and centres each label; ghost sizes
         // to its content and sits left, because there is no track to divide.
-        variant === "enclosed" ? "flex-1 rounded-[max(0px,calc(var(--ui-radius-md)-3px-var(--ui-stroke-hairline)))]" : "rounded-md",
+        variant === "enclosed" ? cn("flex-1", ENCLOSED_RADIUS) : "rounded-md",
         orientation === "horizontal" ? "justify-center" : "self-stretch",
         // `bg-selected`, not `bg-sunken`. The sheet draws the selected tab
         // DARKER than its track, and "recessed" is a relative role: below the
@@ -161,7 +194,7 @@ function TabsTab({ value, children, count, isDisabled = false, className, ...res
         // whichever direction the scheme reads — 1.19 in light, unchanged from
         // the drawing, and 1.19 in dark on the 2026-11-03 warm-ink ramp (1.68
         // on the old mid-grey one, where bg-sunken measured 1.10).
-        "aria-selected:bg-selected aria-selected:text-ink-primary",
+        "aria-selected:bg-(--tabs-selected-fill) aria-selected:text-ink-primary",
         !isDisabled && "cursor-pointer not-aria-selected:hover:text-ink-secondary",
         // `aria-disabled:`, NOT `disabled:`. Base UI's Tab renders
         // `aria-disabled="true"` and `data-disabled` and never sets the native
@@ -223,7 +256,19 @@ function TabsPanel({ value, isAlwaysMounted = false, className, ...rest }: TabsP
       value={value}
       keepMounted={isAlwaysMounted}
       data-slot="tabs-panel"
-      className={cn("focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none", className)}
+      className={cn(
+        // The panel arrives from the side of the tab picked
+        // (data-activation-direction), --ui-space-sm × --ui-motion-travel,
+        // fading in on the same clock. `none` is the first render: a page
+        // never opens with its panel sliding in. No blur (decided). The old
+        // panel leaves at once, so two never share the frame.
+        "transition-[opacity,translate] duration-(--ui-duration-base) ease-(--ui-ease-out)",
+        "not-data-[activation-direction=none]:starting:opacity-0",
+        "data-[activation-direction=right]:starting:translate-x-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "data-[activation-direction=left]:starting:-translate-x-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "data-[activation-direction=down]:starting:translate-y-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "data-[activation-direction=up]:starting:-translate-y-[calc(var(--ui-space-sm)*var(--ui-motion-travel))]",
+        "focus-visible:shadow-(--ui-focus-ring) focus-visible:forced-colors:outline focus-visible:forced-colors:outline-focus focus-visible:outline-none", className)}
     />
   );
 }

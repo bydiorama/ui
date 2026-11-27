@@ -88,7 +88,7 @@ Tabs                     value? / defaultValue? / onValueChange?
   ],
 
   motion:
-    "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
+    "Choosing a tab moves something (the Tabs motion sheet). One indicator per list carries the selected fill and slides to the new tab — translate and width on --ui-duration-base with --ui-ease-out, no overshoot — placed from Base UI's --active-tab-* variables, so there is no measuring of ours. Its first placement never animates: Base UI keeps it hidden until the layout is measured and then shows it in place. While it is shown the tabs stop painting their own fill; only their ink changes, at --ui-duration-fast. The new panel enters --ui-space-sm × --ui-motion-travel from the side of the tab picked (data-activation-direction) and fades in on base; the first panel on load is simply there, and the old panel leaves at once. No blur. At Reduced the indicator steps aside and each tab paints its own fill again, crossing on fast, and panels only fade; at Off both are instant. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
 
   // LHB-0, not D7G-0 — that is the Text Area artboard, and this link had been
   // pointing at it. Its geometry is extracted node-by-node into

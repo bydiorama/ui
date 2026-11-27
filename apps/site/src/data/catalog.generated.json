@@ -1,5 +1,5 @@
 {
-  "sourceHash": "596ac8641826d839d629cf0fc5e3fa1fc4c3ccd3eb898a996e1b900fcdedd1d0",
+  "sourceHash": "987b747126282a7b1eb77c4b2ed6c5eda94da85e9499895dfea9fed4ade9223b",
   "categories": [
     "Actions",
     "Forms",
@@ -28455,7 +28455,7 @@
           "The sheet gives the count only to the selected tab; the component allows it on any, which is the more useful behaviour but is not what is drawn.",
           "No Base UI Indicator (the sliding highlight); the sheet fills the selected tab instead."
         ],
-        "motion": "Triggers transition `background-color` and `color` at --ui-duration-fast with --ui-ease-out. There is no travelling indicator: the active tab is marked by its fill, so nothing slides between tabs, and a panel change is instant rather than a cross-fade. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
+        "motion": "Choosing a tab moves something (the Tabs motion sheet). One indicator per list carries the selected fill and slides to the new tab — translate and width on --ui-duration-base with --ui-ease-out, no overshoot — placed from Base UI's --active-tab-* variables, so there is no measuring of ours. Its first placement never animates: Base UI keeps it hidden until the layout is measured and then shows it in place. While it is shown the tabs stop painting their own fill; only their ink changes, at --ui-duration-fast. The new panel enters --ui-space-sm × --ui-motion-travel from the side of the tab picked (data-activation-direction) and fades in on base; the first panel on load is simply there, and the old panel leaves at once. No blur. At Reduced the indicator steps aside and each tab paints its own fill again, crossing on fast, and panels only fade; at Off both are instant. A count that changes moves only its changed digits through Count (ADR 0028) — the new digit rises in on --ui-duration-base as the old fades — and its text stays the plain number.",
         "design": "https://app.paper.design/file/01KZ39A2BC286MT85M658NRR4R/4-0/LHB-0"
       },
       "files": [
@@ -28523,6 +28523,15 @@
             "item:tabs",
             "item:count"
           ]
+        },
+        {
+          "$schema": "../../schemas/ledger.entry.schema.json",
+          "id": "2026-11-27-choosing-a-tab-moves-something-raised",
+          "date": "2026-11-27",
+          "item": "tabs",
+          "kind": "visual",
+          "summary": "Choosing a tab moves something. Raised by the maintainer ('the tabs only fade, and their change should rather indicate movement'); designed on the Tabs motion sheet first. One indicator per list (Base UI's Tabs.Indicator, placed from its --active-tab-* variables) carries the selected fill and slides to the new tab on --ui-duration-base with --ui-ease-out; its first placement never animates. While it is shown the tabs stop painting their own fill (a --tabs-selected-fill variable, so no class fights another); only the ink changes. A new panel enters --ui-space-sm x --ui-motion-travel from the side of the tab picked and fades in; the first panel on load does not animate. No blur (decided). At Reduced the indicator steps aside and each tab paints its own fill again; panels only fade. Static HTML is unchanged: before hydration the indicator is hidden and the tab paints its fill as before. Tests shown failing first; the panel tests were shown failing again with the entrance classes removed.",
+          "affects": []
         },
         {
           "$schema": "../../schemas/ledger.entry.schema.json",
